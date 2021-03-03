@@ -1,0 +1,35 @@
+@import "./constants";
+
+//slide in panel
+$rightPanelWidth: 500px;
+
+.slide-in-panel {
+    z-index: 1030;
+    width: $rightPanelWidth;
+    height: 100vh;
+    background-color: color("almost-white");
+    margin-right: -$rightPanelWidth;
+    position: fixed;
+    top: 0;
+    right: 0;
+    color: color("shark");
+    transition: all 250ms ease-out;
+    @include globalShadow;
+    border-left: 1px solid color("silver");
+    overflow-y: auto;
+    padding-bottom: 80px;
+
+    .right-panel-header {
+        // @include background-opacity(color("silver"), .3);
+        background-color: color("hlBlue");
+        border-bottom: 1px solid color("silver");
+
+        button.btn.btn-icon-solo:hover {
+            @include background-opacity(color("info"), 0.6);
+        }
+    }
+}
+
+.slide-in-panel.open {
+    margin-right: 0;
+}

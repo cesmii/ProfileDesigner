@@ -1,0 +1,13 @@
+@import "./constants";
+
+#--cesmii-navbar {
+    height: $navbarHeight;
+    padding-left: 32px;
+
+    color: white;
+    background-color: color("cornflower");
+
+    border-bottom: 1px solid color("blue-8");
+
+    align-items: center;
+}

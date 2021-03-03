@@ -1,0 +1,34 @@
+li.sidemenu-item {    
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    color: color("thunder");
+    text-decoration: none;
+    
+    height: 80px;
+
+    padding-left: 12px;
+    padding-right: 8px;
+    border-left: 4px solid;
+    border-left-color: color("almost-white");
+    background-color: color("almost-white");
+    transition: all 200ms linear;
+
+    &:hover {
+        cursor: pointer;
+        background-color: color("alabaster");
+        border-left-color: color("green");
+    }
+
+    .sidemenu-item-link {
+        display: flex;
+        align-items: center;
+    }
+
+    @media (max-width: 991px) {
+        div.action-menu {
+            visibility: hidden;
+        }
+    }
+}

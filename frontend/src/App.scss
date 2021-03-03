@@ -1,0 +1,415 @@
+
+/// ::::::::::::::::::::
+/// BOOTSTRAP
+@import "../node_modules/bootstrap/scss/functions";
+@import "../node_modules/bootstrap/scss/variables";
+
+/// ::::::::::::::::::::
+/// Shared Files & Constants
+@import "./components/styles/constants";
+@import "./components/styles/spinner";
+
+
+/// ::::::::::::::::::::
+/// FONTS
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap');
+
+
+$font-family-sans-serif:
+// Safari for macOS and iOS (San Francisco)
+-apple-system,
+// Chrome < 56 for macOS (San Francisco)
+BlinkMacSystemFont,
+// Windows
+"Segoe UI",
+// Android
+Roboto,
+// Basic web fallback
+"Helvetica Neue", Arial,
+// Linux
+"Noto Sans",
+// Sans serif fallback
+sans-serif,
+// Emoji fonts
+"Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !default;
+
+$font-family-base: "Open Sans", sans-serif;
+$enable-responsive-font-sizes: "true";
+
+
+
+
+/// import Bootstrap SASS
+@import "~bootstrap/scss/bootstrap";
+
+
+/// Content wrapper
+#--cesmii-content-wrapper {
+    display: flex;
+    background-color: color("alabaster");
+    // flex: 0 0 100%;
+    margin: 0;
+    padding: 0;
+    // force the footer to the bottom of the screen on screens with less content.
+    // It is header nav 80px, footer 80px , + 1px to clean up a little white line below footer
+    //min-height: calc(100vh - 272px);
+    min-height: calc(100vh - #{$navbarHeight} - #{$footerHeight} + 1px);
+}
+
+
+/// Layout helpers
+.horizontal-block {
+    display: flex;
+    flex-direction: row;
+}
+
+.label-left {
+    margin-right: 8px;
+}
+
+
+/// ::::::::::::::::::::::::
+/// Custom global components
+
+// cursors
+.cursor-pointer:hover {
+    cursor: pointer;
+}
+
+// font styles
+.h3-size {
+    display: block;
+    margin-bottom: 8px;
+}
+
+.attr-tab-header {
+    font-size: 20px;
+    font-weight: bold;
+    // white-space:nowrap;
+}
+
+.body-size {
+    font-size: 1rem;
+    line-height: 1.813rem;
+}
+
+.small-size {
+    font-size: .813rem;
+    line-height: 1.923rem;
+}
+
+.form-label {
+    font-size: .813rem;
+    line-height: 1.923rem;
+}
+
+// input fields
+.input-with-prepend {
+    border-left: none;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+
+    &:focus {
+        box-shadow: none;
+        border-color: #ced4da;
+    }
+}
+
+.input-with-append {
+    border-right: none;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+
+    &:focus {
+        box-shadow: none;
+        border-color: #ced4da;
+    }
+}
+
+.input-prepend {
+    background-color: white;
+    border-right: none !important;
+    max-height: 48px;
+}
+
+.input-append {
+    background-color: white;
+    border-left: none !important;
+    max-height: 48px;
+}
+
+.input-prepend.readonly,
+.input-append.readonly {
+    background-color: #e9ecef;
+}
+
+.input-append.fav:hover {
+    cursor: pointer;
+}
+
+
+// dropdown menus
+div.dropdown-menu {
+    @include globalShadow;
+}
+
+.dropdown-menu > a:hover {
+    background-color: color("alabaster");
+}
+
+.dropdown-menu > a:active {
+    background-color: color("cornflower");
+}
+
+// a.dropdown-item:hover {
+//     color: color("shark");
+// }
+
+
+// select boxes
+select,
+option.selected {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+
+// button variants
+.btn-text-solo {
+    background-color: transparent;
+    color: color("oslo-gray");
+    max-height: 48px;
+    min-width: 128px;
+}
+
+.btn-secondary {
+    color: white;
+    max-height: 48px;
+    min-width: 128px;
+}
+
+.btn-fab {
+    width: 56px;
+    height: 56px;
+    max-width: 56px;
+    max-height: 56px;
+    color: color("white");
+    background-color: color("citron");
+    border-radius: 50%;
+    &:hover {
+        background-color: #83951c;
+    }
+}
+
+.btn-icon-solo {
+    display: flex;
+    align-content: center;
+    justify-content: center;
+    max-height: 38px !important;
+    height: 38px !important;
+    width: 38px !important;
+    padding: 0;
+    font-size: 24px !important;
+    background-color: transparent;
+    color: color("shark");
+}
+
+.btn-icon-outline {
+    font-size: 24px;
+    background-color: color("white");
+    color: color("shark");
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+}
+
+.btn-search {
+    font-size: 24px;
+    background-color: color("white") !important;
+    color: color("shark");
+    border: 1px solid #ced4da;
+    // border-left: none;
+    border-radius: 0.25rem;
+}
+
+.btn-inline-add {
+    background-color: color("white");
+    color: color("shark");
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+    max-width: 48px;
+    max-height: 48px;
+}
+
+//small button, no border - see profile explorer
+.btn-accordion {
+    background-color: transparent;
+    color: color("shark");
+
+    &:focus {
+        box-shadow: none;
+    }
+
+    &.expanded, &.open:hover {
+        background-color: color("cararra");
+    }
+}
+
+button.btn.btn-inline-add:hover,
+button.btn.btn-icon-solo:hover,
+button.btn.btn-text-solo:hover,
+button.btn.btn-icon-outline:hover,
+button.btn.btn-toggle:hover {
+    background-color: color("cararra");
+}
+
+.btn-square, 
+.btn.square {
+    display: flex;
+    align-content: center;
+    justify-content: center;
+    max-height: 38px;
+    width: 38px;
+}
+
+.btn-square.favorite:focus {box-shadow:none;}
+.btn-square.favorite svg.selected {
+    color: color("citron");
+    fill: color("citron");
+}
+
+// Search
+.global-search {
+    width: 500px;
+}
+
+.quick-search {
+    //max-width: 320px;
+}
+
+
+
+// Select box
+select {
+    appearance: none;
+    cursor: pointer;
+}
+select.minimal {
+    background-image:
+      linear-gradient(45deg, transparent 50%, gray 50%),
+      linear-gradient(135deg, gray 50%, transparent 50%),
+      linear-gradient(to right, #ccc, #ccc);
+    background-position:
+      calc(100% - 20px) calc(1em + 2px),
+      calc(100% - 15px) calc(1em + 2px),
+      calc(100% - 2.5em) 0.5em;
+    background-size:
+      5px 5px,
+      5px 5px,
+      1px 1.5em;
+    background-repeat: no-repeat;
+}
+  
+select.minimal:focus {
+    background-image:
+      linear-gradient(45deg, green 50%, transparent 50%),
+      linear-gradient(135deg, transparent 50%, green 50%),
+      linear-gradient(to right, #ccc, #ccc);
+    background-position:
+      calc(100% - 15px) 1em,
+      calc(100% - 20px) 1em,
+      calc(100% - 2.5em) 0.5em;
+    background-size:
+      5px 5px,
+      5px 5px,
+      1px 1.5em;
+    background-repeat: no-repeat;
+    border-color: green;
+    outline: 0;
+}
+
+// Cards
+.card {
+    margin-bottom: 32px;
+
+    tr {
+        td:first-child {
+            padding-left: 16px;
+        }
+        td:last-child {
+            padding-right: 16px;
+        }
+    }
+}
+
+.elevated {
+    @include globalShadow;
+}
+
+// Tables
+.table-hover tbody tr:hover {
+    @include background-opacity(color("info"), 0.3);
+
+    button.btn.btn-icon-solo:hover {
+        @include background-opacity(color("info"), 0.6);
+    }
+}
+
+// form validation
+.invalid-field {
+    padding-right: calc(1.5em + .75rem);
+    //background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%23dc3545' viewBox='0 0 12 12'%3E%3Ccircle cx='6' cy='6' r='4.5'/%3E%3Cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3E%3Ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right calc(.375em + .1875rem) center;
+    background-size: calc(.75em + .375rem) calc(.75em + .375rem);
+    border-color: #dc3545 !important;
+}
+
+.invalid-group .input-prepend,
+.invalid-group .input-append {
+    border: 1px solid #dc3545;
+}
+
+.invalid-field-message {
+    display: block;
+    width: 100%;
+    margin-top: .25rem;
+    font-size: 80%;
+    color: #dc3545;
+}
+
+.invalid-field-message.inline {
+    display: inline-block;
+    width: auto;
+    margin-left: 0.5rem;
+}
+
+// Alerts
+.alert-info-custom {
+    background-color: color("hlBlue");
+}
+
+
+
+/// IMPORT PARTIALS
+@import "./components/styles/HexOpacityValues";
+
+
+/// IMPORT GLOBAL SCSS FILES
+@import "./components/styles/Fab.scss";
+@import "./components/styles/SideMenu.scss";
+@import "./components/styles/SideMenuItem.scss";
+@import "./components/styles/MainContent.scss";
+@import "./components/styles/RightPanel.scss";
+@import "./components/styles/LeftContent.scss";
+@import "./components/styles/HeaderNav.scss";
+@import "./components/styles/FlexGridShared.scss";
+@import "./components/styles/GridPager.scss";
+@import "./components/styles/ActionMenu.scss";
+@import './components/styles/Loading.scss';
+
+/// VIEW SCSS FILES
+@import "./views/styles/ProfileList.scss";
+@import "./views/styles/ProfileEntity.scss";
+@import "./views/styles/LoginScreen.scss";
+@import "./views/styles/Home.scss";

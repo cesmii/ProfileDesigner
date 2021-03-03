@@ -1,0 +1,120 @@
+#--cesmii-header-nav {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-evenly;
+    width: calc(100vw - #{$sideMenuWidthCollapsed} - 32px);
+    @media (min-width: 992px) {
+        width: calc(100vw - #{$sideMenuWidthOpen} - 32px);
+    }
+
+    padding: 32px 0 0 32px;
+    color: color("shark");
+    background-color: color("alabaster");
+    // border: 1px solid red;
+}
+
+.header-content-wrapper {
+    flex-grow: 10;
+    align-self: flex-end;
+    height: 100%;
+    padding-right: 32px;
+    // Will need this border for "Attributes" screens
+    // border-bottom: 1px solid color("alto");
+    .header-title-row {
+        display: flex;
+        align-items: flex-start;
+        justify-content: flex-end;
+        // justify-content: space-between;
+        //sc - conserve real estate
+        //height: 73px;
+        //margin-bottom: 32px;
+        margin-bottom: 12px;
+
+        // border: 1px solid blue;
+        .header-title-block {
+            display: flex;
+            align-items: center;
+            flex-grow: 1;
+
+            .title-icon {
+                margin-right: 16px;
+            }
+
+            .h1 {
+                color: color("shark");
+                margin: 0;
+            }
+        }
+
+        .header-search-block {
+            display: flex;
+            align-items: center;
+
+            .action-menu button {
+                width: 38px;
+                height: 38px;
+            }
+
+            // .btn-secondary {
+            //     color: color("white");
+            // }
+
+            .btn-text-solo {
+                margin-right: 16px;
+            }
+
+            input.form-control {
+                border-right: none;
+            }
+
+            .input-group-append .input-group-text {
+                background-color: color("white");
+                margin-right: 16px;
+            }
+        }
+    }
+
+    .header-search:hover {
+        cursor: pointer;
+    }
+
+    .horizontal-block {
+        flex: 0 1 45%;
+        justify-content: space-between;
+    }
+}
+
+.title-icon {
+    width: calc(1rem + 1vw + 1vh);
+    height: auto;
+    min-width: 40px;
+    max-width: 56px;
+    min-height: 40px;
+    max-height: 56px;
+}
+
+//move outside header wrapper so it can be added independently of header
+.header-actions-row {
+    display: flex;
+    flex-direction: row;
+    align-content: flex-end;
+    justify-content: flex-end;
+    height: 88px;
+    padding-right: 32px;
+
+    #--import-fab {
+
+        button.fab {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        &:hover {
+            .btn-fab {
+                background-color: #83951c;
+            }
+        }
+    }
+}

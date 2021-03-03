@@ -1,0 +1,49 @@
+.pagination-wrapper {
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-end;
+    color: color("shark");
+    margin-top: 56px;
+
+    ul.pagination {
+        margin-bottom: 0;
+
+        li,
+        a.page-link,
+        .page-item.active .page-link {
+            height: 40px;
+            width: 42px;
+            margin-left: -1px;
+            text-align: center;
+            border-color: color("silver");
+        }
+
+        a {
+            color: color("shark");
+        }
+
+        .page-item.active .page-link {
+            color: color("shark");
+            background-color: color("alto");
+        }
+    }
+
+    .pagination-dropdown {
+        .dropdown-toggle,
+        .dropdown-toggle:hover,
+        .dropdown-toggle:active,
+        .dropdown-toggle:visited,
+        .btn-secondary:not(:disabled):not(.disabled):active,
+        .btn-secondary:not(:disabled):not(.disabled).active,
+        .show>.btn-secondary.dropdown-toggle,
+        .btn-secondary:focus,
+        .btn-secondary.focus {
+            height: 40px;
+            padding: 8px 16px;
+        
+            color: color("shark");
+            background-color: color("white");
+            border: 1px solid color("silver");
+        }
+    }
+}

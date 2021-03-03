@@ -1,0 +1,98 @@
+
+$theme-colors: (
+    "primary": #4084EF,
+    "secondary":  #9FB522
+);
+
+//When we call color from a component, remove dashes in the calling code.
+$colors: (
+    "cornflower": #4084EF,
+    "thunder": #23201F,
+    "cerulean": #00AEEF,
+    "apple": #6AA342,
+    "citron": #9FB522,
+    "blazeOrange": #FF6404,
+    "trinidad": #E22C09,
+    "almost-white": #FDFDFD,
+    "alabaster": #F7F7F7,
+    "cararra": #E7E6E2,
+    "alto": #DADADA,
+    "silver": #CCCCCC,
+    "platinum": #e7e4e4,
+    "shark": #1F262A,
+    "outerSpace": #2A3439,
+    "nevada": #5B676D,
+    "osloGray": #848689,
+    "spunPearl": #AAA9AD,
+    "cardinal": #D2222D,
+    "amber": #FFBF00,
+    "forestGreen": #238823,
+    "japaneseLaurel": #007000,
+    "sauvignon": #FFF6F4,
+    "camarone": #006127,
+    "hintOfGreen": #FAFFFC,
+    "peppermint": #DEF2D5,
+    "tomThumb": #485C3F,
+    "blue8": #0AB4FF,
+    "info": #d1ecf1,
+    "white": #ffffff,
+    "hlBlue": #E5F6FD,
+    "hlTan": #fdf7e5,
+    "gris": #394347,
+    "transparent": #FDFDFD00
+);
+
+
+
+/// Global CESMII variables
+$grid-gutter-width: 24px;
+$navbarHeight: 80px;
+$footerHeight: 80px;
+$headerNavHeight: 238px;
+// $sideMenuWidthOpen: 282px;
+$sideMenuWidthOpen: 344px;
+$sideMenuWidthCollapsed: 82px;
+$rightPanelWidth: 350px;
+$globalTransition: all 200ms ease-in-out;
+
+@mixin globalShadow {
+    -webkit-box-shadow: 10px 10px 20px 0px rgba(0,0,0,0.15);
+    -moz-box-shadow: 10px 10px 20px 0px rgba(0,0,0,0.15);
+    box-shadow: 10px 10px 20px 0px rgba(0,0,0,0.15);
+}
+
+/// Function retrieves color value from colors map
+@function color($key) {
+    @return map-get($colors, $key);
+}
+
+// Mixin for adding opacity to background colors
+@mixin background-opacity($color, $opacity: 0.3) {
+    background: $color !important; /* The Fallback */
+    background: rgba($color, $opacity) !important;
+}
+
+// Global transition
+@mixin global-transition {
+    transition: all 200ms ease-in-out;
+}
+
+
+// special color classes
+.hl-blue {
+    background-color: #E5F6FD;
+}
+
+.bg-light-trans {
+    @include background-opacity(color("silver"), .1);
+}
+
+.avatar-locked {
+    @include background-opacity(color("silver"), .2);
+    border: 2px solid color("white");
+}
+
+.avatar-unlocked {
+    @include background-opacity(color("cornflower"), .2);
+    border: 2px solid color("white");
+}

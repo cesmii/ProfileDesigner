@@ -1,0 +1,15 @@
+.search-criteria {
+
+    .row {
+        padding: 2%;
+        border-bottom:none;
+
+        @media only screen and (min-width: 576px) {
+            padding: 12px;
+        }
+
+        @media (min-width: 992px) {
+            padding: 24px;
+        }
+    }
+}

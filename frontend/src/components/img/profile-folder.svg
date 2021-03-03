@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>C576BE81-47D4-4C37-87B8-8DBD2DCCA07D</title>
+    <g id="Symbols" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Icons/File/Profile-Folder">
+            <g id="bounding-box">
+                <polygon id="shape" points="0 0 24 0 24 24 0 24"></polygon>
+            </g>
+            <path d="M10,4 L12,6 L20,6 C21.1,6 22,6.9 22,8 L22,18 C22,19.1 21.1,20 20,20 L4,20 C2.9,20 2,19.1 2,18 L2.01,6 C2.01,4.9 2.9,4 4,4 L10,4 Z M19,11.0337361 L14,11.0337361 L14,18 L16.125,18 L17.875,17 L19,17 L19,11.0337361 Z" id="Shape" fill="#1F262A"></path>
+        </g>
+    </g>
+</svg>

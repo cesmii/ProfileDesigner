@@ -1,0 +1,24 @@
+@import "../../components/styles/constants";
+
+.breadcrumbs {
+    padding: 24px 0 0 32px;
+    width: calc(100vw - #{$sideMenuWidthCollapsed});
+
+    @media (min-width: 992px) {
+        //SC - this is not accounting for padding-left
+        width: calc(100vw - #{$sideMenuWidthOpen} - 32px);
+    }
+
+    a {
+        color: color("cornflower");
+        text-decoration: none;
+        padding: 4px 8px;
+        transition: all 200ms ease-in-out;
+
+        &:hover {
+            color: color("shark");
+            text-decoration: none;
+            background-color: color("hlBlue");
+        }
+    }
+}

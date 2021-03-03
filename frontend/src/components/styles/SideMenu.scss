@@ -1,0 +1,22 @@
+#--cesmii-sidemenu-left {
+
+    width: 82px;
+    min-height: calc(100vh - #{$navbarHeight} - #{$footerHeight});
+    padding: 0;
+    background-color: color("almost-white");
+    border-right: 1px solid color("alto");
+
+    @media (min-width: 992px) {
+        width: $sideMenuWidthOpen;
+        min-width: $sideMenuWidthOpen;
+        // width: 250px;
+        // min-width: 250px;
+    }
+
+    ul {
+        text-decoration: none;
+        margin-bottom: 0;
+        padding: 0;
+    }
+    
+}

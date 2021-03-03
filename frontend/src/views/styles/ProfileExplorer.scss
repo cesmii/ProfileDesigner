@@ -1,0 +1,112 @@
+@import "../../components/styles/constants";
+
+.profile-explorer-container {
+    margin: 16px 0 32px 0;
+
+    * {
+        transition: all 200ms ease-in-out;
+    }
+
+    .header-name {
+        margin-bottom: 8px;
+    }
+
+    .quick-search {
+        margin: 0 16px 16px 24px;
+        align-self: stretch;
+    }
+
+    .action-menu {
+        padding-left: 24px;
+
+        .caption {
+            margin-left: 8px;
+        }
+    }
+
+    ul.profile-explorer {
+
+        .root {
+            max-height: 500px;
+            
+            //first level parent items
+            li {
+                display: flex;
+                align-items: center;
+
+                
+            }
+        }
+
+        li {
+            list-style-type: none;
+        }
+
+        li:first-child {
+        }
+
+        li div {
+            padding-top: 4px;
+            padding-bottom: 4px;
+        }
+
+
+        .hierarchy-link,
+        .composition-link {
+            a {
+                color: color("shark");
+                display: inline-flex;
+                width: 100%;
+            }
+
+            .view-affordance-icon {
+                opacity: 0;
+                transform: translateX(-16px);
+            }
+
+            &:hover {
+                .view-affordance-icon {
+                    opacity: 1;
+                    transform: translateX(0px);
+                }
+            }
+        }
+
+        .composition-link {
+            padding-left: 32px;
+        }
+
+        li.current > div {
+            // @include background-opacity(color("hlBlue"), 0.75);
+            background-color: color("hlBlue");
+        }
+
+        li div:hover {
+            cursor: pointer;
+            background-color: color("alabaster");
+
+            a {
+                text-decoration: none;
+            }
+        }
+
+        li.current > div:hover {
+            background-color: color("hlBlue");
+        }
+
+        ul.profile-explorer.children {
+            &.collapsed, &.expanded {
+                display: none;
+            }
+
+            &.expanded {
+                display: block;
+            }
+
+            li:last-child {
+                border-bottom: none;
+                margin-bottom: 16px;
+            }
+        }
+    }
+}

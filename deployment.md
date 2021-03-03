@@ -15,13 +15,13 @@
 <h2>Directories</h2>
 <ul>
 <li>
-	\mock-api - This contains a mock API back end for profile designer. It uses a package called JSON-server (https://www.npmjs.com/package/json-server). 
+	\mock-backend - This contains a mock API back end for profile designer. It uses a package called JSON-server (https://www.npmjs.com/package/json-server). 
 </li>
 <li>
-	\mock-api\data - Most of the data used by the site is stored in this file. There is some additional lookup static data stored within the REACT code base. 
+	\mock-backend\data - Most of the data used by the site is stored in this file. There is some additional lookup static data stored within the REACT code base. 
 </li>
 <li>
-	\smart-web - This contains the REACT front end for profile designer.
+	\frontend - This contains the REACT front end for profile designer.
 </li>
 </ul>
 
@@ -34,7 +34,7 @@
 	<b>Build/Run the mock-api (Using a node.js prompt): </b>
 	<ul>
 		<li>
-			cd \mock-api
+			cd \mock-backend
 		</li>
 		<li>
 			npm intstall
@@ -54,7 +54,7 @@
 	<b>Build/Run the front end (Using a node.js prompt): </b>
 	<ul>
 		<li>
-			cd \smart-web
+			cd \frontend
 		</li>
 		<li>
 			npm intstall
@@ -67,7 +67,7 @@
 		</li>
 	</ul>
 	<p>
-	Notes: In order to use the site, the mock-api must be running. 
+	Notes: In order to use the site, the mock backend API must be running. 
 	Login: For phase I, the login process was intentionally simple. User data is stored in the db.json file and the login only checks that submitted password matches user name. Use cesmii/cesmii to login. 
 	</p>
 </ol>

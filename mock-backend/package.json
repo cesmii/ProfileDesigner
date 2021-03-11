@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
-	"prestart": "npm install json-server -save",
     "start" : "node server.js",
     "_start": "server.js",
     "startdev": "json-server --watch ./data/db.json --port 3001",

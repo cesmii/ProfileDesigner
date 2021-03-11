@@ -22,16 +22,13 @@ on:
   #  types: [created]
 
 env:
-  # set this to your application's name
-  AZURE_WEBAPP_NAME: 'profiledesigner-front'    
-  # set this to the path to your web app project, defaults to the repository root
-  AZURE_WEBAPP_PACKAGE_PATH: './frontend/build'      
-  # set this to the node version to use
-  NODE_VERSION: '10.16.3'                
+  AZURE_WEBAPP_NAME: 'profiledesigner-back'    # set this to your application's name
+  AZURE_WEBAPP_PACKAGE_PATH: './mock-backend/prestart'      # set this to the path to your web app project, defaults to the repository root
+  NODE_VERSION: '10.16.3'                # set this to the node version to use
 
 jobs:
-  build-and-deploy-frontend:
-    name: 'Job: Build and Deploy React frontend'
+  build-and-deploy-backend:
+    name: 'Job: Build and Deploy mock-backend'
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -39,18 +36,17 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ env.NODE_VERSION }}
-    - name: 'Build React Code - npm install, build'
-      working-directory: frontend
-      env:
-        CI: '' #bypass treating-warnings-as-errors-because-process-env-ci-true 
+    - name: 'Use json-server backend - npm install'
+      working-directory: mock-backend
       run: |
         # Build and test the project, then
         # deploy to Azure Web App.
         npm install
         npm run build --if-present
+        npm run test --if-present
     - name: 'Deploy to Azure WebApp'
       uses: azure/webapps-deploy@v2
       with:
         app-name: ${{ env.AZURE_WEBAPP_NAME }}
-        publish-profile: ${{ secrets.AZURE_PROFILEDESIGNER_FRONT_PUBLISHSETTINGS }}
+        publish-profile: ${{ secrets.AZURE_PROFILEDESIGNER_BACK_PUBLISHSETTINGS }}
         package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}

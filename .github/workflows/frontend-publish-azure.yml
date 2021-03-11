@@ -40,7 +40,7 @@ jobs:
       with:
         node-version: ${{ env.NODE_VERSION }}
     - name: 'Build React Code - npm install, build'
-      working-directory: smart-web
+      working-directory: frontend
       env:
         CI: '' #bypass treating-warnings-as-errors-because-process-env-ci-true 
       run: |

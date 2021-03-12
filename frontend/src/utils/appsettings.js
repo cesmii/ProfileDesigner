@@ -3,7 +3,7 @@
 ///--------------------------------------------------------------------------
 export const AppSettings = {
     BASE_API_URL: process.env.REACT_APP_BASE_API_URL  //mock api server url - environment specific
-    , Titles: { Anonymous: 'CESMII | Smart Manufacturing', Main: 'CESMII | Smart Manufacturing'}
+    , Titles: { Anonymous: 'CESMII - SM Profile Designer', Main: 'CESMII - SM Profile Designer'}
     , PageSize: 10
     , PageSizeOptions: [10,25,50]
     , DateSettings: {

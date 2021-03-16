@@ -16,10 +16,11 @@
 # For more information on GitHub Actions for Azure, refer to https://github.com/Azure/Actions
 # For more samples to get started with GitHub Action workflows to deploy to Azure, refer to https://github.com/Azure/actions-workflow-samples
 on:
-  workflow_dispatch:
-    branches: main
-  #release:
-  #  types: [created]
+  # Trigger the workflow on push,
+  # but only for the main branch
+  push:
+    branches:
+      - main
 
 env:
   AZURE_WEBAPP_NAME: 'profiledesigner-back'    # set this to your application's name

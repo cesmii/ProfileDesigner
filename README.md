@@ -26,10 +26,13 @@
 	\api - This contains a .NET web API back end for profile designer. Within this solution, the OPC translations will occur, database connections will occur, etc. 
 </li>
 <li>
-	\mock-api - Retired
+	\frontend - This contains the REACT front end for profile designer.
 </li>
 <li>
-	\front-end - This contains the REACT front end for profile designer.
+	\SampleNodeSets - This contains nodesets that we use to import into system. Any OPC UA compliant nodeset is permitted. These are stored just for convenience while developing within the system.
+</li>
+<li>
+	\sql - This contains the SQL script used to generate the DB structure and insert required lookup data as well as some sample users.  
 </li>
 </ul>
 
@@ -42,7 +45,7 @@
 	<b>Build/Run the front end: </b>
 	<ul>
 		<li>
-			cd \front-end
+			cd \frontend
 		</li>
 		<li>
 			npm install

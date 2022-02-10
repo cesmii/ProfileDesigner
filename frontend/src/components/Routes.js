@@ -1,33 +1,58 @@
 import React from 'react'
-import {Switch, Route } from "react-router-dom"
+import {Switch } from "react-router-dom"
 
 //common components
 import PrivateRoute from './authentication/PrivateRoute'
+import WizardRoute from './authentication/WizardRoute'
+import { PublicRoute } from './PublicRoute'
 
 //page level imports
 import Login from "../views/Login"
-import Home from "../views/Home"
-import ProfileList from "../views/ProfileList"
-import ProfileEntity from "../views/ProfileEntity"
+import ProfileTypeDefinitionList from "../views/ProfileTypeDefinitionList"
+import ProfileTypeDefinitionEntity from "../views/ProfileTypeDefinitionEntity"
+//wizard pages
+import WizardWelcome from "../views/WizardWelcome"
+import WizardNewProfile from "../views/WizardNewProfile"
+import WizardImportProfile from '../views/WizardImportProfile'
+import WizardSelectProfile from "../views/WizardSelectProfile"
+import WizardSelectBaseType from "../views/WizardSelectBaseType"
+import WizardFilterProfile from '../views/WizardFilterProfile'
+
 import PageNotFound from "../views/PageNotFound"
-import AdvancedSearch from "../views/AdvancedSearch"
-import NamespaceList from '../views/NamespaceList'
-import NamespaceEntity from '../views/NamespaceEntity'
+import ProfileList from '../views/ProfileList'
+
+//const CLASS_NAME = "Routes";
+
 
 function Routes() {
+
+    //-------------------------------------------------------------------
+    //  Routes
+    //-------------------------------------------------------------------
     return(
         <Switch>
-            <PrivateRoute exact path="/" component={Home} />
-            <PrivateRoute path="/profiles/library/namespace/:namespace" component={NamespaceEntity} />
-            <PrivateRoute path="/profiles/library" component={NamespaceList} />
-            {/*Handles profiles/all and profiles/mine in the component*/}
-            <PrivateRoute path="/profiles/:type" component={ProfileList} />
+            <WizardRoute exact path="/" component={WizardWelcome} />
+            <PrivateRoute path="/profiles/library" component={ProfileList} />
+            {/*Handles types/all and types/mine in the component*/}
+            <PrivateRoute path="/types/library/p=:profileId" component={ProfileTypeDefinitionList} />
+            <PrivateRoute path="/types/library" component={ProfileTypeDefinitionList} />
             {/* order matters in the profile/ routes*/}
-            <PrivateRoute path="/profile/extend/:parentId" component={ProfileEntity} />
-            <PrivateRoute path="/profile/:id" component={ProfileEntity} />
-            <PrivateRoute path="/advancedsearch" component={AdvancedSearch} />
-            <Route exact path="/login" component={Login} />
-            <Route component={PageNotFound} />
+            {/* ProfileTypeDefinitionEntity - Depending on entry point, this is not always part of the wizard - 
+             * But the wizardContext is initialized in either case*/}
+            <WizardRoute path="/type/extend/:parentId" component={ProfileTypeDefinitionEntity} />
+            <WizardRoute path="/type/:id/p=:profileId" component={ProfileTypeDefinitionEntity} />
+            <WizardRoute path="/type/:id" component={ProfileTypeDefinitionEntity} />
+            <WizardRoute path="/wizard/welcome" component={WizardWelcome} />
+            <WizardRoute path="/wizard/create-profile" component={WizardNewProfile} />
+            <WizardRoute path="/wizard/import-profile" component={WizardImportProfile} />
+            <WizardRoute path="/wizard/select-profile" component={WizardSelectProfile} />
+            <WizardRoute path="/wizard/select-existing-profile" component={WizardSelectProfile} />
+            <WizardRoute path="/wizard/filter-profile" component={WizardFilterProfile} />
+            <WizardRoute path="/wizard/select-base-type" component={WizardSelectBaseType} />
+            <WizardRoute path="/wizard/extend/:parentId/p=:profileId" component={ProfileTypeDefinitionEntity} />
+            <WizardRoute path="/wizard/extend/:parentId" component={ProfileTypeDefinitionEntity} />
+            <PublicRoute exact path="/login" component={Login} />
+            <PublicRoute component={PageNotFound} />
         </Switch>
 
     )

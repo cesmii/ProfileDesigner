@@ -1,13 +1,10 @@
 import React, { useState, useEffect} from 'react'
-import axios from 'axios'
 
 import { getDependencyPreferences, setDependencyPageSize } from '../../services/DependencyService';
-import { AppSettings } from '../../utils/appsettings'
 import { generateLogMessageString, pageDataRows } from '../../utils/UtilityService'
 import GridPager from '../../components/GridPager'
 import DependencyItemRow from './DependencyItemRow';
-import { useAuthContext } from "../../components/authentication/AuthContext";
-import { getProfileDependencies } from '../../services/ProfileService';
+import { useAuthState } from "../../components/authentication/AuthContext";
 
 const CLASS_NAME = "DependencyList";
 
@@ -16,7 +13,7 @@ function DependencyList(props) {
     //-------------------------------------------------------------------
     // Region: Initialization
     //-------------------------------------------------------------------
-    const { authTicket } = useAuthContext();
+    const authTicket = useAuthState();
     const _dependencyPreferences = getDependencyPreferences();
     const [_dataRows, setDataRows] = useState({
         all: [], filtered: [], paged: [],
@@ -44,13 +41,9 @@ function DependencyList(props) {
     // Region: Get data 
     //-------------------------------------------------------------------
     useEffect(() => {
-        async function fetchData() {
+        async function bindData() {
 
-            var url = `${AppSettings.BASE_API_URL}/profile`;
-            console.log(generateLogMessageString(`useEffect||fetchData||${url}`, CLASS_NAME));
-            const result = await axios(url);
-
-            var dependencies = getProfileDependencies(props.profile.id, result.data);
+            var dependencies = props.typeDefinition.dependencies;
 
             //update state with data returned
             var pagedData = pageDataRows(dependencies, 1, _dependencyPreferences.pageSize); //also updates state
@@ -60,12 +53,12 @@ function DependencyList(props) {
                 pager: { currentPage: 1, pageSize: _dependencyPreferences.pageSize, itemCount: dependencies == null ? 0 : dependencies.length }
             });
         }
-        fetchData();
+        bindData();
         //this will execute on unmount
         return () => {
             console.log(generateLogMessageString('useEffect||Cleanup', CLASS_NAME));
         };
-    }, [props.profile.id, _dependencyPreferences.pageSize, authTicket]);
+    }, [props.typeDefinition.id, _dependencyPreferences.pageSize, authTicket]);
 
     //-------------------------------------------------------------------
     // Region: Render helpers

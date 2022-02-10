@@ -4,6 +4,7 @@ import Button from 'react-bootstrap/Button'
 import { SVGIcon } from './SVGIcon'
 import color from './Constants'
 import './styles/SideMenuLinkList.scss';
+import Fab from './Fab';
 
 //import { generateLogMessageString } from '../utils/UtilityService'
 
@@ -32,12 +33,13 @@ function SideMenuLinkList(props) { //props are subMenuItems, bgColor, iconName, 
         // sectionKey = caption;
         return (
             <div className={toggleCss} onClick={toggleChildren} >
-                <span key="caption" className="caption small-size text-uppercase">
+                <Fab color={props.bgColor} bgColor={props.bgColor} iconName={props.iconName} opacity="33" size='40px' css="d-flex d-md-none" />
+                <span key="caption" className="caption small-size text-uppercase d-none d-md-inline">
                     {caption}
                 </span>
                 {(itemCount > 0) &&
-                    <span key="toggle" className="ml-auto">
-                        <Button variant="accordion" className="btn" >
+                    <span key="toggle" className="ml-auto d-none d-md-inline">
+                    <Button variant="accordion" className="btn" title={toggleState ? "Collapse" : "Expand"} >
                             <span>
                                 <SVGIcon name={toggleIcon} size="20" fill={color.gris} alt={caption} />
                             </span>
@@ -53,18 +55,16 @@ function SideMenuLinkList(props) { //props are subMenuItems, bgColor, iconName, 
         var iconColor = (link.authorId == null || props.currentUserId == null || props.currentUserId !== link.authorId) ? color.gris : color.cornflower;
         var key = `li_${index.toString()}`;
         return (
-            <Fragment key={key}>
-                <li id={key} key={key} className="body-size">
-                    <a href={link.url} >
-                        {link.iconName == null ? "" :
-                            <span className="mr-2">
-                                <SVGIcon name={link.iconName} size="18" fill={iconColor} />
-                            </span>
-                        }
-                        {link.caption}
-                    </a>
-                </li>
-            </Fragment>
+            <li id={key} key={key} className="body-size">
+                <a href={link.url} >
+                    {link.iconName == null ? "" :
+                        <span className="mr-2">
+                            <SVGIcon name={link.iconName} size="18" fill={iconColor} />
+                        </span>
+                    }
+                    {link.caption}
+                </a>
+            </li>
         );
     }
 
@@ -91,12 +91,12 @@ function SideMenuLinkList(props) { //props are subMenuItems, bgColor, iconName, 
 
         return (
             <>
-                <ul className="link-list">
+                <div className="link-list-container">
                     {renderSectionHeader(props.caption, _toggleState, 1)}
                     <ul className={`link-list children ${toggleCss}`}>
                         {mainBody}
                     </ul>
-                </ul>
+                </div>
 
                 {/* <Card>
                     

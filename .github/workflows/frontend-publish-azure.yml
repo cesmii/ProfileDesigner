@@ -15,6 +15,7 @@
 #
 # For more information on GitHub Actions for Azure, refer to https://github.com/Azure/Actions
 # For more samples to get started with GitHub Action workflows to deploy to Azure, refer to https://github.com/Azure/actions-workflow-samples
+name: Prod|Front End|Profile Designer - Deploy to Azure
 on:
   # Trigger the workflow on push,
   # but only for the main branch
@@ -26,12 +27,13 @@ env:
   # set this to your application's name
   AZURE_WEBAPP_NAME: 'profiledesigner-front'    
   # set this to the path to your web app project, defaults to the repository root
-  AZURE_WEBAPP_PACKAGE_PATH: './frontend/build'      
+  BUILD_OUTPUT_DIRECTORY: './frontend/build'      
+  WORKING_DIRECTORY: 'frontend'   
   # set this to the node version to use
   NODE_VERSION: '10.16.3'                
 
 jobs:
-  build-and-deploy-frontend:
+  Build-and-Deploy-FrontEnd:
     name: 'Job: Build and Deploy React frontend'
     runs-on: ubuntu-latest
     steps:
@@ -41,7 +43,7 @@ jobs:
       with:
         node-version: ${{ env.NODE_VERSION }}
     - name: 'Build React Code - npm install, build'
-      working-directory: frontend
+      working-directory: ${{ env.WORKING_DIRECTORY }}
       env:
         CI: '' #bypass treating-warnings-as-errors-because-process-env-ci-true 
       run: |
@@ -54,4 +56,4 @@ jobs:
       with:
         app-name: ${{ env.AZURE_WEBAPP_NAME }}
         publish-profile: ${{ secrets.AZURE_PROFILEDESIGNER_FRONT_PUBLISHSETTINGS }}
-        package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+        package: ${{ env.BUILD_OUTPUT_DIRECTORY }}

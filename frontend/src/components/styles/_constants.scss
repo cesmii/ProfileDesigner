@@ -1,4 +1,26 @@
 
+$font-family-sans-serif:
+// Safari for macOS and iOS (San Francisco)
+-apple-system,
+// Chrome < 56 for macOS (San Francisco)
+BlinkMacSystemFont,
+// Windows
+"Segoe UI",
+// Android
+Roboto,
+// Basic web fallback
+"Helvetica Neue", Arial,
+// Linux
+"Noto Sans",
+// Sans serif fallback
+sans-serif,
+// Emoji fonts
+"Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !default;
+
+$font-family-base: "Open Sans", sans-serif;
+$font-family-headings: "Bitter", sans-serif;
+$enable-responsive-font-sizes: "true";
+
 $theme-colors: (
     "primary": #4084EF,
     "secondary":  #9FB522
@@ -6,6 +28,19 @@ $theme-colors: (
 
 //When we call color from a component, remove dashes in the calling code.
 $colors: (
+    //marketplace colors
+    "textPrimary": #2E2B26,
+    "textSecondary": #848484,
+    "link": #2D76A7,
+    "selectedBg": #2D76A7,
+    "subHeadingBg": #D0ECFF,
+    "mauve": #C271BF,
+    "mauveBg": #FFD0FD,
+    "lightBlueBg": #F3FAFF,
+    "lightYellowBg":#FFF2D0,
+    "lightGreenBg":#D0FFD5,
+    "forestGreen": #238823,
+    //end marketplace colors
     "cornflower": #4084EF,
     "thunder": #23201F,
     "cerulean": #00AEEF,
@@ -26,7 +61,6 @@ $colors: (
     "spunPearl": #AAA9AD,
     "cardinal": #D2222D,
     "amber": #FFBF00,
-    "forestGreen": #238823,
     "japaneseLaurel": #007000,
     "sauvignon": #FFF6F4,
     "camarone": #006127,
@@ -50,8 +84,10 @@ $navbarHeight: 80px;
 $footerHeight: 80px;
 $headerNavHeight: 238px;
 // $sideMenuWidthOpen: 282px;
-$sideMenuWidthOpen: 344px;
-$sideMenuWidthCollapsed: 82px;
+$sideMenuWidthOpen-sm: 72px;
+$sideMenuWidthOpen-md: 200px;
+$sideMenuWidthOpen: 290px;
+$sideMenuWidthCollapsed: 72px;
 $rightPanelWidth: 350px;
 $globalTransition: all 200ms ease-in-out;
 

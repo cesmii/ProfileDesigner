@@ -4,7 +4,7 @@ import { Dropdown } from 'react-bootstrap'
 
 import { generateLogMessageString, concatenateField } from '../../utils/UtilityService'
 import { AppSettings } from '../../utils/appsettings';
-import { renderIcon } from './ProfileRenderHelpers';
+import { renderTypeIcon } from './ProfileRenderHelpers';
 import { SVGIcon } from '../../components/SVGIcon'
 import color from '../../components/Constants'
 
@@ -15,7 +15,7 @@ function ProfilePredictiveSearch(props) {
     //-------------------------------------------------------------------
     // Region: Initialization
     //-------------------------------------------------------------------
-    const _entityUrlProfile = "/profile/:id";
+    const _entityUrlProfile = "/type/:id";
     const [_items, setItems] = useState([]);
 
     //-------------------------------------------------------------------
@@ -157,7 +157,7 @@ function ProfilePredictiveSearch(props) {
             //show a type icon and the name or namespace
             return (
                 <Dropdown.Item key={i} href={p.url} >
-                    {renderIcon(p, props.currentUserId, 24, true)}
+                    {renderTypeIcon(p, props.currentUserId, 24, true)}
                     {p.name}
                 </Dropdown.Item>
             );

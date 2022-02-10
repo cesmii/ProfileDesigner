@@ -10,7 +10,16 @@
     transition: opacity 0.3s linear;
     width: 100%;
     z-index: 99999;
-  }
+
+    &.msg {
+        background-color: transparent !important;
+    }
+
+    .msg-text {
+        background-color: #fff;
+        border-radius:5px;
+    }
+}
 
 
 .spinner {
@@ -34,7 +43,7 @@
 
 .dismiss-btn {
     float: right;
-    margin-top: -6px;
+    margin-top: 0px;
 }
 
 .alert .dismiss-btn .btn:hover {

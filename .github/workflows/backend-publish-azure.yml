@@ -1,4 +1,4 @@
-# This workflow will build and push a node.js application to an Azure Web App when a release is created.
+# This workflow will build and push a .NET 5 web API to an Azure Web App that is manually triggered by user.
 #
 # This workflow assumes you have already created the target Azure App Service web app.
 # For instructions see https://docs.microsoft.com/azure/app-service/app-service-plan-manage#create-an-app-service-plan
@@ -15,6 +15,7 @@
 #
 # For more information on GitHub Actions for Azure, refer to https://github.com/Azure/Actions
 # For more samples to get started with GitHub Action workflows to deploy to Azure, refer to https://github.com/Azure/actions-workflow-samples
+name: Prod|API|Profile Designer - Deploy to Azure
 on:
   # Trigger the workflow on push,
   # but only for the main branch
@@ -23,29 +24,44 @@ on:
       - main
 
 env:
-  AZURE_WEBAPP_NAME: 'profiledesigner-back'    # set this to your application's name
-  AZURE_WEBAPP_PACKAGE_PATH: './mock-backend'      # set this to the path to your web app project, defaults to the repository root
-  NODE_VERSION: '10.16.3'                # set this to the node version to use
+  # set this to your application's name
+  AZURE_WEBAPP_NAME: 'profiledesigner-dotnet-api'    
+  # set this to the path to your solution file, defaults to the repository root (this is the folder in the git repo)
+  SOLUTION_DIRECTORY: './api'      
+  # set this to the path to your web app project, defaults to the repository root (this is the folder in the git repo)
+  PROJECT_DIRECTORY: './api/CESMII.ProfileDesigner.Api'      
+  # Solution file to use
+  SOLUTION_FILE: 'CESMII.ProfileDesigner.sln'      
+  # Project file to use
+  PROJECT_NAME: 'CESMII.ProfileDesigner.Api'      
+  PUBLISH_FOLDER_RELATIVE: "./publish"
+  PUBLISH_FOLDER: "/publish"
+  # set this to the .NET core version to use
+  NETCORE_VERSION: "5.0.100"
 
 jobs:
-  build-and-deploy-backend:
-    name: 'Job: Build and Deploy mock-backend'
+  build:
+    name: Build and Deploy .NET5 Web API
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - name: Use Node.js ${{ env.NODE_VERSION }}
-      uses: actions/setup-node@v1
-      with:
-        node-version: ${{ env.NODE_VERSION }}
-    - name: 'Use json-server backend - npm install'
-      working-directory: mock-backend
-      run: |
-        # Build and test the project, then
-        # deploy to Azure Web App.
-        npm install
-    - name: 'Deploy to Azure WebApp'
-      uses: azure/webapps-deploy@v2
-      with:
-        app-name: ${{ env.AZURE_WEBAPP_NAME }}
-        publish-profile: ${{ secrets.AZURE_PROFILEDESIGNER_BACK_PUBLISHSETTINGS }}
-        package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+      - uses: actions/checkout@v2
+      - name: Set up dotnet Core ${{ env.NETCORE_VERSION }}
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: ${{ env.NETCORE_VERSION }}
+      - name: Restore dependencies (${{env.SOLUTION_FILE}})
+        run: dotnet restore ${{env.SOLUTION_FILE}}
+        working-directory: ${{env.SOLUTION_DIRECTORY}}
+      - name: Build (${{env.PROJECT_DIRECTORY}})
+        run: dotnet build --configuration Release --no-restore
+        working-directory: ${{env.PROJECT_DIRECTORY}}    
+      - name: Publish (${{env.PROJECT_DIRECTORY}}) TO ${{ env.PUBLISH_FOLDER_RELATIVE }}
+        run: dotnet publish --configuration Release --output ${{ env.PUBLISH_FOLDER_RELATIVE }}
+        working-directory: ${{env.PROJECT_DIRECTORY}}
+      - name: 'Deploy to Azure WebApp'
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          publish-profile: ${{ secrets.AZURE_PROFILEDESIGNER_BACK_PUBLISHSETTINGS }}
+          package: ${{ env.PROJECT_DIRECTORY }}${{ env.PUBLISH_FOLDER }}
+

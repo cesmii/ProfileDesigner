@@ -1,9 +1,7 @@
 .pagination-wrapper {
-    display: flex;
     align-items: flex-start;
     justify-content: flex-end;
     color: color("shark");
-    margin-top: 56px;
 
     ul.pagination {
         margin-bottom: 0;
@@ -12,7 +10,7 @@
         a.page-link,
         .page-item.active .page-link {
             height: 40px;
-            width: 42px;
+            min-width: 42px;
             margin-left: -1px;
             text-align: center;
             border-color: color("silver");

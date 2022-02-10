@@ -1,3 +1,13 @@
+[Bb]in/
+[Oo]bj/
+
+.vs/
+*.user
+
+/mock-api/node_modules
+/api/CESMII.ProfileDesigner.Api/Logs
+/api/CESMII.ProfileDesigner.Api/NodeSets
+
 # Logs
 logs
 *.log

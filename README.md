@@ -26,10 +26,7 @@
 	\api - This contains a .NET web API back end for profile designer. Within this solution, the OPC translations will occur, database connections will occur, etc. 
 </li>
 <li>
-	\mock-api - Retired
-</li>
-<li>
-	\front-end - This contains the REACT front end for profile designer.
+	\frontend - This contains the REACT front end for profile designer.
 </li>
 </ul>
 
@@ -42,7 +39,7 @@
 	<b>Build/Run the front end: </b>
 	<ul>
 		<li>
-			cd \front-end
+			cd \frontend
 		</li>
 		<li>
 			npm install

@@ -1,0 +1,4292 @@
+[
+{
+  "id": 999,
+  "Name": "Abstract Component",
+  "Namespace": "CarProject",
+  "ParentId": null,
+  "ParentProfile": null,
+  "Interfaces": null,
+  "ProfileType": {"id": 103,"Name": "Class"},
+  "Description": "Basic building block for all other profiles",
+  "Created": "2020-11-04",
+  "MetaTags": [
+	{
+	  "Name": "machine"
+	},
+	{
+	  "Name": "auto"
+	},
+	{
+	  "Name": "propulsion"
+	}
+  ],
+  
+  "author": {
+	"id": 1,
+	"firstName": "Sean",
+	"lastName": "C",
+	"fullName": "Sean C",
+	"organization": {
+	  "id": 1,
+	  "Name": "Engineering Group A"
+	}
+  },
+  "Attributes": [
+	{
+	  "id": 9991,
+	  "Name": "Id",
+	  "dataType": {"id":7, "Name": "long" },
+	  "maxValue": null,
+	  "minValue": 1,
+	  "engUnit": null
+	},
+	{
+	  "id": 9992,
+	  "Name": "Manufacturer",
+	  "dataType": {"id":8, "Name": "string" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null
+	},
+	{
+	  "id": 9993,
+	  "Name": "Serial Number",
+	  "dataType": {"id":8, "Name": "string" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null
+	}
+  ],
+  "extendedProfileAttributes": [],
+  "MetaTagsConcatenated": "machine, auto, propulsion"
+},
+{
+  "id": 1,
+  "Name": "Engine",
+  "Namespace": "CarProject.Components",
+  "ParentId": 999,
+  "ParentProfile": {
+	"id": 999,
+	"Name": "Abstract Component", 
+	"ProfileType": {"id": 103,"Name": "Class"}
+  },
+  "ProfileType": {
+	"id": 103,
+	"Name": "Class"
+  },
+  "Interfaces": [ {"ProfileId" : 1, "InterfaceId" : 10, "Interface" : {"id": 10,"Name": "IEngine" }}
+  ],
+  "Description": "Base Engine Profile",
+  "Created": "2020-11-04",
+  "MetaTags": [
+	{
+	  "Name": "machine"
+	},
+	{
+	  "Name": "auto"
+	},
+	{
+	  "Name": "propulsion"
+	}
+  ],
+  
+  "author": {
+	"id": 2,
+	"firstName": "Cesmii",
+	"lastName": "User",
+	"fullName": "Cesmii User",
+	"organization": {
+	  "id": 1,
+	  "Name": "Engineering Group A"
+	}
+  },
+  "Attributes": [
+	{
+	  "id": 101,
+	  "Name": "CubicCentimeters",
+	  "dataType": {"id":5, "Name": "float" },
+	  "maxValue": "500",
+	  "minValue": "200",
+	  "engUnit": "cc",
+	  "_itemType": "interface_29",
+	  "interface": {
+		"id": 10,
+		"Name": "IEngine",
+		"ProfileType": "Interface"
+	  }
+	},
+	{
+	  "id": 102,
+	  "Name": "Horsepower",
+	  "dataType": {"id":6, "Name": "integer" },
+	  "maxValue": 1200,
+	  "minValue": 50,
+	  "engUnit": "HP",
+	  "_itemType": "interface_29",
+	  "interface": {
+		"id": 10,
+		"Name": "IEngine",
+		"ProfileType": "Interface"
+	  }
+	},
+	{
+	  "id": 103,
+	  "Name": "Emission Rating",
+	  "dataType": {"id":8, "Name": "string" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null,
+	  "_itemType": "interface_29",
+	  "interface": {
+		"id": 10,
+		"Name": "IEngine",
+		"ProfileType": "Interface"
+	  }
+	},
+	{
+	  "id": 104,
+	  "Name": "Starter",
+	  "dataType": {"id":3, "Name": "composition" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null,
+	  "composition": {
+		"id": 21,
+		"Name": "Starter"
+	  },
+	  "_itemType": "interface_29",
+	  "interface": {
+		"id": 10,
+		"Name": "IEngine",
+		"ProfileType": "Interface"
+	  }
+	},
+	{
+	  "parentId": null,
+	  "id": 7280514,
+	  "Name": "Engine Message Codes",
+	  "dataType": {"id":216038, "Name": "Engine Message Code List" },
+	  "minValue": null,
+	  "maxValue": null,
+	  "engUnit": null,
+	  "compositionId": -1,
+	  "composition": null,
+	  "interfaceId": -1,
+	  "interface": null,
+	  "variableTypeId": 216038,
+	  "variableType": {
+		"id": 216038,
+		"Name": "Engine Message Code List"
+	  },
+	  "_itemType": "profile"
+	},
+	{
+	  "parentId": null,
+	  "id": 309989,
+	  "Name": "Simple Message Code",
+	  "dataType": {"id":216038, "Name": "Message Code" },
+	  "minValue": null,
+	  "maxValue": null,
+	  "engUnit": null,
+	  "compositionId": -1,
+	  "composition": null,
+	  "interfaceId": -1,
+	  "interface": null,
+	  "variableTypeId": 161319,
+	  "variableType": {
+		"id": 161319,
+		"Name": "Message Code"
+	  },
+	  "_itemType": "profile"
+	}
+  ],
+  "extendedProfileAttributes": [
+	{
+	  "parentId": 999,
+	  "id": 9991,
+	  "Name": "Id",
+	  "dataType": {"id":7, "Name": "long" },
+	  "maxValue": null,
+	  "minValue": 1,
+	  "engUnit": null,
+	  "_itemType": "extended"
+	},
+	{
+	  "parentId": 999,
+	  "id": 9992,
+	  "Name": "Manufacturer",
+	  "dataType": {"id":8, "Name": "string" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null,
+	  "_itemType": "extended"
+	},
+	{
+	  "parentId": 999,
+	  "id": 9993,
+	  "Name": "Serial Number",
+	  "dataType": {"id":8, "Name": "string" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null,
+	  "_itemType": "extended"
+	}
+  ],
+  "MetaTagsConcatenated": "machine, auto, propulsion",
+  "level": 0
+},
+{
+  "id": 2,
+  "Name": "Electric Engine",
+  "Namespace": "CarProject.Components.Engine",
+  "ParentId": 1,
+  "ParentProfile": {
+	"id": 1,
+	"Name": "Engine", "ProfileType": {"id": 103,"Name": "Class"}
+  },
+  "Interfaces": [ {"ProfileId" : 2, "InterfaceId" : 12, "Interface" : {"id": 10,"Name": "IElectricEngine" }}
+  ],
+  "ProfileType": {
+	"id": 103,
+	"Name": "Class"
+  },
+  "Description": "base electric engine profile",
+  "Created": "2020-11-04",
+  "MetaTags": [
+	{
+	  "Name": "tag 1"
+	},
+	{
+	  "Name": "tag 2"
+	},
+	{
+	  "Name": "tag 3"
+	}
+  ],
+  
+  "author": {
+	"id": 4,
+	"userName": "jonathanw",
+	"firstName": "Jonathan",
+	"lastName": "W",
+	"fullName": "Jonathan W",
+	"organization": {
+	  "id": 3,
+	  "Name": "Engineering Group C"
+	}
+  },
+  "Attributes": [
+	{
+	  "id": 4,
+	  "Name": "Shaft",
+	  "dataType": {"id":3, "Name": "composition" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null,
+	  "composition": {
+		"id": 22,
+		"Name": "Shaft"
+	  }
+	},
+	{
+	  "id": 5,
+	  "Name": "Engine Fan",
+	  "dataType": {"id":3, "Name": "composition" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null,
+	  "composition": {
+		"id": 23,
+		"Name": "Fan"
+	  }
+	},
+	{
+	  "id": 6,
+	  "Name": "Rotor",
+	  "dataType": {"id":3, "Name": "composition" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null,
+	  "composition": {
+		"id": 24,
+		"Name": "Rotor"
+	  }
+	}
+  ],
+  "extendedProfileAttributes": [
+	{
+	  "parentId": 999,
+	  "id": 9991,
+	  "Name": "Id",
+	  "dataType": {"id":7, "Name": "long" },
+	  "maxValue": null,
+	  "minValue": 1,
+	  "engUnit": null
+	},
+	{
+	  "parentId": 999,
+	  "id": 9992,
+	  "Name": "Manufacturer",
+	  "dataType": {"id":8, "Name": "string" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null
+	},
+	{
+	  "parentId": 999,
+	  "id": 9993,
+	  "Name": "Serial Number",
+	  "dataType": {"id":8, "Name": "string" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null
+	},
+	{
+	  "parentId": 1,
+	  "id": 101,
+	  "Name": "CubicCentimeters",
+	  "dataType": {"id":5, "Name": "float" },
+	  "maxValue": "500",
+	  "minValue": "200",
+	  "engUnit": "cc"
+	},
+	{
+	  "parentId": 1,
+	  "id": 102,
+	  "Name": "Horsepower",
+	  "dataType": {"id":6, "Name": "integer" },
+	  "maxValue": 1200,
+	  "minValue": 50,
+	  "engUnit": "HP"
+	},
+	{
+	  "parentId": 1,
+	  "id": 103,
+	  "Name": "Emission Rating",
+	  "dataType": {"id":8, "Name": "string" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null
+	},
+	{
+	  "parentId": 1,
+	  "id": 104,
+	  "Name": "Starter",
+	  "dataType": {"id":3, "Name": "composition" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null,
+	  "composition": {
+		"id": 21,
+		"Name": "Starter"
+	  }
+	}
+  ]
+},
+{
+  "id": 3,
+  "Name": "Combustion Engine",
+  "Namespace": "CarProject.Components.Engine",
+  "ParentId": 1,
+  "ParentProfile": {
+	"id": 1,
+	"Name": "Engine", "ProfileType": {"id": 103,"Name": "Class"}
+  },
+  "Interfaces": [],
+  "ProfileType": {
+	"id": 103,
+	"Name": "Class"
+  },
+  "Description": "base combustion engine profile",
+  "Created": "2020-11-04",
+  "MetaTags": [
+	{
+	  "Name": "tag 1"
+	},
+	{
+	  "Name": "tag 2"
+	},
+	{
+	  "Name": "tag 3"
+	}
+  ],
+  
+  "author": {
+	"id": 2,
+	"userName": "cesmii",
+	"firstName": "Cesmii",
+	"lastName": "User",
+	"fullName": "Cesmii User",
+	"organization": {
+	  "id": 1,
+	  "Name": "Engineering Group A"
+	}
+  },
+  "Attributes": [
+	{
+	  "id": 31,
+	  "Name": "attribute 7",
+	  "dataType": {"id":5, "Name": "float" },
+	  "maxValue": 3.14,
+	  "minValue": 0,
+	  "engUnit": "unit"
+	},
+	{
+	  "id": 32,
+	  "Name": "attribute 8",
+	  "dataType": {"id":6, "Name": "integer" },
+	  "maxValue": 365,
+	  "minValue": 0,
+	  "engUnit": "unit"
+	},
+	{
+	  "id": 33,
+	  "Name": "attribute 9",
+	  "dataType": {"id":1, "Name": "boolean" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": "unit"
+	},
+	{
+	  "id": 34,
+	  "Name": "attribute 10",
+	  "dataType": {"id":8, "Name": "string" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": "unit"
+	}
+  ],
+  "extendedProfileAttributes": [
+	{
+	  "parentId": 999,
+	  "id": 9991,
+	  "Name": "Id",
+	  "dataType": {"id":7, "Name": "long" },
+	  "maxValue": null,
+	  "minValue": 1,
+	  "engUnit": null
+	},
+	{
+	  "parentId": 999,
+	  "id": 9992,
+	  "Name": "Manufacturer",
+	  "dataType": {"id":8, "Name": "string" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null
+	},
+	{
+	  "parentId": 999,
+	  "id": 9993,
+	  "Name": "Serial Number",
+	  "dataType": {"id":8, "Name": "string" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null
+	},
+	{
+	  "parentId": 1,
+	  "id": 101,
+	  "Name": "CubicCentimeters",
+	  "dataType": {"id":5, "Name": "float" },
+	  "maxValue": "500",
+	  "minValue": "200",
+	  "engUnit": "cc"
+	},
+	{
+	  "parentId": 1,
+	  "id": 102,
+	  "Name": "Horsepower",
+	  "dataType": {"id":6, "Name": "integer" },
+	  "maxValue": 1200,
+	  "minValue": 50,
+	  "engUnit": "HP"
+	},
+	{
+	  "parentId": 1,
+	  "id": 103,
+	  "Name": "Emission Rating",
+	  "dataType": {"id":8, "Name": "string" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null
+	},
+	{
+	  "parentId": 1,
+	  "id": 104,
+	  "Name": "Starter",
+	  "dataType": {"id":3, "Name": "composition" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null,
+	  "composition": {
+		"id": 21,
+		"Name": "Starter"
+	  }
+	}
+  ]
+},
+{
+  "id": 4,
+  "Name": "Tesla Small Block Engine",
+  "Namespace": "CarProject.Components.Engine.Electric",
+  "ParentId": 2,
+  "ParentProfile": {
+	"id": 2,
+	"Name": "Electric Engine", "ProfileType": {"id": 103,"Name": "Class"}
+  },
+  "ProfileType": {
+	"id": 103,
+	"Name": "Class"
+  },
+  "Description": "test desc",
+  "Created": "2020-11-04",
+  "MetaTags": [
+	{
+	  "Name": "tag 1"
+	},
+	{
+	  "Name": "   tag 2"
+	},
+	{
+	  "Name": "   tag 3"
+	}
+  ],
+  
+  "author": {
+	"id": 2,
+	"userName": "cesmii",
+	"firstName": "Cesmii",
+	"lastName": "User",
+	"fullName": "Cesmii User",
+	"organization": {
+	  "id": 1,
+	  "Name": "Engineering Group A"
+	}
+  },
+  "Attributes": [
+	{
+	  "id": 21,
+	  "Name": "attribute1",
+	  "dataType": {"id":5, "Name": "float" },
+	  "maxValue": 3.14,
+	  "minValue": 0,
+	  "engUnit": "unit"
+	},
+	{
+	  "id": 22,
+	  "Name": "attribute2",
+	  "dataType": {"id":6, "Name": "integer" },
+	  "maxValue": 365,
+	  "minValue": 0,
+	  "engUnit": "unit"
+	},
+	{
+	  "id": 23,
+	  "Name": "attribute3",
+	  "dataType": {"id":1, "Name": "boolean" },
+	  "maxValue": null,
+	  "minValue": 0,
+	  "engUnit": "unit"
+	}
+  ],
+  "extendedProfileAttributes": [
+	{
+	  "parentId": 999,
+	  "id": 9991,
+	  "Name": "Id",
+	  "dataType": {"id":7, "Name": "long" },
+	  "maxValue": null,
+	  "minValue": 1,
+	  "engUnit": null
+	},
+	{
+	  "parentId": 999,
+	  "id": 9992,
+	  "Name": "Manufacturer",
+	  "dataType": {"id":8, "Name": "string" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null
+	},
+	{
+	  "parentId": 999,
+	  "id": 9993,
+	  "Name": "Serial Number",
+	  "dataType": {"id":8, "Name": "string" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null
+	},
+	{
+	  "parentId": 1,
+	  "id": 101,
+	  "Name": "CubicCentimeters",
+	  "dataType": {"id":5, "Name": "float" },
+	  "maxValue": "500",
+	  "minValue": "200",
+	  "engUnit": "cc"
+	},
+	{
+	  "parentId": 1,
+	  "id": 102,
+	  "Name": "Horsepower",
+	  "dataType": {"id":6, "Name": "integer" },
+	  "maxValue": 1200,
+	  "minValue": 50,
+	  "engUnit": "HP"
+	},
+	{
+	  "parentId": 1,
+	  "id": 103,
+	  "Name": "Emission Rating",
+	  "dataType": {"id":8, "Name": "string" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null
+	},
+	{
+	  "parentId": 1,
+	  "id": 104,
+	  "Name": "Starter",
+	  "dataType": {"id":3, "Name": "composition" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null,
+	  "composition": {
+		"id": 21,
+		"Name": "Starter"
+	  }
+	}
+  ],
+  "MetaTagsConcatenated": "tag 1, tag 2, tag 3",
+  "level": 0
+},
+{
+  "id": 5,
+  "Name": "Tesla Engine - AC Permanent Magnet",
+  "Namespace": "CarProject.Components.Engine.Electric",
+  "ParentId": 2,
+  "ParentProfile": {
+	"id": 2,
+	"Name": "Electric Engine", "ProfileType": {"id": 103,"Name": "Class"}
+  },
+  "ProfileType": {
+	"id": 103,
+	"Name": "Class"
+  },
+  "Description": "Fr AC Induction/Rr AC Permanent Magnet - 80.5-kWh",
+  "Created": "2020-11-04",
+  "MetaTags": [
+	{
+	  "Name": "tag 1"
+	},
+	{
+	  "Name": " tag 2"
+	},
+	{
+	  "Name": " tag 3"
+	}
+  ],
+  
+  "author": {
+	"id": 2,
+	"userName": "cesmii",
+	"firstName": "Cesmii",
+	"lastName": "User",
+	"fullName": "Cesmii User",
+	"organization": {
+	  "id": 1,
+	  "Name": "Engineering Group A"
+	}
+  },
+  "Attributes": [
+	{
+	  "id": 51,
+	  "Name": "attribute1",
+	  "dataType": {"id":5, "Name": "float" },
+	  "maxValue": 3.14,
+	  "minValue": 0,
+	  "engUnit": "unit"
+	},
+	{
+	  "id": 52,
+	  "Name": "attribute2",
+	  "dataType": {"id":6, "Name": "integer" },
+	  "maxValue": 365,
+	  "minValue": 0,
+	  "engUnit": "unit"
+	},
+	{
+	  "id": 53,
+	  "Name": "attribute3",
+	  "dataType": {"id":1, "Name": "boolean" },
+	  "maxValue": null,
+	  "minValue": 0,
+	  "engUnit": "unit"
+	}
+  ],
+  "extendedProfileAttributes": [
+	{
+	  "parentId": 999,
+	  "id": 9991,
+	  "Name": "Id",
+	  "dataType": {"id":7, "Name": "long" },
+	  "maxValue": null,
+	  "minValue": 1,
+	  "engUnit": null
+	},
+	{
+	  "parentId": 999,
+	  "id": 9992,
+	  "Name": "Manufacturer",
+	  "dataType": {"id":8, "Name": "string" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null
+	},
+	{
+	  "parentId": 999,
+	  "id": 9993,
+	  "Name": "Serial Number",
+	  "dataType": {"id":8, "Name": "string" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null
+	},
+	{
+	  "parentId": 1,
+	  "id": 101,
+	  "Name": "CubicCentimeters",
+	  "dataType": {"id":5, "Name": "float" },
+	  "maxValue": "500",
+	  "minValue": "200",
+	  "engUnit": "cc"
+	},
+	{
+	  "parentId": 1,
+	  "id": 102,
+	  "Name": "Horsepower",
+	  "dataType": {"id":6, "Name": "integer" },
+	  "maxValue": 1200,
+	  "minValue": 50,
+	  "engUnit": "HP"
+	},
+	{
+	  "parentId": 1,
+	  "id": 103,
+	  "Name": "Emission Rating",
+	  "dataType": {"id":8, "Name": "string" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null
+	},
+	{
+	  "parentId": 1,
+	  "id": 104,
+	  "Name": "Starter",
+	  "dataType": {"id":3, "Name": "composition" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null,
+	  "composition": {
+		"id": 21,
+		"Name": "Starter"
+	  }
+	}
+  ],
+  "MetaTagsConcatenated": "tag 1, tag 2, tag 3",
+  "level": 0
+},
+{
+  "id": 6,
+  "Name": "V-6 Engine",
+  "Namespace": "CarProject.Components.Engine.Combustion",
+  "ParentId": 3,
+  "ParentProfile": {
+	"id": 3,
+	"Name": "Combustion Engine", "ProfileType": {"id": 103,"Name": "Class"}
+  },
+  "ProfileType": {
+	"id": 103,
+	"Name": "Class"
+  },
+  "Description": "This profile controls the automated response characteristic...",
+  "Created": "2020-11-04",
+  "MetaTags": [
+	{
+	  "Name": "tag 1"
+	},
+	{
+	  "Name": "tag 2"
+	},
+	{
+	  "Name": "tag 3"
+	}
+  ],
+  
+  "author": {
+	"id": 7,
+	"userName": "davidw",
+	"firstName": "David",
+	"lastName": "W",
+	"fullName": "David W",
+	"organization": {
+	  "id": 3,
+	  "Name": "Engineering Group C"
+	}
+  },
+  "Attributes": [
+	{
+	  "id": 61,
+	  "Name": "attribute1",
+	  "dataType": {"id":5, "Name": "float" },
+	  "maxValue": 3.14,
+	  "minValue": 0,
+	  "engUnit": "unit"
+	},
+	{
+	  "id": 62,
+	  "Name": "attribute2",
+	  "dataType": {"id":6, "Name": "integer" },
+	  "maxValue": 365,
+	  "minValue": 0,
+	  "engUnit": "unit"
+	},
+	{
+	  "id": 63,
+	  "Name": "attribute3",
+	  "dataType": {"id":1, "Name": "boolean" },
+	  "maxValue": null,
+	  "minValue": 0,
+	  "engUnit": "unit"
+	}
+  ],
+  "extendedProfileAttributes": [
+	{
+	  "parentId": 999,
+	  "id": 9991,
+	  "Name": "Id",
+	  "dataType": {"id":7, "Name": "long" },
+	  "maxValue": null,
+	  "minValue": 1,
+	  "engUnit": null
+	},
+	{
+	  "parentId": 999,
+	  "id": 9992,
+	  "Name": "Manufacturer",
+	  "dataType": {"id":8, "Name": "string" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null
+	},
+	{
+	  "parentId": 999,
+	  "id": 9993,
+	  "Name": "Serial Number",
+	  "dataType": {"id":8, "Name": "string" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null
+	},
+	{
+	  "parentId": 1,
+	  "id": 101,
+	  "Name": "CubicCentimeters",
+	  "dataType": {"id":5, "Name": "float" },
+	  "maxValue": "500",
+	  "minValue": "200",
+	  "engUnit": "cc"
+	},
+	{
+	  "parentId": 1,
+	  "id": 102,
+	  "Name": "Horsepower",
+	  "dataType": {"id":6, "Name": "integer" },
+	  "maxValue": 1200,
+	  "minValue": 50,
+	  "engUnit": "HP"
+	},
+	{
+	  "parentId": 1,
+	  "id": 103,
+	  "Name": "Emission Rating",
+	  "dataType": {"id":8, "Name": "string" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null
+	},
+	{
+	  "parentId": 1,
+	  "id": 104,
+	  "Name": "Starter",
+	  "dataType": {"id":3, "Name": "composition" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null,
+	  "composition": {
+		"id": 21,
+		"Name": "Starter"
+	  }
+	}
+  ]
+},
+{
+  "id": 7,
+  "Name": "V-8 Engine",
+  "Namespace": "CarProject.Components.Engine.Combustion",
+  "ParentId": 3,
+  "ParentProfile": {
+	"id": 3,
+	"Name": "Combustion Engine", "ProfileType": {"id": 103,"Name": "Class"}
+  },
+  "ProfileType": {
+	"id": 103,
+	"Name": "Class"
+  },
+  "Description": "Profile description here that says something descriptive",
+  "Created": "2020-11-04",
+  "MetaTags": [
+	{
+	  "Name": "tag 1"
+	},
+	{
+	  "Name": "tag 2"
+	},
+	{
+	  "Name": "tag 3"
+	}
+  ],
+  
+  "author": {
+	"id": 3,
+	"userName": "jimw",
+	"firstName": "Jim",
+	"lastName": "W",
+	"fullName": "Jim W",
+	"organization": {
+	  "id": 1,
+	  "Name": "Engineering Group A"
+	}
+  },
+  "Attributes": [
+	{
+	  "id": 71,
+	  "Name": "attribute1",
+	  "dataType": {"id":5, "Name": "float" },
+	  "maxValue": 3.14,
+	  "minValue": 0,
+	  "engUnit": "unit",
+	  "_itemType": "profile"
+	},
+	{
+	  "id": 72,
+	  "Name": "attribute2",
+	  "dataType": {"id":6, "Name": "integer" },
+	  "maxValue": 365,
+	  "minValue": 0,
+	  "engUnit": "unit",
+	  "_itemType": "profile"
+	},
+	{
+	  "id": 73,
+	  "Name": "attribute3",
+	  "dataType": {"id":1, "Name": "boolean" },
+	  "maxValue": null,
+	  "minValue": 0,
+	  "engUnit": "unit",
+	  "_itemType": "profile"
+	}
+  ],
+  "extendedProfileAttributes": [
+	{
+	  "parentId": 999,
+	  "id": 9991,
+	  "Name": "Id",
+	  "dataType": {"id":7, "Name": "long" },
+	  "maxValue": null,
+	  "minValue": 1,
+	  "engUnit": null,
+	  "_itemType": "extended"
+	},
+	{
+	  "parentId": 999,
+	  "id": 9992,
+	  "Name": "Manufacturer",
+	  "dataType": {"id":8, "Name": "string" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null,
+	  "_itemType": "extended"
+	},
+	{
+	  "parentId": 999,
+	  "id": 9993,
+	  "Name": "Serial Number",
+	  "dataType": {"id":8, "Name": "string" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null,
+	  "_itemType": "extended"
+	},
+	{
+	  "parentId": 1,
+	  "id": 101,
+	  "Name": "CubicCentimeters",
+	  "dataType": {"id":5, "Name": "float" },
+	  "maxValue": "500",
+	  "minValue": "200",
+	  "engUnit": "cc",
+	  "_itemType": "extended"
+	},
+	{
+	  "parentId": 1,
+	  "id": 102,
+	  "Name": "Horsepower",
+	  "dataType": {"id":6, "Name": "integer" },
+	  "maxValue": 1200,
+	  "minValue": 50,
+	  "engUnit": "HP",
+	  "_itemType": "extended"
+	},
+	{
+	  "parentId": 1,
+	  "id": 103,
+	  "Name": "Emission Rating",
+	  "dataType": {"id":8, "Name": "string" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null,
+	  "_itemType": "extended"
+	},
+	{
+	  "parentId": 1,
+	  "id": 104,
+	  "Name": "Starter",
+	  "dataType": {"id":3, "Name": "composition" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null,
+	  "composition": {
+		"id": 21,
+		"Name": "Starter"
+	  },
+	  "_itemType": "extended"
+	}
+  ],
+  "MetaTagsConcatenated": "tag 1, tag 2, tag 3",
+  "level": 0
+},
+{
+  "id": 8,
+  "Name": "W-12 Engine",
+  "Namespace": "CarProject.Components.Engine.Combustion",
+  "ParentId": 3,
+  "ParentProfile": {
+	"id": 3,
+	"Name": "Combustion Engine", "ProfileType": {"id": 103,"Name": "Class"}
+  },
+  "ProfileType": {
+	"id": 103,
+	"Name": "Class"
+  },
+  "Description": "Profile description here",
+  "Created": "2020-11-04",
+  "MetaTags": [
+	{
+	  "Name": "tag 1"
+	},
+	{
+	  "Name": "tag 2"
+	},
+	{
+	  "Name": "tag 3"
+	}
+  ],
+  
+  "author": {
+	"id": 4,
+	"userName": "jonathanw",
+	"firstName": "Jonathan",
+	"lastName": "W",
+	"fullName": "Jonathan W",
+	"organization": {
+	  "id": 3,
+	  "Name": "Engineering Group C"
+	}
+  },
+  "Attributes": [
+	{
+	  "id": 81,
+	  "Name": "attribute1",
+	  "dataType": {"id":5, "Name": "float" },
+	  "maxValue": 3.14,
+	  "minValue": 0,
+	  "engUnit": "unit"
+	},
+	{
+	  "id": 82,
+	  "Name": "attribute2",
+	  "dataType": {"id":6, "Name": "integer" },
+	  "maxValue": 365,
+	  "minValue": 0,
+	  "engUnit": "unit"
+	},
+	{
+	  "id": 83,
+	  "Name": "attribute3",
+	  "dataType": {"id":1, "Name": "boolean" },
+	  "maxValue": null,
+	  "minValue": 0,
+	  "engUnit": "unit"
+	}
+  ],
+  "extendedProfileAttributes": [
+	{
+	  "parentId": 999,
+	  "id": 9991,
+	  "Name": "Id",
+	  "dataType": {"id":7, "Name": "long" },
+	  "maxValue": null,
+	  "minValue": 1,
+	  "engUnit": null
+	},
+	{
+	  "parentId": 999,
+	  "id": 9992,
+	  "Name": "Manufacturer",
+	  "dataType": {"id":8, "Name": "string" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null
+	},
+	{
+	  "parentId": 999,
+	  "id": 9993,
+	  "Name": "Serial Number",
+	  "dataType": {"id":8, "Name": "string" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null
+	},
+	{
+	  "parentId": 1,
+	  "id": 101,
+	  "Name": "CubicCentimeters",
+	  "dataType": {"id":5, "Name": "float" },
+	  "maxValue": "500",
+	  "minValue": "200",
+	  "engUnit": "cc"
+	},
+	{
+	  "parentId": 1,
+	  "id": 102,
+	  "Name": "Horsepower",
+	  "dataType": {"id":6, "Name": "integer" },
+	  "maxValue": 1200,
+	  "minValue": 50,
+	  "engUnit": "HP"
+	},
+	{
+	  "parentId": 1,
+	  "id": 103,
+	  "Name": "Emission Rating",
+	  "dataType": {"id":8, "Name": "string" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null
+	},
+	{
+	  "parentId": 1,
+	  "id": 104,
+	  "Name": "Starter",
+	  "dataType": {"id":3, "Name": "composition" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null,
+	  "composition": {
+		"id": 21,
+		"Name": "Starter"
+	  }
+	}
+  ]
+},
+{
+  "id": 9,
+  "Name": "W-16 Engine",
+  "Namespace": "CarProject.Components.Engine.Combustion",
+  "ParentId": 3,
+  "ParentProfile": {
+	"id": 3,
+	"Name": "Combustion Engine", "ProfileType": {"id": 103,"Name": "Class"}
+  },
+  "ProfileType": {
+	"id": 103,
+	"Name": "Class"
+  },
+  "Description": "This profile controls the automated response characteristic...",
+  "Created": "2020-11-04",
+  "MetaTags": [
+	{
+	  "Name": "tag 1"
+	},
+	{
+	  "Name": "tag 2"
+	},
+	{
+	  "Name": "tag 3"
+	}
+  ],
+  
+  "author": {
+	"id": 7,
+	"userName": "davidw",
+	"firstName": "David",
+	"lastName": "W",
+	"fullName": "David W",
+	"organization": {
+	  "id": 3,
+	  "Name": "Engineering Group C"
+	}
+  },
+  "Attributes": [
+	{
+	  "id": 91,
+	  "Name": "attribute1",
+	  "dataType": {"id":5, "Name": "float" },
+	  "maxValue": 3.14,
+	  "minValue": 0,
+	  "engUnit": "unit"
+	},
+	{
+	  "id": 92,
+	  "Name": "attribute2",
+	  "dataType": {"id":6, "Name": "integer" },
+	  "maxValue": 365,
+	  "minValue": 0,
+	  "engUnit": "unit"
+	},
+	{
+	  "id": 93,
+	  "Name": "attribute3",
+	  "dataType": {"id":1, "Name": "boolean" },
+	  "maxValue": null,
+	  "minValue": 0,
+	  "engUnit": "unit"
+	}
+  ],
+  "extendedProfileAttributes": [
+	{
+	  "parentId": 999,
+	  "id": 9991,
+	  "Name": "Id",
+	  "dataType": {"id":7, "Name": "long" },
+	  "maxValue": null,
+	  "minValue": 1,
+	  "engUnit": null
+	},
+	{
+	  "parentId": 999,
+	  "id": 9992,
+	  "Name": "Manufacturer",
+	  "dataType": {"id":8, "Name": "string" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null
+	},
+	{
+	  "parentId": 999,
+	  "id": 9993,
+	  "Name": "Serial Number",
+	  "dataType": {"id":8, "Name": "string" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null
+	},
+	{
+	  "parentId": 1,
+	  "id": 101,
+	  "Name": "CubicCentimeters",
+	  "dataType": {"id":5, "Name": "float" },
+	  "maxValue": "500",
+	  "minValue": "200",
+	  "engUnit": "cc"
+	},
+	{
+	  "parentId": 1,
+	  "id": 102,
+	  "Name": "Horsepower",
+	  "dataType": {"id":6, "Name": "integer" },
+	  "maxValue": 1200,
+	  "minValue": 50,
+	  "engUnit": "HP"
+	},
+	{
+	  "parentId": 1,
+	  "id": 103,
+	  "Name": "Emission Rating",
+	  "dataType": {"id":8, "Name": "string" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null
+	},
+	{
+	  "parentId": 1,
+	  "id": 104,
+	  "Name": "Starter",
+	  "dataType": {"id":3, "Name": "composition" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null,
+	  "composition": {
+		"id": 21,
+		"Name": "Starter"
+	  }
+	}
+  ]
+},
+{
+  "id": 10,
+  "Name": "IEngine",
+  "Namespace": "CarProject.Interfaces",
+  "ParentId": null,
+  "ParentProfile": null,
+  "ProfileType": {
+	"id": 102,
+	"Name": "Interface"
+  },
+  "Description": "Profile description here",
+  "Created": "2020-11-04",
+  "MetaTags": [
+	{
+	  "Name": "tag 1"
+	},
+	{
+	  "Name": "tag 2"
+	},
+	{
+	  "Name": "tag 3"
+	}
+  ],
+  
+  "author": {
+	"id": 1,
+	"firstName": "Sean",
+	"lastName": "C",
+	"fullName": "Sean C",
+	"organization": {
+	  "id": 1,
+	  "Name": "Engineering Group A"
+	}
+  },
+  "Attributes": [
+	{
+	  "id": 101,
+	  "Name": "CubicCentimeters",
+	  "dataType": {"id":5, "Name": "float" },
+	  "maxValue": "500",
+	  "minValue": "200",
+	  "engUnit": "cc"
+	},
+	{
+	  "id": 102,
+	  "Name": "Horsepower",
+	  "dataType": {"id":6, "Name": "integer" },
+	  "maxValue": 1200,
+	  "minValue": 50,
+	  "engUnit": "HP"
+	},
+	{
+	  "id": 103,
+	  "Name": "Emission Rating",
+	  "dataType": {"id":8, "Name": "string" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null
+	},
+	{
+	  "id": 104,
+	  "Name": "Starter",
+	  "dataType": {"id":3, "Name": "composition" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null,
+	  "composition": {
+		"id": 21,
+		"Name": "Starter"
+	  }
+	}
+  ],
+  "extendedProfileAttributes": null
+},
+{
+  "id": 11,
+  "Name": "ICombustionEngine",
+  "Namespace": "CarProject.Interfaces",
+  "ParentId": 10,
+  "ParentProfile": {
+	"id": 10,
+	"Name": "IEngine",
+	"ProfileType": {
+		"id": 102,
+		"Name": "Interface"
+	}
+  },
+  "ProfileType": {
+	"id": 102,
+	"Name": "Interface"
+  },
+  "Description": "Profile description here",
+  "Created": "2020-11-04",
+  "MetaTags": [
+	{
+	  "Name": "tag 1"
+	},
+	{
+	  "Name": "tag 2"
+	},
+	{
+	  "Name": "tag 3"
+	}
+  ],
+  
+  "author": {
+	"id": 1,
+	"firstName": "Sean",
+	"lastName": "C",
+	"fullName": "Sean C",
+	"organization": {
+	  "id": 1,
+	  "Name": "Engineering Group A"
+	}
+  },
+  "Attributes": [
+	{
+	  "id": 111,
+	  "Name": "attribute1",
+	  "dataType": {"id":5, "Name": "float" },
+	  "maxValue": 3.14,
+	  "minValue": 0,
+	  "engUnit": "unit"
+	},
+	{
+	  "id": 112,
+	  "Name": "attribute2",
+	  "dataType": {"id":6, "Name": "integer" },
+	  "maxValue": 365,
+	  "minValue": 0,
+	  "engUnit": "unit"
+	},
+	{
+	  "id": 113,
+	  "Name": "attribute3",
+	  "dataType": {"id":1, "Name": "boolean" },
+	  "maxValue": null,
+	  "minValue": 0,
+	  "engUnit": "unit"
+	}
+  ],
+  "extendedProfileAttributes": [
+	{
+	  "parentId": 999,
+	  "id": 9991,
+	  "Name": "Id",
+	  "dataType": {"id":7, "Name": "long" },
+	  "maxValue": null,
+	  "minValue": 1,
+	  "engUnit": null
+	},
+	{
+	  "parentId": 999,
+	  "id": 9992,
+	  "Name": "Manufacturer",
+	  "dataType": {"id":8, "Name": "string" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null
+	},
+	{
+	  "parentId": 999,
+	  "id": 9993,
+	  "Name": "Serial Number",
+	  "dataType": {"id":8, "Name": "string" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null
+	},
+	{
+	  "parentId": 1,
+	  "id": 101,
+	  "Name": "CubicCentimeters",
+	  "dataType": {"id":5, "Name": "float" },
+	  "maxValue": "500",
+	  "minValue": "200",
+	  "engUnit": "cc"
+	},
+	{
+	  "parentId": 1,
+	  "id": 102,
+	  "Name": "Horsepower",
+	  "dataType": {"id":6, "Name": "integer" },
+	  "maxValue": 1200,
+	  "minValue": 50,
+	  "engUnit": "HP"
+	},
+	{
+	  "parentId": 1,
+	  "id": 103,
+	  "Name": "Emission Rating",
+	  "dataType": {"id":8, "Name": "string" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null
+	},
+	{
+	  "parentId": 1,
+	  "id": 104,
+	  "Name": "Starter",
+	  "dataType": {"id":3, "Name": "composition" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null,
+	  "composition": {
+		"id": 21,
+		"Name": "Starter"
+	  }
+	}
+  ]
+},
+{
+  "id": 12,
+  "Name": "IElectricEngine",
+  "Namespace": "CarProject.Interfaces",
+  "ParentId": 10,
+  "ParentProfile": {
+	"id": 10,
+	"Name": "IEngine", "ProfileType": {"id": 102,"Name": "Interface"}
+  },
+  "ProfileType": {
+	"id": 102,
+	"Name": "Interface"
+  },
+  "Description": "This profile controls the automated response characteristic...",
+  "Created": "2020-11-04",
+  "MetaTags": [
+	{
+	  "Name": "tag 1"
+	},
+	{
+	  "Name": "tag 2"
+	},
+	{
+	  "Name": "tag 3"
+	}
+  ],
+  
+  "author": {
+	"id": 4,
+	"userName": "jonathanw",
+	"firstName": "Jonathan",
+	"lastName": "W",
+	"fullName": "Jonathan W",
+	"organization": {
+	  "id": 3,
+	  "Name": "Engineering Group C"
+	}
+  },
+  "Attributes": [
+	{
+	  "id": 121,
+	  "Name": "InterfaceAttribute1",
+	  "dataType": {"id":5, "Name": "float" },
+	  "maxValue": 3.14,
+	  "minValue": 0,
+	  "engUnit": "unit"
+	},
+	{
+	  "id": 122,
+	  "Name": "InterfaceAttribute2",
+	  "dataType": {"id":6, "Name": "integer" },
+	  "maxValue": 365,
+	  "minValue": 0,
+	  "engUnit": "unit"
+	},
+	{
+	  "id": 123,
+	  "Name": "InterfaceAttribute4",
+	  "dataType": {"id":1, "Name": "boolean" },
+	  "maxValue": null,
+	  "minValue": 0,
+	  "engUnit": "unit"
+	}
+  ],
+  "extendedProfileAttributes": [
+	{
+	  "parentId": 999,
+	  "id": 9991,
+	  "Name": "Id",
+	  "dataType": {"id":7, "Name": "long" },
+	  "maxValue": null,
+	  "minValue": 1,
+	  "engUnit": null
+	},
+	{
+	  "parentId": 999,
+	  "id": 9992,
+	  "Name": "Manufacturer",
+	  "dataType": {"id":8, "Name": "string" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null
+	},
+	{
+	  "parentId": 999,
+	  "id": 9993,
+	  "Name": "Serial Number",
+	  "dataType": {"id":8, "Name": "string" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null
+	},
+	{
+	  "parentId": 1,
+	  "id": 101,
+	  "Name": "CubicCentimeters",
+	  "dataType": {"id":5, "Name": "float" },
+	  "maxValue": "500",
+	  "minValue": "200",
+	  "engUnit": "cc"
+	},
+	{
+	  "parentId": 1,
+	  "id": 102,
+	  "Name": "Horsepower",
+	  "dataType": {"id":6, "Name": "integer" },
+	  "maxValue": 1200,
+	  "minValue": 50,
+	  "engUnit": "HP"
+	},
+	{
+	  "parentId": 1,
+	  "id": 103,
+	  "Name": "Emission Rating",
+	  "dataType": {"id":8, "Name": "string" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null
+	},
+	{
+	  "parentId": 1,
+	  "id": 104,
+	  "Name": "Starter",
+	  "dataType": {"id":3, "Name": "composition" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null,
+	  "composition": {
+		"id": 21,
+		"Name": "Starter"
+	  }
+	}
+  ]
+},
+{
+  "id": 899,
+  "Name": "Base - Small Engine Component",
+  "Namespace": "CarProject.Components.Engine.SubSystems",
+  "ParentId": 999,
+  "ParentProfile": {
+	"id": 999,
+	"Name": "Abstract Component", "ProfileType": {"id": 103,"Name": "Class"}
+  },
+  "ProfileType": {
+	"id": 103,
+	"Name": "Class"
+  },
+  "Description": "This is a shared base component to be used by all small engine sub components",
+  "Created": "2020-11-04",
+  "MetaTags": [
+	{
+	  "Name": "tag 1"
+	},
+	{
+	  "Name": "tag 2"
+	},
+	{
+	  "Name": "tag 3"
+	}
+  ],
+  
+  "author": {
+	"id": 4,
+	"userName": "jonathanw",
+	"firstName": "Jonathan",
+	"lastName": "W",
+	"fullName": "Jonathan W",
+	"organization": {
+	  "id": 3,
+	  "Name": "Engineering Group C"
+	}
+  },
+  "Attributes": [],
+  "extendedProfileAttributes": [
+	{
+	  "parentId": 999,
+	  "id": 9991,
+	  "Name": "Id",
+	  "dataType": {"id":7, "Name": "long" },
+	  "maxValue": null,
+	  "minValue": 1,
+	  "engUnit": null
+	},
+	{
+	  "parentId": 999,
+	  "id": 9992,
+	  "Name": "Manufacturer",
+	  "dataType": {"id":8, "Name": "string" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null
+	},
+	{
+	  "parentId": 999,
+	  "id": 9993,
+	  "Name": "Serial Number",
+	  "dataType": {"id":8, "Name": "string" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null
+	}
+  ]
+},
+{
+  "id": 21,
+  "Name": "Starter",
+  "Namespace": "CarProject.Components.Engine.SubSystems",
+  "ParentId": 899,
+  "ParentProfile": {
+	"id": 899,
+	"Name": "Base - Small Engine Component", "ProfileType": {"id": 103,"Name": "Class"}
+  },
+  "ProfileType": {
+	"id": 103,
+	"Name": "Class"
+  },
+  "Description": "This profile controls the automated response characteristic...",
+  "Created": "2020-11-04",
+  "MetaTags": [
+	{
+	  "Name": "tag 1"
+	},
+	{
+	  "Name": "tag 2"
+	},
+	{
+	  "Name": "tag 3"
+	}
+  ],
+  
+  "author": {
+	"id": 4,
+	"userName": "jonathanw",
+	"firstName": "Jonathan",
+	"lastName": "W",
+	"fullName": "Jonathan W",
+	"organization": {
+	  "id": 3,
+	  "Name": "Engineering Group C"
+	}
+  },
+  "Attributes": [
+	{
+	  "id": 211,
+	  "Name": "attribute1",
+	  "dataType": {"id":5, "Name": "float" },
+	  "maxValue": 3.14,
+	  "minValue": 0,
+	  "engUnit": "unit"
+	},
+	{
+	  "id": 212,
+	  "Name": "attribute2",
+	  "dataType": {"id":6, "Name": "integer" },
+	  "maxValue": 365,
+	  "minValue": 0,
+	  "engUnit": "unit"
+	},
+	{
+	  "id": 213,
+	  "Name": "attribute3",
+	  "dataType": {"id":1, "Name": "boolean" },
+	  "maxValue": null,
+	  "minValue": 0,
+	  "engUnit": "unit"
+	}
+  ],
+  "extendedProfileAttributes": [
+	{
+	  "parentId": 999,
+	  "id": 9991,
+	  "Name": "Id",
+	  "dataType": {"id":7, "Name": "long" },
+	  "maxValue": null,
+	  "minValue": 1,
+	  "engUnit": null
+	},
+	{
+	  "parentId": 999,
+	  "id": 9992,
+	  "Name": "Manufacturer",
+	  "dataType": {"id":8, "Name": "string" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null
+	},
+	{
+	  "parentId": 999,
+	  "id": 9993,
+	  "Name": "Serial Number",
+	  "dataType": {"id":8, "Name": "string" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null
+	}
+  ]
+},
+{
+  "id": 22,
+  "Name": "Shaft",
+  "Namespace": "CarProject.Components.Engine.SubSystems",
+  "ParentId": 899,
+  "ParentProfile": {
+	"id": 899,
+	"Name": "Base - Small Engine Component", "ProfileType": {"id": 103,"Name": "Class"}
+  },
+  "ProfileType": {
+	"id": 103,
+	"Name": "Class"
+  },
+  "Description": "Description of the shaft in the electric engine....",
+  "Created": "2020-11-04",
+  "MetaTags": [
+	{
+	  "Name": "tag 1"
+	},
+	{
+	  "Name": "tag 2"
+	},
+	{
+	  "Name": "tag 3"
+	}
+  ],
+  
+  "author": {
+	"id": 4,
+	"userName": "jonathanw",
+	"firstName": "Jonathan",
+	"lastName": "W",
+	"fullName": "Jonathan W",
+	"organization": {
+	  "id": 3,
+	  "Name": "Engineering Group C"
+	}
+  },
+  "Attributes": [
+	{
+	  "id": 221,
+	  "Name": "attribute1",
+	  "dataType": {"id":5, "Name": "float" },
+	  "maxValue": 3.14,
+	  "minValue": 0,
+	  "engUnit": "unit"
+	},
+	{
+	  "id": 222,
+	  "Name": "attribute2",
+	  "dataType": {"id":6, "Name": "integer" },
+	  "maxValue": 365,
+	  "minValue": 0,
+	  "engUnit": "unit"
+	},
+	{
+	  "id": 223,
+	  "Name": "attribute3",
+	  "dataType": {"id":1, "Name": "boolean" },
+	  "maxValue": null,
+	  "minValue": 0,
+	  "engUnit": "unit"
+	}
+  ],
+  "extendedProfileAttributes": [
+	{
+	  "parentId": 999,
+	  "id": 9991,
+	  "Name": "Id",
+	  "dataType": {"id":7, "Name": "long" },
+	  "maxValue": null,
+	  "minValue": 1,
+	  "engUnit": null
+	},
+	{
+	  "parentId": 999,
+	  "id": 9992,
+	  "Name": "Manufacturer",
+	  "dataType": {"id":8, "Name": "string" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null
+	},
+	{
+	  "parentId": 999,
+	  "id": 9993,
+	  "Name": "Serial Number",
+	  "dataType": {"id":8, "Name": "string" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null
+	}
+  ]
+},
+{
+  "id": 23,
+  "Name": "Fan",
+  "Namespace": "CarProject.Components.Engine.SubSystems",
+  "ParentId": 899,
+  "ParentProfile": {
+	"id": 899,
+	"Name": "Base - Small Engine Component", "ProfileType": {"id": 103,"Name": "Class"}
+  },
+  "ProfileType": {
+	"id": 103,
+	"Name": "Class"
+  },
+  "Description": "Description of the fan in the electric engine....",
+  "Created": "2020-11-04",
+  "MetaTags": [
+	{
+	  "Name": "tag 1"
+	},
+	{
+	  "Name": "tag 2"
+	},
+	{
+	  "Name": "tag 3"
+	}
+  ],
+  
+  "author": {
+	"id": 4,
+	"userName": "jonathanw",
+	"firstName": "Jonathan",
+	"lastName": "W",
+	"fullName": "Jonathan W",
+	"organization": {
+	  "id": 3,
+	  "Name": "Engineering Group C"
+	}
+  },
+  "Attributes": [
+	{
+	  "id": 231,
+	  "Name": "attribute1",
+	  "dataType": {"id":5, "Name": "float" },
+	  "maxValue": 3.14,
+	  "minValue": 0,
+	  "engUnit": "unit"
+	},
+	{
+	  "id": 232,
+	  "Name": "attribute2",
+	  "dataType": {"id":6, "Name": "integer" },
+	  "maxValue": 365,
+	  "minValue": 0,
+	  "engUnit": "unit"
+	},
+	{
+	  "id": 233,
+	  "Name": "attribute3",
+	  "dataType": {"id":1, "Name": "boolean" },
+	  "maxValue": null,
+	  "minValue": 0,
+	  "engUnit": "unit"
+	}
+  ],
+  "extendedProfileAttributes": [
+	{
+	  "parentId": 999,
+	  "id": 9991,
+	  "Name": "Id",
+	  "dataType": {"id":7, "Name": "long" },
+	  "maxValue": null,
+	  "minValue": 1,
+	  "engUnit": null
+	},
+	{
+	  "parentId": 999,
+	  "id": 9992,
+	  "Name": "Manufacturer",
+	  "dataType": {"id":8, "Name": "string" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null
+	},
+	{
+	  "parentId": 999,
+	  "id": 9993,
+	  "Name": "Serial Number",
+	  "dataType": {"id":8, "Name": "string" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null
+	}
+  ]
+},
+{
+  "id": 24,
+  "Name": "Rotor",
+  "Namespace": "CarProject.Components.Engine.SubSystems",
+  "ParentId": 899,
+  "ParentProfile": {
+	"id": 899,
+	"Name": "Base - Small Engine Component", "ProfileType": {"id": 103,"Name": "Class"}
+  },
+  "ProfileType": {
+	"id": 103,
+	"Name": "Class"
+  },
+  "Description": "Description of the rotor in the electric engine....",
+  "Created": "2020-11-04",
+  "MetaTags": [
+	{
+	  "Name": "engine"
+	},
+	{
+	  "Name": "eletric"
+	}
+  ],
+  
+  "author": {
+	"id": 4,
+	"userName": "jonathanw",
+	"firstName": "Jonathan",
+	"lastName": "W",
+	"fullName": "Jonathan W",
+	"organization": {
+	  "id": 3,
+	  "Name": "Engineering Group C"
+	}
+  },
+  "Attributes": [
+	{
+	  "id": 241,
+	  "Name": "attribute1",
+	  "dataType": {"id":5, "Name": "float" },
+	  "maxValue": 3.14,
+	  "minValue": 0,
+	  "engUnit": "unit"
+	},
+	{
+	  "id": 242,
+	  "Name": "attribute2",
+	  "dataType": {"id":6, "Name": "integer" },
+	  "maxValue": 365,
+	  "minValue": 0,
+	  "engUnit": "unit"
+	},
+	{
+	  "id": 243,
+	  "Name": "attribute3",
+	  "dataType": {"id":1, "Name": "boolean" },
+	  "maxValue": null,
+	  "minValue": 0,
+	  "engUnit": "unit"
+	}
+  ],
+  "extendedProfileAttributes": [
+	{
+	  "parentId": 999,
+	  "id": 9991,
+	  "Name": "Id",
+	  "dataType": {"id":7, "Name": "long" },
+	  "maxValue": null,
+	  "minValue": 1,
+	  "engUnit": null
+	},
+	{
+	  "parentId": 999,
+	  "id": 9992,
+	  "Name": "Manufacturer",
+	  "dataType": {"id":8, "Name": "string" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null
+	},
+	{
+	  "parentId": 999,
+	  "id": 9993,
+	  "Name": "Serial Number",
+	  "dataType": {"id":8, "Name": "string" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null
+	}
+  ]
+},
+{
+  "id": 1000,
+  "Name": "Tesla Engine - AC Permanent Magnet 2021",
+  "Namespace": "CarProject.Components.Engine.Electric",
+  "ParentId": 5,
+  "ParentProfile": {
+	"id": 5,
+	"Name": "Tesla Engine - AC Permanent Magnet", "ProfileType": {"id": 103,"Name": "Class"}
+  },
+  "ProfileType": {
+	"id": 103,
+	"Name": "Class"
+  },
+  "Description": "Tesla Engine - AC Permanent Magnet",
+  "Created": "2020-11-04",
+  "MetaTags": [
+	{
+	  "Name": "2021"
+	},
+	{
+	  "Name": "  engine"
+	},
+	{
+	  "Name": "  electric"
+	},
+	{
+	  "Name": "  tesla"
+	}
+  ],
+  
+  "author": {
+	"id": 1,
+	"userName": "seanc",
+	"firstName": "Sean",
+	"lastName": "C",
+	"fullName": "Sean C",
+	"organization": {
+	  "id": 1,
+	  "Name": "Engineering Group A"
+	}
+  },
+  "Attributes": [
+	{
+	  "parentId": null,
+	  "id": 308239,
+	  "Name": "Battery Size",
+	  "dataType": {"id":4, "Name": "double" },
+	  "minValue": "10",
+	  "maxValue": "20",
+	  "engUnit": "cubic centimeter",
+	  "compositionId": -1,
+	  "composition": null
+	}
+  ],
+  "extendedProfileAttributes": [
+	{
+	  "parentId": 999,
+	  "id": 9991,
+	  "Name": "Id",
+	  "dataType": {"id":7, "Name": "long" },
+	  "maxValue": null,
+	  "minValue": 1,
+	  "engUnit": null
+	},
+	{
+	  "parentId": 999,
+	  "id": 9992,
+	  "Name": "Manufacturer",
+	  "dataType": {"id":8, "Name": "string" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null
+	},
+	{
+	  "parentId": 999,
+	  "id": 9993,
+	  "Name": "Serial Number",
+	  "dataType": {"id":8, "Name": "string" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null
+	},
+	{
+	  "parentId": 1,
+	  "id": 101,
+	  "Name": "CubicCentimeters",
+	  "dataType": {"id":5, "Name": "float" },
+	  "maxValue": "500",
+	  "minValue": "200",
+	  "engUnit": "cc"
+	},
+	{
+	  "parentId": 1,
+	  "id": 102,
+	  "Name": "Horsepower",
+	  "dataType": {"id":6, "Name": "integer" },
+	  "maxValue": 1200,
+	  "minValue": 50,
+	  "engUnit": "HP"
+	},
+	{
+	  "parentId": 1,
+	  "id": 103,
+	  "Name": "Emission Rating",
+	  "dataType": {"id":8, "Name": "string" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null
+	},
+	{
+	  "parentId": 1,
+	  "id": 104,
+	  "Name": "Starter",
+	  "dataType": {"id":3, "Name": "composition" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null,
+	  "composition": {
+		"id": 21,
+		"Name": "Starter"
+	  }
+	},
+	{
+	  "id": 51,
+	  "Name": "attribute1",
+	  "dataType": {"id":5, "Name": "float" },
+	  "maxValue": 3.14,
+	  "minValue": 0,
+	  "engUnit": "unit"
+	},
+	{
+	  "id": 52,
+	  "Name": "attribute2",
+	  "dataType": {"id":6, "Name": "integer" },
+	  "maxValue": 365,
+	  "minValue": 0,
+	  "engUnit": "unit"
+	},
+	{
+	  "id": 53,
+	  "Name": "attribute3",
+	  "dataType": {"id":1, "Name": "boolean" },
+	  "maxValue": null,
+	  "minValue": 0,
+	  "engUnit": "unit"
+	}
+  ],
+  "MetaTagsConcatenated": "2021, engine, electric, tesla",
+  "level": 0
+},
+{
+  "id": 1001,
+  "Name": "Transmission",
+  "Namespace": "CarProject.Components",
+  "ParentId": 999,
+  "ParentProfile": {
+	"id": 999,
+	"Name": "Abstract Component", "ProfileType": {"id": 103,"Name": "Class"}
+  },
+  "Interfaces": null,
+  "ProfileType": {
+	"id": 103,
+	"Name": "Class"
+  },
+  "Description": "Basic transmission profile",
+  "Created": "2020-11-04",
+  "MetaTags": [
+	{
+	  "Name": "machine"
+	},
+	{
+	  "Name": "auto"
+	},
+	{
+	  "Name": "propulsion"
+	}
+  ],
+  
+  "author": {
+	"id": 1,
+	"userName": "seanc",
+	"firstName": "Sean",
+	"lastName": "C",
+	"fullName": "Sean C",
+	"organization": {
+	  "id": 1,
+	  "Name": "Engineering Group A"
+	}
+  },
+  "Attributes": [
+	{
+	  "parentId": null,
+	  "id": 555487,
+	  "Name": "Clutch Assembly",
+	  "dataType": {"id":8, "Name": "string" },
+	  "minValue": null,
+	  "maxValue": null,
+	  "engUnit": null,
+	  "compositionId": -1,
+	  "composition": null,
+	  "_itemType": "profile"
+	},
+	{
+	  "parentId": null,
+	  "id": 566242,
+	  "Name": "Differential",
+	  "dataType": {"id":8, "Name": "string" },
+	  "minValue": null,
+	  "maxValue": null,
+	  "engUnit": null,
+	  "compositionId": -1,
+	  "composition": null,
+	  "_itemType": "profile"
+	},
+	{
+	  "parentId": null,
+	  "id": 585018,
+	  "Name": "Gearbox",
+	  "dataType": {"id":8, "Name": "string" },
+	  "minValue": null,
+	  "maxValue": null,
+	  "engUnit": null,
+	  "compositionId": -1,
+	  "composition": null,
+	  "_itemType": "profile"
+	},
+	{
+	  "parentId": null,
+	  "id": 600904,
+	  "Name": "Propeller Shaft",
+	  "dataType": {"id":8, "Name": "string" },
+	  "minValue": null,
+	  "maxValue": null,
+	  "engUnit": null,
+	  "compositionId": -1,
+	  "composition": null,
+	  "_itemType": "profile"
+	},
+	{
+	  "parentId": null,
+	  "id": 361663,
+	  "Name": "Error Message",
+	  "dataType": {"id":216038, "Name": "Message Code" },
+	  "minValue": null,
+	  "maxValue": null,
+	  "engUnit": null,
+	  "compositionId": -1,
+	  "composition": null,
+	  "interfaceId": -1,
+	  "interface": null,
+	  "variableTypeId": 161319,
+	  "variableType": {
+		"id": 161319,
+		"Name": "Message Code"
+	  },
+	  "_itemType": "profile"
+	}
+  ],
+  "extendedProfileAttributes": [
+	{
+	  "id": 9991,
+	  "Name": "Id",
+	  "dataType": {"id":7, "Name": "long" },
+	  "maxValue": null,
+	  "minValue": 1,
+	  "engUnit": null,
+	  "_itemType": "extended"
+	},
+	{
+	  "id": 9992,
+	  "Name": "Manufacturer",
+	  "dataType": {"id":8, "Name": "string" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null,
+	  "_itemType": "extended"
+	},
+	{
+	  "id": 9993,
+	  "Name": "Serial Number",
+	  "dataType": {"id":8, "Name": "string" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null,
+	  "_itemType": "extended"
+	}
+  ],
+  "MetaTagsConcatenated": "machine,  auto,  propulsion",
+  "level": 0
+},
+{
+  "id": 1002,
+  "Name": "Chassis",
+  "Namespace": "CarProject.Components",
+  "ParentId": 999,
+  "ParentProfile": {
+	"id": 999,
+	"Name": "Abstract Component", "ProfileType": {"id": 103,"Name": "Class"}
+  },
+  "Interfaces": null,
+  "ProfileType": {
+	"id": 103,
+	"Name": "Class"
+  },
+  "Description": "Basic chassis component",
+  "Created": "2020-11-04",
+  "MetaTags": [
+	{
+	  "Name": "machine"
+	},
+	{
+	  "Name": "auto"
+	},
+	{
+	  "Name": "propulsion"
+	}
+  ],
+  
+  "author": {
+	"id": 1,
+	"userName": "seanc",
+	"firstName": "Sean",
+	"lastName": "C",
+	"fullName": "Sean C",
+	"organization": {
+	  "id": 1,
+	  "Name": "Engineering Group A"
+	}
+  },
+  "Attributes": [
+	{
+	  "parentId": null,
+	  "id": 760600,
+	  "Name": "Suspension",
+	  "dataType": {"id":8, "Name": "string" },
+	  "minValue": null,
+	  "maxValue": null,
+	  "engUnit": null,
+	  "compositionId": -1,
+	  "composition": null
+	},
+	{
+	  "parentId": null,
+	  "id": 769787,
+	  "Name": "Axles",
+	  "dataType": {"id":8, "Name": "string" },
+	  "minValue": null,
+	  "maxValue": null,
+	  "engUnit": null,
+	  "compositionId": -1,
+	  "composition": null
+	},
+	{
+	  "parentId": null,
+	  "id": 778912,
+	  "Name": "Wheels",
+	  "dataType": {"id":8, "Name": "string" },
+	  "minValue": null,
+	  "maxValue": null,
+	  "engUnit": null,
+	  "compositionId": -1,
+	  "composition": null
+	},
+	{
+	  "parentId": null,
+	  "id": 787994,
+	  "Name": "Frame",
+	  "dataType": {"id":8, "Name": "string" },
+	  "minValue": null,
+	  "maxValue": null,
+	  "engUnit": null,
+	  "compositionId": -1,
+	  "composition": null
+	}
+  ],
+  "extendedProfileAttributes": [
+	{
+	  "id": 9991,
+	  "Name": "Id",
+	  "dataType": {"id":7, "Name": "long" },
+	  "maxValue": null,
+	  "minValue": 1,
+	  "engUnit": null
+	},
+	{
+	  "id": 9992,
+	  "Name": "Manufacturer",
+	  "dataType": {"id":8, "Name": "string" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null
+	},
+	{
+	  "id": 9993,
+	  "Name": "Serial Number",
+	  "dataType": {"id":8, "Name": "string" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null
+	}
+  ],
+  "MetaTagsConcatenated": "machine, auto, propulsion",
+  "level": 0
+},
+{
+  "id": 1003,
+  "Name": "Body",
+  "Namespace": "CarProject.Components",
+  "ParentId": 999,
+  "ParentProfile": {
+	"id": 999,
+	"Name": "Abstract Component", "ProfileType": {"id": 103,"Name": "Class"}
+  },
+  "Interfaces": null,
+  "ProfileType": {
+	"id": 103,
+	"Name": "Class"
+  },
+  "Description": "Basic building block for body",
+  "Created": "2020-11-04",
+  "MetaTags": [
+	{
+	  "Name": "machine"
+	},
+	{
+	  "Name": " auto"
+	},
+	{
+	  "Name": "propulsion"
+	}
+  ],
+  
+  "author": {
+	"id": 1,
+	"userName": "seanc",
+	"firstName": "Sean",
+	"lastName": "C",
+	"fullName": "Sean C",
+	"organization": {
+	  "id": 1,
+	  "Name": "Engineering Group A"
+	}
+  },
+  "Attributes": [],
+  "extendedProfileAttributes": [
+	{
+	  "id": 9991,
+	  "Name": "Id",
+	  "dataType": {"id":7, "Name": "long" },
+	  "maxValue": null,
+	  "minValue": 1,
+	  "engUnit": null
+	},
+	{
+	  "id": 9992,
+	  "Name": "Manufacturer",
+	  "dataType": {"id":8, "Name": "string" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null
+	},
+	{
+	  "id": 9993,
+	  "Name": "Serial Number",
+	  "dataType": {"id":8, "Name": "string" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null
+	}
+  ],
+  "MetaTagsConcatenated": "machine, auto, propulsion",
+  "level": 0
+},
+{
+  "id": 1004,
+  "Name": "Auto",
+  "Namespace": "CarProject.Auto",
+  "ParentId": 999,
+  "ParentProfile": {
+	"id": 999,
+	"Name": "Abstract Component", "ProfileType": {"id": 103,"Name": "Class"}
+  },
+  "Interfaces": null,
+  "ProfileType": {
+	"id": 103,
+	"Name": "Class"
+  },
+  "Description": "Basic building block for automobile",
+  "Created": "2020-11-04",
+  "MetaTags": [
+	{
+	  "Name": "machine"
+	},
+	{
+	  "Name": "   auto"
+	},
+	{
+	  "Name": "   propulsion"
+	}
+  ],
+  
+  "author": {
+	"id": 1,
+	"userName": "seanc",
+	"firstName": "Sean",
+	"lastName": "C",
+	"fullName": "Sean C",
+	"organization": {
+	  "id": 1,
+	  "Name": "Engineering Group A"
+	}
+  },
+  "Attributes": [
+	{
+	  "parentId": null,
+	  "id": 206550,
+	  "Name": "Body",
+	  "dataType": {"id":3, "Name": "composition" },
+	  "minValue": null,
+	  "maxValue": null,
+	  "engUnit": null,
+	  "compositionId": 1003,
+	  "composition": {
+		"id": 1003,
+		"Name": "Body"
+	  }
+	},
+	{
+	  "parentId": null,
+	  "id": 238534,
+	  "Name": "Chassis",
+	  "dataType": {"id":3, "Name": "composition" },
+	  "minValue": null,
+	  "maxValue": null,
+	  "engUnit": null,
+	  "compositionId": 1002,
+	  "composition": {
+		"id": 1002,
+		"Name": "Chassis"
+	  }
+	},
+	{
+	  "parentId": null,
+	  "id": 264233,
+	  "Name": "Engine",
+	  "dataType": {"id":3, "Name": "composition" },
+	  "minValue": null,
+	  "maxValue": null,
+	  "engUnit": null,
+	  "compositionId": 1,
+	  "composition": {
+		"id": 1,
+		"Name": "Engine"
+	  }
+	},
+	{
+	  "parentId": null,
+	  "id": 300750,
+	  "Name": "Transmission",
+	  "dataType": {"id":3, "Name": "composition" },
+	  "minValue": null,
+	  "maxValue": null,
+	  "engUnit": null,
+	  "compositionId": 1001,
+	  "composition": {
+		"id": 1001,
+		"Name": "Transmission"
+	  }
+	},
+	{
+	  "parentId": null,
+	  "id": 69896,
+	  "Name": "Wheelbase",
+	  "dataType": {"id":4, "Name": "double" },
+	  "minValue": "0",
+	  "maxValue": "500",
+	  "engUnit": "inch",
+	  "compositionId": -1,
+	  "composition": null
+	},
+	{
+	  "parentId": null,
+	  "id": 22538,
+	  "Name": "Width",
+	  "dataType": {"id":4, "Name": "double" },
+	  "minValue": "0",
+	  "maxValue": "144",
+	  "engUnit": "inch",
+	  "compositionId": -1,
+	  "composition": null
+	},
+	{
+	  "parentId": null,
+	  "id": 52143,
+	  "Name": "Height",
+	  "dataType": {"id":4, "Name": "double" },
+	  "minValue": "0",
+	  "maxValue": "200",
+	  "engUnit": "inch",
+	  "compositionId": -1,
+	  "composition": null
+	},
+	{
+	  "parentId": null,
+	  "id": 87569,
+	  "Name": "Curb Weight",
+	  "dataType": {"id":4, "Name": "double" },
+	  "minValue": "0",
+	  "maxValue": "30000",
+	  "engUnit": "pound",
+	  "compositionId": -1,
+	  "composition": null
+	}
+  ],
+  "extendedProfileAttributes": [
+	{
+	  "id": 9991,
+	  "Name": "Id",
+	  "dataType": {"id":7, "Name": "long" },
+	  "maxValue": null,
+	  "minValue": 1,
+	  "engUnit": null
+	},
+	{
+	  "id": 9992,
+	  "Name": "Manufacturer",
+	  "dataType": {"id":8, "Name": "string" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null
+	},
+	{
+	  "id": 9993,
+	  "Name": "Serial Number",
+	  "dataType": {"id":8, "Name": "string" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null
+	}
+  ],
+  "MetaTagsConcatenated": "machine, auto, propulsion",
+  "level": 0
+},
+{
+  "id": 1005,
+  "Name": "Car",
+  "Namespace": "CarProject.Auto",
+  "ParentId": 1004,
+  "ParentProfile": {
+	"id": 1004,
+	"Name": "Auto", "ProfileType": {"id": 103,"Name": "Class"}
+  },
+  "Interfaces": null,
+  "ProfileType": {
+	"id": 103,
+	"Name": "Class"
+  },
+  "Description": "Basic building block for car",
+  "Created": "2020-11-04",
+  "MetaTags": [
+	{
+	  "Name": "machine"
+	},
+	{
+	  "Name": "    auto"
+	},
+	{
+	  "Name": "    propulsion"
+	},
+	{
+	  "Name": "  car"
+	}
+  ],
+  
+  "author": {
+	"id": 1,
+	"userName": "seanc",
+	"firstName": "Sean",
+	"lastName": "C",
+	"fullName": "Sean C",
+	"organization": {
+	  "id": 1,
+	  "Name": "Engineering Group A"
+	}
+  },
+  "Attributes": [
+	{
+	  "parentId": null,
+	  "id": 420531,
+	  "Name": "Passenger Volume",
+	  "dataType": {"id":4, "Name": "double" },
+	  "minValue": "0",
+	  "maxValue": "1000",
+	  "engUnit": "cubic centimeter",
+	  "compositionId": -1,
+	  "composition": null
+	}
+  ],
+  "extendedProfileAttributes": [
+	{
+	  "id": 9991,
+	  "Name": "Id",
+	  "dataType": {"id":7, "Name": "long" },
+	  "maxValue": null,
+	  "minValue": 1,
+	  "engUnit": null
+	},
+	{
+	  "id": 9992,
+	  "Name": "Manufacturer",
+	  "dataType": {"id":8, "Name": "string" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null
+	},
+	{
+	  "id": 9993,
+	  "Name": "Serial Number",
+	  "dataType": {"id":8, "Name": "string" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null
+	},
+	{
+	  "id": 206550,
+	  "Name": "Body",
+	  "dataType": {"id":3, "Name": "composition" },
+	  "minValue": null,
+	  "maxValue": null,
+	  "engUnit": null,
+	  "compositionId": 1003,
+	  "composition": {
+		"id": 1003,
+		"Name": "Body"
+	  }
+	},
+	{
+	  "id": 238534,
+	  "Name": "Chassis",
+	  "dataType": {"id":3, "Name": "composition" },
+	  "minValue": null,
+	  "maxValue": null,
+	  "engUnit": null,
+	  "compositionId": 1002,
+	  "composition": {
+		"id": 1002,
+		"Name": "Chassis"
+	  }
+	},
+	{
+	  "id": 264233,
+	  "Name": "Engine",
+	  "dataType": {"id":3, "Name": "composition" },
+	  "minValue": null,
+	  "maxValue": null,
+	  "engUnit": null,
+	  "compositionId": 1,
+	  "composition": {
+		"id": 1,
+		"Name": "Engine"
+	  }
+	},
+	{
+	  "id": 300750,
+	  "Name": "Transmission",
+	  "dataType": {"id":3, "Name": "composition" },
+	  "minValue": null,
+	  "maxValue": null,
+	  "engUnit": null,
+	  "compositionId": 1001,
+	  "composition": {
+		"id": 1001,
+		"Name": "Transmission"
+	  }
+	},
+	{
+	  "parentId": null,
+	  "id": 69896,
+	  "Name": "Wheelbase",
+	  "dataType": {"id":4, "Name": "double" },
+	  "minValue": "0",
+	  "maxValue": "500",
+	  "engUnit": "inch",
+	  "compositionId": -1,
+	  "composition": null
+	},
+	{
+	  "parentId": null,
+	  "id": 22538,
+	  "Name": "Width",
+	  "dataType": {"id":4, "Name": "double" },
+	  "minValue": "0",
+	  "maxValue": "144",
+	  "engUnit": "inch",
+	  "compositionId": -1,
+	  "composition": null
+	},
+	{
+	  "parentId": null,
+	  "id": 52143,
+	  "Name": "Height",
+	  "dataType": {"id":4, "Name": "double" },
+	  "minValue": "0",
+	  "maxValue": "200",
+	  "engUnit": "inch",
+	  "compositionId": -1,
+	  "composition": null
+	},
+	{
+	  "parentId": null,
+	  "id": 87569,
+	  "Name": "Curb Weight",
+	  "dataType": {"id":4, "Name": "double" },
+	  "minValue": "0",
+	  "maxValue": "30000",
+	  "engUnit": "pound",
+	  "compositionId": -1,
+	  "composition": null
+	}
+  ],
+  "MetaTagsConcatenated": "machine, auto, propulsion, car",
+  "level": 0
+},
+{
+  "id": 1006,
+  "Name": "SUV",
+  "Namespace": "CarProject.Auto",
+  "ParentId": 1004,
+  "ParentProfile": {
+	"id": 1004,
+	"Name": "Auto", "ProfileType": {"id": 103,"Name": "Class"}
+  },
+  "Interfaces": null,
+  "ProfileType": {
+	"id": 103,
+	"Name": "Class"
+  },
+  "Description": "Basic building block for SUV",
+  "Created": "2020-11-04",
+  "MetaTags": [
+	{
+	  "Name": "machine"
+	},
+	{
+	  "Name": "  auto"
+	},
+	{
+	  "Name": "  propulsion"
+	}
+  ],
+  
+  "author": {
+	"id": 1,
+	"userName": "seanc",
+	"firstName": "Sean",
+	"lastName": "C",
+	"fullName": "Sean C",
+	"organization": {
+	  "id": 1,
+	  "Name": "Engineering Group A"
+	}
+  },
+  "Attributes": [],
+  "extendedProfileAttributes": [
+	{
+	  "id": 9991,
+	  "Name": "Id",
+	  "dataType": {"id":7, "Name": "long" },
+	  "maxValue": null,
+	  "minValue": 1,
+	  "engUnit": null
+	},
+	{
+	  "id": 9992,
+	  "Name": "Manufacturer",
+	  "dataType": {"id":8, "Name": "string" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null
+	},
+	{
+	  "id": 9993,
+	  "Name": "Serial Number",
+	  "dataType": {"id":8, "Name": "string" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null
+	},
+	{
+	  "id": 206550,
+	  "Name": "Body",
+	  "dataType": {"id":3, "Name": "composition" },
+	  "minValue": null,
+	  "maxValue": null,
+	  "engUnit": null,
+	  "compositionId": 1003,
+	  "composition": {
+		"id": 1003,
+		"Name": "Body"
+	  }
+	},
+	{
+	  "id": 238534,
+	  "Name": "Chassis",
+	  "dataType": {"id":3, "Name": "composition" },
+	  "minValue": null,
+	  "maxValue": null,
+	  "engUnit": null,
+	  "compositionId": 1002,
+	  "composition": {
+		"id": 1002,
+		"Name": "Chassis"
+	  }
+	},
+	{
+	  "id": 264233,
+	  "Name": "Engine",
+	  "dataType": {"id":3, "Name": "composition" },
+	  "minValue": null,
+	  "maxValue": null,
+	  "engUnit": null,
+	  "compositionId": 1,
+	  "composition": {
+		"id": 1,
+		"Name": "Engine"
+	  }
+	},
+	{
+	  "id": 300750,
+	  "Name": "Transmission",
+	  "dataType": {"id":3, "Name": "composition" },
+	  "minValue": null,
+	  "maxValue": null,
+	  "engUnit": null,
+	  "compositionId": 1001,
+	  "composition": {
+		"id": 1001,
+		"Name": "Transmission"
+	  }
+	},
+	{
+	  "parentId": null,
+	  "id": 69896,
+	  "Name": "Wheelbase",
+	  "dataType": {"id":4, "Name": "double" },
+	  "minValue": "0",
+	  "maxValue": "500",
+	  "engUnit": "inch",
+	  "compositionId": -1,
+	  "composition": null
+	},
+	{
+	  "parentId": null,
+	  "id": 22538,
+	  "Name": "Width",
+	  "dataType": {"id":4, "Name": "double" },
+	  "minValue": "0",
+	  "maxValue": "144",
+	  "engUnit": "inch",
+	  "compositionId": -1,
+	  "composition": null
+	},
+	{
+	  "parentId": null,
+	  "id": 52143,
+	  "Name": "Height",
+	  "dataType": {"id":4, "Name": "double" },
+	  "minValue": "0",
+	  "maxValue": "200",
+	  "engUnit": "inch",
+	  "compositionId": -1,
+	  "composition": null
+	},
+	{
+	  "parentId": null,
+	  "id": 87569,
+	  "Name": "Curb Weight",
+	  "dataType": {"id":4, "Name": "double" },
+	  "minValue": "0",
+	  "maxValue": "30000",
+	  "engUnit": "pound",
+	  "compositionId": -1,
+	  "composition": null
+	}
+  ],
+  "MetaTagsConcatenated": "machine, auto, propulsion",
+  "level": 0
+},
+{
+  "id": 1007,
+  "Name": "Light Duty Truck",
+  "Namespace": "CarProject.Auto",
+  "ParentId": 1004,
+  "ParentProfile": {
+	"id": 1004,
+	"Name": "Auto", "ProfileType": {"id": 103,"Name": "Class"}
+  },
+  "Interfaces": null,
+  "ProfileType": {
+	"id": 103,
+	"Name": "Class"
+  },
+  "Description": "Basic building block for light duty truck",
+  "Created": "2020-11-04",
+  "MetaTags": [
+	{
+	  "Name": "machine"
+	},
+	{
+	  "Name": "auto"
+	},
+	{
+	  "Name": "propulsion"
+	}
+  ],
+  
+  "author": {
+	"id": 1,
+	"userName": "seanc",
+	"firstName": "Sean",
+	"lastName": "C",
+	"fullName": "Sean C",
+	"organization": {
+	  "id": 1,
+	  "Name": "Engineering Group A"
+	}
+  },
+  "Attributes": [
+	{
+	  "parentId": null,
+	  "id": 348456,
+	  "Name": "My3DVariable",
+	  "dataType": {"id":311672, "Name": "Vector3D" },
+	  "minValue": null,
+	  "maxValue": null,
+	  "engUnit": null,
+	  "compositionId": -1,
+	  "composition": null,
+	  "interfaceId": -1,
+	  "interface": null,
+	  "variableTypeId": 311672,
+	  "variableType": {
+		"id": 311672,
+		"Name": "Vector3D"
+	  },
+	  "Description": null,
+	  "displayName": null,
+	  "_itemType": "profile"
+	}
+  ],
+  "extendedProfileAttributes": [
+	{
+	  "id": 9991,
+	  "Name": "Id",
+	  "dataType": {"id":7, "Name": "long" },
+	  "maxValue": null,
+	  "minValue": 1,
+	  "engUnit": null,
+	  "_itemType": "extended"
+	},
+	{
+	  "id": 9992,
+	  "Name": "Manufacturer",
+	  "dataType": {"id":8, "Name": "string" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null,
+	  "_itemType": "extended"
+	},
+	{
+	  "id": 9993,
+	  "Name": "Serial Number",
+	  "dataType": {"id":8, "Name": "string" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null,
+	  "_itemType": "extended"
+	},
+	{
+	  "id": 206550,
+	  "Name": "Body",
+	  "dataType": {"id":3, "Name": "composition" },
+	  "minValue": null,
+	  "maxValue": null,
+	  "engUnit": null,
+	  "compositionId": 1003,
+	  "composition": {
+		"id": 1003,
+		"Name": "Body"
+	  },
+	  "_itemType": "extended"
+	},
+	{
+	  "id": 238534,
+	  "Name": "Chassis",
+	  "dataType": {"id":3, "Name": "composition" },
+	  "minValue": null,
+	  "maxValue": null,
+	  "engUnit": null,
+	  "compositionId": 1002,
+	  "composition": {
+		"id": 1002,
+		"Name": "Chassis"
+	  },
+	  "_itemType": "extended"
+	},
+	{
+	  "id": 264233,
+	  "Name": "Engine",
+	  "dataType": {"id":3, "Name": "composition" },
+	  "minValue": null,
+	  "maxValue": null,
+	  "engUnit": null,
+	  "compositionId": 1,
+	  "composition": {
+		"id": 1,
+		"Name": "Engine"
+	  },
+	  "_itemType": "extended"
+	},
+	{
+	  "id": 300750,
+	  "Name": "Transmission",
+	  "dataType": {"id":3, "Name": "composition" },
+	  "minValue": null,
+	  "maxValue": null,
+	  "engUnit": null,
+	  "compositionId": 1001,
+	  "composition": {
+		"id": 1001,
+		"Name": "Transmission"
+	  },
+	  "_itemType": "extended"
+	},
+	{
+	  "parentId": null,
+	  "id": 69896,
+	  "Name": "Wheelbase",
+	  "dataType": {"id":4, "Name": "double" },
+	  "minValue": "0",
+	  "maxValue": "500",
+	  "engUnit": "inch",
+	  "compositionId": -1,
+	  "composition": null,
+	  "_itemType": "extended"
+	},
+	{
+	  "parentId": null,
+	  "id": 22538,
+	  "Name": "Width",
+	  "dataType": {"id":4, "Name": "double" },
+	  "minValue": "0",
+	  "maxValue": "144",
+	  "engUnit": "inch",
+	  "compositionId": -1,
+	  "composition": null,
+	  "_itemType": "extended"
+	},
+	{
+	  "parentId": null,
+	  "id": 52143,
+	  "Name": "Height",
+	  "dataType": {"id":4, "Name": "double" },
+	  "minValue": "0",
+	  "maxValue": "200",
+	  "engUnit": "inch",
+	  "compositionId": -1,
+	  "composition": null,
+	  "_itemType": "extended"
+	},
+	{
+	  "parentId": null,
+	  "id": 87569,
+	  "Name": "Curb Weight",
+	  "dataType": {"id":4, "Name": "double" },
+	  "minValue": "0",
+	  "maxValue": "30000",
+	  "engUnit": "pound",
+	  "compositionId": -1,
+	  "composition": null,
+	  "_itemType": "extended"
+	}
+  ],
+  "MetaTagsConcatenated": "machine,   auto,   propulsion",
+  "level": 0
+},
+{
+  "id": 1008,
+  "Name": "Ford Ranger",
+  "Namespace": "CarProject.Auto.Truck.LightDuty",
+  "ParentId": 1007,
+  "ParentProfile": {
+	"id": 1007,
+	"Name": "Light Duty Truck", "ProfileType": {"id": 103,"Name": "Class"}
+  },
+  "Interfaces": null,
+  "ProfileType": {
+	"id": 103,
+	"Name": "Class"
+  },
+  "Description": "Basic building block for Ford Ranger",
+  "Created": "2020-11-04",
+  "MetaTags": [
+	{
+	  "Name": "machine"
+	},
+	{
+	  "Name": "   auto"
+	},
+	{
+	  "Name": "   propulsion"
+	}
+  ],
+  
+  "author": {
+	"id": 1,
+	"userName": "seanc",
+	"firstName": "Sean",
+	"lastName": "C",
+	"fullName": "Sean C",
+	"organization": {
+	  "id": 1,
+	  "Name": "Engineering Group A"
+	}
+  },
+  "Attributes": [],
+  "extendedProfileAttributes": [
+	{
+	  "id": 9991,
+	  "Name": "Id",
+	  "dataType": {"id":7, "Name": "long" },
+	  "maxValue": null,
+	  "minValue": 1,
+	  "engUnit": null
+	},
+	{
+	  "id": 9992,
+	  "Name": "Manufacturer",
+	  "dataType": {"id":8, "Name": "string" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null
+	},
+	{
+	  "id": 9993,
+	  "Name": "Serial Number",
+	  "dataType": {"id":8, "Name": "string" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null
+	},
+	{
+	  "id": 206550,
+	  "Name": "Body",
+	  "dataType": {"id":3, "Name": "composition" },
+	  "minValue": null,
+	  "maxValue": null,
+	  "engUnit": null,
+	  "compositionId": 1003,
+	  "composition": {
+		"id": 1003,
+		"Name": "Body"
+	  }
+	},
+	{
+	  "id": 238534,
+	  "Name": "Chassis",
+	  "dataType": {"id":3, "Name": "composition" },
+	  "minValue": null,
+	  "maxValue": null,
+	  "engUnit": null,
+	  "compositionId": 1002,
+	  "composition": {
+		"id": 1002,
+		"Name": "Chassis"
+	  }
+	},
+	{
+	  "id": 264233,
+	  "Name": "Engine",
+	  "dataType": {"id":3, "Name": "composition" },
+	  "minValue": null,
+	  "maxValue": null,
+	  "engUnit": null,
+	  "compositionId": 1,
+	  "composition": {
+		"id": 1,
+		"Name": "Engine"
+	  }
+	},
+	{
+	  "id": 300750,
+	  "Name": "Transmission",
+	  "dataType": {"id":3, "Name": "composition" },
+	  "minValue": null,
+	  "maxValue": null,
+	  "engUnit": null,
+	  "compositionId": 1001,
+	  "composition": {
+		"id": 1001,
+		"Name": "Transmission"
+	  }
+	},
+	{
+	  "parentId": null,
+	  "id": 69896,
+	  "Name": "Wheelbase",
+	  "dataType": {"id":4, "Name": "double" },
+	  "minValue": "0",
+	  "maxValue": "500",
+	  "engUnit": "inch",
+	  "compositionId": -1,
+	  "composition": null
+	},
+	{
+	  "parentId": null,
+	  "id": 22538,
+	  "Name": "Width",
+	  "dataType": {"id":4, "Name": "double" },
+	  "minValue": "0",
+	  "maxValue": "144",
+	  "engUnit": "inch",
+	  "compositionId": -1,
+	  "composition": null
+	},
+	{
+	  "parentId": null,
+	  "id": 52143,
+	  "Name": "Height",
+	  "dataType": {"id":4, "Name": "double" },
+	  "minValue": "0",
+	  "maxValue": "200",
+	  "engUnit": "inch",
+	  "compositionId": -1,
+	  "composition": null
+	},
+	{
+	  "parentId": null,
+	  "id": 87569,
+	  "Name": "Curb Weight",
+	  "dataType": {"id":4, "Name": "double" },
+	  "minValue": "0",
+	  "maxValue": "30000",
+	  "engUnit": "pound",
+	  "compositionId": -1,
+	  "composition": null
+	}
+  ],
+  "MetaTagsConcatenated": "machine, auto, propulsion",
+  "level": 0
+},
+{
+  "id": 1009,
+  "Name": "Ford Ranger Limited",
+  "Namespace": "CarProject.Auto.Truck.LightDuty",
+  "ParentProfile": {
+	"id": 1008,
+	"Name": "Ford Ranger",
+	"ProfileType": {
+	  "id": 103,
+	  "Name": "Class"
+	},
+	"Description": "Basic building block for Ford Ranger",
+	"author": {
+	  "id": 1,
+	  "userName": "seanc",
+	  "firstName": "Sean",
+	  "lastName": "C",
+	  "fullName": "Sean C",
+	  "organization": {
+		"id": 1,
+		"Name": "Engineering Group A"
+	  }
+	}
+  },
+  "Interfaces": null,
+  "ProfileType": {
+	"id": 103,
+	"Name": "Class"
+  },
+  "Description": "Ford Ranger limited edition with a bunch of custom options",
+  "Created": "2020-11-04",
+  "MetaTags": [
+	{
+	  "Name": "machine"
+	},
+	{
+	  "Name": "    auto"
+	},
+	{
+	  "Name": "    propulsion"
+	}
+  ],
+  
+  "author": {
+	"id": 1,
+	"userName": "seanc",
+	"firstName": "Sean",
+	"lastName": "C",
+	"fullName": "Sean C",
+	"organization": {
+	  "id": 1,
+	  "Name": "Engineering Group A"
+	}
+  },
+  "Attributes": [],
+  "extendedProfileAttributes": [
+	{
+	  "id": 9991,
+	  "Name": "Id",
+	  "dataType": {"id":7, "Name": "long" },
+	  "maxValue": null,
+	  "minValue": 1,
+	  "engUnit": null
+	},
+	{
+	  "id": 9992,
+	  "Name": "Manufacturer",
+	  "dataType": {"id":8, "Name": "string" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null
+	},
+	{
+	  "id": 9993,
+	  "Name": "Serial Number",
+	  "dataType": {"id":8, "Name": "string" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null
+	},
+	{
+	  "id": 206550,
+	  "Name": "Body",
+	  "dataType": {"id":3, "Name": "composition" },
+	  "minValue": null,
+	  "maxValue": null,
+	  "engUnit": null,
+	  "compositionId": 1003,
+	  "composition": {
+		"id": 1003,
+		"Name": "Body"
+	  }
+	},
+	{
+	  "id": 238534,
+	  "Name": "Chassis",
+	  "dataType": {"id":3, "Name": "composition" },
+	  "minValue": null,
+	  "maxValue": null,
+	  "engUnit": null,
+	  "compositionId": 1002,
+	  "composition": {
+		"id": 1002,
+		"Name": "Chassis"
+	  }
+	},
+	{
+	  "id": 264233,
+	  "Name": "Engine",
+	  "dataType": {"id":3, "Name": "composition" },
+	  "minValue": null,
+	  "maxValue": null,
+	  "engUnit": null,
+	  "compositionId": 1,
+	  "composition": {
+		"id": 1,
+		"Name": "Engine"
+	  }
+	},
+	{
+	  "id": 300750,
+	  "Name": "Transmission",
+	  "dataType": {"id":3, "Name": "composition" },
+	  "minValue": null,
+	  "maxValue": null,
+	  "engUnit": null,
+	  "compositionId": 1001,
+	  "composition": {
+		"id": 1001,
+		"Name": "Transmission"
+	  }
+	},
+	{
+	  "parentId": null,
+	  "id": 69896,
+	  "Name": "Wheelbase",
+	  "dataType": {"id":4, "Name": "double" },
+	  "minValue": "0",
+	  "maxValue": "500",
+	  "engUnit": "inch",
+	  "compositionId": -1,
+	  "composition": null
+	},
+	{
+	  "parentId": null,
+	  "id": 22538,
+	  "Name": "Width",
+	  "dataType": {"id":4, "Name": "double" },
+	  "minValue": "0",
+	  "maxValue": "144",
+	  "engUnit": "inch",
+	  "compositionId": -1,
+	  "composition": null
+	},
+	{
+	  "parentId": null,
+	  "id": 52143,
+	  "Name": "Height",
+	  "dataType": {"id":4, "Name": "double" },
+	  "minValue": "0",
+	  "maxValue": "200",
+	  "engUnit": "inch",
+	  "compositionId": -1,
+	  "composition": null
+	},
+	{
+	  "parentId": null,
+	  "id": 87569,
+	  "Name": "Curb Weight",
+	  "dataType": {"id":4, "Name": "double" },
+	  "minValue": "0",
+	  "maxValue": "30000",
+	  "engUnit": "pound",
+	  "compositionId": -1,
+	  "composition": null
+	}
+  ],
+  "MetaTagsConcatenated": "machine, auto, propulsion",
+  "level": 0
+},
+{
+  "id": 1010,
+  "Name": "Tesla Sedan",
+  "Namespace": "CarProject.Auto.Car.Tesla",
+  "ParentId": 1005, 
+  "ParentProfile": {
+	"id": 1005,
+	"Name": "Car",
+	"Namespace": "CarProject.Auto",
+	"ProfileType": {
+	  "id": 103,
+	  "Name": "Class"
+	},
+	"Description": "Basic building block for car",
+	"author": {
+	  "id": 1,
+	  "userName": "seanc",
+	  "firstName": "Sean",
+	  "lastName": "C",
+	  "fullName": "Sean C",
+	  "organization": {
+		"id": 1,
+		"Name": "Engineering Group A"
+	  }
+	}
+  },
+  "Interfaces": null,
+  "ProfileType": {
+	"id": 103,
+	"Name": "Class"
+  },
+  "Description": "Basic building block for Tesla autos",
+  "Created": "2020-11-04",
+  "MetaTags": [
+	{
+	  "Name": "machine"
+	},
+	{
+	  "Name": "    auto"
+	},
+	{
+	  "Name": "    propulsion"
+	},
+	{
+	  "Name": "  car"
+	},
+	{
+	  "Name": " electric"
+	}
+  ],
+  
+  "author": {
+	"id": 1,
+	"userName": "seanc",
+	"firstName": "Sean",
+	"lastName": "C",
+	"fullName": "Sean C",
+	"organization": {
+	  "id": 1,
+	  "Name": "Engineering Group A"
+	}
+  },
+  "Attributes": [
+	{
+	  "parentId": null,
+	  "id": 615161,
+	  "Name": "Battery Size",
+	  "dataType": {"id":4, "Name": "double" },
+	  "minValue": "0",
+	  "maxValue": "100",
+	  "engUnit": "-1",
+	  "compositionId": -1,
+	  "composition": null
+	},
+	{
+	  "parentId": null,
+	  "id": 639659,
+	  "Name": "Range",
+	  "dataType": {"id":4, "Name": "double" },
+	  "minValue": "0",
+	  "maxValue": "1000",
+	  "engUnit": "-1",
+	  "compositionId": -1,
+	  "composition": null
+	},
+	{
+	  "parentId": null,
+	  "id": 710202,
+	  "Name": "Battery Charge Time",
+	  "dataType": {"id":4, "Name": "double" },
+	  "minValue": "0",
+	  "maxValue": "24",
+	  "engUnit": "hour",
+	  "compositionId": -1,
+	  "composition": null
+	}
+  ],
+  "extendedProfileAttributes": [
+	{
+	  "id": 9991,
+	  "Name": "Id",
+	  "dataType": {"id":7, "Name": "long" },
+	  "maxValue": null,
+	  "minValue": 1,
+	  "engUnit": null
+	},
+	{
+	  "id": 9992,
+	  "Name": "Manufacturer",
+	  "dataType": {"id":8, "Name": "string" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null
+	},
+	{
+	  "id": 9993,
+	  "Name": "Serial Number",
+	  "dataType": {"id":8, "Name": "string" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null
+	},
+	{
+	  "id": 206550,
+	  "Name": "Body",
+	  "dataType": {"id":3, "Name": "composition" },
+	  "minValue": null,
+	  "maxValue": null,
+	  "engUnit": null,
+	  "compositionId": 1003,
+	  "composition": {
+		"id": 1003,
+		"Name": "Body"
+	  }
+	},
+	{
+	  "id": 238534,
+	  "Name": "Chassis",
+	  "dataType": {"id":3, "Name": "composition" },
+	  "minValue": null,
+	  "maxValue": null,
+	  "engUnit": null,
+	  "compositionId": 1002,
+	  "composition": {
+		"id": 1002,
+		"Name": "Chassis"
+	  }
+	},
+	{
+	  "id": 264233,
+	  "Name": "Engine",
+	  "dataType": {"id":3, "Name": "composition" },
+	  "minValue": null,
+	  "maxValue": null,
+	  "engUnit": null,
+	  "compositionId": 1,
+	  "composition": {
+		"id": 1,
+		"Name": "Engine"
+	  }
+	},
+	{
+	  "id": 300750,
+	  "Name": "Transmission",
+	  "dataType": {"id":3, "Name": "composition" },
+	  "minValue": null,
+	  "maxValue": null,
+	  "engUnit": null,
+	  "compositionId": 1001,
+	  "composition": {
+		"id": 1001,
+		"Name": "Transmission"
+	  }
+	},
+	{
+	  "parentId": null,
+	  "id": 69896,
+	  "Name": "Wheelbase",
+	  "dataType": {"id":4, "Name": "double" },
+	  "minValue": "0",
+	  "maxValue": "500",
+	  "engUnit": "inch",
+	  "compositionId": -1,
+	  "composition": null
+	},
+	{
+	  "parentId": null,
+	  "id": 22538,
+	  "Name": "Width",
+	  "dataType": {"id":4, "Name": "double" },
+	  "minValue": "0",
+	  "maxValue": "144",
+	  "engUnit": "inch",
+	  "compositionId": -1,
+	  "composition": null
+	},
+	{
+	  "parentId": null,
+	  "id": 52143,
+	  "Name": "Height",
+	  "dataType": {"id":4, "Name": "double" },
+	  "minValue": "0",
+	  "maxValue": "200",
+	  "engUnit": "inch",
+	  "compositionId": -1,
+	  "composition": null
+	},
+	{
+	  "parentId": null,
+	  "id": 87569,
+	  "Name": "Curb Weight",
+	  "dataType": {"id":4, "Name": "double" },
+	  "minValue": "0",
+	  "maxValue": "30000",
+	  "engUnit": "pound",
+	  "compositionId": -1,
+	  "composition": null
+	}
+  ],
+  "MetaTagsConcatenated": "machine, auto, propulsion, car, electric",
+  "level": 0
+},
+{
+  "id": 1011,
+  "Name": "Tesla Model 3",
+  "Namespace": "CarProject.Auto.Car.Tesla",
+  "ParentId": 1010, 
+  "ParentProfile": {
+	"id": 1010,
+	"Name": "Tesla Sedan",
+	"Namespace": "CarProject.Auto.Car.Tesla",
+	"ProfileType": {
+	  "id": 103,
+	  "Name": "Class"
+	},
+	"Description": "Basic building block for Tesla autos",
+	"author": {
+	  "id": 1,
+	  "userName": "seanc",
+	  "firstName": "Sean",
+	  "lastName": "C",
+	  "fullName": "Sean C",
+	  "organization": {
+		"id": 1,
+		"Name": "Engineering Group A"
+	  }
+	}
+  },
+  "Interfaces": null,
+  "ProfileType": {
+	"id": 103,
+	"Name": "Class"
+  },
+  "Description": "Tesla Model 3 - standard range plus",
+  "Created": "2020-11-04",
+  "MetaTags": [
+	{
+	  "Name": "machine"
+	},
+	{
+	  "Name": "     auto"
+	},
+	{
+	  "Name": "     propulsion"
+	},
+	{
+	  "Name": "   car"
+	},
+	{
+	  "Name": "  electric"
+	}
+  ],
+  
+  "author": {
+	"id": 1,
+	"userName": "seanc",
+	"firstName": "Sean",
+	"lastName": "C",
+	"fullName": "Sean C",
+	"organization": {
+	  "id": 1,
+	  "Name": "Engineering Group A"
+	}
+  },
+  "Attributes": [],
+  "extendedProfileAttributes": [
+	{
+	  "id": 9991,
+	  "Name": "Id",
+	  "dataType": {"id":7, "Name": "long" },
+	  "maxValue": null,
+	  "minValue": 1,
+	  "engUnit": null
+	},
+	{
+	  "id": 9992,
+	  "Name": "Manufacturer",
+	  "dataType": {"id":8, "Name": "string" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null
+	},
+	{
+	  "id": 9993,
+	  "Name": "Serial Number",
+	  "dataType": {"id":8, "Name": "string" },
+	  "maxValue": null,
+	  "minValue": null,
+	  "engUnit": null
+	},
+	{
+	  "id": 206550,
+	  "Name": "Body",
+	  "dataType": {"id":3, "Name": "composition" },
+	  "minValue": null,
+	  "maxValue": null,
+	  "engUnit": null,
+	  "compositionId": 1003,
+	  "composition": {
+		"id": 1003,
+		"Name": "Body"
+	  }
+	},
+	{
+	  "id": 238534,
+	  "Name": "Chassis",
+	  "dataType": {"id":3, "Name": "composition" },
+	  "minValue": null,
+	  "maxValue": null,
+	  "engUnit": null,
+	  "compositionId": 1002,
+	  "composition": {
+		"id": 1002,
+		"Name": "Chassis"
+	  }
+	},
+	{
+	  "id": 264233,
+	  "Name": "Engine",
+	  "dataType": {"id":3, "Name": "composition" },
+	  "minValue": null,
+	  "maxValue": null,
+	  "engUnit": null,
+	  "compositionId": 1,
+	  "composition": {
+		"id": 1,
+		"Name": "Engine"
+	  }
+	},
+	{
+	  "id": 300750,
+	  "Name": "Transmission",
+	  "dataType": {"id":3, "Name": "composition" },
+	  "minValue": null,
+	  "maxValue": null,
+	  "engUnit": null,
+	  "compositionId": 1001,
+	  "composition": {
+		"id": 1001,
+		"Name": "Transmission"
+	  }
+	},
+	{
+	  "parentId": null,
+	  "id": 615161,
+	  "Name": "Battery Size",
+	  "dataType": {"id":4, "Name": "double" },
+	  "minValue": "0",
+	  "maxValue": "100",
+	  "engUnit": "-1",
+	  "compositionId": -1,
+	  "composition": null
+	},
+	{
+	  "parentId": null,
+	  "id": 639659,
+	  "Name": "Range",
+	  "dataType": {"id":4, "Name": "double" },
+	  "minValue": "0",
+	  "maxValue": "1000",
+	  "engUnit": "-1",
+	  "compositionId": -1,
+	  "composition": null
+	},
+	{
+	  "parentId": null,
+	  "id": 710202,
+	  "Name": "Battery Charge Time",
+	  "dataType": {"id":4, "Name": "double" },
+	  "minValue": "0",
+	  "maxValue": "24",
+	  "engUnit": "hour",
+	  "compositionId": -1,
+	  "composition": null
+	}
+  ],
+  "MetaTagsConcatenated": "machine, auto, propulsion, car, electric",
+  "level": 0
+},
+{
+  "id": 161319,
+  "ProfileType": {
+	"id": 104,
+	"Name": "VariableType"
+  },
+  "author": {
+	"id": 2,
+	"userName": "cesmii",
+	"firstName": "Cesmii",
+	"lastName": "User",
+	"fullName": "Cesmii User",
+	"organization": {
+	  "id": 1,
+	  "Name": "Engineering Group A"
+	}
+  },
+  "MetaTags": [
+	{
+	  "Name": ""
+	}
+  ],
+  "MetaTagsConcatenated": "",
+  "Name": "Message Code",
+  "Namespace": "Variable Type",
+  "Description": "Simple structure to be used as a variable type in other attributes",
+  "Attributes": [
+	{
+	  "parentId": null,
+	  "id": 682165,
+	  "Name": "Code Id",
+	  "dataType": {"id":6, "Name": "integer" },
+	  "minValue": 0,
+	  "maxValue": 100,
+	  "engUnit": "gram",
+	  "compositionId": -1,
+	  "composition": null,
+	  "interfaceId": -1,
+	  "interface": null,
+	  "_itemType": "profile"
+	},
+	{
+	  "parentId": null,
+	  "id": 744869,
+	  "Name": "Caption",
+	  "dataType": {"id":8, "Name": "string" },
+	  "minValue": null,
+	  "maxValue": null,
+	  "engUnit": null,
+	  "compositionId": -1,
+	  "composition": null,
+	  "interfaceId": -1,
+	  "interface": null,
+	  "_itemType": "profile"
+	}
+  ]
+},
+{
+  "id": 216038,
+  "ProfileType": {
+	"id": 104,
+	"Name": "VariableType"
+  },
+  "author": {
+	"id": 3,
+	"userName": "jimw",
+	"firstName": "Jim",
+	"lastName": "W",
+	"fullName": "Jim W",
+	"organization": {
+	  "id": 1,
+	  "Name": "Engineering Group A"
+	}
+  },
+  "MetaTags": [
+	{
+	  "Name": ""
+	}
+  ],
+  "MetaTagsConcatenated": "",
+  "Name": "Engine Message Code List",
+  "Namespace": "variable type",
+  "Description": "list of message codes",
+  "Attributes": [
+	{
+	  "parentId": null,
+	  "id": 195461,
+	  "Name": "Message Code 1",
+	  "dataType": {"id":216038, "Name": "Message Code" },
+	  "minValue": null,
+	  "maxValue": null,
+	  "engUnit": null,
+	  "compositionId": -1,
+	  "composition": null,
+	  "interfaceId": -1,
+	  "interface": null,
+	  "variableTypeId": 161319,
+	  "variableType": {
+		"id": 161319,
+		"Name": "Message Code"
+	  },
+	  "_itemType": "profile"
+	},
+	{
+	  "parentId": null,
+	  "id": 204246,
+	  "Name": "Message Code 2",
+	  "dataType": {"id":216038, "Name": "Message Code" },
+	  "minValue": null,
+	  "maxValue": null,
+	  "engUnit": null,
+	  "compositionId": -1,
+	  "composition": null,
+	  "interfaceId": -1,
+	  "interface": null,
+	  "variableTypeId": 161319,
+	  "variableType": {
+		"id": 161319,
+		"Name": "Message Code"
+	  },
+	  "_itemType": "profile"
+	},
+	{
+	  "parentId": null,
+	  "id": 213440,
+	  "Name": "Message Code 3",
+	  "dataType": {"id":216038, "Name": "Message Code" },
+	  "minValue": null,
+	  "maxValue": null,
+	  "engUnit": null,
+	  "compositionId": -1,
+	  "composition": null,
+	  "interfaceId": -1,
+	  "interface": null,
+	  "variableTypeId": 161319,
+	  "variableType": {
+		"id": 161319,
+		"Name": "Message Code"
+	  },
+	  "_itemType": "profile"
+	}
+  ]
+},
+{
+  "id": 311672,
+  "ProfileType": {
+	"id": 104,
+	"Name": "VariableType"
+  },
+  "author": {
+	"id": 1,
+	"userName": "seanc",
+	"firstName": "Sean",
+	"lastName": "C",
+	"fullName": "Sean C",
+	"organization": {
+	  "id": 1,
+	  "Name": "Engineering Group A"
+	}
+  },
+  "MetaTags": [
+	{
+	  "Name": ""
+	}
+  ],
+  "MetaTagsConcatenated": "",
+  "Name": "Vector3D",
+  "Namespace": "test",
+  "Description": "This is a new type OPC accepts",
+  "Attributes": [
+	{
+	  "parentId": null,
+	  "id": 289415,
+	  "Name": "X",
+	  "dataType": {"id":4, "Name": "double" },
+	  "minValue": null,
+	  "maxValue": null,
+	  "engUnit": -1,
+	  "compositionId": -1,
+	  "composition": null,
+	  "interfaceId": -1,
+	  "interface": null,
+	  "variableTypeId": -1,
+	  "variableType": null,
+	  "Description": null,
+	  "displayName": null,
+	  "_itemType": "profile"
+	},
+	{
+	  "parentId": null,
+	  "id": 299340,
+	  "Name": "Y",
+	  "dataType": {"id":4, "Name": "double" },
+	  "minValue": null,
+	  "maxValue": null,
+	  "engUnit": -1,
+	  "compositionId": -1,
+	  "composition": null,
+	  "interfaceId": -1,
+	  "interface": null,
+	  "variableTypeId": -1,
+	  "variableType": null,
+	  "Description": null,
+	  "displayName": null,
+	  "_itemType": "profile"
+	},
+	{
+	  "parentId": null,
+	  "id": 305902,
+	  "Name": "Z",
+	  "dataType": {"id":4, "Name": "double" },
+	  "minValue": null,
+	  "maxValue": null,
+	  "engUnit": -1,
+	  "compositionId": -1,
+	  "composition": null,
+	  "interfaceId": -1,
+	  "interface": null,
+	  "variableTypeId": -1,
+	  "variableType": null,
+	  "Description": null,
+	  "displayName": null,
+	  "_itemType": "profile"
+	}
+  ]
+}
+]

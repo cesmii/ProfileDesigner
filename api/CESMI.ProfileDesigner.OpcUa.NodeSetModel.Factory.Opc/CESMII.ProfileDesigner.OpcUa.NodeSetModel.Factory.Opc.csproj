@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <Configurations>Debug;Release;Staging</Configurations>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="OPCFoundation.NetStandard.Opc.Ua.Symbols" Version="1.4.366.38" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CESMI.ProfileDesigner.OpcUa.NodeSetModel\CESMII.ProfileDesigner.OpcUa.NodeSetModel.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="NodeSets\UNECE_to_OPCUA.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

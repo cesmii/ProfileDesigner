@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <Configurations>Debug;Release;Staging</Configurations>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="OPCFoundation.NetStandard.Opc.Ua.Symbols" Version="1.4.366.38" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CESMI.ProfileDesigner.OpcUa.NodeSetModel.Factory.Opc\CESMII.ProfileDesigner.OpcUa.NodeSetModel.Factory.Opc.csproj" />
+    <ProjectReference Include="..\CESMI.ProfileDesigner.OpcUa.NodeSetModel\CESMII.ProfileDesigner.OpcUa.NodeSetModel.csproj" />
+    <ProjectReference Include="..\CESMII.ProfileDesigner.Common\CESMII.ProfileDesigner.Common.csproj" />
+    <ProjectReference Include="..\CESMII.ProfileDesigner.DAL\CESMII.ProfileDesigner.DAL.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="NodeSets\Opc.Ua.NodeSet2.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

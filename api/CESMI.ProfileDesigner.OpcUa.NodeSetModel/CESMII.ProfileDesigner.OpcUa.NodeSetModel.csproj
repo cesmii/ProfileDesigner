@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <Configurations>Debug;Release;Staging</Configurations>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.7" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Abstractions" Version="5.0.11" />
+	<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="5.0.7" />
+	  <PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="5.0.7" />
+  </ItemGroup>
+
+</Project>

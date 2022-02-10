@@ -603,7 +603,9 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModel.Import.Profile
                 UseEngUnit = isNumeric,
                 UseMinMax = isNumeric,
                 IsNumeric = isNumeric,
-                //TBD - SC - We need to evaluate for standard (UA, UA/DI) vs. standard by owner (UA/Robotics) vs. custom (myNodeset)
+                //For standard (UA, UA/DI), AuthorId is null.
+                //For standard imported by owner (UA/Robotics), AuthorId has value and we use this to keep the separation by owner.
+                //For custom (myNodeset), AuthorId has value and we use this to keep the separation by owner.
                 OwnerId = profileItem.AuthorId
             };
             //if (GetBuiltinDataTypeNodeId(dataTypeLookup) == null)

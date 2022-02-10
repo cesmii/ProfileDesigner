@@ -1,20 +1,24 @@
-import React, { useState, useEffect } from 'react'
-import axios from 'axios'
+import React, { useState, useEffect, useRef } from 'react'
 import Form from 'react-bootstrap/Form'
 import InputGroup from 'react-bootstrap/InputGroup'
 import FormControl from 'react-bootstrap/FormControl'
 import Button from 'react-bootstrap/Button'
 
+import axiosInstance from "../../services/AxiosService";
+
 import { SVGIcon } from '../../components/SVGIcon'
 import color from '../../components/Constants'
 
-import { generateLogMessageString, pageDataRows, convertToNumeric } from '../../utils/UtilityService'
-import { getAttributesPreferences, setAttributesPageSize, attributeNew, validate_All, validate_nameDuplicate, validate_dataType, validate_name } from '../../services/AttributesService';
+import { generateLogMessageString, pageDataRows, convertToNumeric, toInt, onChangeNumericKeysOnly } from '../../utils/UtilityService'
+import {
+    getAttributesPreferences, setAttributesPageSize, attributeNew, validate_All, validate_nameDuplicate,
+    validate_name, onChangeDataTypeShared, onChangeAttributeTypeShared, validate_attributeType, validate_enumValueDuplicate, validate_enumValueNumeric, onChangeInterfaceShared, onChangeCompositionShared, renderDataTypeUIShared
+} from '../../services/AttributesService';
 import AttributeItemRow from './AttributeItemRow';
 import AttributeSlideOut from './AttributeSlideOut';
 import GridPager from '../../components/GridPager'
 import { AppSettings } from '../../utils/appsettings';
-import { getProfileCompositionsLookup, getProfileInterfacesLookup, getProfileDataTypesLookup } from '../../services/ProfileService';
+import { useLoadingContext } from '../../components/contexts/LoadingContext'
 
 const CLASS_NAME = "AttributeList";
 
@@ -25,6 +29,7 @@ function AttributeList(props) {
     //-------------------------------------------------------------------
     //merge together two attributes collections
     const _preferences = getAttributesPreferences();
+    const _dataAttrTypeDdlRef = useRef(null);
     var _allAttributes = mergeAttributesCollections(props.profileAttributes, props.extendedProfileAttributes);
     const [_filterVal, setFilterVal] = useState(''); //props.searchValue
     const [_dataRows, setDataRows] = useState({
@@ -32,22 +37,34 @@ function AttributeList(props) {
         pager: { currentPage: 1, pageSize: _preferences.pageSize, itemCount: _allAttributes.filtered.length }
     });
     const [_addItem, setAdd] = useState(JSON.parse(JSON.stringify(attributeNew)));
-    const [_lookupProfiles, setLookupProfiles] = useState([]);
-    const [_lookupInterfaces, setLookupInterfaces] = useState([]);
+    const [_lookupCompositions, setLookupCompositions] = useState([]);
+    const [_lookupStructures, setLookupStructures] = useState([]);
+    const [_lookupEngUnits, setLookupEngUnits] = useState([]);
+    //all interfaces is our list from the server, current list is the ones not yet chosen
+    const [_lookupInterfaces, setLookupInterfaces] = useState({ all: [], current: [] });
     const [_lookupDataTypes, setLookupDataTypes] = useState([]);
-    const [_addSettings, setAddSettings] = useState({ useMinMax: true, useEngUnit: true, showComposition: false, showInterface: false, isVariableType: false });
+    const [_lookupAttributeTypes, setLookupAttributeTypes] = useState([]);
+    const [_addSettings, setAddSettings] = useState({
+        useMinMax: true, useEngUnit: true, showComposition: false, /*showStructure: false,*/ showInterface: false, showEnumeration: false,
+        isCustomDataType: false, showDescription: true
+    });
     const [_isValid, setIsValid] = useState({
         name: true,
         nameDuplicate: true,
         dataType: true,
+        attributeType: true,
         composition: true,
+        structure: true,
         interface: true,
         minMax: true,
         minIsNumeric: true,
         maxIsNumeric: true,
-        engUnit: true
+        engUnit: true,
+        enumValue: true,
+        enumValueDuplicate: true
     });
     const [_slideOut, SetSlideOut] = useState({ isOpen: false, item: null, showDetail: false, readOnly: true });
+    const { loadingProps, setLoadingProps } = useLoadingContext();
 
     //-------------------------------------------------------------------
     // Region: init methods
@@ -67,9 +84,18 @@ function AttributeList(props) {
             });
         }
 
-        //merge together two attributes collections, sort alpha
+        //merge together two attributes collections, sort enum val (if present) then name
         var result = (profileAttributes == null ? [] : profileAttributes).concat(extendedProfileAttributes == null ? [] : extendedProfileAttributes)
         result.sort((a, b) => {
+            var enumValA = a.enumValue == null ? 999999 : a.enumValue;
+            var enumValB = b.enumValue == null ? 999999 : b.enumValue;
+            if (enumValA < enumValB) {
+                return -1;
+            }
+            if (enumValA > enumValB) {
+                return 1;
+            }
+            //if we get here, they enum a and b are equal so we sort by name
             if (a.name.toLowerCase() < b.name.toLowerCase()) {
                 return -1;
             }
@@ -86,47 +112,145 @@ function AttributeList(props) {
     }
 
     //-------------------------------------------------------------------
-    // Region: Event Handling - When composition data type is chosen, go get a list of profiles
+    // Region: Hooks - When composition data type is chosen, go get a list of profiles
     //      where the profile is neither a descendant or a parent/grandparent, etc. of the profile we 
     //      are working with
     //-------------------------------------------------------------------
     useEffect(() => {
-        async function fetchLookupProfiles() {
-            //initialize spinner during loading
-            //setLoadingProps({ isLoading: true, message: null });
+        async function fetchLookupProfileTypeDefs() {
 
-            //TBD - in the phase II system, the endpoint would handle this server side. Filter out anything 
+            //Filter out anything
             //where the profile is neither a descendant or a parent/grandparent, etc. of the profile we 
             //are working with, can't be a dependency of this profile
             // If we are working with a profile, then composition can't be an interface type
             // If we are working with an interface, then composition can't be a profile type
-            //var url = `${AppSettings.BASE_API_URL}/profile?id!=${props.profile.id}`;
-            var url = `${AppSettings.BASE_API_URL}/profile`; //profiles only
-            console.log(generateLogMessageString(`useEffect||fetchLookupProfiles||${url}`, CLASS_NAME));
-            const result = await axios(url);
+            var data = { id: props.typeDefinition.id };
+            var url = `profiletypedefinition/lookup/profilerelated`; //profiles only
+            //this is an extend scenario
+            if ((props.typeDefinition.id == null || props.typeDefinition.id === 0) && props.typeDefinition.parent != null) {
+                data = { id: props.typeDefinition.parent.id };
+                url = `profiletypedefinition/lookup/profilerelated/extend`; //profiles only
+            }
+            console.log(generateLogMessageString(`useEffect||fetchLookupProfileTypeDefs||${url}`, CLASS_NAME));
+            //const result = await axiosInstance.post(url, data);
 
-            //profile id - 3 scenarios - 1. typical - use profile id, 2. extend profile where parent profile should be used, 
-            //      3. new profile - no parent, no inheritance, use 0 
-            var pId = props.profile.id;
-            if (props.profile.id === 0 && props.profile.parentProfile != null) pId = props.profile.parentProfile.id;
-            var trimmedItems = getProfileCompositionsLookup(pId, result.data);
+            await axiosInstance.post(url, data).then(result => {
+                if (result.status === 200) {
+                    //profile id - 3 scenarios - 1. typical - use profile id, 2. extend profile where parent profile should be used, 
+                    //      3. new profile - no parent, no inheritance, use 0 
+                    //var pId = props.typeDefinition.id;
+                    //if (props.typeDefinition.id === 0 && props.typeDefinition.parent != null) pId = props.typeDefinition.parent.id;
 
-            //TBD - handle paged data scenario, do a predictive search look up
-            setLookupProfiles(trimmedItems); //also updates state
-            setLookupInterfaces(getProfileInterfacesLookup(props.profile.id, result.data));
-            setLookupDataTypes(getProfileDataTypesLookup(props.profile.id, result.data)); 
-
-            //hide a spinner
-            //setLoadingProps({ isLoading: false, message: null });
+                    //TBD - handle paged data scenario, do a predictive search look up
+                    setLookupCompositions(result.data.compositions); //also updates state
+                    //Pull interfaces from back end
+                    setLookupInterfaces({ all: result.data.interfaces, current: result.data.interfaces });
+                } else {
+                    console.warn(generateLogMessageString(`useEffect||fetchLookupProfileTypeDefs||error||status:${result.status}`, CLASS_NAME));
+                }
+            }).catch(e => {
+                if (e.response && e.response.status === 401) {
+                    console.error(generateLogMessageString(`useEffect||fetchLookupProfileTypeDefs||error||status:${e.response.status}`, CLASS_NAME));
+                }
+                else {
+                    console.error(generateLogMessageString(`useEffect||fetchLookupProfileTypeDefs||error||status:${e.response && e.response.data ? e.response.data : `A system error has occurred during the profile api call.`}`, CLASS_NAME));
+                    console.log(e);
+                }
+            });
         }
 
-        fetchLookupProfiles();
+        fetchLookupProfileTypeDefs();
 
         //this will execute on unmount
         return () => {
             console.log(generateLogMessageString('useEffect||Cleanup', CLASS_NAME));
         };
-    }, [props.profile.id]);
+    }, [props.typeDefinition?.id]);
+
+    //-------------------------------------------------------------------
+    // Region: Hooks - load lookup data static from context. if not present, trigger a fetch of this data. 
+    //-------------------------------------------------------------------
+    useEffect(() => {
+        async function initLookupData() {
+
+            //if data not there, but loading in progress.  
+            if (loadingProps.lookupDataStatic == null && loadingProps.refreshLookupData) {
+                //do nothing, the loading effect will inform when complete
+                return;
+            }
+            //if data not there, but loading NOT in progress.  
+            else if (loadingProps.lookupDataStatic == null) {
+                //trigger get of data
+                setLoadingProps({ refreshLookupData: true });
+                return;
+            }
+
+            //get from local storage and keep local to the component lifecycle
+            setLookupDataTypes(loadingProps.lookupDataStatic.dataTypes);
+            setLookupStructures(loadingProps.lookupDataStatic.structures); //also updates state
+            setLookupEngUnits(loadingProps.lookupDataStatic.engUnits); //also updates state
+
+        }
+
+        initLookupData();
+
+        //this will execute on unmount
+        return () => {
+            console.log(generateLogMessageString('useEffect||Cleanup', CLASS_NAME));
+        };
+    }, [loadingProps.lookupDataStatic, loadingProps.lookupDataRefreshed]);
+
+    //-------------------------------------------------------------------
+    // Populate attribute type based on profile type
+    //-------------------------------------------------------------------
+    useEffect(() => {
+
+        //if data not there, but loading in progress.  
+        if (loadingProps.lookupDataStatic == null && loadingProps.refreshLookupData) {
+            //do nothing, the loading effect will inform when complete
+            return;
+        }
+        //if data not there, but loading NOT in progress.  
+        else if (loadingProps.lookupDataStatic == null) {
+            //trigger get of data
+            setLoadingProps({ refreshLookupData: true });
+            return;
+        }
+
+        //if no profile type is chosen, we can't know how to add attribute.
+        if (props.typeDefinition?.typeId == null || props.typeDefinition?.typeId.toString() === "-1") {
+            setLookupAttributeTypes([]);
+        }
+        //only show enumeration for the enumeration type
+        else if (props.typeDefinition?.typeId === AppSettings.ProfileTypeDefaults.EnumerationId) {
+            var matches = loadingProps.lookupDataStatic.attributeTypes.filter(x => x.id === AppSettings.AttributeTypeDefaults.EnumerationId);
+            setLookupAttributeTypes(matches);
+        }
+        //don't show enumeration or interface if we are editing an interface type def
+        else if (props.typeDefinition?.typeId === AppSettings.ProfileTypeDefaults.InterfaceId) {
+            var matches1 = loadingProps.lookupDataStatic.attributeTypes.filter(x =>
+                x.id !== AppSettings.AttributeTypeDefaults.EnumerationId
+                && x.id !== AppSettings.AttributeTypeDefaults.InterfaceId);
+            setLookupAttributeTypes(matches1);
+        }
+        //only show structure field for structure profile
+        else if (props.typeDefinition?.typeId === AppSettings.ProfileTypeDefaults.StructureId) {
+            var matches2 = loadingProps.lookupDataStatic.attributeTypes.filter(x => x.id === AppSettings.AttributeTypeDefaults.StructureId);
+            setLookupAttributeTypes(matches2);
+        }
+        //don't show enumeration, structure if we are editing a non-enum type def
+        else {
+            var matches3 = loadingProps.lookupDataStatic.attributeTypes.filter(x =>
+                x.id !== AppSettings.AttributeTypeDefaults.EnumerationId &&
+                x.id !== AppSettings.AttributeTypeDefaults.StructureId);
+            setLookupAttributeTypes(matches3);
+        }
+
+        //this will execute on unmount
+        return () => {
+            //console.log(generateLogMessageString('useEffect||Cleanup', CLASS_NAME));
+        };
+    }, [props.typeDefinition?.typeId, loadingProps.lookupDataRefreshed]);
 
 
     //-------------------------------------------------------------------
@@ -139,30 +263,49 @@ function AttributeList(props) {
         setIsValid({ ..._isValid, name: isValid, nameDuplicate: isValidDup });
     };
 
-    const validateForm_dataType = (e) => {
-        setIsValid({ ..._isValid, dataType: validate_dataType(e.target.value) });
+    //const validateForm_dataType = (e) => {
+    //    var dataType = _lookupDataTypes.find(dt => { return dt.id === parseInt(e.target.value); });
+    //    setIsValid({ ..._isValid, dataType: validate_dataType(dataType) });
+    //};
+
+    const validateForm_attributeType = (e) => {
+        setIsValid({ ..._isValid, attributeType: validate_attributeType(_addItem.dataType, e.target.value) });
     };
 
     const validateForm_composition = (e) => {
-        var isValid = e.target.value.toString() !== "-1" || _addItem.dataType !== "composition";
+        var isValid = e.target.value.toString() !== "-1" || parseInt(_addItem.attributeType.id) !== AppSettings.AttributeTypeDefaults.CompositionId;
         setIsValid({ ..._isValid, composition: isValid });
     };
 
+    //const validateForm_structure = (e) => {
+    //    var isValid = e.target.value.toString() !== "-1" || parseInt(_addItem.attributeType.id) !== AppSettings.AttributeTypeDefaults.StructureId;
+    //    setIsValid({ ..._isValid, structure: isValid });
+    //};
+
     const validateForm_interface = (e) => {
-        var isValid = e.target.value.toString() !== "-1" || _addItem.dataType !== "interface";
+        var isValid = e.target.value.toString() !== "-1" || parseInt(_addItem.attributeType.id) !== AppSettings.AttributeTypeDefaults.InterfaceId;
         setIsValid({ ..._isValid, interface: isValid });
     };
+
+    const validateForm_enumValue = (e) => {
+        //dup check
+        var isValidDup = validate_enumValueDuplicate(e.target.value, _addItem, _allAttributes.all);
+        //check for valid integer - is numeric and is positive
+        var isValidValue = validate_enumValueNumeric(e.target.value, _addItem);
+        setIsValid({ ..._isValid, enumValue: isValidValue, enumValueDuplicate: isValidDup });
+    }
 
     //validate all - call from button click
     const validateForm = () => {
         console.log(generateLogMessageString(`validateForm`, CLASS_NAME));
 
         var isValid = validate_All(_addItem, _addSettings, _allAttributes.all);
-        isValid.composition = (_addItem.composition != null && _addItem.compositionId > 0) || _addItem.dataType !== "composition";
-        isValid.interface = (_addItem.interface != null && _addItem.interfaceId > 0) || _addItem.dataType !== "interface";
+        isValid.composition = (_addItem.composition != null && _addItem.compositionId > 0) || _addItem.attributeType.id !== AppSettings.AttributeTypeDefaults.CompositionId;
+        isValid.interface = (_addItem.interface != null && _addItem.interfaceId > 0) || _addItem.attributeType.id !== AppSettings.AttributeTypeDefaults.InterfaceId;
 
         setIsValid(JSON.parse(JSON.stringify(isValid)));
-        return (isValid.name && isValid.nameDuplicate && isValid.dataType && isValid.composition && isValid.interface );
+        return (isValid.name && isValid.nameDuplicate && isValid.dataType && isValid.attributeType
+            && isValid.composition && isValid.structure && isValid.interface && _isValid.enumValue && _isValid.enumValueDuplicate);
     }
 
     //-------------------------------------------------------------------
@@ -206,9 +349,9 @@ function AttributeList(props) {
         setAttributesPageSize(pageSize);
     };
 
-    const onAttributeAdd = () => {
+    const onAdd = () => {
         //raised from add button click
-        console.log(generateLogMessageString(`onAttributeAdd`, CLASS_NAME));
+        console.log(generateLogMessageString(`onAdd`, CLASS_NAME));
 
         //validate form
         if (!validateForm()) {
@@ -216,16 +359,19 @@ function AttributeList(props) {
             return;
         }
 
-        var attributes = [];
+        //we need to be aware of newly added rows and those will be signified by a negative -id. 
+        //Once saved server side, these will be issued ids from db.
+        //Depending on how we are adding (single row or multiple rows), the id generation will be different. Both need 
+        //a starting point negative id
+        var attributeIdInit = (-1) * (_allAttributes == null || _allAttributes.all == null ? 1 : _allAttributes.all.length + 1);
 
         //adding non-interface attribute
         if (_addItem.interfaceId === -1) {
-            //dynamically generate an id w/ a negative value. We need a way to add/remove items before doing a save to API 
-            // and therefore need to be aware of an id for newly added rows. 
-            _addItem.id = (-1) * (new Date()).getTime();
+            _addItem.id = attributeIdInit;
+            _addItem.typeDefinitionId = props.typeDefinition.id; //set parent val
 
             //for certain types, clear out engunit, min max, etc. 
-            if (_addSettings.showComposition || _addSettings.showInterface || _addSettings.isVariableType 
+            if (_addSettings.showComposition || _addSettings.showStructure || _addSettings.showInterface || _addSettings.isCustomDataType
                 || !_addSettings.useMinMax || !_addSettings.useEngUnit) {
                 _addItem.minValue = null;
                 _addItem.maxValue = null;
@@ -238,50 +384,88 @@ function AttributeList(props) {
             }
 
             //call parent to add to items collection, update state
-            attributes = props.onAttributeAdd(_addItem);
+            var attributes = props.onAttributeAdd(_addItem);
+
+            //after parent adds, update this component's state
+            onAddUpdateState(attributes);
         }
-        //adding interface
+        //adding interface attribute(s)
         else {
-            // get the interface we're adding (interface is a reserved word)
-            var iface = _lookupInterfaces.find(p => { return p.id === _addItem.interface.id });
-            
-            var interfaceGroupId = Math.floor(Math.random() * 30);
-
-            //create a new combined collection of the attributes to be added, update some vals and then bubble up
-            //add both the interface's attributes and its extended attributes into one collection and add em all
-            iface.profileAttributes = iface.profileAttributes == null ? [] : iface.profileAttributes;
-            iface.extendedProfileAttributes = iface.extendedProfileAttributes == null ? [] : iface.extendedProfileAttributes;
-            var interfaceAttrItems = iface.profileAttributes.concat(iface.extendedProfileAttributes);
-            interfaceAttrItems.forEach((attrib) => {
-                //if attribute already exists in current profile, then update it so it becomes an interface attribute
-                var match = props.profile.profileAttributes.find((a) => { return a.id === attrib.id && a.name.toLowerCase() === attrib.name.toLowerCase() });
-                if (match != null) {
-                    match.interface = { id: iface.id, name: iface.name, type: 'Interface' };
-                    // specify a way to keep these items visually connected
-                    match.interfaceGroupId = interfaceGroupId;
-                }
-                var matchEx = props.profile.extendedProfileAttributes.find((a) => { return a.id === attrib.id && a.name.toLowerCase() === attrib.name.toLowerCase() });
-                if (matchEx != null) {
-                    matchEx.interface = { id: iface.id, name: iface.name, type: 'Interface' };
-                    // specify an itemtype since interfaces are special
-                    matchEx.interfaceGroupId = interfaceGroupId;
-                }
-                //new attr
-                if (match == null && matchEx == null) {
-                    // add a random seed to the id to prevent collisions from iterating too fast
-                    attrib.id = ((-1) * (new Date()).getTime()) + Math.floor(Math.random() * 10000);
-                    attrib.interface = { id: iface.id, name: iface.name, type: 'Interface' };
-                    // specify an itemtype since interfaces are special
-                    attrib.interfaceGroupId = interfaceGroupId;
-                    attrib._itemType = "profile";
-                    props.profile.profileAttributes.push(attrib);
-                }
-            });
-
-            //call parent to add to items collection, update state
-            attributes = props.onAttributeInterfaceAdd(iface, props.profile.profileAttributes, props.profile.extendedProfileAttributes);
+            onAttributeAddInterface(_addItem.interfaceId);
         }
-      
+
+    };
+
+
+    const onAttributeAddInterface = (id) => {
+        //raised from add button click
+        console.log(generateLogMessageString(`onAttributeAddInterface||${id}`, CLASS_NAME));
+
+        if (props.typeDefinition.extendedProfileAttributes == null) props.typeDefinition.extendedProfileAttributes = [];
+
+        //go get the interface profile to retrieve its attributes.
+        var data = { id: _addItem.interface.id };
+        axiosInstance.post(`profiletypedefinition/getbyid`, data).then(result => {
+            if (result.status === 200) {
+                var interfaceGroupId = Math.floor(Math.random() * 30);
+                var iface = result.data;
+                //create a new combined collection of the attributes to be added, update some vals and then bubble up
+                //add both the interface's attributes and its extended attributes into one collection and add em all
+                var interfaceAttrItems = iface.profileAttributes.concat(iface.extendedProfileAttributes);
+                interfaceAttrItems.forEach((attrib, counter) => {
+                    //assign the interface obj and id for downstream usage
+                    attrib.interface = { id: iface.id, name: iface.name };
+                    attrib.innterfaceGroupId = interfaceGroupId;
+
+                    //TBD - how do we avoid name collision for 2 diff interfaces which have same attribute names.
+
+                    //if attribute already exists in current profile, then rename it so we avoid a name duplication
+                    var match = props.typeDefinition.profileAttributes.find((a) => { return a.id === attrib.id && a.name.toLowerCase() === attrib.name.toLowerCase() });
+                    if (match != null) {
+                        //TBD - account for scenario where there is already a duplicate(1)
+                        match.name = `${match.name}(1)`;
+                    }
+
+                    var matchEx = props.typeDefinition.extendedProfileAttributes.find((a) => { return a.id === attrib.id && a.name.toLowerCase() === attrib.name.toLowerCase() });
+                    if (matchEx != null) {
+                        //TBD - what to do here?
+                    }
+
+                    attrib.interfaceGroupId = interfaceGroupId;
+
+                    //add attr as an extended attr so we can't edit
+                    props.typeDefinition.extendedProfileAttributes.push(JSON.parse(JSON.stringify(attrib)));
+                });
+
+                //call parent to add to items collection, update state
+                var attributes = props.onAttributeInterfaceAdd(iface, props.typeDefinition.profileAttributes, props.typeDefinition.extendedProfileAttributes);
+
+                //if adding interface, remove the selected item from the list
+                setLookupInterfaces({
+                    ..._lookupInterfaces,
+                    current: _lookupInterfaces.current.filter(p => { return p.id !== _addItem.interface.id })
+                });
+
+                //after parent adds, update this component's state
+                onAddUpdateState(attributes, true);
+            }
+            else if (result.status === 404) {
+                var msg = 'An error occurred retrieving the interface attributes. The interface was not found.';
+                console.log(generateLogMessageString(`onAttributeAdd||Interface||error||${msg}`, CLASS_NAME, 'error'));
+                setLoadingProps({ ...loadingProps, isLoading: false, message: msg });
+            } else {
+                var msg2 = 'An error occurred retrieving the interface attributes. ';
+                console.log(generateLogMessageString(`onAttributeAdd||Interface||error||${msg2}`, CLASS_NAME, 'error'));
+                setLoadingProps({ ...loadingProps, isLoading: false, message: msg2 });
+            }
+        }).catch(e => {
+            var msg = JSON.stringify(e);
+            console.log(generateLogMessageString(`onAttributeAdd||Interface||error||${msg}`, CLASS_NAME, 'error'));
+            setLoadingProps({ ...loadingProps, isLoading: false, message: 'An error occurred retrieving the interface attributes.' });
+        });
+    };
+
+    const onAddUpdateState = (attributes) => {
         //re-merge collections after add
         _allAttributes = mergeAttributesCollections(attributes.profileAttributes, attributes.extendedProfileAttributes);
 
@@ -293,95 +477,93 @@ function AttributeList(props) {
 
         //reset item add.
         setAdd(JSON.parse(JSON.stringify(attributeNew)));
+
+        //Reset add settings to init the add ui back to starting point. 
+        setAddSettings({
+            ..._addSettings,
+            useMinMax: true,
+            useEngUnit: true,
+            showComposition: false,
+            showStructure: false,
+            showInterface: false,
+            isCustomDataType: false,
+            showDescription: true,
+            showEnumeration: false
+        });
+
+        //set focus back to attr type ddl
+        //_dataAttrTypeDdlRef.current.focus();
     };
 
     //attribute add ui - change composition ddl
     const onChangeComposition = (e) => {
-        //console.log(generateLogMessageString(`onChangeComposition||e:${e.target}`, CLASS_NAME));
-        //if data type is composition, set the profile id and the name field
-        _addItem.compositionId = parseInt(e.target.value); 
-        if (e.target.value.toString() === "-1") {
-            _addItem.composition = null;
-            _addItem.compositionId = null;
-        }
-        else {
-            _addItem.composition = {};
-            _addItem.composition.id = parseInt(e.target.value);
-            _addItem.composition.name = e.target.options[e.target.selectedIndex].text;
-        }
+        //_addItem changed by ref in shared method
+        onChangeCompositionShared(e, _addItem);
 
         //call commonn change method
         onChange(e);
     }
 
     const onChangeInterface = (e) => {
-        //console.log(generateLogMessageString(`onChangeComposition||e:${e.target}`, CLASS_NAME));
-        //if data type is composition, set the profile id and the name field
-        _addItem.interfaceId = parseInt(e.target.value); 
-        if (e.target.value.toString() === "-1") {
-            _addItem.interface = null;
-            _addItem.interfaceId = null;
-        }
-        else {
-            _addItem.interface = {};
-            _addItem.interface.id = parseInt(e.target.value);
-            _addItem.interface.name = e.target.options[e.target.selectedIndex].text;
-        }
+        //_addItem changed by ref in shared method
+        onChangeInterfaceShared(e, _addItem);
 
         //call commonn change method
         onChange(e);
     }
+
+    //attribute add ui - change structure 
+    //const onChangeStructure = (e) => {
+    //    //Note - still sets data type val
+    //    var data = onChangeDataTypeShared(e, _addItem, _addSettings, _lookupStructures);
+
+    //    //replace add settings (updated in shared method)
+    //    setAddSettings(JSON.parse(JSON.stringify(data.settings)));
+    //    //update state - after changes made in shared method
+    //    setAdd(JSON.parse(JSON.stringify(data.item)));
+    //    return;
+    //}
 
     //attribute add ui - change data type
     const onChangeDataType = (e) => {
-        //console.log(generateLogMessageString(`onChangeDataType||e:${e.target}`, CLASS_NAME));
-        var isVariableType = false;
-        var useMinMax = false;
-        var useEngUnit = false;
-        if (e.target.value == null || e.target.value.toString() === "-1") {
-            useMinMax = true;
-            useEngUnit = true;
-        }
-        else {
-            var lookupItem = _lookupDataTypes.find(dt => { return dt.val === e.target.value; });
-            isVariableType = lookupItem != null && lookupItem.isVariableType;
-            useMinMax = !isVariableType && lookupItem != null && lookupItem.useMinMax;
-            useEngUnit = !isVariableType && lookupItem != null && lookupItem.useEngUnit;
-        }
+        //var data = onChangeDataTypeShared(e.target.value, _addItem, _addSettings, _lookupDataTypes);
+        var data = onChangeDataTypeShared(e.value, _addItem, _addSettings, _lookupDataTypes);
 
-        //reset composition, interface object anytime this changes
-        _addItem.composition = null;
-        _addItem.compositionId = -1;
-        _addItem.interface = null;
-        _addItem.interfaceId = -1;
-        _addItem.variableType = null;
-        _addItem.variableTypeId = -1;
+        //replace add settings (updated in shared method)
+        setAddSettings(JSON.parse(JSON.stringify(data.settings)));
+        //update state - after changes made in shared method
+        setAdd(JSON.parse(JSON.stringify(data.item)));
+        return;
 
-        //clear out vals based on data type
-        _addItem.minValue = useMinMax ? _addItem.minValue : null;
-        _addItem.maxValue = useMinMax ? _addItem.maxValue : null;
-        _addItem.engUnit = useEngUnit ? _addItem.engUnit : null;
-
-        //if is variable type, handle this specially
-        if (isVariableType) {
-            _addItem.variableType = { id: parseInt(e.target.value), name: e.target.options[e.target.selectedIndex].text};
-            _addItem.variableTypeId = parseInt(e.target.value);
-        }
-
-        setAddSettings({
-            useMinMax: useMinMax,
-            useEngUnit: useEngUnit,
-            showComposition: e.target.value === "composition",
-            showInterface: e.target.value === "interface",
-            isVariableType: isVariableType
-        });
-
-        //call commonn change method
-        onChange(e);
     }
 
+    //attribute add ui - change data type
+    const onChangeAttributeType = (e) => {
+        var data = onChangeAttributeTypeShared(e, _addItem, _addSettings, _lookupAttributeTypes, _lookupDataTypes);
 
-    //attribute add ui - update state on change
+        //replace settings (updated in shared method)
+        setAddSettings(JSON.parse(JSON.stringify(data.settings)));
+        //update state - after changes made in shared method
+        setAdd(JSON.parse(JSON.stringify(data.item)));
+        return;
+    }
+
+    //onchange numeric field
+    const onChangeEnumValue = (e) => {
+        // Perform a numeric only check for numeric fields.
+        if (!onChangeNumericKeysOnly(e)) {
+            e.preventDefault();
+            return;
+        }
+
+        //convert to int - this will convert '10.' to '10' to int
+        var val = toInt(e.target.value);
+
+        _addItem[e.target.id] = val;
+        setAdd(JSON.parse(JSON.stringify(_addItem)));
+    }
+
+    //attribute add ui - update state on change (used by multiple controls except onChangeDataType)
     const onChange = (e) => {
         //TBD - remove this check for now because the model is evolving during dev
         ////check existence of field
@@ -393,11 +575,11 @@ function AttributeList(props) {
         setAdd(JSON.parse(JSON.stringify(_addItem)));
     }
 
-    const onAttributeDelete = (id) => {
+    const onDelete = (id) => {
         //raised from del button click in child component
-        console.log(generateLogMessageString(`onAttributeDelete||item id:${id}`, CLASS_NAME));
+        console.log(generateLogMessageString(`onDelete||item id:${id}`, CLASS_NAME));
         
-        //call parent to add to items collection, update state
+        //call parent to delete item from collection, update state
         var attributes = props.onAttributeDelete(id);
 
         //re-merge collections after add
@@ -415,7 +597,7 @@ function AttributeList(props) {
         //raised from del button click in child component
         console.log(generateLogMessageString(`onDeleteInterface||interface id:${id}`, CLASS_NAME));
 
-        //call parent to add to items collection, update state
+        //call parent to remove to items in collection, update state
         var attributes = props.onAttributeInterfaceDelete(id);
 
         //re-merge collections after add
@@ -426,6 +608,16 @@ function AttributeList(props) {
             all: _allAttributes.all, filtered: _allAttributes.filtered, paged: _allAttributes.paged,
             pager: { currentPage: 1, pageSize: _preferences.pageSize, itemCount: _allAttributes.filtered.length }
         });
+
+        //re-add the deleted interface drop down for potential re-selection.
+        var deletedInterface = _lookupInterfaces.all.find(i => { return i.id === id });
+        if (deletedInterface != null) {
+            _lookupInterfaces.current.push(deletedInterface);
+            setLookupInterfaces({
+                ..._lookupInterfaces,
+                current: JSON.parse(JSON.stringify(_lookupInterfaces.current))
+            });
+        }
     };
 
     const onAttributeUpdate = (item) => {
@@ -445,28 +637,46 @@ function AttributeList(props) {
         });
     };
 
-    //call from item row click or from panel itself - slides out profile attribute list from a variable type profile
-    const toggleSlideOutVariableType = (isOpen, id) => {
-        console.log(generateLogMessageString(`toggleSlideOut||${id}`, CLASS_NAME));
+    //call from item row click or from panel itself - slides out profile attribute list from a custom data type profile
+    const toggleSlideOutCustomType = (isOpen, customTypeDefId, attrId, typeDefId) => {
+        console.log(generateLogMessageString(`toggleSlideOutCustomType||Id:${customTypeDefId}`, CLASS_NAME));
 
         if (isOpen) {
             //show a spinner
             //setLoadingProps({ isLoading: true, message: null });
 
-            axios(`${AppSettings.BASE_API_URL}/profile/${id}`).then(result => {
+            //TBD - for now, treat everything as normal slide out so that a user
+            //can edit advanced properties of their attribute. 
+            //To go back to sliding out the profile of the child, we uncomment the following /**/
+            toggleSlideOutDetail(isOpen, typeDefId, attrId, props.readOnly);
+
+            /* See comment above. This contains support for sliding out for certain items like structures or types w/ attrs. 
+            var data = { id: customTypeDefId };
+            axiosInstance.post(`profiletypedefinition/getbyid`, data).then(result => {
                 if (result.status === 200) {
-                    //set item state value
-                    SetSlideOut({ isOpen: isOpen, item: result.data, showDetail: false, readOnly: true });
-                } else {
-                    console.log(generateLogMessageString(`toggleSlideOut||Error retrieving attribute item`, CLASS_NAME, 'error'));
+                    //if there are no child attribs, treat this like a normal slide out
+                    if (result.data.profileAttributes?.length === 0) {
+                        toggleSlideOutDetail(isOpen, typeDefId, attrId, props.readOnly);
+                    }
+                    else {
+                        SetSlideOut({ isOpen: isOpen, item: result.data, showDetail: false, readOnly: true });
+                    }
                 }
-                //hide a spinner
-                //setLoadingProps({ isLoading: false, message: null });
+                else if (result.status === 404) {
+                    var msg = 'An error occurred retrieving this attribute. This attribute was not found.';
+                    console.log(generateLogMessageString(`toggleSlideOutCustomType||error||${msg}`, CLASS_NAME, 'error'));
+                    setLoadingProps({ ...loadingProps, isLoading: false, message: msg });
+                } else {
+                    var msg2 = 'An error occurred retrieving this attribute.';
+                    console.log(generateLogMessageString(`toggleSlideOutCustomType||error||${msg2}`, CLASS_NAME, 'error'));
+                    setLoadingProps({ ...loadingProps, isLoading: false, message: msg2 });
+                }
             }).catch(e => {
-                console.log(generateLogMessageString(`toggleSlideOut||Error retrieving attribute item`, CLASS_NAME, 'error'));
-                //hide a spinner
-                //setLoadingProps({ isLoading: false, message: null });
+                var msg = JSON.stringify(e);
+                console.log(generateLogMessageString(`toggleSlideOutCustomType||error||${msg}`, CLASS_NAME, 'error'));
+                setLoadingProps({ ...loadingProps, isLoading: false, message: 'An error occurred retrieving this attribute.'  });
             });
+            */
         }
         else {
             //not open
@@ -475,11 +685,12 @@ function AttributeList(props) {
     };
 
     //call from item row click or from panel itself - slides out attribute item detail
-    const toggleSlideOutDetail = (isOpen, id, readOnly) => {
-        console.log(generateLogMessageString(`toggleSlideOut||${id}`, CLASS_NAME));
+    const toggleSlideOutDetail = (isOpen, typeDefId, id, readOnly) => {
+        console.log(generateLogMessageString(`toggleSlideOut||TypeDefinitionId:${typeDefId}||Id:${id}`, CLASS_NAME));
 
         if (isOpen) {
-            var attr = _allAttributes.all.find(a => { return a.id === id });
+            //add profile type def id to filter to account for inherited attr
+            var attr = _allAttributes.all.find(a => { return a.id === id && a.typeDefinitionId === typeDefId });
             if (attr != null) {
                 SetSlideOut({ isOpen: isOpen, item: attr, showDetail: true, readOnly: readOnly });
             }
@@ -508,7 +719,7 @@ function AttributeList(props) {
         // Filter data - match up against a number of fields
         return filteredCopy.filter((item, i) => {
             var concatenatedSearch = delimiter + item.name.toLowerCase() + delimiter
-                + item.dataType.toLowerCase() + delimiter
+                + item.dataType.name.toLowerCase() + delimiter
                 + (item.minValue != null ? item.minValue.toString().toLowerCase() + delimiter : "")
                 + (item.maxValue != null ? item.maxValue.toString().toLowerCase() + delimiter : "")
                 + (item.engUnit != null ? item.engUnit.toString().toLowerCase() + delimiter : "")
@@ -523,7 +734,7 @@ function AttributeList(props) {
     //-------------------------------------------------------------------
     //render the attribute header row on the grid - used by both attributes grids
     const renderHeaderRow = () => {
-        return (<AttributeItemRow key="header" item={null} isHeader={true} readOnly={true} cssClass="attribute-list-header pb-2" />)
+        return (<AttributeItemRow key="header" item={null} isHeader={true} readOnly={true} isPopout={props.isPopout} cssClass="attribute-list-header pb-2" />)
     }
 
     //render the attributes grid
@@ -535,17 +746,47 @@ function AttributeList(props) {
                 </div>
             )
         }
+
+        var isTypeDefReadOnly = props.typeDefinition.isReadOnly || props.typeDefinition.authorId == null ||
+            props.typeDefinition.authorId !== props.currentUserId;
+
         const mainBody = _dataRows.paged.map((row) => {
-            if (row.isDeleted === false) return null;  //if user deletes row client side, hide that row from view.
-            return (<AttributeItemRow key={row.id} item={row} isHeader={false} readOnly={props.readOnly || props.mode === "extended"} cssClass="attribute-list-item"
-                onDelete={onAttributeDelete} onDeleteInterface={onDeleteInterface} onUpdate={onAttributeUpdate} allAttributes={_allAttributes.all}
-                toggleSlideOutVariableType={toggleSlideOutVariableType} toggleSlideOutDetail={toggleSlideOutDetail} lookupDataTypes={_lookupDataTypes}  />)
+            if (row.isDeleted) return null;  //if user deletes row client side, hide that row from view.
+            var key = `${row.id}|${row.compositionId == null ? '' : row.compositionId}|` +
+                `${row.dataType.customTypeId == null ? '' : row.dataType.customTypeId}|${row.interfaceId == null ? '' : row.interfaceId}`;
+
+            //FIXED
+            //if (props.typeDefinition == null) {
+            //    console.error("TBD - props.typeDefinition is null. Fix this. This happens when slideout shows attr list and not all properties of attr list are set.");
+            //}
+            //the presence of the callback will indicate to attrib item row whether to display delete button
+            //only allow onDeleteInterface callback if attrib is assoc w/ interface and interface is implemented by this profile.
+            var x = props.typeDefinition.interfaces == null ? -1 :
+                props.typeDefinition.interfaces.findIndex(i => { return i.id === row.interfaceId; });
+            //item is an interface attr or not associated with this profile
+            //must be owner of this profile type def
+            var deleteInterfaceCallback = isTypeDefReadOnly || row.interfaceId == null || x < 0 ? null : onDeleteInterface;
+
+            //only allow onDelete callback if attrib is assoc w/ this profile.
+            //must be owner of this profile type def
+            var deleteCallback = isTypeDefReadOnly || row.typeDefinitionId !== props.typeDefinition.id ? null : onDelete;
+
+            //set readonly if the item is not a part of this profile.
+            //console.log(generateLogMessageString(`renderGrid||key||${key}`, CLASS_NAME));
+            return (<AttributeItemRow key={key} item={row} isHeader={false}
+                readOnly={row.typeDefinitionId !== props.typeDefinition.id || props.readOnly || props.mode === "extended"} cssClass="attribute-list-item" isPopout={props.isPopout}
+                onDelete={deleteCallback} onDeleteInterface={deleteInterfaceCallback} onUpdate={onAttributeUpdate} allAttributes={_allAttributes.all}
+                toggleSlideOutCustomType={toggleSlideOutCustomType} toggleSlideOutDetail={toggleSlideOutDetail}
+                lookupDataTypes={_lookupDataTypes} lookupAttributeTypes={_lookupAttributeTypes} lookupCompositions={_lookupCompositions}
+                lookupStructures={_lookupStructures} />)
         });
 
         return (
             <div className="flex-grid attribute-list">
-                {renderHeaderRow()}
-                {mainBody}
+                <table className="mt-3 w-100">
+                    <thead>{renderHeaderRow()}</thead>
+                    <tbody>{mainBody}</tbody>
+                </table>
             </div>
         );
     }
@@ -567,27 +808,21 @@ function AttributeList(props) {
         return <GridPager currentPage={_dataRows.pager.currentPage} pageSize={_dataRows.pager.pageSize} itemCount={_dataRows.pager.itemCount} onChangePage={onChangePage} />
     }
 
-    const renderDataTypeDDL = () => {
+    /*
+    const renderDataTypeUI = () => {
         if (_lookupDataTypes == null || _lookupDataTypes.length === 0) return;
-        const options = _lookupDataTypes.map((item) => {
-            if (props.profile.type != null && props.profile.type.name.toLowerCase() === 'interface' && item.val === 'interface') {
-                //skip this one if we are on a profile of type interface. Interface profile can't add interfaces. It extends interfaces.
-                return null;
-            }
-            else {
-                return (<option key={item.val} value={item.val} >{item.caption}</option>)
-            }
-        });
+
+        const options = renderDataTypeSelectOptions(_lookupDataTypes, props.typeDefinition.type);
 
         return (
-            <Form.Group className="flex-grow-1" style={{maxWidth: "512px"}}>
-                <Form.Label>Data type</Form.Label>
+            <Form.Group>
+                <Form.Label>Data Type</Form.Label>
                 {!_isValid.dataType &&
                     <span className="invalid-field-message inline">
                         Required
                     </span>
                 }
-                <Form.Control id="dataType" as="select" value={_addItem.dataType} onBlur={validateForm_dataType}
+                <Form.Control id="dataType" as="select" value={_addItem.dataType.id} 
                     onChange={onChangeDataType} className={(!_isValid.dataType ? 'invalid-field minimal pr-5' : 'minimal pr-5')} >
                     <option key="-1|Select One" value="-1" >Select</option>
                     {options}
@@ -595,18 +830,74 @@ function AttributeList(props) {
             </Form.Group>
         )
     };
+    */
 
-    //only show this for one data type
-    const renderCompositionDDL = () => {
-        if (!_addSettings.showComposition) return;
+    const renderDataTypeUI = () => {
+        return renderDataTypeUIShared(_addItem, _lookupDataTypes, props.typeDefinition.type, _isValid.dataType, true, onChangeDataType);
+    };
 
-        const options = _lookupProfiles.map((item) => {
+    const renderAttributeTypeUI = () => {
+        if (_lookupAttributeTypes == null || _lookupAttributeTypes.length === 0) return;
+        const options = _lookupAttributeTypes.map((item) => {
             return (<option key={item.id} value={item.id} >{item.name}</option>)
         });
 
         return (
-            <Form.Group className="flex-grow-1 mr-4">
-                <Form.Label>Composition [{props.profile.type == null || props.profile.type.name.toLowerCase() === "class" ? "Profile" : "Interface"}]</Form.Label>
+            <Form.Group>
+                <Form.Label>Attribute Type</Form.Label>
+                {!_isValid.attributeType &&
+                    <span className="invalid-field-message inline">
+                        Required
+                    </span>
+                }
+                <Form.Control ref={_dataAttrTypeDdlRef} id="attributeType" as="select" value={_addItem.attributeType.id} onBlur={validateForm_attributeType}
+                    onChange={onChangeAttributeType} className={(!_isValid.attributeType ? 'invalid-field minimal pr-5' : 'minimal pr-5')} >
+                    <option key="-1|Select One" value="-1" >Select</option>
+                    {options}
+                </Form.Control>
+            </Form.Group>
+        )
+    };
+
+    //render for enumeration attr type
+    const renderEnumValueUI = () => {
+
+        if (!_addSettings.showEnumeration) return;
+        //if (_addItem.attributeType.id !== AppSettings.AttributeTypeDefaults.EnumerationId) return;
+
+        var tip = !_isValid.enumValue ? 'Integer > 0 required.' : '';
+        tip = !_isValid.enumValueIsNumeric ? tip + ' Integer required.' : tip;
+        return (
+            <Form.Group>
+                <Form.Label>Enum Value</Form.Label>
+                {!_isValid.enumValue &&
+                    <span className="invalid-field-message inline">
+                        Integer &gt; 0 required
+                    </span>
+                }
+                {!_isValid.enumValueDuplicate &&
+                    <span className="invalid-field-message inline">
+                        Duplicate value
+                    </span>
+                }
+                <Form.Control id="enumValue" type="" value={_addItem.enumValue == null ? '' : _addItem.enumValue} 
+                    onChange={onChangeEnumValue} onBlur={validateForm_enumValue} title={tip}
+                    className={(!_isValid.enumValue || !_isValid.enumValueDuplicate ? 'invalid-field' : '')} />
+            </Form.Group>
+        );
+    };
+
+    //only show this for one attr type
+    const renderCompositionUI = () => {
+        if (!_addSettings.showComposition) return;
+
+        const options = _lookupCompositions.map((item) => {
+            return (<option key={item.id} value={item.id} >{item.name}</option>)
+        });
+
+        return (
+            <Form.Group>
+                <Form.Label>Composition [{props.typeDefinition.type == null || props.typeDefinition.type.name.toLowerCase() === "class" ? "Profile" : "Interface"}]</Form.Label>
                 {!_isValid.composition &&
                     <span className="invalid-field-message inline">
                         Required
@@ -621,16 +912,41 @@ function AttributeList(props) {
         )
     };
 
+    //only show this for one attr type
+    //const renderStructureUI = () => {
+    //    if (!_addSettings.showStructure) return;
+
+    //    const options = _lookupStructures.map((item) => {
+    //        return (<option key={item.id} value={item.id} >{item.name}</option>)
+    //    });
+
+    //    return (
+    //        <Form.Group>
+    //            <Form.Label>Structure</Form.Label>
+    //            {!_isValid.structure &&
+    //                <span className="invalid-field-message inline">
+    //                    Required
+    //                </span>
+    //            }
+    //            <Form.Control id="structureId" as="select" value={_addItem.dataType.id} onBlur={validateForm_structure}
+    //                onChange={onChangeStructure} className={(!_isValid.structure ? 'invalid-field minimal pr-5' : 'minimal pr-5')} >
+    //                <option key="-1|Select One" value="-1" >Select</option>
+    //                {options}
+    //            </Form.Control>
+    //        </Form.Group>
+    //    )
+    //};
+
     //only show this for one data type
-    const renderInterfaceDDL = () => {
+    const renderInterfaceUI = () => {
         if (!_addSettings.showInterface) return;
 
-        const options = _lookupInterfaces.map((item) => {
+        const options = _lookupInterfaces.current.map((item) => {
             return (<option key={item.id} value={item.id} >{item.name}</option>)
         });
 
         return (
-            <Form.Group className="flex-grow-1 mr-4">
+            <Form.Group>
                 <Form.Label>Interface</Form.Label>
                 {!_isValid.interface &&
                     <span className="invalid-field-message inline">
@@ -648,11 +964,12 @@ function AttributeList(props) {
 
     //only show this for certain data types
     const renderDescription = () => {
+        if (!_addSettings.showDescription) return;
         return (
             <>
-                <Form.Group className="flex-grow-1 mr-4">
+                <Form.Group>
                 <Form.Label>Description</Form.Label>
-                <Form.Control id="description" type="" placeholder="Enter description" value={_addItem.description} onChange={onChange} />
+                <Form.Control id="description" type="" placeholder="Attribute description" value={_addItem.description} onChange={onChange} />
             </Form.Group>
             </>
         )
@@ -661,7 +978,6 @@ function AttributeList(props) {
     //render an add form that sits on top of the grid.
     const renderSearchUI = () => {
         return (
-            <Form>
                 <Form.Row className="m-0" >
                     <InputGroup className="quick-search">
                         {renderAttributeCount()}
@@ -669,20 +985,31 @@ function AttributeList(props) {
 
                             type="text"
                             placeholder="Quick filter"
-                            aria-label="Quick filter"
-                            aria-describedby="basic-addon2"
+                            aria-label="Enter text to filter by"
                             val={_filterVal}
-                            onBlur={onSearchBlur}
+                            onChange={onSearchBlur}
+                            onKeyPress={(e) => e.key === 'Enter' && onSearchClick()}
                             className="border-right-0"
                         />
-                        <InputGroup.Append>
-                            <Button variant="search" className="p-0 pl-3 pr-2 border-left-0" onClick={onSearchClick} >
+                    <InputGroup.Append>
+                        <Button variant="search" className="p-0 pl-3 pr-2 border-left-0" onClick={onSearchClick} title="Filter attribute list" >
                                 <SVGIcon name="search" size="24" fill={color.shark} />
                             </Button>
                         </InputGroup.Append>
                     </InputGroup>
                 </Form.Row>
-            </Form>
+        );
+    }
+
+    const renderAddButtonUI = () => {
+        return (
+            <Form.Group>
+            <Button variant="inline-add" aria-label="Add attribute" onClick={onAdd} className="d-flex align-items-center justify-content-center">
+                <span>
+                    <SVGIcon name="playlist-add" size="24" fill={color.shark} />
+                </span>
+            </Button>
+            </Form.Group>
         );
     }
 
@@ -702,41 +1029,61 @@ function AttributeList(props) {
         return (
             <>
                 <div className="d-flex align-items-end mb-3">
-                    {renderDataTypeDDL()}
                     <div className="ml-auto">
                         {renderSearchUI()}
                     </div>
                 </div>
-                <div className="d-flex align-items-end p-4 pb-5 hl-blue">
+                <div className="p-4 hl-blue">
+                    <div className="row" >
+                        <div className="col-sm-5" >{renderAttributeTypeUI()}</div>
+                        {(!_addSettings.showInterface && !_addSettings.showComposition && !_addSettings.showEnumeration) &&
+                            <div className="col-sm-6" >{renderDataTypeUI()}</div>
+                        }
+                        {_addSettings.showEnumeration &&
+                            <div className="col-sm-3" >{renderEnumValueUI()}</div>
+                        }
+                        {_addSettings.showComposition &&
+                            <div className="col-sm-6" >{renderCompositionUI()}</div>
+                        }
+                        {_addSettings.showInterface &&
+                            <>
+                            <div className="col-md-6 col-sm-5" >
+                                {renderInterfaceUI()}
+                            </div>
+                            <div className="col-sm-1 align-items-end align-self-end" >
+                                {renderAddButtonUI()}
+                            </div>
+                            </>
+                        }
+                    </div>
                     {!_addSettings.showInterface &&
-                        <Form.Group className="flex-grow-1 mr-4">
-                            <Form.Label>Name</Form.Label>
-                            {!_isValid.name &&
-                                <span className="invalid-field-message inline">
-                                    Required
+                        <div className="row" >
+                        <div className="col-sm-5" >
+                                <Form.Group className="">
+                                    <Form.Label>Name</Form.Label>
+                                    {!_isValid.name &&
+                                        <span className="invalid-field-message inline">
+                                            Required
                                 </span>
-                            }
-                            {!_isValid.nameDuplicate &&
-                                <span className="invalid-field-message inline">
-                                    Duplicate
+                                    }
+                                    {!_isValid.nameDuplicate &&
+                                        <span className="invalid-field-message inline">
+                                            Duplicate
                                 </span>
-                            }
-                            <Form.Control id="name" type="" placeholder="Enter a name" value={_addItem.name}
-                                onBlur={validateForm_name}
-                                onChange={onChange} className={(!_isValid.name || !_isValid.nameDuplicate ? 'invalid-field' : '')} />
-                        </Form.Group>
+                                    }
+                                    <Form.Control id="name" type="" placeholder="Attribute name" value={_addItem.name}
+                                        onBlur={validateForm_name}
+                                        onChange={onChange} className={(!_isValid.name || !_isValid.nameDuplicate ? 'invalid-field' : '')} />
+                                </Form.Group>
+                            </div>
+                        <div className="col-md-6 col-sm-5" >
+                                {renderDescription()}
+                            </div>
+                        <div className="col-sm-1 align-items-end align-self-end" >
+                                {renderAddButtonUI()}
+                            </div>
+                        </div>
                     }
-                    {renderCompositionDDL()}
-
-                    {renderInterfaceDDL()}
-
-                    {renderDescription()}
-
-                    <Button variant="inline-add" aria-label="Add attribute" onClick={onAttributeAdd} className="d-flex align-items-center justify-content-center">
-                        <span>
-                            <SVGIcon name="playlist-add" size="24" fill={color.shark} />
-                        </span>
-                    </Button>
                 </div>
             </>
         );
@@ -750,8 +1097,11 @@ function AttributeList(props) {
             {renderAttributeHeaderBlock()}
             {renderGrid()}
             {renderPagination()}
-            <AttributeSlideOut isOpen={_slideOut.isOpen} item={_slideOut.item} onClosePanel={toggleSlideOutVariableType} readOnly={_slideOut.readOnly}
-                showDetail={_slideOut.showDetail} lookupDataTypes={_lookupDataTypes} allAttributes={_allAttributes.all} onUpdate={onAttributeUpdate} />
+            <AttributeSlideOut isOpen={_slideOut.isOpen} item={_slideOut.item} onClosePanel={toggleSlideOutCustomType} readOnly={_slideOut.readOnly}
+                showDetail={_slideOut.showDetail} lookupDataTypes={_lookupDataTypes} lookupAttributeTypes={_lookupAttributeTypes}
+                allAttributes={_allAttributes.all} lookupCompositions={_lookupCompositions} lookupInterfaces={_lookupInterfaces}
+                lookupEngUnits={_lookupEngUnits} onUpdate={onAttributeUpdate} currentUserId={props.currentUserId}
+            />
         </>
     )
 }

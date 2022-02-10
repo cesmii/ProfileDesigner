@@ -1,6 +1,10 @@
 #--routes-wrapper {
     background-color: color("alabaster");
-    width: calc(100vw - #{$sideMenuWidthOpen});
+    width: 100%;
+
+    &.has-sidebar {
+        width: calc(100vw - #{$sideMenuWidthOpen});
+    }
 }
 
 #--cesmii-main-content {

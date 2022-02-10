@@ -1,0 +1,42 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <Configurations>Debug;Release;Staging</Configurations>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="MockData\CESMII.ProfileDesigner.Data.Entities.LookupDataType.json" />
+    <None Remove="MockData\CESMII.ProfileDesigner.Data.Entities.LookupItem.json" />
+    <None Remove="MockData\CESMII.ProfileDesigner.Data.Entities.ProfileItem.json" />
+    <None Remove="MockData\CESMII.ProfileDesigner.Data.Entities.User.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="MockData\CESMII.ProfileDesigner.Data.Entities.LookupDataType.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MockData\CESMII.ProfileDesigner.Data.Entities.LookupItem.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MockData\CESMII.ProfileDesigner.Data.Entities.ProfileItem.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MockData\CESMII.ProfileDesigner.Data.Entities.User.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.7" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="5.0.7" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="5.0.7" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="5.0.7" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CESMII.ProfileDesigner.Common\CESMII.ProfileDesigner.Common.csproj" />
+  </ItemGroup>
+
+</Project>

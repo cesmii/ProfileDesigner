@@ -1,0 +1,108 @@
+/// Shared Files & Constants
+@import "../../components/styles/constants";
+
+.profile-list-item {
+    min-height: 60px;
+    background-color: color("almost-white");
+    border: 1px solid color("almost-white");
+    border-bottom: 1px solid color("alto");
+    //transition: all 200ms ease-in-out;
+
+    .col-avatar {
+        min-width: 40px;
+        width: 40px;
+        max-width: 40px;
+        height: 40px;
+        font-size: 36px;
+        font-weight: 200;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 5px;
+        color: color("white");
+        background-color: color("cerulean");
+        border-radius: 4px;
+    }
+
+    .col.clickable:hover {
+        cursor: pointer;
+    }
+    /*
+    &.mine {
+        background-color: color("hlBlue");
+        border-color: color("hlBlue");
+
+        &:hover {
+            @include background-opacity(color("hlBlue"), 0.8);
+            border: 1px solid color("cornflower");
+        }
+    }
+*/
+
+    &:hover {
+        // background-color: color("alabaster");
+        background-color: color("white");
+        border: 1px solid color("cornflower");
+        //margin: 8px 0;
+        //@include globalShadow;
+    }
+
+    &.shaded, &.selected {
+        background-color: color("hlBlue");
+        //@include background-opacity(color("cornflower"), 0.1);
+        border: 1px solid color("alto");
+
+        &:hover {
+            background-color: color("hlBlue");
+            //@include background-opacity(color("cornflower"), 0.1);
+        }
+    }
+
+    &.selectable {
+        cursor:pointer;
+    }
+
+    .item-text-block {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        min-height: 60px;
+
+        p {
+            margin: 0;
+        }
+    }
+
+    small {
+        opacity: 0.75;
+    }
+
+    .badge {
+        color: color("outerSpace");
+        font-weight: bold;
+        height: 24px;
+        padding: 8px 16px 20px 16px;
+        margin: 2px;
+        border-radius: 25px;
+
+        &.meta {
+            // @include background-opacity(color("cornflower"), .2);
+            @include background-opacity(color("amber"), .4);
+            // background-color: color("blazeOrange");
+        }
+
+        &.children {
+            @include background-opacity(color("cararra"), 1);
+        }
+    }
+
+    .metatags-col {
+        @media only screen and (min-width: 576px) {
+            justify-content: flex-start;
+        }
+
+        @media (min-width: 992px) {
+            justify-content: center;
+        }
+    }
+}

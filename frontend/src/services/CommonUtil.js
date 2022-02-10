@@ -1,0 +1,59 @@
+import ConfirmationModal from "../components/ConfirmationModal";
+import color from "../components/Constants";
+
+//-------------------------------------------------------------------
+// Region: Common Render Methods
+//-------------------------------------------------------------------
+//render ok as a modal to force user to say ok.
+//shield from external calls. Create wrapper calls to simplify the calling code
+const renderOKModal = (modalData) => {
+
+    if (!modalData.show) return null;
+
+    return (
+        <ConfirmationModal showModal={modalData.show} caption={modalData.caption} message={modalData.message}
+            //icon={{ name: "warning", color: color.trinidad }}
+            icon={{ name: modalData.iconName, color: modalData.color }}
+            confirm={null}
+            cancel={{
+                caption: modalData.captionOK,
+                callback: () => {
+                    //console.log(generateLogMessageString(`onErrorMessageOK`, CLASS_NAME));
+                    if (modalData.callback) modalData.callback();
+                },
+                buttonVariant: modalData.severity //'danger'
+            }} />
+    );
+};
+
+//render error message as a modal to force user to say ok.
+export function ErrorModal(props) {
+
+    //-------------------------------------------------------------------
+    // Region: Render
+    //-------------------------------------------------------------------
+    props.modalData.iconName = null ?? "warning";
+    props.modalData.severity = null ?? "danger";
+    props.modalData.captionOK = null ?? "OK";
+    props.modalData.color = null ?? color.trinidad;
+    props.modalData.callback = props.callback;
+    return (
+        renderOKModal(props.modalData)
+    )
+}
+
+//render info message as a modal to force user to say ok.
+export function InfoModal(props) {
+
+    //-------------------------------------------------------------------
+    // Region: Render
+    //-------------------------------------------------------------------
+    props.modalData.iconName = null ?? "info";
+    props.modalData.severity = null ?? "";
+    props.modalData.captionOK = null ?? "OK";
+    props.modalData.color = null ?? color.primary;
+    props.modalData.callback = props.callback;
+    return (
+        renderOKModal(props.modalData)
+    )
+};

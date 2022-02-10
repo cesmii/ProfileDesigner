@@ -1,72 +1,104 @@
-import { useEffect } from 'react'
 import { BrowserRouter as Router } from "react-router-dom"
 import { Helmet } from "react-helmet"
-import axios from 'axios'
+import { ErrorBoundary } from 'react-error-boundary'
+import axios from "axios"
+import axiosInstance from './services/AxiosService'
 
-//import Popper from 'popper.js';
-//import Dropdown from 'bootstrap'
-
+import { useAuthDispatch } from "./components/authentication/AuthContext";
+import { useLoadingContext } from "./components/contexts/LoadingContext";
 import Navbar from './components/Navbar'
-import SideMenu from './components/SideMenu'
+import { LoadingOverlay } from "./components/LoadingOverlay"
 import MainContent from './components/MainContent'
 import Footer from './components/Footer'
 import { AppSettings } from './utils/appsettings'
 import { generateLogMessageString } from './utils/UtilityService'
-import { useAuthContext } from "./components/authentication/AuthContext";
-import { LoadingUI, useLoadingContext } from "./components/contexts/LoadingContext";
+import { logout } from './components/authentication/AuthActions'
+import ErrorPage from './components/ErrorPage'
+import { OnLookupLoad } from './components/OnLookupLoad'
 
 import './App.scss';
 
 const CLASS_NAME = "App";
 
 function App() {
-    console.log(generateLogMessageString(`init || ${process.env.NODE_ENV}`, CLASS_NAME));
-    console.log(generateLogMessageString(`init || ${process.env.REACT_APP_BASE_API_URL}`, CLASS_NAME));
-    //console.log(process.env);
+    //console.log(generateLogMessageString(`init || ENV || ${process.env.NODE_ENV}`, CLASS_NAME));
+    //console.log(generateLogMessageString(`init || API || ${process.env.REACT_APP_BASE_API_URL}`, CLASS_NAME));
 
     //-------------------------------------------------------------------
     // Region: Initialization
     //-------------------------------------------------------------------
-    const { authTicket } = useAuthContext();
-    const { loadingProps, setLoadingProps } = useLoadingContext();
+    const dispatch = useAuthDispatch() //get the dispatch method from the useDispatch custom hook
+    const { setLoadingProps } = useLoadingContext();
 
     //-------------------------------------------------------------------
-    // Region: Event handlers
+    //  TBD - is this the best place for this? 
+    //  If a network error occurs (ie API not there), catch it here and handle gracefully.  
     //-------------------------------------------------------------------
-    useEffect(() => {
-        async function fetchProfileCounts() {
-            console.log(generateLogMessageString('useEffect||fetchProfileCountsOnLogin||async', CLASS_NAME));
-            //in future system, a single endpoint would just return an object with all count and mine count.
-            const result = await axios(`${AppSettings.BASE_API_URL}/profile/`);
-
-            if (result.data != null) {
-                var mine = result.data.filter((p) => {
-                    return p.author != null && p.author.id === authTicket.user.id;
-                });
-
-                setLoadingProps({
-                    profileCount: {
-                        all: result.data != null ? result.data.length : null,
-                        mine: mine.length
-                    }
-                });
+    const OnApiResponseError = (error) => {
+        //session expired - go to login
+        if (error.response && error.response.status === 401) {
+            console.log(generateLogMessageString(`axiosInstance.interceptors.response||error||${error.response.status}||${error.config.baseURL}${error.config.url}`, CLASS_NAME));
+            setLoadingProps({ isLoading: false, message: null, isImporting: false });
+            //updates state and removes user auth ticket from local storage
+            let logoutAction = logout(dispatch);
+            if (!logoutAction) {
+                console.error(generateLogMessageString(`axiosInstance.interceptors.response||An error occurred setting the logout state.`, CLASS_NAME));
             }
         }
+        //no status is our only indicator the API is not up and running
+        else if (!error.status) {
+            console.log(generateLogMessageString(`axiosInstance.interceptors.response||error||${error.config.baseURL}${error.config.url}||${error}`, CLASS_NAME));
+            if (error.message && error.message.toLowercase().indexOf('request aborted') > -1) {
+                //do nothing...
+            }
+            else {
+                // API unavailable network error
+                setLoadingProps({
+                    isLoading: false, message: null, isImporting: false, inlineMessages: [
+                        { id: new Date().getTime(), severity: "danger", body: 'A system error has occurred. Please contact your system administrator.', isTimed: true }]
+                });
+            //for now, don't log user out because it creates more confusion
+            //updates state and removes user auth ticket from local storage
+            //let logoutAction = logout(dispatch);
+            //if (!logoutAction) {
+            //    console.error(generateLogMessageString(`axiosInstance.interceptors.response||An error occurred setting the logout state.`, CLASS_NAME));
+            //}
 
-        //initialize profile counts. Trigger when user logs in only
-        if (authTicket != null && authTicket.user != null) {
-            fetchProfileCounts();
+            }
         }
-        else {
-            setLoadingProps({profileCount: {all: null, mine: null}});
+    };
+
+    //Catch exceptions in the flow when we use our axiosInstance
+    axiosInstance.interceptors.response.use(
+        response => {
+            return response
+        },
+        error => {
+            OnApiResponseError(error);
+            return Promise.reject(error)
         }
+    )
 
-        //this will execute on unmount
-        return () => {
-            console.log(generateLogMessageString('useEffect||Cleanup', CLASS_NAME));
-        };
-    }, [authTicket]);
+    //Catch exceptions in the flow when we use axios not as part of our axiosInstance
+    axios.interceptors.response.use(
+        response => {
+            return response
+        },
+        error => {
+            OnApiResponseError(error);
+            return Promise.reject(error)
+        }
+    )
 
+    //-------------------------------------------------------------------
+    // Region: hooks - moved into separate component
+    // useEffect - get various lookup data - onlookupLoad component houses the useEffect checks
+    //-------------------------------------------------------------------
+    OnLookupLoad();
+
+    //-------------------------------------------------------------------
+    // Region: Render
+    //-------------------------------------------------------------------
     return (
 
     <div>
@@ -76,13 +108,17 @@ function App() {
         </Helmet>
         <Router>
             <Navbar />
-            <LoadingUI loadingProps={loadingProps} ></LoadingUI>
-            <div id="--cesmii-content-wrapper">
-                {/*Only show the side menu if we are logged in*/}
-                {(authTicket != null && authTicket.token != null) && <SideMenu />}
-                <MainContent />
-            </div>
-
+            <LoadingOverlay />
+                <ErrorBoundary
+                    FallbackComponent={ErrorPage}
+                    onReset={() => {
+                        // reset the state of your app so the error doesn't happen again
+                    }}
+                >
+                    <div id="--cesmii-content-wrapper">
+                        <MainContent />
+                    </div>
+                </ErrorBoundary>
             <Footer />
         </Router>
     </div>

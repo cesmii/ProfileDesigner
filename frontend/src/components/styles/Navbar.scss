@@ -1,13 +1,26 @@
 @import "./constants";
 
-#--cesmii-navbar {
-    height: $navbarHeight;
-    padding-left: 32px;
-
+header {
+    height: auto;
     color: white;
     background-color: color("cornflower");
-
     border-bottom: 1px solid color("blue-8");
-
     align-items: center;
+
+    .navbar-brand {
+        color: color("white");
+
+        &:hover {
+            color: unset;
+            opacity: 0.9;
+        }
+
+        img {
+            height: 34px;
+        }
+    }
+
+    @media (min-width: 768px) {
+        height: $navbarHeight;
+    }
 }

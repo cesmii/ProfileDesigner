@@ -1,22 +1,46 @@
-#--cesmii-sidemenu-left {
-
+.siderail-left {
     width: 82px;
     min-height: calc(100vh - #{$navbarHeight} - #{$footerHeight});
     padding: 0;
     background-color: color("almost-white");
     border-right: 1px solid color("alto");
 
+    @media (min-width: 768px) {
+        width: $sideMenuWidthOpen-md;
+        min-width: $sideMenuWidthOpen-md;
+        /*more narrow versions*/
+        &.small {
+            width: $sideMenuWidthOpen-sm;
+            min-width: $sideMenuWidthOpen-sm;
+        }
+
+        &.medium {
+            width: $sideMenuWidthOpen-sm;
+            min-width: $sideMenuWidthOpen-sm;
+        }
+    }
+
     @media (min-width: 992px) {
         width: $sideMenuWidthOpen;
         min-width: $sideMenuWidthOpen;
         // width: 250px;
         // min-width: 250px;
+        /*more narrow versions*/
+        &.small {
+            width: $sideMenuWidthOpen-sm;
+            min-width: $sideMenuWidthOpen-sm;
+        }
+
+        &.medium {
+            width: $sideMenuWidthOpen-md;
+            min-width: $sideMenuWidthOpen-md;
+        }
     }
+
 
     ul {
         text-decoration: none;
         margin-bottom: 0;
         padding: 0;
     }
-    
 }

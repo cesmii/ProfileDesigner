@@ -17,6 +17,7 @@ function GridPager(props) { //(currentPage, pageSize, itemCount, onChangePage)
     const previousCaption = "<";
     const nextCaption = ">";
     const minimuPageSize = 10;
+    const maxPageDisplay = 16;
 
     const raiseOnChangePage = props.onChangePage;
 
@@ -109,23 +110,35 @@ function GridPager(props) { //(currentPage, pageSize, itemCount, onChangePage)
         var result = [];
         if (pager.totalPages > minimuPageSize) {
             //add first, previous item
-            result.push(<Pagination.Item key="first" active={pager.currentPage === 1} onClick={() => onPageClick(1)}>{firstCaption}</Pagination.Item>);
-            result.push(<Pagination.Item key="previous" active={pager.currentPage === 1} onClick={() => onPageClick(pager.currentPage - 1)}>{previousCaption}</Pagination.Item>);
+            result.push(<Pagination.Item key="first" title="Go to first page" active={pager.currentPage === 1} onClick={() => onPageClick(1)}>{firstCaption}</Pagination.Item>);
+            result.push(<Pagination.Item key="previous" title="Go to previous page" active={pager.currentPage === 1} onClick={() => onPageClick(pager.currentPage - 1)}>{previousCaption}</Pagination.Item>);
         }
-        //add individual pages
+        //add individual pages 
+        var maxHalfway = Math.floor(maxPageDisplay / 2);
         for (let pageNum = 1; pageNum <= pager.totalPages; pageNum++) {
-            result.push(
-                <Pagination.Item key={pageNum} active={pageNum === pager.currentPage} onClick={() => onPageClick(pageNum)}>
-                    {pageNum}
-                </Pagination.Item>
-            );
+            //if we have more than max pages display...16 pages, we only display 16 around the current page
+            if (pager.totalPages <= maxPageDisplay || (pageNum > pager.currentPage - maxHalfway && (pageNum < pager.currentPage + maxHalfway))) {
+                result.push(
+                    <Pagination.Item key={pageNum} title={`Go to page ${pageNum}`} active={pageNum === pager.currentPage} onClick={() => onPageClick(pageNum)}>
+                        {pageNum}
+                    </Pagination.Item>
+                );
+            }
+            //show a ...indicator for one item just prior to the group and just after the group
+            if (pager.totalPages > maxPageDisplay && (pageNum === pager.currentPage - maxHalfway || (pageNum === pager.currentPage + maxHalfway))) {
+                result.push(
+                    <Pagination.Item key={pageNum} title="Go to next group of pages" active={pageNum === pager.currentPage} onClick={() => onPageClick(pageNum)}>
+                        ...
+                    </Pagination.Item>
+                );
+            }
         }
         //add next, last item
         if (pager.totalPages > minimuPageSize) {
-            result.push(<Pagination.Item key="next" active={pager.currentPage === pager.totalPages} onClick={() => onPageClick(pager.currentPage + 1)}>{nextCaption}</Pagination.Item>);
-            result.push(<Pagination.Item key="last" active={pager.currentPage === pager.totalPages} onClick={() => onPageClick(pager.totalPages)}>{lastCaption}</Pagination.Item>);
+            result.push(<Pagination.Item key="next" title="Go to next page" active={pager.currentPage === pager.totalPages} onClick={() => onPageClick(pager.currentPage + 1)}>{nextCaption}</Pagination.Item>);
+            result.push(<Pagination.Item key="last" title="Go to last page" active={pager.currentPage === pager.totalPages} onClick={() => onPageClick(pager.totalPages)}>{lastCaption}</Pagination.Item>);
         }
-        return (<div className="mr-auto"><Pagination >{result}</Pagination></div>);
+        return (<div className="mr-auto mb-3 mb-lg-0"><Pagination >{result}</Pagination></div>);
     }
 
     const renderPageSizeOptions = (pageSize) => {
@@ -167,7 +180,7 @@ function GridPager(props) { //(currentPage, pageSize, itemCount, onChangePage)
     // Region: Render 
     //-------------------------------------------------------------------
     return (
-        <div className="pagination-wrapper">
+        <div className="pagination-wrapper mt-3 mt-lg-4 d-block d-lg-flex">
             {renderPageItems()}
             {renderPageSizeOptions(props.pageSize)}
         </div>

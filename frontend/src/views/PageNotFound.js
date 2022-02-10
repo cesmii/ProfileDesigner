@@ -1,19 +1,38 @@
-import React, { Fragment } from 'react'
+import React from 'react'
+import { Helmet } from 'react-helmet';
 
-import HeaderNav from '../components/HeaderNav'
+import { AppSettings } from '../utils/appsettings';
+import { renderTitleBlock } from '../utils/UtilityService';
 
 //TBD - add in some nicely formatted message
 function PageNotFound() {
 
-    return (
-        <Fragment>
-            <HeaderNav caption="Page Not Found" showSearch={false} />
-            <div id="--cesmii-main-content">
-                <div id="--cesmii-left-content">
-                    &nbsp;
+    const caption = "Page Not Found";
+
+    const renderHeaderRow = () => {
+        return (
+            <div className="row pb-3">
+                <div className="col-12 d-flex">
+                    {renderTitleBlock(caption, null, null)}
                 </div>
             </div>
-        </Fragment>
+        );
+    };
+
+    return (
+        <>
+            <Helmet>
+                <title>{AppSettings.Titles.Main + " | " + caption}</title>
+            </Helmet>
+            {renderHeaderRow()}
+            <div className="card p-4">
+                <div className="row">
+                    <div className="col-12">
+                        &nbsp; 
+                    </div>
+                </div>
+            </div>
+        </>
     )
 }
 

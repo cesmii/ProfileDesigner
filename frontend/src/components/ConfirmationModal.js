@@ -41,7 +41,8 @@ function ConfirmationModal(props) { //props are item, showActions
     //-------------------------------------------------------------------
     return (
         <>
-            <Modal show={showModal} onHide={onHide} centered>
+            {/* Add animation=false to prevent React warning findDomNode is deprecated in StrictMode*/}
+            <Modal animation={false} show={showModal} onHide={onHide} centered>
                 <Modal.Header closeButton>
                     <Modal.Title>
                         {props.icon != null &&
@@ -52,24 +53,28 @@ function ConfirmationModal(props) { //props are item, showActions
                         }
                     </Modal.Title>
                 </Modal.Header>
-                <Modal.Body className="mt-3 mb-5">
+                <Modal.Body className="my-3">
                     {(props.message == null || props.message === '') ?
                         "Are you sure?" : props.message
                     }
                 </Modal.Body>
                 <Modal.Footer>
+                    {props.cancel != null &&
                     <Button variant={props.cancel == null || props.cancel.buttonVariant == null ? "text-solo" : props.cancel.buttonVariant}
                         onClick={onHide}>
                         {(props.cancel == null || props.cancel.caption == null || props.cancel.caption === '') ?
                             "Cancel" : props.cancel.caption
                         }
                     </Button>
-                    <Button variant={props.confirm == null || props.confirm.buttonVariant == null ? "" : props.confirm.buttonVariant}
-                        style={{ minWidth: '128px' }} onClick={onConfirm} >
-                        {(props.confirm == null || props.confirm.caption == null || props.confirm.caption === '') ?
-                        "OK" : props.confirm.caption 
-                        }
-                    </Button>
+                    }
+                    {props.confirm != null &&
+                        <Button variant={props.confirm == null || props.confirm.buttonVariant == null ? "" : props.confirm.buttonVariant}
+                            style={{ minWidth: '128px' }} onClick={onConfirm} >
+                            {(props.confirm == null || props.confirm.caption == null || props.confirm.caption === '') ?
+                                "OK" : props.confirm.caption
+                            }
+                        </Button>
+                    }
                 </Modal.Footer>
             </Modal>
         </>

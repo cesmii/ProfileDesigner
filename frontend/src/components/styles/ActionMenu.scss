@@ -43,6 +43,7 @@
         color: color("shark");
         background-color: transparent;
         border: none;
+        min-width: unset;
 
         &::after {
             content: none;

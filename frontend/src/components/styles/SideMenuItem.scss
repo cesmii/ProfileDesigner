@@ -1,13 +1,14 @@
-li.sidemenu-item {    
+/// ::::::::::::::::::::
+/// Shared Files & Constants
+@import "./constants";
+
+li.sidemenu-item {
     display: flex;
     align-items: center;
     justify-content: space-between;
-
     color: color("thunder");
     text-decoration: none;
-    
-    height: 80px;
-
+    height: 60px;
     padding-left: 12px;
     padding-right: 8px;
     border-left: 4px solid;
@@ -17,8 +18,12 @@ li.sidemenu-item {
 
     &:hover {
         cursor: pointer;
-        background-color: color("alabaster");
+        @include background-opacity(color("hlBlue"), 0.4);
         border-left-color: color("green");
+    }
+
+    &.current, &.current:hover {
+        background-color: color("hlBlue");
     }
 
     .sidemenu-item-link {

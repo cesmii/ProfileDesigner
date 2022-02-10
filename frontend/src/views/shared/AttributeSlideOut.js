@@ -52,25 +52,30 @@ function AttributeSlideOut(props) { //props are item, showActions
         <>
             <div className={cssClass} >
                 
-                <div className="p-3 pb-2 mb-3 right-panel-header">
-                    <Button variant="icon-solo" onClick={closePanel} className="align-items-center" >
-                        <span>
-                            <SVGIcon name="close" size="24" fill={color.shark} />
-                        </span>
-                    </Button>
-
+                <div className="m-0 mb-3 p-3 pb-2 right-panel-header row">
                     {(props.item != null && !props.showDetail) &&
-                        <p className="h5 m-0 p-0 mt-2">{props.item == null || props.item === {} ? "" : props.item.name}</p>
+                        <div className="h5 d-flex m-0 align-items-center">{props.item == null || props.item === {} ? "" : props.item.name}</div>
                     }
+                    <div className="d-flex align-items-center ml-auto" >
+                        <Button variant="icon-solo" onClick={closePanel} className="align-items-center" >
+                            <span>
+                                <SVGIcon name="close" size="24" fill={color.shark} />
+                            </span>
+                        </Button>
+                    </div>
                 </div>
 
                 <div className="col-sm-12">
                     {(props.item != null && !props.showDetail) &&
-                        <AttributeList profile={props.item} profileAttributes={props.item.profileAttributes} extendedProfileAttributes={props.item.extendedProfileAttributes} readOnly={true} />
+                        <AttributeList typeDefinition={props.item} profileAttributes={props.item.profileAttributes} extendedProfileAttributes={props.item.extendedProfileAttributes} readOnly={true} isPopout={true}
+                        currentUserId={props.currentUserId} />
+
                     }
                     {(props.item != null && props.showDetail) &&
                         <AttributeEntity item={props.item} allAttributes={props.allAttributes} readOnly={props.readOnly}
-                        onUpdate={onUpdate} lookupDataTypes={props.lookupDataTypes} onClosePanel={props.onClosePanel} />
+                        onUpdate={onUpdate} lookupDataTypes={props.lookupDataTypes} lookupAttributeTypes={props.lookupAttributeTypes}
+                        lookupCompositions={props.lookupCompositions} lookupInterfaces={props.lookupInterfaces}
+                        lookupEngUnits={props.lookupEngUnits} onClosePanel={props.onClosePanel} />
             }
                 </div>
             </div>

@@ -1,6 +1,6 @@
 {
-  "name": "smart-web",
-  "version": "0.1.0",
+  "name": "profile-designer",
+  "version": "1.0.0",
   "private": true,
   "dependencies": {
     "@material/react-material-icon": "^0.15.0",

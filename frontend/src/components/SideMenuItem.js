@@ -47,12 +47,12 @@ function SideMenuItem(props) { //props are subMenuItems, bgColor, iconName, navU
     // Region: Render
     //-------------------------------------------------------------------
     //console.log(generateLogMessageString('render', CLASS_NAME));
-
+    var cssClass = `sidemenu-item ${(history.location.pathname === props.navUrl) ? "current" : ""} `;
     return (
-        <li className="sidemenu-item" style={(history.location.pathname === props.navUrl) ? currentStyle : defaultStyle} >
+        <li className={cssClass} style={(history.location.pathname === props.navUrl) ? currentStyle : defaultStyle} >
             <Link className="sidemenu-item-link" to={props.navUrl} style={{ color: 'inherit', textDecoration: 'inherit' }}>
-                <Fab color={props.bgColor} bgColor={props.bgColor} opacity={opacity} iconName={props.iconName} size='48px' />
-                <div className="d-none d-lg-block">
+                <Fab color={props.bgColor} bgColor={props.bgColor} opacity={opacity} iconName={props.iconName} size='40px' />
+                <div className="d-none d-md-block">
                     {props.caption}<br />
                     <small>{props.subText}</small>
                 </div>

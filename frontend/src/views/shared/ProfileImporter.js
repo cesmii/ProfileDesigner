@@ -1,202 +1,157 @@
-import React, { useEffect, useState } from 'react'
-import axios from 'axios'
-import { useHistory } from 'react-router-dom'
+import React, { useState } from 'react'
+import axiosInstance from "../../services/AxiosService";
 
 import { useLoadingContext } from '../../components/contexts/LoadingContext';
-import { useAuthContext } from '../../components/authentication/AuthContext';
-import { AppSettings } from '../../utils/appsettings'
 import { generateLogMessageString } from '../../utils/UtilityService'
-
-import Card from 'react-bootstrap/Card'
-import ListGroup from 'react-bootstrap/ListGroup'
-
-import { SVGIcon } from '../../components/SVGIcon'
-import color from '../../components/Constants'
+import { ErrorModal } from '../../services/CommonUtil';
+import { AppSettings } from '../../utils/appsettings';
 
 const CLASS_NAME = "ProfileImporter";
 
-const entityInfo = {
-    name: "Profile",
-    namePlural: "Profiles",
-    entityUrl: "/profile/:id",
-    listUrl: "/profile/all"
-}
-
-function ProfileImporter() {
+function ProfileImporter(props) {
 
     //-------------------------------------------------------------------
     // Region: Initialization
     //-------------------------------------------------------------------
-    const history = useHistory();
     const { loadingProps, setLoadingProps } = useLoadingContext();
-    const [_dataRows, setDataRows] = useState([]);
-    const { authTicket } = useAuthContext();
-    let _fileReader;
-    let _isMyProfile;
+    //importer
+    const [_fileSelection, setFileSelection] = useState('');
+    const [_error, setError] = useState({ show: false, message: null, caption: null });
 
     //-------------------------------------------------------------------
-    // Region: Event Handling
+    // Region: Event handlers
     //-------------------------------------------------------------------
-    const onMyProfileFileChange = (e) => {
-        console.log(generateLogMessageString(`onMyProfileFileChange`, CLASS_NAME));
-        _isMyProfile = true;
-        onFileUpload(e.target.files[0]);
-    }
+    const onImportClick = (e) => {
+        console.log(generateLogMessageString(`onImportClick`, CLASS_NAME));
 
-    const onProfileLibraryFileChange = (e) => {
-        console.log(generateLogMessageString(`onProfileLibraryFileChange`, CLASS_NAME));
-        _isMyProfile = false;
-        onFileUpload(e.target.files[0]);
-    }
+        //if (loadingProps.isImporting) return;
 
-    const onFileReadEnd = (e) => {
+        //console.log(generateLogMessageString(`onProfileLibraryFileChange`, CLASS_NAME));
 
-        console.log(generateLogMessageString(`onFileReadEnd`, CLASS_NAME));
-        var data = _fileReader.result;
-        var profile = prepareAndValidateImportedProfile(data);
+        let files = e.target.files;
+        let readers = [];
+        if (!files.length) return;
 
-        if (profile == null) return;
-
-        saveFile(profile, _isMyProfile);
-    }
-
-    const onFileUpload = (fileInfo) => {
-        console.log(generateLogMessageString(`onFileUpload`, CLASS_NAME));
-        console.log(fileInfo);
-        //Read the file in. add a callback fn to process read file
-        _fileReader = new FileReader();
-        _fileReader.onloadend = onFileReadEnd;
-        _fileReader.readAsText(fileInfo);
-    }
-
-    //-------------------------------------------------------------------
-    // Region: Get profile list data - prerequisite
-    //-------------------------------------------------------------------
-    useEffect(() => {
-        //TBD - enhance the mock api to return profiles by user id
-        async function fetchData() {
-            //show a spinner
-            setLoadingProps({ isLoading: true, message: null });
-
-            var url = `${AppSettings.BASE_API_URL}/profile`;
-            console.log(generateLogMessageString(`useEffect||fetchData||${url}`, CLASS_NAME));
-            const result = await axios(url);
-
-            //set state on fetch of data - this list is used downstream when checking for unique profile names
-            setDataRows(result.data);
-
-            //hide a spinner
-            setLoadingProps({ isLoading: false, message: null });
+        for (let i = 0; i < files.length; i++) {
+            readers.push(readFileAsText(files[i]));
         }
-        fetchData();
-        //this will execute on unmount
-        return () => {
-            console.log(generateLogMessageString('useEffect||Cleanup', CLASS_NAME));
-        };
-    }, []);
+
+        Promise.all(readers).then((values) => {
+            //console.log(values);
+            importFiles(values);
+        });
+    };
+
+    const onErrorModalClose = () => {
+        //console.log(generateLogMessageString(`onErrorMessageOK`, CLASS_NAME));
+        setError({ show: false, caption: null, message: null });
+    }
 
     //-------------------------------------------------------------------
-    // Region: File processing and saving methods
+    // Region: Importing Code
     //-------------------------------------------------------------------
-    //dup name check
-    const findUniqueName = (name) => {
+    //-------------------------------------------------------------------
+    // Save nodeset
+    const importFiles = async (items) => {
 
-        var uniqueName = name;
-        var isNameUnique = false;
-        var counter = 1;
-        while (!isNameUnique) {
-            var matchIndex = _dataRows.findIndex((p) => { return p.name.toLowerCase() === uniqueName.toLowerCase(); });
-            isNameUnique = (matchIndex === -1);
-            if (!isNameUnique) {
-                uniqueName = `${name}(${counter.toString()})`;
-                counter++;
+        var url = `profile/import`;
+        //url = `profile/import/slow`; //testing purposes
+        console.log(generateLogMessageString(`importFiles||${url}`, CLASS_NAME));
+
+        var msgFiles = "";
+        items.forEach(function (f) {
+            //msgFiles += msgFiles === "" ? `<br/>File(s) being imported: ${f.fileName}` : `<br/>${f.fileName}`;
+            msgFiles += msgFiles === "" ? `File(s) being imported: ${f.fileName}` : `<br/>${f.fileName}`;
+        });
+
+        //show a processing message at top. One to stay for duration, one to show for timed period.
+        //var msgImportProcessingId = new Date().getTime();
+        setLoadingProps({
+            isLoading: true, message: `Importing...This may take a few minutes.`
+        });
+
+        await axiosInstance.post(url, items).then(result => {
+            if (result.status === 200) {
+                //check for success message OR check if some validation failed
+                //remove processing message, show a result message
+                //inline for isSuccess, pop-up for error
+                var revisedMessages = null;
+                if (result.data.isSuccess) {
+
+                    //synch flow would wait, now we do async so we have to check import log on timer basis. 
+                    //    revisedMessages = [{
+                    //        id: new Date().getTime(),
+                    //        severity: result.data.isSuccess ? "success" : "danger",
+                    //        body: `Profiles were imported successfully.`,
+                    //        isTimed: result.data.isSuccess
+                    //    }];
+                }
+                else {
+                    setError({ show: true, caption: 'Import Error', message: `An error occurred processing the import file(s): ${result.data.message}` });
+                }
+
+                //asynch flow - trigger the component we use to show import messages, importing items changing is the trigger
+                //update spinner, messages
+                var importingLogs = loadingProps.importingLogs == null || loadingProps.importingLogs.length === 0 ? [] :
+                    JSON.parse(JSON.stringify(loadingProps.importingLogs));
+                importingLogs.push({ id: result.data.data, status: AppSettings.ImportLogStatus.InProgress, message: null });
+                setLoadingProps({
+                    isLoading: false, message: null, inlineMessages: revisedMessages,
+                    importingLogs: importingLogs,
+                    activateImportLog: true,
+                    isImporting: false
+                });
+
+                //bubble up to parent to let them know the import log id associated with this import. 
+                //then they can track how this specific import is doing in terms of completed or not
+                if (props.onImportStarted) props.onImportStarted(result.data.data);
+
+            } else {
+                //hide a spinner, show a message
+                setLoadingProps({
+                    isLoading: false, message: null, isImporting: false
+                    //, inlineMessages: [{ id: new Date().getTime(), severity: "danger", body: `An error occurred processing the import file(s).`, isTimed: false, isImporting: false }]
+                });
+                setError({ show: true, caption: 'Import Error', message: `An error occurred processing the import file(s)` });
             }
-        }
-
-        return uniqueName;
-    }
-
-    //-------------------------------------------------------------------
-    // Save file to repo
-    //-------------------------------------------------------------------
-    const saveFile = (item, isMyProfile) => {
-        //Assign a unique id
-        //set ownership to me if I am importing into my profiles.
-        item.id = new Date().getTime(); //TBD - in phase II, the server side and likely the db will issue the new id
-        if (isMyProfile) {
-            item.author = authTicket.user;
-        }
-        //check dup name and append (1) if already present
-        item.name = findUniqueName(item.name);
-        axios.post(
-            `${AppSettings.BASE_API_URL}/profile`, item)
-            .then(resp => {
+        }).catch(e => {
+            if (e.response && e.response.status === 401) {
+                setLoadingProps({ isLoading: false, message: null, isImporting: false });
+            }
+            else {
                 //hide a spinner, show a message
                 setLoadingProps({
-                    isLoading: false, message: null, inlineMessages: [
-                        { id: new Date().getTime(), severity: "success", body: `Profile '${item.name}' was imported successfully.` }
-                    ],
-                    profileCount: { all: loadingProps.profileCount.all + 1, mine: loadingProps.profileCount.mine + (_isMyProfile ? 1 : 0) }
+                    isLoading: false, message: null, isImporting: false
+                    //,inlineMessages: [{ id: new Date().getTime(), severity: "danger", body: e.response.data ? e.response.data : `An error occurred saving the imported profile.`, isTimed: false, isImporting: false }]
                 });
-                //navigate to the profile page to see the newly imported file
-                history.push(entityInfo.entityUrl.replace(':id', resp.data.id));
-            })
-            .catch(error => {
-                //hide a spinner, show a message
-                setLoadingProps({
-                    isLoading: false, message: null, inlineMessages: [
-                        { id: new Date().getTime(), severity: "danger", body: `An error occurred saving the imported profile.` }
-                    ]
-                });
-                console.log(generateLogMessageString('handleOnSave||saveFile||' + JSON.stringify(error), CLASS_NAME, 'error'));
-                console.log(error);
-            });
+                setError({ show: true, caption: 'Import Error', message: e.response && e.response.data ? e.response.data : `A system error has occurred during the profile import. Please contact your system administrator.` });
+                console.log(generateLogMessageString('handleOnSave||saveFile||' + JSON.stringify(e), CLASS_NAME, 'error'));
+                console.log(e);
+            }
+        });
     }
 
-    //-------------------------------------------------------------------
-    // Prepare and validate an imported profile
-    //  Return either the imported file object OR null if stuff fails
-    //  Write a message to the screen if errors occur
-    //-------------------------------------------------------------------
-    const prepareAndValidateImportedProfile = (data) => { //props are item, showActions
-        console.log(generateLogMessageString(`prepareAndValidateImportedProfile`, CLASS_NAME));
+    const readFileAsText = (file) => {
+        return new Promise(function (resolve, reject) {
+            let fr = new FileReader();
 
-        // Region: Prep and validate
-        var errors = [];
-        //try to parse, if fails, then stop
-        var result = null;
-        try {
-            result = JSON.parse(data);
-        }
-        catch (err) {
-            setLoadingProps({
-                isLoading: false, message: null, inlineMessages: [
-                    { id: new Date().getTime(), severity: "danger", body: `The imported file was not in the expected format. Please use an approved file containing JSON data with the proper expected file structre.` }
-                ]
-            });
-            return null;
-        }
+            fr.onload = function () {
+                resolve({ fileName: file.name, data: fr.result });
+            };
 
-        //TBD - add validation
+            fr.onerror = function () {
+                reject(fr);
+            };
 
-        if (errors.length === 0) {
-            return result;
-        }
+            fr.readAsText(file);
+        });
+    }
 
-        // Region: Process errors and return result
-        if (errors.length > 0) {
-            var msg = '';
-            errors.forEach(e => {
-                msg += msg === '' ? e : '\r\n' + e;
-            })
-            setLoadingProps({
-                isLoading: false, message: null, inlineMessages: [
-                    { id: new Date().getTime(), severity: "danger", body: `An error(s) occurred importing this profile: ${errors.length > 1 ? "\r\n" : ""} ${msg}` }
-                ]
-            });
-        }
-        //return true false
-        return (errors.length > 0 ? null : result);
+    //this will always force the file selector to trigger event after selection.
+    //it wasn't firing if selection was same between 2 instances
+    const resetFileSelection = () => {
+        console.log(generateLogMessageString(`resetFileSelection`, CLASS_NAME));
+        setFileSelection('');
     }
 
     //-------------------------------------------------------------------
@@ -206,31 +161,16 @@ function ProfileImporter() {
     //-------------------------------------------------------------------
     // Region: Render final output
     //-------------------------------------------------------------------
+    var buttonCss = `btn btn-secondary auto-width ${props.cssClass} ${props.disabled ? "disabled" : ""}`;
+    var caption = props.caption == null ? "Import" : props.caption;
+
     return (
         <>
-            <Card style={{ height: '360px', maxWidth: '800px', padding: '32px' }} className="mt-5 elevated">
-                <Card.Body className="">
-                    <Card.Text className="text-muted mb-4">
-                        Import existing profiles to your folder or to the profiles library. Then extend them to make new ones!
-                    </Card.Text>
-                    <ListGroup className="list-group-flush">
-                        <ListGroup.Item className="d-flex align-items-center">
-                            <SVGIcon name="folder-shared" size="48" fill={color.outerSpace} alt="My Profiles" className="mr-4" />
-                            <p className="h4 m-0">My profiles</p>
-                            <label className="btn btn-secondary ml-auto">
-                                Import<input type="file" onChange={onMyProfileFileChange} style={{ display: "none" }} />
-                            </label>
-                        </ListGroup.Item>
-                        <ListGroup.Item className="d-flex align-items-center">
-                            <SVGIcon name="folder-profile" size="48" fill={color.outerSpace} alt="My Profiles" className="mr-4" />
-                            <p className="h4 m-0">Profiles library</p>
-                            <label className="btn btn-secondary ml-auto">
-                                Import<input type="file" onChange={onProfileLibraryFileChange} style={{ display: "none" }} />
-                            </label>
-                        </ListGroup.Item>
-                    </ListGroup>
-                </Card.Body>
-            </Card>
+            <label className={buttonCss} >
+                {caption}
+                <input type="file" value={_fileSelection} multiple onClick={resetFileSelection} disabled={props.disabled ? "disabled" : ""} onChange={onImportClick} style={{ display: "none" }} />
+            </label>
+            <ErrorModal modalData={_error} callback={onErrorModalClose} />
         </>
     )
 }

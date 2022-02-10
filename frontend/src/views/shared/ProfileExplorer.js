@@ -3,13 +3,12 @@ import Form from 'react-bootstrap/Form'
 import FormControl from 'react-bootstrap/FormControl'
 import InputGroup from 'react-bootstrap/InputGroup'
 import Button from 'react-bootstrap/Button'
-import axios from 'axios'
+import axiosInstance from "../../services/AxiosService";
 
-import { AppSettings } from '../../utils/appsettings'
 import { generateLogMessageString } from '../../utils/UtilityService'
 //import { useAuthContext } from "../../components/authentication/AuthContext";
-import { filterProfiles, getProfileDependencies, getProfileInheritanceTree, getProfileInterfaces, getProfileCompositions, getProfileEntityLink } from '../../services/ProfileService';
-import { renderIcon, renderLinkedName } from './ProfileRenderHelpers';
+import { filterProfiles, getTypeDefEntityLink } from '../../services/ProfileService';
+import { renderTypeIcon, renderLinkedName } from './ProfileRenderHelpers';
 
 import { SVGIcon } from '../../components/SVGIcon'
 import color from '../../components/Constants'
@@ -30,13 +29,13 @@ function ProfileExplorer(props) {
     //-------------------------------------------------------------------
     // Region: Initialization
     //-------------------------------------------------------------------
-    //const { authTicket } = useAuthContext();
+    //const { authTicket } = useAuthState();
     const [_items, setItems] = useState({
         item: {},
         all: { inheritanceTree: [], compositions: [], dependencies: [], interfaces: [] },
         filtered: { inheritanceTree: [], compositions: [], dependencies: [], interfaces: [] }
     });
-    const [_toggleStates, setToggleStates] = useState({inheritanceTree: true, compositions: false, dependencies: false, interfaces: false});
+    const [_toggleStates, setToggleStates] = useState({ inheritanceTree: true, compositions: false, dependencies: false, interfaces: false });
     const [_filterVal, setFilterVal] = useState('');
 
     //-------------------------------------------------------------------
@@ -118,25 +117,36 @@ function ProfileExplorer(props) {
     //-------------------------------------------------------------------
     useEffect(() => {
         async function fetchData() {
-
+            //TBD - revisit and improve error handling flow...
             //hardcode for now
-            var url = `${AppSettings.BASE_API_URL}/profile`;
+            var url = `profiletypedefinition/explorer`;
             console.log(generateLogMessageString(`useEffect||fetchData||${url}`, CLASS_NAME));
-            const result = await axios(url);
 
-            var item = result.data.find(p => { return p.id === props.currentProfileId; });
-            if (item == null) {
-                console.log(generateLogMessageString(`useEffect||fetchData||error - Profile (id: ${props.currentProfileId}) not found`, CLASS_NAME, 'error'));
-                return;
+            var result = null;
+            try {
+                var data = { id: props.currentProfileId };
+                result = await axiosInstance.post(url, data);
             }
-            var tree = getProfileInheritanceTree(result.data, item, true);
-            var dependencies = getProfileDependencies(props.currentProfileId, result.data);
-            var compositions = getProfileCompositions(item, result.data);
-            var interfaces = getProfileInterfaces(item, result.data);
+            catch (err) {
+                var msg = 'An error occurred retrieving the profile explorer.';
+                console.log(generateLogMessageString('useEffect||fetchData||error', CLASS_NAME, 'error'));
+                //console.log(err.response.status);
+                if (err != null && err.response != null && err.response.status === 404) {
+                    msg += ' Profile Explorer: This profile was not found.';
+                }
+                console.log(generateLogMessageString(`useEffect||fetchData||error||${msg}`, CLASS_NAME, 'error'));
+            }
+
+            if (result == null) return;
+
+            var tree = result.data.tree;
+            var dependencies = result.data.dependencies;
+            var compositions = result.data.compositions;
+            var interfaces = result.data.interfaces;
 
             //set state on fetch of data
             setItems({
-                item: item,
+                item: result.data.profile,
                 all: { inheritanceTree: tree, compositions: compositions, dependencies: dependencies, interfaces: interfaces },
                 filtered: { inheritanceTree: tree, compositions: compositions, dependencies: dependencies, interfaces: interfaces }
             });
@@ -199,8 +209,8 @@ function ProfileExplorer(props) {
         var key = `li_${level.toString()}_${p.id.toString()}`;
         var cssClass = `small-size${props.currentProfileId == null || props.currentProfileId !== p.id ? '' : ' current'}`;
         // dynamically increase padding for each level
-        var padding = (level * 16).toString() + 'px';
-               
+        var padding = (level * 8).toString() + 'px';
+
         //::::::::::::::::::::::
         // Increment the child count
         childCount++;
@@ -208,8 +218,8 @@ function ProfileExplorer(props) {
         return (
             <li id={key} key={key} className={cssClass} >
                 <div style={{ paddingLeft: padding }} className="hierarchy-link d-flex pr-3">
-                    {renderIcon(p, props.currentUserId, 18)}
-                    <span className="hierarchy-item ml-2 flex-grow-1">{renderLinkedName(p)}</span>
+                    {renderTypeIcon(p, props.currentUserId, 18)}
+                    <span className="hierarchy-item text-break">{renderLinkedName(p)}</span>
                     {/* Affordance for "go-to / view" */}
                     <SVGIcon name="chevron-right" size="24" fill={color.silver} className="view-affordance-icon float-right" />
                 </div>
@@ -220,8 +230,8 @@ function ProfileExplorer(props) {
     }
 
     // render a profile item - supports a nested view
-    const renderCompositionItem = (a) => {
-        var key = `li_attr_${a.id.toString()}`;
+    const renderCompositionItem = (c) => {
+        var key = `li_attr_${c.id.toString()}`;
         var cssClass = `small-size`;
 
         //::::::::::::::::::::::
@@ -231,10 +241,10 @@ function ProfileExplorer(props) {
         return (
             <li id={key} key={key} className={cssClass} >
                 <div className="composition-link d-flex pr-3">
-                    {renderIcon(a.composition, props.currentUserId, 18, color.nevada)}
-                    <span className="composition-item ml-2 flex-grow-1">{renderLinkedCompositionName(a, props.currentUserId)}</span>
+                    {renderTypeIcon(c, props.currentUserId, 18, color.nevada)}
+                    <span className="composition-item text-break">{renderLinkedCompositionName(c, props.currentUserId)}</span>
                     {/* Affordance for "go-to / view" */}
-                    <SVGIcon name="chevron-right" size="24" fill={color.silver} className="view-affordance-icon float-right"/>
+                    <SVGIcon name="chevron-right" size="24" fill={color.silver} className="view-affordance-icon float-right" />
                 </div>
             </li>
         );
@@ -243,43 +253,43 @@ function ProfileExplorer(props) {
     //
     const renderLinkedCompositionName = (item, currentUserId) => {
         if (item == null) return;
-        var href = getProfileEntityLink(item.composition);
+        var href = getTypeDefEntityLink(item);
         return (
-            <a href={href} >{`${item.name} (${item.composition.name})`}</a>
+            <a href={href} >{`${item.name} (${item.relatedName})`}</a>
         );
     };
 
     //
     const renderSearchUI = () => {
+        // d-none d-lg-block - hide on small displays
         return (
-            <Form className="header-search-block">
+            <Form className="header-search-block d-none d-md-block">
                 <Form.Row className="m-0" >
-                    
+
                     <InputGroup className="quick-search">
                         <FormControl
                             type="text"
                             placeholder="Filter"
-                            aria-label="Filter"
-                            aria-describedby="basic-addon2"
+                            aria-label="Enter text to filter by"
                             val={_filterVal}
                             onBlur={onSearchBlur}
-                            className= "border-right-0"
+                            className="border-right-0"
                         />
                         <InputGroup.Append>
-                            <Button variant="search" className="p-0 pl-2 pr-2 border-left-0" >
-                                <SVGIcon name="search" size="24" fill={color.shark}/>
+                            <Button variant="search" className="p-0 pl-2 pr-2 border-left-0" title="Filter explorer">
+                                <SVGIcon name="search" size="24" fill={color.shark} />
                             </Button>
                         </InputGroup.Append>
                     </InputGroup>
-                    
-                    
+
+
                 </Form.Row>
             </Form>
         );
     }
 
     const renderSectionHeader = (items, caption, toggleState, sectionId) => {
-        var toggleCss = toggleState ? "expanded d-flex align-items-center action-menu" : "d-flex align-items-center action-menu";
+        var toggleCss = toggleState ? "expanded d-flex align-items-center action-menu ml-3" : "d-flex align-items-center action-menu ml-3";
         var toggleIcon = toggleState ? "arrow-drop-up" : "arrow-drop-down";
         var myCount = childCount;
         childCount = 0;
@@ -293,19 +303,17 @@ function ProfileExplorer(props) {
                     </span>
                     {(items != null && items.length > 0) ?
                         <span key="toggle" className="ml-auto">
-                            <Button variant="accordion" className="btn" >
+                            <Button variant="accordion" className="btn" title={toggleState ? "Collapse" : "Expand"} >
                                 <span>
-                                    <SVGIcon name={toggleIcon} size="24" fill={color.shark} alt={caption} className="toggle-icon"/>
+                                    <SVGIcon name={toggleIcon} size="24" fill={color.shark} alt={caption} className="toggle-icon" />
                                 </span>
                             </Button>
                         </span> :
-                        <span key="toggle" className="ml-auto">
-                            <Button variant="accordion" className="btn" >
-                                <span>
-                                    <SVGIcon name={toggleIcon} size="24" fill={color.transparent} alt={caption} className="toggle-icon empty"/>
-                                </span>
-                            </Button>
-                        </span> 
+                        <span key="toggle-no-data" className="ml-auto">
+                            <span>
+                                <SVGIcon name={toggleIcon} size="24" fill={color.transparent} alt={caption} className="toggle-icon empty" />
+                            </span>
+                        </span>
                     }
                 </div>
             </>
@@ -342,17 +350,17 @@ function ProfileExplorer(props) {
             )
         }
         return (
-            <ul id="explorer" key="explorer" className="profile-explorer root">
-                <li id="tree" key="tree" >
+            <ul id="explorer" key="explorer" className="profile-explorer root d-none d-md-block">
+                <li id="tree" key="tree" className="ml-1" >
                     {renderSection(_items.all.inheritanceTree, 'Profile Hierarchy', _toggleStates.inheritanceTree, 'inheritanceTree')}
                 </li>
-                <li id="interfaces" key="interfaces" >
+                <li id="interfaces" key="interfaces" className="ml-1" >
                     {renderSection(_items.all.interfaces, 'Interfaces', _toggleStates.interfaces, 'interfaces')}
                 </li>
-                <li id="compositions" key="compositions" >
+                <li id="compositions" key="compositions" className="ml-1" >
                     {renderSection(_items.all.compositions, 'Compositions', _toggleStates.compositions, 'compositions')}
                 </li>
-                <li id="dependencies" key="dependencies" >
+                <li id="dependencies" key="dependencies" className="ml-1" >
                     {renderSection(_items.all.dependencies, 'Dependencies', _toggleStates.dependencies, 'dependencies')}
                 </li>
             </ul>
@@ -368,7 +376,7 @@ function ProfileExplorer(props) {
             )
         }
         return (
-            <ul id="explorer" key="explorer" className="profile-explorer root">
+            <ul id="explorer" key="explorer" className="profile-explorer root d-none d-md-block">
                 <li id="tree" key="tree" >
                     {renderSection(_items.filtered.inheritanceTree, 'Profiles', _toggleStates.inheritanceTree, 'inheritanceTree')}
                 </li>
@@ -388,9 +396,10 @@ function ProfileExplorer(props) {
     //-------------------------------------------------------------------
     // Region: Render final output
     //-------------------------------------------------------------------
+    // d-none d-lg-block - hide caption on small displays
     return (
-        <div className="profile-explorer-container"> 
-            <p className="header-name small-size text-uppercase ml-4" >Profile Explorer</p>
+        <div className="profile-explorer-container">
+            <p className="header-name small-size text-uppercase ml-4 d-none d-md-block" >Profile Explorer</p>
             {renderSearchUI()}
             { _filterVal == null || _filterVal === '' ?
                 renderExplorer() : renderFiltered()

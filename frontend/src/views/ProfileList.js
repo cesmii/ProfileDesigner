@@ -1,251 +1,234 @@
-import React, { useState, useEffect, Fragment, useRef } from 'react'
-import { useParams, useHistory } from 'react-router-dom'
+import React, { useState } from 'react'
 import { Helmet } from "react-helmet"
-import axios from 'axios'
-import {Button} from 'react-bootstrap'
+import axiosInstance from "../services/AxiosService";
 
-import { getProfilePreferences, setProfilePageSize } from '../services/ProfileService';
+import { Button } from 'react-bootstrap'
+
 import { AppSettings } from '../utils/appsettings'
-import { generateLogMessageString, pageDataRows } from '../utils/UtilityService'
-import HeaderNav from '../components/HeaderNav'
-import GridPager from '../components/GridPager'
-import ProfileItemRow from './shared/ProfileItemRow';
-import { useAuthContext } from "../components/authentication/AuthContext";
-import { useLoadingContext, UpdateRecentFileList } from "../components/contexts/LoadingContext";
+import { generateLogMessageString, renderTitleBlock, scrollTop } from '../utils/UtilityService'
+import { useLoadingContext } from "../components/contexts/LoadingContext";
+import ConfirmationModal from '../components/ConfirmationModal';
+import ProfileEntityModal from './modals/ProfileEntityModal';
+import ProfileListGrid from './shared/ProfileListGrid';
+import ProfileImporter from './shared/ProfileImporter';
 
-import { SVGIcon } from '../components/SVGIcon'
 import color from '../components/Constants'
+import './styles/ProfileList.scss';
+import { ErrorModal } from '../services/CommonUtil';
 
 const CLASS_NAME = "ProfileList";
-const entityInfo = {
-    name: "Profile",
-    namePlural: "Profiles",
-    entityUrl: "/profile/:id",
-    listUrl: "/profile/all"
-}
 
 function ProfileList() {
 
     //-------------------------------------------------------------------
     // Region: Initialization
     //-------------------------------------------------------------------
-    const history = useHistory();
-    const { authTicket } = useAuthContext();
-    const _profilePreferences = getProfilePreferences();
-    const _scrollToRef = useRef(null);
-    const { type } = useParams()
-    const [_dataRows, setDataRows] = useState({
-        all: [], filtered: [], paged: [],
-        pager: { currentPage: 1, pageSize: _profilePreferences.pageSize, itemCount: 0 }
-    });
-    const filterVal = '';
-    const caption = (type == null || type.toLowerCase() === 'all' ? 'All ' + entityInfo.namePlural : 'My ' + entityInfo.namePlural);
-    const iconName = (type == null || type.toLowerCase() === 'all' ? 'folder-profile' : 'folder-shared');
-    const { loadingProps, setLoadingProps } = useLoadingContext();
+    const caption = 'Profile Library';
+    const iconName = 'folder-shared';
+    const iconColor = color.shark;
+    const { setLoadingProps } = useLoadingContext();
+    const [_deleteModal, setDeleteModal] = useState({ show: false, items: null });
+    //importer
+    const [_error, setError] = useState({ show: false, message: null, caption: null });
+    //used in popup profile add/edit ui. Default to new version
+    const [_profileEntityModal, setProfileEntityModal] = useState({ show: false, item: null});
 
     //-------------------------------------------------------------------
     // Region: Event Handling of child component events
     //-------------------------------------------------------------------
-    const handleOnSearchChange = (val) => {
-        //raised from header nav
-        //console.log(generateLogMessageString('handleOnSearchChange||Search value: ' + val, CLASS_NAME));
-
-        //filter the data, update the state
-        var filteredData = filterDataRows(_dataRows.all, val);
-        //setFilterVal(val); //update state
-        //setDataRowsFiltered(filteredData); //filter rows state updated to matches
-
-        //page the filtered data and update the paged data state
-        var pagedData = pageDataRows(filteredData, 1, _dataRows.pager.pageSize);
-
-        //update state - several items w/in keep their existing vals
-        setDataRows({
-            all: _dataRows.all, filtered: filteredData, paged: pagedData,
-            pager: { currentPage: 1, pageSize: _dataRows.pager.pageSize, itemCount: filteredData == null ? 0 : filteredData.length }
-        });
+    const onGridRowSelect = (item) => {
+        console.log(generateLogMessageString(`onGridRowSelect||Name: ${item.namespace}||selected: ${item.selected}`, CLASS_NAME));
+        //TBD - handle selection here...
     };
 
-    const onChangePage = (currentPage, pageSize) => {
-        console.log(generateLogMessageString(`onChangePage||Current Page: ${currentPage}, Page Size: ${pageSize}`, CLASS_NAME));
-        var pagedData = pageDataRows(_dataRows.filtered, currentPage, pageSize);
-        //update state - several items w/in keep their existing vals
-        setDataRows({
-            all: _dataRows.all, filtered: _dataRows.filtered, paged: pagedData,
-            pager: { currentPage: currentPage, pageSize: pageSize, itemCount: _dataRows.filtered == null ? 0 : _dataRows.filtered.length }
-        });
-
-        //scroll screen to top of grid on page change
-        ////scroll a bit higher than the top edge so we get some of the header in the view
-        window.scrollTo({ top: (_scrollToRef.current.offsetTop-120), behavior: 'smooth' }); 
-        //scrollToRef.current.scrollIntoView();
-
-        //preserve choice in local storage
-        setProfilePageSize(pageSize);
+    //-------------------------------------------------------------------
+    // Region: Add/Update event handlers
+    //-------------------------------------------------------------------
+    const onAdd = () => {
+        console.log(generateLogMessageString(`onAdd`, CLASS_NAME));
+        setProfileEntityModal({ show: true, item: null});
     };
 
-    const onImportClick = () => {
-        console.log(generateLogMessageString(`onImportClick`, CLASS_NAME));
-        history.push('/');
+    const onEdit = (item) => {
+        console.log(generateLogMessageString(`onEdit`, CLASS_NAME));
+        setProfileEntityModal({ show: true, item: item});
     };
 
-   // run this function from an event handler or an effect to execute scroll 
+    const onSave = (id) => {
+        console.log(generateLogMessageString(`onSave`, CLASS_NAME));
+        setProfileEntityModal({ show: false, item: null });
+        //force re-load to show the newly added, edited items
+        setLoadingProps({ refreshProfileList:true});
+    };
 
-    //const updatePagerState = (pagedItems, currentPage, pageSize, itemCount) => {
-    //    //update state of pager - if necessary
-    //    if (_pager.currentPage !== currentPage || _pager.pageSize !== pageSize || _pager.itemCount !== itemCount) {
-    //        setPager({ currentPage: currentPage, pageSize: pageSize, itemCount: itemCount });
-    //    }
-    //    //update paged data
-    //    setDataRowsPaged(pagedItems);
+    const onSaveCancel = () => {
+        console.log(generateLogMessageString(`onSaveCancel`, CLASS_NAME));
+        setProfileEntityModal({ show: false, item: null });
+    };
+
+    const onErrorModalClose = () => {
+        //console.log(generateLogMessageString(`onErrorMessageOK`, CLASS_NAME));
+        setError({ show: false, caption: null, message: null });
+    }
+
+    //-------------------------------------------------------------------
+    // Region: Delete event handlers
+    //-------------------------------------------------------------------
+    // Delete ONE - from row
+    const onDeleteItemClick = (item) => {
+        console.log(generateLogMessageString(`onDeleteItemClick`, CLASS_NAME));
+        setDeleteModal({ show: true, items: [item] });
+    };
+
+    //// Delete MANY - from button above grid
+    //const onDeleteManyClick = () => {
+    //    console.log(generateLogMessageString(`onDeleteManyClick`, CLASS_NAME));
+    //    setDeleteModal({ show: true, items: _dataRows.all });
     //};
 
-    //-------------------------------------------------------------------
-    // Region: Get data 
-    //-------------------------------------------------------------------
-    useEffect(() => {
-        //TBD - enhance the mock api to return profiles by user id
-        async function fetchData() {
-            //show a spinner
-            setLoadingProps({ isLoading: true, message: null });
+    //on confirm click within the modal, this callback will then trigger the next step (ie call the API)
+    const onDeleteConfirm = () => {
+        console.log(generateLogMessageString(`onDeleteConfirm`, CLASS_NAME));
+        deleteItems(_deleteModal.items);
+        setDeleteModal({ show: false, item: null });
+    };
 
-            var url = `${AppSettings.BASE_API_URL}/profile${type === "all" ? "" : "?author.id=" + authTicket.user.id}`;
-            console.log(generateLogMessageString(`useEffect||fetchData||${url}`, CLASS_NAME));
-            const result = await axios(url);
+    //render the delete modal when show flag is set to true
+    //callbacks are tied to each button click to proceed or cancel
+    const renderDeleteConfirmation = () => {
 
-            result.data.sort((a, b) => {
-                if (a.name.toLowerCase() < b.name.toLowerCase()) {
-                    return -1;
-                }
-                if (a.name.toLowerCase() > b.name.toLowerCase()) {
-                    return 1;
-                }
-                //secondary sort by object type
-                if (a.type.name.toLowerCase() < b.type.name.toLowerCase()) {
-                    return -1;
-                }
-                if (a.type.name.toLowerCase() > b.type.name.toLowerCase()) {
-                    return 1;
-                }
-                return 0;
-            }); //sort by name
+        if (!_deleteModal.show) return;
 
-            //update state with data returned
-            var pagedData = pageDataRows(result.data, 1, _profilePreferences.pageSize); //also updates state
-            //set state on fetch of data
-            setDataRows({
-                all: result.data, filtered: result.data, paged: pagedData,
-                pager: { currentPage: 1, pageSize: _profilePreferences.pageSize, itemCount: result.data == null ? 0 : result.data.length }
+        var message = _deleteModal.items.length === 1 ?
+            `You are about to delete your profile '${_deleteModal.items[0].namespace}'. This will delete all type definitions associated with this profile. This action cannot be undone. Are you sure?` :
+            `You are about to delete ${_deleteModal.items.length} profiles. This will delete all type definitions associated with these profiles. This action cannot be undone. Are you sure?`;
+        var caption = `Delete Profile${_deleteModal.items.length === 1 ? "" : "s"}`;
+
+        return (
+            <>
+                <ConfirmationModal showModal={_deleteModal.show} caption={caption} message={message}
+                    icon={{ name: "warning", color: color.trinidad }}
+                    confirm={{ caption: "Delete", callback: onDeleteConfirm, buttonVariant: "danger" }}
+                    cancel={{
+                        caption: "Cancel",
+                        callback: () => {
+                            console.log(generateLogMessageString(`onDeleteCancel`, CLASS_NAME));
+                            setDeleteModal({ show: false, item: null });
+                        },
+                        buttonVariant: null
+                    }} />
+            </>
+        );
+    };
+
+    const deleteItems = (items) => {
+        console.log(generateLogMessageString(`deleteItems||Count:${items.length}`, CLASS_NAME));
+
+        //show a spinner
+        setLoadingProps({ isLoading: true, message: "" });
+
+        //perform delete call
+        var data = items.length === 1 ? { id: items[0].id } :
+            items.map((item) => { return { id: item.id }; });
+        var url = items.length === 1 ? `profile/delete` : `profile/deletemany`;
+        axiosInstance.post(url, data)  //api allows one or many
+            .then(result => {
+
+                if (result.data.isSuccess) {
+                    //hide a spinner, show a message
+                    setLoadingProps({
+                        isLoading: false, message: null, inlineMessages: [
+                            {
+                                id: new Date().getTime(), severity: "success",
+                                body: items.length === 1 ? `Profile was deleted` : `${items.length} Profiles were deleted`, isTimed: true
+                            }
+                        ],
+                        //get profile count from server...this will trigger that call on the side menu
+                        refreshProfileCount: true,
+                        refreshProfileList: true
+                    });
+                }
+                else {
+                    setError({ show: true, caption: 'Delete Error', message: `An error occurred deleting ${items.length === 1 ? "this profile" : "these profiles"} : ${result.data.message}` });
+                    //update spinner, messages
+                    setLoadingProps({
+                        isLoading: false, message: null, inlineMessages: null
+                    });
+                }
+
+            })
+            .catch(error => {
+                //hide a spinner, show a message
+                setLoadingProps({
+                    isLoading: false, message: null, inlineMessages: [
+                        { id: new Date().getTime(), severity: "danger", body: `An error occurred deleting ${items.length === 1 ? "this profile" : "these profiles"}.`, isTimed: false }
+                    ]
+                });
+                console.log(generateLogMessageString('deleteProfiles||error||' + JSON.stringify(error), CLASS_NAME, 'error'));
+                console.log(error);
+                //scroll back to top
+                scrollTop();
             });
-
-            //hide a spinner
-            setLoadingProps({ isLoading: false, message: null });
-
-            //add to recently visited page list
-            var revisedList = UpdateRecentFileList(loadingProps.recentFileList, { url: history.location.pathname, caption: caption, iconName: "folder-profile"  });
-            setLoadingProps({ recentFileList: revisedList });
-        }
-        fetchData();
-        //this will execute on unmount
-        return () => {
-            console.log(generateLogMessageString('useEffect||Cleanup', CLASS_NAME));
-            //setFilterValOnChild('');
-        };
-    //type passed so that any change to this triggers useEffect to be called again
-        //_profilePreferences.pageSize - needs to be passed so that useEffects dependency warning is avoided.
-    }, [type, _profilePreferences.pageSize, authTicket]); 
+    };
 
     //-------------------------------------------------------------------
     // Region: Render helpers
     //-------------------------------------------------------------------
-    // Apply filter on data starting with all rows
-    const filterDataRows = (dataRows, val) => {
-        const delimiter = ":::";
-
-        //const [dataRows, setDataRows] = useState({ all: [], filtered: [], paged: [], pager: {} });
-        if (dataRows == null) return null;
-
-        var filteredCopy = JSON.parse(JSON.stringify(dataRows));
-
-        if (val == null || val === '') {
-            return filteredCopy;
-        }
-
-        // Filter data - match up against a number of fields
-        return filteredCopy.filter((item, i) => {
-            var concatenatedSearch = delimiter + item.name.toLowerCase() + delimiter
-                + item.description.toLowerCase() + delimiter
-                + (item.author != null ? item.author.firstName.toLowerCase() + delimiter : "")
-                + (item.author != null ? item.author.lastName.toLowerCase() : "") + delimiter;
-            return (concatenatedSearch.indexOf(val.toLowerCase()) !== -1);
-        });
-    }
-
-    const renderHeaderActionsRow = () => {
+    const renderHeaderRow = () => {
         return (
-            <div className="header-actions-row">
-                <div id="--import-fab" className="d-flex align-items-center cursor-pointer" onClick={onImportClick} >
-                    <span className="mr-3">Import</span>
-                    <Button variant="fab" className="elevated">
-                        <SVGIcon name="add" size="32" fill={color.white} alt="Add profile"/>
-                    </Button>
+            <div className="row pb-3">
+                <div className="col-sm-7 mr-auto d-flex">
+                    {renderTitleBlock(caption, iconName, iconColor)}
                 </div>
+                <div className="col-sm-5 d-flex align-items-center justify-content-end">
+                    <Button variant="secondary" type="button" className="auto-width mx-2" onClick={onAdd} >Create Profile</Button>
+                    <ProfileImporter caption="Import" cssClass="mb-0" />
+                </div>
+            </div>
+        );
+    };
+
+    const renderIntroContent = () => {
+        return (
+            <div className="header-actions-row mb-3 pr-0">
+                <p className="mb-2" >
+                    If you are the profile author, import the profiles (including any dependent profiles) using the 'Import' button. The import
+                    will tag you as the author for your profiles and permit you to edit the imported profiles.
+                    The import will check to ensure referenced type models are valid OPC UA type models.
+                </p>
+                <p className="mb-2" >
+                    Any dependent profiles (OPC UA type models) that are imported will become read only and added to the library.
+                    Types within these dependent profiles can be viewed or extended to make new type definitions.
+                </p>
             </div>
         );
     }
 
-    const renderNoDataRow = () => {
-        return (
-            <div className="alert alert-info-custom mt-2 mb-2">
-                <div className="text-center" >There are no {entityInfo.name.toLowerCase()} records.</div>
-            </div>
-        );
-    }
+    //renderProfileEntity as a modal to force user to say ok.
+    const renderProfileEntity = () => {
 
-    //render pagination ui
-    const renderPagination = () => {
-        if (_dataRows == null || _dataRows.all.length === 0) return;
-        return <GridPager currentPage={_dataRows.pager.currentPage} pageSize={_dataRows.pager.pageSize} itemCount={_dataRows.pager.itemCount} onChangePage={onChangePage} />
-    }
-
-    //render the main grid
-    const renderItemsGrid = () => {
-        if (_dataRows.paged == null || _dataRows.paged.length === 0) {
-            return (
-                <div className="flex-grid no-data">
-                    {renderNoDataRow()}
-                </div>
-            )
-        }
-        const mainBody = _dataRows.paged.map((item) => {
-            return (<ProfileItemRow key={item.id} item={item} currentUserId={authTicket.user.id} showActions={true} cssClass="profile-list-item" />)
-        });
+        if (!_profileEntityModal.show) return;
 
         return (
-            <>
-                { renderHeaderActionsRow() }
-                <div className="flex-grid">
-                    {mainBody}
-                </div>
-            </>
+            <ProfileEntityModal item={_profileEntityModal.item} showModal={_profileEntityModal.show} onSave={onSave} onCancel={onSaveCancel} showSavedMessage={true} />
         );
-    }
+    };
 
     //-------------------------------------------------------------------
     // Region: Render final output
     //-------------------------------------------------------------------
     return (
-        <Fragment>
+        <>
             <Helmet>
                 <title>{AppSettings.Titles.Main + " | " + caption}</title>
             </Helmet>
-            <HeaderNav caption={caption} iconName={iconName} showSearch={true} searchValue={filterVal} onSearch={handleOnSearchChange} searchMode="standard" currentUserId={authTicket.user.id}  />
-            <div ref={_scrollToRef} id="--cesmii-main-content">
-                <div id="--cesmii-left-content">
-                    {renderItemsGrid()}
-                    {renderPagination()}
-                </div>
-            </div>
-        </Fragment>
+            {renderHeaderRow()}
+            {renderIntroContent()}
+            <ProfileListGrid onGridRowSelect={onGridRowSelect} onEdit={onEdit} onDeleteItemClick={onDeleteItemClick} />
+            {renderProfileEntity()}
+            {renderDeleteConfirmation()}
+            <ErrorModal modalData={_error} callback={onErrorModalClose} />
+        </>
     )
 }
 

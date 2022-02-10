@@ -1,14 +1,14 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
-import Alert from 'react-bootstrap/Alert'
 
 import { SVGIcon, SVGCheckIcon } from '../../components/SVGIcon'
 import color from '../../components/Constants'
 //import color from './Constants'
-import { generateLogMessageString, convertToNumeric} from '../../utils/UtilityService'
+import { generateLogMessageString, convertToNumeric, toInt, onChangeNumericKeysOnly} from '../../utils/UtilityService'
 import ConfirmationModal from '../../components/ConfirmationModal';
-import { validate_name, validate_nameDuplicate, validate_dataType, validate_All } from '../../services/AttributesService';
+import { validate_name, validate_nameDuplicate, validate_dataType, validate_All, onChangeDataTypeShared, renderAttributeIcon, onChangeAttributeTypeShared, validate_attributeType, validate_enumValueDuplicate, validate_enumValueNumeric, onChangeCompositionShared, renderDataTypeUIShared } from '../../services/AttributesService';
+import { AppSettings } from '../../utils/appsettings'
 
 const CLASS_NAME = "AttributeItemRow";
 
@@ -52,20 +52,19 @@ function AttributeItemRow(props) { //props are item, showActions
     //-------------------------------------------------------------------
     const initEditSettings = () => {
         if (props.isHeader) return null;
+
         if (props.lookupDataTypes == null || props.lookupDataTypes.length === 0) {
             return {
                 useMinMax: true,
                 useEngUnit: true,
-                changeDataType: props.item.dataType !== "composition" && props.item.dataType !== "interface",
-                isVariableType: props.item.variableType != null
+                isCustomDataType: _editItem.dataType.isCustom
             };
         }
-        var lookupItem = props.lookupDataTypes.find(dt => { return dt.val === props.item.dataType; });
+        var lookupItem = props.lookupDataTypes.find(dt => { return dt.val === _editItem.dataType.id; });
         return {
             useMinMax: lookupItem != null && lookupItem.useMinMax,
             useEngUnit: lookupItem != null && lookupItem.useEngUnit,
-            changeDataType: props.item.dataType !== "composition" && props.item.dataType !== "interface",
-            isVariableType: props.item.variableType != null
+            isCustomDataType: _editItem.dataType.isCustom
         };
     };
 
@@ -75,16 +74,35 @@ function AttributeItemRow(props) { //props are item, showActions
         name: true,
         nameDuplicate: true,
         dataType: true,
+        attributeType: true,
+        composition: true,
+        structure: true,
         minMax: true,
         minIsNumeric: true,
         maxIsNumeric: true,
-        engUnit: true
+        engUnit: true,
+        enumValue: true,
+        enumValueDuplicate: true
     });
     const [_editSettings, setEditSettings] = useState(initEditSettings());
 
     // Confirm Modals
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [showDeleteInterfaceModal, setShowDeleteInterfaceModal] = useState(false);
+
+    //-------------------------------------------------------------------
+    // Region: useEffect - update _editItem when parent changes it
+    //-------------------------------------------------------------------
+    useEffect(() => {
+
+        setEditItem(props.item);
+
+        //this will execute on unmount
+        return () => {
+            //console.log(generateLogMessageString('useEffect||Cleanup', CLASS_NAME));
+        };
+    }, [props.item]);
+
 
     //-------------------------------------------------------------------
     // Region: Validation
@@ -97,8 +115,31 @@ function AttributeItemRow(props) { //props are item, showActions
     };
 
     const validateForm_dataType = (e) => {
-        setIsValid({ ..._isValid, dataType: validate_dataType(e.target.value) });
+        var dataType = props.lookupDataTypes.find(dt => { return dt.id === parseInt(e.target.value); });
+        setIsValid({ ..._isValid, dataType: validate_dataType(dataType) });
     };
+
+    const validateForm_attributeType = (e) => {
+        setIsValid({ ..._isValid, attributeType: validate_attributeType(_editItem.dataType, e.target.value) });
+    };
+
+    const validateForm_composition = (e) => {
+        var isValid = e.target.value.toString() !== "-1" || parseInt(_editItem.attributeType.id) !== AppSettings.AttributeTypeDefaults.CompositionId;
+        setIsValid({ ..._isValid, composition: isValid });
+    };
+
+    //const validateForm_structure = (e) => {
+    //    var isValid = e.target.value.toString() !== "-1" || parseInt(_editItem.attributeType.id) !== AppSettings.AttributeTypeDefaults.StructureId;
+    //    setIsValid({ ..._isValid, structure: isValid });
+    //};
+
+    const validateForm_enumValue = (e) => {
+        //dup check
+        var isValidDup = validate_enumValueDuplicate(e.target.value, _editItem, props.allAttributes);
+        //check for valid integer - is numeric and is positive
+        var isValidValue = validate_enumValueNumeric(e.target.value, _editItem);
+        setIsValid({ ..._isValid, enumValue: isValidValue, enumValueDuplicate: isValidDup });
+    }
 
     //validate all - call from button click
     const validateForm = () => {
@@ -107,7 +148,8 @@ function AttributeItemRow(props) { //props are item, showActions
         var isValid = validate_All(_editItem, _editSettings, props.allAttributes);
 
         setIsValid(JSON.parse(JSON.stringify(isValid)));
-        return (isValid.name && isValid.nameDuplicate && isValid.dataType);
+        return (isValid.name && isValid.nameDuplicate && isValid.dataType && isValid.attributeType
+            && isValid.composition && isValid.structure && isValid.enumValue && isValid.enumValueDuplicate);
     }
 
     //-------------------------------------------------------------------
@@ -125,41 +167,44 @@ function AttributeItemRow(props) { //props are item, showActions
 
     //modal confirm
     const onDeleteConfirm = (e) => {
-        console.log(generateLogMessageString(`onDeleteConfirm||id:${props.item.id}`, CLASS_NAME));
+        console.log(generateLogMessageString(`onDeleteConfirm||id:${_editItem.id}`, CLASS_NAME));
         setShowDeleteModal(false);
-        props.onDelete(props.item.id);
+        props.onDelete(_editItem.id);
     };
 
     //modal dismiss
     const onDeleteCancel = (e) => {
-        console.log(generateLogMessageString(`onDeleteCancel||id:${props.item.id}`, CLASS_NAME));
+        console.log(generateLogMessageString(`onDeleteCancel||id:${_editItem.id}`, CLASS_NAME));
         setShowDeleteModal(false);
     };
 
     //modal confirm
     const onDeleteInterfaceConfirm = (e) => {
         //should always be there, check just in case.
-        if (props.item.interface == null) {
-            console.log(generateLogMessageString(`onDeleteInterfaceConfirm||interface id not found:${props.item.id}`, CLASS_NAME, "error"));
+        if (_editItem.interface == null) {
+            console.log(generateLogMessageString(`onDeleteInterfaceConfirm||interface id not found:${_editItem.id}`, CLASS_NAME, "error"));
+            setShowDeleteInterfaceModal(false);
+            return;
         }
-        console.log(generateLogMessageString(`onDeleteInterfaceConfirm||interface id:${props.item.interface.id}`, CLASS_NAME));
-        props.onDeleteInterface(props.item.interface.id);
+        console.log(generateLogMessageString(`onDeleteInterfaceConfirm||interface id:${_editItem.interface.id}`, CLASS_NAME));
+        props.onDeleteInterface(_editItem.interface.id);
+        setShowDeleteInterfaceModal(false);
     };
 
     //modal dismiss
     const onDeleteInterfaceCancel = (e) => {
-        console.log(generateLogMessageString(`onDeleteInterfaceCancel||id:${props.item.id}`, CLASS_NAME));
+        console.log(generateLogMessageString(`onDeleteInterfaceCancel||id:${_editItem.id}`, CLASS_NAME));
         setShowDeleteInterfaceModal(false);
     };
 
     const onEditClick = (e) => {
-        console.log(generateLogMessageString(`onEditClick||id:${props.item.id}`, CLASS_NAME));
-        setEditItem(JSON.parse(JSON.stringify(props.item)));
+        console.log(generateLogMessageString(`onEditClick||id:${_editItem.id}`, CLASS_NAME));
+        setEditItem(JSON.parse(JSON.stringify(_editItem)));
         setIsEditMode(true);
     };
 
     const onUpdateClick = (e) => {
-        console.log(generateLogMessageString(`onUpdateClick||id:${props.item.id}`, CLASS_NAME));
+        console.log(generateLogMessageString(`onUpdateClick||id:${_editItem.id}`, CLASS_NAME));
 
         //validate form
         if (!validateForm()) {
@@ -179,52 +224,89 @@ function AttributeItemRow(props) { //props are item, showActions
     };
 
     const onCancelUpdateClick = (e) => {
-        console.log(generateLogMessageString(`onCancelUpdateClick||id:${props.item.id}`, CLASS_NAME));
-        setEditItem(JSON.parse(JSON.stringify(props.item)));
+        console.log(generateLogMessageString(`onCancelUpdateClick||id:${_editItem.id}`, CLASS_NAME));
+        setEditItem(JSON.parse(JSON.stringify(_editItem)));
         setIsEditMode(false);
     };
 
-    //call from item row click, bubble up
-    const onShowSlideOutVariableType = (e) => {
-        props.toggleSlideOutVariableType(true, props.item.variableType.id);
+    //call from item row click, bubble up - a structure field would fall into this category.
+    //This will show the associated profile's list of attr in read only grid.
+    //Note many of the data types are considered custom but w/ no child attr. The parent component
+    //will handle that scenario and open the slide out in detail view. 
+    const onShowSlideOutCustomType = () => {
+        props.toggleSlideOutCustomType(true, _editItem.dataType.customType.id, _editItem.id, _editItem.typeDefinitionId);
     };
 
+    //call from item row click, bubble up - a composition would fall into this category.
+    //This will show the associated profile's list of attr in read only grid.
+    const onShowSlideOutComposition = () => {
+        props.toggleSlideOutCustomType(true, _editItem.composition.id, _editItem.id, _editItem.typeDefinitionId);
+    };
+
+    //this will open a view showing a single attribute in an edit type form. It may be read only depending on the scenario. 
     const onShowSlideOutDetail = (e) => {
-        props.toggleSlideOutDetail(true, props.item.id, props.readOnly);
+        props.toggleSlideOutDetail(true, _editItem.typeDefinitionId, _editItem.id, props.readOnly);
     };
 
     //attribute edit ui - change data type
     const onChangeDataType = (e) => {
-        //console.log(generateLogMessageString(`onAttributeAddChangeDataType||e:${e.target}`, CLASS_NAME));
-        var isVariableType = false;
-        var useMinMax = false;
-        var useEngUnit = false;
-        if (e.target.value == null || e.target.value.toString() === "-1") {
-            useMinMax = true;
-            useEngUnit = true;
-        }
-        else {
-            var lookupItem = props.lookupDataTypes.find(dt => { return dt.val === e.target.value; });
-            isVariableType = lookupItem != null && lookupItem.isVariableType;
-            useMinMax = lookupItem != null && lookupItem.useMinMax;
-            useEngUnit = lookupItem != null && lookupItem.useEngUnit;
-        }
+        //var data = onChangeDataTypeShared(e.target.value, _editItem, _editSettings, props.lookupDataTypes);
+        var data = onChangeDataTypeShared(e.value, _editItem, _editSettings, props.lookupDataTypes);
 
-        //update state
-        setEditSettings({ ..._editSettings, useMinMax: useMinMax, useEngUnit: useEngUnit, isVariableType: isVariableType });
+        //replace add settings (updated in shared method)
+        setEditSettings(JSON.parse(JSON.stringify(data.settings)));
+        //update state - after changes made in shared method
+        setEditItem(JSON.parse(JSON.stringify(data.item)));
+        return;
+    }
 
-        //clear out vals based on data type
-        _editItem.variableType = isVariableType ? { id: parseInt(e.target.value), name: e.target.options[e.target.selectedIndex].text } : null;
-        _editItem.variableTypeId = isVariableType ? parseInt(e.target.value) : null;
-        _editItem.minValue = useMinMax ? _editItem.minValue : null;
-        _editItem.maxValue = useMinMax ? _editItem.maxValue : null;
-        _editItem.engUnit = useEngUnit ? _editItem.engUnit : null;
+    const onChangeAttributeType = (e) => {
+        var data = onChangeAttributeTypeShared(e, _editItem, _editSettings, props.lookupAttributeTypes, props.lookupDataTypes);
 
-        //call common change method
+        //replace settings (updated in shared method)
+        setEditSettings(JSON.parse(JSON.stringify(data.settings)));
+        //update state - after changes made in shared method
+        setEditItem(JSON.parse(JSON.stringify(data.item)));
+        return;
+    }
+
+    //attribute add ui - change composition ddl
+    const onChangeComposition = (e) => {
+        //_Item changed by ref in shared method
+        onChangeCompositionShared(e, _editItem);
+
+        //call commonn change method
         onChange(e);
     }
 
-    //attribute edit ui - update state on change
+    //attribute edit ui - change structure 
+    //const onChangeStructure = (e) => {
+    //    //Note - still sets data type val
+    //    var data = onChangeDataTypeShared(e, _editItem, _editSettings, props.lookupStructures);
+
+    //    //replace add settings (updated in shared method)
+    //    setEditSettings(JSON.parse(JSON.stringify(data.settings)));
+    //    //update state - after changes made in shared method
+    //    setEditItem(JSON.parse(JSON.stringify(data.item)));
+    //    return;
+    //}
+
+    //onchange numeric field
+    const onChangeEnumValue = (e) => {
+        // Perform a numeric only check for numeric fields.
+        if (!onChangeNumericKeysOnly(e)) {
+            e.preventDefault();
+            return;
+        }
+
+        //convert to int - this will convert '10.' to '10' to int
+        var val = toInt(e.target.value);
+
+        _editItem[e.target.id] = val;
+        setEditItem(JSON.parse(JSON.stringify(_editItem)));
+    }
+
+    //attribute edit ui - update state on change (used by multiple controls except onChangeDataType)
     const onChange = (e) => {
         //TBD - remove this check for now because the model is evolving during dev
         ////check existence of field
@@ -239,52 +321,184 @@ function AttributeItemRow(props) { //props are item, showActions
     //-------------------------------------------------------------------
     // Region: Render helpers
     //-------------------------------------------------------------------
-    const renderIcon = () => {
-        //set up color properly
-        //var iconColor = (currentUserId == null || currentUserId !== item.author.id) ? color.silver : color.shark;
-        var iconColor = (props.item._itemType == null || props.item._itemType === "profile") && !props.readOnly
-            ? color.shark : color.silver;
+    // render_CheckReadOnly: Before rendering a UI component or a label, check conditions
+    //      to see if display element should be readonly. Note the caller will have additional
+    //      specific conditions on top of this.
+    const render_CheckReadOnly = () => {
+        return props.readOnly ||
+            _editItem._itemType == null ||
+            _editItem._itemType === "extended" ||
+            _editItem.interface != null || !_isEditMode;
+    };
 
-        //set up icon properly
-        var iconName = props.item._itemType == null || props.item._itemType === "profile" ? "account-circle" : "group";
+    //render enum value ui
+    const renderEnumValue = () => {
 
-        if (props.item.dataType === "composition") iconName = "profile";
+        if (_editItem.attributeType?.id !== AppSettings.AttributeTypeDefaults.EnumerationId) return;
 
-        //variable type - special icon type
-        if (props.item.variableType != null) iconName = "variabletype";
+        if (render_CheckReadOnly() || !_isEditMode) {
+            return `Enum: ${_editItem.enumValue}`;
+        }
+        //edit mode
+        else {
+            return renderEnumValueUI();
+        }
+    };
 
-        if (props.item.interface != null) iconName = "key";
+    //render for enumeration attr type
+    const renderEnumValueUI = () => {
+
+        if (_editItem.attributeType.id !== AppSettings.AttributeTypeDefaults.EnumerationId) return;
+
+        var isReadOnly = (render_CheckReadOnly());
+
+        var tip = !_isValid.enumValue ? 'Integer > 0 required.' : '';
+        tip = !_isValid.enumValueIsNumeric ? tip + ' Integer required.' : tip;
+        return (
+            <Form.Group className="form-inline">
+                <Form.Label className="mr-2" htmlFor="enumValue" >Enum:</Form.Label>
+                <Form.Control id="enumValue" type="" value={_editItem.enumValue == null ? '' : _editItem.enumValue} readOnly={isReadOnly}
+                    onChange={onChangeEnumValue} onBlur={validateForm_enumValue} title={tip}
+                    className={(!_isValid.enumValue || !_isValid.enumValueDuplicate ? 'invalid-field' : '')} />
+                {!_isValid.enumValue &&
+                    <span className="invalid-field-message">
+                        Integer &gt; 0 required
+                    </span>
+                }
+                {!_isValid.enumValueDuplicate &&
+                    <span className="invalid-field-message">
+                        Duplicate value
+                    </span>
+                }
+            </Form.Group>
+        );
+    };
+
+    //render composition
+    const renderComposition = () => {
+
+        if (_editItem.attributeType?.id !== AppSettings.AttributeTypeDefaults.CompositionId) return;
+
+        if (render_CheckReadOnly() || !_isEditMode) {
+
+            //simple scenario
+            if (_editItem.composition.relatedProfileTypeDefinitionId != null) {
+                return (
+                    <div>
+                        <a href={`/type/${_editItem.composition.relatedProfileTypeDefinitionId}`} >{_editItem.composition.relatedName}</a>
+                    </div>
+                );
+            }
+        }
+        //edit mode
+        else {
+            return renderCompositionUI();
+        }
+    };
+
+    //only show this for one attr type
+    const renderCompositionUI = () => {
+        const options = props.lookupCompositions.map((item) => {
+            return (<option key={item.id} value={item.id} >{item.name}</option>)
+        });
 
         return (
-            <span>
-                <SVGIcon name={iconName} size="24" fill={iconColor} />
-            </span>
-        );
-    }
+            <Form.Group>
+                <Form.Control id="compositionId" as="select" value={_editItem.compositionId} onBlur={validateForm_composition} aria-label="Composition"
+                    onChange={onChangeComposition} className={(!_isValid.composition ? 'invalid-field minimal pr-5' : 'minimal pr-5')} >
+                    <option key="-1|Select One" value="-1" >Select</option>
+                    {options}
+                </Form.Control>
+                {!_isValid.composition &&
+                    <span className="invalid-field-message inline">
+                        Required
+                    </span>
+                }
+            </Form.Group>
+        )
+    };
+
+    //render structure
+    //const renderStructure = () => {
+
+    //    if (_editItem.attributeType?.id !== AppSettings.AttributeTypeDefaults.StructureId) return;
+
+    //    if (props.lookupStructures == null || props.lookupStructures.length === 0) return;
+
+    //    if (render_CheckReadOnly() || !_isEditMode) {
+
+    //        //grab the associated caption when showing in read only mode
+    //        //find sel item in the data types lookup
+    //        var selItem = (props.lookupStructures == null || props.lookupStructures.length === 0) ? null :
+    //            props.lookupStructures.find(x => { return x.id === _editItem.dataType.id });
+    //        var caption = selItem == null ? _editItem.dataType.name : selItem.name;
+
+    //        //if custom type, show the custom type name
+    //        if (selItem != null) {
+    //            return (
+    //                <div>
+    //                    <a href={`/type/${selItem.customTypeId}`} >{caption}</a>
+    //                </div>
+    //            );
+    //        }
+
+    //        //simple scenario
+    //        return caption;
+    //    }
+    //    //edit mode
+    //    else {
+    //        return renderStructureUI();
+    //    }
+    //};
+
+    //only show this for one attr type
+    //const renderStructureUI = () => {
+    //    const options = props.lookupStructures.map((item) => {
+    //        return (<option key={item.id} value={item.id} >{item.name}</option>)
+    //    });
+
+    //    return (
+    //        <Form.Group>
+    //            <Form.Control id="structureId" as="select" value={_editItem.dataType.id} onBlur={validateForm_structure}
+    //                onChange={onChangeStructure} className={(!_isValid.structure ? 'invalid-field minimal pr-5' : 'minimal pr-5')} >
+    //                <option key="-1|Select One" value="-1" >Select</option>
+    //                {options}
+    //            </Form.Control>
+    //            {!_isValid.structure &&
+    //                <span className="invalid-field-message inline">
+    //                    Required
+    //                </span>
+    //            }
+    //        </Form.Group>
+    //    )
+    //};
 
     //render the attribute name, append some stuff for certain types of attributes
     const renderNameUI = () => {
         return (
-            <Form.Group className="flex-grow-1 align-self-center">
-                <Form.Control id="name" type="" placeholder="Enter a name" value={_editItem.name}
+            <>
+                <Form.Group className="flex-grow-1 align-self-center">
+                    <Form.Control id="name" type="" placeholder="Enter a name" value={_editItem.name} aria-label="Name"
                     onChange={onChange} onBlur={validateForm_name}
                     className={(!_isValid.name || !_isValid.nameDuplicate ? 'invalid-field' : '')} />
-            </Form.Group>
+                </Form.Group>
+            </>
         );
     };
 
     //render the attribute name, append some stuff for certain types of attributes
     const renderName = () => {
-        if (props.readOnly || props.item._itemType == null || props.item._itemType === "extended" || props.item.interface != null || !_isEditMode) {
-            if (props.item.interface != null) {
+        if (render_CheckReadOnly() || !_isEditMode) {
+
+            if (_editItem.interface != null) {
                 return (
-                    <>
-                        {props.item.name} [<a href={`/profile/${props.item.interface.id}`} >{props.item.interface.name}</a>]
-                    </>
+                    <div>
+                        {_editItem.name}<br />[<a href={`/type/${_editItem.interface.id}`} >{_editItem.interface.name}</a>]
+                    </div>
                 );
             }
             //simple scenario
-            return props.item.name;
+            return _editItem.name;
         }
         //edit mode
         else {
@@ -295,53 +509,59 @@ function AttributeItemRow(props) { //props are item, showActions
     
     //render editable input for data type
     const renderDataTypeUI = () => {
-        if (props.lookupDataTypes == null || props.lookupDataTypes.length === 0) return;
-        const options = props.lookupDataTypes.map((item) => {
-            //skip interface, composition types in edit mode
-            if (item.val === 'composition' || item.val === 'interface') {
-                return null;
-            }
-            else {
-                return (<option key={item.val} value={item.val} >{item.caption}</option>)
-            }
-        });
-
-        return (
-            <Form.Group className="flex-grow-1 align-self-center" >
-                <Form.Control id="dataType" as="select" value={_editItem.dataType}
-                    onChange={onChangeDataType} onBlur={validateForm_dataType}
-                    className={(!_isValid.dataType ? 'invalid-field minimal pr-5' : 'minimal pr-5')} >
-                    <option key="-1|Select One" value="-1" >Select</option>
-                    {options}
-                </Form.Control>
-            </Form.Group>
-        );
+        return renderDataTypeUIShared(_editItem, props.lookupDataTypes, null, _isValid.dataType, false, onChangeDataType, validateForm_dataType);
     };
+
+    ////render editable input for data type
+    //const renderDataTypeUI = () => {
+    //    if (props.lookupDataTypes == null || props.lookupDataTypes.length === 0) return;
+
+    //    const options = renderDataTypeSelectOptions(props.lookupDataTypes, null, true);
+
+    //    //typical scenario is just data type id
+    //    var selectedId = _editItem.dataType == null ? "-1" : _editItem.dataType.id;
+
+    //    if (_editItem.attributeType?.id === AppSettings.AttributeTypeDefaults.InterfaceId) {
+    //        return;
+    //    }
+
+    //    //else, normal scenario
+    //    return (
+    //        <Form.Group className="align-self-center" >
+    //            <Form.Control id="dataType" as="select" value={selectedId} aria-label="Data Type"
+    //                onChange={onChangeDataType} onBlur={validateForm_dataType}
+    //                className={(!_isValid.dataType ? 'invalid-field minimal pr-5' : 'minimal pr-5')} >
+    //                <option key="-1|Select One" value="-1" >Select</option>
+    //                {options}
+    //            </Form.Control>
+    //        </Form.Group>
+    //    );
+    //};
 
     //render data type col
     const renderDataType = () => {
-        if (props.readOnly || props.item._itemType == null || props.item._itemType === "extended" || props.item.interface != null || !_isEditMode ||
-            !_editSettings.changeDataType) {
-            if (props.item.dataType === "composition") {
+
+        if (props.lookupDataTypes == null || props.lookupDataTypes.length === 0) return;
+
+        if (render_CheckReadOnly() || !_isEditMode) {
+
+            //find sel item in the data types lookup
+            var selItem = (props.lookupDataTypes == null || props.lookupDataTypes.length === 0) ? null :
+                props.lookupDataTypes.find(x => { return x.id === _editItem.dataType.id });
+            var caption = selItem == null ? _editItem.dataType.name : selItem.name;
+            caption = _editItem.isArray ? `${caption} []` : caption;
+
+            //if custom type, show the custom type name
+            if (selItem != null) {
                 return (
-                    <a href={`/profile/${props.item.composition.id}`} >{props.item.composition.name} [{props.item.dataType}]</a>
-                );
-            }
-            //if variable type, show the variable type name
-            if (props.item.variableType != null) {
-                return (
-                    <>
-                    <a href={`/profile/${props.item.variableType.id}`} >{props.item.variableType.name} [variable type]</a>
-                    </>
+                    <div>
+                        <a href={`/type/${selItem.customTypeId}`} >{caption}</a>
+                    </div>
                 );
             }
 
             //simple scenario
-            //grab the associated caption when showing in read only mode
-            var selItem = (props.lookupDataTypes == null || props.lookupDataTypes.length === 0) ? null :
-                props.lookupDataTypes.find(x => { return x.val === props.item.dataType });
-            if (props.item.dataType == null || props.item.dataType.toString() === "-1") return "";
-            return selItem == null ? props.item.dataType : selItem.caption;
+            return caption;
         }
         //edit mode
         else {
@@ -349,11 +569,49 @@ function AttributeItemRow(props) { //props are item, showActions
         }
     };
 
+    //render editable input for attr type
+    const renderAttributeTypeUI = () => {
+        if (props.lookupAttributeTypes == null || props.lookupAttributeTypes.length === 0) return;
+        const options = props.lookupAttributeTypes.map((item) => {
+            return (<option key={item.id} value={item.id} >{item.name}</option>)
+        });
+
+        //typical scenario is just data type id
+        var selectedId = _editItem.attributeType == null ? "-1" : _editItem.attributeType.id;
+
+        return (
+            <Form.Group className="flex-grow-1 align-self-center" >
+                <Form.Control id="attributeType" as="select" value={selectedId} aria-label="Attribute Type"
+                    onChange={onChangeAttributeType} onBlur={validateForm_attributeType}
+                    className={(!_isValid.attributeType ? 'invalid-field minimal pr-5' : 'minimal pr-5')} >
+                    <option key="-1|Select One" value="-1" >Select</option>
+                    {options}
+                </Form.Control>
+            </Form.Group>
+        );
+    };
+
+    //render attr type col
+    const renderAttributeType = () => {
+        if (render_CheckReadOnly() || !_isEditMode) {
+            //grab the associated caption when showing in read only mode
+            if (_editItem.attributeType == null || _editItem.attributeType.id.toString() === "-1") return "";
+            var selItem = (props.lookupAttributeTypes == null || props.lookupAttributeTypes.length === 0) ? null :
+                props.lookupAttributeTypes.find(x => { return x.id === _editItem.attributeType.id });
+            return selItem == null ? _editItem.attributeType.name : selItem.name;
+        }
+        //edit mode
+        else {
+            return renderAttributeTypeUI();
+        }
+    };
+
     //render the description ui
     const renderDescriptionUI = () => {
         return (
             <Form.Group className="flex-grow-1 align-self-center">
-                <Form.Control id="description" type="" placeholder="Enter a description" value={_editItem.description}
+                <Form.Control id="description" type="" placeholder="Enter a description" aria-label="Description"
+                    value={_editItem.description == null ? '' : _editItem.description}
                     onChange={onChange} />
             </Form.Group>
         );
@@ -361,9 +619,9 @@ function AttributeItemRow(props) { //props are item, showActions
 
     //render the description
     const renderDescription = () => {
-        if (props.readOnly || props.item._itemType == null || props.item._itemType === "extended" || props.item.interface != null || !_isEditMode) {
+        if (render_CheckReadOnly() || !_isEditMode) {
             //simple scenario
-            return props.item.description;
+            return _editItem.description;
         }
         //edit mode
         else {
@@ -371,102 +629,14 @@ function AttributeItemRow(props) { //props are item, showActions
         }
     };
 
-    //render the actions col. in edit mode, we swap out the icons
-    const renderActionIcons = () => {
-
-        if (props.readOnly || props.item._itemType == null || props.item._itemType === "extended") {
+    //render the icon which initiates an inline edit (ie a pencil icon)
+    const renderActionIconStartInlineEdit = () => {
+        if (!props.readOnly && _editItem.interface == null) {
             return (
                 <>
-                    {/*Detail slideout */}
-                    <Button variant="icon-solo" onClick={props.item.variableType == null ? onShowSlideOutDetail : onShowSlideOutVariableType} className="align-items-center" >
-                    <span>
-                        <SVGIcon name="vertical-split" size="24" fill={color.shark} />
-                    </span>
-                </Button>
-                </>
-            );
-        }
-
-        //allow delete for an interface attribute unless it is an extended attrib. This would trigger delete of all attributes of said interface
-        if (props.item.interface != null && props.item._itemType !== "extended") {
-            return (
-                <>
-                {/*Detail slideout */}
-                <Button variant="icon-solo" onClick={onShowSlideOutDetail} className="align-items-center" >
-                    <span>
-                        <SVGIcon name="vertical-split" size="24" fill={color.shark} />
-                    </span>
-                </Button>
-                {/* <Button variant="icon-solo" onClick={onDeleteInterfaceClick} className="align-items-center" > */}
-                <Button variant="icon-solo" onClick={onDeleteInterfaceModal} className="align-items-center" >
-                    <span>
-                        <SVGIcon name="trash" size="24" fill={color.shark} />
-                    </span>
-                </Button>
-                </>
-            );
-        }
-        //type of variableType
-        else if (!_isEditMode && props.item.variableType != null) {
-            return (
-                <>
-                    <Button variant="icon-solo" onClick={onEditClick} className="align-items-center" >
+                    <Button variant="icon-solo" onClick={onEditClick} className="align-items-center" title="Edit item inline" >
                         <span>
                             <SVGIcon name="edit" size="24" fill={color.shark} />
-                        </span>
-                    </Button>
-                    {/*variable type slideout */}
-                    <Button variant="icon-solo" onClick={onShowSlideOutVariableType} className="align-items-center" >
-                        <span>
-                            <SVGIcon name="vertical-split" size="24" fill={color.shark} />
-                        </span>
-                    </Button>
-                    {/* Confirmation modal */}
-                    {/* <Button variant="icon-solo" onClick={onDeleteClick} className="align-items-center" > */}
-                    <Button variant="icon-solo" onClick={onDeleteModal} className="align-items-center" >
-                        <span>
-                            <SVGIcon name="trash" size="24" fill={color.shark} />
-                        </span>
-                    </Button>
-                </>
-            );
-        }
-        //return edit/delete for editable grid
-        else if (!_isEditMode) {
-            return (
-                <>
-                    <Button variant="icon-solo" onClick={onEditClick} className="align-items-center" >
-                        <span>
-                            <SVGIcon name="edit" size="24" fill={color.shark} />
-                        </span>
-                    </Button>
-                    {/*Detail slideout */}
-                    <Button variant="icon-solo" onClick={onShowSlideOutDetail} className="align-items-center" >
-                        <span>
-                            <SVGIcon name="vertical-split" size="24" fill={color.shark} />
-                        </span>
-                    </Button>
-                    {/* <Button variant="icon-solo" onClick={onDeleteClick} className="align-items-center" > */}
-                    <Button variant="icon-solo" onClick={onDeleteModal} className="align-items-center" >
-                        <span>
-                            <SVGIcon name="trash" size="24" fill={color.shark} />
-                        </span>
-                    </Button>
-                </>
-            );
-        }
-        else {
-            //return edit/delete for editable grid
-            return (
-                <>
-                    <Button variant="icon-solo" onClick={onUpdateClick} className="align-items-center" >
-                        <span>
-                            <SVGCheckIcon name="check" size="24" fill={color.shark} />
-                        </span>
-                    </Button>
-                    <Button variant="icon-solo" onClick={onCancelUpdateClick} className="align-items-center" >
-                        <span>
-                            <SVGIcon name="close" size="24" fill={color.shark} />
                         </span>
                     </Button>
                 </>
@@ -474,13 +644,111 @@ function AttributeItemRow(props) { //props are item, showActions
         }
     };
 
+    //render slide out icon. No restrictions on showing this unless in inline edit mode.
+    const renderActionIconSlideOut = () => {
+
+        var onClickFn = onShowSlideOutDetail;
+        if (_editItem.dataType.customType != null) {
+            onClickFn = onShowSlideOutCustomType;
+        }
+        else if (_editItem.composition != null) {
+            onClickFn = onShowSlideOutComposition;
+        }
+
+        return (
+            <>
+                {/*Detail slideout */}
+                <Button variant="icon-solo" onClick={onClickFn} className="align-items-center" title="Open item detail (slide out)" >
+                    <span>
+                        <SVGIcon name="vertical-split" size="24" fill={color.shark} />
+                    </span>
+                </Button>
+            </>
+        );
+    };
+
+    //render delete icon
+    //Allow delete if attribute belongs to this profile type def. 
+    //Allow delete if attribute is an interface and interface is in the colleciton of profile type def's interfaces. 
+    const renderActionIconDelete = () => {
+
+        //default behavior
+        var showDeleteBtn = props.onDelete != null;
+        var deleteCallback = onDeleteModal;
+
+        //if interface and allowed to delete interface, override
+        if (_editItem.interface != null && props.onDeleteInterface == null) {
+            showDeleteBtn = false;
+            deleteCallback = null;
+        }
+        //if interface and allowed to delete interface, override
+        else if (_editItem.interface != null && props.onDeleteInterface != null) {
+            showDeleteBtn = true;
+            deleteCallback = onDeleteInterfaceModal;
+        }
+
+        if (showDeleteBtn) {
+            return (
+                <>
+                    {/* Confirmation modal */}
+                    <Button variant="icon-solo" onClick={deleteCallback} className="align-items-center" title="Delete item" >
+                        <span>
+                            <SVGIcon name="trash" size="24" fill={color.shark} />
+                        </span>
+                    </Button>
+                </>
+            );
+        }
+    };
+
+    //render the icons associated while inline editing (check, cancel)
+    const renderActionIconInlineEditing = () => {
+
+        return (
+            <>
+                <Button variant="icon-solo" onClick={onUpdateClick} className="align-items-center mr-1" title="Apply inline edits" >
+                    <span>
+                        <SVGCheckIcon name="check" size="24" fill={color.shark} />
+                    </span>
+                </Button>
+                <Button variant="icon-solo" onClick={onCancelUpdateClick} className="align-items-center" title="Cancel inline edits" >
+                    <span>
+                        <SVGIcon name="close" size="24" fill={color.shark} />
+                    </span>
+                </Button>
+            </>
+        );
+    };
+
+    //render the actions col. Based on data conditions, we show or hide certain icons
+    const renderActionIcons = () => {
+        if (!_isEditMode) {
+            return (
+                <>
+                    {renderActionIconStartInlineEdit()}
+                    {renderActionIconSlideOut()}
+                    {renderActionIconDelete()}
+                </>
+            );
+        }
+        else
+        {
+            return (
+                <>
+                    {renderActionIconInlineEditing()}
+                </>
+            );
+        }
+    };
+
+
     const renderInterfaceStyle = () => {
-        if (props.item.interfaceGroupId != null) {
+        if (_editItem.interfaceGroupId != null) {
             //use the group id to get a color from the color constants file - this keeps a group of items color coded together
             var colorCounter = 0;
             for (const c in colorLookups) {
 
-                if (props.item.interfaceGroupId === colorCounter) {
+                if (_editItem.interfaceGroupId === colorCounter) {
                     return { borderLeftColor: colorLookups[c],
                                 borderLeftWidth: "4px",
                                 borderLeftStyle: "solid"
@@ -497,15 +765,10 @@ function AttributeItemRow(props) { //props are item, showActions
 
         if (!showDeleteModal) return;
 
-        var message = (<> <strong>WARNING: </strong>You are about to delete '{props.item.name}'. </>);
+        var message = (<> <strong>WARNING: </strong>You are about to delete '{_editItem.name}'. </>);
 
         return (
             <>
-                <Alert variant="danger">
-                    {/* <Alert.Heading>Preparing to delete</Alert.Heading> */}
-                    <p className="mb-0" >Preparing to delete  '{props.item.name}'</p>
-                </Alert>
-
                 <ConfirmationModal showModal={showDeleteModal} caption="Confirm Deletion" message={message}
                     icon={{ name: "warning", color: color.trinidad }}
                     confirm={{ caption: "Delete", callback: onDeleteConfirm, buttonVariant: "danger" }}
@@ -519,15 +782,10 @@ function AttributeItemRow(props) { //props are item, showActions
 
         if (!showDeleteInterfaceModal) return;
 
-        var message = (<> <strong>WARNING: </strong>You are about to delete all attributes associated with interface '{props.item.interface.name}'. </>);
+        var message = (<> <strong>WARNING: </strong>You are about to delete all attributes associated with interface '{_editItem.interface.name}'. </>);
 
         return (
             <>
-                <Alert variant="danger">
-                    {/* <Alert.Heading>Preparing to delete</Alert.Heading> */}
-                    <p className="mb-0" >Preparing to delete attributes associated with '{props.item.interface.name}'</p>
-                </Alert>
-
                 <ConfirmationModal showModal={showDeleteInterfaceModal} caption="Confirm Deletion" message={message}
                     icon={{ name: "warning", color: color.trinidad }}
                     confirm={{ caption: "Delete", callback: onDeleteInterfaceConfirm, buttonVariant: "danger" }}
@@ -539,40 +797,61 @@ function AttributeItemRow(props) { //props are item, showActions
     //-------------------------------------------------------------------
     // Region: Render final output
     //-------------------------------------------------------------------
-    var cssClass = "row " + props.cssClass + (props.isHeader ? " bottom header" : " center") ;
-    
-        //header row - controlled by props flag
     if (props.isHeader) {
         return (
-            <div className={cssClass}>
-                <div className="col col-x-small left pl-3" >&nbsp;</div>
-                <div className="col col-20 left" >Name</div>
-                <div className="col col-25 left" >Data type</div>
-                <div className="col auto-size left" >Description</div>
-                <div className="col auto-size right nowrap" ></div>
-            </div>
+            <tr className="" >
+                <td className="pl-1">&nbsp;</td>
+                <th className="px-2" >
+                    <div className="row" >
+                        <div className="d-none d-sm-block col-sm-5" >Name</div>
+                        <div className="d-none d-sm-block col-sm-4" >Data Type</div>
+                        <div className="d-none d-sm-block col-sm-3" >Attribute Type</div>
+                        <div className="d-block d-sm-none" >Name, Data Type, Attribute Type</div>
+                        </div>
+                    </th>
+                <td>&nbsp;</td>
+            </tr>
         );
     }
 
     //only do this for non header rows
-    if (props.item === null || props.item === {}) return null;
-    if (props.item.name == null) return null;
+    if (_editItem === null || _editItem === {}) return null;
+    if (_editItem.name == null) return null;
 
     //grid row
     return (
         <>
-            <div style={renderInterfaceStyle()} className={cssClass}>
-                <div className="col col-x-small left pl-3 h-100 bg-light-trans d-flex flex-col align-items-center" >{renderIcon()}</div>
-                <div className="col col-20 left h-100 bg-light-trans d-flex flex-col align-items-center" >{renderName()}</div>
-                <div className="col col-25 left h-100 bg-light-trans d-flex flex-col align-items-center" >{renderDataType()}</div>
-                <div className="col auto-size left" >{renderDescription()}</div>
-                <div className="col auto-size right nowrap" >
-                    {renderActionIcons()}
-                </div>
-            </div>
+            <tr style={renderInterfaceStyle()} className="" >
+                <td className="pl-1 col-icon" >{renderAttributeIcon(_editItem)}</td>
+                <td className="px-2" >
+                    <div className={`row ${_isEditMode ? "mt-2" : ""}`} >
+                        <div className="col-sm-5 align-self-center" >{renderName()}</div>
 
-            {renderDeleteConfirmation()}
-            {renderDeleteInterfaceConfirmation()}
+                        <div className="col-sm-4 align-self-center" >
+                            {(!_editSettings.showInterface &&
+                                _editItem.attributeType?.id !== AppSettings.AttributeTypeDefaults.EnumerationId &&
+                                _editItem.attributeType?.id !== AppSettings.AttributeTypeDefaults.CompositionId ) &&
+                                renderDataType()
+                            }
+                            {_editItem.attributeType?.id === AppSettings.AttributeTypeDefaults.EnumerationId &&
+                                renderEnumValue()
+                            }
+                            {_editItem.attributeType?.id === AppSettings.AttributeTypeDefaults.CompositionId &&
+                                renderComposition()
+                            }
+                        </div>
+                        <div className="col-sm-3 align-self-center" >{renderAttributeType()}</div>
+                        {(!props.isPopout) &&
+                            <div className={`col-sm-12 d-none d-md-block text-muted ${_editItem.description != null && _editItem.description !== '' ? "mt-1" : ""}`} >{renderDescription()}</div>
+                        }
+                    </div>
+                </td>
+                <td className="text-right" >
+                    <div className="d-flex justify-content-end">{renderActionIcons()}</div>
+                    {renderDeleteConfirmation()}
+                    {renderDeleteInterfaceConfirmation()}
+                </td>
+            </tr>
         </>
     );
 };

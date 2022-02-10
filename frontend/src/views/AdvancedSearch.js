@@ -1,17 +1,15 @@
 import React, { useState, useRef } from 'react'
 import { useHistory } from 'react-router-dom'
 import { Button } from 'react-bootstrap'
-import axios from 'axios'
+import axiosInstance from "../services/AxiosService";
 
 import { useLoadingContext } from "../components/contexts/LoadingContext";
-import { useAuthContext } from "../components/authentication/AuthContext";
-import { generateLogMessageString, pageDataRows } from '../utils/UtilityService';
-import { AppSettings } from '../utils/appsettings'
-import { getProfilePreferences, setProfilePageSize } from '../services/ProfileService';
+import { useAuthState } from "../components/authentication/AuthContext";
+import { generateLogMessageString, pageDataRows, renderTitleBlock } from '../utils/UtilityService';
+import { getTypeDefPreferences, setProfileTypePageSize } from '../services/ProfileService';
 import AdvancedSearchRow from './shared/AdvancedSearchRow'
-import ProfileItemRow from './shared/ProfileItemRow';
+import ProfileTypeDefinitionRow from './shared/ProfileTypeDefinitionRow';
 import GridPager from '../components/GridPager'
-import { SVGIcon } from '../components/SVGIcon'
 import color from '../components/Constants'
 import './styles/AdvancedSearch.scss';
 
@@ -24,15 +22,15 @@ function AdvancedSearch() {
     //-------------------------------------------------------------------
     const history = useHistory();
 
-    const { authTicket } = useAuthContext();
-    const _profilePreferences = getProfilePreferences();
+    const authTicket = useAuthState();
+    const _profilePreferences = getTypeDefPreferences();
     const _scrollToRef = useRef(null);
     const searchRowNew = {
         id: null, fieldName: null, operator: -1, val: null, isValid: { fieldName: false, operator: false, val: false} };
     const [_searchCriteria, setSearchCriteria] = useState([{ id: 0, fieldName: null, operator: null, val: null, isValid: { fieldName: false, operator: false, val: false} }]);
     const [criteriaCounter, setCriteriaCounter] = useState(0);
     const { setLoadingProps } = useLoadingContext();
-    const { _globalOperator } = useState('and');
+    const [ _globalOperator ] = useState('and');
     //result set
     const [_dataRows, setDataRows] = useState({
         all: [], filtered: [], paged: [],
@@ -156,7 +154,7 @@ function AdvancedSearch() {
         //setLoadingProps({ isLoading: true, message: null });
 
         //TBD - in final app, the actual search approach would happen server side. For now, build out a client side search
-        axios.get(`${AppSettings.BASE_API_URL}/profile`)
+        axiosInstance.get(`profile`)
             .then(resp => {
                 filterMatches(resp.data);
                 //hide a spinner
@@ -166,7 +164,7 @@ function AdvancedSearch() {
                 //hide a spinner, show a message
                 setLoadingProps({
                     isLoading: false, message: null, inlineMessages: [
-                        { id: new Date().getTime(), severity: "danger", body: `An error occurred searching for matching profile records.` }
+                        { id: new Date().getTime(), severity: "danger", body: `An error occurred searching for matching profile records.`, isTimed: false  }
                     ]
                 });
                 console.log(generateLogMessageString('onSearch||error||' + JSON.stringify(error), CLASS_NAME, 'error'));
@@ -227,14 +225,14 @@ function AdvancedSearch() {
         //scrollToRef.current.scrollIntoView();
 
         //preserve choice in local storage
-        setProfilePageSize(pageSize);
+        setProfileTypePageSize(pageSize);
     };
 
     //-------------------------------------------------------------------
     // Region: Render helpers
     //-------------------------------------------------------------------
 
-    const renderHeaderRow = () => {
+    const renderAdvSearchHeaderRow = () => {
         return (<AdvancedSearchRow key="header" item={null} isHeader={true} />)
     }
 
@@ -271,7 +269,7 @@ function AdvancedSearch() {
         return (
             <div className="flex-grid search-criteria">
                 {infoRow}
-                {renderHeaderRow()}
+                {renderAdvSearchHeaderRow()}
                 {mainBody}
             </div>
         );
@@ -285,27 +283,21 @@ function AdvancedSearch() {
     //-------------------------------------------------------------------
     // Region: Header Nav
     //-------------------------------------------------------------------
-    const renderHeaderNav = () => {
+    const renderHeaderRow = () => {
         return (
-            <div id="--cesmii-header-nav">
-                <div className="header-content-wrapper">
-                    <div className="header-title-row">
-                        <div className="header-title-block mr-auto">
-                            <span className="mr-3">
-                                <SVGIcon name="search" size="48" fill={color.shark} alt="search" />
-                            </span>
-                            <p className="h2 mb-0">Advanced Search</p>
-                        </div>
-                        <div className="d-flex justify-content-end align-items-center">
-                            <Button variant="text-solo" className="mr-3" onClick={onCancel} >Cancel</Button>
-                            <Button variant="secondary" onClick={onSearch} disabled={!_isValid ? 'disabled' : ''} >Search</Button>
-                        </div>
-                    </div>
+            <div className="row pb-3">
+                <div className="col-lg-8 mr-auto d-flex">
+                    {renderTitleBlock("Advanced Search", "search", color.shark)}
+                </div>
+                <div className="col-lg-4 d-flex align-items-center justify-content-end">
+                    <Button variant="text-solo" className="mr-3" onClick={onCancel} >Cancel</Button>
+                    <Button variant="secondary" onClick={onSearch} disabled={!_isValid ? 'disabled' : ''} >Search</Button>
                 </div>
             </div>
-        )
-    }
+        );
+    };
 
+ 
     //-------------------------------------------------------------------
     // Region: render results
     //-------------------------------------------------------------------
@@ -320,7 +312,7 @@ function AdvancedSearch() {
             )
         }
         const mainBody = _dataRows.paged.map((item) => {
-            return (<ProfileItemRow key={item.id} item={item} currentUserId={authTicket.user.id} showActions={true} cssClass="profile-list-item" />)
+            return (<ProfileTypeDefinitionRow key={item.id} item={item} currentUserId={authTicket.user.id} showActions={true} cssClass="profile-list-item" />)
         });
 
         return (
@@ -344,7 +336,7 @@ function AdvancedSearch() {
     //-------------------------------------------------------------------
     return (
         <>
-            {renderHeaderNav()}
+            {renderHeaderRow()}
             <div ref={_scrollToRef} id="--cesmii-main-content">
                 <div id="--cesmii-left-content">
                     {/*content */}

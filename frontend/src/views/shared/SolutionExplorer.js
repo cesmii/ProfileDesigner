@@ -9,7 +9,7 @@ import { AppSettings } from '../../utils/appsettings'
 import { generateLogMessageString } from '../../utils/UtilityService'
 //import { useAuthContext } from "../../components/authentication/AuthContext";
 import { filterSolutionExplorer, filterProfiles } from '../../services/ProfileService';
-import { renderIcon, renderLinkedName } from './ProfileRenderHelpers';
+import { renderTypeIcon, renderLinkedName } from './ProfileRenderHelpers';
 
 import { SVGIcon } from '../../components/SVGicon'
 import color from '../../components/Constants'
@@ -22,7 +22,7 @@ function SolutionExplorer(props) {
     //-------------------------------------------------------------------
     // Region: Initialization
     //-------------------------------------------------------------------
-    //const { authTicket } = useAuthContext();
+    //const authTicket = useAuthState();
     const [_items, setItems] = useState({all:[], filtered:[], explorer:[]});
     const [_filterVal, setFilterVal] = useState('');
 
@@ -88,7 +88,7 @@ function SolutionExplorer(props) {
             <>
                 <li id={key} key={key} className={cssClass} >
                     <div style={{ paddingLeft: padding}}>
-                        {renderIcon(p, props.currentUserId)}
+                        {renderTypeIcon(p, props.currentUserId)}
                         {renderLinkedName(p)}
                     </div>
                     {/*recursively build out children*/}
@@ -106,14 +106,13 @@ function SolutionExplorer(props) {
                         <FormControl
                             type="text"
                             placeholder="Search profiles"
-                            aria-label="Search profiles"
-                            aria-describedby="basic-addon2"
+                            aria-label="Enter text to filter by"
                             val={_filterVal}
                             onBlur={onSearchBlur}
                         />
                         <InputGroup.Append>
                             {/*Button is just visual cue, search is happening on blur*/}
-                            <Button variant="icon-outline p-0 pl-2 pr-2 border-left-0" >
+                            <Button variant="icon-outline p-0 pl-2 pr-2 border-left-0" title="Filter explorer view">
                                 <SVGIcon name="search" size="24" fill={color.shark} />
                             </Button>
                         </InputGroup.Append>

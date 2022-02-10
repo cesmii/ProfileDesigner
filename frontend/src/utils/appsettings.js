@@ -2,10 +2,10 @@
 /// Global constants - purely static settings that remain unchanged during the lifecycle
 ///--------------------------------------------------------------------------
 export const AppSettings = {
-    BASE_API_URL: process.env.REACT_APP_BASE_API_URL  //mock api server url - environment specific
-    , Titles: { Anonymous: 'CESMII - SM Profile Designer', Main: 'CESMII - SM Profile Designer'}
-    , PageSize: 10
-    , PageSizeOptions: [10,25,50]
+    BASE_API_URL: process.env.REACT_APP_BASE_API_URL  //api server url - environment specific
+    , Titles: { Anonymous: 'CESMII | Profile Designer', Main: 'CESMII | Profile Designer', Caption: 'Profile Designer' }
+    , PageSize: 25
+    , PageSizeOptions: [10, 25, 50]
     , DateSettings: {
         DateFormat: 'M/d/yyyy'
         , DateFormat_Grid: 'MM/dd/yyyy'
@@ -27,11 +27,44 @@ export const AppSettings = {
     }
     , ValidatorPatterns: {
         //Email: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$',
-          Password: '(?=[^a-z]*[a-z])'
+        Password: '(?=[^a-z]*[a-z])'
         , HasUpperLowerCase: '^(?=.*[a-z])(?=[A-Z])$' // (?=.*[A-Za-z])'
         , HasNumber: '^[0-9]$'
         , HasSpecialCharacter: '^[a-z]$' //'^[$@!%*?&]$'
         , MinLength: '{8,}'
+    }
+    , ProfileTypeDefaults: {
+        InterfaceId: 1,
+        ClassId: 2,
+        VariableTypeId: 12,
+        CustomDataTypeId: 3,
+        StructureId: 18,
+        EnumerationId: 19,
+        ObjectId: 11
+    }
+    , DataTypeDefaults: {
+        CompositionId: 1
+        , InterfaceId: 2
+        , VariableTypeId: 10
+    }
+    , AttributeTypeDefaults: {
+        EnumerationId: 8
+        , CompositionId: 9
+        , InterfaceId: 10
+        , StructureId: 7
+    }
+    , SearchCriteriaCategory: {
+        Author: 1,
+        Popular: 2,
+        TypeDefinitionType: 3,
+        Profile: 4
+    }
+    , ImportLogStatus: {
+        NotStarted: 13,
+        InProgress: 14,
+        Completed: 15,
+        Failed: 16,
+        Cancelled: 17
     }
 }
 
@@ -47,33 +80,33 @@ export const LookupData = {
         , { caption: "String", val: "string", useMinMax: false, useEngUnit: false }
         , { caption: "Interface", val: "interface", useMinMax: false, useEngUnit: false }
     ],
-    engUnits: [
-          { caption: "Other", val: "other" }
-        , { caption: "Duration (hr)", val: "hour" }
-        , { caption: "Duration (sec)", val: "second" }
-        , { caption: "Duration (ms)", val: "millisecond" }
-        , { caption: "Duration (tick)", val: "tick" }
-        , { caption: "Length (m)", val: "meter" }
-        , { caption: "Length (cm)", val: "centimeter" }
-        , { caption: "Length (mm)", val: "millimeter" }
-        , { caption: "Length (inch)", val: "inch" }
-        , { caption: "Length (ft)", val: "foot" }
-        , { caption: "Mass (Kg)", val: "kilogram" }
-        , { caption: "Mass (g)", val: "gram" }
-        , { caption: "Temperature (C)", val: "centigrade" }
-        , { caption: "Termperature (F)", val: "farenheit" }
-        , { caption: "Termperature (K)", val: "kelvin" }
-        , { caption: "Volume (liter)", val: "liter" }
-        , { caption: "Volume (gallon)", val: "gallon" }
-        , { caption: "Volume (cc)", val: "cubic centimeter" }
-        , { caption: "Weight (lbs)", val: "pound" }
-        , { caption: "Weight (ozs)", val: "ounce" }
-    ],
-    profileTypes: [
-         { id: 2, name: "Interface" }
-        ,{ id: 3, name: "Class" }
-        ,{ id: 4, name: "VariableType" }
-    ],
+    //engUnits: [
+    //      { caption: "Other", val: "other" }
+    //    , { caption: "Duration (hr)", val: "hour" }
+    //    , { caption: "Duration (sec)", val: "second" }
+    //    , { caption: "Duration (ms)", val: "millisecond" }
+    //    , { caption: "Duration (tick)", val: "tick" }
+    //    , { caption: "Length (m)", val: "meter" }
+    //    , { caption: "Length (cm)", val: "centimeter" }
+    //    , { caption: "Length (mm)", val: "millimeter" }
+    //    , { caption: "Length (inch)", val: "inch" }
+    //    , { caption: "Length (ft)", val: "foot" }
+    //    , { caption: "Mass (Kg)", val: "kilogram" }
+    //    , { caption: "Mass (g)", val: "gram" }
+    //    , { caption: "Temperature (C)", val: "centigrade" }
+    //    , { caption: "Termperature (F)", val: "farenheit" }
+    //    , { caption: "Termperature (K)", val: "kelvin" }
+    //    , { caption: "Volume (liter)", val: "liter" }
+    //    , { caption: "Volume (gallon)", val: "gallon" }
+    //    , { caption: "Volume (cc)", val: "cubic centimeter" }
+    //    , { caption: "Weight (lbs)", val: "pound" }
+    //    , { caption: "Weight (ozs)", val: "ounce" }
+    //],
+    //profileTypes: [
+    //     { id: 1, name: "Interface" }
+    //    ,{ id: 2, name: "Class" }
+    //    ,{ id: 3, name: "VariableType" }
+    //],
     searchFields: [
           { caption: "Author", val: "author.fullName", dataType: "string" }
         , { caption: "Description", val: "description", dataType: "string" }

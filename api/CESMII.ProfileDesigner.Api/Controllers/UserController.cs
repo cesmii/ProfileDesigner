@@ -25,20 +25,15 @@ namespace CESMII.ProfileDesigner.Api.Controllers
     public class UserController : BaseController<UserController>
     {
         private readonly UserDAL _dal;
-        private readonly IDal<Permission, PermissionModel> _dalPermission;
         private readonly TokenUtils _tokenUtils;
         //private int _pageSize = 30;
 
         public UserController(UserDAL dal,
-            IDal<Permission, PermissionModel> dalPermission,
-            IDal<LookupType, LookupTypeModel> dalLookupType,
             ConfigUtil config, TokenUtils tokenUtils, ILogger<UserController> logger)
             : base(config, logger)
         {
             _dal = dal;
-            _dalPermission = dalPermission;
             _tokenUtils = tokenUtils;
-            //_pageSize = config.AdminSettings.UserSettings.PageSize;
         }
 
 
@@ -125,6 +120,62 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             return Ok(new ResultMessageModel() { IsSuccess = true, Message = "Item was added." });
         }
 
+        /// <summary>
+        /// Copy an existing user and then update user's 
+        /// Add a user and then reset the user's auto generated password to a new password provided in this console action. 
+        /// </summary>
+        /// <remarks> Main difference from normal Add is this one does an extra step of taking in a new password immediately instead of going 
+        /// through a registration flow with email, etc. 
+        /// Also note that this endpoint is only permitted for users with user mgmt permissions. 
+        /// </remarks>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [HttpPost, Route("copy")]
+        [Authorize(Policy = nameof(PermissionEnum.CanManageUsers))]
+        [ProducesResponseType(200, Type = typeof(string))]
+        public async Task<IActionResult> CopyUser([FromBody] UserCopyModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                //var errors = ExtractModelStateErrors();
+                return BadRequest("The user record is invalid. Please correct the following:...TBD - join errors collection into string list.");
+            }
+            var userToken = UserExtension.DalUserToken(User);
+
+            //get existing user, wipe out certain pieces of info, add new user
+            //update new user's password, 
+            var copyUser = _dal.GetById(model.UserId, userToken);
+            if (copyUser == null)
+            {
+                //var errors = ExtractModelStateErrors();
+                return BadRequest("Original user not found.");
+            }
+
+            //keep permissions and organization same
+            model.UserName = model.UserName.ToLower();
+            copyUser.ID = null;
+            copyUser.Created = DateTime.UtcNow;
+            copyUser.Email = model.Email;
+            copyUser.FirstName = model.FirstName;
+            copyUser.LastName = model.LastName;
+            copyUser.UserName = model.UserName;
+            copyUser.LastLogin = null;
+            copyUser.RegistrationComplete = null;
+            
+            var result = await _dal.Add(copyUser, userToken);
+            if (result == 0)
+            {
+                _logger.LogWarning($"Could not add user: {model.FirstName} {model.LastName}.");
+                return BadRequest("Could not add user. ");
+            }
+            _logger.LogInformation($"Added user item. Id:{result}.");
+
+            //now update user's password. This also set's a registration complete date so that user can log in.
+            await _dal.CompleteRegistration(result.Value, model.UserName, model.Password);
+
+            //return success message object
+            return Ok(new ResultMessageModel() { IsSuccess = true, Message = "Item was copied." });
+        }
 
         [HttpPost, Route("Update")]
         [Authorize(Policy = nameof(PermissionEnum.CanManageUsers))]

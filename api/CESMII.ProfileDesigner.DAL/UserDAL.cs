@@ -45,7 +45,7 @@
                 ID = null
                 ,Created = DateTime.UtcNow
                 //not actually used during registration but keep it here because db expects non null.
-                //The user sets their own pw on register complete
+                //if future, the user sets their own pw on register complete
                 ,Password = PasswordUtils.EncryptNewPassword(_configUtil.PasswordConfigSettings.EncryptionSettings, password)
             };
 
@@ -158,7 +158,7 @@
         public async Task<UserModel> ResetPassword(int id, string userName, string newPassword)
         {
             //get user - match on user id, user name and is active
-            var result = _repo.FindByCondition(u => u.ID.Equals(id) && u.UserName.ToLower().Equals(userName) && u.IsActive)
+            var result = _repo.FindByCondition(u => u.ID.Equals(id) && u.UserName.ToLower().Equals(userName.ToLower()) && u.IsActive)
                 .Include(p => p.UserPermissions)
                 .FirstOrDefault();
             if (result == null) return null;
@@ -329,6 +329,7 @@
             entity.FirstName = model.FirstName;
             entity.LastName = model.LastName;
             entity.IsActive = model.IsActive;
+            entity.OrganizationId = model.Organization == null ? null : model.Organization.ID;
             //entity.LastLogin = model.LastLogin;
 
             //handle update of user permissions

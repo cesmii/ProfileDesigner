@@ -87,7 +87,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             model.Query = model.Query.ToLower();
             var result = _dal.Where(s =>
                             //string query section
-                            s.IsActive && 
+                            //s.IsActive && 
                             (s.UserName.ToLower().Contains(model.Query) ||
                             (s.FirstName.ToLower() + s.LastName.ToLower()).Contains(
                                 model.Query.Replace(" ", "").Replace("-", ""))),  //in case they search for code and name in one string.
@@ -95,15 +95,42 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             return Ok(result);
         }
 
+        /// <summary>
+        /// Create a blank user model for an add scenario
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [HttpPost, Route("init")]
+        [Authorize(Policy = nameof(PermissionEnum.CanManageUsers))]
+        [ProducesResponseType(200, Type = typeof(UserModel))]
+        public IActionResult InitUser()
+        {
+            //get existing user, wipe out certain pieces of info, add new user
+            //update new user's password, 
+            UserModel result = new UserModel();
+
+            //return object
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Add user. This flow is intended (in future) to have server side generate the password and email user a registration link.
+        /// The registration link would then allow user to create new password and complete registration process. 
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [HttpPost, Route("Add")]
         [Authorize(Policy = nameof(PermissionEnum.CanManageUsers))]
-        [ProducesResponseType(200, Type = typeof(List<UserModel>))]
+        [ProducesResponseType(200, Type = typeof(ResultMessageModel))]
         public async Task<IActionResult> Add([FromBody] UserModel model)
         {
             if (!ModelState.IsValid)
             {
-                //var errors = ExtractModelStateErrors();
-                return BadRequest("The user record is invalid. Please correct the following:...TBD - join errors collection into string list.");
+                return Ok(new ResultMessageModel()
+                {
+                    IsSuccess = false,
+                    Message = ExtractModelStateErrors().ToString()
+                }); ;
             }
             var userToken = UserExtension.DalUserToken(User);
 
@@ -112,7 +139,11 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             if (result == 0)
             {
                 _logger.LogWarning($"Could not add user: {model.FirstName} {model.LastName}.");
-                return BadRequest("Could not add user. ");
+                return Ok(new ResultMessageModel()
+                {
+                    IsSuccess = false,
+                    Message = "Could not add user. "
+                }); ;
             }
             _logger.LogInformation($"Added user item. Id:{result}.");
 
@@ -121,8 +152,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         }
 
         /// <summary>
-        /// Copy an existing user and then update user's 
-        /// Add a user and then reset the user's auto generated password to a new password provided in this console action. 
+        /// Add a user and allow caller (an admin) to include a password with the add user model. 
         /// </summary>
         /// <remarks> Main difference from normal Add is this one does an extra step of taking in a new password immediately instead of going 
         /// through a registration flow with email, etc. 
@@ -130,70 +160,152 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         /// </remarks>
         /// <param name="model"></param>
         /// <returns></returns>
-        [HttpPost, Route("copy")]
+        [HttpPost, Route("add/onestep")]
         [Authorize(Policy = nameof(PermissionEnum.CanManageUsers))]
-        [ProducesResponseType(200, Type = typeof(string))]
-        public async Task<IActionResult> CopyUser([FromBody] UserCopyModel model)
+        [ProducesResponseType(200, Type = typeof(ResultMessageModel))]
+        public async Task<IActionResult> AddOneStep([FromBody] UserAddModel model)
         {
+            var userToken = UserExtension.DalUserToken(User);
+            ValidateCopyModel(model, userToken);
+
             if (!ModelState.IsValid)
             {
-                //var errors = ExtractModelStateErrors();
-                return BadRequest("The user record is invalid. Please correct the following:...TBD - join errors collection into string list.");
+                return Ok(new ResultMessageModel()
+                {
+                    IsSuccess = false,
+                    Message = ExtractModelStateErrors().ToString()
+                }); ;
             }
+
+
+            var result = await _dal.Add(model, userToken);
+            model.ID = result;
+            if (result == 0)
+            {
+                _logger.LogWarning($"Could not add user: {model.FirstName} {model.LastName}.");
+                return Ok(new ResultMessageModel()
+                {
+                    IsSuccess = false,
+                    Message = "Could not add user. "
+                }); ;
+            }
+            _logger.LogInformation($"Added user item. Id:{result}.");
+
+            //now update user's password. This also set's a registration complete date so that user can log in.
+            _dal.CompleteRegistration(result.Value, model.UserName, model.Password);
+
+            //return success message object
+            return Ok(new ResultMessageModel() { IsSuccess = true, Message = "Item was copied." });
+        }
+        
+        //public async Task<IActionResult> AddCopy([FromBody] UserCopyModel model)
+                 //{
+                 //    var userToken = UserExtension.DalUserToken(User);
+                 //    ValidateCopyModel(model, userToken);
+
+        //    if (!ModelState.IsValid)
+        //    {
+        //        //var errors = ExtractModelStateErrors();
+        //        return BadRequest("The user record is invalid. Please correct the following:...TBD - join errors collection into string list.");
+        //    }
+
+        //    //get existing user, wipe out certain pieces of info, add new user
+        //    //update new user's password, 
+        //    var copyUser = _dal.GetById(model.UserId, userToken);
+        //    if (copyUser == null)
+        //    {
+        //        //var errors = ExtractModelStateErrors();
+        //        return BadRequest("Original user not found.");
+        //    }
+
+        //    //keep permissions and organization same
+        //    model.UserName = model.UserName.ToLower();
+        //    copyUser.ID = null;
+        //    copyUser.Created = DateTime.UtcNow;
+        //    copyUser.Email = model.Email;
+        //    copyUser.FirstName = model.FirstName;
+        //    copyUser.LastName = model.LastName;
+        //    copyUser.UserName = model.UserName;
+        //    copyUser.LastLogin = null;
+        //    copyUser.RegistrationComplete = null;
+
+        //    var result = await _dal.Add(copyUser, userToken);
+        //    if (result == 0)
+        //    {
+        //        _logger.LogWarning($"Could not add user: {model.FirstName} {model.LastName}.");
+        //        return BadRequest("Could not add user. ");
+        //    }
+        //    _logger.LogInformation($"Added user item. Id:{result}.");
+
+        //    //now update user's password. This also set's a registration complete date so that user can log in.
+        //    await _dal.CompleteRegistration(result.Value, model.UserName, model.Password);
+
+        //    //return success message object
+        //    return Ok(new ResultMessageModel() { IsSuccess = true, Message = "Item was copied." });
+        //}
+
+        /// <summary>
+        /// Copy an existing user, clear out certain characteristics (user name, first name, last name, etc.) and then 
+        /// return a model to allow caller to set those unique user characteristics.
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [HttpPost, Route("copy")]
+        [Authorize(Policy = nameof(PermissionEnum.CanManageUsers))]
+        [ProducesResponseType(200, Type = typeof(UserModel))]
+        public IActionResult CopyUser([FromBody] IdIntModel model)
+        {
             var userToken = UserExtension.DalUserToken(User);
 
             //get existing user, wipe out certain pieces of info, add new user
             //update new user's password, 
-            var copyUser = _dal.GetById(model.UserId, userToken);
-            if (copyUser == null)
+            var result = _dal.GetById(model.ID, userToken);
+            if (result == null)
             {
                 //var errors = ExtractModelStateErrors();
                 return BadRequest("Original user not found.");
             }
 
             //keep permissions and organization same
-            model.UserName = model.UserName.ToLower();
-            copyUser.ID = null;
-            copyUser.Created = DateTime.UtcNow;
-            copyUser.Email = model.Email;
-            copyUser.FirstName = model.FirstName;
-            copyUser.LastName = model.LastName;
-            copyUser.UserName = model.UserName;
-            copyUser.LastLogin = null;
-            copyUser.RegistrationComplete = null;
-            
-            var result = await _dal.Add(copyUser, userToken);
-            if (result == 0)
-            {
-                _logger.LogWarning($"Could not add user: {model.FirstName} {model.LastName}.");
-                return BadRequest("Could not add user. ");
-            }
-            _logger.LogInformation($"Added user item. Id:{result}.");
+            result.ID = null;
+            result.Created = DateTime.UtcNow;
+            result.Email = null;
+            result.FirstName = null;
+            result.LastName = null;
+            result.UserName = null;
+            result.LastLogin = null;
+            result.RegistrationComplete = null;
 
-            //now update user's password. This also set's a registration complete date so that user can log in.
-            await _dal.CompleteRegistration(result.Value, model.UserName, model.Password);
+            return Ok(result);
 
-            //return success message object
-            return Ok(new ResultMessageModel() { IsSuccess = true, Message = "Item was copied." });
         }
 
         [HttpPost, Route("Update")]
         [Authorize(Policy = nameof(PermissionEnum.CanManageUsers))]
-        [ProducesResponseType(200, Type = typeof(List<UserModel>))]
+        [ProducesResponseType(200, Type = typeof(ResultMessageModel))]
         public async Task<IActionResult> Update([FromBody] UserModel model)
         {
+            var userToken = UserExtension.DalUserToken(User);
+            ValidateModel(model, userToken);
+
             if (!ModelState.IsValid)
             {
-                //var errors = ExtractModelStateErrors();
-                return BadRequest("The profile record is invalid. Please correct the following:...join errors collection into string list.");
+                return Ok(new ResultMessageModel()
+                {
+                    IsSuccess = false,
+                    Message = ExtractModelStateErrors().ToString()
+                }); ;
             }
-            var userToken = UserExtension.DalUserToken(User);
 
             var result = await _dal.Update(model, userToken);
             if (result < 0)
             {
                 _logger.LogWarning($"Could not update user. Invalid id:{model.ID}.");
-                return BadRequest("Could not update user. Invalid id.");
+                return Ok(new ResultMessageModel()
+                {
+                    IsSuccess = false,
+                    Message = "Could not update user. Invalid id."
+                }); ;
             }
             _logger.LogInformation($"Updated user. Id:{model.ID}.");
 
@@ -221,18 +333,36 @@ namespace CESMII.ProfileDesigner.Api.Controllers
 
 
         /// <summary>
-        /// TBD - Perform server side validation prior to saving
+        /// Perform server side validation prior to saving
         /// </summary>
         /// <param name="model"></param>
-        private void ValidateModel(UserModel model)
+        private void ValidateModel(UserModel model, UserToken token)
         {
+            //check for dup user name
+            if (_dal.Count(x => x.UserName.ToLower().Equals(model.UserName.ToLower()) 
+                    && (!model.ID.HasValue || !model.ID.Value.Equals(x.ID.Value)), token) > 0)
+            {
+                ModelState.AddModelError("User Name", "Duplicate user name. Please enter a different user name.");
+            }
+        }
+
+        /// <summary>
+        /// Perform server side validation prior to saving
+        /// </summary>
+        /// <param name="model"></param>
+        private void ValidateCopyModel(UserAddModel model, UserToken token)
+        {
+            //check for dup user name
+            if (_dal.Count(x => x.UserName.ToLower().Equals(model.UserName.ToLower()), token) > 0)
+            {
+                ModelState.AddModelError("User Name", "Duplicate user name. Please enter a different user name.");
+            }
             //Check for duplicate service and return model state error
             //if (model.Attributes != null && model.Attributes.GroupBy(v => v.Name).Where(g => g.Count() > 1).Any())
             //{
             //    ModelState.AddModelError("", "Duplicate attribute names found. Remove the duplicates.");
             //}
         }
-
     }
-    
+
 }

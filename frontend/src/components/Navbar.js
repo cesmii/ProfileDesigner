@@ -61,6 +61,10 @@ function Navbar() {
 
     const renderLogoutButton = () => {
         if (authTicket == null || authTicket.user == null) return;
+
+        //check if can manage users
+        var canManageUsers = authTicket.user.permissionNames.findIndex(x => x === 'CanManageUsers') >= 0;
+
         return (
             <li className="nav-item" >
                 <Dropdown>
@@ -70,8 +74,11 @@ function Navbar() {
                     </Dropdown.Toggle>
                     <Dropdown.Menu>
                         <Dropdown.Item eventKey="1" href="/user">Account details</Dropdown.Item>
+                        {canManageUsers &&
+                            <Dropdown.Item eventKey="3" href="/admin/user/list">Manage Users</Dropdown.Item>
+                        }
                         <Dropdown.Divider />
-                        <Dropdown.Item eventKey="3" onClick={onLogoutClick} >Logout</Dropdown.Item>
+                        <Dropdown.Item eventKey="2" onClick={onLogoutClick} >Logout</Dropdown.Item>
                     </Dropdown.Menu>
                 </Dropdown>
             </li>

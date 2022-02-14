@@ -71,36 +71,14 @@
     }
 
     /// <summary>
-    /// Take the user id of an existing user and make a copy of it. 
-    /// Replace key pieces of info in the copy: user name, password, first name, last name 
+    /// Adding password property to UserModel so front end could set it when admin adds user
     /// </summary>
-    public class UserCopyModel
+    public class UserAddModel : UserModel
     {
-        /// <summary>
-        /// Original user id to copy from
-        /// </summary>
-        public int UserId { get; set; }
-
         [Required(ErrorMessage = "Required")]
+        [MinLength(8, ErrorMessage = "Min Length is 8 characters")]
         [RegularExpression(@"^\S*$", ErrorMessage = "No spaces allowed")]
-        public string UserName { get; set; }
-
-        /// <summary>
-        /// Password for new user - Admin is making copy and they will supply a 
-        /// password to us.
-        /// </summary>
         public string Password { get; set; }
-
-        [Required(ErrorMessage = "Required")]
-        //[RegularExpression(@"^([\w\.\-]+)@([\w\-]+)((\.(\w){2,3})+)$", ErrorMessage = "Invalid format")]
-        [EmailAddress(ErrorMessage = "Invalid Format")]
-        public string Email { get; set; }
-
-        [Required(ErrorMessage = "Required")]
-        public string FirstName { get; set; }
-
-        [Required(ErrorMessage = "Required")]
-        public string LastName { get; set; }
 
     }
 }

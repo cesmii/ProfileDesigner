@@ -1,6 +1,4 @@
 import { SVGIcon } from "../components/SVGIcon";
-import axiosInstance from "../services/AxiosService";
-
 import { AppSettings } from "./appsettings";
 
 const _logMessageDelimiter = " || ";
@@ -266,6 +264,16 @@ export function toInt(val) {
     }
     return parseInt(val);
 }
+
+///--------------------------------------------------------------------------
+// Validate email
+//--------------------------------------------------------------------------
+export const validate_Email = (val) => {
+    if (val == null || val.length === 0) return true;
+
+    var format = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return format.test(val);
+};
 
 ///--------------------------------------------------------------------------
 // validateNumeric - test whether an input value is numeric based on a data type 

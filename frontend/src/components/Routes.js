@@ -4,6 +4,7 @@ import {Switch } from "react-router-dom"
 //common components
 import PrivateRoute from './authentication/PrivateRoute'
 import WizardRoute from './authentication/WizardRoute'
+import AdminRoute from './authentication/AdminRoute'
 import { PublicRoute } from './PublicRoute'
 
 //page level imports
@@ -20,6 +21,8 @@ import WizardFilterProfile from '../views/WizardFilterProfile'
 
 import PageNotFound from "../views/PageNotFound"
 import ProfileList from '../views/ProfileList'
+import AdminUserEntity from '../views/admin/AdminUserEntity'
+import AdminUserList from '../views/admin/AdminUserList'
 
 //const CLASS_NAME = "Routes";
 
@@ -51,6 +54,9 @@ function Routes() {
             <WizardRoute path="/wizard/select-base-type" component={WizardSelectBaseType} />
             <WizardRoute path="/wizard/extend/:parentId/p=:profileId" component={ProfileTypeDefinitionEntity} />
             <WizardRoute path="/wizard/extend/:parentId" component={ProfileTypeDefinitionEntity} />
+            <AdminRoute path="/admin/user/list" component={AdminUserList} />
+            <AdminRoute path="/admin/user/copy/:copyId" component={AdminUserEntity} />
+            <AdminRoute path="/admin/user/:id" component={AdminUserEntity} />
             <PublicRoute exact path="/login" component={Login} />
             <PublicRoute component={PageNotFound} />
         </Switch>

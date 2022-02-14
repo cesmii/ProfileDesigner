@@ -77,20 +77,6 @@
                 throw ex; // Throw an explicit exception, those using this should be aware this cannot be allowed.
             }
 
-            //TBD - Mock for now, just validate username and passowrd is same. Add in real validation once we store user info
-            //TBD - Mock user...addin some additional settings, permissions manually for now...
-            if (_useMock)
-            {
-                var mock = _repoMock.FindByCondition(u => u.UserName.ToLower().Equals(userName.ToLower()) &&
-                    u.UserName.ToLower().Equals(password.ToLower())).FirstOrDefault();
-                if (mock == null) return null;
-                var user = this.MapToModel(mock);
-                //mock the permissions...
-                user.PermissionNames = new List<string>() { Common.Enums.PermissionEnum.CanViewProfile.ToString(), Common.Enums.PermissionEnum.CanManageProfile.ToString(), Common.Enums.PermissionEnum.CanDeleteProfile.ToString() };
-                user.PermissionIds = new List<int?>() { (int)Common.Enums.PermissionEnum.CanViewProfile, (int)Common.Enums.PermissionEnum.CanManageProfile, (int)Common.Enums.PermissionEnum.CanDeleteProfile };
-                return user;
-            }
-
             //1. Validate against our encryption. Because we use the existing user's settings, we get the 
             // existing pw, parse it into parts and encrypt the new pw with the same settings to see if it matches
             var result = _repo.FindByCondition(u => u.UserName.ToLower() == userName.ToLower() && u.IsActive && u.RegistrationComplete.HasValue)
@@ -123,13 +109,14 @@
         /// <param name="id"></param>
         /// <param name="orgId"></param>
         /// <returns></returns>
-        public async Task<UserModel> CompleteRegistration(int id, string userName, string newPassword)
+        public async void CompleteRegistration(int id, string userName, string newPassword)
         {
             //get user - match on user id, user name and is active
             var result = _repo.FindByCondition(u => u.ID.Equals(id) && u.UserName.ToLower().Equals(userName) && u.IsActive) 
                 .Include(p => p.UserPermissions)
                 .FirstOrDefault();
-            if (result == null) return null;
+            if (result == null) return;
+            //if (result == null) return null;
 
             //only allow completing registration if NOT already completed
             if (result.RegistrationComplete.HasValue)
@@ -146,7 +133,7 @@
             result.RegistrationComplete = DateTime.UtcNow;
             await _repo.UpdateAsync(result);
             await _repo.SaveChanges();
-            return this.MapToModel(result);
+            //return this.MapToModel(result);
         }
 
         /// <summary>
@@ -206,13 +193,6 @@
         /// <returns></returns>
         public override UserModel GetById(int id, UserToken userToken)
         {
-            //TBD - temp mock data
-            if (_useMock)
-            {
-                var mock = _repoMock.GetByID(id);
-                return MapToModel(mock);
-            }
-
             var entity = _repo.FindByCondition(x => x.ID == id)
                 .Include(u => u.UserPermissions)
                 .FirstOrDefault();
@@ -224,11 +204,38 @@
         /// </summary>
         /// <param name="orgId"></param>
         /// <returns></returns>
+        public override DALResult<UserModel> GetAllPaged(UserToken userToken, int? skip, int? take, bool returnCount = true, bool verbose = false)
+        {
+            var query = _repo.GetAll()
+                //.Where(u => u.IsActive)  //TBD - ok to return inactive in the list of users?
+                .OrderByDescending(u => u.IsActive).ThenBy(u => u.LastName).ThenBy(u => u.FirstName).ThenBy(u => u.UserName)
+                .Include(u => u.UserPermissions);
+
+            var count = returnCount ? query.Count() : 0;
+
+            IQueryable<User> data;
+            if (skip.HasValue && take.HasValue) data = query.Skip(skip.Value).Take(take.Value);
+            else if (skip.HasValue) data = query.Skip(skip.Value);
+            else if (take.HasValue) data = query.Take(take.Value);
+            else data = query;
+
+            DALResult<UserModel> result = new DALResult<UserModel>();
+            result.Count = count;
+            result.Data = MapToModels(data.ToList(), verbose);
+            result.SummaryData = null;
+            return result;
+        }
+
+        /// <summary>
+        /// Get all rules and related data
+        /// </summary>
+        /// <param name="orgId"></param>
+        /// <returns></returns>
         public override List<UserModel> GetAll(UserToken userToken, bool verbose = false)
         {
             var result = _repo.GetAll()
                 //.Where(u => u.IsActive)  //TBD - ok to return inactive in the list of users?
-                .OrderBy(u => u.LastName).ThenBy(u => u.FirstName).ThenBy(u => u.UserName)
+                .OrderByDescending(u => u.IsActive).ThenBy(u => u.LastName).ThenBy(u => u.FirstName).ThenBy(u => u.UserName)
                 .Include(u => u.UserPermissions)
                 .ToList();
             return MapToModels(result, verbose);
@@ -244,7 +251,7 @@
         {
             return base.Where(predicate, user, skip, take, returnCount, verbose,
                 q => q
-                    .OrderBy(u => u.LastName).ThenBy(u => u.FirstName).ThenBy(u => u.UserName)
+                    .OrderByDescending(u => u.IsActive).ThenBy(u => u.LastName).ThenBy(u => u.FirstName).ThenBy(u => u.UserName)
                     //.Where(u => u.IsActive)  //TBD - ok to return inactive in the list of users?
                     .Include(u => u.UserPermissions));
             //var query = _repo.FindByCondition(predicate)

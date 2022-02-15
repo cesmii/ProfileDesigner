@@ -69,4 +69,16 @@
         }
         public OrganizationModel Organization { get; set; }
     }
+
+    /// <summary>
+    /// Adding password property to UserModel so front end could set it when admin adds user
+    /// </summary>
+    public class UserAddModel : UserModel
+    {
+        [Required(ErrorMessage = "Required")]
+        [MinLength(8, ErrorMessage = "Min Length is 8 characters")]
+        [RegularExpression(@"^\S*$", ErrorMessage = "No spaces allowed")]
+        public string Password { get; set; }
+
+    }
 }

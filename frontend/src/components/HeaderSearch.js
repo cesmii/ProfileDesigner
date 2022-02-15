@@ -97,7 +97,7 @@ function HeaderSearch(props) { //(caption, iconName, showSearch, searchValue, on
                         </InputGroup>
                     </Form.Row>
                 </Form>
-                {(!props.showAdvancedSearch) &&
+                {(props.showAdvancedSearch) &&
                     <Button variant="secondary" className="auto-width" onClick={onAdvancedSearchClick} >
                         Advanced
                     </Button>

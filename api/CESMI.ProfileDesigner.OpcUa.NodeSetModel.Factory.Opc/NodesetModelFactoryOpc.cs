@@ -110,7 +110,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModel.Factory.Opc
                         // TODO If parent is in another nodeset/namespace, the reference may not be stored (Example: Server/Namespaces node (OPC i=11715): nodesets add themselves to that global node).
                        opcContext.Logger.LogWarning($"Object {uaChildObject} is added to {parent} in a different namespace: reference is ignored.");
                     }
-                    AddChildIfNotExists(parent, parent?.Objects, uaChildObject);
+                    AddChildIfNotExists(parent, parent?.Objects, uaChildObject, opcContext.Logger);
                 }
                 else if (referencedNode is BaseObjectTypeState objectTypeState)
                 {
@@ -120,13 +120,13 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModel.Factory.Opc
                 {
                     var parent = parentFactory();
                     var variable = Create<DataVariableModelFactoryOpc, DataVariableModel>(opcContext, variableState, parent?.CustomState);
-                    AddChildIfNotExists(parent, parent?.DataVariables, variable);
+                    AddChildIfNotExists(parent, parent?.DataVariables, variable, opcContext.Logger);
                 }
                 else if (referencedNode is MethodState methodState)
                 {
                     var parent = parentFactory();
                     var method = Create<MethodModelFactoryOpc, MethodModel>(opcContext, methodState, parent?.CustomState);
-                    AddChildIfNotExists(parent, parent?.Methods, method);
+                    AddChildIfNotExists(parent, parent?.Methods, method, opcContext.Logger);
                 }
                 else
                 {
@@ -226,14 +226,14 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModel.Factory.Opc
                 {
                     var parent = parentFactory();
                     var property = Create<PropertyModelFactoryOpc, PropertyModel>(opcContext, propertyState, parent?.CustomState);
-                    AddChildIfNotExists(parent, parent?.Properties, property);
+                    AddChildIfNotExists(parent, parent?.Properties, property, opcContext.Logger);
                 }
                 else if (referencedNode is BaseDataVariableState variableState)
                 {
                     // Surprisingly, properties can also be of type DataVariable
                     var parent = parentFactory();
                     var variable = Create<DataVariableModelFactoryOpc, DataVariableModel>(opcContext, variableState, parent?.CustomState);
-                    AddChildIfNotExists(parent, parent?.Properties, variable);
+                    AddChildIfNotExists(parent, parent?.Properties, variable, opcContext.Logger);
                 }
                 else
                 {
@@ -247,7 +247,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModel.Factory.Opc
                 if (referencedNode is BaseObjectTypeState interfaceTypeState)
                 {
                     var parent = parentFactory();
-                    AddChildIfNotExists(parent, parent?.Interfaces, Create<InterfaceModelFactoryOpc, InterfaceModel>(opcContext, interfaceTypeState, parent.CustomState));
+                    AddChildIfNotExists(parent, parent?.Interfaces, Create<InterfaceModelFactoryOpc, InterfaceModel>(opcContext, interfaceTypeState, parent.CustomState), opcContext.Logger);
                 }
                 else
                 {
@@ -277,7 +277,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModel.Factory.Opc
                 {
                     var parent = parentFactory();
                     var uaEvent = Create<ObjectTypeModelFactoryOpc, ObjectTypeModel>(opcContext, eventTypeState, parent?.CustomState);
-                    AddChildIfNotExists(parent, parent?.Events, uaEvent);
+                    AddChildIfNotExists(parent, parent?.Events, uaEvent, opcContext.Logger);
                 }
                 else
                 {
@@ -290,13 +290,17 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModel.Factory.Opc
                 var referencedModel = Create(opcContext, referencedNode, parent?.CustomState, out _);
                 if (referencedModel != null)
                 {
-                    AddChildIfNotExists(parent, parent?.OtherChilden, new NodeModel.ChildAndReference { Child = referencedModel, Reference = opcContext.GetNodeIdWithUri(referenceTypes.FirstOrDefault().NodeId, out _) });
+                    AddChildIfNotExists(parent, parent?.OtherChilden, new NodeModel.ChildAndReference { Child = referencedModel, Reference = opcContext.GetNodeIdWithUri(referenceTypes.FirstOrDefault().NodeId, out _) }, opcContext.Logger);
 
                     if (referencedModel is InstanceModelBase referencedInstanceModel)
                     {
                         if (referencedInstanceModel.Parent == null)
                         {
                             referencedInstanceModel.Parent = parent;
+                            if (referencedInstanceModel.Parent != parent)
+                            {
+                                opcContext.Logger.LogWarning($"{referencedInstanceModel} has more than one parent. Ignored parent: {parent}, using {referencedInstanceModel.Parent}");
+                            }
                         }
                     }
                 }
@@ -327,11 +331,15 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModel.Factory.Opc
             }
 
         }
-        static void AddChildIfNotExists<TColl>(NodeModel parent, IList<TColl> collection, TColl uaChildObject)
+        static void AddChildIfNotExists<TColl>(NodeModel parent, IList<TColl> collection, TColl uaChildObject, ILogger logger)
         {
             if (uaChildObject is InstanceModelBase uaInstance)
             {
                 uaInstance.Parent = parent;
+                if (uaInstance.Parent != parent)
+                {
+                    logger.LogWarning($"{uaInstance} has more than one parent. Ignored parent: {parent}, using {uaInstance.Parent}");
+                }
             }
             if (collection == null)
             {
@@ -557,6 +565,10 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModel.Factory.Opc
             {
                 var instanceParent = NodeModelFactoryOpc.Create(opcContext, uaInstance.Parent, null, out _);
                 _model.Parent = instanceParent;
+                if (_model.Parent != instanceParent)
+                {
+                    opcContext.Logger.LogWarning($"{_model} has more than one parent. Ignored parent: {instanceParent}, using {_model.Parent}.");
+                }
             }
         }
 

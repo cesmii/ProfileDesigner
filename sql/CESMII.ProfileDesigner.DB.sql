@@ -24,7 +24,7 @@ CREATE ROLE cesmii WITH
   NOCREATEROLE
   NOREPLICATION
   ENCRYPTED PASSWORD '***********';
-*/  
+*/
 ---------------------------------------------------------------------
 --	Create DB
 ---------------------------------------------------------------------
@@ -288,7 +288,7 @@ CREATE TABLE public.lookup_type
     id SERIAL PRIMARY KEY,
     owner_id integer NULL,
     name character varying(200) COLLATE pg_catalog."default" NOT NULL,
-    description character varying(256) COLLATE pg_catalog."default" NULL,
+    description character varying COLLATE pg_catalog."default" NULL,
     display_order integer NOT NULL,
     is_active boolean NOT NULL
 )
@@ -398,7 +398,7 @@ CREATE TABLE public.engineering_unit
     id SERIAL PRIMARY KEY,
     owner_id integer NULL,
     display_name character varying(200) COLLATE pg_catalog."default" NOT NULL,
-    description character varying(200) COLLATE pg_catalog."default" NULL,
+    description character varying COLLATE pg_catalog."default" NULL,
     namespace_uri character varying(200) COLLATE pg_catalog."default" NULL,
     unit_id integer NOT NULL,
     is_active boolean NOT NULL
@@ -605,7 +605,7 @@ CREATE TABLE public.profile_type_definition
 	profile_id integer NOT NULL,
     browse_name character varying(256) COLLATE pg_catalog."default" NULL,
     symbolic_name character varying(256) COLLATE pg_catalog."default" NULL,
-    description character varying(1024) COLLATE pg_catalog."default" NULL,
+    description character varying COLLATE pg_catalog."default" NULL,
     metatags varchar NULL,
     author_id integer NULL,
     author_name character varying(512) COLLATE pg_catalog."default" NULL,
@@ -738,7 +738,7 @@ CREATE TABLE public.profile_composition
 	modeling_rule character varying(256) NULL,
     is_event boolean NULL,
 	reference_id character varying(256) NULL,
-    description character varying(1024) COLLATE pg_catalog."default" NULL,
+    description character varying COLLATE pg_catalog."default" NULL,
     CONSTRAINT profile_composition_id_fk_id FOREIGN KEY (composition_id)
         REFERENCES public.profile_type_definition (id) MATCH SIMPLE
         ON UPDATE NO ACTION
@@ -842,7 +842,7 @@ CREATE TABLE public.data_type
     owner_id integer NULL,  --if a specific user creates a custom type, only visible to that user
     code character varying(200) COLLATE pg_catalog."default" NOT NULL,
     name character varying(200) COLLATE pg_catalog."default" NOT NULL,
-    description character varying(256) COLLATE pg_catalog."default" NULL,
+    description character varying COLLATE pg_catalog."default" NULL,
     display_order integer NOT NULL,
     use_min_max boolean NOT NULL,
     use_eng_unit boolean NOT NULL,
@@ -900,7 +900,7 @@ CREATE TABLE public.profile_attribute
     namespace character varying(512) COLLATE pg_catalog."default" NULL,
     attribute_type_id integer NOT NULL,
     name character varying(256) COLLATE pg_catalog."default" NOT NULL,
-    description character varying(512) COLLATE pg_catalog."default" NULL,
+    description character varying COLLATE pg_catalog."default" NULL,
     display_name character varying(256) COLLATE pg_catalog."default" NULL,
     min_value numeric NULL,
     max_value numeric NULL,

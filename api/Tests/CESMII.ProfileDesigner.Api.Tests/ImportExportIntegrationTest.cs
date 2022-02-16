@@ -68,12 +68,12 @@ namespace CESMII.ProfileDesigner.Api.Tests.IntegrationTests
                     Directory.CreateDirectory(Path.GetDirectoryName(diffFileRoot));
                 }
 
-                var summaryDiffFile = $"{diffFileRoot}.summarydiff.log";
+                var summaryDiffFile = $"{diffFileRoot}.summarydiff.difflog";
                 File.WriteAllText(summaryDiffFile, diffSummary);
-                File.WriteAllText($"{diffFileRoot}.controldiff.log", diffControl);
-                File.WriteAllText($"{diffFileRoot}.testdiff.log", diffTest);
+                File.WriteAllText($"{diffFileRoot}.controldiff.difflog", diffControl);
+                File.WriteAllText($"{diffFileRoot}.testdiff.difflog", diffTest);
 
-                var expectedDiffFile = file.Replace("TestNodeSets", @"TestNodeSets\ExpectedDiffs") + ".summarydiff.log";
+                var expectedDiffFile = file.Replace("TestNodeSets", @"TestNodeSets\ExpectedDiffs") + ".summarydiff.difflog";
                 var expectedSummary = File.ReadAllText(expectedDiffFile);
 
                 var expectedSummaryLines = File.ReadAllLines(expectedDiffFile);
@@ -237,7 +237,7 @@ namespace CESMII.ProfileDesigner.Api.Tests.IntegrationTests
             {
                 var nodeSetFileName = GetFileNameFromNamespace(profile.Namespace);
 
-                if (nodeSetFiles.Where(f => Path.GetFileName(f) == nodeSetFileName).Any())
+                if (nodeSetFiles.Where(f => string.Equals(Path.GetFileName(f), nodeSetFileName, StringComparison.InvariantCultureIgnoreCase)).Any())
                 {
                     var exportResult = await apiClient.ExportAsync(new IdIntModel { Id = profile.Id ?? 0 });
                     Assert.True(exportResult.IsSuccess, $"Failed to export {profile.Namespace}");

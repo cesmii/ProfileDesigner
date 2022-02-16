@@ -262,7 +262,8 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModel
             {
                 if (Parent != null && Parent != value)
                 {
-                    throw new Exception($"Changing parent or mutiple parents on {this}: new parent {value}");
+                    return;
+                    //throw new Exception($"Changing parent or multiple parents on {this}: new parent {value}, previous parent {_parent}");
                 }
                 _parent = value;
             }

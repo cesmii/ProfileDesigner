@@ -1058,7 +1058,7 @@ left outer join (
 --	,dt.name
 ;
 
-ALTER TABLE public.v_data_type_rank
+ALTER VIEW public.v_data_type_rank
     OWNER to cesmii;
 
 	
@@ -1114,7 +1114,7 @@ left outer join (
 ) a on a.eng_unit_id = eu.id
 ;
 
-ALTER TABLE public.v_engineering_unit_rank
+ALTER VIEW public.v_engineering_unit_rank
     OWNER to cesmii;
 	
 ---------------------------------------------------------------------

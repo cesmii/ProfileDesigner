@@ -62,6 +62,36 @@
         }
 
         /// <summary>
+        /// The user Add flow works differently than the other add. This allows caller to add and complete
+        /// registration in one step rather than two. 
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="userId"></param>
+        /// <returns></returns>
+        //add this layer so we can instantiate the new entity here.
+        public async Task<int?> AddOneStep(UserModel model, UserToken userToken, string password)
+        {
+            User entity = new User
+            {
+                ID = null
+                ,Created = DateTime.UtcNow
+                ,Password = PasswordUtils.EncryptNewPassword(_configUtil.PasswordConfigSettings.EncryptionSettings, password)
+                ,RegistrationComplete = DateTime.UtcNow
+            };
+
+            this.MapToEntity(ref entity, model, userToken);
+            //do this after mapping to enforce isactive is true on add
+            entity.IsActive = true;
+
+            //this will add and call saveChanges
+            await _repo.AddAsync(entity);
+
+            model.ID = entity.ID;
+            // Return id for newly added user
+            return entity.ID;
+        }
+        
+        /// <summary>
         /// Get rule and related data
         /// </summary>
         /// <param name="id"></param>

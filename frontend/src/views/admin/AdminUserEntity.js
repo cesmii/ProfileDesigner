@@ -375,8 +375,8 @@ function AdminUserEntity() {
                 </Dropdown.Toggle>
                 <Dropdown.Menu>
                     <Dropdown.Item href={`/admin/user/new`}>Add User</Dropdown.Item>
-                    <Dropdown.Item href={`/admin/user/copy/${_item.id}`}>Copy '{_item.name}'</Dropdown.Item>
-                    <Dropdown.Item onClick={onDeleteItem} >Delete '{_item.name}'</Dropdown.Item>
+                    <Dropdown.Item href={`/admin/user/copy/${_item.id}`}>Copy '{_item.userName}'</Dropdown.Item>
+                    <Dropdown.Item onClick={onDeleteItem} >Delete '{_item.userName}'</Dropdown.Item>
                 </Dropdown.Menu>
             </Dropdown>
         );

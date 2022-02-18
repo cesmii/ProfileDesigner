@@ -178,7 +178,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             }
 
 
-            var result = await _dal.Add(model, userToken);
+            var result = await _dal.AddOneStep(model, userToken, model.Password);
             model.ID = result;
             if (result == 0)
             {
@@ -190,9 +190,6 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 }); ;
             }
             _logger.LogInformation($"Added user item. Id:{result}.");
-
-            //now update user's password. This also set's a registration complete date so that user can log in.
-            _dal.CompleteRegistration(result.Value, model.UserName, model.Password);
 
             //return success message object
             return Ok(new ResultMessageModel() { IsSuccess = true, Message = "Item was copied." });

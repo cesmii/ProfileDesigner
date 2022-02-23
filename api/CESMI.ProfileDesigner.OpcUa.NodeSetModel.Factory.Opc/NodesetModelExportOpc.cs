@@ -200,21 +200,47 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModel.Export.Opc
             var result = base.GetUANode<T>(namespaces, aliases);
             var instance = result.Item1;
             var references = instance.References?.ToList() ?? new List<uaExport.Reference>();
+
+            string typeDefinitionNodeIdForExport;
             if (_model.TypeDefinition != null)
             {
                 namespaces.GetIndexOrAppend(_model.TypeDefinition.Namespace);
-                var reference = new uaExport.Reference
-                {
-                    ReferenceType = GetNodeIdForExport(ReferenceTypeIds.HasTypeDefinition.ToString(), namespaces, aliases),
-                    Value = GetNodeIdForExport(_model.TypeDefinition.NodeId, namespaces, aliases),
-                };
-                references.Add(reference);
+                typeDefinitionNodeIdForExport = GetNodeIdForExport(_model.TypeDefinition.NodeId, namespaces, aliases);
             }
             else
             {
+                NodeId typeDefinitionNodeId = null;
+                if (_model is PropertyModel)
+                {
+                    typeDefinitionNodeId = VariableTypeIds.PropertyType;
+                }
+                else if (_model is DataVariableModel)
+                {
+                    typeDefinitionNodeId = VariableTypeIds.BaseDataVariableType;
+                }
+                else if (_model is VariableModel)
+                {
+                    typeDefinitionNodeId = VariableTypeIds.BaseVariableType;
+                }
+                else if (_model is ObjectModel)
+                {
+                    typeDefinitionNodeId = ObjectTypeIds.BaseObjectType;
+                }
+                else
+                {
+                }
 
+                typeDefinitionNodeIdForExport = GetNodeIdForExport(typeDefinitionNodeId?.ToString(), namespaces, aliases);
             }
-
+            if (typeDefinitionNodeIdForExport != null)
+            {
+                var reference = new uaExport.Reference
+                {
+                    ReferenceType = GetNodeIdForExport(ReferenceTypeIds.HasTypeDefinition.ToString(), namespaces, aliases),
+                    Value = typeDefinitionNodeIdForExport,
+                };
+                references.Add(reference);
+            }
             if (_model.ModelingRule != null)
             {
                 var modelingRuleId = _model.ModelingRule switch

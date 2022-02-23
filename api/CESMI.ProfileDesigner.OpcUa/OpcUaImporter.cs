@@ -587,11 +587,10 @@ namespace CESMII.ProfileDesigner.OpcUa
             }
             //var nodeState = _importedNodes.FirstOrDefault(n => n.NodeId == expandedNodeId);
             NodeState nodeStateDict = null;
-            _importedNodesByNodeId.TryGetValue(expandedNodeId, out nodeStateDict);
-            //if (nodeState != nodeStateDict)
-            //{
-
-            //}
+            if (expandedNodeId != null)
+            {
+                _importedNodesByNodeId.TryGetValue(expandedNodeId, out nodeStateDict);
+            }
             return nodeStateDict;
         }
 

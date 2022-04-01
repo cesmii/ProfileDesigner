@@ -26,7 +26,7 @@ on:
 
 env:
   # set this to your application's name
-  AZURE_WEBAPP_NAME: 'profiledesigner-dotnet-api'    
+  AZURE_WEBAPP_NAME: 'profiledesigner-back'    
   # set this to the path to your solution file, defaults to the repository root (this is the folder in the git repo)
   SOLUTION_DIRECTORY: './api'      
   # set this to the path to your web app project, defaults to the repository root (this is the folder in the git repo)

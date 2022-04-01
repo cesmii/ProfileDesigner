@@ -17,11 +17,12 @@
 # For more samples to get started with GitHub Action workflows to deploy to Azure, refer to https://github.com/Azure/actions-workflow-samples
 name: Prod|Front End|Profile Designer - Deploy to Azure
 on:
+  workflow_dispatch:
   # Trigger the workflow on push,
   # but only for the main branch
-  push:
-    branches:
-      - main
+  # push:
+  #  branches:
+  #    - main
 
 env:
   # set this to your application's name

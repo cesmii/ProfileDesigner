@@ -53,10 +53,10 @@ jobs:
         run: dotnet restore ${{env.SOLUTION_FILE}}
         working-directory: ${{env.SOLUTION_DIRECTORY}}
       - name: Build (${{env.PROJECT_DIRECTORY}})
-        run: dotnet build --configuration Stage --no-restore
+        run: dotnet build --configuration Staging --no-restore
         working-directory: ${{env.PROJECT_DIRECTORY}}    
       - name: Publish (${{env.PROJECT_DIRECTORY}}) TO ${{ env.PUBLISH_FOLDER_RELATIVE }}
-        run: dotnet publish --configuration Stage --output ${{ env.PUBLISH_FOLDER_RELATIVE }}
+        run: dotnet publish --configuration Staging --output ${{ env.PUBLISH_FOLDER_RELATIVE }}
         working-directory: ${{env.PROJECT_DIRECTORY}}
       - name: 'Deploy to Azure WebApp'
         uses: azure/webapps-deploy@v2

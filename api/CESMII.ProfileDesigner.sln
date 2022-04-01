@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.0.31903.59
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31729.503
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CESMII.ProfileDesigner.Api", "CESMII.ProfileDesigner.Api\CESMII.ProfileDesigner.Api.csproj", "{CDD61462-A968-4984-8630-A7B17ECA155C}"
 EndProject
@@ -25,7 +25,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NodeSetDiff", "Tests\NodeSe
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CESMII.ProfileDesigner.Api.Tests", "Tests\CESMII.ProfileDesigner.Api.Tests\CESMII.ProfileDesigner.Api.Tests.csproj", "{6BEE6B16-6160-457C-83A5-EF6C834E2BC2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NodeSetDiffLibrary", "Tests\NodeSetDiffLibrary\NodeSetDiffLibrary.csproj", "{432E94E0-0790-4764-943E-58ED79BB0FD6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NodeSetDiffLibrary", "Tests\NodeSetDiffLibrary\NodeSetDiffLibrary.csproj", "{432E94E0-0790-4764-943E-58ED79BB0FD6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -86,20 +86,20 @@ Global
 		{D2202932-393F-4408-9243-21F8F0BFA662}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D2202932-393F-4408-9243-21F8F0BFA662}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D2202932-393F-4408-9243-21F8F0BFA662}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D2202932-393F-4408-9243-21F8F0BFA662}.Staging|Any CPU.ActiveCfg = Debug|Any CPU
-		{D2202932-393F-4408-9243-21F8F0BFA662}.Staging|Any CPU.Build.0 = Debug|Any CPU
+		{D2202932-393F-4408-9243-21F8F0BFA662}.Staging|Any CPU.ActiveCfg = Release|Any CPU
+		{D2202932-393F-4408-9243-21F8F0BFA662}.Staging|Any CPU.Build.0 = Release|Any CPU
 		{6BEE6B16-6160-457C-83A5-EF6C834E2BC2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{6BEE6B16-6160-457C-83A5-EF6C834E2BC2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6BEE6B16-6160-457C-83A5-EF6C834E2BC2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6BEE6B16-6160-457C-83A5-EF6C834E2BC2}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6BEE6B16-6160-457C-83A5-EF6C834E2BC2}.Staging|Any CPU.ActiveCfg = Debug|Any CPU
-		{6BEE6B16-6160-457C-83A5-EF6C834E2BC2}.Staging|Any CPU.Build.0 = Debug|Any CPU
+		{6BEE6B16-6160-457C-83A5-EF6C834E2BC2}.Staging|Any CPU.ActiveCfg = Release|Any CPU
+		{6BEE6B16-6160-457C-83A5-EF6C834E2BC2}.Staging|Any CPU.Build.0 = Release|Any CPU
 		{432E94E0-0790-4764-943E-58ED79BB0FD6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{432E94E0-0790-4764-943E-58ED79BB0FD6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{432E94E0-0790-4764-943E-58ED79BB0FD6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{432E94E0-0790-4764-943E-58ED79BB0FD6}.Release|Any CPU.Build.0 = Release|Any CPU
-		{432E94E0-0790-4764-943E-58ED79BB0FD6}.Staging|Any CPU.ActiveCfg = Debug|Any CPU
-		{432E94E0-0790-4764-943E-58ED79BB0FD6}.Staging|Any CPU.Build.0 = Debug|Any CPU
+		{432E94E0-0790-4764-943E-58ED79BB0FD6}.Staging|Any CPU.ActiveCfg = Release|Any CPU
+		{432E94E0-0790-4764-943E-58ED79BB0FD6}.Staging|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

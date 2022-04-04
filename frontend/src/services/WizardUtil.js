@@ -146,7 +146,7 @@ export const renderWizardButtonRow = (navInfo) => {
         <div className="row pb-3">
             <div className="col-12 d-flex" >
                 <a className="mb-2 auto-width btn btn-secondary d-flex align-items-center" href={navInfo.prev.href} ><i className="material-icons mr-1">{navInfo.prev.icon == null ? "arrow_left" : navInfo.prev.icon}</i>{navInfo.prev.caption}</a>
-                <Button variant="secondary" type="button" className="mb-2 ml-auto auto-width d-flex align-items-center" onClick={navInfo.next.callbackAction} >{navInfo.next.captionNext != null ? navInfo.next.captionNext : navInfo.next.caption}<i className="material-icons">{navInfo.next.icon == null ? "arrow_right" : navInfo.next.icon}</i></Button>
+                <Button variant="primary" type="button" className="mb-2 ml-auto auto-width d-flex align-items-center" onClick={navInfo.next.callbackAction} >{navInfo.next.captionNext != null ? navInfo.next.captionNext : navInfo.next.caption}<i className="material-icons">{navInfo.next.icon == null ? "arrow_right" : navInfo.next.icon}</i></Button>
             </div>
         </div>
     );

@@ -71,14 +71,15 @@
 
     .nav-pills {
         flex-wrap: nowrap;
+
+        .nav-item .nav-link.active,
+        .nav-item.show > .nav-link {
+            color: color("white");
+            background-color: color("cornflower");
+            @include globalShadow;
+        }
     }
 
-    .nav-item .nav-link.active,
-    .nav-item.show > .nav-link {
-        color: color("white");
-        background-color: color("cornflower");
-        @include globalShadow;
-    }
 
     .btn.btn-icon-solo {
         margin-bottom: 0;

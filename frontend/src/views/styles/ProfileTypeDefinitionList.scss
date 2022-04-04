@@ -79,15 +79,15 @@
 
     .badge {
         color: color("outerSpace");
-        font-weight: bold;
-        height: 24px;
-        padding: 8px 16px 20px 16px;
+        font-weight: bolder;
+        padding: 8px 16px;
         margin: 2px;
         border-radius: 25px;
 
         &.meta {
             // @include background-opacity(color("cornflower"), .2);
-            @include background-opacity(color("amber"), .4);
+            @include background-opacity(color("hlBlue"), 1);
+            border: 1px solid color('silver');
             // background-color: color("blazeOrange");
         }
 

@@ -24,6 +24,10 @@
             color: color("shark");
             background-color: color("alto");
         }
+
+        .page-link:focus {
+            box-shadow: none;
+        }
     }
 
     .pagination-dropdown {
@@ -31,17 +35,18 @@
         .dropdown-toggle:hover,
         .dropdown-toggle:active,
         .dropdown-toggle:visited,
+        .dropdown-toggle:focus,
         .btn-secondary:not(:disabled):not(.disabled):active,
         .btn-secondary:not(:disabled):not(.disabled).active,
-        .show>.btn-secondary.dropdown-toggle,
+        .show > .btn-secondary.dropdown-toggle,
         .btn-secondary:focus,
         .btn-secondary.focus {
             height: 40px;
             padding: 8px 16px;
-        
             color: color("shark");
             background-color: color("white");
             border: 1px solid color("silver");
+            box-shadow: none;
         }
     }
 }

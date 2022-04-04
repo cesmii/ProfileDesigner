@@ -381,7 +381,7 @@ function ProfileTypeDefinitionEntity() {
         e.preventDefault();
 
         //show a spinner
-        setLoadingProps({ isLoading: true, message: "" });
+        //setLoadingProps({ isLoading: true, message: "" });
 
         //perform update call
         var url = `profiletypedefinition/togglefavorite`;
@@ -778,7 +778,7 @@ function ProfileTypeDefinitionEntity() {
                                 </>
                             }
                             {(_item.id != null && _item.id > 0) &&
-                                <button className="btn btn-icon btn-nofocusborder favorite" onClick={onToggleFavorite} title={_item.isFavorite ? "Unfavorite item" : "Favorite item"} >
+                                <button className="btn btn-icon btn-nofocusborder favorite px-2 py-0" onClick={onToggleFavorite} title={_item.isFavorite ? "Unfavorite item" : "Favorite item"} >
                                     <i className="material-icons" >{_item.isFavorite ? "favorite" : "favorite_border"}</i>
                                 </button>
                             }

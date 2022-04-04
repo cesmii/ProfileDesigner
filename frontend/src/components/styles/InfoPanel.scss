@@ -2,13 +2,19 @@
 
 //this appears vertically in left rail
 .info-panel {
-
     .info-section {
         //see app.scss for background treatment
         //@include background-opacity(color("silver"), .3);
         //border-bottom: 1px solid color("silver");
         .headline-3 {
             background-color: color("subHeadingBg");
+            border-radius: 12px;
+            padding: 10px 21px;
+            display: flex;
+            align-items: center;
+
+            .btn-acordion {
+            }
         }
 
         .section-items {
@@ -20,18 +26,36 @@
             li {
                 list-style-type: none;
                 font-size: .9rem;
+                font-weight: 500;
                 display: flex;
 
                 &:hover {
                     @include background-opacity(color("silver"), .5);
-                    border-radius: 1rem;
+                    border-radius: 12px;
                     cursor: pointer;
+                }
+
+                &.linkable {
+                    cursor: pointer;
+                    text-decoration: none;
+                    color: color("textPrimary");
+
+                    &:hover {
+                        color: color("selectedBg");
+                        background: transparent !important;
+                    }
+                }
+
+                .section-item {
+                    padding: 6px;
+                    padding-left: 21px;
                 }
 
                 &.selected {
                     background-color: color("selectedBg");
                     color: color("white");
-                    border-radius: 1rem;
+                    font-weight: 500;
+                    border-radius: 12px;
 
                     &:hover {
                         @include background-opacity(color("selectedBg"), 1);
@@ -41,17 +65,22 @@
                 &.selectable {
                     display: flex;
                     align-items: center;
+
+                    .section-item {
+                        padding: 6px;
+                        padding-left: 5px;
+                    }
                 }
 
                 &.selectable:before {
                     font-size: 1rem;
-                    color: color("spunPearl");
+                    color: color("nevada");
                     //align-content: flex-end;
                     //margin-left: auto;
                     font-family: 'Material Icons';
                     content: "check_box_outline_blank";
                     -webkit-font-feature-settings: 'liga';
-                    margin-left: 7px;
+                    margin-left: 21px;
                     margin-right: 0px;
                 }
 
@@ -68,17 +97,23 @@
                     cursor: default;
                     background-color: color("selectedBg");
                     color: color("white");
-                    border-radius: 1rem;
-                    /*&::after {
-                        font-size: 1rem;
-                        font-weight: normal;
-                        padding-right: 1px;
-                        font-family: 'Material Icons';
-                        content: "check_box";
-                        -webkit-font-feature-settings: 'liga';
-                    }*/
+                    border-radius: 12px;
+
                     &:hover {
                         @include background-opacity(color("selectedBg"), 1);
+                    }
+                }
+                //adding button for accessibility
+                button {
+                    color: unset;
+                    background-color: unset;
+                    padding: 0px;
+                    font-family: inherit;
+                    font-size: inherit;
+                    text-align: left;
+
+                    &:active, &:focus {
+                        box-shadow: none;
                     }
                 }
             }
@@ -88,58 +123,45 @@
 
 //this appears horizontally across screen above marketplace list
 .selected-panel {
-    @include background-opacity(color("silver"), .1);
-
-    .global-search {
-        width: 100%;
-    }
+    @include background-opacity(color("silver"), .5);
 
     li {
         list-style-type: none;
         font-size: .9rem;
         display: inline;
         margin-right: 2px;
-        border-radius: 1rem;
-        border: 1px solid color("silver");
 
-        &:hover {
-            //@include background-opacity(color("silver"), .7);
-            @include background-opacity(color("silver"), .4);
+        span:hover {
+            @include background-opacity(color("silver"), .5);
+            border-radius: 12px;
             cursor: pointer;
         }
-
-        .not-selected {
-            @include background-opacity(color("silver"), .3);
-            border-radius: 1rem;
-            /*            &::after {
-                color: color('spunPearl');
-                font-size: 1rem;
-                font-weight: normal;
-                margin-left: 4px;
-                padding-right: 1px;
-                font-family: 'Material Icons';
-                content: "check_box_outline_blank";
-                -webkit-font-feature-settings: 'liga';
-            }*/
-        }
+        /*&:after {
+            font-size: 1rem;
+            font-weight: bold;
+            align-content: flex-end;
+            margin-left: auto;
+            font-family: 'Material Icons';
+            content: "check_box_outline_blank";
+            -webkit-font-feature-settings: 'liga';
+        }*/
 
         .selected {
-            background-color: color("hlBlue");
-            //@include background-opacity(color("silver"), .8);
-            border-radius: 1rem;
-            /*            &::after {
+            @include background-opacity(color("silver"), .8);
+            border-radius: 12px;
+
+            &::after {
                 font-size: 1rem;
                 font-weight: normal;
                 margin-left: 4px;
                 padding-right: 1px;
                 font-family: 'Material Icons';
-                content: "check";
+                content: "close";
                 -webkit-font-feature-settings: 'liga';
             }
-*/
+
             &:hover {
-                background-color: color("hlBlue");
-                //@include background-opacity(color("silver"), .7);
+                color: unset;
             }
         }
     }

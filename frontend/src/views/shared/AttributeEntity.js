@@ -191,7 +191,7 @@ function AttributeEntity(props) { //props are item, showActions
 
     //onchange data type
     const onChangeDataType = (e) => {
-        var data = onChangeDataTypeShared(e, _editItem, _editSettings, props.lookupDataTypes);
+        var data = onChangeDataTypeShared(e.value, _editItem, _editSettings, props.lookupDataTypes);
 
         //replace add settings (updated in shared method)
         setEditSettings(JSON.parse(JSON.stringify(data.settings)));

@@ -32,7 +32,6 @@ function AdminUserEntity() {
     const [_item, setItem] = useState({});
 
     const [isLoading, setIsLoading] = useState(true);
-    const [isReadOnly, setIsReadOnly] = useState(true);
     const { loadingProps, setLoadingProps } = useLoadingContext();
     const authTicket = useAuthState();
     const [_isValid, setIsValid] = useState({
@@ -89,10 +88,6 @@ function AdminUserEntity() {
             setIsLoading(false);
             setLoadingProps({ isLoading: false, message: null });
             setMode(thisMode);
-
-            // set form to readonly if we're in viewmode or is deleted (isActive = false)
-            setIsReadOnly(thisMode.toLowerCase() === "view" || !result.data.isActive);
-
         }
 
         //get a blank user object from server
@@ -126,8 +121,6 @@ function AdminUserEntity() {
             setItem(result.data);
             setIsLoading(false);
             setLoadingProps({ isLoading: false, message: null });
-            //setMode(thisMode);
-            setIsReadOnly(false);
         }
 
         //fetch our data 
@@ -212,7 +205,7 @@ function AdminUserEntity() {
         //password validation
         _isValid.password = !isAdd || (_item.password != null && _item.password.trim().length > 0);
         _isValid.confirmPassword = !isAdd || (_item.confirmPassword != null && _item.confirmPassword.trim().length > 0);
-        _isValid.matchPassword = !isAdd || _item.confirmPassword == _item.password;  
+        _isValid.matchPassword = !isAdd || _item.confirmPassword === _item.password;  
 
         setIsValid(JSON.parse(JSON.stringify(_isValid)));
         return (_isValid.userName && _isValid.firstName && _isValid.lastName

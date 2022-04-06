@@ -766,8 +766,8 @@ function ProfileTypeDefinitionEntity() {
 
         return (
             <>
-                <div className="row my-2">
-                    <div className="col-sm-9 col-md-8 mb-2" >
+                <div className="row my-1">
+                    <div className="col-sm-9 col-md-8 align-self-center" >
                         <h1 className="mb-0">
                             <SVGIcon name={iconName} size="24" fill={color.shark} className="mr-1 mr-md-2" />
                             Type Definition

@@ -110,7 +110,7 @@ function ProfileItemRow(props) { //props are item, showActions
 
         var isSelected = props.item != null && IsRowSelected(props.item) ? "selected" : "";
         var cssClass = `row py-1 align-items-center ${props.cssClass == null ? '' : props.cssClass} ${isSelected} ${props.selectMode != null ? "selectable" : ""}`;
-        var avatarCss = `col-avatar mt-1 mr-2 rounded-circle avatar-${props.currentUserId == null || props.item == null || props.currentUserId !== props.item.authorId ? "locked" : "unlocked"} elevated`;
+        var avatarCss = `col-avatar mr-2 rounded-circle avatar-${props.currentUserId == null || props.item == null || props.currentUserId !== props.item.authorId ? "locked" : "unlocked"} elevated`;
         //var colCss = `${props.actionUI == null ? "col-sm-12" : "col-sm-10"} d-flex align-items-center`;
         var caption = props.item == null ? "" : getProfileCaption(props.item);
         var profileIcon = props.item == null ?
@@ -161,14 +161,10 @@ function ProfileItemRow(props) { //props are item, showActions
                             }
                         </p>
                         {props.item.version != null &&
-                                <p className="my-0" >
-                                <small>Version: {props.item.version}</small>
-                            </p>
+                                <p className="my-0 small-size" >Version: {props.item.version}</p>
                         }
                         {props.item.publishDate != null &&
-                                <p className="my-0" >
-                                <small>Published: {formatDate(props.item.publishDate)}</small>
-                            </p>
+                                <p className="my-0 small-size" >Published: {formatDate(props.item.publishDate)}</p>
                         }
                         </div>
                     </div>

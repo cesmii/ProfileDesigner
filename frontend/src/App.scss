@@ -55,27 +55,27 @@ body {
 /// Basic site wide styles
 h1 {
     font-family: $font-family-headings;
-    font-size: 1.7rem;
+    font-size: 1.5rem;
     font-weight: 700;
-    line-height: 1.9rem;
+    line-height: 1.7rem;
 }
 
 h2 {
     font-family: $font-family-headings;
-    font-size: 1.15rem;
+    font-size: 1.05rem;
     font-weight: 700;
-    line-height: 1.25rem;
+    line-height: 1.15rem;
 }
 
 h3 {
     font-family: $font-family-headings;
-    font-size: 1.15rem;
+    font-size: 1.05rem;
     font-weight: 700;
-    line-height: 1.25rem;
+    line-height: 1.15rem;
 }
 
 p {
-    line-height: 24px;
+    line-height: 22px;
 }
 
 /// ::::::::::::::::::::::::
@@ -88,23 +88,23 @@ p {
 
 .headline-1 {
     font-family: $font-family-headings;
-    font-size: 1.7rem;
+    font-size: 1.5rem;
     font-weight: 700;
-    line-height: 1.9rem;
+    line-height: 1.7rem;
 }
 
 .headline-2 {
     font-family: $font-family-headings;
-    font-size: 1.4rem;
+    font-size: 1.2rem;
     font-weight: 700;
-    line-height: 1.5rem;
+    line-height: 1.3rem;
 }
 
 .headline-3 {
     font-family: $font-family-headings;
     font-weight: bold;
-    font-size: 16px;
-    line-height: 20px;
+    font-size: 14px;
+    line-height: 18px;
     /* identical to box height, or 140% */
     //letter-spacing: -0.014em;
 }
@@ -112,8 +112,8 @@ p {
 .headline-4 {
     font-family: $font-family-headings;
     font-weight: bold;
-    font-size: 16px;
-    line-height: 20px;
+    font-size: 14px;
+    line-height: 18px;
     /* or 133% */
     letter-spacing: -0.014em;
 }
@@ -138,25 +138,32 @@ a {
 }
 
 .attr-tab-header {
-    font-size: 20px;
+    font-size: 18px;
     font-weight: bold;
     // white-space:nowrap;
 }
 
 .body-size {
-    font-size: 1rem;
-    line-height: 1.813rem;
+    font-size: 0.9rem;
+    line-height: 1.713rem;
 }
 
 .small-size {
-    font-size: .813rem;
-    line-height: 1.923rem;
+    font-size: .8rem;
+    line-height: 1.1rem;
+    opacity: 0.9;
+    margin-bottom: 0.1rem;
 }
 
 .form-label {
-    font-size: .9rem;
-    line-height: 1.2rem;
+    font-size: .8rem;
+    line-height: 1.1rem;
     font-weight: 500; // added this for fw of labels
+}
+
+.metatag.badge {
+    font-size: .8rem;
+    font-weight: normal;
 }
 
 .clickable:hover {
@@ -203,13 +210,21 @@ a {
 
 //forms
 .form-label {
-    font-size: .813rem;
-    line-height: 1.23rem;
+    font-size: .8rem;
+    line-height: 1.2rem;
     margin-bottom: 0px;
 }
 
 .form-group {
     margin-bottom: 0.5rem;
+}
+
+.form-control {
+    font-size: .92rem;
+}
+
+button, .btn {
+    font-size: .92rem;
 }
 
 // input fields
@@ -346,7 +361,6 @@ option.selected {
 .btn-primary, .btn-secondary {
     color: white;
     font-weight: 700;
-    font-size: 16px;
     line-height: 20px;
     min-width: 128px;
     border-radius: $button-radius;

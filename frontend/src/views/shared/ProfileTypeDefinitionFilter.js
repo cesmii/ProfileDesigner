@@ -213,7 +213,7 @@ function ProfileTypeDefinitionFilter(props) {
         return (
             <>
                 <Form.Label htmlFor="sortBy" className="d-inline mx-1" >Sort by:</Form.Label>
-                <Form.Control id="sortByEnum" as="select" className="minimal pr-5" value={selValue == null ? "3" : selValue}
+                <Form.Control id="sortByEnum" as="select" className="input-rounded minimal pr-5" value={selValue == null ? "3" : selValue}
                     onChange={onSortBy} >
                     {options}
                 </Form.Control>

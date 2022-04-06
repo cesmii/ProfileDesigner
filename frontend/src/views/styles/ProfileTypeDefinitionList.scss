@@ -2,7 +2,7 @@
 @import "../../components/styles/constants";
 
 .profile-list-item {
-    min-height: 60px;
+    min-height: 50px;
     background-color: color("almost-white");
     border: 1px solid color("almost-white");
     border-bottom: 1px solid color("alto");
@@ -73,13 +73,9 @@
         }
     }
 
-    small {
-        opacity: 0.75;
-    }
-
     .badge {
         color: color("outerSpace");
-        font-weight: bolder;
+        font-weight: 600;
         padding: 8px 16px;
         margin: 2px;
         border-radius: 25px;

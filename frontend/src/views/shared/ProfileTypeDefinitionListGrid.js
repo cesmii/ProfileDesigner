@@ -328,7 +328,7 @@ function ProfileTypeDefinitionListGrid(props) {
         const mainBody = _dataRows.profileFilters.map((item) => {
             return (
                 <ProfileItemRow key={item.id} mode="simple" item={item} currentUserId={authTicket.user.id}
-                    cssClass={`profile-list-item shaded ${props.rowCssClass ?? ''}`}  />)
+                    cssClass={`profile-list-item shaded rounded ${props.rowCssClass ?? ''}`}  />)
             });
 
         return (

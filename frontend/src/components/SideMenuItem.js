@@ -54,7 +54,7 @@ function SideMenuItem(props) { //props are subMenuItems, bgColor, iconName, navU
                 <Fab color={props.bgColor} bgColor={props.bgColor} opacity={opacity} iconName={props.iconName} size='40px' />
                 <div className="d-none d-md-block">
                     {props.caption}<br />
-                    <small>{props.subText}</small>
+                    <p className="small-size">{props.subText}</p>
                 </div>
             </Link>
             {/*some side menu items may have stuff, others may not*/}

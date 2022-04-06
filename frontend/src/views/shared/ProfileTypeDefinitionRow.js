@@ -138,15 +138,11 @@ function ProfileTypeDefinitionRow(props) { //props are item, showActions
                             }
                         </p>
                         {props.item.profile != null &&
-                            <p className="mb-1" >
-                                <small>
-                                    {getProfileCaption(props.item.profile)}
-                                </small>
+                            <p className="mb-1 small-size" >{getProfileCaption(props.item.profile)}
                             </p>
                         }
                         {props.item.description != null &&
-                            <div className="" >
-                                <small>{props.item.description}</small>
+                            <div className="small-size" >{props.item.description}
                             </div>
                         }
                     </div>
@@ -184,15 +180,12 @@ function ProfileTypeDefinitionRow(props) { //props are item, showActions
                             }
                         </p>
                         {props.item.profile != null &&
-                            <p className="mb-1 ml-3" >
-                                <small>
-                                    {getProfileCaption(props.item.profile)}
-                                </small>
+                            <p className="mb-1 ml-3 small-size" >
+                                {getProfileCaption(props.item.profile)}
                             </p>
                         }
                         {props.item.description != null &&
-                            <div className="ml-3 mb-1" >
-                                <small>{props.item.description}</small>
+                            <div className="ml-3 mb-1 small-size" >{props.item.description}
                             </div>
                         }
                         {(props.item.metaTags != null && props.item.metaTags.length > 0) &&

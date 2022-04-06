@@ -46,6 +46,7 @@ $rightPanelWidth: 350px;
 $globalTransition: all 200ms ease-in-out;
 $tile-radius: 28px;
 $button-radius: 38px;
+$inputControl-radius: 12px;
 
 @mixin globalShadow {
     -webkit-box-shadow: 10px 10px 20px 0px rgba(0,0,0,0.15);

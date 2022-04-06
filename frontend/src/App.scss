@@ -258,10 +258,9 @@ a {
 .txt-search-ui-group {
     box-sizing: border-box;
     box-shadow: 0px 4px 16px rgba( color('selectedBg'), 0.15);
-    border-radius: 12px;
 
     input.form-control {
-        border-radius: 12px;
+        border-radius: $inputControl-radius;
         border-color: #D8DFEA;
         padding: 12px 16px;
         line-height: 16px;
@@ -278,7 +277,7 @@ a {
     }
 
     .input-group-append button {
-        border-radius: 12px;
+        border-radius: $inputControl-radius;
         border-top-left-radius: 0px;
         border-bottom-left-radius: 0px;
         border-color: #D8DFEA;
@@ -543,6 +542,18 @@ option.selected {
     min-width: 120px;
     max-width: 400px;
 
+    input.form-control {
+        border-radius: $inputControl-radius;
+        border-top-right-radius: 0px;
+        border-bottom-right-radius: 0px;
+    }
+
+    .input-group-append button {
+        border-radius: $inputControl-radius;
+        border-top-left-radius: 0px;
+        border-bottom-left-radius: 0px;
+    }
+
     @media (min-width: 992px) {
         width: 220px;
     }
@@ -552,8 +563,8 @@ option.selected {
     }
 }
 
-.quick-search {
-    //max-width: 320px;
+.input-rounded {
+    border-radius: $inputControl-radius;
 }
 
 // Select box

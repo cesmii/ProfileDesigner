@@ -345,7 +345,7 @@ option.selected {
 // button variants
 .btn {
     font-family: $font-family-headings;
-    padding: 10px 44px;
+    padding: .6rem 44px;
     line-height: 20px;
 
     .show > &.dropdown-toggle {
@@ -506,6 +506,15 @@ option.selected {
     box-shadow: none;
 }
 
+.dismiss-btn {
+    float: right;
+    margin-top: 0px;
+}
+
+.alert .dismiss-btn .btn:hover {
+    color: inherit;
+    @include background-opacity(color("white"), .3);
+}
 
 .btn.btn-inline-add:hover,
 .btn.btn-icon-solo:hover,
@@ -679,17 +688,8 @@ select.minimal:focus {
 .alert-info-custom {
     background-color: color("hlBlue");
 }
+
 /// IMPORT PARTIALS
 @import "./components/styles/HexOpacityValues";
 /// IMPORT GLOBAL SCSS FILES
-@import "./components/styles/Fab.scss";
-@import "./components/styles/SideMenu.scss";
-@import "./components/styles/SideMenuItem.scss";
-@import "./components/styles/MainContent.scss";
-@import "./components/styles/RightPanel.scss";
-@import "./components/styles/LeftContent.scss";
-@import "./components/styles/FlexGridShared.scss";
 @import "./components/styles/ActionMenu.scss";
-@import './components/styles/Loading.scss';
-/// VIEW SCSS FILES
-@import "./views/styles/Home.scss";

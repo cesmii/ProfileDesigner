@@ -6,7 +6,6 @@ import { generateLogMessageString, concatenateField } from '../../utils/UtilityS
 import { AppSettings } from '../../utils/appsettings';
 import { renderTypeIcon } from './ProfileRenderHelpers';
 import { SVGIcon } from '../../components/SVGIcon'
-import color from '../../components/Constants'
 
 const CLASS_NAME = "ProfilePredictiveSearch";
 

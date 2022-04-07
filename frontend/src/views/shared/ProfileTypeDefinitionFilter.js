@@ -4,7 +4,6 @@ import { useLoadingContext } from '../../components/contexts/LoadingContext'
 import { generateLogMessageString } from '../../utils/UtilityService';
 import { Button, Form, FormControl, InputGroup } from 'react-bootstrap';
 import { SVGIcon } from '../../components/SVGIcon';
-import color from '../../components/Constants';
 
 import '../../components/styles/InfoPanel.scss';
 import { clearSearchCriteria, toggleSearchFilterSelected } from '../../services/ProfileService';

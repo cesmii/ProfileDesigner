@@ -6,7 +6,6 @@ import AttributeEntity from './AttributeEntity'
 import { generateLogMessageString } from '../../utils/UtilityService'
 
 import { SVGIcon } from '../../components/SVGIcon'
-import color from '../../components/Constants'
 import '../../components/styles/RightPanel.scss';
  
 const CLASS_NAME = "AttributeSlideOut";

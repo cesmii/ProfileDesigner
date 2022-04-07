@@ -1,5 +1,6 @@
 import { generateLogMessageString } from "../utils/UtilityService";
 import { useLoadingContext } from "./contexts/LoadingContext";
+import './styles/Loading.scss';
 
 const CLASS_NAME = "LoadingOverlay";
 

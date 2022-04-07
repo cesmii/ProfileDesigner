@@ -1,5 +1,6 @@
 import React from 'react'
 import { SVGIcon } from './SVGIcon'
+import './styles/Fab.scss';
 
 class Fab extends React.Component {
 
@@ -21,7 +22,7 @@ class Fab extends React.Component {
 
         return (
             <div className={`fab ${this.props.css != null ? this.props.css : ""}`} style={fabStyle}>
-                <SVGIcon name={iconName} size="20" fill={iconColor} />
+                <SVGIcon name={iconName} fill={iconColor} />
                 {/* <MaterialIcon icon={iconName} /> */}
             </div>
         );

@@ -11,7 +11,6 @@ import { generateLogMessageString } from '../utils/UtilityService'
 import { useLoadingContext } from "../components/contexts/LoadingContext";
 import { useAuthDispatch, useAuthState } from "../components/authentication/AuthContext";
 import { login } from "../components/authentication/AuthActions";
-import './styles/Login.scss';
 
 const CLASS_NAME = "Login";
 
@@ -155,8 +154,8 @@ function Login() {
             <Helmet>
                 <title>{AppSettings.Titles.Main + " | " + caption}</title>
             </Helmet>
-            <div id="--cesmii-main-content" className="login-wrapper">
-                <div id="--cesmii-left-content" className="d-flex align-content-center justify-content-center">
+            <div className="row">
+                <div className=" col-sm-3 m-auto">
                     <Card body className="elevated mt-5">
                         {!_error.success &&
                             <div className="justify-content-center alert alert-danger">
@@ -187,7 +186,7 @@ function Login() {
                                 </Form.Group>
                             </div>
                             <div className="d-flex">
-                                <Button variant="primary" type="submit" onClick={onLoginClick} disabled={loadingProps.isLoading ? "disabled" : ""} >
+                                <Button variant="primary" className="mx-auto mt-2" type="submit" onClick={onLoginClick} disabled={loadingProps.isLoading ? "disabled" : ""} >
                                     Login
                                 </Button>
                             </div>

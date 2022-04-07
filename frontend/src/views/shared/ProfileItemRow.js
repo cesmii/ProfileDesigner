@@ -3,7 +3,6 @@ import { Dropdown } from 'react-bootstrap'
 
 import { useLoadingContext } from "../../components/contexts/LoadingContext";
 import { SVGIcon, SVGDownloadIcon } from '../../components/SVGIcon'
-import color from '../../components/Constants'
 import { renderProfileIcon } from './ProfileRenderHelpers';
 import { cleanFileName, formatDate, generateLogMessageString } from '../../utils/UtilityService';
 import { getProfileCaption } from '../../services/ProfileService'

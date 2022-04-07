@@ -4,7 +4,6 @@ import { Button } from 'react-bootstrap'
 
 import { generateLogMessageString } from '../../utils/UtilityService';
 import { SVGIcon } from '../../components/SVGIcon'
-import color from '../../components/Constants'
 import { LookupData } from '../../utils/appsettings';
 import '../styles/AdvancedSearch.scss';
 
@@ -152,7 +151,7 @@ function AdvancedSearchRow(props) {
                 {isValidAll() &&
                     <Button variant="inline-add" aria-label="Add criterion" onClick={onAddSearchRow} disabled={!isValidAll() ? 'disabled' : ''} >
                         <span>
-                            <SVGIcon name="add" size="24" fill={color.shark} />
+                            <SVGIcon name="add" />
                         </span>
                     </Button>
                 }
@@ -161,7 +160,7 @@ function AdvancedSearchRow(props) {
                 {props.i > 0 &&
                     <Button variant="inline-add" aria-label="Delete criterion" onClick={() => onDeleteSearchRow(props.item.id)}>
                         <span>
-                            <SVGIcon name="trash" size="24" fill={color.shark} />
+                            <SVGIcon name="trash" />
                         </span>
                     </Button>
                 }

@@ -1,3 +1,6 @@
+/// Shared Files & Constants
+@import "./constants";
+
 .pagination-wrapper {
     align-items: flex-start;
     justify-content: flex-end;
@@ -9,8 +12,8 @@
         li,
         a.page-link,
         .page-item.active .page-link {
-            height: 40px;
-            min-width: 42px;
+            height: 36px;
+            min-width: 38px;
             margin-left: -1px;
             text-align: center;
             border-color: color("silver");
@@ -41,7 +44,7 @@
         .show > .btn-secondary.dropdown-toggle,
         .btn-secondary:focus,
         .btn-secondary.focus {
-            height: 40px;
+            height: 36px;
             padding: 8px 16px;
             color: color("shark");
             background-color: color("white");

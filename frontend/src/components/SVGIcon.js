@@ -1,5 +1,8 @@
 import React from 'react';
+import color from './Constants'
 import './styles/SVGicon.scss';
+
+const _defaultIconSize = 20;
 
 const icons = {
     "folder-profile": "M10,4 L12,6 L20,6 C21.1,6 22,6.9 22,8 L22,18 C22,19.1 21.1,20 20,20 L4,20 C2.9,20 2,19.1 2,18 L2.01,6 C2.01,4.9 2.9,4 4,4 L10,4 Z M19,11.0337361 L14,11.0337361 L14,18 L16.125,18 L17.875,17 L19,17 L19,11.0337361 Z",
@@ -43,9 +46,10 @@ export const SVGIcon = (props) => {
     return (
         <svg
             className={props.className}
-            width={props.size}
+            width={props.size == null ? _defaultIconSize : props.size}
+            height={props.size == null ? _defaultIconSize : props.size}
             viewBox='0 0 24 24'
-            fill={props.fill}
+            fill={props.fill == null ? color.shark : props.fill}
             stroke={props.stroke == null ? "none" : props.stroke}
             strokeWidth={props.strokeWidth == null ? "none" : props.strokeWidth} >
             <path d={icons[props.name]}></path>
@@ -74,7 +78,7 @@ export const LoadingIcon = (props) => {
 export const TreeIndentIcon = (props) => {
     return (
         <svg
-            width={props.size == null ? 24 : props.size}
+            width={props.size == null ? _defaultIconSize : props.size}
             viewBox='0 0 24 24'
             fill={props.fill == null ? "none" : props.fill}
             stroke={props.stroke == null ? "currentColor" : props.stroke}
@@ -94,8 +98,8 @@ const featherIcons = {
 export const SVGFeatherIcon = (props) => {
     return (
     <svg
-        width={props.size == null ? 24 : props.size}
-        height={props.size == null ? 24 : props.size}
+        width={props.size == null ? _defaultIconSize : props.size}
+        height={props.size == null ? _defaultIconSize : props.size}
         viewBox='0 0 24 24'
         fill={props.fill == null ? "none" : props.fill}
         stroke={props.stroke == null ? "currentColor" : props.stroke}
@@ -112,8 +116,8 @@ export const SVGFeatherIcon = (props) => {
 export const SVGCheckIcon = (props) => {
     return (
         <svg
-            width={props.size == null ? 24 : props.size}
-            height={props.size == null ? 24 : props.size}
+            width={props.size == null ? _defaultIconSize : props.size}
+            height={props.size == null ? _defaultIconSize : props.size}
             viewBox='0 0 24 24'
             fill="none"
             stroke={props.fill == null ? "currentColor" : props.fill}
@@ -129,8 +133,8 @@ export const SVGCheckIcon = (props) => {
 export const SVGDownloadIcon = (props) => {
     return (
         <svg
-            width={props.size == null ? 24 : props.size}
-            height={props.size == null ? 24 : props.size}
+            width={props.size == null ? _defaultIconSize : props.size}
+            height={props.size == null ? _defaultIconSize : props.size}
             viewBox='0 0 24 24'
             fill="none"
             stroke={props.fill == null ? "currentColor" : props.fill}

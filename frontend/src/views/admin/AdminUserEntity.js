@@ -364,7 +364,7 @@ function AdminUserEntity() {
         return (
             <Dropdown className="action-menu icon-dropdown ml-2" onClick={(e) => e.stopPropagation()} >
                 <Dropdown.Toggle drop="left">
-                    <SVGIcon name="more-vert" size="24" fill={color.shark} />
+                    <SVGIcon name="more-vert" />
                 </Dropdown.Toggle>
                 <Dropdown.Menu>
                     <Dropdown.Item href={`/admin/user/new`}>Add User</Dropdown.Item>

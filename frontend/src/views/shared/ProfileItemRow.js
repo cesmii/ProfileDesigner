@@ -70,19 +70,19 @@ function ProfileItemRow(props) { //props are item, showActions
         //if standard ua nodeset, author is null
         return (
             <div className="col-sm-4 ml-auto d-inline-flex justify-content-end align-items-center" >
-                <span className="my-0 mr-2"><a href={`/types/library/p=${props.item.id}`} ><span className="mr-1" alt="view"><SVGIcon name="visibility" size="24" fill={color.shark} /></span>View Type Definitions</a></span>
+                <span className="my-0 mr-2"><a href={`/types/library/p=${props.item.id}`} ><span className="mr-1" alt="view"><SVGIcon name="visibility" /></span>View Type Definitions</a></span>
                 <Dropdown className="action-menu icon-dropdown" onClick={(e) => e.stopPropagation()} >
                     <Dropdown.Toggle drop="left" title="Actions" >
-                        <SVGIcon name="more-vert" size="24" fill={color.shark} />
+                        <SVGIcon name="more-vert" />
                     </Dropdown.Toggle>
                     <Dropdown.Menu>
                         {/*{(props.currentUserId != null && props.currentUserId === item.authorId) &&*/}
-                        {/*    <Dropdown.Item key="moreVert2" href={getTypeDefinitionNewUrl()} ><span className="mr-3" alt="extend"><SVGIcon name="extend" size="24" fill={color.shark} /></span>New Type Definition</Dropdown.Item>*/}
+                        {/*    <Dropdown.Item key="moreVert2" href={getTypeDefinitionNewUrl()} ><span className="mr-3" alt="extend"><SVGIcon name="extend" /></span>New Type Definition</Dropdown.Item>*/}
                         {/*}*/}
                         {(props.currentUserId != null && props.currentUserId === item.authorId) &&
-                            <Dropdown.Item key="moreVert3" onClick={onDeleteItem} ><span className="mr-3" alt="delete"><SVGIcon name="delete" size="24" fill={color.shark} /></span>Delete Profile</Dropdown.Item>
+                            <Dropdown.Item key="moreVert3" onClick={onDeleteItem} ><span className="mr-3" alt="delete"><SVGIcon name="delete" /></span>Delete Profile</Dropdown.Item>
                         }
-                        <Dropdown.Item key="moreVert4" onClick={downloadItem} ><span className="mr-3" alt="arrow-drop-down"><SVGDownloadIcon name="download" size="24" fill={color.shark} /></span>Download Profile</Dropdown.Item>
+                        <Dropdown.Item key="moreVert4" onClick={downloadItem} ><span className="mr-3" alt="arrow-drop-down"><SVGDownloadIcon name="download" /></span>Download Profile</Dropdown.Item>
                     </Dropdown.Menu>
                 </Dropdown>
             </div>
@@ -114,8 +114,8 @@ function ProfileItemRow(props) { //props are item, showActions
         //var colCss = `${props.actionUI == null ? "col-sm-12" : "col-sm-10"} d-flex align-items-center`;
         var caption = props.item == null ? "" : getProfileCaption(props.item);
         var profileIcon = props.item == null ?
-            renderProfileIcon({ authorId: null }, props.currentUserId, 24, false) :
-            renderProfileIcon(props.item, props.currentUserId, 24, false);
+            renderProfileIcon({ authorId: null }, props.currentUserId, 20, false) :
+            renderProfileIcon(props.item, props.currentUserId, 20, false);
 
         return (
             <div className={cssClass} onClick={onRowSelect} >

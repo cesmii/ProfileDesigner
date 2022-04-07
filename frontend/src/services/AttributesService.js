@@ -313,7 +313,7 @@ export const renderAttributeIcon = (item) => {
 
     return (
         <span className="mr-2">
-            <SVGIcon name={iconName} size="24" fill={iconColor} />
+            <SVGIcon name={iconName} size="20" fill={iconColor} />
         </span>
     );
 }

@@ -3,7 +3,6 @@ import { Dropdown } from 'react-bootstrap'
 
 import { useLoadingContext } from '../../components/contexts/LoadingContext'
 import { SVGIcon, SVGDownloadIcon } from '../../components/SVGIcon'
-import color from '../../components/Constants'
 import { renderTypeIcon } from './ProfileRenderHelpers';
 import { cleanFileName, generateLogMessageString } from '../../utils/UtilityService';
 import { getProfileCaption } from '../../services/ProfileService'
@@ -66,17 +65,17 @@ function ProfileTypeDefinitionRow(props) { //props are item, showActions
 
         return (
             <>
-                <a href={`/type/extend/${props.item.id}/`} ><span alt="extend"><SVGIcon name="extend" size="24" fill={color.shark} /></span>Extend</a>
+                <a href={`/type/extend/${props.item.id}/`} ><span alt="extend"><SVGIcon name="extend" /></span>Extend</a>
 
                 <Dropdown className="action-menu icon-dropdown ml-2" onClick={(e) => e.stopPropagation()} >
                     <Dropdown.Toggle drop="left" title="Actions" >
-                        <SVGIcon name="more-vert" size="24" fill={color.shark} />
+                        <SVGIcon name="more-vert" />
                     </Dropdown.Toggle>
                     <Dropdown.Menu>
                         {(!item.isReadOnly && props.currentUserId != null && props.currentUserId === item.authorId) &&
-                            <Dropdown.Item key="moreVert3" onClick={onDeleteItem} ><span className="mr-3" alt="delete"><SVGIcon name="delete" size="24" fill={color.shark} /></span>Delete Type Definition</Dropdown.Item>
+                            <Dropdown.Item key="moreVert3" onClick={onDeleteItem} ><span className="mr-3" alt="delete"><SVGIcon name="delete" /></span>Delete Type Definition</Dropdown.Item>
                         }
-                        <Dropdown.Item key="moreVert5" onClick={downloadProfile} ><span className="mr-3" alt="arrow-drop-down"><SVGDownloadIcon name="downloadNodeset" size="24" fill={color.shark} /></span>Download Profile '{getProfileCaption(props.item.profile)}'</Dropdown.Item>
+                        <Dropdown.Item key="moreVert5" onClick={downloadProfile} ><span className="mr-3" alt="arrow-drop-down"><SVGDownloadIcon name="downloadNodeset" /></span>Download Profile '{getProfileCaption(props.item.profile)}'</Dropdown.Item>
                     </Dropdown.Menu>
                 </Dropdown>
             </>
@@ -128,8 +127,8 @@ function ProfileTypeDefinitionRow(props) { //props are item, showActions
                     {props.selectMode != null &&
                         renderSelectColumn(props.item)
                     }
-                    <div className={avatarCss} >{renderTypeIcon(props.item, props.currentUserId, 24, false)}</div>
-                    <div className="col-sm-6" >
+                    <div className={avatarCss} >{renderTypeIcon(props.item, props.currentUserId, 20, false)}</div>
+                    <div className="col-sm-8" >
                         <p className="mb-1" >
                             {props.selectMode != null ?
                                 props.item.name
@@ -146,7 +145,7 @@ function ProfileTypeDefinitionRow(props) { //props are item, showActions
                             </div>
                         }
                     </div>
-                    <div className="col-sm-6 d-none d-lg-inline-flex flex-wrap metatags-col align-content-center" >
+                    <div className="col-sm-4 d-none d-lg-inline-flex flex-wrap metatags-col align-content-center" >
                         {renderMetaTagItem(props.item)}
                     </div>
                 </div>
@@ -172,7 +171,7 @@ function ProfileTypeDefinitionRow(props) { //props are item, showActions
                             renderSelectFloat(props.item)
                         }
                         <p className="mb-1 d-flex align-items-center" >
-                            <span className={avatarCss} >{renderTypeIcon(props.item, props.currentUserId, 24, false)}</span>
+                            <span className={avatarCss} >{renderTypeIcon(props.item, props.currentUserId, 20, false)}</span>
                             {props.selectMode != null ?
                                 props.item.name
                                 :

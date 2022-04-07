@@ -7,7 +7,6 @@ import InputGroup from 'react-bootstrap/InputGroup'
 import Button from 'react-bootstrap/Button'
 
 import { SVGIcon } from './SVGIcon'
-import color from '../components/Constants'
 import ProfilePredictiveSearch from '../views/shared/ProfilePredictiveSearch'
 
 //import Fab from './Fab'
@@ -87,7 +86,7 @@ function HeaderSearch(props) { //(caption, iconName, showSearch, searchValue, on
                             <InputGroup.Append>
                                 {props.searchMode == null || props.searchMode === "standard" ? (
                                     <Button variant="search" className="p-0 pl-2 pr-2 border-left-0" onClick={onSearchClick} type="submit" title="Run Search">
-                                        <SVGIcon name="search" size="24" fill={color.shark} />
+                                        <SVGIcon name="search" />
                                     </Button>
                                 ) : ""}
                                 {props.searchMode === "predictive" ? (

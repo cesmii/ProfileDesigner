@@ -9,11 +9,11 @@
     //transition: all 200ms ease-in-out;
 
     .col-avatar {
-        min-width: 40px;
-        width: 40px;
-        max-width: 40px;
-        height: 40px;
-        font-size: 36px;
+        min-width: 36px;
+        width: 36px;
+        max-width: 36px;
+        height: 36px;
+        font-size: 34px;
         font-weight: 200;
         display: flex;
         align-items: center;
@@ -59,7 +59,7 @@
     }
 
     &.selectable {
-        cursor:pointer;
+        cursor: pointer;
     }
 
     .item-text-block {

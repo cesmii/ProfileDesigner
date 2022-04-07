@@ -11,6 +11,7 @@ import { generateLogMessageString } from '../utils/UtilityService'
 import { useLoadingContext } from "../components/contexts/LoadingContext";
 import { useAuthDispatch, useAuthState } from "../components/authentication/AuthContext";
 import { login } from "../components/authentication/AuthActions";
+import './styles/Login.scss';
 
 const CLASS_NAME = "Login";
 

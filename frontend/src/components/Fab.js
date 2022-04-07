@@ -15,13 +15,13 @@ class Fab extends React.Component {
             justifyContent: "center",
             color: iconColor,
             backgroundColor: bgColor,
-            width: size,
-            height: size
+            width: size == null ? 36 : size,
+            height: size == null ? 36 : size
         };
 
         return (
             <div className={`fab ${this.props.css != null ? this.props.css : ""}`} style={fabStyle}>
-                <SVGIcon name={iconName} size="24" fill={iconColor} />
+                <SVGIcon name={iconName} size="20" fill={iconColor} />
                 {/* <MaterialIcon icon={iconName} /> */}
             </div>
         );

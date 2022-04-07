@@ -789,12 +789,12 @@ function AttributeEntity(props) { //props are item, showActions
     //grid row
     return (
         <>
-            <div className="row mb-3" >
+            <div className="row mb-2" >
                 <div className="col-sm-12" >
                     {renderName()}
                 </div>
             </div>
-            <div className="row mb-3" >
+            <div className="row mb-2" >
                 <div className="col-sm-12 col-md-6" >
                     {renderAttributeType()}
                 </div>
@@ -814,28 +814,28 @@ function AttributeEntity(props) { //props are item, showActions
                 }
             </div>
             {_editSettings.useEngUnit &&
-                <div className="row mb-3" >
+                <div className="row mb-2" >
                     <div className="col-sm-6" >
                         {renderEngUnit()}
                     </div>
                 </div>
             }
-            <div className="row mb-3" >
+            <div className="row mb-2" >
                 <div className="col-sm-12" >
                     {renderBrowseName()}
                 </div>
             </div>
-            <div className="row mb-3" >
+            <div className="row mb-2" >
                 <div className="col-sm-12" >
                     {renderSymbolicName()}
                 </div>
             </div>
-            <div className="row mb-3" >
+            <div className="row mb-2" >
                 <div className="col-sm-12" >
                     {renderDescription()}
                 </div>
             </div>
-            <div className="row mb-3" >
+            <div className="row mb-2" >
                 <div className="col-sm-6" >
                     {renderIsRequired()}
                 </div>
@@ -844,7 +844,7 @@ function AttributeEntity(props) { //props are item, showActions
                 </div>
             </div>
             {(_editItem.modelingRule != null && _editItem.modelingRule !== '') &&
-                <div className="row mb-3" >
+                <div className="row mb-2" >
                     <div className="col-sm-6" >
                         {rendermodelingRule()}
                     </div>
@@ -853,7 +853,7 @@ function AttributeEntity(props) { //props are item, showActions
                 </div>
             }
             {_editSettings.useMinMax &&
-                <div className="row mb-3" >
+                <div className="row mb-2" >
                     <div className="col-sm-6" >
                         {renderInstrumentMin()}
                     </div>
@@ -863,7 +863,7 @@ function AttributeEntity(props) { //props are item, showActions
                 </div>
             }
             {_editSettings.useMinMax &&
-                <div className="row mb-3" >
+                <div className="row mb-2" >
                     <div className="col-sm-6" >
                         {renderMin()}
                     </div>

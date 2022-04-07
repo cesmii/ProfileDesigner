@@ -34,7 +34,7 @@ function SideMenuItem(props) { //props are subMenuItems, bgColor, iconName, navU
                 <Dropdown.Item key={i} href={link.url}>
                     {link.iconName == null ? "" : 
                         <span className="mr-2">
-                            <SVGIcon name={link.iconName} size="24" fill={color.shark} />
+                            <SVGIcon name={link.iconName} />
                         </span>
                     }
                     {link.caption}
@@ -51,7 +51,7 @@ function SideMenuItem(props) { //props are subMenuItems, bgColor, iconName, navU
     return (
         <li className={cssClass} style={(history.location.pathname === props.navUrl) ? currentStyle : defaultStyle} >
             <Link className="sidemenu-item-link" to={props.navUrl} style={{ color: 'inherit', textDecoration: 'inherit' }}>
-                <Fab color={props.bgColor} bgColor={props.bgColor} opacity={opacity} iconName={props.iconName} size='40px' />
+                <Fab color={props.bgColor} bgColor={props.bgColor} opacity={opacity} iconName={props.iconName} />
                 <div className="d-none d-md-block">
                     {props.caption}<br />
                     <p className="small-size">{props.subText}</p>
@@ -64,7 +64,7 @@ function SideMenuItem(props) { //props are subMenuItems, bgColor, iconName, navU
                     <Dropdown className="action-menu icon-dropdown ml-auto" onClick={(e) => e.stopPropagation()} >
                     <Dropdown.Toggle drop="left">
                         {/* <MaterialIcon icon="more_vert" /> */}
-                        <SVGIcon name="more-vert" size="24" fill={color.shark} />
+                        <SVGIcon name="more-vert" />
                     </Dropdown.Toggle>
                     <Dropdown.Menu>
                         {renderDropdownItems()}

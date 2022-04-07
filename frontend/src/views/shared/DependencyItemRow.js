@@ -24,7 +24,7 @@ function DependencyItemRow(props) { //props are item, showActions
         var iconName = getTypeDefIconName(props.item);
         var iconColor = (props.currentUserId == null || props.currentUserId !== props.item.author?.id) ? color.nevada : color.cornflower;
 
-        return (<span className="mr-2" ><SVGIcon name={iconName} size="24" fill={iconColor} alt={iconName} /></span>)
+        return (<span className="mr-2" ><SVGIcon name={iconName} fill={iconColor} alt={iconName} /></span>)
     }
 
     //build the row

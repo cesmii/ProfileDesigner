@@ -75,7 +75,8 @@ h3 {
 }
 
 p {
-    line-height: 22px;
+    line-height: 1.3rem;
+    margin-bottom: .8rem;
 }
 
 /// ::::::::::::::::::::::::
@@ -193,6 +194,14 @@ a {
     &:hover {
         color: color("forestGreen");
         opacity: 0.8;
+    }
+}
+
+.material-icons {
+    font-size: 20px !important;
+
+    &.size24 {
+        font-size: 24px !important;
     }
 }
 
@@ -406,22 +415,22 @@ option.selected {
     align-content: center;
     align-items: center;
     justify-content: center;
-    max-height: 38px !important;
-    height: 38px !important;
-    width: 38px !important;
+    max-height: 36px !important;
+    height: 36px !important;
+    width: 36px !important;
     padding: 0;
-    font-size: 24px !important;
+    font-size: 20px !important;
     background-color: transparent;
     color: color("shark");
 
     &.small {
-        height: 24px !important;
-        width: 24px !important;
+        height: 20px !important;
+        width: 20px !important;
     }
 }
 
 .btn-icon-outline {
-    font-size: 24px;
+    font-size: 20px;
     background-color: color("white");
     color: color("shark");
     border: 1px solid #ced4da;
@@ -473,8 +482,8 @@ option.selected {
     color: color("shark");
     border: 1px solid #ced4da;
     border-radius: 0.25rem;
-    max-width: 48px;
-    max-height: 48px;
+    max-width: 44px;
+    max-height: 44px;
     padding: 6px;
 }
 
@@ -680,11 +689,7 @@ select.minimal:focus {
 @import "./components/styles/RightPanel.scss";
 @import "./components/styles/LeftContent.scss";
 @import "./components/styles/FlexGridShared.scss";
-@import "./components/styles/GridPager.scss";
 @import "./components/styles/ActionMenu.scss";
 @import './components/styles/Loading.scss';
 /// VIEW SCSS FILES
-@import "./views/styles/ProfileTypeDefinitionList.scss";
-@import "./views/styles/ProfileTypeDefinitionEntity.scss";
-@import "./views/styles/LoginScreen.scss";
 @import "./views/styles/Home.scss";

@@ -7,7 +7,7 @@ function Footer() {
         <div id="--cesmii-global-footer" className="row m-0 py-4">
             <div className="col-sm-12">
                 <p className="text-center mb-0">
-                    Copyright 2021, CESMII
+                    Copyright 2022, CESMII
                 </p>
             </div>
 

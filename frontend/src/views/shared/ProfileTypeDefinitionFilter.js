@@ -149,7 +149,7 @@ function ProfileTypeDefinitionFilter(props) {
                         />
                         <InputGroup.Append>
                             <Button variant="search" className="p-0 pl-2 pr-2 border-left-0" onClick={onSearchClick} type="submit" title="Run Search." >
-                                <SVGIcon name="search" size="24" fill={color.shark} />
+                                <SVGIcon name="search" />
                             </Button>
                         </InputGroup.Append>
                     </InputGroup>

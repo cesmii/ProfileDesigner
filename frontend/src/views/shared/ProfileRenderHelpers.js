@@ -11,11 +11,11 @@ import { getTypeDefEntityLink } from '../../services/ProfileService';
 //-------------------------------------------------------------------
 // Region: Common Profile Render helpers
 //-------------------------------------------------------------------
-export const renderTypeIcon = (item, currentUserId, size = 24, useMarginRight = true) => {
+export const renderTypeIcon = (item, currentUserId, size = 20, useMarginRight = true) => {
     if (item == null || item.type == null) return;
 
     var iconName = getTypeDefIconName(item);
-    var iconColor = (item.isReadOnly || item.authorId == null || currentUserId !== item.author.id) ? color.nevada : color.cornflower;
+    var iconColor = (item.isReadOnly || item.authorId == null || currentUserId !== item.author.id) ? color.shark : color.cornflower;
 
     var svg = (<SVGIcon name={iconName} size={size} fill={iconColor} alt={iconName} />);
 
@@ -33,7 +33,7 @@ export const renderLinkedName = (item, cssClass = null ) => {
 //-------------------------------------------------------------------
 // Region: Common Nodeset Render helpers
 //-------------------------------------------------------------------
-export const renderProfileIcon = (item, currentUserId, size = 24, useMarginRight = true) => {
+export const renderProfileIcon = (item, currentUserId, size = 20, useMarginRight = true) => {
     if (item == null) return;
 
     var iconName = (currentUserId == null || item.authorId == null || currentUserId !== item.authorId) ? 'folder-profile' : 'folder-shared';

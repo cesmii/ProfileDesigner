@@ -4,7 +4,6 @@ import Button from 'react-bootstrap/Button'
 
 import { SVGIcon, SVGCheckIcon } from '../../components/SVGIcon'
 import color from '../../components/Constants'
-//import color from './Constants'
 import { generateLogMessageString, convertToNumeric, toInt, onChangeNumericKeysOnly} from '../../utils/UtilityService'
 import ConfirmationModal from '../../components/ConfirmationModal';
 import { validate_name, validate_nameDuplicate, validate_dataType, validate_All, onChangeDataTypeShared, renderAttributeIcon, onChangeAttributeTypeShared, validate_attributeType, validate_enumValueDuplicate, validate_enumValueNumeric, onChangeCompositionShared, renderDataTypeUIShared } from '../../services/AttributesService';
@@ -636,7 +635,7 @@ function AttributeItemRow(props) { //props are item, showActions
                 <>
                     <Button variant="icon-solo" onClick={onEditClick} className="align-items-center" title="Edit item inline" >
                         <span>
-                            <SVGIcon name="edit" size="24" fill={color.shark} />
+                            <SVGIcon name="edit" />
                         </span>
                     </Button>
                 </>
@@ -660,7 +659,7 @@ function AttributeItemRow(props) { //props are item, showActions
                 {/*Detail slideout */}
                 <Button variant="icon-solo" onClick={onClickFn} className="align-items-center" title="Open item detail (slide out)" >
                     <span>
-                        <SVGIcon name="vertical-split" size="24" fill={color.shark} />
+                        <SVGIcon name="vertical-split" />
                     </span>
                 </Button>
             </>
@@ -693,7 +692,7 @@ function AttributeItemRow(props) { //props are item, showActions
                     {/* Confirmation modal */}
                     <Button variant="icon-solo" onClick={deleteCallback} className="align-items-center" title="Delete item" >
                         <span>
-                            <SVGIcon name="trash" size="24" fill={color.shark} />
+                            <SVGIcon name="trash" />
                         </span>
                     </Button>
                 </>
@@ -708,12 +707,12 @@ function AttributeItemRow(props) { //props are item, showActions
             <>
                 <Button variant="icon-solo" onClick={onUpdateClick} className="align-items-center mr-1" title="Apply inline edits" >
                     <span>
-                        <SVGCheckIcon name="check" size="24" fill={color.shark} />
+                        <SVGCheckIcon name="check" />
                     </span>
                 </Button>
                 <Button variant="icon-solo" onClick={onCancelUpdateClick} className="align-items-center" title="Cancel inline edits" >
                     <span>
-                        <SVGIcon name="close" size="24" fill={color.shark} />
+                        <SVGIcon name="close" />
                     </span>
                 </Button>
             </>

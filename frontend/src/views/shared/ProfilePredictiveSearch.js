@@ -6,7 +6,6 @@ import { generateLogMessageString, concatenateField } from '../../utils/UtilityS
 import { AppSettings } from '../../utils/appsettings';
 import { renderTypeIcon } from './ProfileRenderHelpers';
 import { SVGIcon } from '../../components/SVGIcon'
-import color from '../../components/Constants'
 
 const CLASS_NAME = "ProfilePredictiveSearch";
 
@@ -181,18 +180,18 @@ function ProfilePredictiveSearch(props) {
         <>
             {/*<Button variant="secondary" onClick={onToggleClick} type="submit" >
                 <span>
-                        <SVGIcon name="search" size="24" fill={color.shark} />
+                        <SVGIcon name="search" />
                 </span>
             </Button>*/}
             <Dropdown className="m-0 p-0 action-menu" onClick={(e) => e.stopPropagation()} >
                 <Dropdown.Toggle drop="left" className="btn-search p-0 px-2 border border-left-0">
                     {/*
                     <Button variant="search" className="p-0 pl-2 pr-2 border-left-0">
-                        <SVGIcon name="search" size="24" fill={color.shark} />
+                        <SVGIcon name="search" />
                     </Button>
                     */}
                     <span className="p-0 px-2 border border-left-0">
-                        <SVGIcon name="search" size="24" fill={color.shark} />
+                        <SVGIcon name="search" />
                     </span>
                 </Dropdown.Toggle>
                 

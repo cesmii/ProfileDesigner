@@ -1,5 +1,5 @@
 ﻿/* Author:      Chris Muench, C-Labs
- * Last Update: 9/24/2021
+ * Last Update: 4/8/2022
  * License:     MIT
  * 
  * Some contributions thanks to CESMII – the Smart Manufacturing Institute, 2021
@@ -10,8 +10,18 @@ using System.IO;
 using System.Linq;
 using System.Xml.Linq;
 
-namespace OPCUANodeSetHelpers
+namespace OPCUAHelpers
 {
+    public class UserToken
+    {
+        public int UserId { get; set; }
+        public int? TargetTenantId { get; set; } // For now: set to 0 to to write globally, otherwise write to user's scope
+        public static UserToken GetGlobalUser(UserToken userToken)
+        {
+            return new UserToken { UserId = userToken.UserId, TargetTenantId = 0, };
+        }
+    }
+
     public interface IUANodeSetCache
     {
         public void LoadNodeSet(UANodeSetImportResult results, string nodesetFileName);
@@ -28,6 +38,16 @@ namespace OPCUANodeSetHelpers
     /// </summary>
     public class UANodeSetFileCache : IUANodeSetCache
     {
+        public UANodeSetFileCache()
+        {
+            RootFolder = Directory.GetCurrentDirectory();
+        }
+
+        public UANodeSetFileCache(string pRootFolder)
+        {
+            RootFolder = pRootFolder;
+        }
+        static string RootFolder = null;
         /// <summary>
         /// Not Supported on File Cache
         /// </summary>
@@ -46,7 +66,7 @@ namespace OPCUANodeSetHelpers
         public UANodeSetImportResult FlushCache()
         {
             UANodeSetImportResult ret = new UANodeSetImportResult();
-            string tPath = Path.Combine(Directory.GetCurrentDirectory(), "NodeSets");
+            string tPath = Path.Combine(RootFolder, "NodeSets");
             try
             {
                 var tFiles = Directory.GetFiles(tPath);
@@ -100,13 +120,22 @@ namespace OPCUANodeSetHelpers
         {
             if (!File.Exists(nodesetFileName))
                 return;
+            byte[] nsBytes = null;
             using (Stream stream = new FileStream(nodesetFileName, FileMode.Open))
             {
-                UANodeSet nodeSet = UANodeSet.Read(stream);
-                foreach (var ns in nodeSet.Models)
+                using (var tm = new MemoryStream())
                 {
-                    UANodeSetImporter.ParseDependencies(results, nodeSet, ns, nodesetFileName, false);
+                    stream.CopyTo(tm);
+                    nsBytes = tm.ToArray();
                 }
+            }
+            if (nsBytes?.Length > 0)
+                LoadNodeSet(results, nsBytes, null);
+            else
+            {
+                if (results == null)
+                    results = new UANodeSetImportResult();
+                results.ErrorMessage = "Error during NodeSet Loading";
             }
         }
 
@@ -124,7 +153,7 @@ namespace OPCUANodeSetHelpers
 
         private static string GetCacheFileName(ModelNameAndVersion nameVersion, object TenantID)
         {
-            string tPath = Path.Combine(Directory.GetCurrentDirectory(), "NodeSets");
+            string tPath = Path.Combine(RootFolder, "NodeSets");
             if (!Directory.Exists(tPath))
                 Directory.CreateDirectory(tPath);
             if (TenantID != null && (int)TenantID > 0)
@@ -133,9 +162,9 @@ namespace OPCUANodeSetHelpers
                 if (!Directory.Exists(tPath))
                     Directory.CreateDirectory(tPath);
             }
-            string tFile = nameVersion.ModelUri.Replace("http://", "", StringComparison.OrdinalIgnoreCase);
+            string tFile = nameVersion.ModelUri.Replace("http://", "");
             tFile = tFile.Replace('/', '.');
-            if (!tFile.EndsWith('.')) tFile += ".";
+            if (!tFile.EndsWith(".")) tFile += ".";
             string filePath = Path.Combine(tPath, $"{tFile}NodeSet2.xml");
             return filePath;
         }
@@ -171,12 +200,17 @@ namespace OPCUANodeSetHelpers
                 #endregion
 
                 UANodeSet tOldNodeSet = null;
+                if (nodeSet?.Models == null)
+                {
+                    results.ErrorMessage = $"No Nodeset found in bytes";
+                    return false;
+                }
                 foreach (var ns in nodeSet.Models)
                 {
                     //Caching the streams to a "NodeSets" subfolder using the Model Name
                     //Even though "Models" is an array, most NodeSet files only contain one model.
                     //In case a NodeSet stream does contain multiple models, the same file will be cached with each Model Name 
-                    string filePath = GetCacheFileName(new ModelNameAndVersion { ModelUri=ns.ModelUri, ModelVersion=ns.Version, PublicationDate=ns.PublicationDate }, TenantID);
+                    string filePath = GetCacheFileName(new ModelNameAndVersion { ModelUri = ns.ModelUri, ModelVersion = ns.Version, PublicationDate = ns.PublicationDate }, TenantID);
                     // TODO How do we update a nodeset with a new version (or if a user keeps editing one and wants to import it to a different editor)?
                     bool CacheNewerVersion = true;
                     if (File.Exists(filePath))

@@ -12,16 +12,6 @@ using System.Xml.Linq;
 
 namespace OPCUAHelpers
 {
-    public class UserToken
-    {
-        public int UserId { get; set; }
-        public int? TargetTenantId { get; set; } // For now: set to 0 to to write globally, otherwise write to user's scope
-        public static UserToken GetGlobalUser(UserToken userToken)
-        {
-            return new UserToken { UserId = userToken.UserId, TargetTenantId = 0, };
-        }
-    }
-
     public interface IUANodeSetCache
     {
         public void LoadNodeSet(UANodeSetImportResult results, string nodesetFileName);

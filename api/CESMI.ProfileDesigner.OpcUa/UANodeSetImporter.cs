@@ -172,7 +172,7 @@ namespace OPCUAHelpers
     /// </summary>
     public static class UANodeSetImporter
     {
-        public static byte[] CreateNewUANodeSetAndImport(IUANodeSetCache NodeSetCacheSystem, NewNodeSetInfo tInPara, UserToken TenantID = null)
+        public static byte[] CreateNewUANodeSetAndImport(IUANodeSetCache NodeSetCacheSystem, NewNodeSetInfo tInPara, object TenantID = null)
         {
             var tNs = new UANodeSet();
             tNs.Models = new ModelTableEntry[1];
@@ -242,7 +242,7 @@ namespace OPCUAHelpers
         /// <param name="FailOnExisting">Default behavior is that all Models in NodeSets are returned even if they have been imported before. If set to true, the importer will fail if it has imported a nodeset before and does not cache nodeset if they have missing dependencies</param>
         /// <param name="TenantID">If the import has Multi-Tenant Cache, the tenant ID has to be set here</param>
         /// <returns></returns>
-        public static UANodeSetImportResult ImportNodeSets(IUANodeSetCache NodeSetCacheSystem, UANodeSetImportResult results, List<string> nodeSetFilenames, List<byte[]> nodeSetStreams, bool FailOnExisting = false, UserToken TenantID = null)
+        public static UANodeSetImportResult ImportNodeSets(IUANodeSetCache NodeSetCacheSystem, UANodeSetImportResult results, List<string> nodeSetFilenames, List<byte[]> nodeSetStreams, bool FailOnExisting = false, object TenantID = null)
         {
             if (results == null)
                 results = new UANodeSetImportResult();

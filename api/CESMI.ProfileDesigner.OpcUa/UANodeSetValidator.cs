@@ -1,9 +1,14 @@
-﻿using CESMII.ProfileDesigner.DAL.Models;
-using System;
+﻿/* Author:      Chris Muench, C-Labs
+ * Last Update: 4/8/2022
+ * License:     MIT
+ * 
+ * Some contributions thanks to CESMII – the Smart Manufacturing Institute, 2021
+ */
+using CESMII.ProfileDesigner.DAL.Models;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace OPCUANodeSetHelpers
+namespace OPCUAHelpers
 {
     public static class UANodeSetValidator
     {
@@ -24,7 +29,7 @@ namespace OPCUANodeSetHelpers
             importResult.ErrorMessage = "";
             foreach (var tMod in importResult.Models)
             {
-                var t = standardNodeSets.Where(s => s.Namespace == tMod.NameVersion.ModelUri).OrderByDescending(s=>s.PublishDate).FirstOrDefault();
+                var t = standardNodeSets.Where(s => s.Namespace == tMod.NameVersion.ModelUri).OrderByDescending(s => s.PublishDate).FirstOrDefault();
                 tMod.NameVersion.UAStandardModelID = t?.ID;
             }
             return importResult;

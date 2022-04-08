@@ -146,7 +146,7 @@ function WizardWelcome() {
         );
     };
 
-    const renderTileWideButton = (caption, content, href, captionLink) => {
+    const renderTileWideButton = (caption, content, href, captionLink, variant = 'secondary') => {
         return (
             <div className="col-sm-6 d-flex" >
                 <div className={`card d-flex flex-column h-100`} >
@@ -156,7 +156,7 @@ function WizardWelcome() {
                             {content}
                         </div>
                         <div className="mt-auto mx-auto">
-                            <Button variant="secondary" type="button" className="m-auto auto-width" href={href} >{captionLink}</Button>
+                            <Button variant={variant} type="button" className="m-auto auto-width" href={href} >{captionLink}</Button>
                         </div>
                     </div>
                 </div>
@@ -172,7 +172,7 @@ function WizardWelcome() {
                 Type definitions you authored can be edited from here and the Extend button allows you to extend existing types and build your own. 
             </p>
         );
-        return renderTileWideButton("About Type Library", content, '/types/library', "Go to Type Library");
+        return renderTileWideButton("About Type Library", content, '/types/library', "Go to Type Library", "primary");
     };
 
     const renderAboutProfileLibrary = () => {
@@ -185,7 +185,7 @@ function WizardWelcome() {
                 Manage profiles by visiting the <strong>Profile Library</strong>.
             </p>
         );
-        return renderTileWideButton("About Profile Library", content, '/profiles/library', "Go to Profile Library");
+        return renderTileWideButton("About Profile Library", content, '/profiles/library', "Go to Profile Library", "primary");
     };
 
 

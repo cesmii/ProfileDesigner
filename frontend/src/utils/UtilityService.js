@@ -386,3 +386,28 @@ export const renderTitleBlock = (caption, iconName, iconColor ) => {
     );
 }
 
+///--------------------------------------------------------------------------
+// getRandomArrayIndexes - given a list of items, get a random sampling of items from an 
+///     array
+//--------------------------------------------------------------------------
+export const getRandomArrayIndexes = (items, limit = 6) => {
+    if (items == null) return [];
+    var result = [];
+
+    //if item length < limit, return all item indexes and exit
+    if (items.length <= limit) {
+        result = items.map((tag, counter) => { return counter; });
+        return result;
+    }
+
+    //loop over array and randomly pick items for display
+    while (result.length < items.length && result.length < limit) {
+        var val = Math.floor(Math.random() * items.length);
+        //only add if not already added
+        if (result.indexOf(val) === -1) {
+            result.push(val);
+        }
+    }
+    return result;
+}
+

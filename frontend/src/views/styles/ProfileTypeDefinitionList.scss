@@ -2,18 +2,18 @@
 @import "../../components/styles/constants";
 
 .profile-list-item {
-    min-height: 60px;
+    min-height: 50px;
     background-color: color("almost-white");
     border: 1px solid color("almost-white");
     border-bottom: 1px solid color("alto");
     //transition: all 200ms ease-in-out;
 
     .col-avatar {
-        min-width: 40px;
-        width: 40px;
-        max-width: 40px;
-        height: 40px;
-        font-size: 36px;
+        min-width: 36px;
+        width: 36px;
+        max-width: 36px;
+        height: 36px;
+        font-size: 34px;
         font-weight: 200;
         display: flex;
         align-items: center;
@@ -59,7 +59,7 @@
     }
 
     &.selectable {
-        cursor:pointer;
+        cursor: pointer;
     }
 
     .item-text-block {
@@ -73,21 +73,17 @@
         }
     }
 
-    small {
-        opacity: 0.75;
-    }
-
     .badge {
         color: color("outerSpace");
-        font-weight: bold;
-        height: 24px;
-        padding: 8px 16px 20px 16px;
+        font-weight: 600;
+        padding: 8px 16px;
         margin: 2px;
         border-radius: 25px;
 
         &.meta {
             // @include background-opacity(color("cornflower"), .2);
-            @include background-opacity(color("amber"), .4);
+            @include background-opacity(color("hlBlue"), 1);
+            border: 1px solid color('silver');
             // background-color: color("blazeOrange");
         }
 

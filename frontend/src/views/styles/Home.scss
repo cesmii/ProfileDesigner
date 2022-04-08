@@ -1,8 +1,0 @@
-
-.list-group-item {
-    @include global-transition;
-    background-color: color("white");
-}
-.list-group-item:hover {
-    background-color: color("alabaster");
-}

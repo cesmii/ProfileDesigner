@@ -221,7 +221,7 @@ function ProfileExplorer(props) {
                     {renderTypeIcon(p, props.currentUserId, 18)}
                     <span className="hierarchy-item text-break">{renderLinkedName(p)}</span>
                     {/* Affordance for "go-to / view" */}
-                    <SVGIcon name="chevron-right" size="24" fill={color.silver} className="view-affordance-icon float-right" />
+                    <SVGIcon name="chevron-right" fill={color.silver} className="view-affordance-icon float-right" />
                 </div>
                 {/*recursively build out children*/}
                 {renderChildren(p.children, level, `ul_${level.toString()}_${p.id.toString()}`)}
@@ -244,7 +244,7 @@ function ProfileExplorer(props) {
                     {renderTypeIcon(c, props.currentUserId, 18, color.nevada)}
                     <span className="composition-item text-break">{renderLinkedCompositionName(c, props.currentUserId)}</span>
                     {/* Affordance for "go-to / view" */}
-                    <SVGIcon name="chevron-right" size="24" fill={color.silver} className="view-affordance-icon float-right" />
+                    <SVGIcon name="chevron-right" fill={color.silver} className="view-affordance-icon float-right" />
                 </div>
             </li>
         );
@@ -277,7 +277,7 @@ function ProfileExplorer(props) {
                         />
                         <InputGroup.Append>
                             <Button variant="search" className="p-0 pl-2 pr-2 border-left-0" title="Filter explorer">
-                                <SVGIcon name="search" size="24" fill={color.shark} />
+                                <SVGIcon name="search" />
                             </Button>
                         </InputGroup.Append>
                     </InputGroup>
@@ -305,13 +305,13 @@ function ProfileExplorer(props) {
                         <span key="toggle" className="ml-auto">
                             <Button variant="accordion" className="btn" title={toggleState ? "Collapse" : "Expand"} >
                                 <span>
-                                    <SVGIcon name={toggleIcon} size="24" fill={color.shark} alt={caption} className="toggle-icon" />
+                                    <SVGIcon name={toggleIcon} fill={color.shark} alt={caption} className="toggle-icon" />
                                 </span>
                             </Button>
                         </span> :
                         <span key="toggle-no-data" className="ml-auto">
                             <span>
-                                <SVGIcon name={toggleIcon} size="24" fill={color.transparent} alt={caption} className="toggle-icon empty" />
+                                <SVGIcon name={toggleIcon} fill={color.transparent} alt={caption} className="toggle-icon empty" />
                             </span>
                         </span>
                     }

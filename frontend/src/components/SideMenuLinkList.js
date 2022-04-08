@@ -33,7 +33,7 @@ function SideMenuLinkList(props) { //props are subMenuItems, bgColor, iconName, 
         // sectionKey = caption;
         return (
             <div className={toggleCss} onClick={toggleChildren} >
-                <Fab color={props.bgColor} bgColor={props.bgColor} iconName={props.iconName} opacity="33" size='40px' css="d-flex d-md-none" />
+                <Fab color={props.bgColor} bgColor={props.bgColor} iconName={props.iconName} opacity="33" css="d-flex d-md-none" />
                 <span key="caption" className="caption small-size text-uppercase d-none d-md-inline">
                     {caption}
                 </span>
@@ -41,7 +41,7 @@ function SideMenuLinkList(props) { //props are subMenuItems, bgColor, iconName, 
                     <span key="toggle" className="ml-auto d-none d-md-inline">
                     <Button variant="accordion" className="btn" title={toggleState ? "Collapse" : "Expand"} >
                             <span>
-                                <SVGIcon name={toggleIcon} size="20" fill={color.gris} alt={caption} />
+                                <SVGIcon name={toggleIcon} fill={color.gris} alt={caption} />
                             </span>
                         </Button>
                     </span>

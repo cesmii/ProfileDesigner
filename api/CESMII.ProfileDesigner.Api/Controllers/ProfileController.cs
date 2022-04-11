@@ -1,23 +1,22 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO;
-using System.Text;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.Extensions.Logging;
-
+﻿using CESMII.ProfileDesigner.Api.Shared.Controllers;
+using CESMII.ProfileDesigner.Api.Shared.Extensions;
+using CESMII.ProfileDesigner.Api.Shared.Models;
 using CESMII.ProfileDesigner.Common;
 using CESMII.ProfileDesigner.Common.Enums;
-using CESMII.ProfileDesigner.Data.Entities;
-using CESMII.ProfileDesigner.DAL.Models;
 using CESMII.ProfileDesigner.DAL;
-using CESMII.ProfileDesigner.Api.Shared.Controllers;
-using CESMII.ProfileDesigner.Api.Shared.Models;
-using CESMII.ProfileDesigner.Api.Shared.Extensions;
+using CESMII.ProfileDesigner.DAL.Models;
+using CESMII.ProfileDesigner.Data.Entities;
 using CESMII.ProfileDesigner.OpcUa;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace CESMII.ProfileDesigner.Api.Controllers
 {
@@ -31,7 +30,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         public ProfileController(IDal<Profile, ProfileModel> dal,
             Utils.ImportService svcImport,
             OpcUaImporter exporter,
-            ConfigUtil config, ILogger<ProfileController> logger) 
+            ConfigUtil config, ILogger<ProfileController> logger)
             : base(config, logger)
         {
             _dal = dal;
@@ -130,7 +129,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             //search on some pre-determined fields
             model.Query = model.Query.ToLower();
             //var result = _dal.Where(s => s.StandardProfileID.HasValue && (!s.AuthorId.HasValue || s.AuthorId.Value.Equals(userId)) && 
-            var result = _dal.Where(s => 
+            var result = _dal.Where(s =>
                             //string query section
                             s.Namespace.ToLower().Contains(model.Query),
                             userId, model.Skip, model.Take, true);
@@ -342,7 +341,8 @@ namespace CESMII.ProfileDesigner.Api.Controllers
 
             //This also deletes all associated type defs, attributes, custom data types, compositions, interfaces 
             //associated with this profile
-            try {
+            try
+            {
                 var result = await _dal.Delete(model.ID, userToken);
                 if (result <= 0)
                 {
@@ -357,13 +357,17 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 _logger.LogCritical($"ProfileController|Delete|Id:{model.ID}.", eDB);
                 if (eDB.Message.ToLower().Contains("violates foreign key constraint"))
                 {
-                    return Ok(new ResultMessageModel() { IsSuccess = false, 
-                        Message = "This profile cannot be deleted because something else depends on it. Check that no other profiles nor type definitions depend on this profile or this profile's type definitions. " });
+                    return Ok(new ResultMessageModel()
+                    {
+                        IsSuccess = false,
+                        Message = "This profile cannot be deleted because something else depends on it. Check that no other profiles nor type definitions depend on this profile or this profile's type definitions. "
+                    });
                 }
                 //some other db issue
                 return Ok(new ResultMessageModel()
                 {
-                    IsSuccess = false, Message = "Please contact your system administrator."
+                    IsSuccess = false,
+                    Message = "Please contact your system administrator."
                 });
             }
 
@@ -427,7 +431,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         public Task<IActionResult> UAFlushCache()
         {
             _logger.LogInformation($"ProfileController|Flush NodeSets Importer Cache. .");
-            var myNodeSetCache = new OPCUANodeSetHelpers.UANodeSetFileCache();
+            var myNodeSetCache = new OPCUAHelpers.UANodeSetFileCache();
             myNodeSetCache.FlushCache();
             //return success message object
             return Task.FromResult<IActionResult>(Ok(new ResultMessageModel() { IsSuccess = true, Message = "Item was deleted." }));

@@ -1,4 +1,10 @@
-﻿using CESMII.ProfileDesigner.DAL;
+﻿/* Author:      Chris Muench, C-Labs
+ * Last Update: 4/8/2022
+ * License:     MIT
+ * 
+ * Some contributions thanks to CESMII – the Smart Manufacturing Institute, 2021
+ */
+using CESMII.ProfileDesigner.DAL;
 using CESMII.ProfileDesigner.DAL.Models;
 using CESMII.ProfileDesigner.Data.Entities;
 using Opc.Ua.Export;
@@ -7,7 +13,7 @@ using System.Linq;
 using System.Text;
 using System.Xml.Linq;
 
-namespace OPCUANodeSetHelpers
+namespace OPCUAHelpers
 {
     public class UANodeSetDBCache : IUANodeSetCache
     {
@@ -31,7 +37,7 @@ namespace OPCUANodeSetHelpers
                     if (tMod.NewInThisImport)
                     {
                         //TODO: @Sean: If a nodeset is deleted from the cache table, some tables with references to the cache table might be broken.
-                        _dalNodeSetFile.Delete((tMod.NameVersion.CCacheId as NodeSetFileModel)?.ID??0, _userToken); //Must force delete as Author ID is not in the results
+                        _dalNodeSetFile.Delete((tMod.NameVersion.CCacheId as NodeSetFileModel)?.ID ?? 0, _userToken); //Must force delete as Author ID is not in the results
                     }
                 }
             }
@@ -51,7 +57,7 @@ namespace OPCUANodeSetHelpers
                 };
                 UANodeSetImportResult res = new UANodeSetImportResult();
                 LoadNodeSet(res, Encoding.UTF8.GetBytes(tns.FileCache), _userToken);
-                if (res?.Models?.Count>0)
+                if (res?.Models?.Count > 0)
                     return res.Models[0];
             }
             return null;
@@ -129,7 +135,7 @@ namespace OPCUANodeSetHelpers
             }
 
             var userToken = userId as UserToken;
-            myModel = _dalNodeSetFile?.Where(s => s.FileName == nameVersion.ModelUri /*&& (TenantID == null || s.AuthorId == null || s.AuthorId == (int)TenantID)*/, userToken , verbose: true)?.Data?.OrderByDescending(s => s.PublicationDate)?.FirstOrDefault();
+            myModel = _dalNodeSetFile?.Where(s => s.FileName == nameVersion.ModelUri /*&& (TenantID == null || s.AuthorId == null || s.AuthorId == (int)TenantID)*/, userToken, verbose: true)?.Data?.OrderByDescending(s => s.PublicationDate)?.FirstOrDefault();
             if (myModel != null)
             {
                 nameVersion.CCacheId = myModel;
@@ -228,7 +234,7 @@ namespace OPCUANodeSetHelpers
                         tModel.NameVersion.CCacheId = myModel;
                         tModel.NewInThisImport = newInImport;
                     }
-                    foreach(var model in results.Models)
+                    foreach (var model in results.Models)
                     {
                         if (model.NameVersion.CCacheId == null)
                         {

@@ -18,18 +18,16 @@
 
     public class ProfileTypeDefinitionDAL : TenantBasePdDAL<ProfileTypeDefinition, ProfileTypeDefinitionModel>
     {
-        public ProfileTypeDefinitionDAL(IRepository<ProfileTypeDefinition> repo, IDal<Profile, ProfileModel> profileDAL, IDal<LookupDataType, LookupDataTypeModel> dataTypeDAL, IDal<EngineeringUnit, EngineeringUnitModel> euDAL, IDal<LookupItem, LookupItemModel> lookupDAL, ILogger<ProfileTypeDefinitionDAL> diLogger) : base(repo)
+        public ProfileTypeDefinitionDAL(IRepository<ProfileTypeDefinition> repo, IDal<Profile, ProfileModel> profileDAL, IDal<LookupDataType, LookupDataTypeModel> dataTypeDAL, IDal<EngineeringUnit, EngineeringUnitModel> euDAL, /*IDal<LookupItem, LookupItemModel> lookupDAL,*/ ILogger<ProfileTypeDefinitionDAL> diLogger) : base(repo)
         {
             _profileDAL = profileDAL as ProfileDAL;
             _dataTypeDAL = dataTypeDAL as LookupDataTypeDAL;
             _euDAL = euDAL as EngineeringUnitDAL;
-            _lookupDAL = lookupDAL as LookupDAL;
             this._diLogger = diLogger;
         }
         private readonly ProfileDAL _profileDAL;
         private readonly LookupDataTypeDAL _dataTypeDAL;
         private readonly EngineeringUnitDAL _euDAL;
-        private readonly LookupDAL _lookupDAL;
         private readonly ILogger<ProfileTypeDefinitionDAL> _diLogger;
 
 

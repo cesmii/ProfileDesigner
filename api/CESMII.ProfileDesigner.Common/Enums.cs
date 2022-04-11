@@ -6,7 +6,7 @@
     {
         ProfileType = 1,
         AttributeType = 2,
-        EngUnit = 3,
+        //EngUnit = 3, No longer used. Replaced by EngineeringUnitModel
         TaskStatus = 4
     }
 

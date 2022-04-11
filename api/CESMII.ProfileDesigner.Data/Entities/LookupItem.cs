@@ -3,7 +3,7 @@
     using System;
     using System.ComponentModel.DataAnnotations.Schema;
 
-    public class LookupItem : AbstractEntityWithTenant 
+    public class LookupItem : AbstractEntity
     {
         [Column(name: "name")]
         public string Name { get; set; }

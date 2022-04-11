@@ -1,8 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <Configurations>Debug;Release;Staging</Configurations>
+	  <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -10,7 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CESMI.ProfileDesigner.OpcUa.NodeSetModel\CESMII.ProfileDesigner.OpcUa.NodeSetModel.csproj" />
+    <ProjectReference Include="..\CESMI.OpcUa.NodeSetModel\CESMII.OpcUa.NodeSetModel.csproj" />
   </ItemGroup>
 
   <ItemGroup>

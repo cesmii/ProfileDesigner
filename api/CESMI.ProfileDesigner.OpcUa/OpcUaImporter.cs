@@ -102,7 +102,7 @@ namespace CESMII.ProfileDesigner.OpcUa
 
             _importedNodesByNodeId = null;
 
-            return NodeModelFactoryOpc.LoadNodeSetAsync(this, nodeSet, profile, this.NodesetModels, _systemContext, this._importedNodes, this.Aliases, doNotReimport);
+            return NodeModelFactoryOpc.LoadNodeSetAsync(this, nodeSet, profile, this.NodesetModels, _systemContext, this._importedNodes, out _, this.Aliases, doNotReimport);
         }
 
         public static List<string> _coreNodeSetUris = new List<string> { strOpcNamespaceUri, strOpcDiNamespaceUri };
@@ -113,9 +113,13 @@ namespace CESMII.ProfileDesigner.OpcUa
             {
                 var sw2 = Stopwatch.StartNew();
                 Logger.LogTrace($"Saving NodeSetModel");
+                foreach(var nodeSet in NodesetModels.Where(ns => ns.Key != nodeSetModel.ModelUri))
+                {
+                    nsDBContext.NodeSets.Attach(nodeSet.Value);
+                }
                 nsDBContext.NodeSets.Add(nodeSetModel);
                 nsDBContext.SaveChanges();
-                Logger.LogTrace($"Saved NodeSetMoel after {sw2.Elapsed}");
+                Logger.LogTrace($"Saved NodeSetModel after {sw2.Elapsed}");
 
                 var savedModel = nsDBContext.NodeSets
                     .Where(m => m.ModelUri == nodeSetModel.ModelUri && m.PublicationDate == nodeSetModel.PublicationDate)

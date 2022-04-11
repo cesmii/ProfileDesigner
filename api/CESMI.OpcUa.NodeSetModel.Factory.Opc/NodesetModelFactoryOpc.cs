@@ -10,6 +10,8 @@ using CESMII.ProfileDesigner.OpcUa.NodeSetModel.Opc.Extensions;
 using Microsoft.Extensions.Logging;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
+using Opc.Ua.Export;
 
 namespace CESMII.ProfileDesigner.OpcUa.NodeSetModel
 {
@@ -40,8 +42,210 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModel.Factory.Opc
         ILogger Logger { get; }
     }
 
+    public class DefaultOpcUaContext : IOpcUaContext
+    {
+        private readonly ISystemContext _systemContext;
+        private readonly NodeStateCollection _importedNodes;
+        private readonly Dictionary<string, NodeSetModel> _nodesetModels;
+        private readonly ILogger _logger;
+
+        public DefaultOpcUaContext(ISystemContext systemContext, NodeStateCollection importedNodes, Dictionary<string, NodeSetModel> nodesetModels, ILogger logger)
+        {
+            _systemContext = systemContext;
+            _importedNodes = importedNodes;
+            _nodesetModels = nodesetModels;
+            _logger = logger;
+        }
+
+        private Dictionary<NodeId, NodeState> _importedNodesByNodeId;
+
+        public NamespaceTable NamespaceUris { get => _systemContext.NamespaceUris; }
+
+        ILogger IOpcUaContext.Logger => _logger;
+
+
+        public string GetNodeIdWithUri(NodeId nodeId, out string namespaceUri)
+        {
+            namespaceUri = GetNamespaceUri(nodeId.NamespaceIndex);
+            var nodeIdWithUri = new ExpandedNodeId(nodeId, namespaceUri).ToString();
+            return nodeIdWithUri;
+        }
+
+        public NodeState GetNode(ExpandedNodeId expandedNodeId)
+        {
+            var nodeId = ExpandedNodeId.ToNodeId(expandedNodeId, _systemContext.NamespaceUris);
+            return GetNode(nodeId);
+        }
+
+        public NodeState GetNode(NodeId expandedNodeId)
+        {
+            if (_importedNodesByNodeId == null)
+            {
+                _importedNodesByNodeId = _importedNodes.ToDictionary(n => n.NodeId);
+            }
+            //var nodeState = _importedNodes.FirstOrDefault(n => n.NodeId == expandedNodeId);
+            NodeState nodeStateDict = null;
+            if (expandedNodeId != null)
+            {
+                _importedNodesByNodeId.TryGetValue(expandedNodeId, out nodeStateDict);
+            }
+            return nodeStateDict;
+        }
+
+        public string GetNamespaceUri(ushort namespaceIndex)
+        {
+            return _systemContext.NamespaceUris.GetString(namespaceIndex);
+        }
+
+        public NodeModel GetModelForNode(string nodeId)
+        {
+            var expandedNodeId = ExpandedNodeId.Parse(nodeId, _systemContext.NamespaceUris);
+            var uaNamespace = GetNamespaceUri(expandedNodeId.NamespaceIndex);
+            if (!_nodesetModels.TryGetValue(uaNamespace, out var nodeSetModel))
+            {
+                return null;
+            }
+            if (nodeSetModel.AllNodes.TryGetValue(nodeId, out var nodeModel))
+            {
+                return nodeModel;
+            }
+            return null;
+        }
+
+        public NodeSetModel GetOrAddNodesetModel(NodeModel nodeModel)
+        {
+            var uaNamespace = nodeModel.Namespace;
+            if (!_nodesetModels.TryGetValue(uaNamespace, out var nodesetModel))
+            {
+                nodesetModel = new NodeSetModel();
+                nodesetModel.ModelUri = uaNamespace;
+                _nodesetModels.Add(uaNamespace, nodesetModel);
+            }
+            nodeModel.NodeSet = nodesetModel;
+            return nodesetModel;
+        }
+        public List<NodeStateHierarchyReference> GetHierarchyReferences(NodeState nodeState)
+        {
+            var hierarchy = new Dictionary<NodeId, string>();
+            var references = new List<NodeStateHierarchyReference>();
+            nodeState.GetHierarchyReferences(_systemContext, null, hierarchy, references);
+            return references;
+        }
+
+    }
+
     public class NodeModelFactoryOpc : NodeModelFactoryOpc<NodeModel>
     {
+        public static Task<List<NodeSetModel>> LoadNodeSetAsync(IOpcUaContext opcContext, UANodeSet nodeSet, Object customState, Dictionary<string, NodeSetModel> NodesetModels, ISystemContext systemContext, 
+                NodeStateCollection allImportedNodes, out List<NodeState> importedNodes, Dictionary<string, string> Aliases, bool doNotReimport = false)
+        {
+            if (!nodeSet.Models.Any())
+            {
+                var ex = new Exception($"Invalid nodeset: no models specified");
+                opcContext.Logger.LogError(ex.Message);
+                throw ex;
+            }
+            var loadedModels = new List<NodeSetModel>();
+
+            foreach (var model in nodeSet.Models)
+            {
+                var nodesetModel = new NodeSetModel();
+                nodesetModel.ModelUri = model.ModelUri;
+                nodesetModel.Version = model.Version;
+                nodesetModel.PublicationDate = model.PublicationDate;
+                nodesetModel.CustomState = customState;
+
+                if (nodeSet.Aliases?.Length > 0)
+                {
+                    foreach (var alias in nodeSet.Aliases)
+                    {
+                        Aliases[alias.Value] = alias.Alias;
+                    }
+                }
+
+                if (!NodesetModels.ContainsKey(model.ModelUri))
+                {
+                    NodesetModels.Add(model.ModelUri, nodesetModel);
+                }
+                else
+                {
+                    // Nodeset already imported
+                    if (doNotReimport)
+                    {
+                        // Don't re-import dependencies
+                        nodesetModel = NodesetModels[model.ModelUri];
+                    }
+                    else
+                    {
+                        // Replace with new nodeset model 
+                        // TODO: verify the assumption that  there's at most one nodeset per namespace)
+                        NodesetModels[model.ModelUri] = nodesetModel;
+                    }
+                }
+                loadedModels.Add(nodesetModel);
+            }
+            // Find all models that are used by another nodeset
+            var requiredModels = nodeSet.Models.Where(m => m.RequiredModel != null).SelectMany(m => m.RequiredModel).Select(m => m?.ModelUri).Distinct().ToList();
+            var missingModels = requiredModels.Where(rm => !NodesetModels.ContainsKey(rm)).ToList();
+            if (missingModels.Any())
+            {
+                throw new Exception($"Missing dependent node sets: {string.Join("", missingModels)}");
+            }
+            if (nodeSet.Items == null)
+            {
+                nodeSet.Items = new UANode[0];
+            }
+            var previousNodes = allImportedNodes.ToList();
+
+            nodeSet.Import(systemContext, allImportedNodes);
+            importedNodes = allImportedNodes.Except(previousNodes).ToList();
+
+            // TODO Read nodeset poperties like author etc. and expose them in Profile editor
+
+            //var nodesInModel = _importedNodes.Where(n => nodeSet.Models.Any(m => m.ModelUri == GetNamespaceUri(n.NodeId))).ToList();
+
+            //if (nodesInModel.Count != nodeSet.Items.Count())
+            //{
+            //    //  Model defines nodes outside of it's namespace: TODO - investigate if his is allowed and if so how to cleanly support it.
+            //}
+
+            foreach (var node in importedNodes)
+            {
+                var nodeModel = NodeModelFactoryOpc.Create(opcContext, node, customState, out var bAdded);
+                if (nodeModel != null && !bAdded)
+                {
+                    var namespaceUri = systemContext.NamespaceUris.GetString(node.NodeId.NamespaceIndex);
+                    var nodeIdString = new ExpandedNodeId(node.NodeId, namespaceUri).ToString();
+                    if (NodesetModels.TryGetValue(nodeModel.Namespace, out var nodesetModel))// TODO support multiple models per namespace
+                    {
+                        if (!nodesetModel.AllNodes.ContainsKey(nodeIdString))
+                        {
+                            nodesetModel.UnknownNodes.Add(nodeModel);
+                        }
+                    }
+                    else
+                    {
+                        throw new Exception($"Unknown node {nodeIdString} for undefined namespace {nodeModel.Namespace}");
+                    }
+                }
+            }
+#if NODESETDBTEST
+            if (doNotReimport)
+            {
+                foreach (var model in loadedModels)
+                {
+                    nsDBContext.Attach(model);
+                    foreach (var node in model.AllNodes.Values)
+                    {
+                        nsDBContext.Attach(node);
+                    }
+                }
+                //nsDBContext.ChangeTracker.AcceptAllChanges();
+            }
+#endif
+            return Task.FromResult(loadedModels);
+        }
+
 
     }
     public class NodeModelFactoryOpc<T> where T : NodeModel, new()
@@ -290,7 +494,8 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModel.Factory.Opc
                 var referencedModel = Create(opcContext, referencedNode, parent?.CustomState, out _);
                 if (referencedModel != null)
                 {
-                    AddChildIfNotExists(parent, parent?.OtherChilden, new NodeModel.ChildAndReference { Child = referencedModel, Reference = opcContext.GetNodeIdWithUri(referenceTypes.FirstOrDefault().NodeId, out _) }, opcContext.Logger);
+                    var childAndReference = new NodeModel.ChildAndReference { Child = referencedModel, Reference = opcContext.GetNodeIdWithUri(referenceTypes.FirstOrDefault().NodeId, out _) };
+                    AddChildIfNotExists(parent, parent?.OtherChilden, childAndReference, opcContext.Logger);
 
                     if (referencedModel is InstanceModelBase referencedInstanceModel)
                     {
@@ -470,8 +675,9 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModel.Factory.Opc
                 created = true;
 
                 var nodesetModel = opcContext.GetOrAddNodesetModel(nodeModel);
-                if (nodesetModel.AllNodes.TryAdd(nodeModel.NodeId, nodeModel))
+                if (!nodesetModel.AllNodes.ContainsKey(nodeModel.NodeId))
                 {
+                    nodesetModel.AllNodes.Add(nodeModel.NodeId, nodeModel);
                     if (nodeModel is InterfaceModel uaInterface)
                     {
                         nodesetModel.Interfaces.Add(uaInterface);
@@ -690,7 +896,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModel.Factory.Opc
             {
                 using (var sw = new StreamWriter(ms))
                 {
-                    var encoder = new JsonEncoder(ServiceMessageContext.GlobalContext, true, sw);
+                    var encoder = new JsonEncoder(ServiceMessageContext.GlobalContext, true, sw, false);
                     encoder.WriteVariant("Value", value, true);
                     sw.Flush();
                     encodedValue = Encoding.UTF8.GetString(ms.ToArray());

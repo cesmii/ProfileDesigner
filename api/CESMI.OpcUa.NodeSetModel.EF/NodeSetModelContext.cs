@@ -23,6 +23,13 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModel
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Owned<NodeModel.LocalizedText>();
+            modelBuilder.Owned<NodeModel.ChildAndReference>();
+            modelBuilder.Owned<VariableModel.EngineeringUnit>();
+            modelBuilder.Owned<DataTypeModel.StructureField>();
+            modelBuilder.Owned<DataTypeModel.UaEnumField>();
+
             modelBuilder.Entity<NodeSetModel>()
                 .ToTable("NodeSets")
                 .Ignore(nsm => nsm.AllNodes)
@@ -40,6 +47,11 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModel
                     $"{nameof(NodeModel.NodeSet)}{nameof(NodeSetModel.ModelUri)}",// Foreign key with auto-generated PK of the NodeModel.NodeSet property
                     $"{nameof(NodeModel.NodeSet)}{nameof(NodeSetModel.PublicationDate)}")
                 ;
+
+            modelBuilder.Entity<NodeModel>()
+                .OwnsMany<NodeModel.ChildAndReference>(nm => nm.OtherChilden).WithOwner()
+                ;
+
             modelBuilder.Entity<ObjectTypeModel>()
                 .ToTable("ObjectTypes")
                 ;
@@ -57,12 +69,12 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModel
                 ;
             modelBuilder.Entity<ObjectModel>()
                 .ToTable("Objects")
+                .HasOne<ObjectTypeModel>(o => o.TypeDefinition).WithMany()
                 ;
 
             modelBuilder.Entity<InterfaceModel>()
                 .ToTable("Interfaces")
                 ;
-
 
             modelBuilder.Entity<VariableModel>()
                 .ToTable("Variables")
@@ -77,7 +89,6 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModel
         }
 
         public DbSet<NodeSetModel> NodeSets { get; set; }
-        public DbSet<NodeModel> Nodes { get; set; }
     }
 
 }

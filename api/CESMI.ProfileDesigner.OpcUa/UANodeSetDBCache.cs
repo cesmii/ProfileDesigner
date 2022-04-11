@@ -167,6 +167,15 @@ namespace OPCUAHelpers
                 }
                 #endregion
 
+                if (nodeSet.Models?.Any() != true)
+                {
+                    nodeSet.Models = new ModelTableEntry[] {
+                        new ModelTableEntry { ModelUri = nodeSet.NamespaceUris?.FirstOrDefault(),
+                         RequiredModel = new ModelTableEntry[] { new ModelTableEntry { ModelUri = "http://opcfoundation.org/UA/" } },
+                         }
+                    };
+                }
+
                 UANodeSet tOldNodeSet = null;
                 foreach (var ns in nodeSet.Models)
                 {

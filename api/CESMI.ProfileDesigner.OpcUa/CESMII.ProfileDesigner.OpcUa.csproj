@@ -10,8 +10,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CESMI.ProfileDesigner.OpcUa.NodeSetModel.Factory.Opc\CESMII.ProfileDesigner.OpcUa.NodeSetModel.Factory.Opc.csproj" />
-    <ProjectReference Include="..\CESMI.ProfileDesigner.OpcUa.NodeSetModel\CESMII.ProfileDesigner.OpcUa.NodeSetModel.csproj" />
+    <ProjectReference Include="..\CESMI.OpcUa.NodeSetModel.EF\CESMII.OpcUa.NodeSetModel.EF.csproj" />
+    <ProjectReference Include="..\CESMI.OpcUa.NodeSetModel.Factory.Opc\CESMII.OpcUa.NodeSetModel.Factory.Opc.csproj" />
+    <ProjectReference Include="..\CESMI.OpcUa.NodeSetModel\CESMII.OpcUa.NodeSetModel.csproj" />
     <ProjectReference Include="..\CESMII.ProfileDesigner.Common\CESMII.ProfileDesigner.Common.csproj" />
     <ProjectReference Include="..\CESMII.ProfileDesigner.DAL\CESMII.ProfileDesigner.DAL.csproj" />
   </ItemGroup>

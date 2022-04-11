@@ -166,7 +166,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModel.Export.Opc
             string qualifiedNameForExport;
             if (qualifiedName != null)
             {
-                var parts = qualifiedName.Split(';', 2);
+                var parts = qualifiedName.Split(new[] { ';' }, 2);
                 if (parts.Length >= 2)
                 {
                     qualifiedNameForExport = new QualifiedName(parts[1], namespaces.GetIndexOrAppend(parts[0])).ToString();

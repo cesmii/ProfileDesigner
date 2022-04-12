@@ -192,13 +192,10 @@ function ProfileList() {
         return (
             <div className="header-actions-row mb-3 pr-0">
                 <p className="mb-2" >
-                    If you are the profile author, import the profiles (including any dependent profiles) using the 'Import' button. The import
-                    will tag you as the author for your profiles and permit you to edit the imported profiles.
-                    The import will check to ensure referenced type models are valid OPC UA type models.
+                    If you are the SM Profile author, import your profiles (including any dependent profiles) using the 'Import' button. The import will tag you as the author for your profiles and permit you to edit them. The import will also check to ensure referenced type models are valid OPC UA type models.
                 </p>
                 <p className="mb-2" >
-                    Any dependent profiles (OPC UA type models) that are imported will become read only and added to the library.
-                    Types within these dependent profiles can be viewed or extended to make new type definitions.
+                Any dependent profiles (OPC UA type models) that are imported will become read-only and added to the Profile Library. Type definitions within these dependent profiles can be viewed or extended to make new Type definitions, which can become part of one of your SM Profiles.
                 </p>
             </div>
         );

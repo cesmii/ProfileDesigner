@@ -42,12 +42,11 @@ export const WizardSettings = {
     ]
     , panels: [
         {
-            id: 'Welcome', caption: `Welcome to Profile Designer`,
+            id: 'Welcome', caption: `Welcome to the Smart Manufacturing Profile™ Designer`,
             introContent: (
                 <p>
-                    Use the wizard to help you get started building profiles and types.
-                    Start by creating a profile or importing profile(s) or continuing with an existing profile already saved in the designer.
-                    <strong> What would you like to do next?</strong>
+                    A SM Profile defines the Information Model for a manufacturing asset or process, with a goal to arrive at common, re-usable interfaces for accessing data.<br/>
+                    As key design principal, all SM Profiles should derive from (extend, or re-use) other SM Profiles. You can start with core and standardized building blocks provided by the OPC Foundation, or import a starting point provided by created by another designer, standards group or organization.
                 </p>
             )
         },
@@ -58,11 +57,11 @@ export const WizardSettings = {
             )
         },
         {
-            id: 'ImportProfile', caption: `Import Profile(s)`,
+            id: 'ImportProfile', caption: `Import Profiles`,
             introContent: (
                 <>
-                    <p>If you are the profile author, import the profiles (including any dependent profiles) using the 'Import' button. The import will tag you as the author for your profiles and permit you to edit the imported profiles. The import will check to ensure referenced type models are valid OPC UA type models.</p>
-                    <p>Any dependent profiles (OPC UA type models) that are imported will become read only and added to the library. Types within these dependent profiles can be viewed or extended to make new type definitions.</p>
+                    <p>If you are the SM Profile author, import your profiles (including any dependent profiles) using the 'Import' button. The import will tag you as the author for your profiles and permit you to edit them. The import will check to ensure referenced type models are valid OPC UA type models.</p>
+                    <p>Any dependent profiles (OPC UA type models) that are imported will become read-only and added to the Profile Library. Type definitions within these dependent profiles can be viewed or extended to make new Type definitions, which can become part of one of your SM Profiles.</p>
                 </>
             )
         },

@@ -126,3 +126,4 @@ dist
 .pnp.*
 /frontend/package-lock.json
 frontend/.env.development
+frontend/.env.development

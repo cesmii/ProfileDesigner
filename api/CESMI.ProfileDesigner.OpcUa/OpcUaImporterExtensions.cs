@@ -1,6 +1,8 @@
 ﻿#define NODESETDBTEST
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
+using CESMII.OpcUa.NodeSetModel;
+using CESMII.OpcUa.NodeSetImporter;
 
 #if NODESETDBTEST
 using Microsoft.EntityFrameworkCore;
@@ -17,13 +19,13 @@ namespace CESMII.ProfileDesigner.OpcUa
             // TODO turn into Option class
             var connectionStringNodeSetModel = configuration.GetConnectionString("NodeSetModelDB");
 
-            services.AddDbContext<OpcUa.NodeSetModel.NodeSetModelContext>(options =>
+            services.AddDbContext<NodeSetModelContext>(options =>
                 options
                         .UseNpgsql(connectionStringNodeSetModel, b => b.MigrationsAssembly("CESMII.ProfileDesigner.Api"))
                         .EnableSensitiveDataLogging()
             );
 #endif
-
+            services.AddCloudLibraryResolver(configuration.GetSection("CloudLibrary"));
         }
     }
 

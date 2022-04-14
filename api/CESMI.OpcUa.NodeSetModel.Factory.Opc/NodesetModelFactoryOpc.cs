@@ -5,15 +5,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-using CESMII.ProfileDesigner.OpcUa.NodeSetModel;
-using CESMII.ProfileDesigner.OpcUa.NodeSetModel.Opc.Extensions;
+using CESMII.OpcUa.NodeSetModel;
+using CESMII.OpcUa.NodeSetModel.Opc.Extensions;
 using Microsoft.Extensions.Logging;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using Opc.Ua.Export;
 
-namespace CESMII.ProfileDesigner.OpcUa.NodeSetModel
+namespace CESMII.OpcUa.NodeSetModel
 {
     public static class LocalizedTextExtension
     {
@@ -23,7 +23,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModel
     }
 }
 
-namespace CESMII.ProfileDesigner.OpcUa.NodeSetModel.Factory.Opc
+namespace CESMII.OpcUa.NodeSetModel.Factory.Opc
 {
     public interface IOpcUaContext
     {
@@ -40,6 +40,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModel.Factory.Opc
         NodeSetModel GetOrAddNodesetModel(NodeModel node);
         NodeModel GetModelForNode(string nodeId);
         ILogger Logger { get; }
+        string JsonEncodeVariant(Variant wrappedValue);
     }
 
     public class DefaultOpcUaContext : IOpcUaContext
@@ -132,6 +133,25 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModel.Factory.Opc
             return references;
         }
 
+        string IOpcUaContext.JsonEncodeVariant(Variant wrappedValue)
+        {
+            return JsonEncodeVariant(_systemContext, wrappedValue);
+        }
+        public static string JsonEncodeVariant(ISystemContext systemContext, Variant value)
+        {
+            string encodedValue = null;
+            using (var ms = new MemoryStream())
+            {
+                using (var sw = new StreamWriter(ms))
+                {
+                    var encoder = new JsonEncoder(new ServiceMessageContext { NamespaceUris = systemContext.NamespaceUris, }, true, sw, false);
+                    encoder.WriteVariant("Value", value, true);
+                    sw.Flush();
+                    encodedValue = Encoding.UTF8.GetString(ms.ToArray());
+                }
+            }
+            return encodedValue;
+        }
     }
 
     public class NodeModelFactoryOpc : NodeModelFactoryOpc<NodeModel>
@@ -879,7 +899,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModel.Factory.Opc
             }
             if (variableNode.Value != null)
             {
-                var encodedValue = JsonEncodeVariant(variableNode.WrappedValue);
+                var encodedValue = opcContext.JsonEncodeVariant(variableNode.WrappedValue);
                 _model.Value = encodedValue;
             }
             if (variableNode.AccessLevel != 1) _model.AccessLevel = variableNode.AccessLevel;
@@ -888,23 +908,6 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModel.Factory.Opc
             if (variableNode.WriteMask != 0) _model.WriteMask = (uint) variableNode.WriteMask;
             if (variableNode.UserWriteMask != 0) _model.UserWriteMask = (uint) variableNode.UserWriteMask;
         }
-
-        private static string JsonEncodeVariant(Variant value)
-        {
-            string encodedValue = null;
-            using (var ms = new MemoryStream())
-            {
-                using (var sw = new StreamWriter(ms))
-                {
-                    var encoder = new JsonEncoder(ServiceMessageContext.GlobalContext, true, sw, false);
-                    encoder.WriteVariant("Value", value, true);
-                    sw.Flush();
-                    encodedValue = Encoding.UTF8.GetString(ms.ToArray());
-                }
-            }
-            return encodedValue;
-        }
-
     }
 
     public class DataVariableModelFactoryOpc : VariableModelFactoryOpc<DataVariableModel>

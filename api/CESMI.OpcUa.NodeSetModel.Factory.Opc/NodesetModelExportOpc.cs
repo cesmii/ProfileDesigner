@@ -6,10 +6,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-using CESMII.ProfileDesigner.OpcUa.NodeSetModel;
-using CESMII.ProfileDesigner.OpcUa.NodeSetModel.Opc.Extensions;
+using CESMII.OpcUa.NodeSetModel;
+using CESMII.OpcUa.NodeSetModel.Opc.Extensions;
 
-namespace CESMII.ProfileDesigner.OpcUa.NodeSetModel.Export.Opc
+namespace CESMII.OpcUa.NodeSetModel.Export.Opc
 {
     public class NodeModelExportOpc : NodeModelExportOpc<NodeModel>
     {
@@ -384,7 +384,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModel.Export.Opc
 
             var references = dataVariable.References?.ToList() ?? new List<uaExport.Reference>();
 
-            if (_model.EngineeringUnits != null || !string.IsNullOrEmpty(_model.EngUnitNodeId))
+            if (_model.EngineeringUnit != null || !string.IsNullOrEmpty(_model.EngUnitNodeId))
             {
                 // Add engineering unit property
                 if (result.Item2 == null)
@@ -417,9 +417,9 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModel.Export.Opc
 
                     }
                 };
-                if (_model.EngineeringUnits != null)
+                if (_model.EngineeringUnit != null)
                 {
-                    EUInformation engUnits = NodeModelOpcExtensions.GetEUInformation(_model.EngineeringUnits);
+                    EUInformation engUnits = NodeModelOpcExtensions.GetEUInformation(_model.EngineeringUnit);
                     var euXmlElement = GetExtensionObjectAsXML(engUnits);
                     engUnitProp.Value = euXmlElement;
                 }

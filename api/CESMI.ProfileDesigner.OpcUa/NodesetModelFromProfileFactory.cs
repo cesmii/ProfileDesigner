@@ -1,7 +1,8 @@
 ﻿using CESMII.ProfileDesigner.Common.Enums;
 using CESMII.ProfileDesigner.DAL;
 using CESMII.ProfileDesigner.DAL.Models;
-using CESMII.ProfileDesigner.OpcUa.NodeSetModel.Factory.Opc;
+using CESMII.OpcUa.NodeSetModel;
+using CESMII.OpcUa.NodeSetModel.Factory.Opc;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -10,9 +11,9 @@ using System.Runtime.Serialization;
 using System.Threading.Tasks;
 
 using System.Text.Json;
-using CESMII.ProfileDesigner.OpcUa.NodeSetModel.Import.Profile;
+using CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile;
 
-namespace CESMII.ProfileDesigner.OpcUa.NodeSetModel.Factory.Profile
+namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
 {
     public interface IDALContext
     {
@@ -458,7 +459,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModel.Factory.Profile
 
                 if (attribute.EngUnit != null)
                 {
-                    variableModel.EngineeringUnits = new VariableModel.EngineeringUnit
+                    variableModel.EngineeringUnit = new VariableModel.EngineeringUnitInfo
                     {
                         DisplayName = attribute.EngUnit.DisplayName,
                         Description = attribute.EngUnit.Description,

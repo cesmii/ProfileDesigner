@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 
-namespace CESMII.ProfileDesigner.OpcUa.NodeSetModel
+namespace CESMII.OpcUa.NodeSetModel
 {
     public class NodeSetModel
     {
@@ -385,7 +385,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModel
         public string Value { get; set; }
 
         // Engineering units:
-        public class EngineeringUnit
+        public class EngineeringUnitInfo
         {
             public LocalizedText DisplayName { get; set; }
             public LocalizedText Description { get; set; }
@@ -393,7 +393,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModel
             public int? UnitId { get; set; }
         }
 
-        virtual public EngineeringUnit EngineeringUnits { get; set; }
+        virtual public EngineeringUnitInfo EngineeringUnit { get; set; }
         public string EngUnitNodeId { get; set; }
         public double? MinValue { get; set; }
         public double? MaxValue { get; set; }

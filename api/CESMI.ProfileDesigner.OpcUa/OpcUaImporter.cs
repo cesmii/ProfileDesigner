@@ -6,18 +6,17 @@ namespace CESMII.ProfileDesigner.OpcUa
     using CESMII.ProfileDesigner.DAL.Models;
     using CESMII.ProfileDesigner.DAL.Utils;
     using CESMII.ProfileDesigner.Data.Entities;
-    using CESMII.ProfileDesigner.OpcUa.NodeSetModel;
-    using CESMII.ProfileDesigner.OpcUa.NodeSetModel.Export.Opc;
-    using CESMII.ProfileDesigner.OpcUa.NodeSetModel.Factory.Opc;
-    using CESMII.ProfileDesigner.OpcUa.NodeSetModel.Factory.Profile;
-    using CESMII.ProfileDesigner.OpcUa.NodeSetModel.Import.Profile;
-    using CESMII.ProfileDesigner.OpcUa.NodeSetModel.Opc.Extensions;
+    using CESMII.OpcUa.NodeSetModel;
+    using CESMII.OpcUa.NodeSetModel.Export.Opc;
+    using CESMII.OpcUa.NodeSetModel.Factory.Opc;
+    using CESMII.OpcUa.NodeSetModel.Opc.Extensions;
+    using CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile;
+    using CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile;
 #if NODESETDBTEST
     using Microsoft.EntityFrameworkCore;
 #endif
     using Microsoft.Extensions.Logging;
     using Opc.Ua;
-    using Opc.Ua.Export;
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
@@ -25,6 +24,8 @@ namespace CESMII.ProfileDesigner.OpcUa
     using System.Linq;
     using System.Text;
     using System.Threading.Tasks;
+    using global::Opc.Ua;
+    using global::Opc.Ua.Export;
 
     public class OpcUaImporter : IOpcUaContext
     {
@@ -78,10 +79,11 @@ namespace CESMII.ProfileDesigner.OpcUa
 
         NodeStateCollection _importedNodes = new NodeStateCollection();
 
-        Dictionary<string, NodeSetModel.NodeSetModel> NodesetModels = new Dictionary<string, NodeSetModel.NodeSetModel>();
+
+        Dictionary<string, NodeSetModel> NodesetModels = new Dictionary<string, NodeSetModel>();
         Dictionary<string, string> Aliases = new Dictionary<string, string>();
 
-        public System.Threading.Tasks.Task<List<NodeSetModel.NodeSetModel>> LoadNodeSetAsync(UANodeSet nodeSet, ProfileModel profile, bool doNotReimport = false)
+        public System.Threading.Tasks.Task<List<NodeSetModel>> LoadNodeSetAsync(UANodeSet nodeSet, ProfileModel profile, bool doNotReimport = false)
         {
             if (!nodeSet.Models.Any())
             {
@@ -107,7 +109,7 @@ namespace CESMII.ProfileDesigner.OpcUa
 
         public static List<string> _coreNodeSetUris = new List<string> { strOpcNamespaceUri, strOpcDiNamespaceUri };
 
-        public async System.Threading.Tasks.Task<Dictionary<string, ProfileTypeDefinitionModel>> ImportNodeSetModelAsync(NodeSetModel.NodeSetModel nodeSetModel, UserToken userToken)
+        public async System.Threading.Tasks.Task<Dictionary<string, ProfileTypeDefinitionModel>> ImportNodeSetModelAsync(NodeSetModel nodeSetModel, UserToken userToken)
         {
 #if NODESETDBTEST
             {
@@ -272,7 +274,7 @@ namespace CESMII.ProfileDesigner.OpcUa
         /// <param name="nodesetModel">nodeset model to import</param>
         /// <param name="updateExisting">Indicates if existing profile items should be updated/overwritten or kept unchanged.</param>
         /// <returns></returns>
-        private static Dictionary<string, ProfileTypeDefinitionModel> ImportProfileItems(NodeSetModel.NodeSetModel nodesetModel, DALContext dalContext)
+        private static Dictionary<string, ProfileTypeDefinitionModel> ImportProfileItems(NodeSetModel nodesetModel, DALContext dalContext)
         {
             nodesetModel.UpdateIndices();
             foreach (var dataType in nodesetModel.DataTypes)
@@ -352,7 +354,7 @@ namespace CESMII.ProfileDesigner.OpcUa
             return dalContext.profileItems;
         }
 
-        static UANodeSet ExportNodeSet(UANodeSet nodeSet, NodeSetModel.NodeSetModel nodesetModel, Dictionary<string, NodeSetModel.NodeSetModel> nodesetModels, Dictionary<string, string> aliases)
+        static UANodeSet ExportNodeSet(UANodeSet nodeSet, NodeSetModel nodesetModel, Dictionary<string, NodeSetModel> nodesetModels, Dictionary<string, string> aliases)
         {
             //var nodeSet = new UANodeSet();
 
@@ -524,13 +526,13 @@ namespace CESMII.ProfileDesigner.OpcUa
             return null;
         }
 
-        public NodeSetModel.NodeSetModel GetOrAddNodesetModel(NodeModel nodeModel)
+        public NodeSetModel GetOrAddNodesetModel(NodeModel nodeModel)
         {
             var uaNamespace = nodeModel.Namespace;
             if (!NodesetModels.TryGetValue(uaNamespace, out var nodesetModel))
             {
                 var profile = _lastDalContext?.GetProfileForNamespace(uaNamespace);// _nsDal.Where(ns => ns.Namespace == uaNamespace && (ns.AuthorId == null || ns.AuthorId == this._lastDalContext._userId) , null, null, false, false);
-                nodesetModel = new NodeSetModel.NodeSetModel();
+                nodesetModel = new NodeSetModel();
                 if (profile != null)
                 {
                     nodesetModel.Version = profile.Version;
@@ -566,7 +568,10 @@ namespace CESMII.ProfileDesigner.OpcUa
             return null;
         }
 
-
+        string IOpcUaContext.JsonEncodeVariant(Variant wrappedValue)
+        {
+            return DefaultOpcUaContext.JsonEncodeVariant(_systemContext, wrappedValue);
+        }
     }
 
     public class LoggerCapture : ILogger<OpcUaImporter>

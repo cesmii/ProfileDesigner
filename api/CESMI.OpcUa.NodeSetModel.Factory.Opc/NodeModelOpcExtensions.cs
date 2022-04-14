@@ -4,13 +4,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace CESMII.ProfileDesigner.OpcUa.NodeSetModel.Opc.Extensions
+namespace CESMII.OpcUa.NodeSetModel.Opc.Extensions
 {
     public static class NodeModelOpcExtensions
     { 
         internal static void SetEngineeringUnits(this VariableModel model, EUInformation euInfo)
         {
-            model.EngineeringUnits = new VariableModel.EngineeringUnit
+            model.EngineeringUnit = new VariableModel.EngineeringUnitInfo
             {
                 DisplayName = euInfo.DisplayName?.ToModelSingle(),
                 Description = euInfo.Description?.ToModelSingle(),
@@ -128,7 +128,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModel.Opc.Extensions
             return s;
         }
 
-        public static EUInformation GetEUInformation(VariableModel.EngineeringUnit engineeringUnitDescription)
+        public static EUInformation GetEUInformation(VariableModel.EngineeringUnitInfo engineeringUnitDescription)
         {
             if (engineeringUnitDescription == null) return null;
             EUInformation euInfo;

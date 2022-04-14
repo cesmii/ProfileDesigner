@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System;
 
-namespace CESMII.ProfileDesigner.OpcUa.NodeSetModel
+namespace CESMII.OpcUa.NodeSetModel
 {
     public class NodeSetModelContext : DbContext
     {
@@ -23,10 +23,14 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModel
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+            CreateModel(modelBuilder);
 
+        }
+        public static void CreateModel(ModelBuilder modelBuilder)
+        {
             modelBuilder.Owned<NodeModel.LocalizedText>();
             modelBuilder.Owned<NodeModel.ChildAndReference>();
-            modelBuilder.Owned<VariableModel.EngineeringUnit>();
+            modelBuilder.Owned<VariableModel.EngineeringUnitInfo>();
             modelBuilder.Owned<DataTypeModel.StructureField>();
             modelBuilder.Owned<DataTypeModel.UaEnumField>();
 
@@ -78,6 +82,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModel
 
             modelBuilder.Entity<VariableModel>()
                 .ToTable("Variables")
+                .OwnsOne(v => v.EngineeringUnit).Property(v => v.NamespaceUri).IsRequired()
                 ;
             modelBuilder.Entity<BaseTypeModel>()
                 .ToTable("BaseTypes")

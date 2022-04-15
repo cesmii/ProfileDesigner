@@ -1,10 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 
-namespace CESMII.ProfileDesigner.OpcUa.NodeSetModel
+namespace CESMII.OpcUa.NodeSetModel
 {
     public class NodeSetModel
     {
@@ -156,7 +155,6 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModel
 
         public virtual NodeSetModel NodeSet { get; set; }
 
-        [Owned]
         public class LocalizedText
         {
             public string Text { get; set; }
@@ -205,10 +203,9 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModel
         /// </summary>
         public virtual List<ObjectTypeModel> Events { get; set; } = new List<ObjectTypeModel>();
 
-        [Owned]        
         public class ChildAndReference
         {
-            public NodeModel Child { get; set; }
+            public virtual NodeModel Child { get; set; }
             public string Reference { get; set; }
         }
 
@@ -254,6 +251,9 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModel
 
     public abstract class InstanceModelBase : NodeModel
     {
+        /// <summary>
+        /// Values: Optional, Mandatory, MandatoryPlaceholder, OptionalPlaceholder, ExposesItsArray
+        /// </summary>
         public string ModelingRule { get; set; }
         public virtual NodeModel Parent
         {
@@ -385,7 +385,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModel
         public string Value { get; set; }
 
         // Engineering units:
-        public class EngineeringUnit
+        public class EngineeringUnitInfo
         {
             public LocalizedText DisplayName { get; set; }
             public LocalizedText Description { get; set; }
@@ -393,7 +393,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModel
             public int? UnitId { get; set; }
         }
 
-        virtual public EngineeringUnit EngineeringUnits { get; set; }
+        virtual public EngineeringUnitInfo EngineeringUnit { get; set; }
         public string EngUnitNodeId { get; set; }
         public double? MinValue { get; set; }
         public double? MaxValue { get; set; }
@@ -429,7 +429,6 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModel
         public virtual List<StructureField> StructureFields { get; set; }
         public virtual List<UaEnumField> EnumFields { get; set; }
 
-        [Owned]
         public class StructureField
         {
             public string Name { get; set; }
@@ -439,7 +438,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModel
             public override string ToString() => $"{Name}: {DataType} {(IsOptional ? "Optional" : "")}";
 
         }
-        [Owned]
+
         public class UaEnumField
         {
             public string Name { get; set; }
@@ -464,4 +463,15 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModel
 
     }
 
+#if NETSTANDARD2_0
+    static class DictExtensions
+    {
+        public static bool TryAdd(this Dictionary<string, NodeModel> dict, string key, NodeModel value)
+        {
+            if (dict.ContainsKey(key)) return false;
+            dict.Add(key, value);
+            return true;
+        }
+    }
+#endif
 }

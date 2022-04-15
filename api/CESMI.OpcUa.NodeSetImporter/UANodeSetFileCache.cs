@@ -10,18 +10,8 @@ using System.IO;
 using System.Linq;
 using System.Xml.Linq;
 
-namespace OPCUAHelpers
+namespace CESMII.OpcUa.NodeSetImporter
 {
-    public interface IUANodeSetCache
-    {
-        public void LoadNodeSet(UANodeSetImportResult results, string nodesetFileName);
-        public bool LoadNodeSet(UANodeSetImportResult results, ModelNameAndVersion nameVersion, object TenantID);
-        public bool LoadNodeSet(UANodeSetImportResult results, byte[] nodesetArray, object TenantID);
-        public string GetRawModelXML(ModelValue model);
-        public void DeleteNewlyAddedNodeSetsFromCache(UANodeSetImportResult results);
-        public UANodeSetImportResult FlushCache();
-        public ModelValue GetNodeSetByID(string id);
-    }
 
     /// <summary>
     /// Implementation of File Cache - can be replaced with Database cache if necessary
@@ -106,36 +96,23 @@ namespace OPCUAHelpers
         /// </summary>
         /// <param name="results"></param>
         /// <param name="nodesetFileName"></param>
-        public void LoadNodeSet(UANodeSetImportResult results, string nodesetFileName)
+        public void AddNodeSet(UANodeSetImportResult results, string nodesetFileName, object tenantId)
         {
             if (!File.Exists(nodesetFileName))
                 return;
-            byte[] nsBytes = null;
             using (Stream stream = new FileStream(nodesetFileName, FileMode.Open))
             {
-                using (var tm = new MemoryStream())
-                {
-                    stream.CopyTo(tm);
-                    nsBytes = tm.ToArray();
-                }
-            }
-            if (nsBytes?.Length > 0)
-                LoadNodeSet(results, nsBytes, null);
-            else
-            {
-                if (results == null)
-                    results = new UANodeSetImportResult();
-                results.ErrorMessage = "Error during NodeSet Loading";
-            }
+                AddNodeSet(results, stream, tenantId);
+            };
         }
 
-        public bool LoadNodeSet(UANodeSetImportResult results, ModelNameAndVersion nameVersion, object TenantID)
+        public bool GetNodeSet(UANodeSetImportResult results, ModelNameAndVersion nameVersion, object TenantID)
         {
             //Try to find already uploaded NodeSets using cached NodeSets in the "NodeSets" Folder.
             string tFileName = GetCacheFileName(nameVersion, TenantID);
             if (File.Exists(tFileName))
             {
-                LoadNodeSet(results, tFileName);
+                AddNodeSet(results, tFileName, TenantID);
                 return true;
             }
             return false;
@@ -166,21 +143,24 @@ namespace OPCUAHelpers
         /// <param name="nodesetArray"></param>
 
         /// <returns></returns>
-        public bool LoadNodeSet(UANodeSetImportResult results, byte[] nodesetArray, object TenantID)
+        public bool AddNodeSet(UANodeSetImportResult results, Stream nodesetStream, object TenantID)
         {
             bool WasNewSet = false;
-            if (nodesetArray?.Length > 0)
+            bool bDisposeStream = false;
+            try
             {
-                var tStream = new MemoryStream();
-                tStream.Write(nodesetArray, 0, nodesetArray.Length);
-                tStream.Position = 0;
-                UANodeSet nodeSet = UANodeSet.Read(tStream);
+                if (!nodesetStream.CanSeek)
+                {
+                    var nodesetBytes = new MemoryStream();
+                    nodesetStream.CopyTo(nodesetBytes);
+                    nodesetStream = nodesetBytes;
+                    bDisposeStream = true;
+                }
+                UANodeSet nodeSet = UANodeSet.Read(nodesetStream);
 
                 #region Comment processing
-                tStream = new MemoryStream();
-                tStream.Write(nodesetArray, 0, nodesetArray.Length);
-                tStream.Position = 0;
-                var doc = XElement.Load(tStream);
+                nodesetStream.Position = 0;
+                var doc = XElement.Load(nodesetStream);
                 var comments = doc.DescendantNodes().OfType<XComment>();
                 foreach (XComment comment in comments)
                 {
@@ -217,10 +197,26 @@ namespace OPCUAHelpers
                     }
                     if (CacheNewerVersion) //Cache only newer version
                     {
-                        File.WriteAllBytes(filePath, nodesetArray);
+                        nodesetStream.Position = 0;
+                        using (var fileStream = new FileStream(filePath, FileMode.OpenOrCreate))
+                        {
+                            nodesetStream.CopyTo(fileStream);
+                            fileStream.Flush();
+                        }
                         WasNewSet = true;
                     }
-                    UANodeSetImporter.ParseDependencies(results, nodeSet, ns, filePath, WasNewSet);
+                    results.AddModelAndDependencies(nodeSet, ns, filePath, WasNewSet);
+                }
+            }
+            finally
+            {
+                if (bDisposeStream)
+                {
+                    try
+                    {
+                        nodesetStream?.Dispose();
+                    }
+                    catch { }
                 }
             }
             return WasNewSet;

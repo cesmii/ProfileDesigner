@@ -203,6 +203,10 @@ a {
     &.size24 {
         font-size: 24px !important;
     }
+
+    &.sizeText {
+        font-size: .9rem !important;
+    }
 }
 
 @keyframes spinzilla {

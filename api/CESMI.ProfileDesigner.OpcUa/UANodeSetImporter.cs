@@ -1,18 +1,17 @@
 ﻿/* Author:      Chris Muench, C-Labs
- * Last Update: 9/24/2021
+ * Last Update: 4/8/2022
  * License:     MIT
  * 
  * Some contributions thanks to CESMII – the Smart Manufacturing Institute, 2021
  */
 
-using CESMII.ProfileDesigner.DAL;
 using Opc.Ua.Export;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace OPCUANodeSetHelpers
+namespace OPCUAHelpers
 {
     //Glossary of Terms:
     //-----------------------------------
@@ -47,7 +46,7 @@ namespace OPCUANodeSetHelpers
     /// <summary>
     /// Simplified class containing all important information of a NodeSet
     /// </summary>
-    public class ModelNameAndVersion 
+    public class ModelNameAndVersion
     {
         /// <summary>
         /// The main Model URI (Namespace) 
@@ -97,7 +96,7 @@ namespace OPCUANodeSetHelpers
         {
             if (string.IsNullOrEmpty(ofModelUri))
                 return false;
-            return ModelUri==ofModelUri && PublicationDate >= ofPublishDate;
+            return ModelUri == ofModelUri && PublicationDate >= ofPublishDate;
         }
 
         public override string ToString()
@@ -118,7 +117,7 @@ namespace OPCUANodeSetHelpers
         /// <summary>
         /// Error Message in case the import was not successful or is missing dependencies
         /// </summary>
-        public string ErrorMessage { get; set; } = ""; 
+        public string ErrorMessage { get; set; } = "";
         /// <summary>
         /// All Imported Models - sorted from least amount of dependencies to most dependencies
         /// </summary>
@@ -173,20 +172,20 @@ namespace OPCUANodeSetHelpers
     /// </summary>
     public static class UANodeSetImporter
     {
-        public static byte [] CreateNewUANodeSetAndImport(IUANodeSetCache NodeSetCacheSystem, NewNodeSetInfo tInPara, UserToken TenantID = null)
+        public static byte[] CreateNewUANodeSetAndImport(IUANodeSetCache NodeSetCacheSystem, NewNodeSetInfo tInPara, object TenantID = null)
         {
             var tNs = new UANodeSet();
             tNs.Models = new ModelTableEntry[1];
             tNs.Models[0] = new ModelTableEntry();
             tNs.LastModified = DateTime.Now;
             tNs.Models[0].ModelUri = tInPara.ModelUri;
-            tNs.Models[0].PublicationDate = tInPara.PublicationDate==DateTime.MinValue?DateTime.Now:tInPara.PublicationDate;
-            tNs.Models[0].Version = tInPara.ModelVersion??"1.00";
+            tNs.Models[0].PublicationDate = tInPara.PublicationDate == DateTime.MinValue ? DateTime.Now : tInPara.PublicationDate;
+            tNs.Models[0].Version = tInPara.ModelVersion ?? "1.00";
             tNs.NamespaceUris = new string[1];
             tNs.NamespaceUris[0] = tInPara.ModelUri;
             tNs.Aliases = new NodeIdAlias[1];
             tNs.Items = new UANode[1];
-            if (tInPara.DependencyIDs?.Count>0)
+            if (tInPara.DependencyIDs?.Count > 0)
             {
                 foreach (var pId in tInPara.DependencyIDs)
                 {
@@ -243,7 +242,7 @@ namespace OPCUANodeSetHelpers
         /// <param name="FailOnExisting">Default behavior is that all Models in NodeSets are returned even if they have been imported before. If set to true, the importer will fail if it has imported a nodeset before and does not cache nodeset if they have missing dependencies</param>
         /// <param name="TenantID">If the import has Multi-Tenant Cache, the tenant ID has to be set here</param>
         /// <returns></returns>
-        public static UANodeSetImportResult ImportNodeSets(IUANodeSetCache NodeSetCacheSystem, UANodeSetImportResult results, List<string> nodeSetFilenames, List<byte[]> nodeSetStreams, bool FailOnExisting=false, UserToken TenantID=null)
+        public static UANodeSetImportResult ImportNodeSets(IUANodeSetCache NodeSetCacheSystem, UANodeSetImportResult results, List<string> nodeSetFilenames, List<byte[]> nodeSetStreams, bool FailOnExisting = false, object TenantID = null)
         {
             if (results == null)
                 results = new UANodeSetImportResult();
@@ -265,7 +264,7 @@ namespace OPCUANodeSetHelpers
                 {
                     foreach (var nodeStream in nodeSetStreams)
                     {
-                        var JustFoundNewNodeSet= NodeSetCacheSystem.LoadNodeSet(results, nodeStream, TenantID);
+                        var JustFoundNewNodeSet = NodeSetCacheSystem.LoadNodeSet(results, nodeStream, TenantID);
                         if (!NewNodeSetFound && JustFoundNewNodeSet)
                             NewNodeSetFound = JustFoundNewNodeSet;
                     }
@@ -349,7 +348,7 @@ namespace OPCUANodeSetHelpers
         /// <returns>The ModelValue created or found in the results</returns>
         internal static ModelValue ParseDependencies(UANodeSetImportResult results, UANodeSet nodeSet, ModelTableEntry ns, string filePath, bool WasNewSet)
         {
-            var tModel = results.Models.Where(s => s.NameVersion.ModelUri == ns.ModelUri).OrderByDescending(s=>s.NameVersion.PublicationDate).FirstOrDefault();
+            var tModel = results.Models.Where(s => s.NameVersion.ModelUri == ns.ModelUri).OrderByDescending(s => s.NameVersion.PublicationDate).FirstOrDefault();
             if (tModel == null)
                 results.Models.Add(tModel = new ModelValue { NodeSet = nodeSet, NameVersion = new ModelNameAndVersion { ModelUri = ns.ModelUri, ModelVersion = ns.Version, PublicationDate = ns.PublicationDate }, FilePath = filePath, NewInThisImport = WasNewSet });
             if (ns.RequiredModel?.Any() == true)
@@ -358,7 +357,7 @@ namespace OPCUANodeSetHelpers
                 {
                     tModel.Dependencies.Add(tDep.ModelUri);
                     if (!results.MissingModels.Any(s => s.HasNameAndVersion(tDep.ModelUri, tDep.PublicationDate)))
-                        results.MissingModels.Add(new ModelNameAndVersion { ModelUri = tDep.ModelUri, ModelVersion = tDep.Version, PublicationDate=tDep.PublicationDate });
+                        results.MissingModels.Add(new ModelNameAndVersion { ModelUri = tDep.ModelUri, ModelVersion = tDep.Version, PublicationDate = tDep.PublicationDate });
                 }
             }
             return tModel;

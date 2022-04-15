@@ -64,7 +64,7 @@ function WizardWelcome() {
     //-------------------------------------------------------------------
     const renderTileButton = (pg, welcomeContent, href) => {
         return (
-            <div className="col-md-4 d-flex" >
+            <div className="col-sm-6 d-flex" >
                 <div className={`card d-flex flex-column h-100`} >
                     <div className={`card-body p-4 pt-3 d-flex flex-column h-100`} >
                         <div className="">
@@ -99,15 +99,15 @@ function WizardWelcome() {
         return (
             <>
                 <p>
-                    Import profile(s) (including any dependent profiles) built outside of this tool using the 'Import' button.
-                    If you are the profile author, you can edit and add types to the imported profile.
+                    Import starting point or building block Profiles using the 'Import' button.
+                    If you are the profile author, you can edit and add types to the imported profile, in all other cases, you will extend or re-use the starting point Profiles.
                 </p>
                 
                 <ul className="p-0 pl-3 mb-0">
-                    <li>Step 1 - Import one or many profiles (including dependent profiles)</li>
-                    <li>Step 2 - Select the profile to associate with the type definition you will create in the final step</li>
-                    <li>Step 3 - Select base type to extend</li>
-                    <li>Step 4 - Save newly extended type </li>
+                    <li>Step 1 - Import one or many profiles you want to re-use or extend</li>
+                    <li>Step 2 - Find a Type to start from in the <strong>Type Library</strong></li>
+                    <li>Step 3 - Select Type to extend</li>
+                    <li>Step 4 - Save the newly extended Type to your own Profile</li>
                 </ul>
             </>
         );
@@ -116,11 +116,11 @@ function WizardWelcome() {
     const renderWelcomeContentContinue = (pg) => {
         return (
             <>
-                <p>Already have a profile created or imported? Use this path to select that profile and continue building types.</p>
+                <p>Your Profiles contain the Type definitions and extensions that you have created. You can import from file, or continue work you've previously started in this tool.</p>
                 <ul className="p-0 pl-3 mb-0">
-                    <li>Step 1 - Select the profile to associate with the type definition you will create in the final step</li>
+                    <li>Step 1 - Find your Profile in the <strong>Profile Library</strong></li>
                     <li>Step 2 - Select base type to extend</li>
-                    <li>Step 3 - Save newly extended type </li>
+                    <li>Step 3 - Save the newly extended Type to your own Profile</li>
                 </ul>
             </>
         );
@@ -134,7 +134,6 @@ function WizardWelcome() {
         return (
             <>
                 <div className="row mb-3">
-                    {renderTileButton(pgCreate, renderWelcomeContentCreate(pgCreate), '/wizard/create-profile')}
                     {renderTileButton(pgImport, renderWelcomeContentImport(pgImport), '/wizard/import-profile')}
                     {renderTileButton(pgSelect, renderWelcomeContentContinue(pgSelect), '/wizard/select-existing-profile')}
                 </div>
@@ -167,9 +166,9 @@ function WizardWelcome() {
     const renderAboutTypeLibrary = () => {
         var content = (
             <p className="mb-0">
-                The <strong>Type Library</strong> stores all types associated with profiles created or imported into the designer.
-                You can quickly access, view and edit types. Use the type library built in filtering tools to find specific type definitions relevant to you.
-                Type definitions you authored can be edited from here and the Extend button allows you to extend existing types and build your own. 
+                The <strong>Type Library</strong> stores all the Type definitions associated with the SM Profiles available in your workspace.<br/>
+                From here, you can quickly search for, view and extend any Type definition. You can <em>edit</em> Type definitions that belong to one of your Profiles, but you cannot edit Type definitions that were created by someone else -- to customize those, you must <em>extend</em> the Type.<br/>
+                The type library has powerful filtering tools that can help you find the right starting point for extension.
             </p>
         );
         return renderTileWideButton("About Type Library", content, '/types/library', "Go to Type Library", "primary");
@@ -178,11 +177,11 @@ function WizardWelcome() {
     const renderAboutProfileLibrary = () => {
         var content = (
             <p className="mb-0">
-                The <strong>Profile Library</strong> stores all profiles imported or created in the system. A profile contains a collection of
-                type definitions which are located in the type library.
-                Profiles are either standard OPC UA nodeset profiles (ie. http://opcfoundation.org/UA/, http://opcfoundation.org/UA/DI),
-                other standard OPC UA nodeset profiles (ie. http://opcfoundation.org/UA/Robotics/) or custom profiles you have created or imported into the designer.
-                Manage profiles by visiting the <strong>Profile Library</strong>.
+                The <strong>Profile Library</strong> stores all SM Profiles available in your workspace. You can add to your workspace by importing or creating SM Profiles.<br/>
+                Each SM Profile contains a collection of Type definitions -- you can find them in the Type Library.<br/>
+                Profiles may be standardized <a href="http://opcfoundation.org/UA/">OPC UA Nodesets</a>, <a href="https://opcfoundation.org/about/opc-technologies/opc-ua/ua-companion-specifications/">Companion Specification</a> Nodesets, such as those created by formal working groups.
+                or custom profiles you have created or imported into your workspace.<br/>
+                You can manage your workspace in the <strong>Profile Library</strong>.
             </p>
         );
         return renderTileWideButton("About Profile Library", content, '/profiles/library', "Go to Profile Library", "primary");
@@ -197,7 +196,7 @@ function WizardWelcome() {
                 <div className="col-sm-12">
                     <div className="card">
                         <div className="card-body">
-                            <h2 className="headline-3">About Profile Designer</h2>
+                            <h2 className="headline-3">About SM Profile Designer</h2>
                             <ul>
                                 <li>For documentation click here</li>
                                 <li>In other news...</li>

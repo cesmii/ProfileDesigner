@@ -732,7 +732,8 @@ CREATE TABLE public.profile_composition
     composition_id integer NOT NULL,
     name character varying(256) COLLATE pg_catalog."default" NOT NULL,
 	opc_browse_name character varying(256) NULL,
-    opc_node_id character varying(256) NULL,
+    -- Compositions don't have nodeids, compare on opc_browse_name
+    --opc_node_id character varying(256) NULL, 
     --namespace character varying(512) COLLATE pg_catalog."default" NULL,
     is_required boolean NULL,
 	modeling_rule character varying(256) NULL,

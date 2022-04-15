@@ -7,14 +7,15 @@
 ---------------------------------------------------------------------
 
 ALTER TABLE public.lookup_type
-DROP COLUMN owner_id
+DROP COLUMN owner_id;
 
 ALTER TABLE public.lookup
-DROP COLUMN owner_id
-
-ALTER TABLE public.lookup
-DROP COLUMN owner_id
+DROP COLUMN owner_id;
 
 -- Remove unused opc_node_id column from profile_composition
 ALTER TABLE public.profile_composition
-DROP COLUMN opc_node_id
+DROP COLUMN opc_node_id;
+
+DELETE FROM public.lookup where type_id = 3;
+
+DELETE FROM public.lookup_type where id = 3;

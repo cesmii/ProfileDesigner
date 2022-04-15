@@ -7,6 +7,7 @@ using CESMII.ProfileDesigner.DAL;
 using CESMII.ProfileDesigner.DAL.Models;
 using CESMII.ProfileDesigner.Data.Entities;
 using CESMII.ProfileDesigner.OpcUa;
+using CESMII.OpcUa.NodeSetImporter;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -431,7 +432,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         public Task<IActionResult> UAFlushCache()
         {
             _logger.LogInformation($"ProfileController|Flush NodeSets Importer Cache. .");
-            var myNodeSetCache = new OPCUAHelpers.UANodeSetFileCache();
+            var myNodeSetCache = new UANodeSetFileCache();
             myNodeSetCache.FlushCache();
             //return success message object
             return Task.FromResult<IActionResult>(Ok(new ResultMessageModel() { IsSuccess = true, Message = "Item was deleted." }));

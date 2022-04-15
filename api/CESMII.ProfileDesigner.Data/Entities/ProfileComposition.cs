@@ -23,8 +23,9 @@
         [Column(name: "opc_browse_name")]
         public string BrowseName { get; set; }
 
-        [Column(name: "opc_node_id")]
-        public string OpcNodeId { get; set; }
+        // Compositions don't have nodeids. Compare on BrowseName
+        //[Column(name: "opc_node_id")]
+        //public string OpcNodeId { get; set; }
 
         [Column(name: "is_required")]
         public bool? IsRequired { get; set; }

@@ -8,7 +8,7 @@ using CESMII.ProfileDesigner.DAL.Models;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace OPCUAHelpers
+namespace CESMII.OpcUa.NodeSetImporter
 {
     public static class UANodeSetValidator
     {

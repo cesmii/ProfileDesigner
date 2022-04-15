@@ -4,16 +4,18 @@
  * 
  * Some contributions thanks to CESMII – the Smart Manufacturing Institute, 2021
  */
+using CESMII.OpcUa.NodeSetImporter;
 using CESMII.ProfileDesigner.DAL;
 using CESMII.ProfileDesigner.DAL.Models;
 using CESMII.ProfileDesigner.Data.Entities;
 using Opc.Ua.Export;
 using System;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml.Linq;
 
-namespace OPCUAHelpers
+namespace CESMII.ProfileDesigner.Opc.Ua.NodeSetDBCache
 {
     public class UANodeSetDBCache : IUANodeSetCache
     {
@@ -56,7 +58,10 @@ namespace OPCUAHelpers
                     CCacheId = tns.ID
                 };
                 UANodeSetImportResult res = new UANodeSetImportResult();
-                LoadNodeSet(res, Encoding.UTF8.GetBytes(tns.FileCache), _userToken);
+                using (var nodesetStream = new MemoryStream(Encoding.UTF8.GetBytes(tns.FileCache)))
+                {
+                    AddNodeSet(res, nodesetStream, _userToken);
+                }
                 if (res?.Models?.Count > 0)
                     return res.Models[0];
             }
@@ -85,26 +90,26 @@ namespace OPCUAHelpers
             return (model?.NameVersion?.CCacheId as NodeSetFileModel)?.FileCache;
         }
 
-        public void LoadNodeSet(UANodeSetImportResult results, string nodesetFileName)
+        public void AddNodeSet(UANodeSetImportResult results, string nodesetFileName, object TenantID)
         {
             //No return ever as files are not supported with db cache
         }
 
-        public bool LoadNodeSet(UANodeSetImportResult results, ModelNameAndVersion nameVersion, object AuthorID)
+        public bool GetNodeSet(UANodeSetImportResult results, ModelNameAndVersion nameVersion, object AuthorID)
         {
             var authorToken = AuthorID as UserToken;
             NodeSetFileModel myModel = GetProfileModel(nameVersion, authorToken);
 
             if (myModel != null)
             {
-                using (System.IO.MemoryStream nodeSetStream = new System.IO.MemoryStream())
+                using (var nodeSetStream = new System.IO.MemoryStream(Encoding.UTF8.GetBytes(myModel.FileCache)))
                 {
-                    nodeSetStream.Write(Encoding.UTF8.GetBytes(myModel.FileCache));
-                    nodeSetStream.Position = 0;
+                    //nodeSetStream.Write(Encoding.UTF8.GetBytes(myModel.FileCache));
+                    //nodeSetStream.Position = 0;
                     UANodeSet nodeSet = UANodeSet.Read(nodeSetStream);
                     foreach (var ns in nodeSet.Models)
                     {
-                        UANodeSetImporter.ParseDependencies(results, nodeSet, ns, null, false);
+                        results.AddModelAndDependencies(nodeSet, ns, null, false);
                         foreach (var model in results.Models)
                         {
                             if (model.NameVersion.CCacheId == null)
@@ -143,22 +148,29 @@ namespace OPCUAHelpers
             return myModel;
         }
 
-        public bool LoadNodeSet(UANodeSetImportResult results, byte[] nodesetArray, object authorId)
+        public bool AddNodeSet(UANodeSetImportResult results, Stream nodesetStream, object authorId)
         {
             bool WasNewSet = false;
-            if (nodesetArray?.Length > 0)
+            bool bDisposeStream = false;
+            try
             {
-                var tStream = new System.IO.MemoryStream();
-                tStream.Write(nodesetArray, 0, nodesetArray.Length);
-                tStream.Position = 0;
-                UANodeSet nodeSet = UANodeSet.Read(tStream);
-                string NodeSetString = Encoding.UTF8.GetString(nodesetArray);
+                if (!nodesetStream.CanSeek)
+                {
+                    var nodesetSeekable = new MemoryStream();
+                    nodesetStream.CopyTo(nodesetSeekable);
+                    nodesetStream = nodesetSeekable;
+                    bDisposeStream = true;
+                }
 
+                nodesetStream.Position = 0;
+                string nodeSetString;
+                using(var sr = new StreamReader(nodesetStream, Encoding.UTF8, leaveOpen: true))
+                {
+                    nodeSetString = sr.ReadToEnd();
+                }
                 #region Comment Processing
-                tStream = new System.IO.MemoryStream();
-                tStream.Write(nodesetArray, 0, nodesetArray.Length);
-                tStream.Position = 0;
-                var doc = XElement.Load(tStream);
+                nodesetStream.Position = 0;
+                var doc = XElement.Load(nodesetStream, LoadOptions.PreserveWhitespace);
                 var comments = doc.DescendantNodes().OfType<XComment>();
                 foreach (XComment comment in comments)
                 {
@@ -166,6 +178,19 @@ namespace OPCUAHelpers
                     //Unfortunately all OPC UA License Comments are not using XML Comments but file-comments and therefore cannot be "preserved" 
                 }
                 #endregion
+
+                // UANodeSet.Read disposes the stream, so do it when we are done with the stream
+                nodesetStream.Position = 0;
+                var nodeSet = UANodeSet.Read(nodesetStream);
+
+                if (nodeSet.Models?.Any() != true)
+                {
+                    nodeSet.Models = new ModelTableEntry[] {
+                        new ModelTableEntry { ModelUri = nodeSet.NamespaceUris?.FirstOrDefault(),
+                         RequiredModel = new ModelTableEntry[] { new ModelTableEntry { ModelUri = "http://opcfoundation.org/UA/" } },
+                         }
+                    };
+                }
 
                 UANodeSet tOldNodeSet = null;
                 foreach (var ns in nodeSet.Models)
@@ -190,10 +215,8 @@ namespace OPCUAHelpers
                     if (myModel != null)
                     {
                         CacheNewerVersion = false;
-                        using (System.IO.MemoryStream nodeSetStream = new System.IO.MemoryStream())
+                        using (var nodeSetStream = new MemoryStream(Encoding.UTF8.GetBytes(myModel.FileCache)))
                         {
-                            nodeSetStream.Write(Encoding.UTF8.GetBytes(myModel.FileCache));
-                            nodeSetStream.Position = 0;
                             if (tOldNodeSet == null)
                                 tOldNodeSet = UANodeSet.Read(nodeSetStream);
                             var tns = tOldNodeSet.Models.Where(s => s.ModelUri == ns.ModelUri).OrderByDescending(s => s.PublicationDate).FirstOrDefault();
@@ -215,7 +238,7 @@ namespace OPCUAHelpers
                                 PublicationDate = ns.PublicationDate,
                                 // TODO clean up the dependency
                                 AuthorId = authorToken?.UserId,
-                                FileCache = NodeSetString
+                                FileCache = nodeSetString
                             };
                             // Defer Upsert until later to make it part of a transaction
                             // _dalNodeSetFile.Upsert(myModel, userToken, false);
@@ -228,7 +251,7 @@ namespace OPCUAHelpers
                         //newInImport = resIns.Item2;
                         WasNewSet = true;
                     }
-                    var tModel = UANodeSetImporter.ParseDependencies(results, nodeSet, ns, null, WasNewSet);
+                    var tModel = results.AddModelAndDependencies(nodeSet, ns, null, WasNewSet);
                     if (tModel?.NameVersion != null && myModel != null)
                     {
                         tModel.NameVersion.CCacheId = myModel;
@@ -241,6 +264,17 @@ namespace OPCUAHelpers
                             GetProfileModel(model.NameVersion, userToken);
                         }
                     }
+                }
+            }
+            finally
+            {
+                if (bDisposeStream)
+                {
+                    try
+                    {
+                        nodesetStream?.Dispose();
+                    }
+                    catch { }
                 }
             }
             return WasNewSet;

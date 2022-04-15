@@ -17,7 +17,7 @@
     /// <summary>
     /// Most looku dat is contained in this single entity and differntiated by a lookup type. 
     /// </summary>
-    public class LookupDAL : TenantBaseDAL<LookupItem, LookupItemModel>, IDal<LookupItem, LookupItemModel>
+    public class LookupDAL : BaseDAL<LookupItem, LookupItemModel>, IDal<LookupItem, LookupItemModel>
     {
         public LookupDAL(IRepository<LookupItem> repo) : base(repo)
         {

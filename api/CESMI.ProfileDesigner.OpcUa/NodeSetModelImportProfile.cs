@@ -1,18 +1,19 @@
 ﻿using CESMII.ProfileDesigner.Common.Enums;
 using CESMII.ProfileDesigner.DAL.Models;
-using CESMII.ProfileDesigner.OpcUa.NodeSetModel.Factory.Opc;
-using IDALContext = CESMII.ProfileDesigner.OpcUa.NodeSetModel.Factory.Profile.IDALContext;
+using CESMII.OpcUa.NodeSetModel;
+using CESMII.OpcUa.NodeSetModel.Factory.Opc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
-using CESMII.ProfileDesigner.OpcUa.NodeSetModel.Opc.Extensions;
+using CESMII.OpcUa.NodeSetModel.Opc.Extensions;
 using Microsoft.Extensions.Logging;
 
 using System.Text.Json;
+using CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile;
 
-namespace CESMII.ProfileDesigner.OpcUa.NodeSetModel.Import.Profile
+namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
 {
     public class NodeModelImportProfile: NodeModelImportProfile<NodeModel>
     {
@@ -111,7 +112,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModel.Import.Profile
                     RelatedProfileTypeDefinition = objectProfile,
                     RelatedIsRequired = ObjectModelImportProfile.GetModelingRuleForProfile(opcObject.ModelingRule),
                     RelatedModelingRule = opcObject.ModelingRule,
-                    OpcNodeId = NodeModelUtils.GetNodeIdIdentifier(opcObject.NodeId),
+                    //OpcNodeId = NodeModelUtils.GetNodeIdIdentifier(opcObject.NodeId),
                     //Namespace = opcObject.Namespace,
                     Profile = opcObject.CustomState as ProfileModel,
                 };
@@ -136,7 +137,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModel.Import.Profile
                     RelatedProfileTypeDefinition = objectProfile,
                     RelatedIsRequired = ObjectModelImportProfile.GetModelingRuleForProfile((child as InstanceModelBase)?.ModelingRule),
                     RelatedModelingRule = (child as InstanceModelBase)?.ModelingRule,
-                    OpcNodeId = NodeModelUtils.GetNodeIdIdentifier(child.NodeId),
+                    //OpcNodeId = NodeModelUtils.GetNodeIdIdentifier(child.NodeId),
                     //Namespace = opcObject.Namespace,
                     RelatedReferenceId = childRef.Reference,
                     Profile = child.CustomState as ProfileModel,
@@ -170,7 +171,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModel.Import.Profile
                     RelatedProfileTypeDefinition = methodProfileItem,
                     RelatedIsRequired = ObjectModelImportProfile.GetModelingRuleForProfile(uaMethod.ModelingRule),
                     RelatedModelingRule = uaMethod.ModelingRule,
-                    OpcNodeId = NodeModelUtils.GetNodeIdIdentifier(uaMethod.NodeId),
+                    //OpcNodeId = NodeModelUtils.GetNodeIdIdentifier(uaMethod.NodeId),
                     //Namespace = opcObject.Namespace,
                     Profile = uaMethod.CustomState as ProfileModel,
                 };
@@ -195,7 +196,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModel.Import.Profile
                     RelatedIsEvent = true,
                     //RelatedIsRequired = ObjectModelImportProfile.GetModelingRuleForProfile(uaEvent.ModelingRule),
                     //RelatedModelingRule = uaEvent.ModelingRule,
-                    OpcNodeId = NodeModelUtils.GetNodeIdIdentifier(uaEvent.NodeId),
+                    //OpcNodeId = NodeModelUtils.GetNodeIdIdentifier(uaEvent.NodeId),
                     //Namespace = opcObject.Namespace,
                     Profile = uaEvent.CustomState as ProfileModel,
                 };
@@ -399,7 +400,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModel.Import.Profile
                     UserWriteMask = _model.UserWriteMask,
                };
 
-                var euInfo = NodeModelOpcExtensions.GetEUInformation(_model.EngineeringUnits);
+                var euInfo = NodeModelOpcExtensions.GetEUInformation(_model.EngineeringUnit);
                 if (euInfo != null)
                 {
                     var engUnit = new EngineeringUnitModel

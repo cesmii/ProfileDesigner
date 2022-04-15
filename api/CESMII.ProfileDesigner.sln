@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31729.503
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32228.430
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CESMII.ProfileDesigner.Api", "CESMII.ProfileDesigner.Api\CESMII.ProfileDesigner.Api.csproj", "{CDD61462-A968-4984-8630-A7B17ECA155C}"
 EndProject
@@ -15,9 +15,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CESMII.ProfileDesigner.Api.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CESMII.ProfileDesigner.OpcUa", "CESMI.ProfileDesigner.OpcUa\CESMII.ProfileDesigner.OpcUa.csproj", "{07185277-5193-4BEE-B9BB-CC6927190D7B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CESMII.ProfileDesigner.OpcUa.NodeSetModel", "CESMI.ProfileDesigner.OpcUa.NodeSetModel\CESMII.ProfileDesigner.OpcUa.NodeSetModel.csproj", "{356E8883-8DEB-47A4-9168-F83EE9AC6094}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CESMII.OpcUa.NodeSetModel", "CESMI.OpcUa.NodeSetModel\CESMII.OpcUa.NodeSetModel.csproj", "{356E8883-8DEB-47A4-9168-F83EE9AC6094}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CESMII.ProfileDesigner.OpcUa.NodeSetModel.Factory.Opc", "CESMI.ProfileDesigner.OpcUa.NodeSetModel.Factory.Opc\CESMII.ProfileDesigner.OpcUa.NodeSetModel.Factory.Opc.csproj", "{EDA36F15-493C-47B1-8008-99DC74115E90}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CESMII.OpcUa.NodeSetModel.Factory.Opc", "CESMI.OpcUa.NodeSetModel.Factory.Opc\CESMII.OpcUa.NodeSetModel.Factory.Opc.csproj", "{EDA36F15-493C-47B1-8008-99DC74115E90}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{D9B30B71-CBEE-4F9E-A78F-763624DF697F}"
 EndProject
@@ -26,6 +26,10 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CESMII.ProfileDesigner.Api.Tests", "Tests\CESMII.ProfileDesigner.Api.Tests\CESMII.ProfileDesigner.Api.Tests.csproj", "{6BEE6B16-6160-457C-83A5-EF6C834E2BC2}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NodeSetDiffLibrary", "Tests\NodeSetDiffLibrary\NodeSetDiffLibrary.csproj", "{432E94E0-0790-4764-943E-58ED79BB0FD6}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "OPC Nodeset Model", "OPC Nodeset Model", "{DDCADBA3-E4C8-4ABA-945B-5E26B6D95483}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CESMII.OpcUa.NodeSetModel.EF", "CESMI.OpcUa.NodeSetModel.EF\CESMII.OpcUa.NodeSetModel.EF.csproj", "{30ED12C9-EBBD-4CB6-AC68-E0C48257EF0E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -100,14 +104,23 @@ Global
 		{432E94E0-0790-4764-943E-58ED79BB0FD6}.Release|Any CPU.Build.0 = Release|Any CPU
 		{432E94E0-0790-4764-943E-58ED79BB0FD6}.Staging|Any CPU.ActiveCfg = Release|Any CPU
 		{432E94E0-0790-4764-943E-58ED79BB0FD6}.Staging|Any CPU.Build.0 = Release|Any CPU
+		{30ED12C9-EBBD-4CB6-AC68-E0C48257EF0E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{30ED12C9-EBBD-4CB6-AC68-E0C48257EF0E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{30ED12C9-EBBD-4CB6-AC68-E0C48257EF0E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{30ED12C9-EBBD-4CB6-AC68-E0C48257EF0E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{30ED12C9-EBBD-4CB6-AC68-E0C48257EF0E}.Staging|Any CPU.ActiveCfg = Staging|Any CPU
+		{30ED12C9-EBBD-4CB6-AC68-E0C48257EF0E}.Staging|Any CPU.Build.0 = Staging|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
+		{356E8883-8DEB-47A4-9168-F83EE9AC6094} = {DDCADBA3-E4C8-4ABA-945B-5E26B6D95483}
+		{EDA36F15-493C-47B1-8008-99DC74115E90} = {DDCADBA3-E4C8-4ABA-945B-5E26B6D95483}
 		{D2202932-393F-4408-9243-21F8F0BFA662} = {D9B30B71-CBEE-4F9E-A78F-763624DF697F}
 		{6BEE6B16-6160-457C-83A5-EF6C834E2BC2} = {D9B30B71-CBEE-4F9E-A78F-763624DF697F}
 		{432E94E0-0790-4764-943E-58ED79BB0FD6} = {D9B30B71-CBEE-4F9E-A78F-763624DF697F}
+		{30ED12C9-EBBD-4CB6-AC68-E0C48257EF0E} = {DDCADBA3-E4C8-4ABA-945B-5E26B6D95483}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0C552FD1-3263-4F99-AA89-E73A4AB15B81}

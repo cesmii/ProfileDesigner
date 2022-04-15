@@ -232,7 +232,7 @@
         }
         private bool MatchIdentity(int? entityId, string entityOpcNodeId, string entityNamespace, int? modelId, string modelOpcNodeId, string modelNamespace)
         {
-            if ((modelId??0) != 0)
+            if ((modelId??0) != 0 && (entityId??0) != 0)
             {
                 return modelId == entityId;
             }
@@ -247,7 +247,8 @@
         }
         private bool MatchIdentity(ProfileComposition entity, ProfileTypeDefinitionRelatedModel model)
         {
-            return MatchIdentity(entity.ID, entity.OpcNodeId, entity.ProfileTypeDefinition.Profile.Namespace, model.ID, model.OpcNodeId, model.Profile.Namespace);
+            // Compositions don't have a nodeid, matching happens on BrowseName
+            return MatchIdentity(entity.ID, entity.BrowseName, null, model.ID, model.BrowseName, null);
         }
         private bool MatchIdentity(ProfileAttribute entity, ProfileAttributeModel model)
         {
@@ -585,7 +586,7 @@
                         /*Namespace = i.Namespace,*/
                         Profile = composingModel.Profile,
 
-                        OpcNodeId = i.OpcNodeId,
+                        //OpcNodeId = i.OpcNodeId,
                         RelatedIsRequired = i.IsRequired,
                         RelatedModelingRule = i.ModelingRule,
                         RelatedIsEvent = i.IsEvent,
@@ -1081,7 +1082,7 @@
             }
             composition.Name = source.Name;
             composition.BrowseName = source.BrowseName;
-            composition.OpcNodeId = source.OpcNodeId;
+            //composition.OpcNodeId = source.OpcNodeId;
             composition.IsRequired = source.RelatedIsRequired;
             composition.ModelingRule = source.RelatedModelingRule;
             composition.IsEvent = source.RelatedIsEvent;

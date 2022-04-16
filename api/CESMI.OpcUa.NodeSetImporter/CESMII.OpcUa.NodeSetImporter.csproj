@@ -12,7 +12,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="D:\sources\UA-CloudLibrary\UACloudLibraryGraphQLClient\UACloudLibClientLibrary\UACloudLibClientLibrary.csproj" />
+	  <ProjectReference Include="..\UACloudLibClientLibrary\UACloudLibClientLibrary.csproj" />
 	</ItemGroup>
 
 </Project>

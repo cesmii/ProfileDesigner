@@ -151,13 +151,21 @@ namespace CESMII.OpcUa.NodeSetImporter
             {
                 if (!nodesetStream.CanSeek)
                 {
+                    // We need to process the stream multiple times: create a seekable copy
                     var nodesetBytes = new MemoryStream();
                     nodesetStream.CopyTo(nodesetBytes);
                     nodesetStream = nodesetBytes;
                     bDisposeStream = true;
                 }
-                UANodeSet nodeSet = UANodeSet.Read(nodesetStream);
 
+                // UANodeSet.Read disposes the stream. We need it later on so create a copy
+                UANodeSet nodeSet;
+                using (var nodesetBytes = new MemoryStream())
+                {
+                    nodesetStream.CopyTo(nodesetBytes);
+                    nodesetBytes.Position = 0;
+                    nodeSet = UANodeSet.Read(nodesetBytes);
+                }
                 #region Comment processing
                 nodesetStream.Position = 0;
                 var doc = XElement.Load(nodesetStream);

@@ -100,10 +100,12 @@ namespace CESMII.OpcUa.NodeSetImporter
         {
             if (!File.Exists(nodesetFileName))
                 return;
+            var tm = new MemoryStream();
             using (Stream stream = new FileStream(nodesetFileName, FileMode.Open))
             {
-                AddNodeSet(results, stream, tenantId);
-            };
+                stream.CopyTo(tm);
+            }
+            AddNodeSet(results, tm, tenantId);
         }
 
         public bool GetNodeSet(UANodeSetImportResult results, ModelNameAndVersion nameVersion, object TenantID)

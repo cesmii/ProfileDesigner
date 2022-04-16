@@ -123,7 +123,17 @@ namespace CESMII.OpcUa.NodeSetImporter
         public static UANodeSetImportResult ImportNodeSets(IUANodeSetCache NodeSetCacheSystem, UANodeSetImportResult previousResults, List<string> nodeSetFilenames, bool FailOnExisting = false, object TenantID = null,
                 IUANodeSetResolver nodeSetResolver = null)
         {
-            return ImportNodeSets(NodeSetCacheSystem, previousResults, nodeSetFilenames.Select(f => new FileStream(f, FileMode.Open)), FailOnExisting, TenantID, nodeSetResolver);
+            List<MemoryStream> tList = new List<MemoryStream>();
+            foreach (var t in nodeSetFilenames)
+            {
+                using (Stream stream = new FileStream(t, FileMode.Open))
+                {
+                    var tm = new MemoryStream();
+                    stream.CopyTo(tm);
+                    tList.Add(tm);
+                }
+            }
+            return ImportNodeSets(NodeSetCacheSystem, previousResults, tList, FailOnExisting, TenantID, nodeSetResolver);
         }
         /// <summary>
         /// Imports NodeSets from Files resolving dependencies using already uploaded NodeSets
@@ -193,7 +203,7 @@ namespace CESMII.OpcUa.NodeSetImporter
                         }
                         results.ResolveDependencies();
                         if (results.MissingModels.Any())
-                        { 
+                        {
                             if (nodeSetResolver != null)
                             {
                                 //========================================================================================

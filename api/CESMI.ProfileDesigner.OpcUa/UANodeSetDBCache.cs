@@ -58,10 +58,7 @@ namespace CESMII.ProfileDesigner.Opc.Ua.NodeSetDBCache
                     CCacheId = tns.ID
                 };
                 UANodeSetImportResult res = new UANodeSetImportResult();
-                using (var nodesetStream = new MemoryStream(Encoding.UTF8.GetBytes(tns.FileCache)))
-                {
-                    AddNodeSet(res, nodesetStream, _userToken);
-                }
+                AddNodeSet(res, tns.FileCache, _userToken);
                 if (res?.Models?.Count > 0)
                     return res.Models[0];
             }
@@ -88,11 +85,6 @@ namespace CESMII.ProfileDesigner.Opc.Ua.NodeSetDBCache
         public string GetRawModelXML(ModelValue model)
         {
             return (model?.NameVersion?.CCacheId as NodeSetFileModel)?.FileCache;
-        }
-
-        public void AddNodeSet(UANodeSetImportResult results, string nodesetFileName, object TenantID)
-        {
-            //No return ever as files are not supported with db cache
         }
 
         public bool GetNodeSet(UANodeSetImportResult results, ModelNameAndVersion nameVersion, object AuthorID)
@@ -148,133 +140,105 @@ namespace CESMII.ProfileDesigner.Opc.Ua.NodeSetDBCache
             return myModel;
         }
 
-        public bool AddNodeSet(UANodeSetImportResult results, Stream nodesetStream, object authorId)
+        public bool AddNodeSet(UANodeSetImportResult results, string nodeSetXml, object authorId)
         {
             bool WasNewSet = false;
-            bool bDisposeStream = false;
-            try
+            #region Comment Processing
+            var doc = XElement.Load(new StringReader(nodeSetXml));
+            var comments = doc.DescendantNodes().OfType<XComment>();
+            foreach (XComment comment in comments)
             {
-                if (!nodesetStream.CanSeek)
-                {
-                    var nodesetSeekable = new MemoryStream();
-                    nodesetStream.CopyTo(nodesetSeekable);
-                    nodesetStream = nodesetSeekable;
-                    bDisposeStream = true;
-                }
+                //inline XML Commments are not showing here...only real XML comments (not file comments with /**/)
+                //Unfortunately all OPC UA License Comments are not using XML Comments but file-comments and therefore cannot be "preserved" 
+            }
+            #endregion
 
-                nodesetStream.Position = 0;
-                string nodeSetString;
-                using(var sr = new StreamReader(nodesetStream, Encoding.UTF8, leaveOpen: true))
-                {
-                    nodeSetString = sr.ReadToEnd();
-                }
-                #region Comment Processing
-                nodesetStream.Position = 0;
-                var doc = XElement.Load(nodesetStream, LoadOptions.PreserveWhitespace);
-                var comments = doc.DescendantNodes().OfType<XComment>();
-                foreach (XComment comment in comments)
-                {
-                    //inline XML Commments are not showing here...only real XML comments (not file comments with /**/)
-                    //Unfortunately all OPC UA License Comments are not using XML Comments but file-comments and therefore cannot be "preserved" 
-                }
-                #endregion
+            UANodeSet nodeSet;
+            using (var nodesetBytes = new MemoryStream(Encoding.UTF8.GetBytes(nodeSetXml)))
+            {
+                nodeSet = UANodeSet.Read(nodesetBytes);
+            }
 
-                // UANodeSet.Read disposes the stream, so do it when we are done with the stream
-                nodesetStream.Position = 0;
-                var nodeSet = UANodeSet.Read(nodesetStream);
-
-                if (nodeSet.Models?.Any() != true)
-                {
-                    nodeSet.Models = new ModelTableEntry[] {
+            if (nodeSet.Models?.Any() != true)
+            {
+                nodeSet.Models = new ModelTableEntry[] {
                         new ModelTableEntry { ModelUri = nodeSet.NamespaceUris?.FirstOrDefault(),
                          RequiredModel = new ModelTableEntry[] { new ModelTableEntry { ModelUri = "http://opcfoundation.org/UA/" } },
                          }
                     };
-                }
-
-                UANodeSet tOldNodeSet = null;
-                foreach (var ns in nodeSet.Models)
-                {
-                    UserToken userToken = authorId as UserToken;
-                    var authorToken = userToken;
-                    bool isGlobalNodeSet = CESMII.ProfileDesigner.OpcUa.OpcUaImporter._coreNodeSetUris.Contains(ns.ModelUri);
-                    if (isGlobalNodeSet)
-                    {
-                        userToken = UserToken.GetGlobalUser(userToken); // Write as a global node set shared acess user
-                        authorToken = null;
-                    }
-                    NodeSetFileModel myModel = GetProfileModel(
-                        new ModelNameAndVersion
-                        {
-                            ModelUri = ns.ModelUri,
-                            ModelVersion = ns.Version,
-                            PublicationDate = ns.PublicationDate,
-                        },
-                        userToken);
-                    bool CacheNewerVersion = true;
-                    if (myModel != null)
-                    {
-                        CacheNewerVersion = false;
-                        using (var nodeSetStream = new MemoryStream(Encoding.UTF8.GetBytes(myModel.FileCache)))
-                        {
-                            if (tOldNodeSet == null)
-                                tOldNodeSet = UANodeSet.Read(nodeSetStream);
-                            var tns = tOldNodeSet.Models.Where(s => s.ModelUri == ns.ModelUri).OrderByDescending(s => s.PublicationDate).FirstOrDefault();
-                            if (tns == null || ns.PublicationDate > tns.PublicationDate)
-                                CacheNewerVersion = true; //Cache the new NodeSet if the old (file) did not contain the model or if the version of the new model is greater
-                        }
-                    }
-                    int? cacheId = myModel != null ? myModel.ID : 0;
-                    bool newInImport = false;
-                    if (CacheNewerVersion) //Cache only newer version
-                    {
-                        if (myModel == null)
-                        {
-                            myModel = new NodeSetFileModel
-                            {
-                                ID = cacheId,
-                                FileName = ns.ModelUri,
-                                Version = ns.Version,
-                                PublicationDate = ns.PublicationDate,
-                                // TODO clean up the dependency
-                                AuthorId = authorToken?.UserId,
-                                FileCache = nodeSetString
-                            };
-                            // Defer Upsert until later to make it part of a transaction
-                            // _dalNodeSetFile.Upsert(myModel, userToken, false);
-                            newInImport = true;
-                        }
-                        // Defer the updates to the import transaction
-                        //var resIns = _dalNodeSetFile.Upsert(nsModel, (AuthorID == null) ? 0 : (int)AuthorID, true).GetAwaiter().GetResult();
-
-                        //cacheId = resIns.Item1;
-                        //newInImport = resIns.Item2;
-                        WasNewSet = true;
-                    }
-                    var tModel = results.AddModelAndDependencies(nodeSet, ns, null, WasNewSet);
-                    if (tModel?.NameVersion != null && myModel != null)
-                    {
-                        tModel.NameVersion.CCacheId = myModel;
-                        tModel.NewInThisImport = newInImport;
-                    }
-                    foreach (var model in results.Models)
-                    {
-                        if (model.NameVersion.CCacheId == null)
-                        {
-                            GetProfileModel(model.NameVersion, userToken);
-                        }
-                    }
-                }
             }
-            finally
+
+            UANodeSet tOldNodeSet = null;
+            foreach (var ns in nodeSet.Models)
             {
-                if (bDisposeStream)
+                UserToken userToken = authorId as UserToken;
+                var authorToken = userToken;
+                bool isGlobalNodeSet = CESMII.ProfileDesigner.OpcUa.OpcUaImporter._coreNodeSetUris.Contains(ns.ModelUri);
+                if (isGlobalNodeSet)
                 {
-                    try
+                    userToken = UserToken.GetGlobalUser(userToken); // Write as a global node set shared acess user
+                    authorToken = null;
+                }
+                NodeSetFileModel myModel = GetProfileModel(
+                    new ModelNameAndVersion
                     {
-                        nodesetStream?.Dispose();
+                        ModelUri = ns.ModelUri,
+                        ModelVersion = ns.Version,
+                        PublicationDate = ns.PublicationDate,
+                    },
+                    userToken);
+                bool CacheNewerVersion = true;
+                if (myModel != null)
+                {
+                    CacheNewerVersion = false;
+                    using (var nodeSetStream = new MemoryStream(Encoding.UTF8.GetBytes(myModel.FileCache)))
+                    {
+                        if (tOldNodeSet == null)
+                            tOldNodeSet = UANodeSet.Read(nodeSetStream);
+                        var tns = tOldNodeSet.Models.Where(s => s.ModelUri == ns.ModelUri).OrderByDescending(s => s.PublicationDate).FirstOrDefault();
+                        if (tns == null || ns.PublicationDate > tns.PublicationDate)
+                            CacheNewerVersion = true; //Cache the new NodeSet if the old (file) did not contain the model or if the version of the new model is greater
                     }
-                    catch { }
+                }
+                int? cacheId = myModel != null ? myModel.ID : 0;
+                bool newInImport = false;
+                if (CacheNewerVersion) //Cache only newer version
+                {
+                    if (myModel == null)
+                    {
+                        myModel = new NodeSetFileModel
+                        {
+                            ID = cacheId,
+                            FileName = ns.ModelUri,
+                            Version = ns.Version,
+                            PublicationDate = ns.PublicationDate,
+                            // TODO clean up the dependency
+                            AuthorId = authorToken?.UserId,
+                            FileCache = nodeSetXml
+                        };
+                        // Defer Upsert until later to make it part of a transaction
+                        // _dalNodeSetFile.Upsert(myModel, userToken, false);
+                        newInImport = true;
+                    }
+                    // Defer the updates to the import transaction
+                    //var resIns = _dalNodeSetFile.Upsert(nsModel, (AuthorID == null) ? 0 : (int)AuthorID, true).GetAwaiter().GetResult();
+
+                    //cacheId = resIns.Item1;
+                    //newInImport = resIns.Item2;
+                    WasNewSet = true;
+                }
+                var tModel = results.AddModelAndDependencies(nodeSet, ns, null, WasNewSet);
+                if (tModel?.NameVersion != null && myModel != null)
+                {
+                    tModel.NameVersion.CCacheId = myModel;
+                    tModel.NewInThisImport = newInImport;
+                }
+                foreach (var model in results.Models)
+                {
+                    if (model.NameVersion.CCacheId == null)
+                    {
+                        GetProfileModel(model.NameVersion, userToken);
+                    }
                 }
             }
             return WasNewSet;

@@ -15,7 +15,7 @@ namespace CESMII.OpcUa.NodeSetImporter
     public interface IUANodeSetCache
     {
         public bool GetNodeSet(UANodeSetImportResult results, ModelNameAndVersion nameVersion, object TenantID);
-        public bool AddNodeSet(UANodeSetImportResult results, Stream nodesetStream, object TenantID);
+        public bool AddNodeSet(UANodeSetImportResult results, string nodeSetXml, object TenantID);
         public string GetRawModelXML(ModelValue model);
         public void DeleteNewlyAddedNodeSetsFromCache(UANodeSetImportResult results);
         public UANodeSetImportResult FlushCache();

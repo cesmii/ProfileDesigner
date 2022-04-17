@@ -13,6 +13,6 @@ namespace CESMII.OpcUa.NodeSetImporter
 {
     public interface IUANodeSetResolver
     {
-        Task<List<Stream>> ResolveNodeSetsAsync(List<ModelNameAndVersion> missingModels);
+        Task<IEnumerable<string>> ResolveNodeSetsAsync(List<ModelNameAndVersion> missingModels);
     }
 }

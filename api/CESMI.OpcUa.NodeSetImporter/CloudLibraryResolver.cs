@@ -38,23 +38,23 @@ namespace CESMII.OpcUa.NodeSetImporter
         {
         }
         private readonly UACloudLibClient _client;
-        public async Task<List<Stream>> ResolveNodeSetsAsync(List<ModelNameAndVersion> missingModels)
+        public async Task<IEnumerable<String>> ResolveNodeSetsAsync(List<ModelNameAndVersion> missingModels)
         {
-            var downloadedNodeSets = new List<Stream>();
+            var downloadedNodeSets = new List<string>();
 
             // TODO Is there an API to download matching nodeset directly via URI/PublicationDate? Should we push to add this?
             var namespacesAndIds = await _client.GetNamespacesAsync().ConfigureAwait(false);
             if (namespacesAndIds != null)
             {
                 var matchingNamespacesAndIds = namespacesAndIds.Where(nsid => missingModels.Any(m => m.ModelUri == nsid.Item1)).ToList();
-                var nodesetWithURIAndDate = new List<(string, DateTime, Stream)?>();
+                var nodesetWithURIAndDate = new List<(string, DateTime, string)?>();
                 foreach (var nsid in matchingNamespacesAndIds)
                 {
                     var nodeSet = await _client.DownloadNodesetAsync(nsid.Item2).ConfigureAwait(false);
                     nodesetWithURIAndDate.Add((
                         nodeSet.Nodeset.NamespaceUri?.ToString() ?? nsid.Item1, // TODO cloud lib currently doesn't return the namespace uri: report issue/fix
                         nodeSet.Nodeset.PublicationDate, 
-                        new MemoryStream(Encoding.UTF8.GetBytes(nodeSet.Nodeset.NodesetXml))));
+                        nodeSet.Nodeset.NodesetXml));
                 }
 
                 foreach (var missing in missingModels)

@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 
 namespace CESMII.OpcUa.NodeSetImporter
 {
@@ -120,10 +121,10 @@ namespace CESMII.OpcUa.NodeSetImporter
         /// <param name="FailOnExisting">Default behavior is that all Models in NodeSets are returned even if they have been imported before. If set to true, the importer will fail if it has imported a nodeset before and does not cache nodeset if they have missing dependencies</param>
         /// <param name="TenantID">If the import has Multi-Tenant Cache, the tenant ID has to be set here</param>
         /// <returns></returns>
-        public static UANodeSetImportResult ImportNodeSets(IUANodeSetCache NodeSetCacheSystem, UANodeSetImportResult previousResults, List<string> nodeSetFilenames, bool FailOnExisting = false, object TenantID = null,
+        public static UANodeSetImportResult ImportNodeSetFiles(IUANodeSetCache NodeSetCacheSystem, UANodeSetImportResult previousResults, List<string> nodeSetFilenames, bool FailOnExisting = false, object TenantID = null,
                 IUANodeSetResolver nodeSetResolver = null)
         {
-            return ImportNodeSets(NodeSetCacheSystem, previousResults, nodeSetFilenames.Select(f => new FileStream(f, FileMode.Open)), FailOnExisting, TenantID, nodeSetResolver);
+            return ImportNodeSets(NodeSetCacheSystem, previousResults, nodeSetFilenames.Select(f => File.ReadAllText(f)), FailOnExisting, TenantID, nodeSetResolver);
         }
         /// <summary>
         /// Imports NodeSets from Files resolving dependencies using already uploaded NodeSets
@@ -138,7 +139,28 @@ namespace CESMII.OpcUa.NodeSetImporter
         public static UANodeSetImportResult ImportNodeSets(IUANodeSetCache NodeSetCacheSystem, UANodeSetImportResult previousResults, IEnumerable<Stream> nodeSetStreams, bool FailOnExisting = false, object TenantID = null,
                 IUANodeSetResolver nodeSetResolver = null)
         {
-            UANodeSetImportResult results = previousResults;
+            return ImportNodeSets(NodeSetCacheSystem, previousResults, nodeSetStreams.Select(s =>
+            {
+                using (var sr = new StreamReader(s, Encoding.UTF8))
+                {
+                    return sr.ReadToEnd();
+                }
+            }), FailOnExisting, TenantID, nodeSetResolver);
+        }
+            /// <summary>
+            /// Imports NodeSets from Files resolving dependencies using already uploaded NodeSets
+            /// </summary>
+            /// <param name="NodeSetCacheSystem">This interface can be used to override the default file cache of the Importer, i.e with a Database cache</param>
+            /// <param name="previousResults">If null, a new resultset will be created. If not null already uploaded NodeSets can be augmented with New NodeSets referred in the FileNames</param>
+            /// <param name="nodeSetFilenames">List of full paths to uploaded NodeSets</param>
+            /// <param name="nodeSetStreams">List of streams containing NodeSets</param>
+            /// <param name="FailOnExisting">Default behavior is that all Models in NodeSets are returned even if they have been imported before. If set to true, the importer will fail if it has imported a nodeset before and does not cache nodeset if they have missing dependencies</param>
+            /// <param name="TenantID">If the import has Multi-Tenant Cache, the tenant ID has to be set here</param>
+            /// <returns></returns>
+            public static UANodeSetImportResult ImportNodeSets(IUANodeSetCache NodeSetCacheSystem, UANodeSetImportResult previousResults, IEnumerable<string> nodeSetsXml, bool FailOnExisting = false, object TenantID = null,
+                    IUANodeSetResolver nodeSetResolver = null)
+            {
+                UANodeSetImportResult results = previousResults;
             if (results == null)
                 results = new UANodeSetImportResult();
             if (NodeSetCacheSystem == null)
@@ -152,18 +174,13 @@ namespace CESMII.OpcUa.NodeSetImporter
                 {
                     rerun = false;
                     bool NewNodeSetFound = false;
-                    if (nodeSetStreams.Any())
+                    // Must enumerate the nodeSetsXml only once in case the caller creates/loads strings as needed (streams of files)
+                    foreach (var nodeSetXml in nodeSetsXml)
                     {
-                        foreach (var nodeStream in nodeSetStreams)
+                        var JustFoundNewNodeSet = NodeSetCacheSystem.AddNodeSet(results, nodeSetXml, TenantID);
+                        if (!NewNodeSetFound && JustFoundNewNodeSet)
                         {
-                            using (nodeStream)
-                            {
-                                var JustFoundNewNodeSet = NodeSetCacheSystem.AddNodeSet(results, nodeStream, TenantID);
-                                if (!NewNodeSetFound && JustFoundNewNodeSet)
-                                {
-                                    NewNodeSetFound = JustFoundNewNodeSet;
-                                }
-                            }
+                            NewNodeSetFound = JustFoundNewNodeSet;
                         }
                     }
                     if (!NewNodeSetFound && FailOnExisting)
@@ -201,10 +218,10 @@ namespace CESMII.OpcUa.NodeSetImporter
                                 //========================================================================================
                                 try
                                 {
-                                    var newNodeSetStreams = nodeSetResolver.ResolveNodeSetsAsync(results.MissingModels.ToList()).Result;
-                                    if (newNodeSetStreams?.Any() == true)
+                                    var newNodeSetsXml = nodeSetResolver.ResolveNodeSetsAsync(results.MissingModels.ToList()).Result;
+                                    if (newNodeSetsXml?.Any() == true)
                                     {
-                                        nodeSetStreams = newNodeSetStreams;
+                                        nodeSetsXml= newNodeSetsXml;
                                         rerun = true;
                                         continue;
                                     }

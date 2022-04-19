@@ -8,20 +8,11 @@ using Opc.Ua.Export;
 using System;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Xml.Linq;
 
-namespace OPCUAHelpers
+namespace CESMII.OpcUa.NodeSetImporter
 {
-    public interface IUANodeSetCache
-    {
-        public void LoadNodeSet(UANodeSetImportResult results, string nodesetFileName);
-        public bool LoadNodeSet(UANodeSetImportResult results, ModelNameAndVersion nameVersion, object TenantID);
-        public bool LoadNodeSet(UANodeSetImportResult results, byte[] nodesetArray, object TenantID);
-        public string GetRawModelXML(ModelValue model);
-        public void DeleteNewlyAddedNodeSetsFromCache(UANodeSetImportResult results);
-        public UANodeSetImportResult FlushCache();
-        public ModelValue GetNodeSetByID(string id);
-    }
 
     /// <summary>
     /// Implementation of File Cache - can be replaced with Database cache if necessary
@@ -106,36 +97,21 @@ namespace OPCUAHelpers
         /// </summary>
         /// <param name="results"></param>
         /// <param name="nodesetFileName"></param>
-        public void LoadNodeSet(UANodeSetImportResult results, string nodesetFileName)
+        public void AddNodeSetFile(UANodeSetImportResult results, string nodesetFileName, object tenantId)
         {
             if (!File.Exists(nodesetFileName))
                 return;
-            byte[] nsBytes = null;
-            using (Stream stream = new FileStream(nodesetFileName, FileMode.Open))
-            {
-                using (var tm = new MemoryStream())
-                {
-                    stream.CopyTo(tm);
-                    nsBytes = tm.ToArray();
-                }
-            }
-            if (nsBytes?.Length > 0)
-                LoadNodeSet(results, nsBytes, null);
-            else
-            {
-                if (results == null)
-                    results = new UANodeSetImportResult();
-                results.ErrorMessage = "Error during NodeSet Loading";
-            }
+            var nodeSetXml = File.ReadAllText(nodesetFileName);
+            AddNodeSet(results, nodeSetXml, tenantId);
         }
 
-        public bool LoadNodeSet(UANodeSetImportResult results, ModelNameAndVersion nameVersion, object TenantID)
+        public bool GetNodeSet(UANodeSetImportResult results, ModelNameAndVersion nameVersion, object TenantID)
         {
             //Try to find already uploaded NodeSets using cached NodeSets in the "NodeSets" Folder.
             string tFileName = GetCacheFileName(nameVersion, TenantID);
             if (File.Exists(tFileName))
             {
-                LoadNodeSet(results, tFileName);
+                AddNodeSetFile(results, tFileName, TenantID);
                 return true;
             }
             return false;
@@ -166,62 +142,59 @@ namespace OPCUAHelpers
         /// <param name="nodesetArray"></param>
 
         /// <returns></returns>
-        public bool LoadNodeSet(UANodeSetImportResult results, byte[] nodesetArray, object TenantID)
+        public bool AddNodeSet(UANodeSetImportResult results, string nodeSetXml, object TenantID)
         {
             bool WasNewSet = false;
-            if (nodesetArray?.Length > 0)
+            // UANodeSet.Read disposes the stream. We need it later on so create a copy
+            UANodeSet nodeSet;
+            using (var nodesetBytes = new MemoryStream(Encoding.UTF8.GetBytes(nodeSetXml)))
             {
-                var tStream = new MemoryStream();
-                tStream.Write(nodesetArray, 0, nodesetArray.Length);
-                tStream.Position = 0;
-                UANodeSet nodeSet = UANodeSet.Read(tStream);
+                nodeSet = UANodeSet.Read(nodesetBytes);
+            }
 
-                #region Comment processing
-                tStream = new MemoryStream();
-                tStream.Write(nodesetArray, 0, nodesetArray.Length);
-                tStream.Position = 0;
-                var doc = XElement.Load(tStream);
-                var comments = doc.DescendantNodes().OfType<XComment>();
-                foreach (XComment comment in comments)
-                {
-                    //inline XML Commments are not showing here...only real XML comments (not file comments with /**/)
-                    //Unfortunately all OPC UA License Comments are not using XML Comments but file-comments and therefore cannot be "preserved" 
-                }
-                #endregion
+            #region Comment processing
+            var nodesetXmlReader = new StringReader(nodeSetXml);
+            var doc = XElement.Load(nodesetXmlReader);
+            var comments = doc.DescendantNodes().OfType<XComment>();
+            foreach (XComment comment in comments)
+            {
+                //inline XML Commments are not showing here...only real XML comments (not file comments with /**/)
+                //Unfortunately all OPC UA License Comments are not using XML Comments but file-comments and therefore cannot be "preserved" 
+            }
+            #endregion
 
-                UANodeSet tOldNodeSet = null;
-                if (nodeSet?.Models == null)
+            UANodeSet tOldNodeSet = null;
+            if (nodeSet?.Models == null)
+            {
+                results.ErrorMessage = $"No Nodeset found in bytes";
+                return false;
+            }
+            foreach (var ns in nodeSet.Models)
+            {
+                //Caching the streams to a "NodeSets" subfolder using the Model Name
+                //Even though "Models" is an array, most NodeSet files only contain one model.
+                //In case a NodeSet stream does contain multiple models, the same file will be cached with each Model Name 
+                string filePath = GetCacheFileName(new ModelNameAndVersion { ModelUri = ns.ModelUri, ModelVersion = ns.Version, PublicationDate = ns.PublicationDate }, TenantID);
+                // TODO How do we update a nodeset with a new version (or if a user keeps editing one and wants to import it to a different editor)?
+                bool CacheNewerVersion = true;
+                if (File.Exists(filePath))
                 {
-                    results.ErrorMessage = $"No Nodeset found in bytes";
-                    return false;
+                    CacheNewerVersion = false;
+                    using (Stream nodeSetStream = new FileStream(filePath, FileMode.Open))
+                    {
+                        if (tOldNodeSet == null)
+                            tOldNodeSet = UANodeSet.Read(nodeSetStream);
+                    }
+                    var tns = tOldNodeSet.Models.Where(s => s.ModelUri == ns.ModelUri).OrderByDescending(s => s.PublicationDate).FirstOrDefault();
+                    if (tns == null || ns.PublicationDate > tns.PublicationDate)
+                        CacheNewerVersion = true; //Cache the new NodeSet if the old (file) did not contain the model or if the version of the new model is greater
                 }
-                foreach (var ns in nodeSet.Models)
+                if (CacheNewerVersion) //Cache only newer version
                 {
-                    //Caching the streams to a "NodeSets" subfolder using the Model Name
-                    //Even though "Models" is an array, most NodeSet files only contain one model.
-                    //In case a NodeSet stream does contain multiple models, the same file will be cached with each Model Name 
-                    string filePath = GetCacheFileName(new ModelNameAndVersion { ModelUri = ns.ModelUri, ModelVersion = ns.Version, PublicationDate = ns.PublicationDate }, TenantID);
-                    // TODO How do we update a nodeset with a new version (or if a user keeps editing one and wants to import it to a different editor)?
-                    bool CacheNewerVersion = true;
-                    if (File.Exists(filePath))
-                    {
-                        CacheNewerVersion = false;
-                        using (Stream nodeSetStream = new FileStream(filePath, FileMode.Open))
-                        {
-                            if (tOldNodeSet == null)
-                                tOldNodeSet = UANodeSet.Read(nodeSetStream);
-                            var tns = tOldNodeSet.Models.Where(s => s.ModelUri == ns.ModelUri).OrderByDescending(s => s.PublicationDate).FirstOrDefault();
-                            if (tns == null || ns.PublicationDate > tns.PublicationDate)
-                                CacheNewerVersion = true; //Cache the new NodeSet if the old (file) did not contain the model or if the version of the new model is greater
-                        }
-                    }
-                    if (CacheNewerVersion) //Cache only newer version
-                    {
-                        File.WriteAllBytes(filePath, nodesetArray);
-                        WasNewSet = true;
-                    }
-                    UANodeSetImporter.ParseDependencies(results, nodeSet, ns, filePath, WasNewSet);
+                    File.WriteAllText(filePath, nodeSetXml);
+                    WasNewSet = true;
                 }
+                results.AddModelAndDependencies(nodeSet, ns, filePath, WasNewSet);
             }
             return WasNewSet;
         }

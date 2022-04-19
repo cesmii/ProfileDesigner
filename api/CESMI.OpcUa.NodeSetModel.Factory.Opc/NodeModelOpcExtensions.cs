@@ -4,13 +4,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace CESMII.ProfileDesigner.OpcUa.NodeSetModel.Opc.Extensions
+namespace CESMII.OpcUa.NodeSetModel.Opc.Extensions
 {
     public static class NodeModelOpcExtensions
     { 
         internal static void SetEngineeringUnits(this VariableModel model, EUInformation euInfo)
         {
-            model.EngineeringUnits = new VariableModel.EngineeringUnit
+            model.EngineeringUnit = new VariableModel.EngineeringUnitInfo
             {
                 DisplayName = euInfo.DisplayName?.ToModelSingle(),
                 Description = euInfo.Description?.ToModelSingle(),
@@ -61,22 +61,22 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModel.Opc.Extensions
                         foreach (var line in euMapping.Skip(1))
                         {
                             //UNECECode,UnitId,DisplayName,Description
-                            var parts = line.Split(",");
+                            var parts = line.Split(',');
                             if (parts.Length != 4)
                             {
                                 // error
                             }
-                            var UNECECode = parts[0].TrimCSV('\"'); ;
-                            var UnitId = parts[1].TrimCSV('\"'); ;
-                            var DisplayName = parts[2].TrimCSV('\"');
-                            var Description = parts[3].TrimCSV('\"');
+                            var UNECECode = parts[0].TrimCSV("\"");
+                            var UnitId = parts[1].TrimCSV("\"");
+                            var DisplayName = parts[2].TrimCSV("\"");
+                            var Description = parts[3].TrimCSV("\"");
                             var newEuInfo = new EUInformation(DisplayName, Description, strUNECEUri)
                             {
                                 UnitId = int.Parse(UnitId),
                             };
-                            if (!_euInformationByDescription.TryAdd(newEuInfo.Description.Text, newEuInfo))
+                            if (!_euInformationByDescription.ContainsKey(newEuInfo.Description.Text))
                             {
-
+                                _euInformationByDescription.Add(newEuInfo.Description.Text, newEuInfo);
                             }
                         }
                     }
@@ -113,7 +113,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModel.Opc.Extensions
             }
         }
 
-        private static string TrimCSV(this string s, char trimChar)
+        private static string TrimCSV(this string s, string trimChar)
         {
             if (s == null) return null;
             if (s.StartsWith(trimChar))
@@ -128,7 +128,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModel.Opc.Extensions
             return s;
         }
 
-        public static EUInformation GetEUInformation(VariableModel.EngineeringUnit engineeringUnitDescription)
+        public static EUInformation GetEUInformation(VariableModel.EngineeringUnitInfo engineeringUnitDescription)
         {
             if (engineeringUnitDescription == null) return null;
             EUInformation euInfo;

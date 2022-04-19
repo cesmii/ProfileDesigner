@@ -286,7 +286,7 @@ SELECT id, _id FROM public.user, _permission WHERE username <> 'cesmii';
 CREATE TABLE public.lookup_type
 (
     id SERIAL PRIMARY KEY,
-    owner_id integer NULL,
+    --owner_id integer NULL,
     name character varying(200) COLLATE pg_catalog."default" NOT NULL,
     description character varying COLLATE pg_catalog."default" NULL,
     display_order integer NOT NULL,
@@ -303,7 +303,7 @@ ALTER TABLE public.lookup_type
 CREATE TABLE public.lookup
 (
     id SERIAL PRIMARY KEY,
-    owner_id integer NULL,
+    --owner_id integer NULL,
     code character varying(200) COLLATE pg_catalog."default" NOT NULL,
     name character varying(200) COLLATE pg_catalog."default" NOT NULL,
     type_id integer NOT NULL,
@@ -327,7 +327,7 @@ ALTER TABLE public.lookup
 INSERT INTO public.lookup_type(id, name, display_order, is_active)
 SELECT 1, 'ProfileType', 1, true
 UNION SELECT 2, 'AttributeType', 2, true
-UNION SELECT 3, 'EngUnit', 3, true
+--UNION SELECT 3, 'EngUnit', 3, true
 UNION SELECT 4, 'TaskStatus', 4, true
 ;
 
@@ -365,7 +365,7 @@ UNION SELECT  17, 'Cancelled', 'Cancelled', 5, true, id FROM public.lookup_type 
 
 --manually adjust the identity starting val
 SELECT setval('lookup_id_seq', 21);
-
+/*
 INSERT INTO public.lookup(code, name, display_order, is_active, type_id )
 SELECT  'hour', 'Duration (hr)', 9999, true, id FROM public.lookup_type WHERE name = 'EngUnit'
 UNION SELECT  'minute', 'Duration (min)', 9999, true, id FROM public.lookup_type WHERE name = 'EngUnit'
@@ -390,7 +390,7 @@ UNION SELECT  'gallon', 'Volume (gallon)', 9999, true, id FROM public.lookup_typ
 UNION SELECT  'pound', 'Weight (lb)', 9999, true, id FROM public.lookup_type WHERE name = 'EngUnit'
 UNION SELECT  'ounce', 'Weight (oz)', 9999, true, id FROM public.lookup_type WHERE name = 'EngUnit'
 ;
-
+*/
 ----------------------------------------------------------
 -- DROP TABLE public.engineering_unit;
 CREATE TABLE public.engineering_unit
@@ -732,7 +732,8 @@ CREATE TABLE public.profile_composition
     composition_id integer NOT NULL,
     name character varying(256) COLLATE pg_catalog."default" NOT NULL,
 	opc_browse_name character varying(256) NULL,
-    opc_node_id character varying(256) NULL,
+    -- Compositions don't have nodeids, compare on opc_browse_name
+    --opc_node_id character varying(256) NULL, 
     --namespace character varying(512) COLLATE pg_catalog."default" NULL,
     is_required boolean NULL,
 	modeling_rule character varying(256) NULL,

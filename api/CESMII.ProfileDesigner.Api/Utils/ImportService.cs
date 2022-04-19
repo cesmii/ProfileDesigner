@@ -184,8 +184,8 @@ namespace CESMII.ProfileDesigner.Api.Utils
                     dalProfile.StartTransaction();
                     _logger.LogTrace($"Timestamp||ImportId:{logId}||Importing node set files: {sw.Elapsed}");
 
-                    var streamList = nodeSetXmlList.Select(nodeSetXml => new MemoryStream(Encoding.UTF8.GetBytes(nodeSetXml.Data)));
-                    var resultSet = UANodeSetImporter.ImportNodeSets(myNodeSetCache, null, streamList, false, userToken, _nodeSetResolver);
+                    var nodeSetXmlStringList = nodeSetXmlList.Select(nodeSetXml => nodeSetXml.Data).ToList();
+                    var resultSet = UANodeSetImporter.ImportNodeSets(myNodeSetCache, null, nodeSetXmlStringList, false, userToken, _nodeSetResolver);
                     _logger.LogTrace($"Timestamp||ImportId:{logId}||Imported node set files: {sw.Elapsed}");
                     if (!string.IsNullOrEmpty(resultSet.ErrorMessage))
                     {

@@ -187,6 +187,17 @@ namespace CESMII.ProfileDesigner.Opc.Ua.NodeSetDBCache
                         PublicationDate = ns.PublicationDate,
                     },
                     userToken);
+                if (myModel == null)
+                {
+
+                    myModel = results.Models.FirstOrDefault(m => m.NameVersion.IsNewerOrSame(new ModelNameAndVersion
+                    {
+                        ModelUri = ns.ModelUri,
+                        ModelVersion = ns.Version,
+                        PublicationDate = ns.PublicationDate,
+                    }
+                     ))?.NameVersion?.CCacheId as NodeSetFileModel;
+                }
                 bool CacheNewerVersion = true;
                 if (myModel != null)
                 {

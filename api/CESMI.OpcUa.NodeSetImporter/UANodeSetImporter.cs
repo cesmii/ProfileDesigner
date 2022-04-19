@@ -166,7 +166,7 @@ namespace CESMII.OpcUa.NodeSetImporter
             if (NodeSetCacheSystem == null)
                 NodeSetCacheSystem = new UANodeSetFileCache();
             results.ErrorMessage = "";
-
+            List<ModelNameAndVersion> previousMissingModels = new List<ModelNameAndVersion>();
             try
             {
                 bool rerun;
@@ -211,8 +211,9 @@ namespace CESMII.OpcUa.NodeSetImporter
                         results.ResolveDependencies();
                         if (results.MissingModels.Any())
                         { 
-                            if (nodeSetResolver != null)
+                            if (nodeSetResolver != null && !results.MissingModels.SequenceEqual(previousMissingModels))
                             {
+                                previousMissingModels = results.MissingModels.ToList();
                                 //========================================================================================
                                 //TODO: Here we try to load the missing models from the CloudLib or another source
                                 //========================================================================================

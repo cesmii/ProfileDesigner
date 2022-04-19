@@ -824,7 +824,11 @@ namespace CESMII.OpcUa.NodeSetModel.Factory.Opc
                     var superTypeState = opcContext.GetNode(uaType.SuperTypeId) as BaseTypeState;
                     if (superTypeState != null)
                     {
-                        superTypeModel = BaseTypeModelFactoryOpc<TBaseTypeModel>.Create(opcContext, superTypeState, this._model.CustomState);
+                        superTypeModel = NodeModelFactoryOpc.Create(opcContext, superTypeState, this._model.CustomState, out _) as BaseTypeModel; //  BaseTypeModelFactoryOpc<TBaseTypeModel>.Create(opcContext, superTypeState, this._model.CustomState);
+                        if (superTypeModel == null)
+                        {
+                            throw new Exception($"Invalid node {superTypeState} is not a Base Type");
+                        }
                     }
                 }
                 _model.SuperType = superTypeModel;

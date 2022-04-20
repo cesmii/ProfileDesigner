@@ -1,21 +1,24 @@
-﻿using System;
-using System.Text;
-using System.Diagnostics;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.EntityFrameworkCore;
-
-using CESMII.ProfileDesigner.Common.Enums;
-using CESMII.ProfileDesigner.Data.Entities;
-using CESMII.ProfileDesigner.DAL.Models;
-using CESMII.ProfileDesigner.DAL;
-using CESMII.ProfileDesigner.Api.Shared.Utils;
-using CESMII.ProfileDesigner.OpcUa;
+﻿using CESMII.OpcUa.NodeSetImporter;
+using CESMII.OpcUa.NodeSetModel;
 using CESMII.ProfileDesigner.Api.Shared.Models;
+using CESMII.ProfileDesigner.Api.Shared.Utils;
+using CESMII.ProfileDesigner.Common.Enums;
+using CESMII.ProfileDesigner.DAL;
+using CESMII.ProfileDesigner.DAL.Models;
+using CESMII.ProfileDesigner.Data.Entities;
+using CESMII.ProfileDesigner.Opc.Ua.NodeSetDBCache;
+using CESMII.ProfileDesigner.OpcUa;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace CESMII.ProfileDesigner.Api.Utils
 {
@@ -26,18 +29,21 @@ namespace CESMII.ProfileDesigner.Api.Utils
         private readonly IServiceScopeFactory _serviceScopeFactory;
         private readonly IDal<ImportLog, ImportLogModel> _dalImportLog;
         private readonly IConfiguration _configuration;
+        private readonly IUANodeSetResolver _nodeSetResolver;
 
         public ImportService(BackgroundWorkerQueue backgroundWorkerQueue, IServiceScopeFactory serviceScopeFactory,
             IDal<ImportLog, ImportLogModel> dalImportLog,
+            IUANodeSetResolver cloudLibResolver,
             ILogger<ImportService> logger,
-            IConfiguration configuration) 
-            
+            IConfiguration configuration)
+
         {
             _backgroundWorkerQueue = backgroundWorkerQueue;
             _logger = logger;
             _serviceScopeFactory = serviceScopeFactory;
             _dalImportLog = dalImportLog;
             _configuration = configuration;
+            _nodeSetResolver = cloudLibResolver;
         }
 
         public async Task<int> CallSlowMethod(List<ImportOPCModel> nodeSetXmlList, UserToken userToken)
@@ -69,7 +75,7 @@ namespace CESMII.ProfileDesigner.Api.Utils
                     await Task.Delay(20000);
                     //await Task.Delay(5000);
                     //completed message
-                    var logItem = dalImportLog.GetById(logId.Value,userToken);
+                    var logItem = dalImportLog.GetById(logId.Value, userToken);
                     logItem.Status = TaskStatusEnum.Completed;
                     logItem.Completed = DateTime.UtcNow;
                     logItem.Messages.Add(new ImportLogMessageModel() { Message = "Completed" });
@@ -173,18 +179,13 @@ namespace CESMII.ProfileDesigner.Api.Utils
                     //TODO: C2-95: Last parameter should be a setting in the UX if somebody wants to use the Precise NodeSet Version instead of the highest(last) version available
                     //The first parameter can be used to define a custom UANodeSetCache. If null the default FileCache is used
                     //var myNodeSetCache = new OPCUANodeSetHelpers.UANodeSetFileCache();        //FILE CACHE
-                    var myNodeSetCache = new OPCUANodeSetHelpers.UANodeSetDBCache(dalNodeSetFile, dalStandardNodeSet, userToken); // DB CACHE
+                    var myNodeSetCache = new UANodeSetDBCache(dalNodeSetFile, dalStandardNodeSet, userToken); // DB CACHE
 
                     dalProfile.StartTransaction();
                     _logger.LogTrace($"Timestamp||ImportId:{logId}||Importing node set files: {sw.Elapsed}");
-                    var binList = new List<byte[]>();
-                    foreach (var t in nodeSetXmlList)
-                    {
-                        //fileNames += string.IsNullOrEmpty(fileNames) ? t.FileName : $", {t.FileName}";
-                        binList.Add(Encoding.UTF8.GetBytes(t.Data)); //Is UTF8 correct here?
-                    }
 
-                    var resultSet = OPCUANodeSetHelpers.UANodeSetImporter.ImportNodeSets(myNodeSetCache, null, null, binList, false, userToken);
+                    var streamList = nodeSetXmlList.Select(nodeSetXml => new MemoryStream(Encoding.UTF8.GetBytes(nodeSetXml.Data)));
+                    var resultSet = UANodeSetImporter.ImportNodeSets(myNodeSetCache, null, streamList, false, userToken, _nodeSetResolver);
                     _logger.LogTrace($"Timestamp||ImportId:{logId}||Imported node set files: {sw.Elapsed}");
                     if (!string.IsNullOrEmpty(resultSet.ErrorMessage))
                     {
@@ -211,7 +212,7 @@ namespace CESMII.ProfileDesigner.Api.Utils
                         _logger.LogTrace($"Timestamp||ImportId:{logId}||Getting standard nodesets files: {sw.Elapsed}");
                         var res = dalStandardNodeSet.GetAll(userToken);
                         _logger.LogTrace($"Timestamp||ImportId:{logId}||Verifying standard nodeset: {sw.Elapsed}");
-                        resultSet = OPCUANodeSetHelpers.UANodeSetValidator.VerifyNodeSetStandard(resultSet, res);
+                        resultSet = UANodeSetValidator.VerifyNodeSetStandard(resultSet, res);
                         //TODO: @Chris - Capture if specific nodeset is not in standard table and report that specifically. Separate that validation
                         //      from potential issues with the import itself.
                         //Chris: Done, but ErrorMessage is only set if there was an issue with the function, NOT if a noodeset was in the standard table.
@@ -294,7 +295,7 @@ namespace CESMII.ProfileDesigner.Api.Utils
                             primeEFCacheTask = importer._dal.LoadIntoCacheAsync(pt => profileIds.Contains(pt.ProfileId));
                             primeEFCacheTask = primeEFCacheTask.ContinueWith((t) => importer._dtDal.LoadIntoCacheAsync(dt => profileIds.Contains(dt.CustomType.ProfileId))).Unwrap();
                         }
-                        List<OpcUa.NodeSetModel.NodeSetModel> modelsToImport = new List<OpcUa.NodeSetModel.NodeSetModel>();
+                        var modelsToImport = new List<NodeSetModel>();
                         foreach (var profileAndNodeSet in profilesAndNodeSets)
                         {
                             //only show message for the items which are newly imported...
@@ -344,7 +345,7 @@ namespace CESMII.ProfileDesigner.Api.Utils
                                     (importer.Logger as LoggerCapture).LogList = null;
                                     if (logList.Any())
                                     {
-                                        nodesetWarnings.Add(new WarningsByNodeSet() 
+                                        nodesetWarnings.Add(new WarningsByNodeSet()
                                         { ProfileId = profileAndNodeSet.Profile.ID.Value, Key = profileAndNodeSet.Profile.ToString(), Warnings = logList });
                                         //nodesetWarnings[profileAndNodeSet.Profile.ToString()] = logList;
                                     }
@@ -396,7 +397,8 @@ namespace CESMII.ProfileDesigner.Api.Utils
 
                 //handle import warnings. Save to DB for each nodeset / profile.
                 //Store for later use when we export profile. 
-                try { 
+                try
+                {
                     foreach (var warningList in nodesetWarnings)
                     {
                         //save each nodesets warnings to the DB...for display upon export
@@ -435,7 +437,7 @@ namespace CESMII.ProfileDesigner.Api.Utils
             return new ImportLogDAL(repo);
         }
 
-        private async Task CreateImportLogMessage(IDal<ImportLog, ImportLogModel> dalImportLog, int logId, UserToken userToken, 
+        private async Task CreateImportLogMessage(IDal<ImportLog, ImportLogModel> dalImportLog, int logId, UserToken userToken,
             string message, TaskStatusEnum status)
         {
             var logItem = dalImportLog.GetById(logId, userToken);
@@ -465,7 +467,7 @@ namespace CESMII.ProfileDesigner.Api.Utils
         private class ProfileModelAndNodeSet
         {
             public ProfileModel Profile { get; set; }
-            public OPCUANodeSetHelpers.ModelValue NodeSetModel { get; set; }
+            public ModelValue NodeSetModel { get; set; }
         }
 
         private class WarningsByNodeSet

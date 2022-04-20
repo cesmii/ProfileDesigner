@@ -6,7 +6,6 @@ import AttributeEntity from './AttributeEntity'
 import { generateLogMessageString } from '../../utils/UtilityService'
 
 import { SVGIcon } from '../../components/SVGIcon'
-import color from '../../components/Constants'
 import '../../components/styles/RightPanel.scss';
  
 const CLASS_NAME = "AttributeSlideOut";
@@ -59,7 +58,7 @@ function AttributeSlideOut(props) { //props are item, showActions
                     <div className="d-flex align-items-center ml-auto" >
                         <Button variant="icon-solo" onClick={closePanel} className="align-items-center" >
                             <span>
-                                <SVGIcon name="close" size="24" fill={color.shark} />
+                                <SVGIcon name="close" />
                             </span>
                         </Button>
                     </div>

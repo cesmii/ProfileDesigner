@@ -4,6 +4,7 @@ import Routes from './Routes'
 //import { generateLogMessageString } from '../utils/UtilityService'
 import { ScrollToTop } from './ScrollToTop';
 import { OnRefreshEvent } from './OnRefreshEvent';
+import './styles/MainContent.scss';
 
 //const CLASS_NAME = "MainContent";
 

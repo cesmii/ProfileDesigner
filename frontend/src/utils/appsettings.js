@@ -3,7 +3,7 @@
 ///--------------------------------------------------------------------------
 export const AppSettings = {
     BASE_API_URL: process.env.REACT_APP_BASE_API_URL  //api server url - environment specific
-    , Titles: { Anonymous: 'CESMII | Profile Designer', Main: 'CESMII | Profile Designer', Caption: 'Profile Designer' }
+    , Titles: { Anonymous: 'CESMII | SM Profile Designer', Main: 'CESMII | SM Profile Designer', Caption: 'SM Profile™ Designer' }
     , PageSize: 25
     , PageSizeOptions: [10, 25, 50]
     , DateSettings: {

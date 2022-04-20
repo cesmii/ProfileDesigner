@@ -7,6 +7,8 @@ import { useLoadingContext } from './contexts/LoadingContext'
 import color from './Constants'
 import ProfileExplorer from '../views/shared/ProfileExplorer';
 import SideMenuLinkList from './SideMenuLinkList'
+import './styles/SideMenu.scss';
+import './styles/SideMenuItem.scss';
 
 //const CLASS_NAME = "SideMenu";
 function SideMenu() {

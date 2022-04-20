@@ -113,7 +113,7 @@ function SolutionExplorer(props) {
                         <InputGroup.Append>
                             {/*Button is just visual cue, search is happening on blur*/}
                             <Button variant="icon-outline p-0 pl-2 pr-2 border-left-0" title="Filter explorer view">
-                                <SVGIcon name="search" size="24" fill={color.shark} />
+                                <SVGIcon name="search" />
                             </Button>
                         </InputGroup.Append>
                     </InputGroup>

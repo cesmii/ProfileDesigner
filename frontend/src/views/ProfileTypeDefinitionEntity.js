@@ -22,9 +22,9 @@ import ProfileEntityModal from './modals/ProfileEntityModal';
 import ProfileItemRow from './shared/ProfileItemRow';
 
 import { SVGIcon } from "../components/SVGIcon";
-import color from "../components/Constants";
 import { getProfileCaption } from '../services/ProfileService';
 import { getWizardNavInfo, renderWizardBreadcrumbs, WizardSettings } from '../services/WizardUtil';
+import './styles/ProfileTypeDefinitionEntity.scss';
 
 const CLASS_NAME = "ProfileTypeDefinitionEntity";
 const entityInfo = {
@@ -381,7 +381,7 @@ function ProfileTypeDefinitionEntity() {
         e.preventDefault();
 
         //show a spinner
-        setLoadingProps({ isLoading: true, message: "" });
+        //setLoadingProps({ isLoading: true, message: "" });
 
         //perform update call
         var url = `profiletypedefinition/togglefavorite`;
@@ -735,7 +735,7 @@ function ProfileTypeDefinitionEntity() {
         return (
             <Dropdown className="action-menu icon-dropdown ml-1 ml-md-2" onClick={(e) => e.stopPropagation()} >
                 <Dropdown.Toggle drop="left" title="Actions" >
-                    <SVGIcon name="more-vert" size="24" fill={color.shark} />
+                    <SVGIcon name="more-vert" size="24" />
                 </Dropdown.Toggle>
                 <Dropdown.Menu>
                     <Dropdown.Item href={`/type/extend/${_item.id}`}>Extend '{_item.name}'</Dropdown.Item>
@@ -766,10 +766,10 @@ function ProfileTypeDefinitionEntity() {
 
         return (
             <>
-                <div className="row my-2">
-                    <div className="col-sm-9 col-md-8 mb-2" >
+                <div className="row my-1">
+                    <div className="col-sm-9 col-md-8 align-self-center" >
                         <h1 className="mb-0">
-                            <SVGIcon name={iconName} size="24" fill={color.shark} className="mr-1 mr-md-2" />
+                            <SVGIcon name={iconName} size="24" className="mr-1 mr-md-2" />
                             Type Definition
                             {(_item.name != null && _item.name.trim() !== '') &&
                                 <>
@@ -778,8 +778,8 @@ function ProfileTypeDefinitionEntity() {
                                 </>
                             }
                             {(_item.id != null && _item.id > 0) &&
-                                <button className="btn btn-icon btn-nofocusborder favorite" onClick={onToggleFavorite} title={_item.isFavorite ? "Unfavorite item" : "Favorite item"} >
-                                    <i className="material-icons" >{_item.isFavorite ? "favorite" : "favorite_border"}</i>
+                                <button className="btn btn-icon btn-nofocusborder favorite px-2 py-0" onClick={onToggleFavorite} title={_item.isFavorite ? "Unfavorite item" : "Favorite item"} >
+                                    <i className="material-icons size24" >{_item.isFavorite ? "favorite" : "favorite_border"}</i>
                                 </button>
                             }
                         </h1>
@@ -798,22 +798,10 @@ function ProfileTypeDefinitionEntity() {
                                 <span className="ml-2 d-inline invalid-field-message">Required</span>
                             }
                             <div className={`input-group ${(!_isValid.name ? "invalid-group" : "")}`} >
-                                {/*<InputGroup.Prepend>*/}
-                                {/*    <InputGroup.Text className={isReadOnly ? `input-prepend readonly` : `input-prepend`}>*/}
-                                {/*        <SVGIcon name={iconName} size="24" fill={color.shark} />*/}
-                                {/*    </InputGroup.Text>*/}
-                                {/*</InputGroup.Prepend>*/}
                                 <Form.Group className="flex-grow-1 m-0">
                                     <Form.Control className={(!_isValid.name ? `invalid-field` : ``)} id="name" type="" placeholder={`Enter name`}
                                         value={_item.name} onBlur={validateForm_name} onChange={onChange} readOnly={isReadOnly} />
                                 </Form.Group>
-                                {/*    {(mode.toLowerCase() === "edit" || mode.toLowerCase() === "view") &&*/}
-                                {/*        <InputGroup.Append>*/}
-                                {/*            <InputGroup.Text className="input-append fav" onClick={onToggleFavorite} >*/}
-                                {/*                <SVGIcon name={isFavorite ? "favorite" : "favorite-border"} size="24" fill={color.citron} />*/}
-                                {/*            </InputGroup.Text>*/}
-                                {/*        </InputGroup.Append>*/}
-                                {/*    }*/}
                             </div>
                         </div>
                     }
@@ -838,7 +826,7 @@ function ProfileTypeDefinitionEntity() {
     const renderAdvancedPane = () => {
         return (
             <>
-                <div className="row mt-2">
+                <div className="row mt-1">
                     <div className="col-md-6">
                         <Form.Group>
                             <Form.Label htmlFor="entity_author" >Author name</Form.Label>
@@ -852,7 +840,7 @@ function ProfileTypeDefinitionEntity() {
                         </Form.Group>
                     </div>
                 </div>
-                <div className="row mt-2">
+                <div className="row mt-1">
                     <div className="col-sm-6">
                         <Form.Group>
                             <Form.Label htmlFor="browseName" >OPC Browse Name</Form.Label>
@@ -873,7 +861,7 @@ function ProfileTypeDefinitionEntity() {
                         </Form.Group>
                     </div>
                 </div>
-                <div className="row mt-2">
+                <div className="row mt-1">
                     <div className="col-sm-4">
                         <Form.Group>
                             <Form.Label htmlFor="opcNodeId" >OPC Node Id</Form.Label>
@@ -882,7 +870,7 @@ function ProfileTypeDefinitionEntity() {
                         </Form.Group>
                     </div>
                 </div>
-                <div className="row mt-2">
+                <div className="row mt-1">
                     <div className="col-sm-6 col-lg-2">
                         <Form.Group className="d-flex h-100">
                             <Form.Check className="align-self-end" type="checkbox" id="isAbstract" label="Is Abstract" checked={_item.isAbstract}
@@ -890,7 +878,7 @@ function ProfileTypeDefinitionEntity() {
                         </Form.Group>
                     </div>
                 </div>
-                <div className="row mt-2">
+                <div className="row mt-1">
                     <div className="col-sm-12">
                         <Form.Group>
                             <Form.Label htmlFor="metaTagsConcatenated" >Meta tags (optional)</Form.Label>
@@ -898,7 +886,7 @@ function ProfileTypeDefinitionEntity() {
                         </Form.Group>
                     </div>
                 </div>
-                <div className="row mt-2">
+                <div className="row mt-1">
                     <div className="col-sm-12">
                         <Form.Group>
                             <Form.Label htmlFor="documentUrl">Document Url</Form.Label>
@@ -933,7 +921,7 @@ function ProfileTypeDefinitionEntity() {
                     <div className="entity-details">
                         {/* TABS */}
                         <Tab.Container id="profile-definition" defaultActiveKey="attributes" onSelect={tabListener}>
-                            <Nav variant="pills" className="row mt-2 px-2 pr-md-3">
+                            <Nav variant="pills" className="row mt-1 px-2 pr-md-3">
                                 <Nav.Item className="col-sm-4 rounded p-0 pl-2" >
                                     <Nav.Link eventKey="attributes" className="text-center text-md-left p-1 px-2 h-100" >
                                         <span className="headline-3">Attributes</span>
@@ -957,8 +945,8 @@ function ProfileTypeDefinitionEntity() {
                             <Tab.Content>
                                 <Tab.Pane eventKey="attributes">
                                     {/* ATTRIBUTES CONTENT */}
-                                    <Card className="pb-2 pb-md-4">
-                                        <Card.Body>
+                                    <Card className="">
+                                        <Card.Body className="pt-3">
                                             <AttributeList typeDefinition={_item} profileAttributes={_item.profileAttributes} extendedProfileAttributes={_item.extendedProfileAttributes} readOnly={mode === "view"}
                                                 onAttributeAdd={onAttributeAdd} onAttributeInterfaceAdd={onAttributeInterfaceAdd} currentUserId={authTicket.user.id}
                                                 onAttributeDelete={onAttributeDelete} onAttributeInterfaceDelete={onAttributeInterfaceDelete} onAttributeUpdate={onAttributeUpdate} />
@@ -967,16 +955,16 @@ function ProfileTypeDefinitionEntity() {
                                 </Tab.Pane>
                                 <Tab.Pane eventKey="dependencies">
                                     {/* DEPENDENCIES CONTENT */}
-                                    <Card className="p-2 pb-md-4">
-                                        <Card.Body>
+                                    <Card className="">
+                                        <Card.Body className="pt-3">
                                             <DependencyList typeDefinition={_item} />
                                         </Card.Body>
                                     </Card>
                                 </Tab.Pane>
                                 <Tab.Pane eventKey="advanced">
                                     {/* advanced CONTENT */}
-                                    <Card className="p-2 pb-md-4">
-                                        <Card.Body>
+                                    <Card className="">
+                                        <Card.Body className="pt-3">
                                             {renderAdvancedPane()}
                                         </Card.Body>
                                     </Card>

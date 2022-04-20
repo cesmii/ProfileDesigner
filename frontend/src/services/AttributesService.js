@@ -246,6 +246,7 @@ export const onChangeEngUnitShared = (val, item, lookupEngUnits) => {
 
     //set engunit - can be null (if they select "-1" value)
     item.engUnit = match;
+    item.engUnitId = match.id;
 
     return item;
 };
@@ -312,7 +313,7 @@ export const renderAttributeIcon = (item) => {
 
     return (
         <span className="mr-2">
-            <SVGIcon name={iconName} size="24" fill={iconColor} />
+            <SVGIcon name={iconName} size="20" fill={iconColor} />
         </span>
     );
 }
@@ -413,7 +414,7 @@ export const renderEngUnitUIShared = (editItem, lookupEngUnits, onChangeCallback
     //map value bind to structure the control accepts
     var selValue = {
         label: editItem.engUnit?.id == null || editItem.engUnit.id.toString() === "-1" ?
-            "Select" : editItem.engUnit.name,
+            "Select" : editItem.engUnit.displayName,
         value: editItem.engUnit?.id == null ? -1 : editItem.engUnit.id
     };
 

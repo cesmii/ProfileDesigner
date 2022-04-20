@@ -19,63 +19,17 @@ sans-serif,
 
 $font-family-base: "Open Sans", sans-serif;
 $font-family-headings: "Bitter", sans-serif;
+$font-family-link: "Open Sans", sans-serif;
 $enable-responsive-font-sizes: "true";
 
-$theme-colors: (
-    "primary": #4084EF,
-    "secondary":  #9FB522
-);
+$theme-colors: ( "primary": #4084EF, "secondary": #2E2B26 );
 
 //When we call color from a component, remove dashes in the calling code.
 $colors: (
-    //marketplace colors
-    "textPrimary": #2E2B26,
-    "textSecondary": #848484,
-    "link": #2D76A7,
-    "selectedBg": #2D76A7,
-    "subHeadingBg": #D0ECFF,
-    "mauve": #C271BF,
-    "mauveBg": #FFD0FD,
-    "lightBlueBg": #F3FAFF,
-    "lightYellowBg":#FFF2D0,
-    "lightGreenBg":#D0FFD5,
-    "forestGreen": #238823,
-    //end marketplace colors
-    "cornflower": #4084EF,
-    "thunder": #23201F,
-    "cerulean": #00AEEF,
-    "apple": #6AA342,
-    "citron": #9FB522,
-    "blazeOrange": #FF6404,
-    "trinidad": #E22C09,
-    "almost-white": #FDFDFD,
-    "alabaster": #F7F7F7,
-    "cararra": #E7E6E2,
-    "alto": #DADADA,
-    "silver": #CCCCCC,
-    "platinum": #e7e4e4,
-    "shark": #1F262A,
-    "outerSpace": #2A3439,
-    "nevada": #5B676D,
-    "osloGray": #848689,
-    "spunPearl": #AAA9AD,
-    "cardinal": #D2222D,
-    "amber": #FFBF00,
-    "japaneseLaurel": #007000,
-    "sauvignon": #FFF6F4,
-    "camarone": #006127,
-    "hintOfGreen": #FAFFFC,
-    "peppermint": #DEF2D5,
-    "tomThumb": #485C3F,
-    "blue8": #0AB4FF,
-    "info": #d1ecf1,
-    "white": #ffffff,
-    "hlBlue": #E5F6FD,
-    "hlTan": #fdf7e5,
-    "gris": #394347,
-    "transparent": #FDFDFD00
-);
-
+//marketplace colors
+"textPrimary": #2E2B26, "textSecondary": #848484, "link": #2D76A7, "selectedBg": #2D76A7, "subHeadingBg": #D0ECFF, "mauve": #C271BF, "mauveBg": #FFD0FD, "lightBlueBg": #F3FAFF, "lightYellowBg":#FFF2D0, "lightGreenBg":#D0FFD5, "forestGreen": #238823,
+//end marketplace colors
+"cornflower": #4084EF, "thunder": #23201F, "cerulean": #00AEEF, "apple": #6AA342, "citron": #9FB522, "blazeOrange": #FF6404, "trinidad": #E22C09, "almost-white": #FDFDFD, "alabaster": #F7F7F7, "cararra": #E7E6E2, "alto": #DADADA, "silver": #CCCCCC, "platinum": #e7e4e4, "shark": #1F262A, "outerSpace": #2A3439, "nevada": #5B676D, "osloGray": #848689, "spunPearl": #AAA9AD, "cardinal": #D2222D, "amber": #FFBF00, "japaneseLaurel": #007000, "sauvignon": #FFF6F4, "camarone": #006127, "hintOfGreen": #FAFFFC, "peppermint": #DEF2D5, "tomThumb": #485C3F, "blue8": #0AB4FF, "info": #d1ecf1, "white": #ffffff, "hlBlue": #E5F6FD, "hlTan": #fdf7e5, "gris": #394347, "transparent": #FDFDFD00 );
 
 
 /// Global CESMII variables
@@ -90,6 +44,9 @@ $sideMenuWidthOpen: 290px;
 $sideMenuWidthCollapsed: 72px;
 $rightPanelWidth: 350px;
 $globalTransition: all 200ms ease-in-out;
+$tile-radius: 28px;
+$button-radius: 38px;
+$inputControl-radius: 12px;
 
 @mixin globalShadow {
     -webkit-box-shadow: 10px 10px 20px 0px rgba(0,0,0,0.15);

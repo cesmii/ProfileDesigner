@@ -7,7 +7,6 @@ import Button from 'react-bootstrap/Button'
 import axiosInstance from "../../services/AxiosService";
 
 import { SVGIcon } from '../../components/SVGIcon'
-import color from '../../components/Constants'
 
 import { generateLogMessageString, pageDataRows, convertToNumeric, toInt, onChangeNumericKeysOnly } from '../../utils/UtilityService'
 import {
@@ -993,7 +992,7 @@ function AttributeList(props) {
                         />
                     <InputGroup.Append>
                         <Button variant="search" className="p-0 pl-3 pr-2 border-left-0" onClick={onSearchClick} title="Filter attribute list" >
-                                <SVGIcon name="search" size="24" fill={color.shark} />
+                                <SVGIcon name="search" />
                             </Button>
                         </InputGroup.Append>
                     </InputGroup>
@@ -1006,7 +1005,7 @@ function AttributeList(props) {
             <Form.Group>
             <Button variant="inline-add" aria-label="Add attribute" onClick={onAdd} className="d-flex align-items-center justify-content-center">
                 <span>
-                    <SVGIcon name="playlist-add" size="24" fill={color.shark} />
+                    <SVGIcon name="playlist-add" />
                 </span>
             </Button>
             </Form.Group>
@@ -1028,12 +1027,12 @@ function AttributeList(props) {
         //else return the search and the add ui
         return (
             <>
-                <div className="d-flex align-items-end mb-3">
+                <div className="d-flex align-items-end mb-2">
                     <div className="ml-auto">
                         {renderSearchUI()}
                     </div>
                 </div>
-                <div className="p-4 hl-blue">
+                <div className="py-2 px-4 hl-blue">
                     <div className="row" >
                         <div className="col-sm-5" >{renderAttributeTypeUI()}</div>
                         {(!_addSettings.showInterface && !_addSettings.showComposition && !_addSettings.showEnumeration) &&

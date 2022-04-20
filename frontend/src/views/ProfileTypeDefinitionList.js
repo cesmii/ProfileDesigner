@@ -9,6 +9,7 @@ import ProfileTypeDefinitionListGrid from './shared/ProfileTypeDefinitionListGri
 
 import color from '../components/Constants'
 import { clearSearchCriteria, toggleSearchFilterSelected } from '../services/ProfileService'
+import './styles/ProfileTypeDefinitionList.scss';
 
 const CLASS_NAME = "ProfileTypeDefinitionList";
 //const entityInfo = {

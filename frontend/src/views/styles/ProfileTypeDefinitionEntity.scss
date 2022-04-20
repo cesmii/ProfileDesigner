@@ -1,3 +1,5 @@
+@import "../../components/styles/constants";
+
 .row.profile-details-header {
     min-height: 128px;
     padding: 24px;
@@ -71,14 +73,15 @@
 
     .nav-pills {
         flex-wrap: nowrap;
+
+        .nav-item .nav-link.active,
+        .nav-item.show > .nav-link {
+            color: color("white");
+            background-color: color("cornflower");
+            @include globalShadow;
+        }
     }
 
-    .nav-item .nav-link.active,
-    .nav-item.show > .nav-link {
-        color: color("white");
-        background-color: color("cornflower");
-        @include globalShadow;
-    }
 
     .btn.btn-icon-solo {
         margin-bottom: 0;
@@ -87,7 +90,7 @@
 
     table {
         border-collapse: collapse;
-        font-size: 14px;
+        //font-size: 14px;
         font-weight: 400;
 
         th {
@@ -107,8 +110,7 @@
                 border: none;
                 border-bottom: 1px solid color("alto");
                 vertical-align: middle;
-                padding-bottom: 5px;
-                margin-bottom: 5px;
+                padding-bottom: .2rem;
 
                 &.col-icon {
                     width: 28px;
@@ -118,7 +120,7 @@
     }
 
     .flex-grid.attribute-list {
-        font-size: 14px;
+        //font-size: 14px;
         font-weight: 400;
 
         .row.attribute-list-header {

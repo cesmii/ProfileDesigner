@@ -4,7 +4,6 @@ import { useLoadingContext } from '../../components/contexts/LoadingContext'
 import { generateLogMessageString } from '../../utils/UtilityService';
 import { Button, Form, FormControl, InputGroup } from 'react-bootstrap';
 import { SVGIcon } from '../../components/SVGIcon';
-import color from '../../components/Constants';
 
 import '../../components/styles/InfoPanel.scss';
 import { clearSearchCriteria, toggleSearchFilterSelected } from '../../services/ProfileService';
@@ -149,7 +148,7 @@ function ProfileTypeDefinitionFilter(props) {
                         />
                         <InputGroup.Append>
                             <Button variant="search" className="p-0 pl-2 pr-2 border-left-0" onClick={onSearchClick} type="submit" title="Run Search." >
-                                <SVGIcon name="search" size="24" fill={color.shark} />
+                                <SVGIcon name="search" />
                             </Button>
                         </InputGroup.Append>
                     </InputGroup>
@@ -213,7 +212,7 @@ function ProfileTypeDefinitionFilter(props) {
         return (
             <>
                 <Form.Label htmlFor="sortBy" className="d-inline mx-1" >Sort by:</Form.Label>
-                <Form.Control id="sortByEnum" as="select" className="minimal pr-5" value={selValue == null ? "3" : selValue}
+                <Form.Control id="sortByEnum" as="select" className="input-rounded minimal pr-5" value={selValue == null ? "3" : selValue}
                     onChange={onSortBy} >
                     {options}
                 </Form.Control>
@@ -238,8 +237,8 @@ function ProfileTypeDefinitionFilter(props) {
     //if (!hasSelected()) return null;
     return (
         <>
-            <div className={`row selected-panel px-3 py-3 mb-2 rounded d-flex ${props.cssClass ?? ''}`} >
-                <div className="col-sm-12 px-0 align-items-start d-block d-lg-flex" >
+            <div className={`row selected-panel px-3 py-1 mb-1 rounded d-flex ${props.cssClass ?? ''}`} >
+                <div className="col-sm-12 px-0 align-items-start d-block d-lg-flex align-items-center" >
                     <div className="d-flex mr-lg-3 mb-2 mb-lg-0" >
                         {renderSearchUI()}
                     </div>

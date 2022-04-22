@@ -147,7 +147,10 @@ namespace CESMII.OpcUa.NodeSetImporter
             bool WasNewSet = false;
             // UANodeSet.Read disposes the stream. We need it later on so create a copy
             UANodeSet nodeSet;
-            using (var nodesetBytes = new MemoryStream(Encoding.UTF8.GetBytes(nodeSetXml)))
+
+            // workaround for bug https://github.com/dotnet/runtime/issues/67622
+			var patchedXML = nodeSetXml.Replace("<Value/>", "<Value xsi:nil='true' />");
+            using (var nodesetBytes = new MemoryStream(Encoding.UTF8.GetBytes(patchedXML)))
             {
                 nodeSet = UANodeSet.Read(nodesetBytes);
             }

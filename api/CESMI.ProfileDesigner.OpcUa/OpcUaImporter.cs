@@ -208,7 +208,9 @@ namespace CESMII.ProfileDesigner.OpcUa
                 {
                     // TODO find the right OPC version references in the nodeSet?
                     var opcNodeSetModel = _nsDal.Where(ns => ns.Namespace == strOpcNamespaceUri /*&& (ns.AuthorId == null || ns.AuthorId == userId)*/, userToken, null, null, false, true).Data.OrderByDescending(m => m.PublishDate).FirstOrDefault();
-                    using (MemoryStream nodeSetStream = new MemoryStream(Encoding.UTF8.GetBytes(opcNodeSetModel.NodeSetFiles[0].FileCache)))
+                    // workaround for bug https://github.com/dotnet/runtime/issues/67622
+                    var fileCachePatched = opcNodeSetModel.NodeSetFiles[0].FileCache.Replace("<Value/>", "<Value xsi:nil='true' />");
+                    using (MemoryStream nodeSetStream = new MemoryStream(Encoding.UTF8.GetBytes(fileCachePatched)))
                     //var nodeSetFilePath = Path.Combine(Path.GetDirectoryName(this.GetType().Assembly.Location), "Nodesets", "Opc.Ua.NodeSet2.xml");
                     //using (Stream nodeSetStream = new FileStream(nodeSetFilePath, FileMode.Open))
                     {

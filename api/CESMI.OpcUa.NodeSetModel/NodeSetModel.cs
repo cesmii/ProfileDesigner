@@ -101,37 +101,38 @@ namespace CESMII.OpcUa.NodeSetModel
         public void UpdateIndices()
         {
             AllNodes.Clear();
+            var updatedNodes = new List<NodeModel>();
             foreach (var dataType in DataTypes)
             {
-                dataType.UpdateIndices(this);
+                dataType.UpdateIndices(this, updatedNodes);
             }
             foreach (var variableType in VariableTypes)
             {
-                variableType.UpdateIndices(this);
+                variableType.UpdateIndices(this, updatedNodes);
             }
             foreach (var uaInterface in Interfaces)
             {
-                uaInterface.UpdateIndices(this);
+                uaInterface.UpdateIndices(this, updatedNodes);
             }
             foreach (var objectType in ObjectTypes)
             {
-                objectType.UpdateIndices(this);
+                objectType.UpdateIndices(this, updatedNodes);
             }
             foreach (var property in Properties)
             {
-                property.UpdateIndices(this);
+                property.UpdateIndices(this, updatedNodes);
             }
             foreach (var dataVariable in DataVariables)
             {
-                dataVariable.UpdateIndices(this);
+                dataVariable.UpdateIndices(this, updatedNodes);
             }
             foreach (var uaObject in Objects)
             {
-                uaObject.UpdateIndices(this);
+                uaObject.UpdateIndices(this, updatedNodes);
             }
             foreach (var node in UnknownNodes)
             {
-                node.UpdateIndices(this);
+                node.UpdateIndices(this, updatedNodes);
             }
         }
     }
@@ -211,36 +212,43 @@ namespace CESMII.OpcUa.NodeSetModel
 
         public virtual List<ChildAndReference> OtherChilden { get; set; } = new List<ChildAndReference>();
 
-        public virtual void UpdateIndices(NodeSetModel model)
+        public virtual bool UpdateIndices(NodeSetModel model, List<NodeModel> updatedNodes)
         {
+            if (updatedNodes.Contains(this))
+            {
+                // break some recursions
+                return false;
+            }
+            updatedNodes.Add(this);
             if (model.ModelUri == this.Namespace)
             {
                 model.AllNodes.TryAdd(this.NodeId, this);
             }
             foreach (var node in Objects)
             {
-                node.UpdateIndices(model);
+                node.UpdateIndices(model, updatedNodes);
             }
             foreach (var node in this.DataVariables)
             {
-                node.UpdateIndices(model);
+                node.UpdateIndices(model, updatedNodes);
             }
             foreach (var node in this.Interfaces)
             {
-                node.UpdateIndices(model);
+                node.UpdateIndices(model, updatedNodes);
             }
             foreach (var node in this.Methods)
             {
-                node.UpdateIndices(model);
+                node.UpdateIndices(model, updatedNodes);
             }
             foreach (var node in this.Properties)
             {
-                node.UpdateIndices(model);
+                node.UpdateIndices(model, updatedNodes);
             }
             foreach (var node in this.Events)
             {
-                node.UpdateIndices(model);
+                node.UpdateIndices(model, updatedNodes);
             }
+            return true;
         }
 
         public override string ToString()
@@ -340,20 +348,24 @@ namespace CESMII.OpcUa.NodeSetModel
             }
         }
 
-        public override void UpdateIndices(NodeSetModel model)
+        public override bool UpdateIndices(NodeSetModel model, List<NodeModel> updatedNodes)
         {
-            base.UpdateIndices(model);
-            if (SuperType != null)
+            var bUpdated = base.UpdateIndices(model, updatedNodes);
+            if (bUpdated)
             {
-                if (!SuperType.SubTypes.Any(sub => sub.NodeId == this.NodeId))
+                if (SuperType != null)
                 {
-                    SuperType.SubTypes.Add(this);
-                }
-                else
-                {
+                    if (!SuperType.SubTypes.Any(sub => sub.NodeId == this.NodeId))
+                    {
+                        SuperType.SubTypes.Add(this);
+                    }
+                    else
+                    {
 
+                    }
                 }
             }
+            return bUpdated;
         }
 
     }
@@ -449,16 +461,20 @@ namespace CESMII.OpcUa.NodeSetModel
             public override string ToString() => $"{Name} = {Value}";
         }
 
-        public override void UpdateIndices(NodeSetModel model)
+        public override bool UpdateIndices(NodeSetModel model, List<NodeModel> updatedNodes)
         {
-            base.UpdateIndices(model);
-            if (StructureFields?.Any() == true)
+            var bUpdated = base.UpdateIndices(model, updatedNodes);
+            if (bUpdated)
             {
-                foreach(var field in StructureFields)
+                if (StructureFields?.Any() == true)
                 {
-                    field.DataType?.UpdateIndices(model);
+                    foreach (var field in StructureFields)
+                    {
+                        field.DataType?.UpdateIndices(model, updatedNodes);
+                    }
                 }
             }
+            return bUpdated;
         }
 
     }

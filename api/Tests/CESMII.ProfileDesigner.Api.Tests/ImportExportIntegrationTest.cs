@@ -4,18 +4,24 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using CESMII.ProfileDesigner.Api.Controllers;
 using Microsoft.Extensions.DependencyInjection;
 using MyNamespace;
 using NodeSetDiff;
+using Opc.Ua.Export;
 using Org.XmlUnit.Diff;
 using Xunit;
 using Xunit.Abstractions;
+using Xunit.Sdk;
 
-namespace CESMII.ProfileDesigner.Api.Tests.IntegrationTests
+[assembly: CollectionBehavior(DisableTestParallelization = true) ]
+
+namespace CESMII.ProfileDesigner.Api.Tests
 {
+    [TestCaseOrderer("CESMII.ProfileDesigner.Api.Tests.ImportExportIntegrationTestCaseOrderer", "CESMII.ProfileDesigner.Api.Tests")]
     public class IntegrationTests
         : IClassFixture<CustomWebApplicationFactory<CESMII.ProfileDesigner.Api.Startup>>
     {
@@ -30,38 +36,51 @@ namespace CESMII.ProfileDesigner.Api.Tests.IntegrationTests
 
         public static bool _ImportExportPending = true;
 
+        public const string strTestNodeSetDirectory = "TestNodeSets";
+
         [Theory]
         [ClassData(typeof(TestNodeSetFiles))]
-        public async Task ImportExportIntegrationTest(string file)
+
+        public async Task ImportExport(string file)
         {
-            if (_ImportExportPending)
-            {
-                // TODO This should be in an IClassFixture, but there seems to be no way to use the TestHost from a class fixture
-                _ImportExportPending = false;
-                // Arrange
-                var apiClient = _factory.GetApiClientAuthenticated();
+            file = Path.Combine(strTestNodeSetDirectory, file);
+            output.WriteLine($"Testing {file}");
+            // Arrange
+            var apiClient = _factory.GetApiClientAuthenticated();
 
-                var nodeSetFiles = TestNodeSetFiles.GetFiles();
-                Assert.NotEmpty(nodeSetFiles);
+            // ACT
+            var importRequest = new List<ImportOPCModel> { new ImportOPCModel { FileName = file, Data = File.ReadAllText(file) } };
+            await ImportNodeSets(apiClient, importRequest);
+            await ExportNodeSets(apiClient, new string[] { file });
 
-                // ACT
-                List<ImportOPCModel> importRequest = CheckAndDeleteExistingProfiles(
-                    true, // Set to false to only test export during development
-                    apiClient, nodeSetFiles);
+            //if (_ImportExportPending)
+            //{
+            //    // TODO This should be in an IClassFixture, but there seems to be no way to use the TestHost from a class fixture
+            //    _ImportExportPending = false;
+            //    // Arrange
+            //    var apiClient = _factory.GetApiClientAuthenticated();
 
-                await ImportNodeSets(apiClient, importRequest);
-                await ExportNodeSets(apiClient, nodeSetFiles);
-            }
-            Assert.False(_ImportExportPending);
+            //    var nodeSetFiles = TestNodeSetFiles.GetFiles();
+            //    Assert.NotEmpty(nodeSetFiles);
+
+            //    // ACT
+            //    List<ImportOPCModel> importRequest = CheckAndDeleteExistingProfiles(
+            //        false, // Set to false to only test export during development
+            //        apiClient, nodeSetFiles);
+
+            //    await ImportNodeSets(apiClient, importRequest);
+            //    await ExportNodeSets(apiClient, nodeSetFiles);
+            //}
+            //Assert.False(_ImportExportPending);
 
             // Assert
             {
-                Diff d = OpcNodeSetXmlUnit.DiffNodeSetFiles(file, file.Replace("TestNodeSets", @"TestNodeSets\Exported"));
+                Diff d = OpcNodeSetXmlUnit.DiffNodeSetFiles(file, file.Replace(strTestNodeSetDirectory, Path.Combine(strTestNodeSetDirectory, "Exported")));
 
                 string diffControl, diffTest, diffSummary;
                 OpcNodeSetXmlUnit.GenerateDiffSummary(d, out diffControl, out diffTest, out diffSummary);
 
-                var diffFileRoot = file.Replace("TestNodeSets", @"TestNodeSets\Diffs");
+                var diffFileRoot = file.Replace(strTestNodeSetDirectory, Path.Combine(strTestNodeSetDirectory, "Diffs"));
 
                 if (!Directory.Exists(Path.GetDirectoryName(diffFileRoot)))
                 {
@@ -73,7 +92,12 @@ namespace CESMII.ProfileDesigner.Api.Tests.IntegrationTests
                 File.WriteAllText($"{diffFileRoot}.controldiff.difflog", diffControl);
                 File.WriteAllText($"{diffFileRoot}.testdiff.difflog", diffTest);
 
-                var expectedDiffFile = file.Replace("TestNodeSets", @"TestNodeSets\ExpectedDiffs") + ".summarydiff.difflog";
+                var expectedDiffFile = file.Replace(strTestNodeSetDirectory, Path.Combine(strTestNodeSetDirectory, "ExpectedDiffs")) + ".summarydiff.difflog";
+                if (!File.Exists(expectedDiffFile))
+                {
+                    File.WriteAllText(expectedDiffFile, diffSummary);
+                }
+
                 var expectedSummary = File.ReadAllText(expectedDiffFile);
 
                 var expectedSummaryLines = File.ReadAllLines(expectedDiffFile);
@@ -125,6 +149,8 @@ namespace CESMII.ProfileDesigner.Api.Tests.IntegrationTests
                         {
                             var message = $"Diff line {i} in {expectedDiffFile} has no explanation.";
                             output.WriteLine(message);
+                            issueCounts.TryGetValue("Untriaged", out var previousCount);
+                            issueCounts["Untriaged"] = previousCount + 1;
                             //Assert.True(false, message);
                         }
                     }
@@ -138,6 +164,13 @@ namespace CESMII.ProfileDesigner.Api.Tests.IntegrationTests
                 diffSummary = diffSummary.Replace("\r", "").Replace("\n", "");
                 Assert.True(expectedSummary == diffSummary, $"Diffs in {Path.GetFullPath(summaryDiffFile)} are not as expected in {Path.GetFullPath(expectedDiffFile)}");
                 output.WriteLine($"Verified export {file}. Diffs: {diffCounts}");
+                if (issueCounts.TryGetValue("Untriaged", out var untriagedIssues) && untriagedIssues > 0)
+                {
+                    var message = $"Failed due to {untriagedIssues} untriaged issues: {diffCounts}";
+                    output.WriteLine(message);
+                    //Ignore for now: ideally would make as warning/yellow, but XUnit doesn't seem to allow that
+                    //Assert.True(0 == untriagedIssues, message);
+                }
             }
 
         }
@@ -209,25 +242,100 @@ namespace CESMII.ProfileDesigner.Api.Tests.IntegrationTests
             return importRequest;
         }
 
-        private static async Task ImportNodeSets(Client apiClient, List<ImportOPCModel> importRequest)
+        private async Task ImportNodeSets(Client apiClient, List<ImportOPCModel> importRequest)
         {
             ImportLogModel status = null;
             if (importRequest.Any())
             {
-                var result = await apiClient.ImportAsync(importRequest);
-                Assert.True(result.IsSuccess, $"Failed to import nodesets: {result.Message}");
+                var orderedImportRequest = importRequest?.Count == 1 ? importRequest : OrderImportsByDependencies(importRequest);
 
-                var statusModel = new MyNamespace.IdIntModel { Id = Convert.ToInt32(result.Data), };
-                var sw = Stopwatch.StartNew();
                 do
                 {
-                    System.Threading.Thread.Sleep(5000);
-                    status = await apiClient.GetByIDAsync(statusModel);
-                } while (sw.Elapsed < TimeSpan.FromMinutes(5) &&
-                         ((int)status.Status == (int)CESMII.ProfileDesigner.Common.Enums.TaskStatusEnum.InProgress
-                         || (int)status.Status == (int)CESMII.ProfileDesigner.Common.Enums.TaskStatusEnum.NotStarted));
-                Assert.True((int?)(status?.Status) == (int)CESMII.ProfileDesigner.Common.Enums.TaskStatusEnum.Completed);
+                    var nextBatch = orderedImportRequest.Take(1).ToList();
+                    ResultMessageWithDataModel result = null;
+                    try
+                    {
+                        result = await apiClient.ImportAsync(nextBatch);
+                        Assert.True(result.IsSuccess, $"Failed to import nodesets: {result.Message}");
+                    }
+                    catch (Exception ex)
+                    {
+                        Assert.True(false, $"Failed to import nodesets: {ex.Message}");
+                    }
+
+                    var statusModel = new MyNamespace.IdIntModel { Id = Convert.ToInt32(result.Data), };
+                    var sw = Stopwatch.StartNew();
+                    do
+                    {
+                        System.Threading.Thread.Sleep(5000);
+                        status = await apiClient.GetByIDAsync(statusModel);
+                    } while (sw.Elapsed < TimeSpan.FromMinutes(15) &&
+                             ((int)status.Status == (int)CESMII.ProfileDesigner.Common.Enums.TaskStatusEnum.InProgress
+                             || (int)status.Status == (int)CESMII.ProfileDesigner.Common.Enums.TaskStatusEnum.NotStarted));
+                    // Ignore import failure: will be reported on export validation
+                    if ((int?)(status?.Status) != (int)CESMII.ProfileDesigner.Common.Enums.TaskStatusEnum.Completed)
+                    {
+                        var errorText = $"Error importing nodeset {nextBatch.FirstOrDefault().FileName}: {status.Messages.FirstOrDefault().Message}";
+                        output.WriteLine(errorText);
+                        Assert.True(false, errorText);
+                    }
+                    //Assert.True((int?)(status?.Status) == (int)CESMII.ProfileDesigner.Common.Enums.TaskStatusEnum.Completed);
+                    //Assert.True(!status?.Messages?.Any());
+                    orderedImportRequest.RemoveRange(0, nextBatch.Count);
+                } while (orderedImportRequest.Any());
             }
+        }
+
+        public static List<ImportOPCModel> OrderImportsByDependencies(List<ImportOPCModel> importRequest)
+        {
+            var importsAndModels = importRequest.Select(importRequest =>
+            {
+                using (var ms = new MemoryStream(Encoding.UTF8.GetBytes(importRequest.Data.Replace("<Value/>", "<Value xsi:nil='true' />"))))
+                {
+                    var nodeSet = UANodeSet.Read(ms);
+                    var modelUri = nodeSet.Models?[0].ModelUri;
+                    var requiredModels = nodeSet.Models?.SelectMany(m => m.RequiredModel?.Select(rm => rm.ModelUri) ?? new List<string>())?.ToList();
+                    return (importRequest, modelUri, requiredModels);
+                }
+            }).ToList();
+
+            var orderedImports = new List<(ImportOPCModel, string, List<string>)>();
+            var standalone = importsAndModels.Where(imr => imr.requiredModels.Any() != true).ToList();
+            orderedImports.AddRange(standalone);
+            foreach (var imr in standalone)
+            {
+                importsAndModels.Remove(imr);
+            }
+
+            bool modelAdded;
+            do
+            {
+                modelAdded = false;
+                for (int i = importsAndModels.Count - 1; i >= 0; i--)
+                {
+                    var imr = importsAndModels[i];
+                    bool bDependenciesSatisfied = true;
+                    foreach (var dependency in imr.requiredModels)
+                    {
+                        if (!orderedImports.Any(imr => imr.Item2 == dependency))
+                        {
+                            bDependenciesSatisfied = false;
+                            continue;
+                        }
+                    }
+                    if (bDependenciesSatisfied)
+                    {
+                        orderedImports.Add(imr);
+                        importsAndModels.RemoveAt(i);
+                        modelAdded = true;
+                    }
+                }
+            } while (importsAndModels.Count > 0 && modelAdded);
+
+            //Assert.True(modelAdded, $"{importsAndModels.Count} nodesets require models not in the list.");
+            orderedImports.AddRange(importsAndModels);
+            var orderedImportRequest = orderedImports.Select(irm => irm.Item1).ToList();
+            return orderedImportRequest;
         }
 
         private static async Task ExportNodeSets(Client apiClient, string[] nodeSetFiles)
@@ -243,7 +351,7 @@ namespace CESMII.ProfileDesigner.Api.Tests.IntegrationTests
                     Assert.True(exportResult.IsSuccess, $"Failed to export {profile.Namespace}");
 
                     var exportedNodeSet = exportResult.Data.ToString();
-                    var nodeSetPath = Path.Combine("TestNodeSets", "Exported", nodeSetFileName);
+                    var nodeSetPath = Path.Combine(strTestNodeSetDirectory, "Exported", nodeSetFileName);
                     if (!Directory.Exists(Path.GetDirectoryName(nodeSetPath)))
                     {
                         Directory.CreateDirectory(Path.GetDirectoryName(nodeSetPath));
@@ -256,7 +364,13 @@ namespace CESMII.ProfileDesigner.Api.Tests.IntegrationTests
 
         static private string GetFileNameFromNamespace(string namespaceUri)
         {
-            return namespaceUri.Replace("http://", "").Replace("/", ".") + "NodeSet2.xml";
+            var fileName = namespaceUri.Replace("http://", "").Replace("/", ".");
+            if (!fileName.EndsWith("."))
+            {
+                fileName += ".";
+            }
+            fileName += "NodeSet2.xml";
+            return fileName;
         }
 
     }
@@ -265,8 +379,17 @@ namespace CESMII.ProfileDesigner.Api.Tests.IntegrationTests
     {
         internal static string[] GetFiles()
         {
-            var nodeSetFiles = Directory.GetFiles("TestNodeSets");
-            return nodeSetFiles;
+            var nodeSetFiles = Directory.GetFiles(IntegrationTests.strTestNodeSetDirectory);
+
+            var importRequest = new List<MyNamespace.ImportOPCModel>();
+            foreach (var file in nodeSetFiles)
+            {
+                importRequest.Add(new ImportOPCModel { FileName = Path.GetFileName(file), Data = File.ReadAllText(file), });
+            }
+            var orderedImportRequest = IntegrationTests.OrderImportsByDependencies(importRequest);
+            var orderedNodeSetFiles = orderedImportRequest.Select(r => r.FileName).ToArray();
+
+            return orderedNodeSetFiles;
         }
 
         public IEnumerator<object[]> GetEnumerator()
@@ -277,5 +400,24 @@ namespace CESMII.ProfileDesigner.Api.Tests.IntegrationTests
         }
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    }
+    public class ImportExportIntegrationTestCaseOrderer : ITestCaseOrderer
+    {
+        public ImportExportIntegrationTestCaseOrderer()
+        {
+        }
+        public ImportExportIntegrationTestCaseOrderer(object ignored)
+        {
+
+        }
+        public IEnumerable<TTestCase> OrderTestCases<TTestCase>(IEnumerable<TTestCase> testCases) where TTestCase : ITestCase
+        {
+            var testFiles = testCases.Select(t => t.TestMethodArguments[0].ToString()).ToList();
+            var importRequests = testFiles.Select(file => new ImportOPCModel { FileName = Path.Combine(IntegrationTests.strTestNodeSetDirectory, file), Data = File.ReadAllText(file), }).ToList();
+            var orderedImportRequests = IntegrationTests.OrderImportsByDependencies(importRequests);
+            var testCaseList = testCases.ToList();
+            var orderedTestCases = orderedImportRequests.Select(ir => testCaseList.FirstOrDefault(tc => tc.TestMethodArguments[0].ToString() == ir.FileName)).ToList();
+            return orderedTestCases;
+        }
     }
 }

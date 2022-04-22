@@ -23,7 +23,11 @@ namespace CESMII.OpcUa.NodeSetImporter
             public string UserName { get; set; }
             public string Password { get; set; }
         }
-        private UANodeSetCloudLibraryResolver(string strUserName, string strPassword, string strEndPoint = null)
+        public UANodeSetCloudLibraryResolver(string strUserName, string strPassword)
+        {
+            _client = new UACloudLibClient(strUserName, strPassword);
+        }
+        public UANodeSetCloudLibraryResolver(string strEndPoint, string strUserName, string strPassword)
         {
             if (string.IsNullOrEmpty(strEndPoint))
             {
@@ -34,9 +38,14 @@ namespace CESMII.OpcUa.NodeSetImporter
                 _client = new UACloudLibClient(strEndPoint, strUserName, strPassword);
             }
         }
-        public UANodeSetCloudLibraryResolver(CloudLibraryOptions options) : this(options.UserName, options.Password, options.EndPoint)
+        public UANodeSetCloudLibraryResolver(CloudLibraryOptions options) : this(options.EndPoint, options.UserName, options.Password)
         {
         }
+        public UANodeSetCloudLibraryResolver(UACloudLibClient client)
+        {
+            _client = client;
+        }
+
         private readonly UACloudLibClient _client;
         public async Task<IEnumerable<String>> ResolveNodeSetsAsync(List<ModelNameAndVersion> missingModels)
         {

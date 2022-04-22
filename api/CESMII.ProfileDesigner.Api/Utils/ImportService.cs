@@ -113,8 +113,15 @@ namespace CESMII.ProfileDesigner.Api.Utils
                 //kick off the importer
                 //wrap in scope in the internal method so that we don't lose the scope of the dependency injected objects once the 
                 //web api request completes and disposes of the import service object (and its module vars)
-                backgroundTask = ImportOpcUaNodeSetInternal(nodeSetXmlList, logId.Value, userToken);
-                await backgroundTask;
+                try
+                {
+                    backgroundTask = ImportOpcUaNodeSetInternal(nodeSetXmlList, logId.Value, userToken);
+                    await backgroundTask;
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(new EventId(), ex, "Unhandled exception in background importer.");
+                }
             });
 
             //return result async

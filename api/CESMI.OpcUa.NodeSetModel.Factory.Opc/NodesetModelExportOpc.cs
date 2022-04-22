@@ -64,10 +64,10 @@ namespace CESMII.OpcUa.NodeSetModel.Export.Opc
         {
             var node = new TUANode
             {
-                Description = _model.Description.ToExport().ToArray(),
+                Description = _model.Description?.ToExport()?.ToArray(),
                 BrowseName = GetBrowseNameForExport(namespaces),
                 SymbolicName = _model.SymbolicName,
-                DisplayName = _model.DisplayName.ToExport().ToArray(),
+                DisplayName = _model.DisplayName?.ToExport()?.ToArray(),
                 NodeId = GetNodeIdForExport(_model.NodeId, namespaces, aliases),
                 Documentation = _model.Documentation,
                 Category = _model.Categories?.ToArray(),

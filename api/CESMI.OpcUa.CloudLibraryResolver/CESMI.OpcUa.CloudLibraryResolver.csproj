@@ -11,4 +11,9 @@
 		<PackageReference Include="OPCFoundation.NetStandard.Opc.Ua.Core" Version="1.4.368.33" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <ProjectReference Include="..\CESMI.OpcUa.NodeSetImporter\CESMII.OpcUa.NodeSetImporter.csproj" />
+	  <ProjectReference Include="..\UACloudLibClientLibrary\UACloudLibClientLibrary.csproj" />
+	</ItemGroup>
+
 </Project>

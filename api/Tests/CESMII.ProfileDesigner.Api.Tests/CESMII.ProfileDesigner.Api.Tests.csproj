@@ -22,7 +22,11 @@
     </PackageReference>
   </ItemGroup>
 
-  <ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="OPCFoundation.NetStandard.Opc.Ua.Core" Version="1.4.368.33" />
+	</ItemGroup>
+
+	<ItemGroup>
     <ProjectReference Include="..\..\CESMII.ProfileDesigner.Api\CESMII.ProfileDesigner.Api.csproj" />
     <ProjectReference Include="..\NodeSetDiffLibrary\NodeSetDiffLibrary.csproj" />
   </ItemGroup>

@@ -300,7 +300,7 @@ namespace CESMII.OpcUa.NodeSetModel
         /// Not serialized.
         /// </summary>
         [IgnoreDataMember] // This can contain cycle (and is easily recreated from the SubTypeId)
-        public virtual List<BaseTypeModel> SubTypes { get; } = new List<BaseTypeModel>();
+        public virtual List<BaseTypeModel> SubTypes { get; set; } = new List<BaseTypeModel>();
 
         public bool HasBaseType(string nodeId)
         {

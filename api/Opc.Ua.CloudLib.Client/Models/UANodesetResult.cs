@@ -1,4 +1,4 @@
-﻿/* ========================================================================
+/* ========================================================================
  * Copyright (c) 2005-2021 The OPC Foundation, Inc. All rights reserved.
  *
  * OPC Foundation MIT License 1.00
@@ -27,26 +27,40 @@
  * http://opcfoundation.org/License/MIT/1.00/
  * ======================================================================*/
 
-namespace UACloudLibClientLibrary.Models
+namespace Opc.Ua.CloudLib.Client
 {
     using Newtonsoft.Json;
-
-    [JsonObject("dataType")]
-    public class DataResult
+    /// <summary>GraphQL Result for nodeset queries</summary>
+    public class UANodesetResult
     {
-        [JsonProperty("id")]
-        public int ID { get; set; }
+        /// <summary>Gets or sets the identifier.</summary>
+        /// <value>The identifier.</value>
+        [JsonProperty(PropertyName = "nodesetId")]
+        public uint Id { get; set; }
 
-        [JsonProperty("nodesetId")]
-        public long NodesetID { get; set; }
+        /// <summary>Gets or sets the title.</summary>
+        /// <value>The title.</value>
+        [JsonProperty(PropertyName = "nodesetTitle")]
+        public string Title { get; set; }
 
-        [JsonProperty("browseName")]
-        public string Browsename { get; set; }
+        /// <summary>Gets or sets the contributor.</summary>
+        /// <value>The contributor.</value>
+        [JsonProperty(PropertyName = "orgName")]
+        public string Contributor { get; set; }
 
-        [JsonProperty("value")]
-        public string Value { get; set; }
+        /// <summary>Gets or sets the license.</summary>
+        /// <value>The license.</value>
+        [JsonProperty(PropertyName = "license")]
+        public string License { get; set; }
 
-        [JsonProperty("nameSpace")]
-        public string Namespace { get; set; }
+        /// <summary>Gets or sets the version.</summary>
+        /// <value>The version.</value>
+        [JsonProperty(PropertyName = "version")]
+        public string Version { get; set; }
+
+        /// <summary>Gets or sets the creation time.</summary>
+        /// <value>The creation time.</value>
+        [JsonProperty(PropertyName = "addressSpaceCreationTime")]
+        public System.DateTime? CreationTime { get; set; }
     }
 }

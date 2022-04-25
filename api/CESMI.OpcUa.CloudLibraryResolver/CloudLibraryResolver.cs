@@ -11,7 +11,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using UACloudLibClientLibrary;
+using Opc.Ua.CloudLib.Client;
 
 namespace CESMII.OpcUa.NodeSetImporter
 {

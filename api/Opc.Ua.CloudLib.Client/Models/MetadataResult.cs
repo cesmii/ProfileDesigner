@@ -1,4 +1,4 @@
-﻿/* ========================================================================
+/* ========================================================================
  * Copyright (c) 2005-2021 The OPC Foundation, Inc. All rights reserved.
  *
  * OPC Foundation MIT License 1.00
@@ -27,26 +27,31 @@
  * http://opcfoundation.org/License/MIT/1.00/
  * ======================================================================*/
 
-namespace UACloudLibClientLibrary.Models
+namespace Opc.Ua.CloudLib.Client.Models
 {
     using Newtonsoft.Json;
 
-    [JsonObject("variabletype")]
-    public class VariableResult
+    /// <summary>GraphQL Result for metadata queries</summary>
+    [JsonObject("metadata")]
+    public class MetadataResult
     {
-        [JsonProperty("variabletype_id")]
+        /// <summary>
+        /// Gets or sets the identifier.
+        /// </summary>
+        /// <value>The identifier.</value>
+        [JsonProperty("id")]
         public int ID { get; set; }
-
-        [JsonProperty("nodeset_id")]
+        /// <summary>Gets or sets the nodeset identifier.</summary>
+        /// <value>The nodeset identifier.</value>
+        [JsonProperty("nodesetId")]
         public long NodesetID { get; set; }
-
-        [JsonProperty("variabletype_browsename")]
-        public string Browsename { get; set; }
-
-        [JsonProperty("variabletype_value")]
+        /// <summary>Gets or sets the name.</summary>
+        /// <value>The name.</value>
+        [JsonProperty("name")]
+        public string Name { get; set; }
+        /// <summary>Gets or sets the value.</summary>
+        /// <value>The value.</value>
+        [JsonProperty("value")]
         public string Value { get; set; }
-
-        [JsonProperty("variabletype_namespace")]
-        public string Namespace { get; set; }
     }
 }

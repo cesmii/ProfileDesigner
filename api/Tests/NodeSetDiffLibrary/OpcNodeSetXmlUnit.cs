@@ -250,7 +250,7 @@ namespace NodeSetDiff
             using (var nodeSetStream = File.OpenRead(file))
             {
                 UANodeSet nodeSet = UANodeSet.Read(nodeSetStream);
-                var aliases = nodeSet.Aliases.ToDictionary(a => a.Alias, a => a.Value);
+                var aliases = nodeSet.Aliases?.ToDictionary(a => a.Alias, a => a.Value) ?? new Dictionary<string, string>();
                 foreach (var ns in nodeSet.NamespaceUris)
                 {
                     namespaces.GetIndexOrAppend(ns);

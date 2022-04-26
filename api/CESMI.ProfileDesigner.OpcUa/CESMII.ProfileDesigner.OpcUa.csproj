@@ -11,7 +11,7 @@
 
   <ItemGroup>
 	<ProjectReference Include="..\CESMI.OpcUa.NodeSetImporter\CESMII.OpcUa.NodeSetImporter.csproj" />
-	<ProjectReference Include="..\CESMI.OpcUa.NodeSetImporter.DependencyInjection\CESMII.OpcUa.NodeSetImporter.DependencyInjection.csproj" />
+	<ProjectReference Include="..\CESMI.OpcUa.CloudLibraryResolver.DependencyInjection\CESMII.OpcUa.CloudLibraryResolver.DependencyInjection.csproj" />
 	<ProjectReference Include="..\CESMI.OpcUa.NodeSetModel.EF\CESMII.OpcUa.NodeSetModel.EF.csproj" />
     <ProjectReference Include="..\CESMI.OpcUa.NodeSetModel.Factory.Opc\CESMII.OpcUa.NodeSetModel.Factory.Opc.csproj" />
     <ProjectReference Include="..\CESMI.OpcUa.NodeSetModel\CESMII.OpcUa.NodeSetModel.csproj" />

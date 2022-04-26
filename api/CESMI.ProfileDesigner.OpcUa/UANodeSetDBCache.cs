@@ -94,7 +94,9 @@ namespace CESMII.ProfileDesigner.Opc.Ua.NodeSetDBCache
 
             if (myModel != null)
             {
-                using (var nodeSetStream = new System.IO.MemoryStream(Encoding.UTF8.GetBytes(myModel.FileCache)))
+                // workaround for bug https://github.com/dotnet/runtime/issues/67622
+                var fileCachepatched = myModel.FileCache.Replace("<Value/>", "<Value xsi:nil='true' />");
+                using (var nodeSetStream = new System.IO.MemoryStream(Encoding.UTF8.GetBytes(fileCachepatched)))
                 {
                     //nodeSetStream.Write(Encoding.UTF8.GetBytes(myModel.FileCache));
                     //nodeSetStream.Position = 0;
@@ -154,7 +156,9 @@ namespace CESMII.ProfileDesigner.Opc.Ua.NodeSetDBCache
             #endregion
 
             UANodeSet nodeSet;
-            using (var nodesetBytes = new MemoryStream(Encoding.UTF8.GetBytes(nodeSetXml)))
+            // workaround for bug https://github.com/dotnet/runtime/issues/67622
+            var nodeSetXmlPatched = nodeSetXml.Replace("<Value/>", "<Value xsi:nil='true' />");
+            using (var nodesetBytes = new MemoryStream(Encoding.UTF8.GetBytes(nodeSetXmlPatched)))
             {
                 nodeSet = UANodeSet.Read(nodesetBytes);
             }
@@ -202,7 +206,9 @@ namespace CESMII.ProfileDesigner.Opc.Ua.NodeSetDBCache
                 if (myModel != null)
                 {
                     CacheNewerVersion = false;
-                    using (var nodeSetStream = new MemoryStream(Encoding.UTF8.GetBytes(myModel.FileCache)))
+                    // workaround for bug https://github.com/dotnet/runtime/issues/67622
+                    var fileCachepatched = myModel.FileCache.Replace("<Value/>", "<Value xsi:nil='true' />");
+                    using (var nodeSetStream = new MemoryStream(Encoding.UTF8.GetBytes(fileCachepatched)))
                     {
                         if (tOldNodeSet == null)
                             tOldNodeSet = UANodeSet.Read(nodeSetStream);

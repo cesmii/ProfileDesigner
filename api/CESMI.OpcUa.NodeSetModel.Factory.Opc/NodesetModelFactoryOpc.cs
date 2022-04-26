@@ -732,7 +732,7 @@ namespace CESMII.OpcUa.NodeSetModel.Factory.Opc
                     }
                     else
                     {
-                        throw new Exception($"Unexpected node model type {nodeModel.GetType().FullName}");
+                        throw new Exception($"Unexpected node model type {nodeModel.GetType().FullName} for node {nodeModel}");
                     }
                 }
                 else

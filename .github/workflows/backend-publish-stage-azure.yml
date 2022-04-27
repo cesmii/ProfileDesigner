@@ -1,4 +1,4 @@
-# This workflow will build and push a .NET 5 web API to an Azure Web App that is manually triggered by user.
+# This workflow will build and push a .NET 6 web API to an Azure Web App that is manually triggered by user.
 #
 # This workflow assumes you have already created the target Azure App Service web app.
 # For instructions see https://docs.microsoft.com/azure/app-service/app-service-plan-manage#create-an-app-service-plan

@@ -37,7 +37,7 @@ function Routes() {
             <WizardRoute exact path="/" component={WizardWelcome} />
             <PrivateRoute path="/profiles/library" component={ProfileList} />
             {/*Handles types/all and types/mine in the component*/}
-            <PrivateRoute path="/types/library/p=:profileId" component={ProfileTypeDefinitionList} />
+            <PrivateRoute path="/types/library/profile/:profileId" component={ProfileTypeDefinitionList} />
             <PrivateRoute path="/types/library" component={ProfileTypeDefinitionList} />
             {/* order matters in the profile/ routes*/}
             {/* ProfileTypeDefinitionEntity - Depending on entry point, this is not always part of the wizard - 

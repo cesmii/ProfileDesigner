@@ -32,6 +32,7 @@ namespace Opc.Ua.CloudLib.Client
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Net;
     using System.Net.Http.Headers;
     using System.Text;
     using System.Threading.Tasks;
@@ -134,7 +135,8 @@ namespace Opc.Ua.CloudLib.Client
         }
         /// <summary>Initializes a new instance of the <see cref="UACloudLibClient" /> class.</summary>
         /// <param name="options">Credentials and URL</param>
-        public UACloudLibClient(Options options) : this(options.Url, options.Username, options.Password)
+        public UACloudLibClient(Options options)
+            : this(options.Url, options.Username, options.Password)
         {
         }
 
@@ -396,14 +398,14 @@ namespace Opc.Ua.CloudLib.Client
         /// Gets all available namespaces and the corresponding node set identifier
         /// </summary>
         /// <returns></returns>
-        public Task<(string namespaceUri, string identifier)[]> GetNamespaceIdsAsync() => _restClient.GetNamespaceIdsAsync();
+        public Task<(string NamespaceUri, string Identifier)[]> GetNamespaceIdsAsync() => _restClient.GetNamespaceIdsAsync();
 
         /// <summary>
         /// Upload a nodeset to the cloud library
         /// </summary>
         /// <param name="nameSpace"></param>
         /// <returns></returns>
-        public Task<string> UploadNodeSetAsync(UANameSpace nameSpace) => _restClient.UploadNamespaceAsync(nameSpace);
+        public Task<(HttpStatusCode Status, string Message)> UploadNodeSetAsync(UANameSpace nameSpace) => _restClient.UploadNamespaceAsync(nameSpace);
 
         /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
         public void Dispose()

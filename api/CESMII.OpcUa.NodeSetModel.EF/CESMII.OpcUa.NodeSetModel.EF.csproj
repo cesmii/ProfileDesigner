@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CESMI.OpcUa.NodeSetModel\CESMII.OpcUa.NodeSetModel.csproj" />
+    <ProjectReference Include="..\CESMII.OpcUa.NodeSetModel\CESMII.OpcUa.NodeSetModel.csproj" />
   </ItemGroup>
 
 </Project>

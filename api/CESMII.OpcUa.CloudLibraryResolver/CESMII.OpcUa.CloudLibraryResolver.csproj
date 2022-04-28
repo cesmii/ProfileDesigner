@@ -13,7 +13,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\CESMI.OpcUa.NodeSetImporter\CESMII.OpcUa.NodeSetImporter.csproj" />
+	  <ProjectReference Include="..\CESMII.OpcUa.NodeSetImporter\CESMII.OpcUa.NodeSetImporter.csproj" />
 	  <ProjectReference Include="..\Opc.Ua.CloudLib.Client\Opc.Ua.CloudLib.Client.csproj" />
 	</ItemGroup>
 

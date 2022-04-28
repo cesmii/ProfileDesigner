@@ -50,41 +50,50 @@ namespace Opc.Ua.CloudLib.Client
     public partial class UACloudLibClient : IDisposable
     {
         /// <summary>The standard endpoint</summary>
-        public static Uri StandardEndpoint = new Uri("https://uacloudlibrary.opcfoundation.org");
+        private static Uri _standardEndpoint = new Uri("https://uacloudlibrary.opcfoundation.org");
 
-        private GraphQLHttpClient m_client = null;
-        private GraphQLRequest request = new GraphQLRequest();
-
-        private AuthenticationHeaderValue authentication
-        {
-            set => m_client.HttpClient.DefaultRequestHeaders.Authorization = value;
-            get => m_client.HttpClient.DefaultRequestHeaders.Authorization;
-        }
-
-        /// <summary>Gets or sets the endpoint.</summary>
-        /// <value>The endpoint.</value>
-        public Uri Endpoint
-        {
-            get { return BaseEndpoint; }
-            set { BaseEndpoint = value; }
-        }
-
-        private RestClient restClient;
+        private GraphQLHttpClient _client = null;
+        private GraphQLRequest _request = new GraphQLRequest();
+        private RestClient _restClient;
+        private string _username = "";
+        private string _password = "";
 
         private Uri BaseEndpoint { get; set; }
 
-        private string m_strUsername = "";
-        private string m_strPassword = "";
+        private AuthenticationHeaderValue Authentication
+        {
+            set => _client.HttpClient.DefaultRequestHeaders.Authorization = value;
+            get => _client.HttpClient.DefaultRequestHeaders.Authorization;
+        }
 
         /// <summary>Gets or sets the username.</summary>
         /// <value>The username.</value>
-        public string Username { get { return m_strUsername; } set { m_strUsername = value; UserDataChanged(); } }
+        public string Username { get { return _username; } set { _username = value; UserDataChanged(); } }
 
         /// <summary>Sets the password.</summary>
         /// <value>The password.</value>
         public string Password
         {
-            set { m_strPassword = value; UserDataChanged(); }
+            set { _password = value; UserDataChanged(); }
+        }
+
+        /// <summary>
+        /// Options to use in IOptions patterns
+        /// </summary>
+        public class Options
+        {
+            /// <summary>
+            /// URL of the cloud library. Defaults to the OPC Foundation Cloud Library.
+            /// </summary>
+            public string Url { get; set; }
+            /// <summary>
+            /// Username to use for authenticating with the cloud library
+            /// </summary>
+            public string Username { get; set; }
+            /// <summary>
+            /// Password to use for authenticating with the cloud library
+            /// </summary>
+            public string Password { get; set; }
         }
 
         /// <summary>
@@ -92,15 +101,16 @@ namespace Opc.Ua.CloudLib.Client
         /// </summary>
         public UACloudLibClient()
         {
-            BaseEndpoint = StandardEndpoint;
-            m_client = new GraphQLHttpClient(new Uri(BaseEndpoint + "/graphql"), new NewtonsoftJsonSerializer());
-            restClient = new RestClient(StandardEndpoint);
+            BaseEndpoint = _standardEndpoint;
+            _client = new GraphQLHttpClient(new Uri(BaseEndpoint + "/graphql"), new NewtonsoftJsonSerializer());
+            _restClient = new RestClient(_standardEndpoint);
         }
 
         /// <summary>
         /// This constructor uses the standard endpoint with authorization
         /// </summary>
-        public UACloudLibClient(string strUsername, string strPassword) : this(StandardEndpoint.ToString(), strUsername, strPassword)
+        public UACloudLibClient(string strUsername, string strPassword)
+            : this(_standardEndpoint.ToString(), strUsername, strPassword)
         {
         }
 
@@ -110,13 +120,22 @@ namespace Opc.Ua.CloudLib.Client
         /// <param name="strPassword">The string password.</param>
         public UACloudLibClient(string strEndpoint, string strUsername, string strPassword)
         {
+            if (string.IsNullOrEmpty(strEndpoint))
+            {
+                strEndpoint = _standardEndpoint.ToString();
+            }
             BaseEndpoint = new Uri(strEndpoint);
-            m_client = new GraphQLHttpClient(new Uri(strEndpoint + "/graphql"), new NewtonsoftJsonSerializer());
+            _client = new GraphQLHttpClient(new Uri(strEndpoint + "/graphql"), new NewtonsoftJsonSerializer());
             string temp = Convert.ToBase64String(Encoding.UTF8.GetBytes(strUsername + ":" + strPassword));
-            m_client.HttpClient.DefaultRequestHeaders.Add("Authorization", "basic " + temp);
-            m_strUsername = strUsername;
-            m_strPassword = strPassword;
-            restClient = new RestClient(strEndpoint, authentication);
+            _client.HttpClient.DefaultRequestHeaders.Add("Authorization", "basic " + temp);
+            _username = strUsername;
+            _password = strPassword;
+            _restClient = new RestClient(strEndpoint, Authentication);
+        }
+        /// <summary>Initializes a new instance of the <see cref="UACloudLibClient" /> class.</summary>
+        /// <param name="options">Credentials and URL</param>
+        public UACloudLibClient(Options options) : this(options.Url, options.Username, options.Password)
+        {
         }
 
         /// <summary>Sends the GraphQL query and converts it to JSON</summary>
@@ -128,9 +147,9 @@ namespace Opc.Ua.CloudLib.Client
         /// <exception cref="System.Exception"></exception>
         private async Task<T> SendAndConvertAsync<T>(GraphQLRequest request)
         {
-            GraphQLResponse<JObject> response = await m_client.SendQueryAsync<JObject>(request).ConfigureAwait(false);
+            GraphQLResponse<JObject> response = await _client.SendQueryAsync<JObject>(request).ConfigureAwait(false);
 
-            if (response?.Errors?.Count() > 0)
+            if (response?.Errors?.Length > 0)
             {
                 throw new Exception(response.Errors[0].Message);
             }
@@ -153,9 +172,9 @@ namespace Opc.Ua.CloudLib.Client
                 .AddField(f => f.Browsename)
                 .AddField(f => f.Value);
 
-            request.Query = "query{" + objectQuery.Build() + "}";
+            _request.Query = "query{" + objectQuery.Build() + "}";
 
-            return await SendAndConvertAsync<List<ObjectResult>>(request).ConfigureAwait(false);
+            return await SendAndConvertAsync<List<ObjectResult>>(_request).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -169,9 +188,9 @@ namespace Opc.Ua.CloudLib.Client
                 .AddField(f => f.Name)
                 .AddField(f => f.Value);
 
-            request.Query = "query{" + metadataQuery.Build() + "}";
+            _request.Query = "query{" + metadataQuery.Build() + "}";
 
-            return await SendAndConvertAsync<List<MetadataResult>>(request).ConfigureAwait(false);
+            return await SendAndConvertAsync<List<MetadataResult>>(_request).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -187,9 +206,9 @@ namespace Opc.Ua.CloudLib.Client
             .AddField(f => f.Browsename)
             .AddField(f => f.Value);
 
-            request.Query = "query{" + variableQuery.Build() + "}";
+            _request.Query = "query{" + variableQuery.Build() + "}";
 
-            return await SendAndConvertAsync<List<VariableResult>>(request).ConfigureAwait(false);
+            return await SendAndConvertAsync<List<VariableResult>>(_request).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -205,9 +224,9 @@ namespace Opc.Ua.CloudLib.Client
                 .AddField(f => f.Browsename)
                 .AddField(f => f.Value);
 
-            request.Query = "query{" + referenceQuery.Build() + "}";
+            _request.Query = "query{" + referenceQuery.Build() + "}";
 
-            return await SendAndConvertAsync<List<ReferenceResult>>(request).ConfigureAwait(false);
+            return await SendAndConvertAsync<List<ReferenceResult>>(_request).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -222,16 +241,16 @@ namespace Opc.Ua.CloudLib.Client
                .AddField(f => f.Browsename)
                .AddField(f => f.Value);
 
-            request.Query = "query{" + dataQuery.Build() + "}";
+            _request.Query = "query{" + dataQuery.Build() + "}";
 
-            return await SendAndConvertAsync<List<DataResult>>(request).ConfigureAwait(false);
+            return await SendAndConvertAsync<List<DataResult>>(_request).ConfigureAwait(false);
         }
 
         /// <summary>Gets the converted metadata.</summary>
-        /// <returns>List of AddressSpace</returns>
-        public async Task<List<AddressSpace>> GetConvertedMetadataAsync()
+        /// <returns>List of NameSpace</returns>
+        public async Task<List<UANameSpace>> GetConvertedMetadataAsync()
         {
-            List<AddressSpace> convertedResult = null;
+            List<UANameSpace> convertedResult = null;
 
             IQuery<MetadataResult> metadataQuery = new Query<MetadataResult>("metadata")
                 .AddField(f => f.ID)
@@ -239,8 +258,8 @@ namespace Opc.Ua.CloudLib.Client
                 .AddField(f => f.Name)
                 .AddField(f => f.Value);
 
-            request.Query = "query{" + metadataQuery.Build() + "}";
-            List<MetadataResult> result = await SendAndConvertAsync<List<MetadataResult>>(request).ConfigureAwait(false);
+            _request.Query = "query{" + metadataQuery.Build() + "}";
+            List<MetadataResult> result = await SendAndConvertAsync<List<MetadataResult>>(_request).ConfigureAwait(false);
             try
             {
                 convertedResult = MetadataConverter.Convert(result);
@@ -248,7 +267,7 @@ namespace Opc.Ua.CloudLib.Client
             catch (Exception ex)
             {
                 Console.WriteLine("Error: " + ex.Message + " Falling back to REST interface...");
-                List<UANodesetResult> infos = await restClient.GetBasicNodesetInformation().ConfigureAwait(false);
+                List<UANodesetResult> infos = await _restClient.GetBasicNodesetInformationAsync().ConfigureAwait(false);
                 convertedResult.AddRange(MetadataConverter.Convert(infos));
             }
 
@@ -258,7 +277,7 @@ namespace Opc.Ua.CloudLib.Client
         /// <summary>
         /// Queries the organisations with the given filters.
         /// </summary>
-        public async Task<List<Organisation>> GetOrganisationsAsync(int limit = 10, int offset = 0, IEnumerable<WhereExpression> filter = null)
+        public async Task<List<Organisation>> GetOrganisationsAsync(int limit = 10, IEnumerable<WhereExpression> filter = null)
         {
             IQuery<Organisation> organisationQuery = new Query<Organisation>("organisation")
                 .AddField(f => f.Name)
@@ -268,24 +287,23 @@ namespace Opc.Ua.CloudLib.Client
                 .AddField(f => f.LogoUrl);
 
             organisationQuery.AddArgument("limit", limit);
-            organisationQuery.AddArgument("offset", offset);
 
             if (filter != null)
             {
                 organisationQuery.AddArgument("where", WhereExpression.Build(filter));
             }
 
-            request.Query = "query{" + organisationQuery.Build() + "}";
+            _request.Query = "query{" + organisationQuery.Build() + "}";
 
-            return await SendAndConvertAsync<List<Organisation>>(request).ConfigureAwait(false);
+            return await SendAndConvertAsync<List<Organisation>>(_request).ConfigureAwait(false);
         }
 
         /// <summary>
         /// Queries the address spaces with the given filters and converts the result
         /// </summary>
-        public async Task<List<AddressSpace>> GetAddressSpacesAsync(int limit = 10, int offset = 0, IEnumerable<WhereExpression> filter = null)
+        public async Task<List<UANameSpace>> GetNameSpacesAsync(int limit = 10, int offset = 0, IEnumerable<WhereExpression> filter = null)
         {
-            IQuery<AddressSpace> addressSpaceQuery = new Query<AddressSpace>("addressSpace")
+            IQuery<UANameSpace> nameSpaceQuery = new Query<UANameSpace>("nameSpace")
                 .AddField(h => h.Title)
                 .AddField(
                     h => h.Contributor,
@@ -307,27 +325,34 @@ namespace Opc.Ua.CloudLib.Client
                 .AddField(h => h.PurchasingInformationUrl)
                 .AddField(h => h.ReleaseNotesUrl)
                 .AddField(h => h.Keywords)
-                .AddField(h => h.SupportedLocales);
+                .AddField(h => h.SupportedLocales)
+                .AddField(
+                    h => h.Nodeset,
+                    sq => sq.AddField(h => h.NamespaceUri)
+                            .AddField(h => h.PublicationDate)
+                            .AddField(h => h.Identifier)
+                    )
+                ;
 
-            addressSpaceQuery.AddArgument("limit", limit);
-            addressSpaceQuery.AddArgument("offset", offset);
+            nameSpaceQuery.AddArgument("limit", limit);
+            nameSpaceQuery.AddArgument("offset", offset);
 
             if (filter != null)
             {
-                addressSpaceQuery.AddArgument("where", WhereExpression.Build(filter));
+                nameSpaceQuery.AddArgument("where", WhereExpression.Build(filter));
             }
 
-            request.Query = "query{" + addressSpaceQuery.Build() + "}";
+            _request.Query = "query{" + nameSpaceQuery.Build() + "}";
 
-            List<AddressSpace> result = new List<AddressSpace>();
+            List<UANameSpace> result = new List<UANameSpace>();
             try
             {
-                result = await SendAndConvertAsync<List<AddressSpace>>(request).ConfigureAwait(false);
+                result = await SendAndConvertAsync<List<UANameSpace>>(_request).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Error: " + ex.Message + " Falling back to REST interface...");
-                List<UANodesetResult> infos = await restClient.GetBasicNodesetInformation((List<string>)(filter?.Select(e => e.Value))).ConfigureAwait(false);
+                List<UANodesetResult> infos = await _restClient.GetBasicNodesetInformationAsync(filter?.Select(e => e.Value).ToList()).ConfigureAwait(false);
                 result = MetadataConverter.ConvertWithPaging(infos, limit, offset);
             }
 
@@ -337,7 +362,7 @@ namespace Opc.Ua.CloudLib.Client
         /// <summary>
         /// Queries the categories with the given filters
         /// </summary>
-        public async Task<List<Category>> GetAddressSpaceCategoriesAsync(int limit = 10, int offset = 0, IEnumerable<WhereExpression> filter = null)
+        public async Task<List<Category>> GetNameSpaceCategoriesAsync(int limit = 10, IEnumerable<WhereExpression> filter = null)
         {
             IQuery<Category> categoryQuery = new Query<Category>("category")
                 .AddField(f => f.Name)
@@ -345,46 +370,52 @@ namespace Opc.Ua.CloudLib.Client
                 .AddField(f => f.IconUrl);
 
             categoryQuery.AddArgument("limit", limit);
-            categoryQuery.AddArgument("offset", offset);
 
             if (filter != null)
             {
                 categoryQuery.AddArgument("where", WhereExpression.Build(filter));
             }
 
-            request.Query = "query{" + categoryQuery.Build() + "}";
+            _request.Query = "query{" + categoryQuery.Build() + "}";
 
-            return await SendAndConvertAsync<List<Category>>(request).ConfigureAwait(false);
+            return await SendAndConvertAsync<List<Category>>(_request).ConfigureAwait(false);
         }
 
         /// <summary>
         /// Download chosen Nodeset with a REST call
         /// </summary>
         /// <param name="identifier"></param>
-        public async Task<AddressSpace> DownloadNodesetAsync(string identifier) => await restClient.DownloadNodeset(identifier).ConfigureAwait(false);
+        public async Task<UANameSpace> DownloadNodesetAsync(string identifier) => await _restClient.DownloadNodesetAsync(identifier).ConfigureAwait(false);
 
         /// <summary>
         /// Use this method if the CloudLib instance doesn't provide the GraphQL API
         /// </summary>
-        public async Task<List<UANodesetResult>> GetBasicNodesetInformationAsync(List<string> keywords = null) => await restClient.GetBasicNodesetInformation(keywords).ConfigureAwait(false);
+        public async Task<List<UANodesetResult>> GetBasicNodesetInformationAsync(List<string> keywords = null) => await _restClient.GetBasicNodesetInformationAsync(keywords).ConfigureAwait(false);
 
         /// <summary>
         /// Gets all available namespaces and the corresponding node set identifier
         /// </summary>
         /// <returns></returns>
-        public Task<(string namespaceUri, string identifier)[]> GetNamespacesAsync() => restClient.GetNamespacesAsync();
+        public Task<(string namespaceUri, string identifier)[]> GetNamespaceIdsAsync() => _restClient.GetNamespaceIdsAsync();
+
+        /// <summary>
+        /// Upload a nodeset to the cloud library
+        /// </summary>
+        /// <param name="nameSpace"></param>
+        /// <returns></returns>
+        public Task<string> UploadNodeSetAsync(UANameSpace nameSpace) => _restClient.UploadNamespaceAsync(nameSpace);
 
         /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
         public void Dispose()
         {
-            m_client.Dispose();
-            restClient.Dispose();
+            _client.Dispose();
+            _restClient.Dispose();
         }
 
         private void UserDataChanged()
         {
-            authentication = new AuthenticationHeaderValue("basic", Convert.ToBase64String(Encoding.UTF8.GetBytes(m_strUsername + ":" + m_strPassword)));
-            m_client.HttpClient.DefaultRequestHeaders.Authorization = authentication;
+            Authentication = new AuthenticationHeaderValue("basic", Convert.ToBase64String(Encoding.UTF8.GetBytes(_username + ":" + _password)));
+            _client.HttpClient.DefaultRequestHeaders.Authorization = Authentication;
         }
     }
 }

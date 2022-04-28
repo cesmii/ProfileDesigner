@@ -60,7 +60,13 @@ namespace Opc.Ua.CloudLib.Client
 
         /// <summary>Gets or sets the creation time.</summary>
         /// <value>The creation time.</value>
-        [JsonProperty(PropertyName = "addressSpaceCreationTime")]
+        [JsonProperty(PropertyName = "nodesetCreationTime")]
         public System.DateTime? CreationTime { get; set; }
+
+        /// <summary>
+        /// Gets or sets the namespace Uri.
+        /// </summary>
+        [JsonProperty(PropertyName = "nodesetNamespaceUri")]
+        public string NameSpaceUri { get; set; }
     }
 }

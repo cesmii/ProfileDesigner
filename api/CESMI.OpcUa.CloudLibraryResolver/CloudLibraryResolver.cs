@@ -59,9 +59,9 @@ namespace CESMII.OpcUa.NodeSetImporter
                 var nodesetWithURIAndDate = new List<(string, DateTime, string)?>();
                 foreach (var nsid in matchingNamespacesAndIds)
                 {
-                    var nodeSet = await _client.DownloadNodesetAsync(nsid.Item2).ConfigureAwait(false);
+                    var nodeSet = await _client.DownloadNodesetAsync(nsid.Identifier).ConfigureAwait(false);
                     nodesetWithURIAndDate.Add((
-                        nodeSet.Nodeset.NamespaceUri?.ToString() ?? nsid.Item1, // TODO cloud lib currently doesn't return the namespace uri: report issue/fix
+                        nodeSet.Nodeset.NamespaceUri?.ToString() ?? nsid.NamespaceUri, // TODO cloud lib currently doesn't return the namespace uri: report issue/fix
                         nodeSet.Nodeset.PublicationDate, 
                         nodeSet.Nodeset.NodesetXml));
                 }

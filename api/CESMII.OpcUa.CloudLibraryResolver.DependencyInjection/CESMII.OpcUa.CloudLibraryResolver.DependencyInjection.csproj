@@ -15,7 +15,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\CESMI.OpcUa.CloudLibraryResolver\CESMI.OpcUa.CloudLibraryResolver.csproj" />
+	  <ProjectReference Include="..\CESMII.OpcUa.CloudLibraryResolver\CESMII.OpcUa.CloudLibraryResolver.csproj" />
 	</ItemGroup>
 
 </Project>

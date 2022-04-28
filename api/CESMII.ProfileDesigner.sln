@@ -13,11 +13,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CESMII.ProfileDesigner.Data
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CESMII.ProfileDesigner.Api.Shared", "CESMII.ProfileDesigner.Api.Shared\CESMII.ProfileDesigner.Api.Shared.csproj", "{29F952CA-8705-4C4F-9E63-3D90875730EE}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CESMII.ProfileDesigner.OpcUa", "CESMI.ProfileDesigner.OpcUa\CESMII.ProfileDesigner.OpcUa.csproj", "{07185277-5193-4BEE-B9BB-CC6927190D7B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CESMII.ProfileDesigner.OpcUa", "CESMII.ProfileDesigner.OpcUa\CESMII.ProfileDesigner.OpcUa.csproj", "{07185277-5193-4BEE-B9BB-CC6927190D7B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CESMII.OpcUa.NodeSetModel", "CESMI.OpcUa.NodeSetModel\CESMII.OpcUa.NodeSetModel.csproj", "{356E8883-8DEB-47A4-9168-F83EE9AC6094}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CESMII.OpcUa.NodeSetModel", "CESMII.OpcUa.NodeSetModel\CESMII.OpcUa.NodeSetModel.csproj", "{356E8883-8DEB-47A4-9168-F83EE9AC6094}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CESMII.OpcUa.NodeSetModel.Factory.Opc", "CESMI.OpcUa.NodeSetModel.Factory.Opc\CESMII.OpcUa.NodeSetModel.Factory.Opc.csproj", "{EDA36F15-493C-47B1-8008-99DC74115E90}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CESMII.OpcUa.NodeSetModel.Factory.Opc", "CESMII.OpcUa.NodeSetModel.Factory.Opc\CESMII.OpcUa.NodeSetModel.Factory.Opc.csproj", "{EDA36F15-493C-47B1-8008-99DC74115E90}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{D9B30B71-CBEE-4F9E-A78F-763624DF697F}"
 EndProject
@@ -29,15 +29,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NodeSetDiffLibrary", "Tests
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "OPC Nodeset Model", "OPC Nodeset Model", "{DDCADBA3-E4C8-4ABA-945B-5E26B6D95483}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CESMII.OpcUa.NodeSetModel.EF", "CESMI.OpcUa.NodeSetModel.EF\CESMII.OpcUa.NodeSetModel.EF.csproj", "{30ED12C9-EBBD-4CB6-AC68-E0C48257EF0E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CESMII.OpcUa.NodeSetModel.EF", "CESMII.OpcUa.NodeSetModel.EF\CESMII.OpcUa.NodeSetModel.EF.csproj", "{30ED12C9-EBBD-4CB6-AC68-E0C48257EF0E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CESMII.OpcUa.NodeSetImporter", "CESMI.OpcUa.NodeSetImporter\CESMII.OpcUa.NodeSetImporter.csproj", "{34C5F917-5168-4077-A7C7-27F86F743256}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CESMII.OpcUa.NodeSetImporter", "CESMII.OpcUa.NodeSetImporter\CESMII.OpcUa.NodeSetImporter.csproj", "{34C5F917-5168-4077-A7C7-27F86F743256}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Opc.Ua.CloudLib.Client", "Opc.Ua.CloudLib.Client\Opc.Ua.CloudLib.Client.csproj", "{8E7C04BE-4798-4945-99BF-F05ADCBE5043}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CESMI.OpcUa.CloudLibraryResolver", "CESMI.OpcUa.CloudLibraryResolver\CESMI.OpcUa.CloudLibraryResolver.csproj", "{AB22D528-C781-43F4-BB65-FCC3FFAAFC82}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CESMII.OpcUa.CloudLibraryResolver", "CESMII.OpcUa.CloudLibraryResolver\CESMII.OpcUa.CloudLibraryResolver.csproj", "{AB22D528-C781-43F4-BB65-FCC3FFAAFC82}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CESMII.OpcUa.CloudLibraryResolver.DependencyInjection", "CESMI.OpcUa.CloudLibraryResolver.DependencyInjection\CESMII.OpcUa.CloudLibraryResolver.DependencyInjection.csproj", "{FA2B77D7-79E8-4815-90E6-1A1DFD755A9A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CESMII.OpcUa.CloudLibraryResolver.DependencyInjection", "CESMII.OpcUa.CloudLibraryResolver.DependencyInjection\CESMII.OpcUa.CloudLibraryResolver.DependencyInjection.csproj", "{FA2B77D7-79E8-4815-90E6-1A1DFD755A9A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

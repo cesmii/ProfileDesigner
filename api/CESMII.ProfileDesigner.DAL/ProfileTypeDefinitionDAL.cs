@@ -579,7 +579,7 @@
                 .Select(i =>
                 new ProfileTypeDefinitionRelatedModel
                     {
-                        ID = composingModel.ID,
+                        ID = i.ID, //composingModel.ID,
                         ProfileTypeDefinition = composingModel,
                         Name = i.Name,
                         BrowseName = i.BrowseName,

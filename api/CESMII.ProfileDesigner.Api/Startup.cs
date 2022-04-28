@@ -50,9 +50,6 @@ namespace CESMII.ProfileDesigner.Api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            // TODO Figure out why the User.Created (date_joined) causes an invalid datetime.kind = Unspecified exception on login
-            AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
-
             var connectionStringProfileDesigner = Configuration.GetConnectionString("ProfileDesignerDB");
             //PostgreSql context
             services.AddDbContext<ProfileDesignerPgContext>(options =>

@@ -18,3 +18,18 @@ ALTER COLUMN message TYPE character varying;
 
 ALTER TABLE public.import_log_warning
 ALTER COLUMN message TYPE character varying; 
+
+---------------------------------------------------------------------
+--  Profile Designer DB - Update
+--	Date: 2022-04-28
+--	Who: Sean C
+--	Details:
+--	Make all date time columns use same timestamp type in a given table
+---------------------------------------------------------------------
+ALTER TABLE public."user"
+  ALTER COLUMN date_joined
+  SET DATA TYPE timestamp with time zone;
+
+ALTER TABLE public."user"
+  ALTER COLUMN registration_complete
+  SET DATA TYPE timestamp with time zone;

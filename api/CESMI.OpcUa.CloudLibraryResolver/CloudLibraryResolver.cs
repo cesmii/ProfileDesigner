@@ -52,7 +52,7 @@ namespace CESMII.OpcUa.NodeSetImporter
             var downloadedNodeSets = new List<string>();
 
             // TODO Is there an API to download matching nodeset directly via URI/PublicationDate? Should we push to add this?
-            var namespacesAndIds = await _client.GetNamespacesAsync().ConfigureAwait(false);
+            var namespacesAndIds = await _client.GetNamespaceIdsAsync().ConfigureAwait(false);
             if (namespacesAndIds != null)
             {
                 var matchingNamespacesAndIds = namespacesAndIds.Where(nsid => missingModels.Any(m => m.ModelUri == nsid.Item1)).ToList();

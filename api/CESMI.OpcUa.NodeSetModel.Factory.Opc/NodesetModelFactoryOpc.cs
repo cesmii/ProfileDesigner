@@ -373,7 +373,8 @@ namespace CESMII.OpcUa.NodeSetModel.Factory.Opc
                         }
                         else
                         {
-                            opcContext.Logger.LogInformation($"No or invalid engineering units in {parent} for {referencedNode}");
+                            // Nodesets commonly indicate that EUs are required on instances by specifying an enpty EU in the class
+                            //opcContext.Logger.LogInformation($"No or invalid engineering units in {parent} for {referencedNode}");
                         }
                     }
                     else
@@ -394,7 +395,8 @@ namespace CESMII.OpcUa.NodeSetModel.Factory.Opc
                         }
                         else
                         {
-                            opcContext.Logger.LogWarning($"No or invalid EURange in {parent} for {referencedNode}");
+                            // Nodesets commonly indicate that EURange are required on instances by specifying an enpty EURange in the class
+                            //opcContext.Logger.LogWarning($"No or invalid EURange in {parent} for {referencedNode}");
                         }
                     }
                     else
@@ -416,7 +418,8 @@ namespace CESMII.OpcUa.NodeSetModel.Factory.Opc
                         }
                         else
                         {
-                            opcContext.Logger.LogInformation($"No or invalid Instrument Range in {parent} for {referencedNode}");
+                            // Nodesets commonly indicate that an Instrument Range is required on instances by specifying an enpty Instrument Range in the class
+                            //opcContext.Logger.LogInformation($"No or invalid Instrument Range in {parent} for {referencedNode}");
                         }
                     }
                     else
@@ -618,12 +621,13 @@ namespace CESMII.OpcUa.NodeSetModel.Factory.Opc
             }
             else
             {
-                if (!(node is ReferenceTypeState))
+                if (!(node is ReferenceTypeState) && !(node is ViewState))
                 {
                     nodeModel = Create<NodeModelFactoryOpc<T>, T>(opcContext, node, customState);
                 }
                 else
                 {
+                    // TODO support Views and Custom References
                     nodeModel = null;
                 }
                 added = false;
@@ -891,7 +895,14 @@ namespace CESMII.OpcUa.NodeSetModel.Factory.Opc
             }
             else
             {
-                throw new Exception($"Unexpected node state {variableNode.DataType}/{dataType?.GetType().FullName} for data type {variableNode.DataType}");
+                if (dataType == null)
+                {
+                    throw new Exception($"Variable {variableNode}: did not find data type {variableNode.DataType} (Namespace {opcContext.NamespaceUris.GetString(variableNode.DataType.NamespaceIndex)}).");
+                }
+                else
+                {
+                    throw new Exception($"Variable {variableNode}: Unexpected node state {variableNode.DataType}/{dataType?.GetType().FullName}.");
+                }
             }
             if (variableNode.ValueRank != -1)
             {

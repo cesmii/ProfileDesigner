@@ -138,8 +138,8 @@ CREATE TABLE public.user
     last_name character varying(30) COLLATE pg_catalog."default" NOT NULL,
     email character varying(254) COLLATE pg_catalog."default" NOT NULL,
     is_active boolean NOT NULL,
-    date_joined timestamp without time zone NOT NULL,
-    registration_complete timestamp without time zone,
+    date_joined timestamp with time zone NOT NULL,
+    registration_complete timestamp with time zone,
     CONSTRAINT user_username_key UNIQUE (username),
     CONSTRAINT user_id_fk_org_id FOREIGN KEY (organization_id)
         REFERENCES public.organization (id) MATCH SIMPLE

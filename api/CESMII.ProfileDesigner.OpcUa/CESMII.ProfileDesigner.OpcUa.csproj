@@ -10,11 +10,11 @@
   </ItemGroup>
 
   <ItemGroup>
-	<ProjectReference Include="..\CESMII.OpcUa.NodeSetImporter\CESMII.OpcUa.NodeSetImporter.csproj" />
+	<PackageReference Include="CESMII.OpcUa.NodeSetImporter" Version="1.0.0-*" />
 	<ProjectReference Include="..\CESMII.OpcUa.CloudLibraryResolver.DependencyInjection\CESMII.OpcUa.CloudLibraryResolver.DependencyInjection.csproj" />
-	<ProjectReference Include="..\CESMII.OpcUa.NodeSetModel.EF\CESMII.OpcUa.NodeSetModel.EF.csproj" />
-    <ProjectReference Include="..\CESMII.OpcUa.NodeSetModel.Factory.Opc\CESMII.OpcUa.NodeSetModel.Factory.Opc.csproj" />
-    <ProjectReference Include="..\CESMII.OpcUa.NodeSetModel\CESMII.OpcUa.NodeSetModel.csproj" />
+	<PackageReference Include="CESMII.OpcUa.NodeSetModel.EF" Version="1.0.0-*" />
+    <PackageReference Include="CESMII.OpcUa.NodeSetModel.Factory.Opc" Version="1.0.0-*" />
+    <PackageReference Include="CESMII.OpcUa.NodeSetModel" Version="1.0.0-*" />
     <ProjectReference Include="..\CESMII.ProfileDesigner.Common\CESMII.ProfileDesigner.Common.csproj" />
     <ProjectReference Include="..\CESMII.ProfileDesigner.DAL\CESMII.ProfileDesigner.DAL.csproj" />
   </ItemGroup>

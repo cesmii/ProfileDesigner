@@ -369,7 +369,7 @@ namespace CESMII.ProfileDesigner.OpcUa
             nodeSet.Aliases = aliasList.ToArray();
 
             nodesetModel.UpdateIndices();
-            var namespaceUris = nodesetModel.AllNodes.Values.Select(v => v.Namespace).Distinct().ToList();
+            var namespaceUris = nodesetModel.AllNodesByNodeId.Values.Select(v => v.Namespace).Distinct().ToList();
 
             var requiredModels = new List<ModelTableEntry>();
 
@@ -390,7 +390,7 @@ namespace CESMII.ProfileDesigner.OpcUa
             {
                 namespaces.GetIndexOrAppend(nsUri);
             }
-            foreach (var node in nodesetModel.AllNodes /*.Where(n => n.Value.Namespace == opcNamespace)*/.OrderBy(n => n.Key))
+            foreach (var node in nodesetModel.AllNodesByNodeId /*.Where(n => n.Value.Namespace == opcNamespace)*/.OrderBy(n => n.Key))
             {
                 var result = NodeModelExportOpc.GetUANode(node.Value, namespaces, aliases);//.GetUANode<UANode>(namespaces, aliases);
                 items.Add(result.Item1);
@@ -521,7 +521,7 @@ namespace CESMII.ProfileDesigner.OpcUa
             {
                 return null;
             }
-            if (nodeSetModel.AllNodes.TryGetValue(nodeId, out var nodeModel))
+            if (nodeSetModel.AllNodesByNodeId.TryGetValue(nodeId, out var nodeModel))
             {
                 return nodeModel;
             }

@@ -643,6 +643,20 @@
             modelsProcessed.Add((model, entity));
             //updated by, created by - set in base class.
             entity.Name = model.Name;
+            if (string.IsNullOrEmpty(model.OpcNodeId))// && !string.IsNullOrEmpty(model.Profile?.Namespace))
+            {
+                model.OpcNodeId = $"g={Guid.NewGuid()}";
+                // TODO find the highest used node id: not just in profile type definitions but also attributes, data types, engineering units etc., so this is insufficient
+                //var highestNodeId = this.Where(pd => pd.Profile.Namespace == model.Profile.Namespace, userToken).Data.OrderByDescending(pd => pd.OpcNodeId).FirstOrDefault();
+                //if (highestNodeId?.OpcNodeId != null && highestNodeId.OpcNodeId.StartsWith("i=") && int.TryParse(highestNodeId.OpcNodeId.Substring("i=".Length), out var nodeIdNumber))
+                //{
+                //    highestNodeId.OpcNodeId = $"i={nodeIdNumber+1}";
+                //}
+                //else
+                //{
+                //    model.OpcNodeId = "i=5000";
+                //}
+            }
             entity.OpcNodeId = model.OpcNodeId;
             entity.ProfileId = model.ProfileId != 0 ? model.ProfileId : null;
             if (model.Profile != null)
@@ -773,6 +787,10 @@
                         current.Name = source.Name;
                         current.BrowseName = source.BrowseName;
                         current.SymbolicName = source.SymbolicName;
+                        if (string.IsNullOrEmpty(source.OpcNodeId)/* && !string.IsNullOrEmpty(source...Profile?.Namespace)*/)
+                        {
+                            source.OpcNodeId = $"g={Guid.NewGuid()}";
+                        }
                         current.OpcNodeId = source.OpcNodeId;
                         current.Namespace = source.Namespace;
                         current.Description = source.Description;

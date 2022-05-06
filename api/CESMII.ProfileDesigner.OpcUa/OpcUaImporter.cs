@@ -358,26 +358,14 @@ namespace CESMII.ProfileDesigner.OpcUa
 
         static UANodeSet ExportNodeSet(UANodeSet nodeSet, NodeSetModel nodesetModel, Dictionary<string, NodeSetModel> nodesetModels, Dictionary<string, string> aliases)
         {
-            //var nodeSet = new UANodeSet();
-
-            // TODO gather aliases from each nodesetModel
-            var aliasList = new List<NodeIdAlias>();
-            foreach (var alias in aliases)
-            {
-                aliasList.Add(new NodeIdAlias { Alias = alias.Value, Value = alias.Key });
-            }
-            nodeSet.Aliases = aliasList.ToArray();
-
             nodesetModel.UpdateIndices();
             var namespaceUris = nodesetModel.AllNodesByNodeId.Values.Select(v => v.Namespace).Distinct().ToList();
 
             var requiredModels = new List<ModelTableEntry>();
 
-            var items = new List<UANode>();
-
             NamespaceTable namespaces;
             // Ensure OPC UA model is the first one
-            if (nodeSet.NamespaceUris?.Any()== true)
+            if (nodeSet.NamespaceUris?.Any() == true)
             {
                 namespaces = new NamespaceTable(nodeSet.NamespaceUris);
             }
@@ -386,18 +374,50 @@ namespace CESMII.ProfileDesigner.OpcUa
                 // Ensure OPC UA model is the first one
                 namespaces = new NamespaceTable(new[] { strOpcNamespaceUri });
             }
-            foreach(var nsUri in namespaceUris)
+            foreach (var nsUri in namespaceUris)
             {
                 namespaces.GetIndexOrAppend(nsUri);
             }
-            foreach (var node in nodesetModel.AllNodesByNodeId /*.Where(n => n.Value.Namespace == opcNamespace)*/.OrderBy(n => n.Key))
+            HashSet<string> nodeIdsUsed = new HashSet<string>();
+            var items = ExportAllNodes(nodesetModel, aliases, namespaces, nodeIdsUsed);
+
+            // remove unused aliases
+            var usedAliases = aliases.Where(pk => nodeIdsUsed.Contains(pk.Key)).ToDictionary(kv => kv.Key, kv => kv.Value);
+
+            // Add aliases for all nodeids from other namespaces
+            var currentNodeSetNamespaceIndex = namespaces.GetIndex(nodesetModel.ModelUri);
+            bool bAliasesAdded = false;
+            foreach (var nodeId in nodeIdsUsed)
             {
-                var result = NodeModelExportOpc.GetUANode(node.Value, namespaces, aliases);//.GetUANode<UANode>(namespaces, aliases);
-                items.Add(result.Item1);
-                if (result.Item2 != null)
+                var parsedNodeId = NodeId.Parse(nodeId);
+                if (parsedNodeId.NamespaceIndex != currentNodeSetNamespaceIndex)
                 {
-                    items.AddRange(result.Item2);
+                    if (!usedAliases.ContainsKey(nodeId))
+                    {
+                        var namespaceUri = namespaces.GetString(parsedNodeId.NamespaceIndex);
+                        var nodeIdWithUri = new ExpandedNodeId(parsedNodeId, namespaceUri).ToString();
+                        var nodeModel = nodesetModels.Select(nm => nm.Value.AllNodesByNodeId.TryGetValue(nodeIdWithUri, out var model) ? model : null).Where(n => n != null).FirstOrDefault();
+                        var displayName = nodeModel.DisplayName?.FirstOrDefault()?.Text;
+                        if (displayName != null && !usedAliases.ContainsValue(displayName))
+                        {
+                            usedAliases.Add(nodeId, displayName);
+                            aliases.Add(nodeId, displayName);
+                            bAliasesAdded = true;
+                        }
+                    }
                 }
+            }
+
+            var aliasList = usedAliases
+                .Select(alias => new NodeIdAlias { Alias = alias.Value, Value = alias.Key })
+                .OrderBy(kv => kv.Value)
+                .ToList();
+            nodeSet.Aliases = aliasList.ToArray();
+
+            if (bAliasesAdded)
+            {
+                // Re-export with new aliases
+                items = ExportAllNodes(nodesetModel, aliases, namespaces, null);
             }
 
             var allNamespaces = namespaces.ToArray();
@@ -453,6 +473,21 @@ namespace CESMII.ProfileDesigner.OpcUa
                 nodeSet.Items = items.ToArray();
             }
             return nodeSet;
+        }
+
+        private static List<UANode> ExportAllNodes(NodeSetModel nodesetModel, Dictionary<string, string> aliases, NamespaceTable namespaces, HashSet<string> nodeIdsUsed)
+        {
+            var items = new List<UANode>();
+            foreach (var node in nodesetModel.AllNodesByNodeId /*.Where(n => n.Value.Namespace == opcNamespace)*/.OrderBy(n => n.Key))
+            {
+                var result = NodeModelExportOpc.GetUANode(node.Value, namespaces, aliases, nodeIdsUsed);//.GetUANode<UANode>(namespaces, aliases);
+                items.Add(result.Item1);
+                if (result.Item2 != null)
+                {
+                    items.AddRange(result.Item2);
+                }
+            }
+            return items;
         }
 
         public async Task ImportEngineeringUnitsAsync(UserToken userToken)

@@ -196,7 +196,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
                 {
                     if (string.IsNullOrEmpty(attribute.OpcNodeId))
                     {
-                        attribute.OpcNodeId = $"nsu={profileItem.Profile.Namespace};g={Guid.NewGuid()}"; // new ExpandedNodeId(Guid.NewGuid(), profileItem.Profile.Namespace).ToString();
+                        attribute.OpcNodeId = $"g={Guid.NewGuid()}";
                     }
                     if (attribute.TypeDefinition == null && attribute.TypeDefinitionId == profileItem.ID)
                     {

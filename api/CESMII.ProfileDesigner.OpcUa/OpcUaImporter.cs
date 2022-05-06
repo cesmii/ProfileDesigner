@@ -26,6 +26,8 @@ namespace CESMII.ProfileDesigner.OpcUa
     using System.Threading.Tasks;
     using global::Opc.Ua;
     using global::Opc.Ua.Export;
+    using System.Xml.Serialization;
+    using System.Xml;
 
     public class OpcUaImporter : IOpcUaContext
     {
@@ -266,7 +268,21 @@ namespace CESMII.ProfileDesigner.OpcUa
 
                 ExportNodeSet(exportedNodeSet, model, this.NodesetModels, this.Aliases);
             }
-            exportedNodeSet.Write(xmlNodeSet);
+            // .Net6 changed the default to no-identation: https://github.com/dotnet/runtime/issues/64885
+            using (StreamWriter writer = new StreamWriter(xmlNodeSet, Encoding.UTF8))
+            {
+                try
+                {
+                    var xmlWriter = XmlWriter.Create(writer, new XmlWriterSettings { Indent = true, });
+                    XmlSerializer serializer = new XmlSerializer(typeof(UANodeSet));
+                    serializer.Serialize(xmlWriter, exportedNodeSet);
+                }
+                finally
+                {
+                    writer.Flush();
+                }
+            }
+            //exportedNodeSet.Write(xmlNodeSet);
             return true;
         }
 

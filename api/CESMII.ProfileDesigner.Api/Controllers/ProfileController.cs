@@ -254,7 +254,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             //test for unique namespace/owner id/publish date combo, 0 count means all good
             return _dal.Count(x => x.Namespace.ToLower().Equals(model.Namespace.ToLower()) &&
                              x.OwnerId.HasValue && x.OwnerId.Value.Equals(User.GetUserID()) &&
-                            (!x.PublishDate.HasValue ? new DateTime(0) : x.PublishDate.Value.Date).Equals(!model.PublishDate.HasValue ? new DateTime(0) : model.PublishDate.Value.Date)
+                             (x.PublishDate == model.PublishDate)
                             , userToken) == 0;
         }
 

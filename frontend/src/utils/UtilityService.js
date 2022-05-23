@@ -361,7 +361,7 @@ export function cleanFileName(val) {
 
     //trim off last period if present in result
     if (result.lastIndexOf('.') === result.length - 1) {
-        result = result.substring(0, result.length - 2);
+        result = result.substring(0, result.length - 1);
     }
     return `${result}.nodeset2`;
 }

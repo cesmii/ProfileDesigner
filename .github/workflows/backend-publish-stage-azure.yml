@@ -1,4 +1,4 @@
-# This workflow will build and push a .NET 5 web API to an Azure Web App that is manually triggered by user.
+# This workflow will build and push a .NET 6 web API to an Azure Web App that is manually triggered by user.
 #
 # This workflow assumes you have already created the target Azure App Service web app.
 # For instructions see https://docs.microsoft.com/azure/app-service/app-service-plan-manage#create-an-app-service-plan
@@ -39,11 +39,11 @@ env:
   PUBLISH_FOLDER_RELATIVE: "./publish"
   PUBLISH_FOLDER: "/publish"
   # set this to the .NET core version to use
-  NETCORE_VERSION: "5.0.100"
+  NETCORE_VERSION: "6.0.x"
 
 jobs:
   build:
-    name: Build and Deploy .NET5 Web API
+    name: Build and Deploy .NET6 Web API
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2

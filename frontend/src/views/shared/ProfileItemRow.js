@@ -69,7 +69,7 @@ function ProfileItemRow(props) { //props are item, showActions
         //if standard ua nodeset, author is null
         return (
             <div className="col-sm-4 ml-auto d-inline-flex justify-content-end align-items-center" >
-                <span className="my-0 mr-2"><a href={`/types/library/p=${props.item.id}`} ><span className="mr-1" alt="view"><SVGIcon name="visibility" /></span>View Type Definitions</a></span>
+                <span className="my-0 mr-2"><a href={`/types/library/profile/${props.item.id}`} ><span className="mr-1" alt="view"><SVGIcon name="visibility" /></span>View Type Definitions</a></span>
                 <Dropdown className="action-menu icon-dropdown" onClick={(e) => e.stopPropagation()} >
                     <Dropdown.Toggle drop="left" title="Actions" >
                         <SVGIcon name="more-vert" />

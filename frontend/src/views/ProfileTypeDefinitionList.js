@@ -70,6 +70,20 @@ function ProfileTypeDefinitionList() {
     }, [profileId, _initSearchCriteria, loadingProps.searchCriteriaRefreshed]);
 
     //-------------------------------------------------------------------
+    //scenario - we arrive at the types library page immediately after visiting the type def library by profile page
+    //      route is not changing so the profile filter not being removed.
+    //-------------------------------------------------------------------
+    useEffect(() => {
+
+        if (!_initSearchCriteria && profileId == null) setInitSearchCriteria(true);
+
+        //this will execute on unmount
+        return () => {
+            //console.log(generateLogMessageString('useEffect||Cleanup', CLASS_NAME));
+        };
+    }, [profileId]);
+
+    //-------------------------------------------------------------------
     // Region: Event Handling of child component events
     //-------------------------------------------------------------------
     const onGridRowSelect = (item) => {

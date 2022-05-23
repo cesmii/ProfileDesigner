@@ -5,7 +5,7 @@ import {Switch } from "react-router-dom"
 import PrivateRoute from './authentication/PrivateRoute'
 import WizardRoute from './authentication/WizardRoute'
 import AdminRoute from './authentication/AdminRoute'
-import { PublicRoute } from './PublicRoute'
+import { PublicFixedRoute, PublicRoute } from './PublicRoute'
 
 //page level imports
 import Login from "../views/Login"
@@ -57,7 +57,7 @@ function Routes() {
             <AdminRoute path="/admin/user/list" component={AdminUserList} />
             <AdminRoute path="/admin/user/copy/:copyId" component={AdminUserEntity} />
             <AdminRoute path="/admin/user/:id" component={AdminUserEntity} />
-            <PublicRoute exact path="/login" component={Login} />
+            <PublicFixedRoute exact path="/login" component={Login} />
             <PublicRoute component={PageNotFound} />
         </Switch>
 

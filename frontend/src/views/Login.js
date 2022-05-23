@@ -11,6 +11,7 @@ import { generateLogMessageString } from '../utils/UtilityService'
 import { useLoadingContext } from "../components/contexts/LoadingContext";
 import { useAuthDispatch, useAuthState } from "../components/authentication/AuthContext";
 import { login } from "../components/authentication/AuthActions";
+import { WizardSettings } from "../services/WizardUtil";
 
 const CLASS_NAME = "Login";
 
@@ -19,7 +20,6 @@ function Login() {
     //-------------------------------------------------------------------
     // Region: Initialization
     //-------------------------------------------------------------------
-    const caption = 'Login';
     const [_loginData, setLoginData] = useState({ userName: '', password: '' });
     //const [_isLoggedIn, setLoggedIn] = useState(false);
     const [_error, setIsError] = useState({ success: true, message: 'An error occurred. Please try again.' });
@@ -27,7 +27,7 @@ function Login() {
     const authTicket = useAuthState();
     const { loadingProps, setLoadingProps } = useLoadingContext();
     const dispatch = useAuthDispatch() //get the dispatch method from the useDispatch custom hook
-
+    const _currentPage = WizardSettings.panels.find(p => { return p.id === 'Welcome'; });
 
     //-------------------------------------------------------------------
     // Region: Event Handling of child component events
@@ -143,6 +143,70 @@ function Login() {
         });
     }
 
+    const renderIntroContent = () => {
+        return (
+            <>
+                <p>
+                    The Profile Designer allows disparate manufacturers and engineers to build manufacturing profiles that could be shared amongst a community of smart manufacturing entities. The profile is a class definition (or collection of class definitions) describing a piece of manufacturing equipment (or conceivably, a manufacturing process or manufactured good). Profiles have relationships to other profiles within the scope of the user's work context. These relationships are of the kinds typically seen in a UML (Unified Modeling Language) diagram, including inheritance, aggregation (or composition), interface implementation, and dependency.
+                </p>
+                <p>
+                    <span className="font-weight-bold mr-1">Ready to get started?</span>
+                    You are a few clicks away from building your own SM Profiles.
+                    Login to begin or email us at <a href="mailto:devops@cesmii.org" >devops@cesmii.org</a> to get registered.
+                    Please provide your project name or SOPO number with your request.
+                </p>
+            </>
+           );
+    }
+
+    const renderLoginUI = () => {
+        return (
+            <>
+                <Card body className="elevated mx-3">
+                    {!_error.success &&
+                        <div className="justify-content-center alert alert-danger">
+                            {_error.message}
+                        </div>
+                    }
+                    <form>
+                        <div className="d-flex">
+                            <Form.Group className="flex-grow-1">
+                                <Form.Label>User Name</Form.Label>
+                                {!_isValid.userName &&
+                                    <span className="invalid-field-message inline">
+                                        Required
+                                    </span>
+                                }
+                                <Form.Control id="userName" type="" placeholder="Enter user name" value={_loginData.email} onChange={onChange} onBlur={onBlur} />
+                            </Form.Group>
+                        </div>
+                        <div className="d-flex">
+                            <Form.Group className="flex-grow-1">
+                                <Form.Label>Password</Form.Label>
+                                {!_isValid.password &&
+                                    <span className="invalid-field-message inline">
+                                        Required
+                                    </span>
+                                }
+                                <Form.Control id="password" type="password" value={_loginData.password} onChange={onChange} onBlur={onBlur} />
+                            </Form.Group>
+                        </div>
+                        <div className="d-flex">
+                            <Button variant="primary" className="mx-auto mt-2" type="submit" onClick={onLoginClick} disabled={loadingProps.isLoading ? "disabled" : ""} >
+                                Login
+                            </Button>
+                        </div>
+                        <p className="mt-3 mb-0 text-center" >
+                            <span className="font-weight-bold mr-1" >Don't have an account?</span>
+                            Email us at <a href="mailto:devops@cesmii.org" >devops@cesmii.org</a> to get registered.
+                            Please provide your project name or SOPO number with your request.
+                        </p>
+                    </form>
+                </Card>
+            </>
+        );
+    }
+
     //if already logged in, go to home page
     if (authTicket != null && authTicket.token != null) {
         //    if (_isLoggedIn) {
@@ -152,46 +216,17 @@ function Login() {
     return (
         <>
             <Helmet>
-                <title>{AppSettings.Titles.Main + " | " + caption}</title>
+                <title>{AppSettings.Titles.Main + " | Login"}</title>
             </Helmet>
             <div className="row">
-                <div className=" col-sm-3 m-auto">
-                    <Card body className="elevated mt-5">
-                        {!_error.success &&
-                            <div className="justify-content-center alert alert-danger">
-                                {_error.message}
-                            </div>
-                        }
-                        <form>
-                            <div className="d-flex">
-                                <Form.Group className="flex-grow-1">
-                                    <Form.Label>User Name</Form.Label>
-                                    {!_isValid.userName &&
-                                        <span className="invalid-field-message inline">
-                                            Required
-                                        </span>
-                                    }
-                                    <Form.Control id="userName" type="" placeholder="Enter user name" value={_loginData.email} onChange={onChange} onBlur={onBlur} />
-                                </Form.Group>
-                            </div>
-                            <div className="d-flex">
-                                <Form.Group className="flex-grow-1">
-                                    <Form.Label>Password</Form.Label>
-                                    {!_isValid.password &&
-                                        <span className="invalid-field-message inline">
-                                            Required
-                                        </span>
-                                    }
-                                    <Form.Control id="password" type="password" value={_loginData.password} onChange={onChange} onBlur={onBlur} />
-                                </Form.Group>
-                            </div>
-                            <div className="d-flex">
-                                <Button variant="primary" className="mx-auto mt-2" type="submit" onClick={onLoginClick} disabled={loadingProps.isLoading ? "disabled" : ""} >
-                                    Login
-                                </Button>
-                            </div>
-                        </form>
-                    </Card>
+                <div className=" col-sm-12 mt-2 mb-3">
+                    <h1 className="mb-0">Welcome!</h1>
+                </div>
+                <div className="col-sm-6 col-md-7">
+                    {renderIntroContent()}
+                </div>
+                <div className="col-sm-6 col-md-5">
+                    {renderLoginUI()}
                 </div>
             </div>
         </>

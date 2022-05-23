@@ -8,8 +8,8 @@
 
     public class PasswordUtils
     {
-        private static string _delimiter = "$";
-        private static string _delimiterLegacy = "$";
+        private static readonly string _delimiter = "$";
+        private static readonly string _delimiterLegacy = "$";
 
         /// <summary>
         /// Generate a random password with no special characters

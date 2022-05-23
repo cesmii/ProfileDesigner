@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Configurations>Debug;Release;Staging</Configurations>
+  </PropertyGroup>
+
+  <ItemGroup>
+	  <PackageReference Include="OPCFoundation.NetStandard.Opc.Ua.Core" Version="1.4.368.33" />
+  </ItemGroup>
+
+  <ItemGroup>
+	<PackageReference Include="CESMII.OpcUa.NodeSetImporter" Version="1.0.0-*" />
+	<ProjectReference Include="..\CESMII.OpcUa.CloudLibraryResolver.DependencyInjection\CESMII.OpcUa.CloudLibraryResolver.DependencyInjection.csproj" />
+	<PackageReference Include="CESMII.OpcUa.NodeSetModel.EF" Version="1.0.0-*" />
+    <PackageReference Include="CESMII.OpcUa.NodeSetModel.Factory.Opc" Version="1.0.0-*" />
+    <PackageReference Include="CESMII.OpcUa.NodeSetModel" Version="1.0.0-*" />
+    <ProjectReference Include="..\CESMII.ProfileDesigner.Common\CESMII.ProfileDesigner.Common.csproj" />
+    <ProjectReference Include="..\CESMII.ProfileDesigner.DAL\CESMII.ProfileDesigner.DAL.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="NodeSets\Opc.Ua.NodeSet2.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

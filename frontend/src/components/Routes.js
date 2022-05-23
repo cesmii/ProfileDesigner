@@ -5,7 +5,7 @@ import {Switch } from "react-router-dom"
 import PrivateRoute from './authentication/PrivateRoute'
 import WizardRoute from './authentication/WizardRoute'
 import AdminRoute from './authentication/AdminRoute'
-import { PublicRoute } from './PublicRoute'
+import { PublicFixedRoute, PublicRoute } from './PublicRoute'
 
 //page level imports
 import Login from "../views/Login"
@@ -37,7 +37,7 @@ function Routes() {
             <WizardRoute exact path="/" component={WizardWelcome} />
             <PrivateRoute path="/profiles/library" component={ProfileList} />
             {/*Handles types/all and types/mine in the component*/}
-            <PrivateRoute path="/types/library/p=:profileId" component={ProfileTypeDefinitionList} />
+            <PrivateRoute path="/types/library/profile/:profileId" component={ProfileTypeDefinitionList} />
             <PrivateRoute path="/types/library" component={ProfileTypeDefinitionList} />
             {/* order matters in the profile/ routes*/}
             {/* ProfileTypeDefinitionEntity - Depending on entry point, this is not always part of the wizard - 
@@ -57,7 +57,7 @@ function Routes() {
             <AdminRoute path="/admin/user/list" component={AdminUserList} />
             <AdminRoute path="/admin/user/copy/:copyId" component={AdminUserEntity} />
             <AdminRoute path="/admin/user/:id" component={AdminUserEntity} />
-            <PublicRoute exact path="/login" component={Login} />
+            <PublicFixedRoute exact path="/login" component={Login} />
             <PublicRoute component={PageNotFound} />
         </Switch>
 

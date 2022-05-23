@@ -138,8 +138,8 @@ CREATE TABLE public.user
     last_name character varying(30) COLLATE pg_catalog."default" NOT NULL,
     email character varying(254) COLLATE pg_catalog."default" NOT NULL,
     is_active boolean NOT NULL,
-    date_joined timestamp without time zone NOT NULL,
-    registration_complete timestamp without time zone,
+    date_joined timestamp with time zone NOT NULL,
+    registration_complete timestamp with time zone,
     CONSTRAINT user_username_key UNIQUE (username),
     CONSTRAINT user_id_fk_org_id FOREIGN KEY (organization_id)
         REFERENCES public.organization (id) MATCH SIMPLE
@@ -397,7 +397,7 @@ CREATE TABLE public.engineering_unit
 (
     id SERIAL PRIMARY KEY,
     owner_id integer NULL,
-    display_name character varying(200) COLLATE pg_catalog."default" NOT NULL,
+    display_name character varying(200) COLLATE pg_catalog."default",
     description character varying COLLATE pg_catalog."default" NULL,
     namespace_uri character varying(200) COLLATE pg_catalog."default" NULL,
     unit_id integer NOT NULL,
@@ -1127,7 +1127,7 @@ CREATE TABLE public.import_log
     id SERIAL PRIMARY KEY,
     owner_id integer NULL,
     status_id integer NOT NULL,  
-    file_list varchar NULL,
+    file_list character varying NULL,
     is_active boolean NOT NULL,
     created timestamp with time zone NOT NULL,
     updated timestamp with time zone NOT NULL,
@@ -1155,7 +1155,7 @@ CREATE TABLE public.import_log_message
 (
     id SERIAL PRIMARY KEY,
     import_log_id integer NOT NULL,  
-    message character varying(4096) NOT NULL,
+    message character varying NOT NULL,
     created timestamp with time zone NOT NULL,
     CONSTRAINT import_log_import_log_id_304b6874_fk FOREIGN KEY (import_log_id)
         REFERENCES public.import_log (id) MATCH SIMPLE
@@ -1178,7 +1178,7 @@ CREATE TABLE public.import_log_warning
     id SERIAL PRIMARY KEY,
     import_log_id integer NOT NULL,  
     profile_id integer NOT NULL,  
-    message character varying(4096) NOT NULL,
+    message character varying NOT NULL,
     created timestamp with time zone NOT NULL,
     CONSTRAINT import_warning_import_log_id_fk FOREIGN KEY (import_log_id)
         REFERENCES public.import_log (id) MATCH SIMPLE
@@ -1196,7 +1196,7 @@ TABLESPACE pg_default;
 
 ALTER TABLE public.import_log_warning
     OWNER to cesmii;
-	
+
 ---------------------------------------------------------------------
 --	Delete a nodeset and all of its children
 ---------------------------------------------------------------------

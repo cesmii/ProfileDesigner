@@ -194,7 +194,7 @@ namespace CESMII.ProfileDesigner.Api.Utils
                     var nodeSetXmlStringList = nodeSetXmlList.Select(nodeSetXml => nodeSetXml.Data).ToList();
                     OnNodeSet callback = (string namespaceUri, DateTime? publicationDate) =>
                     {
-                        CreateImportLogMessage(dalImportLog, logId, userToken, $"Dowloading from Cloud Library: {namespaceUri} {publicationDate}", TaskStatusEnum.InProgress).Wait();
+                        CreateImportLogMessage(dalImportLog, logId, userToken, $"Downloading from Cloud Library: {namespaceUri} {publicationDate}", TaskStatusEnum.InProgress).Wait();
                     };
                     UANodeSetImportResult resultSet;
                     try

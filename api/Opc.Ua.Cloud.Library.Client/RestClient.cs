@@ -27,7 +27,7 @@
  * http://opcfoundation.org/License/MIT/1.00/
  * ======================================================================*/
 
-namespace Opc.Ua.CloudLib.Client
+namespace Opc.Ua.Cloud.Library.Client
 {
     using System;
     using System.Collections.Generic;
@@ -64,6 +64,11 @@ namespace Opc.Ua.CloudLib.Client
             client = new HttpClient();
             client.BaseAddress = new Uri(address);
             client.DefaultRequestHeaders.Authorization = authentication;
+        }
+
+        public RestClient(HttpClient httpClient)
+        {
+            client = httpClient;
         }
 
         public void Dispose()

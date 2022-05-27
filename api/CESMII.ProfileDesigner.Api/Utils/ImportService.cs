@@ -29,11 +29,11 @@ namespace CESMII.ProfileDesigner.Api.Utils
         private readonly IServiceScopeFactory _serviceScopeFactory;
         private readonly IDal<ImportLog, ImportLogModel> _dalImportLog;
         private readonly IConfiguration _configuration;
-        private readonly IUANodeSetResolver _nodeSetResolver;
+        private readonly IUANodeSetResolverWithProgress _nodeSetResolver;
 
         public ImportService(BackgroundWorkerQueue backgroundWorkerQueue, IServiceScopeFactory serviceScopeFactory,
             IDal<ImportLog, ImportLogModel> dalImportLog,
-            IUANodeSetResolver cloudLibResolver,
+            IUANodeSetResolverWithProgress cloudLibResolver,
             ILogger<ImportService> logger,
             IConfiguration configuration)
 
@@ -192,7 +192,20 @@ namespace CESMII.ProfileDesigner.Api.Utils
                     _logger.LogTrace($"Timestamp||ImportId:{logId}||Importing node set files: {sw.Elapsed}");
 
                     var nodeSetXmlStringList = nodeSetXmlList.Select(nodeSetXml => nodeSetXml.Data).ToList();
-                    var resultSet = UANodeSetImporter.ImportNodeSets(myNodeSetCache, null, nodeSetXmlStringList, false, userToken, _nodeSetResolver);
+                    OnNodeSet callback = (string namespaceUri, DateTime? publicationDate) =>
+                    {
+                        CreateImportLogMessage(dalImportLog, logId, userToken, $"Dowloading from Cloud Library: {namespaceUri} {publicationDate}", TaskStatusEnum.InProgress).Wait();
+                    };
+                    UANodeSetImportResult resultSet;
+                    try
+                    {
+                        _nodeSetResolver.OnDownloadNodeSet += callback;
+                        resultSet = UANodeSetImporter.ImportNodeSets(myNodeSetCache, null, nodeSetXmlStringList, false, userToken, _nodeSetResolver);
+                    }
+                    finally
+                    {
+                        _nodeSetResolver.OnDownloadNodeSet -= callback;
+                    }
                     _logger.LogTrace($"Timestamp||ImportId:{logId}||Imported node set files: {sw.Elapsed}");
                     if (!string.IsNullOrEmpty(resultSet.ErrorMessage))
                     {
@@ -484,6 +497,4 @@ namespace CESMII.ProfileDesigner.Api.Utils
             public List<string> Warnings { get; set; }
         }
     }
-
-
 }

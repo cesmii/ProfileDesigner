@@ -27,46 +27,31 @@
  * http://opcfoundation.org/License/MIT/1.00/
  * ======================================================================*/
 
-namespace Opc.Ua.CloudLib.Client
+namespace Opc.Ua.Cloud.Library.Client.Models
 {
     using Newtonsoft.Json;
-    /// <summary>GraphQL Result for nodeset queries</summary>
-    public class UANodesetResult
+
+    /// <summary>GraphQL Result for metadata queries</summary>
+    [JsonObject("metadata")]
+    public class MetadataResult
     {
-        /// <summary>Gets or sets the identifier.</summary>
-        /// <value>The identifier.</value>
-        [JsonProperty(PropertyName = "nodesetId")]
-        public uint Id { get; set; }
-
-        /// <summary>Gets or sets the title.</summary>
-        /// <value>The title.</value>
-        [JsonProperty(PropertyName = "nodesetTitle")]
-        public string Title { get; set; }
-
-        /// <summary>Gets or sets the contributor.</summary>
-        /// <value>The contributor.</value>
-        [JsonProperty(PropertyName = "orgName")]
-        public string Contributor { get; set; }
-
-        /// <summary>Gets or sets the license.</summary>
-        /// <value>The license.</value>
-        [JsonProperty(PropertyName = "license")]
-        public string License { get; set; }
-
-        /// <summary>Gets or sets the version.</summary>
-        /// <value>The version.</value>
-        [JsonProperty(PropertyName = "version")]
-        public string Version { get; set; }
-
-        /// <summary>Gets or sets the creation time.</summary>
-        /// <value>The creation time.</value>
-        [JsonProperty(PropertyName = "nodesetCreationTime")]
-        public System.DateTime? CreationTime { get; set; }
-
         /// <summary>
-        /// Gets or sets the namespace Uri.
+        /// Gets or sets the identifier.
         /// </summary>
-        [JsonProperty(PropertyName = "nodesetNamespaceUri")]
-        public string NameSpaceUri { get; set; }
+        /// <value>The identifier.</value>
+        [JsonProperty("id")]
+        public int ID { get; set; }
+        /// <summary>Gets or sets the nodeset identifier.</summary>
+        /// <value>The nodeset identifier.</value>
+        [JsonProperty("nodesetId")]
+        public long NodesetID { get; set; }
+        /// <summary>Gets or sets the name.</summary>
+        /// <value>The name.</value>
+        [JsonProperty("name")]
+        public string Name { get; set; }
+        /// <summary>Gets or sets the value.</summary>
+        /// <value>The value.</value>
+        [JsonProperty("value")]
+        public string Value { get; set; }
     }
 }

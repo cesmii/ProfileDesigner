@@ -25,7 +25,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NodeSetDiffLibrary", "Tests
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "OPC Nodeset Model", "OPC Nodeset Model", "{DDCADBA3-E4C8-4ABA-945B-5E26B6D95483}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Opc.Ua.CloudLib.Client", "Opc.Ua.CloudLib.Client\Opc.Ua.CloudLib.Client.csproj", "{8E7C04BE-4798-4945-99BF-F05ADCBE5043}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Opc.Ua.Cloud.Library.Client", "Opc.Ua.Cloud.Library.Client\Opc.Ua.Cloud.Library.Client.csproj", "{8E7C04BE-4798-4945-99BF-F05ADCBE5043}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CESMII.OpcUa.CloudLibraryResolver", "CESMII.OpcUa.CloudLibraryResolver\CESMII.OpcUa.CloudLibraryResolver.csproj", "{AB22D528-C781-43F4-BB65-FCC3FFAAFC82}"
 EndProject

@@ -27,33 +27,33 @@
  * http://opcfoundation.org/License/MIT/1.00/
  * ======================================================================*/
 
-namespace Opc.Ua.CloudLib.Client.Models
+namespace Opc.Ua.Cloud.Library.Client.Models
 {
     using Newtonsoft.Json;
 
-    /// <summary>GraphQL Result for variable queries</summary>
-    [JsonObject("variabletype")]
-    public class VariableResult
+    /// <summary>GraphQL Result for datatype queries</summary>
+    [JsonObject("dataType")]
+    public class DataResult
     {
         /// <summary>Gets or sets the identifier.</summary>
         /// <value>The identifier.</value>
-        [JsonProperty("variabletype_id")]
+        [JsonProperty("id")]
         public int ID { get; set; }
         /// <summary>Gets or sets the nodeset identifier.</summary>
         /// <value>The nodeset identifier.</value>
-        [JsonProperty("nodeset_id")]
+        [JsonProperty("nodesetId")]
         public long NodesetID { get; set; }
         /// <summary>Gets or sets the browsename.</summary>
         /// <value>The browsename.</value>
-        [JsonProperty("variabletype_browsename")]
+        [JsonProperty("browseName")]
         public string Browsename { get; set; }
         /// <summary>Gets or sets the value.</summary>
         /// <value>The value.</value>
-        [JsonProperty("variabletype_value")]
+        [JsonProperty("value")]
         public string Value { get; set; }
         /// <summary>Gets or sets the namespace.</summary>
         /// <value>The namespace.</value>
-        [JsonProperty("variabletype_namespace")]
+        [JsonProperty("nameSpace")]
         public string Namespace { get; set; }
     }
 }

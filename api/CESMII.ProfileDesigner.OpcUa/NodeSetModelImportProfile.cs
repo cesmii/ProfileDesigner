@@ -121,6 +121,11 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
             foreach (var childRef in this._model.OtherChilden)
             {
                 var child = childRef.Child;
+                if (child is ReferenceTypeModel)
+                {
+                    // No support for reference types yet
+                    continue;
+                }
                 var objectProfile = child.ImportProfileItem(dalContext);
                 if (profileItem.Compositions == null)
                 {
@@ -652,6 +657,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
         //    return null;
         //}
     }
+
     public static class NodeModelProfileExtensions
     {
         public static ProfileTypeDefinitionModel ImportProfileItem(this NodeModel model, IDALContext dalContext)

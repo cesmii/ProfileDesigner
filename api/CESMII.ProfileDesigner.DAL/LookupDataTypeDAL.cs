@@ -233,12 +233,8 @@
                     customTypeEntity = _profileTypeDefinitionDAL.CheckForExisting(model.CustomType, userToken);
                     if (customTypeEntity == null)
                     {
-                        throw new NotImplementedException("Must add new profile type definitions for custom types explicitly");
-                        //customTypeEntity = new ProfileTypeDefinition
-                        //{
-                        //    // TODO set createdby etc.
-                        //};
-                        //_profileTypeDefinitionDAL.MapToEntityPublic(ref customTypeEntity, model.CustomType, userToken);
+                        _profileTypeDefinitionDAL.Add(model.CustomType, userToken).Wait();
+                        customTypeEntity = _profileTypeDefinitionDAL.CheckForExisting(model.CustomType, userToken);
                     }
                     entity.CustomType = customTypeEntity;
                 }

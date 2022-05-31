@@ -579,7 +579,7 @@
                 .Select(i =>
                 new ProfileTypeDefinitionRelatedModel
                     {
-                        ID = composingModel.ID,
+                        ID = i.ID, //composingModel.ID,
                         ProfileTypeDefinition = composingModel,
                         Name = i.Name,
                         BrowseName = i.BrowseName,
@@ -632,17 +632,31 @@
         //List<ProfileTypeDefinitionModel> _modelsProcessed = new List<ProfileTypeDefinitionModel>();
         protected override void MapToEntity(ref ProfileTypeDefinition entity, ProfileTypeDefinitionModel model, UserToken userToken)
         {
-            MapToEntityInternal(ref entity, model, new List<ProfileTypeDefinitionModel>(), userToken);
+            MapToEntityInternal(ref entity, model, new List<(ProfileTypeDefinitionModel, ProfileTypeDefinition)>(), userToken);
         }
-        void MapToEntityInternal(ref ProfileTypeDefinition entity, ProfileTypeDefinitionModel model, List<ProfileTypeDefinitionModel> modelsProcessed, UserToken userToken)
+        void MapToEntityInternal(ref ProfileTypeDefinition entity, ProfileTypeDefinitionModel model, List<(ProfileTypeDefinitionModel,ProfileTypeDefinition)> modelsProcessed, UserToken userToken)
         {
-            if (modelsProcessed.Contains(model))
+            if (modelsProcessed.Any(m => m.Item1 == model))
             {
                 return;
             }
-            modelsProcessed.Add(model);
+            modelsProcessed.Add((model, entity));
             //updated by, created by - set in base class.
             entity.Name = model.Name;
+            if (string.IsNullOrEmpty(model.OpcNodeId))// && !string.IsNullOrEmpty(model.Profile?.Namespace))
+            {
+                model.OpcNodeId = $"g={Guid.NewGuid()}";
+                // TODO find the highest used node id: not just in profile type definitions but also attributes, data types, engineering units etc., so this is insufficient
+                //var highestNodeId = this.Where(pd => pd.Profile.Namespace == model.Profile.Namespace, userToken).Data.OrderByDescending(pd => pd.OpcNodeId).FirstOrDefault();
+                //if (highestNodeId?.OpcNodeId != null && highestNodeId.OpcNodeId.StartsWith("i=") && int.TryParse(highestNodeId.OpcNodeId.Substring("i=".Length), out var nodeIdNumber))
+                //{
+                //    highestNodeId.OpcNodeId = $"i={nodeIdNumber+1}";
+                //}
+                //else
+                //{
+                //    model.OpcNodeId = "i=5000";
+                //}
+            }
             entity.OpcNodeId = model.OpcNodeId;
             entity.ProfileId = model.ProfileId != 0 ? model.ProfileId : null;
             if (model.Profile != null)
@@ -682,6 +696,10 @@
                     parentProfileEntity = CheckForExisting(model.Parent.ProfileTypeDefinition, userToken);
                     if (parentProfileEntity == null)
                     {
+                        parentProfileEntity = modelsProcessed.FirstOrDefault(me => me.Item1 == model.Parent.ProfileTypeDefinition).Item2 ?? null;
+                    }
+                    if (parentProfileEntity == null)
+                    {
                         this._diLogger.LogWarning($"Creating parent profile type {model.Parent.ProfileTypeDefinition} as side effect of creating {model}");
                         this.Add(model.Parent.ProfileTypeDefinition, userToken).Wait();
                         parentProfileEntity = CheckForExisting(model.Parent.ProfileTypeDefinition, userToken);
@@ -699,6 +717,11 @@
                     instanceParentEntity = CheckForExisting(model.InstanceParent, userToken);
                     if (instanceParentEntity == null)
                     {
+                        instanceParentEntity = modelsProcessed.FirstOrDefault(me => me.Item1 == model.InstanceParent).Item2 ?? null;
+                    }
+
+                    if (instanceParentEntity == null)
+                    {
                         this.Add(model.InstanceParent, userToken).Wait();
                         instanceParentEntity = CheckForExisting(model.InstanceParent, userToken);
                     }
@@ -713,7 +736,7 @@
             //favorite
             MapToEntityFavorite(ref entity, model, userToken);
 
-            MapToEntityProfileAttribute(ref entity, model.Attributes, userToken);
+            MapToEntityProfileAttribute(ref entity, model.Attributes, userToken, modelsProcessed);
             MapToEntityInterfaces(ref entity, model.Interfaces, userToken);
             MapToEntityCompositionsInternal(ref entity, model.Compositions, userToken, modelsProcessed);
             //MapToEntityCustomDataTypes(ref entity, model.CustomDataTypes, entity.UpdatedById);
@@ -734,7 +757,7 @@
             }
         }
 
-        protected void MapToEntityProfileAttribute(ref ProfileTypeDefinition entity, List<Models.ProfileAttributeModel> attributes, UserToken userToken)
+        protected void MapToEntityProfileAttribute(ref ProfileTypeDefinition entity, List<Models.ProfileAttributeModel> attributes, UserToken userToken, List<(ProfileTypeDefinitionModel, ProfileTypeDefinition)> modelsProcessed)
         {
             //init visit services for new scenario
             if (entity.Attributes == null) entity.Attributes = new List<ProfileAttribute>();
@@ -764,6 +787,10 @@
                         current.Name = source.Name;
                         current.BrowseName = source.BrowseName;
                         current.SymbolicName = source.SymbolicName;
+                        if (string.IsNullOrEmpty(source.OpcNodeId)/* && !string.IsNullOrEmpty(source...Profile?.Namespace)*/)
+                        {
+                            source.OpcNodeId = $"g={Guid.NewGuid()}";
+                        }
                         current.OpcNodeId = source.OpcNodeId;
                         current.Namespace = source.Namespace;
                         current.Description = source.Description;
@@ -792,6 +819,10 @@
                             if (variableType == null)
                             {
                                 variableType = CheckForExisting(source.VariableTypeDefinition, userToken);
+                                if (variableType == null)
+                                {
+                                    variableType = modelsProcessed.FirstOrDefault(me => me.Item1 == source.VariableTypeDefinition).Item2 ?? null;
+                                }
                                 if (variableType == null)
                                 {
                                     throw new Exception($"Unable to resolve {source.VariableTypeDefinition} in {source} ");
@@ -848,6 +879,11 @@
                         if (attr.VariableTypeDefinition != null)
                         {
                             variableType = CheckForExisting(attr.VariableTypeDefinition, userToken);
+                            if (variableType == null)
+                            {
+                                variableType = modelsProcessed.FirstOrDefault(me => me.Item1 == attr.VariableTypeDefinition).Item2 ?? null;
+                            }
+
                             if (variableType == null)
                             {
                                 this.Add(attr.VariableTypeDefinition, userToken).Wait();
@@ -977,9 +1013,9 @@
 
         protected void MapToEntityCompositions(ref ProfileTypeDefinition entity, List<ProfileTypeDefinitionRelatedModel> compositions, UserToken userToken)
         {
-            MapToEntityCompositionsInternal(ref entity, compositions, userToken, new List<ProfileTypeDefinitionModel>());
+            MapToEntityCompositionsInternal(ref entity, compositions, userToken, new List<(ProfileTypeDefinitionModel, ProfileTypeDefinition)>());
         }
-        void MapToEntityCompositionsInternal(ref ProfileTypeDefinition entity, List<ProfileTypeDefinitionRelatedModel> compositions, UserToken userToken, List<ProfileTypeDefinitionModel> modelsProcessed)
+        void MapToEntityCompositionsInternal(ref ProfileTypeDefinition entity, List<ProfileTypeDefinitionRelatedModel> compositions, UserToken userToken, List<(ProfileTypeDefinitionModel, ProfileTypeDefinition)> modelsProcessed)
         {
             //init compositions obj for new scenario
             if (entity.Compositions == null) entity.Compositions = new List<Data.Entities.ProfileComposition>();
@@ -1030,12 +1066,16 @@
         }
 
 
-        private void MapToEntityCompositionInternal(ref ProfileComposition composition, ProfileTypeDefinitionRelatedModel source, ProfileTypeDefinition parentEntity, List<ProfileTypeDefinitionModel> modelsProcessed, UserToken userToken)
+        private void MapToEntityCompositionInternal(ref ProfileComposition composition, ProfileTypeDefinitionRelatedModel source, ProfileTypeDefinition parentEntity, List<(ProfileTypeDefinitionModel, ProfileTypeDefinition)> modelsProcessed, UserToken userToken)
         {
             composition.CompositionId = source.RelatedProfileTypeDefinitionId; //should be same
             if (composition.Composition == null && source.RelatedProfileTypeDefinition != null)
             {
                 var profileTypeDef = CheckForExisting(source.RelatedProfileTypeDefinition, userToken);
+                if (profileTypeDef == null)
+                {
+                    profileTypeDef = modelsProcessed.FirstOrDefault(me => me.Item1 == source.RelatedProfileTypeDefinition).Item2 ?? null;
+                }
                 if (profileTypeDef == null)
                 {
                     this.Add(source.RelatedProfileTypeDefinition, userToken).Wait();
@@ -1064,6 +1104,10 @@
                 else
                 {
                     profileTypeDef = CheckForExisting(source.ProfileTypeDefinition, userToken);
+                    if (profileTypeDef == null)
+                    {
+                        profileTypeDef = modelsProcessed.FirstOrDefault(me => me.Item1 == source.ProfileTypeDefinition).Item2 ?? null;
+                    }
                     if (profileTypeDef == null)
                     {
                         throw new NotImplementedException("Profile must be added explicitly");

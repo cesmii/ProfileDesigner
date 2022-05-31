@@ -350,6 +350,7 @@ export function onChangeNumericKeysOnly(e) {
 //--------------------------------------------------------------------------
 export function cleanFileName(val) {
     if (val == null) return "";
+    val = val.toLowerCase();
     var result = val.trim().replace(" ", "_");
     result = result.replace('https://', '');
     result = result.replace('http://', '');
@@ -357,9 +358,13 @@ export function cleanFileName(val) {
     result = result.replaceAll('\\', '');
     result = result.replaceAll('<', '');
     result = result.replaceAll('>', '');
-    return result.replace(/^\./, '') + ".Nodeset2"; //trim off last period if present in result 
-}
 
+    //trim off last period if present in result
+    if (result.lastIndexOf('.') === result.length - 1) {
+        result = result.substring(0, result.length - 1);
+    }
+    return `${result}.nodeset2`;
+}
 
 export async function downloadFileJSON(data, fileName, fileExtension = 'json') {
     const json = JSON.stringify(data);

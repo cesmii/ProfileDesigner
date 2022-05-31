@@ -25,15 +25,13 @@ namespace CESMII.ProfileDesigner.Api.Controllers
     public class UserController : BaseController<UserController>
     {
         private readonly UserDAL _dal;
-        private readonly TokenUtils _tokenUtils;
         //private int _pageSize = 30;
 
         public UserController(UserDAL dal,
-            ConfigUtil config, TokenUtils tokenUtils, ILogger<UserController> logger)
+            ConfigUtil config, ILogger<UserController> logger)
             : base(config, logger)
         {
             _dal = dal;
-            _tokenUtils = tokenUtils;
         }
 
 

@@ -27,13 +27,13 @@
  * http://opcfoundation.org/License/MIT/1.00/
  * ======================================================================*/
 
-namespace Opc.Ua.CloudLib.Client
+namespace Opc.Ua.Cloud.Library.Client
 {
     using System;
     using System.Collections.Generic;
     using System.Globalization;
     using System.Linq;
-    using global::Opc.Ua.CloudLib.Client.Models;
+    using global::Opc.Ua.Cloud.Library.Client.Models;
 
     static class MetadataConverter
     {
@@ -119,6 +119,10 @@ namespace Opc.Ua.CloudLib.Client
         /// </summary>
         public static List<UANameSpace> ConvertWithPaging(List<UANodesetResult> infos, int limit = 10, int offset = 0)
         {
+            if (infos == null)
+            {
+                return null;
+            }
             List<UANameSpace> result = new List<UANameSpace>();
 
             if (limit == 0)
@@ -189,6 +193,11 @@ namespace Opc.Ua.CloudLib.Client
                 case "numdownloads":
                 {
                     nameSpace.NumberOfDownloads = System.Convert.ToUInt32(metadata.Value, CultureInfo.InvariantCulture);
+                    break;
+                }
+                case "validationstatus":
+                {
+                    nameSpace.ValidationStatus = metadata.Value;
                     break;
                 }
                 case "addressspacename":

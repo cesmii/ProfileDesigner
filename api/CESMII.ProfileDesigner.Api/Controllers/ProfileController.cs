@@ -277,8 +277,10 @@ namespace CESMII.ProfileDesigner.Api.Controllers
 
             //test for unique namespace/owner id/publish date combo
             if (_dal.Count(x => !x.ID.Equals(model.ID) && x.Namespace.ToLower().Equals(model.Namespace.ToLower()) &&
-                             x.OwnerId.HasValue && x.OwnerId.Value.Equals(User.GetUserID()) &&
-                            (!x.PublishDate.HasValue ? new DateTime(0) : x.PublishDate.Value.Date).Equals(!model.PublishDate.HasValue ? new DateTime(0) : model.PublishDate.Value.Date)
+                             x.OwnerId.HasValue && x.OwnerId.Value.Equals(User.GetUserID()) 
+                             && ((!model.PublishDate.HasValue && !x.PublishDate.HasValue)
+                                    || (model.PublishDate.HasValue && x.PublishDate.HasValue && model.PublishDate.Value.Equals(x.PublishDate.Value)))
+                            //&& (!x.PublishDate.HasValue ? new DateTime(0) : x.PublishDate.Value.Date).Equals(!model.PublishDate.HasValue ? new DateTime(0) : model.PublishDate.Value.Date)
                             , userToken) > 0)
             {
                 return Ok(new ResultMessageWithDataModel()

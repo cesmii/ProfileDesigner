@@ -27,13 +27,13 @@
  * http://opcfoundation.org/License/MIT/1.00/
  * ======================================================================*/
 
-namespace Opc.Ua.CloudLib.Client.Models
+namespace Opc.Ua.Cloud.Library.Client.Models
 {
     using Newtonsoft.Json;
 
-    /// <summary>GraphQL Result for datatype queries</summary>
-    [JsonObject("dataType")]
-    public class DataResult
+    /// <summary>GraphQL Result for reference queries</summary>
+    [JsonObject("referenceType")]
+    public class ReferenceResult
     {
         /// <summary>Gets or sets the identifier.</summary>
         /// <value>The identifier.</value>

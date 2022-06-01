@@ -5,17 +5,18 @@
  * Some contributions thanks to CESMII – the Smart Manufacturing Institute, 2022
  */
 
+using Opc.Ua.Cloud.Library.Client;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Opc.Ua.CloudLib.Client;
 
 namespace CESMII.OpcUa.NodeSetImporter
 {
-    public class UANodeSetCloudLibraryResolver : IUANodeSetResolver
+    public class UANodeSetCloudLibraryResolver : IUANodeSetResolverWithProgress
     {
         public class CloudLibraryOptions
         {
@@ -23,6 +24,12 @@ namespace CESMII.OpcUa.NodeSetImporter
             public string UserName { get; set; }
             public string Password { get; set; }
         }
+
+        public OnResolveNodeSets OnResolveNodeSets { get; set; }
+        public OnNodeSet OnDownloadNodeSet { get; set; }
+        public OnNodeSet OnNodeSetFound { get; set; }
+        public OnNodeSet OnNodeSetNotFound { get; set; }
+
         public UANodeSetCloudLibraryResolver(string strUserName, string strPassword)
         {
             _client = new UACloudLibClient(strUserName, strPassword);
@@ -51,33 +58,70 @@ namespace CESMII.OpcUa.NodeSetImporter
         {
             var downloadedNodeSets = new List<string>();
 
-            // TODO Is there an API to download matching nodeset directly via URI/PublicationDate? Should we push to add this?
-            var namespacesAndIds = await _client.GetNamespaceIdsAsync().ConfigureAwait(false);
-            if (namespacesAndIds != null)
-            {
-                var matchingNamespacesAndIds = namespacesAndIds.Where(nsid => missingModels.Any(m => m.ModelUri == nsid.Item1)).ToList();
-                var nodesetWithURIAndDate = new List<(string, DateTime, string)?>();
-                foreach (var nsid in matchingNamespacesAndIds)
-                {
-                    var nodeSet = await _client.DownloadNodesetAsync(nsid.Identifier).ConfigureAwait(false);
-                    nodesetWithURIAndDate.Add((
-                        nodeSet.Nodeset.NamespaceUri?.ToString() ?? nsid.NamespaceUri, // TODO cloud lib currently doesn't return the namespace uri: report issue/fix
-                        nodeSet.Nodeset.PublicationDate, 
-                        nodeSet.Nodeset.NodesetXml));
-                }
+            OnResolveNodeSets?.Invoke();
 
-                foreach (var missing in missingModels)
+            var nodesetWithURIAndDate = new List<(string NamespaceUri, DateTime? PublicationDate, string Identifier, string NodesetXml)?>();
+            try
+            {
+                // Attempt to use the new API first
+                foreach (var missingModel in missingModels)
                 {
-                    // Find exact match or lowest matching version
-                    var bestMatch = nodesetWithURIAndDate.FirstOrDefault(n => n?.Item1 == missing.ModelUri && n?.Item2 == missing.PublicationDate);
-                    if (bestMatch == null)
+                    var nodeSets = await _client.GetNodeSetDependencies(namespaceUri: missingModel.ModelUri).ConfigureAwait(false);
+                    foreach (var nodeSet in nodeSets)
                     {
-                        bestMatch = nodesetWithURIAndDate.Where(n => n?.Item1 == missing.ModelUri && n?.Item2 >= missing.PublicationDate).OrderBy(m => m?.Item2).FirstOrDefault();
+                        nodesetWithURIAndDate.Add((nodeSet.NamespaceUri.ToString(), nodeSet.PublicationDate, nodeSet.Identifier.ToString(CultureInfo.InvariantCulture), nodeSet.NodesetXml));
                     }
-                    if (bestMatch != null)
+                }
+            }
+            catch (Exception ex) // TODO more specific exception to detect if cloudlib doesn't support GetNodeSetDependencies
+            {
+                // Fall back to retrieving and downloading all matching namespaces
+                var namespacesAndIds = await _client.GetNamespaceIdsAsync().ConfigureAwait(false);
+                if (namespacesAndIds != null)
+                {
+                    var matchingNamespacesAndIds = namespacesAndIds.Where(nsid => missingModels.Any(m => m.ModelUri == nsid.Item1)).ToList();
+                    foreach (var nsid in matchingNamespacesAndIds)
                     {
-                        downloadedNodeSets.Add(bestMatch?.Item3);
+                        OnDownloadNodeSet?.Invoke(nsid.NamespaceUri, null);
+                        var nodeSet = await _client.DownloadNodesetAsync(nsid.Identifier).ConfigureAwait(false);
+                        nodesetWithURIAndDate.Add((
+                            nodeSet.Nodeset.NamespaceUri?.ToString() ?? nsid.NamespaceUri, // TODO cloud lib currently doesn't return the namespace uri: report issue/fix
+                            nodeSet.Nodeset.PublicationDate,
+                            (string) null,
+                            nodeSet.Nodeset.NodesetXml));
                     }
+                }
+            }
+            foreach (var missing in missingModels)
+            {
+                // Find exact match or lowest matching version
+                var bestMatch = nodesetWithURIAndDate.FirstOrDefault(n => n?.Item1 == missing.ModelUri && n?.Item2 == missing.PublicationDate);
+                if (bestMatch == null)
+                {
+                    bestMatch = nodesetWithURIAndDate.Where(n => n?.Item1 == missing.ModelUri && n?.Item2 >= missing.PublicationDate).OrderBy(m => m?.Item2).FirstOrDefault();
+                }
+                if (bestMatch != null)
+                {
+                    string nodesetXml = bestMatch.Value.NodesetXml;
+                    if (string.IsNullOrEmpty(nodesetXml) && !string.IsNullOrEmpty(bestMatch.Value.Identifier))
+                    {
+                        OnDownloadNodeSet?.Invoke(bestMatch?.NamespaceUri, bestMatch?.PublicationDate);
+                        var nodeSet = await _client.DownloadNodesetAsync(bestMatch?.Identifier).ConfigureAwait(false);
+                        nodesetXml = nodeSet.Nodeset.NodesetXml;
+                    }
+                    if (!string.IsNullOrEmpty(nodesetXml))
+                    {
+                        OnNodeSetFound?.Invoke(bestMatch?.NamespaceUri, bestMatch?.PublicationDate); 
+                        downloadedNodeSets.Add(nodesetXml);
+                    }
+                    else
+                    {
+                        OnNodeSetNotFound?.Invoke(missing.ModelVersion, missing.PublicationDate);
+                    }
+                }
+                else
+                {
+                    OnNodeSetNotFound?.Invoke(missing.ModelVersion, missing.PublicationDate);
                 }
             }
             return downloadedNodeSets;

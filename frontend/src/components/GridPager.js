@@ -168,8 +168,6 @@ function GridPager(props) { //(currentPage, pageSize, itemCount, onChangePage)
                 {toggleHTML}
                 <Dropdown.Menu>
                     {pageOptionsHTML}
-                    <Dropdown.Divider />
-                    <Dropdown.Item key="all" onSelect={() => onPageSizeSelect(null)} >Show all</Dropdown.Item>
                 </Dropdown.Menu>
             </Dropdown>
         )

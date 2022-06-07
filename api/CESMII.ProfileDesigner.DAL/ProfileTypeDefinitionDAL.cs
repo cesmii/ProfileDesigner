@@ -156,6 +156,8 @@
             {
                 query = query.Where(p).AsQueryable<ProfileTypeDefinition>();
             }
+            //filter out by user
+            query = query.Where(x => x.OwnerId == null || x.OwnerId == user.UserId).AsQueryable<ProfileTypeDefinition>();
 
             //append order bys
             if (orderByExpressions == null)

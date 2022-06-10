@@ -11,7 +11,6 @@
         /// </summary>
         public string[] FileList { get; set; }
 
-        //public LookupItemModel Status { get; set; }
         public TaskStatusEnum Status { get; set; }
 
         public string StatusName {
@@ -32,8 +31,6 @@
 
         public int OwnerId { get; set; }
 
-        //public UserSimpleModel Owner { get; set; }
-
         public bool IsActive { get; set; }
     }
 
@@ -49,8 +46,6 @@
     public class ImportProfileWarningModel : AbstractModel
     {
         public string Message { get; set; }
-
-        //public ProfileModel Profile { get; set; }
 
         public int ProfileId { get; set; }
 

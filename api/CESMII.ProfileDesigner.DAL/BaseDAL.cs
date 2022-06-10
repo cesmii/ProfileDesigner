@@ -62,7 +62,7 @@
             return MapToModels(result, verbose);
         }
 
-        public virtual DALResult<TModel> GetAllPaged(UserToken userToken, int? skip, int? take, bool returnCount = true, bool verbose = false)
+        public virtual DALResult<TModel> GetAllPaged(UserToken userToken, int? skip, int? take, bool returnCount = false, bool verbose = false)
         {
             var query = _repo.GetAll();
             var count = returnCount ? query.Count() : 0;

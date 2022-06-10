@@ -58,27 +58,8 @@
         Task<(int?, bool)> Upsert(TModel model, UserToken userId, bool updateExisting = true);
         Task<TModel> GetExistingAsync(TModel model, UserToken userId, bool cacheOnly = false);
 
-
-        /// <summary>
-        /// Add an entity synchronously
-        /// </summary>
-        /// <param name="model"></param>
-        /// <param name="userId"></param>
-        /// <returns></returns>
-        //int AddSync(TModel model, int userId);
-
-        /// <summary>
-        /// Update an entity synchronously
-        /// </summary>
-        /// <param name="model"></param>
-        /// <param name="userId"></param>
-        /// <returns></returns>
-        //int UpdateSync(TModel model, int userId);
-
-        //Task<long> Upsert(TModel model, int userId);
         Task<int?> Delete(int id, UserToken userId);
 
-        //Task<long> Upsert(TModel model, int userId);
         Task<int> DeleteMany(List<int> ids, UserToken userId);
 
         /// <summary>
@@ -119,12 +100,6 @@
         int Count(Expression<Func<TEntity, bool>> predicate, UserToken userToken);
         int Count(UserToken userToken);
 
-        /// <summary>
-        /// Gets one record by a given Expression
-        /// </summary>
-        /// <param name="predicate"></param>
-        /// <returns></returns>
-        //TModel GetByFunc(Expression<Func<TEntity, bool>> predicate, bool verbose);
         void StartTransaction();
         Task CommitTransactionAsync();
         void RollbackTransaction();

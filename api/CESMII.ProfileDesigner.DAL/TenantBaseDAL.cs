@@ -35,7 +35,7 @@
             return MapToModels(result, verbose);
         }
 
-        public override DALResult<TModel> GetAllPaged(UserToken userToken, int? skip, int? take, bool returnCount = true, bool verbose = false)
+        public override DALResult<TModel> GetAllPaged(UserToken userToken, int? skip, int? take, bool returnCount = false, bool verbose = false)
         {
             var query = _repo.FindByCondition(u => u.OwnerId == null || u.OwnerId == userToken.UserId);
             var count = returnCount ? query.Count() : 0;

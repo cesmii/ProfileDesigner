@@ -62,7 +62,7 @@
             return MapToModels(result, verbose);
         }
 
-        public virtual DALResult<TModel> GetAllPaged(UserToken userToken, int? skip, int? take, bool returnCount = true, bool verbose = false)
+        public virtual DALResult<TModel> GetAllPaged(UserToken userToken, int? skip, int? take, bool returnCount = false, bool verbose = false)
         {
             var query = _repo.GetAll();
             var count = returnCount ? query.Count() : 0;
@@ -70,7 +70,7 @@
             if (take.HasValue) query = query.Take(take.Value);
             DALResult<TModel> result = new DALResult<TModel>();
             result.Count = count;
-            result.Data = MapToModels(query.ToList());
+            result.Data = MapToModels(query.ToList(), verbose);
             result.SummaryData = null;
             return result;
         }

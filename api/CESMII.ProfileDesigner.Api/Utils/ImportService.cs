@@ -25,20 +25,18 @@ namespace CESMII.ProfileDesigner.Api.Utils
     public class ImportService
     {
         private readonly ILogger<ImportService> _logger;
-        private readonly BackgroundWorkerQueue _backgroundWorkerQueue;
         private readonly IServiceScopeFactory _serviceScopeFactory;
         private readonly IDal<ImportLog, ImportLogModel> _dalImportLog;
         private readonly IConfiguration _configuration;
         private readonly IUANodeSetResolverWithProgress _nodeSetResolver;
 
-        public ImportService(BackgroundWorkerQueue backgroundWorkerQueue, IServiceScopeFactory serviceScopeFactory,
+        public ImportService(IServiceScopeFactory serviceScopeFactory,
             IDal<ImportLog, ImportLogModel> dalImportLog,
             IUANodeSetResolverWithProgress cloudLibResolver,
             ILogger<ImportService> logger,
             IConfiguration configuration)
 
         {
-            _backgroundWorkerQueue = backgroundWorkerQueue;
             _logger = logger;
             _serviceScopeFactory = serviceScopeFactory;
             _dalImportLog = dalImportLog;
@@ -46,52 +44,8 @@ namespace CESMII.ProfileDesigner.Api.Utils
             _nodeSetResolver = cloudLibResolver;
         }
 
-        public async Task<int> CallSlowMethod(List<ImportOPCModel> nodeSetXmlList, UserToken userToken)
-        {
-            //create a start log item
-            var fileNames = string.Join(", ", nodeSetXmlList.Select(f => f.FileName).ToArray<string>());
-
-            //the rest of the fields are set in the dal
-            ImportLogModel logItem = new ImportLogModel()
-            {
-                FileList = nodeSetXmlList.Select(f => f.FileName).ToArray<string>(),
-                Messages = new List<ImportLogMessageModel>() {
-                    new ImportLogMessageModel() {
-                        Message = $"The import is processing for files {fileNames}..."
-                    }
-                }
-            };
-            var logId = await _dalImportLog.Add(logItem, userToken);
-
-            //slow task - kick off in background
-            //_backgroundWorkerQueue.QueueBackgroundWorkItem(async token =>
-            _ = Task.Run(async () =>
-            {
-                //wrap in scope so that we don't lose the scope of the dependency injected objects once the 
-                //web api request completes and disposes of the import service object (and its module vars)
-                using (var scope = _serviceScopeFactory.CreateScope())
-                {
-                    var dalImportLog = scope.ServiceProvider.GetService<IDal<ImportLog, ImportLogModel>>();
-                    await Task.Delay(20000);
-                    //await Task.Delay(5000);
-                    //completed message
-                    var logItem = dalImportLog.GetById(logId.Value, userToken);
-                    logItem.Status = TaskStatusEnum.Completed;
-                    logItem.Completed = DateTime.UtcNow;
-                    logItem.Messages.Add(new ImportLogMessageModel() { Message = "Completed" });
-                    await dalImportLog.Update(logItem, userToken);
-                }
-            });
-
-            //return result async
-            return logId.Value;
-        }
-
         public async Task<int> ImportOpcUaNodeSet(List<ImportOPCModel> nodeSetXmlList, UserToken userToken)
         {
-            //create a start log item
-            var fileNames = string.Join(", ", nodeSetXmlList.Select(f => f.FileName).ToArray<string>());
-
             //the rest of the fields are set in the dal
             ImportLogModel logItem = new ImportLogModel()
             {
@@ -107,7 +61,6 @@ namespace CESMII.ProfileDesigner.Api.Utils
             Task backgroundTask = null;
 
             //slow task - kick off in background
-            //_backgroundWorkerQueue.QueueBackgroundWorkItem(async token =>
             _ = Task.Run(async () =>
             {
                 //kick off the importer
@@ -121,6 +74,9 @@ namespace CESMII.ProfileDesigner.Api.Utils
                 catch (Exception ex)
                 {
                     _logger.LogError(new EventId(), ex, "Unhandled exception in background importer.");
+                    //update import log to indicate unexpected failure
+                    var dalImportLog = GetImportLogDalIsolated();
+                    CreateImportLogMessage(dalImportLog, logId.Value, userToken, "Unhandled exception in background importer.", TaskStatusEnum.Failed);
                 }
             });
 
@@ -242,9 +198,7 @@ namespace CESMII.ProfileDesigner.Api.Utils
                             await CreateImportLogMessage(dalImportLog, logId, userToken, resultSet.ErrorMessage.ToLower() + $"<br/>{filesImportedMsg}", TaskStatusEnum.Failed);
                             return;
                         }
-
-                        //if (myNodeSetCache == null || myNodeSetCache.GetType() != typeof(OPCUANodeSetHelpers.UANodeSetFileCache))
-                        {
+                        //{ 
                             foreach (var tmodel in resultSet.Models)
                             {
                                 var nsModel = tmodel.NameVersion.CCacheId as NodeSetFileModel;
@@ -268,7 +222,7 @@ namespace CESMII.ProfileDesigner.Api.Utils
                                 {
                                     profile.NodeSetFiles = new List<NodeSetFileModel>();
                                 }
-                                if (!profile.NodeSetFiles.Where(m => m.FileName == nsModel.FileName && m.PublicationDate == nsModel.PublicationDate).Any())
+                                if (!profile.NodeSetFiles.Any(m => m.FileName == nsModel.FileName && m.PublicationDate == nsModel.PublicationDate))
                                 {
                                     profile.NodeSetFiles.Add(nsModel);
                                 }
@@ -278,8 +232,7 @@ namespace CESMII.ProfileDesigner.Api.Utils
                                     NodeSetModel = tmodel,
                                 });
                             }
-                        }
-
+                        //}
                         await CreateImportLogMessage(dalImportLog, logId, userToken, $"Nodeset files validated.<br/>{filesImportedMsg}", TaskStatusEnum.InProgress);
                     }
                     catch (Exception e)
@@ -303,9 +256,8 @@ namespace CESMII.ProfileDesigner.Api.Utils
 
                         Dictionary<string, ProfileTypeDefinitionModel> profileItems = new Dictionary<string, ProfileTypeDefinitionModel>();
 
-                        int? result = 0;
+                        //CodeSmell:Remove: int? result = 0;
                         // TODO Expose in the UI? Feedback from Jonathan if this option is interesting
-                        bool requiredTypesOnly = userToken != null; // Only import profiles for types actually used by the node set
                         Task primeEFCacheTask = null;
                         var startEFCache = sw.Elapsed;
                         if (true)
@@ -367,22 +319,17 @@ namespace CESMII.ProfileDesigner.Api.Utils
                                     {
                                         nodesetWarnings.Add(new WarningsByNodeSet()
                                         { ProfileId = profileAndNodeSet.Profile.ID.Value, Key = profileAndNodeSet.Profile.ToString(), Warnings = logList });
-                                        //nodesetWarnings[profileAndNodeSet.Profile.ToString()] = logList;
                                     }
                                 }
                             }
                         }
 
-                        if (profileItems.Any())
-                        {
-                            result = profileItems.Last().Value.ID;
-                        }
-                        //foreach(var profileItem in profileItems)
-                        //{
-                        //    result = await ImportInternalAsync(profileItem);
-                        //}
+                        //CodeSmell:Remove:if (profileItems.Any())
+                        //CodeSmell:Remove:{
+                        //CodeSmell:Remove:    result = profileItems.Last().Value.ID;
+                        //CodeSmell:Remove:}
 
-                        result = 1; // TOD: OPC imported profiles don't get a profiletype when being read back for some reason
+                        //CodeSmell:Remove: result = 1; // TOD: OPC imported profiles don't get a profiletype when being read back for some reason
                         sw.Stop();
                         var elapsed = sw.Elapsed;
                         var elapsedMsg = $"{ elapsed.Minutes }:{ elapsed.Seconds} (min:sec)";
@@ -404,7 +351,6 @@ namespace CESMII.ProfileDesigner.Api.Utils
                         dalProfile.RollbackTransaction();
                         var message = e.InnerException != null ? e.InnerException.Message : e.Message;
                         await CreateImportLogMessage(GetImportLogDalIsolated(), logId, userToken, $"An error occurred during the import: {message}.<br/>{filesImportedMsg}", TaskStatusEnum.Failed);
-                        //return;
                     }
                 }
                 catch (Exception ex)
@@ -412,7 +358,6 @@ namespace CESMII.ProfileDesigner.Api.Utils
                     _logger.LogCritical($"ImportId:{logId}||ImportOpcUaNodeSet error", ex);
                     dalProfile.RollbackTransaction();
                     await CreateImportLogMessage(GetImportLogDalIsolated(), logId, userToken, $"An error occurred during the import: {ex.Message}.<br/>{filesImportedMsg}", TaskStatusEnum.Failed);
-                    //return;
                 }
 
                 //handle import warnings. Save to DB for each nodeset / profile.
@@ -424,8 +369,6 @@ namespace CESMII.ProfileDesigner.Api.Utils
                         //save each nodesets warnings to the DB...for display upon export
                         //don't show a warning message on the import ui at this point.
                         await CreateImportLogWarnings(dalImportLog, logId, warningList, userToken);
-                        //var msgCount = warningList.Warnings.Count == 1 ? "There is 1 warning." : $"There are {warningList.Warnings.Count} warnings.";
-                        //filesImportedMsg += $"\r\nWarning: Some data in nodeset {warningList.Key} is not supported by this editor and will be lost if exported. {msgCount}";
                     }
                 }
                 catch (Exception ex)
@@ -484,13 +427,13 @@ namespace CESMII.ProfileDesigner.Api.Utils
             await dalImportLog.Update(logItem, userToken);
         }
 
-        private class ProfileModelAndNodeSet
+        private sealed class ProfileModelAndNodeSet
         {
             public ProfileModel Profile { get; set; }
             public ModelValue NodeSetModel { get; set; }
         }
 
-        private class WarningsByNodeSet
+        private sealed class WarningsByNodeSet
         {
             public int ProfileId { get; set; }
             public string Key { get; set; }

@@ -73,7 +73,7 @@ namespace CESMII.OpcUa.NodeSetImporter
                     }
                 }
             }
-            catch (Exception ex) // TODO more specific exception to detect if cloudlib doesn't support GetNodeSetDependencies
+            catch (Exception) // TODO more specific exception to detect if cloudlib doesn't support GetNodeSetDependencies
             {
                 // Fall back to retrieving and downloading all matching namespaces
                 var namespacesAndIds = await _client.GetNamespaceIdsAsync().ConfigureAwait(false);

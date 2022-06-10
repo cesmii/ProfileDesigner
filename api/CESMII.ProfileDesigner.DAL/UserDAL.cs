@@ -40,7 +40,7 @@
             //generate random password and then encrypt in here. 
             var password = PasswordUtils.GenerateRandomPassword(_configUtil.PasswordConfigSettings.RandomPasswordLength);
 
-            User entity = new User
+            var entity = new User
             {
                 ID = null
                 ,Created = DateTime.UtcNow
@@ -71,7 +71,7 @@
         //add this layer so we can instantiate the new entity here.
         public async Task<int?> AddOneStep(UserModel model, UserToken userToken, string password)
         {
-            User entity = new User
+            var entity = new User
             {
                 ID = null
                 ,Created = DateTime.UtcNow
@@ -115,8 +115,7 @@
             if (result == null) return null;
 
             //test against our encryption, means we match 
-            bool updateEncryptionLevel = false;
-            if (PasswordUtils.ValidatePassword(_configUtil.PasswordConfigSettings.EncryptionSettings, result.Password, password, out updateEncryptionLevel))
+            if (PasswordUtils.ValidatePassword(_configUtil.PasswordConfigSettings.EncryptionSettings, result.Password, password, out bool updateEncryptionLevel))
             {
                 //if the encryption level has been upgraded since original encryption, upgrade their pw now. 
                 if (updateEncryptionLevel)
@@ -146,7 +145,6 @@
                 .Include(p => p.UserPermissions)
                 .FirstOrDefault();
             if (result == null) return;
-            //if (result == null) return null;
 
             //only allow completing registration if NOT already completed
             if (result.RegistrationComplete.HasValue)
@@ -163,7 +161,6 @@
             result.RegistrationComplete = DateTime.UtcNow;
             await _repo.UpdateAsync(result);
             await _repo.SaveChanges();
-            //return this.MapToModel(result);
         }
 
         /// <summary>
@@ -249,10 +246,12 @@
             else if (take.HasValue) data = query.Take(take.Value);
             else data = query;
 
-            DALResult<UserModel> result = new DALResult<UserModel>();
-            result.Count = count;
-            result.Data = MapToModels(data.ToList(), verbose);
-            result.SummaryData = null;
+            var result = new DALResult<UserModel>
+            {
+                Count = count,
+                Data = MapToModels(data.ToList(), verbose),
+                SummaryData = null
+            };
             return result;
         }
 
@@ -284,24 +283,6 @@
                     .OrderByDescending(u => u.IsActive).ThenBy(u => u.LastName).ThenBy(u => u.FirstName).ThenBy(u => u.UserName)
                     //.Where(u => u.IsActive)  //TBD - ok to return inactive in the list of users?
                     .Include(u => u.UserPermissions));
-            //var query = _repo.FindByCondition(predicate)
-            //    .OrderBy(u => u.LastName).ThenBy(u => u.FirstName).ThenBy(u => u.UserName)
-            //    //.Where(u => u.IsActive)  //TBD - ok to return inactive in the list of users?
-            //    .Include(u => u.UserPermissions);
-            //var count = returnCount ? query.Count() : 0;
-            ////query returns IincludableQuery. Jump through the following to find right combo of skip and take
-            ////Goal is to have the query execute and not do in memory skip/take
-            //IQueryable<User> data;
-            //if (skip.HasValue && take.HasValue) data = query.Skip(skip.Value).Take(take.Value);
-            //else if (skip.HasValue) data = query.Skip(skip.Value);
-            //else if (take.HasValue) data = query.Take(take.Value);
-            //else data = query;
-
-            //DALResult<UserModel> result = new DALResult<UserModel>();
-            //result.Count = count;
-            //result.Data = MapToModels(data.ToList(), verbose);
-            //result.SummaryData = null;
-            //return result;
         }
 
         public override async Task<int?> Update(UserModel item, UserToken userToken)
@@ -332,7 +313,7 @@
         }
 
 
-        protected override UserModel MapToModel(User entity, bool verbose = false)
+        protected override UserModel MapToModel(User entity, bool verbose = true)
         {
             if (entity != null)
             {
@@ -367,7 +348,6 @@
             entity.LastName = model.LastName;
             entity.IsActive = model.IsActive;
             entity.OrganizationId = model.Organization == null ? null : model.Organization.ID;
-            //entity.LastLogin = model.LastLogin;
 
             //handle update of user permissions
             MapToEntityPermissions(ref entity, model.PermissionIds);

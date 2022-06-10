@@ -51,7 +51,6 @@
         //[Range(1, Int32.MaxValue, ErrorMessage = "Required")]
         public int? ProfileId { get; set;}
 
-        //TODO: CM:Not good practice to name a field like a class...can we find another name here for "Profile"?
         public ProfileModel Profile{ get; set; }
 
         public string Description { get; set; }
@@ -69,8 +68,6 @@
 
         public LookupItemModel Type { get; set; }
 
-        //[Range(1, Int32.MaxValue, ErrorMessage = "Required")]
-        //public int AuthorId { get; set; }
         public int? AuthorId { get; set; }
 
         public UserSimpleModel Author { get; set; }

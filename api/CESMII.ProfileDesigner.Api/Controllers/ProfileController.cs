@@ -123,13 +123,10 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             if (string.IsNullOrEmpty(model.Query))
             {
                 return Ok(_dal.GetAllPaged(userId, model.Skip, model.Take, true));
-                //return Ok(_dal.Where(s => s.StandardProfileID.HasValue, // && (!s.AuthorId.HasValue || s.AuthorId.Value.Equals(userId)),
-                //                userId, model.Skip, model.Take, true));
             }
 
             //search on some pre-determined fields
             model.Query = model.Query.ToLower();
-            //var result = _dal.Where(s => s.StandardProfileID.HasValue && (!s.AuthorId.HasValue || s.AuthorId.Value.Equals(userId)) && 
             var result = _dal.Where(s =>
                             //string query section
                             s.Namespace.ToLower().Contains(model.Query),
@@ -148,7 +145,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         public IActionResult GetCounts()
         {
             var userToken = UserExtension.DalUserToken(User);
-            var all = _dal.Count(s => s.StandardProfileID.HasValue, userToken);// && (!s.AuthorId.HasValue || s.AuthorId.Value.Equals(userId)));
+            var all = _dal.Count(s => s.StandardProfileID.HasValue, userToken);
             var mine = _dal.Count(s => !s.StandardProfileID.HasValue && s.AuthorId.HasValue && s.AuthorId.Value.Equals(userToken.UserId), userToken);
             return Ok(new ProfileCountModel() { All = all, Mine = mine });
         }
@@ -439,29 +436,6 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             //return success message object
             return Task.FromResult<IActionResult>(Ok(new ResultMessageModel() { IsSuccess = true, Message = "Item was deleted." }));
         }
-
-        #region Slow Process Example
-        [HttpPost, Route("Import/Slow")]
-        [Authorize(Policy = nameof(PermissionEnum.CanManageProfile))]
-        [ProducesResponseType(200, Type = typeof(ResultMessageWithDataModel))]
-        public async Task<IActionResult> ImportSlow([FromBody] List<ImportOPCModel> model, [FromServices] OpcUaImporter importer)
-        {
-            _logger.LogInformation($"ImportLogController|Import/Slow.");
-
-            var userToken = UserExtension.DalUserToken(User);
-
-            var logId = await _svcImport.CallSlowMethod(model, userToken);
-
-            return Ok(
-                new ResultMessageWithDataModel()
-                {
-                    IsSuccess = true,
-                    Message = "Import is processing...",
-                    Data = logId
-                }
-            );
-        }
-        #endregion
 
         /// <summary>
         /// Import OPC UA nodeset uploaded by front end. There may be multiple files being uploaded. 

@@ -4,7 +4,7 @@ import axiosInstance from '../services/AxiosService'
 import { useLoadingContext } from "./contexts/LoadingContext";
 import { useAuthState } from './authentication/AuthContext';
 import { generateLogMessageString, getTypeDefIconName } from '../utils/UtilityService';
-import { getProfilePreferences } from '../services/ProfileService';
+import { getTypeDefPreferences } from '../services/ProfileService';
 
 const CLASS_NAME = "OnLookupLoad";
 
@@ -83,7 +83,7 @@ export const OnLookupLoad = () => {
                 if (result.status === 200) {
 
                     //init the page size value
-                    result.data.take = getProfilePreferences().pageSize;
+                    result.data.take = getTypeDefPreferences().pageSize;
 
                     //set the data in local storage
                     setLoadingProps({

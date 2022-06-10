@@ -8,10 +8,10 @@
 	Install npm (version > 5.6) - https://www.npmjs.com/ (note I just upgraded to 7.17 =>  npm install -g npm)
 </li>
 <li>
-	React - https://reactjs.org/
+	React - https://reactjs.org/ - First time React users, install React using create-react-app from a node.js command prompt, a tool that installs all of the dependencies to build and run a full React.js application.
 </li>
 <li>
-	.NET Core 5.0.9, Visual Studio 2019 or equivalent
+	.NET Core 6.0.x, Visual Studio 2022 or equivalent
 </li>
 <li>
 	DB - Install PostgreSQL
@@ -63,7 +63,7 @@
 	</p>
 </li>
 <li>
-	<b>Build/Run the back end API (.NET 5 Solution): </b>
+	<b>Build/Run the back end API (.NET 6 Solution): </b>
 	<p>
 		Standard .NET build and run. 
 	</p>
@@ -76,9 +76,9 @@
 		- Create local DB (see AppSettings.json for database name.)
 		- Open the Query Tool (Tools menu)
 		- Open the CESMII-Profile-Designer\sql\CESMII.ProfileDesigner.DB.sql file
-		- Create the cesmii-dev role/login and the database (comment out everything except the create role and create database sections and run the script)
+		- Create the cesmii role/login and the database (comment out everything except the create role and create database sections and run the script)
 		- Open a query tool on the newly created database and run the rest of the script
-		- Change the password on the cesmii-dev login to match the one in the appsettings.development.json file.
+		- Change the password on the cesmii login to match the one in the appsettings.development.json file.
 	</p>
 </li>
 </ol>

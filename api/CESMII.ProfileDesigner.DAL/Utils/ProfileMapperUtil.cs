@@ -43,7 +43,7 @@ namespace CESMII.ProfileDesigner.DAL.Utils
         public List<ProfileTypeDefinitionSimpleModel> GenerateAncestoryLineage(ProfileTypeDefinitionModel profile, UserToken userToken)
         {
             //navigate up the inheritance tree until the root. 
-            List<ProfileTypeDefinitionSimpleModel> result = new List<ProfileTypeDefinitionSimpleModel>();
+            var result = new List<ProfileTypeDefinitionSimpleModel>();
             int counter = 0;
             var ancestor = profile;
             while (ancestor != null)
@@ -56,7 +56,7 @@ namespace CESMII.ProfileDesigner.DAL.Utils
             return result.OrderBy(p => p.Level).ThenBy(p => p.Name).ToList();
         }
 
-        public static List<int?> ExcludedProfileTypes = new List<int?> { (int)ProfileItemTypeEnum.Object, (int)ProfileItemTypeEnum.Method, };
+        public readonly static List<int?> ExcludedProfileTypes = new List<int?> { (int)ProfileItemTypeEnum.Object, (int)ProfileItemTypeEnum.Method, };
 
         /// <summary>
         /// A nested representation of the profile's place relative to its ancestors and siblings
@@ -111,7 +111,7 @@ namespace CESMII.ProfileDesigner.DAL.Utils
                     .Select(s => MapToModelProfileAncestory(s, 1));
 
                 if (lineage.Count == 1) result = result.Concat(siblings).ToList();
-                else
+                else if (finalParent != null)
                 {
                     //append siblings to final parent
                     finalParent.Children = finalParent.Children.Concat(siblings).ToList();
@@ -127,10 +127,11 @@ namespace CESMII.ProfileDesigner.DAL.Utils
         /// <returns></returns>
         public List<ProfileTypeDefinitionSimpleModel> GenerateDependencies(ProfileTypeDefinitionModel profile, UserToken userToken)
         {
+            //TODO: Investigate performance on this method.
             //find all descendants that may be related...go n levels deep
             var result = new List<ProfileTypeDefinitionSimpleModel>();
             BuildDescendantsTree(ref result, profile.ID, 1, userToken);
-            var count = result.Count();
+            var count = result.Count;
 
             //find compositions, variable types which depend on this profile
             var dependencies = _dal.Where(p => !ProfileMapperUtil.ExcludedProfileTypes.Contains(p.ProfileTypeId) /*p.ProfileTypeId != (int)ProfileItemTypeEnum.Object*/ &&
@@ -156,8 +157,8 @@ namespace CESMII.ProfileDesigner.DAL.Utils
             //add the current set of children
             var children = _dal.Where(p => p.ParentId.Equals(parentId.Value) && !ProfileMapperUtil.ExcludedProfileTypes.Contains(p.ProfileTypeId) /*p.ProfileTypeId != (int)ProfileItemTypeEnum.Object*/, userToken, null, null, false).Data
                 .Select(s => MapToModelProfileAncestory(s, level));
-            if (children.Count() == 0) return;
-            descendants.Concat(children);
+            if (!children.Any()) return;
+            //CodeSmell:Remove: descendants.Union(children).ToList();
 
             //add grandchildren and their children recusive...
             level++;
@@ -177,11 +178,9 @@ namespace CESMII.ProfileDesigner.DAL.Utils
         {
             //navigate up the inheritance tree until the root. 
             List<ProfileAttributeModel> result = new List<ProfileAttributeModel>();
-            //List<ProfileItemSimpleModel> lineage = new List<ProfileItemSimpleModel>();
             var ancestor = profile;
             while (ancestor != null)
             {
-                //lineage.Add(MapToModelProfileSimple(ancestor));
                 ancestor = ancestor.Parent?.ID == null ? null : _dal.GetById(ancestor.Parent.ID.Value, userToken);
                 //note we don't get the attribs from the current profile. They are not "extended". 
                 if (ancestor != null && ancestor.Attributes != null)
@@ -210,35 +209,23 @@ namespace CESMII.ProfileDesigner.DAL.Utils
         public List<int> GetPopularItems(UserToken userToken)
         {
             //build list of where clauses
-            List<Expression<Func<ProfileTypeDefinition, bool>>> predicate = new List<Expression<Func<ProfileTypeDefinition, bool>>>();
-            var paramExpr = Expression.Parameter(typeof(ProfileTypeDefinition), "x");
+            List<Expression<Func<ProfileTypeDefinition, bool>>> predicate = new();
 
             //Part 0 - Always exclude some types that are behind the scenes type
             predicate.Add(x => !ProfileMapperUtil.ExcludedProfileTypes.Contains(x.ProfileTypeId));
             predicate.Add(x => x.Favorite != null || x.Analytics != null);
 
             //build list of order bys - is favorites true first, then the manual ranking, then extend count, then page visit count
-            var obes = new List<OrderByExpression<ProfileTypeDefinition>>();
-            obes.Add(new OrderByExpression<ProfileTypeDefinition>() { Expression = x => x.Favorite == null || !x.Favorite.IsFavorite ? 0 : 1, IsDescending = true });
-            obes.Add(new OrderByExpression<ProfileTypeDefinition>() { Expression = x => x.Analytics == null ? 0 : x.Analytics.ManualRank, IsDescending = true });
-            obes.Add(new OrderByExpression<ProfileTypeDefinition>() { Expression = x => x.Analytics == null ? 0 : x.Analytics.ExtendCount, IsDescending = true });
-            obes.Add(new OrderByExpression<ProfileTypeDefinition>() { Expression = x => x.Analytics == null ? 0 : x.Analytics.PageVisitCount, IsDescending = true });
+            var obes = new List<OrderByExpression<ProfileTypeDefinition>>
+            {
+                new OrderByExpression<ProfileTypeDefinition>() { Expression = x => x.Favorite == null || !x.Favorite.IsFavorite ? 0 : 1, IsDescending = true },
+                new OrderByExpression<ProfileTypeDefinition>() { Expression = x => x.Analytics == null ? 0 : x.Analytics.ManualRank, IsDescending = true },
+                new OrderByExpression<ProfileTypeDefinition>() { Expression = x => x.Analytics == null ? 0 : x.Analytics.ExtendCount, IsDescending = true },
+                new OrderByExpression<ProfileTypeDefinition>() { Expression = x => x.Analytics == null ? 0 : x.Analytics.PageVisitCount, IsDescending = true }
+            };
 
             return _dal.Where(predicate, userToken, null, 30, false, false, obes.ToArray()).Data
                 .OrderByDescending(x => x.PopularityIndex).Select(x => x.ID.Value).Take(30).ToList();
-
-            //var matches = _dal.Where(x => 
-            //        x.Favorite != null ||
-            //        (x.Analytics != null && (x.Analytics.ExtendCount + x.Analytics.PageVisitCount) > 0), userToken, null, null, false, false).Data;
-            //var matches = _dal.Where(x => x.Favorite != null && x.Analytics != null, userToken, null, null, false, false).Data;
-
-            //if (matches == null)
-            //{
-            //    return new List<int>();
-            //}
-
-            ////trim down list
-            //return matches.OrderByDescending(x => x.PopularityIndex).Select(x => x.ID.Value).Take(30).ToList();
         }
 
         public List<OrderByExpression<ProfileTypeDefinition>> BuildSearchOrderByExpressions(int userId, SearchCriteriaSortByEnum val = SearchCriteriaSortByEnum.Name)
@@ -314,12 +301,6 @@ namespace CESMII.ProfileDesigner.DAL.Utils
             //add parent to dependencies list manually
             finalDependencies.Add(parent.ID);
 
-            ////now return the profiles that are NOT an ancestor or a dependency.
-            //var items = _dal.Where(p => !finalDependencies.Contains(p.ID) &&
-            //        !p.ID.Equals(parent.ID) &&
-            //         p.ProfileType.ID.Equals(parent.Type.ID), userToken, null, null, false); //only get items of same profile type
-
-            //return MapToModelProfileSimpleList(items.Data);
             //compositions can only derive from BaseObjectType - get BaseObjectType profile's dependencies and trim down the
             //list of the compositions if any of these are in the final dependencies list
             var compRoot = _dal.GetByFunc(
@@ -329,7 +310,6 @@ namespace CESMII.ProfileDesigner.DAL.Utils
 
             return eligibleComps.Where(p => !finalDependencies.Contains(p.ID) &&
                 !p.ID.Equals(parent.ID)).ToList();
-            //&& p.ProfileType.ID.Equals(parent.Type.ID), userToken, null, null, false).Data; //only get items of same profile type
         }
 
         /// <summary>
@@ -394,7 +374,6 @@ namespace CESMII.ProfileDesigner.DAL.Utils
                     ID = item.ID,
                     Name = item.Name,
                     BrowseName = item.BrowseName,
-                    /*Namespace = item.Profile.Namespace,*/
                     Profile = new ProfileModel() { ID = item.Profile.ID, Namespace = item.Profile.Namespace, Version = item.Profile.Version },
                     Description = item.Description,
                     Type = item.Type,
@@ -433,7 +412,7 @@ namespace CESMII.ProfileDesigner.DAL.Utils
                     Profile = item.Profile,
                     ProfileTypeDefinition = item,
                     Description = item.Description,
-                    Type = item.Type != null ? item.Type : new LookupItemModel { ID = item.TypeId, LookupType = LookupTypeEnum.ProfileType },
+                    Type = item.Type ?? new LookupItemModel { ID = item.TypeId, LookupType = LookupTypeEnum.ProfileType },
                     Author = item.Author,
                     OpcNodeId = item.OpcNodeId,
                     IsAbstract = item.IsAbstract,
@@ -484,9 +463,8 @@ namespace CESMII.ProfileDesigner.DAL.Utils
         /// <returns></returns>
         public List<ProfileAttributeModel> MergeProfileAttributes(ProfileTypeDefinitionModel item)
         {
-            var result = item.Attributes == null ? new List<ProfileAttributeModel>() : item.Attributes;
+            var result = item.Attributes ?? new List<ProfileAttributeModel>();
             result = result.Concat(MapCompositionsToProfileAttributeModels(item)).ToList();
-            //result = result.Concat(MapCustomDataTypesToProfileAttributeModels(item)).ToList();
 
             //trim down where comparable item is in the parent (match on name, data type id, attribute type id, browse name)
             //for now, we trim out the profile attribute and leave extended so we get the read-only ui
@@ -546,40 +524,6 @@ namespace CESMII.ProfileDesigner.DAL.Utils
             }
             return result;
         }
-
-        /// <summary>
-        /// For a given profile, map the custom data type attributes to a unified model
-        /// structure (ProfileAttributeModel) that can be used downstream when merging 
-        /// all sttributes into a single collection. This will add some data to distinguish
-        /// these as custom data type attributes. 
-        /// </summary>
-        /// <param name="item"></param>
-        /// <returns></returns>
-        //[System.Obsolete("This is going away. TBD - Remove once we cut over custom data types.")]
-        //protected List<ProfileAttributeModel> MapCustomDataTypesToProfileAttributeModels(ProfileItemModel item)
-        //{
-        //    var result = new List<ProfileAttributeModel>();
-        //    if (item == null || item.CustomDataTypes == null) return result;
-
-        //    //get lookup data type for custom data type
-        //    var dataTypeCustom = _dalDataType.Where(x => x.Code.ToLower().Equals("customdatatype"), null, null).Data.FirstOrDefault();
-
-        //    foreach (var cdt in item.CustomDataTypes)
-        //    {
-        //        result.Add(new ProfileAttributeModel
-        //        {
-        //            CustomDataType = cdt,
-        //            CustomDataTypeId = cdt.RelatedId,
-        //            ID = cdt.ID,
-        //            Name = cdt.Name,
-        //            Description = cdt.Description,
-        //            ProfileId = item.ID,
-        //            TypeId = dataTypeCustom.ID,
-        //            DataType = dataTypeCustom
-        //        });
-        //    }
-        //    return result;
-        //}
 
         /// <summary>
         /// For each interface associated with the profile, append the interface attribute into the 
@@ -653,33 +597,6 @@ namespace CESMII.ProfileDesigner.DAL.Utils
             return result;
         }
 
-
-        ///// <summary>
-        ///// Take a list of attributes returned by front end and find the ones which are custom data types. Split those out 
-        ///// into a collection that the dal and DB is expecting.
-        ///// </summary>
-        ///// <param name="customDataTypes"></param>
-        ///// <returns></returns>
-        //public List<ProfileItemRelatedModel> MapProfileAttributeToCustomDataTypeModels(List<ProfileAttributeModel> customDataTypes)
-        //{
-        //    var result = new List<ProfileItemRelatedModel>();
-        //    if (customDataTypes == null || customDataTypes.Count == 0) return result;
-
-        //    foreach (var a in customDataTypes)
-        //    {
-        //        result.Add(new ProfileItemRelatedModel
-        //        {
-        //            ID = a.ID,
-        //            RelatedId = a.CustomDataTypeId.Value,
-        //            Name = a.Name,
-        //            Description = a.Description,
-        //            RelatedName = a.CustomDataType.Name,
-        //            RelatedDescription = a.CustomDataType.Description,
-        //            Author = a.CustomDataType.Author
-        //        });
-        //    }
-        //    return result;
-        //}
         #endregion
 
         #region Mapping MODEL(s) to ENTITY(s) Methods

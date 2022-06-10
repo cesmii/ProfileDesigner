@@ -37,8 +37,8 @@ namespace CESMII.ProfileDesigner.Api
 {
     public class Startup
     {
-        private string _corsPolicyName = "SiteCorsPolicy";
-        private string _version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
+        private readonly string _corsPolicyName = "SiteCorsPolicy";
+        private readonly string _version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
 
         public Startup(IConfiguration configuration)
         {
@@ -73,7 +73,6 @@ namespace CESMII.ProfileDesigner.Api
             services.AddScoped<IRepository<ImportLog>, BaseRepo<ImportLog, ProfileDesignerPgContext>>();
             services.AddScoped<IRepository<ProfileTypeDefinitionAnalytic>, BaseRepo<ProfileTypeDefinitionAnalytic, ProfileDesignerPgContext>>();
             services.AddScoped<IRepository<ProfileTypeDefinitionFavorite>, BaseRepo<ProfileTypeDefinitionFavorite, ProfileDesignerPgContext>>();
-            //services.AddScoped<IRepository<ImportLogMessage>, BaseRepo<ImportLogMessage, ProfileDesignerPgContext>>();
 
             //NodeSet Related Tables
             services.AddScoped<IRepository<StandardNodeSet>, BaseRepo<StandardNodeSet, ProfileDesignerPgContext>>();
@@ -81,7 +80,6 @@ namespace CESMII.ProfileDesigner.Api
             services.AddScoped<IRepository<NodeSetFile>, BaseRepo<NodeSetFile, ProfileDesignerPgContext>>();
 
             //stock tables
-            //services.AddScoped<IRepository<Organization>, BaseRepo<Organization, ProfileDesignerSQLContext>>();
             services.AddScoped<IRepository<User>, BaseRepo<User, ProfileDesignerPgContext>>();
             services.AddScoped<IRepository<Permission>, BaseRepo<Permission, ProfileDesignerPgContext>>();
 
@@ -136,7 +134,7 @@ namespace CESMII.ProfileDesigner.Api
                         Type = ReferenceType.SecurityScheme,
                         Id = "Bearer"
                     }
-                    },new string[] { }
+                    },Array.Empty<string>()
                 }
                 });
             });
@@ -165,8 +163,8 @@ namespace CESMII.ProfileDesigner.Api
                         OnAuthenticationFailed = context =>
                         {
                             string tokenVal = context.Request.Headers["Authorization"];
-                            System.Diagnostics.Debug.WriteLine($"Request Token: {tokenVal}");
-                            System.Diagnostics.Debug.WriteLine($"Request Token: {tokenVal.Substring(tokenVal.Length - 60)}");
+                            //System.Diagnostics.Debug.WriteLine($"Request Token: {tokenVal}");
+                            //System.Diagnostics.Debug.WriteLine($"Request Token: {tokenVal.Substring(tokenVal.Length - 60)}");
 
                             if (context.Exception.GetType() == typeof(SecurityTokenExpiredException))
                             {

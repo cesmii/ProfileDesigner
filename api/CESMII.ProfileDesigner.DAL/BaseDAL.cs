@@ -70,7 +70,7 @@
             if (take.HasValue) query = query.Take(take.Value);
             DALResult<TModel> result = new DALResult<TModel>();
             result.Count = count;
-            result.Data = MapToModels(query.ToList());
+            result.Data = MapToModels(query.ToList(), verbose);
             result.SummaryData = null;
             return result;
         }

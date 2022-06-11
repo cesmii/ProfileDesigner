@@ -3,8 +3,6 @@
 ====>Expected attribute name '/UANodeSet[1]/UAMethod[1]/@ParentNodeId' - comparing <UAMethod...> at /UANodeSet[1]/UAMethod[1]/@ParentNodeId to <UAMethod...> at /UANodeSet[1]/UAMethod[24]
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAMethod[1]/References[1]/Reference[2] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAMethod[1]/References[1]/Reference[3] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UADataType[8]/References[1]/Reference[1] to <NULL>
-====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UADataType[2]/References[1]/Reference[1]
 ====>Expected child nodelist sequence '0' but was '1' - comparing <Field...> at /UANodeSet[1]/UADataType[8]/Definition[1]/Field[1] to <Field...> at /UANodeSet[1]/UADataType[2]/Definition[1]/Field[2]
 ====>Expected child nodelist sequence '1' but was '2' - comparing <Field...> at /UANodeSet[1]/UADataType[8]/Definition[1]/Field[2] to <Field...> at /UANodeSet[1]/UADataType[2]/Definition[1]/Field[3]
 ====>Expected child nodelist sequence '2' but was '0' - comparing <Field...> at /UANodeSet[1]/UADataType[8]/Definition[1]/Field[3] to <Field...> at /UANodeSet[1]/UADataType[2]/Definition[1]/Field[1]
@@ -143,11 +141,11 @@
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAVariable[110]/References[1]/Reference[1] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAVariable[110]/References[1]/Reference[2] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAVariable[110]/References[1]/Reference[3] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[15]/References[1]/Reference[1] to <NULL>
+====>Expected attribute name '/UANodeSet[1]/UAObject[15]' - comparing <UAObject...> at /UANodeSet[1]/UAObject[15] to <UAObject...> at /UANodeSet[1]/UAObject[11]/@ParentNodeId
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[15]/References[1]/Reference[2] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[16]/References[1]/Reference[1] to <NULL>
+====>Expected attribute name '/UANodeSet[1]/UAObject[16]' - comparing <UAObject...> at /UANodeSet[1]/UAObject[16] to <UAObject...> at /UANodeSet[1]/UAObject[10]/@ParentNodeId
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[16]/References[1]/Reference[2] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[17]/References[1]/Reference[1] to <NULL>
+====>Expected attribute name '/UANodeSet[1]/UAObject[17]' - comparing <UAObject...> at /UANodeSet[1]/UAObject[17] to <UAObject...> at /UANodeSet[1]/UAObject[12]/@ParentNodeId
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAReferenceType' but was '' - comparing <UAReferenceType...> at /UANodeSet[1]/UAReferenceType[1] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAReferenceType' but was '' - comparing <UAReferenceType...> at /UANodeSet[1]/UAReferenceType[2] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAReferenceType' but was '' - comparing <UAReferenceType...> at /UANodeSet[1]/UAReferenceType[3] to <NULL>

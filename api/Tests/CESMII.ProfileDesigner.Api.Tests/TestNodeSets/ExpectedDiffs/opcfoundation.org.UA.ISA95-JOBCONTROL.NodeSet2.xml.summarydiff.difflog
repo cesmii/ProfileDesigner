@@ -1,0 +1,205 @@
+====>Expected child nodelist sequence '0' but was '2' - comparing <Field...> at /UANodeSet[1]/UADataType[4]/Definition[1]/Field[1] to <Field...> at /UANodeSet[1]/UADataType[4]/Definition[1]/Field[3]
+====>Expected child nodelist sequence '1' but was '0' - comparing <Field...> at /UANodeSet[1]/UADataType[4]/Definition[1]/Field[2] to <Field...> at /UANodeSet[1]/UADataType[4]/Definition[1]/Field[1]
+====>Expected child nodelist sequence '2' but was '1' - comparing <Field...> at /UANodeSet[1]/UADataType[4]/Definition[1]/Field[3] to <Field...> at /UANodeSet[1]/UADataType[4]/Definition[1]/Field[2]
+====>Expected child nodelist sequence '3' but was '4' - comparing <Field...> at /UANodeSet[1]/UADataType[4]/Definition[1]/Field[4] to <Field...> at /UANodeSet[1]/UADataType[4]/Definition[1]/Field[5]
+====>Expected child nodelist sequence '4' but was '5' - comparing <Field...> at /UANodeSet[1]/UADataType[4]/Definition[1]/Field[5] to <Field...> at /UANodeSet[1]/UADataType[4]/Definition[1]/Field[6]
+====>Expected child nodelist sequence '5' but was '3' - comparing <Field...> at /UANodeSet[1]/UADataType[4]/Definition[1]/Field[6] to <Field...> at /UANodeSet[1]/UADataType[4]/Definition[1]/Field[4]
+====>Expected attribute name '/UANodeSet[1]/UADataType[4]/Definition[1]/Field[6]/@ValueRank' - comparing <Field...> at /UANodeSet[1]/UADataType[4]/Definition[1]/Field[6]/@ValueRank to <Field...> at /UANodeSet[1]/UADataType[4]/Definition[1]/Field[4]
+====>Expected attribute name '/UANodeSet[1]/UADataType[4]/Definition[1]/Field[6]/@ArrayDimensions' - comparing <Field...> at /UANodeSet[1]/UADataType[4]/Definition[1]/Field[6]/@ArrayDimensions to <Field...> at /UANodeSet[1]/UADataType[4]/Definition[1]/Field[4]
+====>Expected child nodelist sequence '0' but was '3' - comparing <Field...> at /UANodeSet[1]/UADataType[5]/Definition[1]/Field[1] to <Field...> at /UANodeSet[1]/UADataType[7]/Definition[1]/Field[4]
+====>Expected child nodelist sequence '1' but was '0' - comparing <Field...> at /UANodeSet[1]/UADataType[5]/Definition[1]/Field[2] to <Field...> at /UANodeSet[1]/UADataType[7]/Definition[1]/Field[1]
+====>Expected child nodelist sequence '2' but was '10' - comparing <Field...> at /UANodeSet[1]/UADataType[5]/Definition[1]/Field[3] to <Field...> at /UANodeSet[1]/UADataType[7]/Definition[1]/Field[11]
+====>Expected attribute name '/UANodeSet[1]/UADataType[5]/Definition[1]/Field[3]/@ValueRank' - comparing <Field...> at /UANodeSet[1]/UADataType[5]/Definition[1]/Field[3]/@ValueRank to <Field...> at /UANodeSet[1]/UADataType[7]/Definition[1]/Field[11]
+====>Expected attribute name '/UANodeSet[1]/UADataType[5]/Definition[1]/Field[3]/@ArrayDimensions' - comparing <Field...> at /UANodeSet[1]/UADataType[5]/Definition[1]/Field[3]/@ArrayDimensions to <Field...> at /UANodeSet[1]/UADataType[7]/Definition[1]/Field[11]
+====>Expected child nodelist sequence '3' but was '9' - comparing <Field...> at /UANodeSet[1]/UADataType[5]/Definition[1]/Field[4] to <Field...> at /UANodeSet[1]/UADataType[7]/Definition[1]/Field[10]
+====>Expected child nodelist sequence '4' but was '1' - comparing <Field...> at /UANodeSet[1]/UADataType[5]/Definition[1]/Field[5] to <Field...> at /UANodeSet[1]/UADataType[7]/Definition[1]/Field[2]
+====>Expected child nodelist sequence '5' but was '8' - comparing <Field...> at /UANodeSet[1]/UADataType[5]/Definition[1]/Field[6] to <Field...> at /UANodeSet[1]/UADataType[7]/Definition[1]/Field[9]
+====>Expected child nodelist sequence '6' but was '4' - comparing <Field...> at /UANodeSet[1]/UADataType[5]/Definition[1]/Field[7] to <Field...> at /UANodeSet[1]/UADataType[7]/Definition[1]/Field[5]
+====>Expected attribute name '/UANodeSet[1]/UADataType[5]/Definition[1]/Field[7]/@ValueRank' - comparing <Field...> at /UANodeSet[1]/UADataType[5]/Definition[1]/Field[7]/@ValueRank to <Field...> at /UANodeSet[1]/UADataType[7]/Definition[1]/Field[5]
+====>Expected attribute name '/UANodeSet[1]/UADataType[5]/Definition[1]/Field[7]/@ArrayDimensions' - comparing <Field...> at /UANodeSet[1]/UADataType[5]/Definition[1]/Field[7]/@ArrayDimensions to <Field...> at /UANodeSet[1]/UADataType[7]/Definition[1]/Field[5]
+====>Expected child nodelist sequence '7' but was '6' - comparing <Field...> at /UANodeSet[1]/UADataType[5]/Definition[1]/Field[8] to <Field...> at /UANodeSet[1]/UADataType[7]/Definition[1]/Field[7]
+====>Expected attribute name '/UANodeSet[1]/UADataType[5]/Definition[1]/Field[8]/@ValueRank' - comparing <Field...> at /UANodeSet[1]/UADataType[5]/Definition[1]/Field[8]/@ValueRank to <Field...> at /UANodeSet[1]/UADataType[7]/Definition[1]/Field[7]
+====>Expected attribute name '/UANodeSet[1]/UADataType[5]/Definition[1]/Field[8]/@ArrayDimensions' - comparing <Field...> at /UANodeSet[1]/UADataType[5]/Definition[1]/Field[8]/@ArrayDimensions to <Field...> at /UANodeSet[1]/UADataType[7]/Definition[1]/Field[7]
+====>Expected child nodelist sequence '8' but was '2' - comparing <Field...> at /UANodeSet[1]/UADataType[5]/Definition[1]/Field[9] to <Field...> at /UANodeSet[1]/UADataType[7]/Definition[1]/Field[3]
+====>Expected attribute name '/UANodeSet[1]/UADataType[5]/Definition[1]/Field[9]/@ValueRank' - comparing <Field...> at /UANodeSet[1]/UADataType[5]/Definition[1]/Field[9]/@ValueRank to <Field...> at /UANodeSet[1]/UADataType[7]/Definition[1]/Field[3]
+====>Expected attribute name '/UANodeSet[1]/UADataType[5]/Definition[1]/Field[9]/@ArrayDimensions' - comparing <Field...> at /UANodeSet[1]/UADataType[5]/Definition[1]/Field[9]/@ArrayDimensions to <Field...> at /UANodeSet[1]/UADataType[7]/Definition[1]/Field[3]
+====>Expected child nodelist sequence '9' but was '7' - comparing <Field...> at /UANodeSet[1]/UADataType[5]/Definition[1]/Field[10] to <Field...> at /UANodeSet[1]/UADataType[7]/Definition[1]/Field[8]
+====>Expected attribute name '/UANodeSet[1]/UADataType[5]/Definition[1]/Field[10]/@ValueRank' - comparing <Field...> at /UANodeSet[1]/UADataType[5]/Definition[1]/Field[10]/@ValueRank to <Field...> at /UANodeSet[1]/UADataType[7]/Definition[1]/Field[8]
+====>Expected attribute name '/UANodeSet[1]/UADataType[5]/Definition[1]/Field[10]/@ArrayDimensions' - comparing <Field...> at /UANodeSet[1]/UADataType[5]/Definition[1]/Field[10]/@ArrayDimensions to <Field...> at /UANodeSet[1]/UADataType[7]/Definition[1]/Field[8]
+====>Expected child nodelist sequence '10' but was '5' - comparing <Field...> at /UANodeSet[1]/UADataType[5]/Definition[1]/Field[11] to <Field...> at /UANodeSet[1]/UADataType[7]/Definition[1]/Field[6]
+====>Expected attribute name '/UANodeSet[1]/UADataType[5]/Definition[1]/Field[11]/@ValueRank' - comparing <Field...> at /UANodeSet[1]/UADataType[5]/Definition[1]/Field[11]/@ValueRank to <Field...> at /UANodeSet[1]/UADataType[7]/Definition[1]/Field[6]
+====>Expected attribute name '/UANodeSet[1]/UADataType[5]/Definition[1]/Field[11]/@ArrayDimensions' - comparing <Field...> at /UANodeSet[1]/UADataType[5]/Definition[1]/Field[11]/@ArrayDimensions to <Field...> at /UANodeSet[1]/UADataType[7]/Definition[1]/Field[6]
+====>Expected child nodelist sequence '0' but was '3' - comparing <Field...> at /UANodeSet[1]/UADataType[6]/Definition[1]/Field[1] to <Field...> at /UANodeSet[1]/UADataType[12]/Definition[1]/Field[4]
+====>Expected child nodelist sequence '1' but was '0' - comparing <Field...> at /UANodeSet[1]/UADataType[6]/Definition[1]/Field[2] to <Field...> at /UANodeSet[1]/UADataType[12]/Definition[1]/Field[1]
+====>Expected child nodelist sequence '2' but was '4' - comparing <Field...> at /UANodeSet[1]/UADataType[6]/Definition[1]/Field[3] to <Field...> at /UANodeSet[1]/UADataType[12]/Definition[1]/Field[5]
+====>Expected child nodelist sequence '3' but was '10' - comparing <Field...> at /UANodeSet[1]/UADataType[6]/Definition[1]/Field[4] to <Field...> at /UANodeSet[1]/UADataType[12]/Definition[1]/Field[11]
+====>Expected child nodelist sequence '4' but was '1' - comparing <Field...> at /UANodeSet[1]/UADataType[6]/Definition[1]/Field[5] to <Field...> at /UANodeSet[1]/UADataType[12]/Definition[1]/Field[2]
+====>Expected child nodelist sequence '5' but was '6' - comparing <Field...> at /UANodeSet[1]/UADataType[6]/Definition[1]/Field[6] to <Field...> at /UANodeSet[1]/UADataType[12]/Definition[1]/Field[7]
+====>Expected child nodelist sequence '6' but was '5' - comparing <Field...> at /UANodeSet[1]/UADataType[6]/Definition[1]/Field[7] to <Field...> at /UANodeSet[1]/UADataType[12]/Definition[1]/Field[6]
+====>Expected attribute name '/UANodeSet[1]/UADataType[6]/Definition[1]/Field[7]/@ValueRank' - comparing <Field...> at /UANodeSet[1]/UADataType[6]/Definition[1]/Field[7]/@ValueRank to <Field...> at /UANodeSet[1]/UADataType[12]/Definition[1]/Field[6]
+====>Expected attribute name '/UANodeSet[1]/UADataType[6]/Definition[1]/Field[7]/@ArrayDimensions' - comparing <Field...> at /UANodeSet[1]/UADataType[6]/Definition[1]/Field[7]/@ArrayDimensions to <Field...> at /UANodeSet[1]/UADataType[12]/Definition[1]/Field[6]
+====>Expected child nodelist sequence '7' but was '8' - comparing <Field...> at /UANodeSet[1]/UADataType[6]/Definition[1]/Field[8] to <Field...> at /UANodeSet[1]/UADataType[12]/Definition[1]/Field[9]
+====>Expected attribute name '/UANodeSet[1]/UADataType[6]/Definition[1]/Field[8]/@ValueRank' - comparing <Field...> at /UANodeSet[1]/UADataType[6]/Definition[1]/Field[8]/@ValueRank to <Field...> at /UANodeSet[1]/UADataType[12]/Definition[1]/Field[9]
+====>Expected attribute name '/UANodeSet[1]/UADataType[6]/Definition[1]/Field[8]/@ArrayDimensions' - comparing <Field...> at /UANodeSet[1]/UADataType[6]/Definition[1]/Field[8]/@ArrayDimensions to <Field...> at /UANodeSet[1]/UADataType[12]/Definition[1]/Field[9]
+====>Expected child nodelist sequence '8' but was '2' - comparing <Field...> at /UANodeSet[1]/UADataType[6]/Definition[1]/Field[9] to <Field...> at /UANodeSet[1]/UADataType[12]/Definition[1]/Field[3]
+====>Expected attribute name '/UANodeSet[1]/UADataType[6]/Definition[1]/Field[9]/@ValueRank' - comparing <Field...> at /UANodeSet[1]/UADataType[6]/Definition[1]/Field[9]/@ValueRank to <Field...> at /UANodeSet[1]/UADataType[12]/Definition[1]/Field[3]
+====>Expected attribute name '/UANodeSet[1]/UADataType[6]/Definition[1]/Field[9]/@ArrayDimensions' - comparing <Field...> at /UANodeSet[1]/UADataType[6]/Definition[1]/Field[9]/@ArrayDimensions to <Field...> at /UANodeSet[1]/UADataType[12]/Definition[1]/Field[3]
+====>Expected attribute name '/UANodeSet[1]/UADataType[6]/Definition[1]/Field[10]/@ValueRank' - comparing <Field...> at /UANodeSet[1]/UADataType[6]/Definition[1]/Field[10]/@ValueRank to <Field...> at /UANodeSet[1]/UADataType[12]/Definition[1]/Field[10]
+====>Expected attribute name '/UANodeSet[1]/UADataType[6]/Definition[1]/Field[10]/@ArrayDimensions' - comparing <Field...> at /UANodeSet[1]/UADataType[6]/Definition[1]/Field[10]/@ArrayDimensions to <Field...> at /UANodeSet[1]/UADataType[12]/Definition[1]/Field[10]
+====>Expected child nodelist sequence '10' but was '7' - comparing <Field...> at /UANodeSet[1]/UADataType[6]/Definition[1]/Field[11] to <Field...> at /UANodeSet[1]/UADataType[12]/Definition[1]/Field[8]
+====>Expected attribute name '/UANodeSet[1]/UADataType[6]/Definition[1]/Field[11]/@ValueRank' - comparing <Field...> at /UANodeSet[1]/UADataType[6]/Definition[1]/Field[11]/@ValueRank to <Field...> at /UANodeSet[1]/UADataType[12]/Definition[1]/Field[8]
+====>Expected attribute name '/UANodeSet[1]/UADataType[6]/Definition[1]/Field[11]/@ArrayDimensions' - comparing <Field...> at /UANodeSet[1]/UADataType[6]/Definition[1]/Field[11]/@ArrayDimensions to <Field...> at /UANodeSet[1]/UADataType[12]/Definition[1]/Field[8]
+====>Expected child nodelist sequence '0' but was '1' - comparing <Field...> at /UANodeSet[1]/UADataType[7]/Definition[1]/Field[1] to <Field...> at /UANodeSet[1]/UADataType[9]/Definition[1]/Field[2]
+====>Expected child nodelist sequence '1' but was '2' - comparing <Field...> at /UANodeSet[1]/UADataType[7]/Definition[1]/Field[2] to <Field...> at /UANodeSet[1]/UADataType[9]/Definition[1]/Field[3]
+====>Expected child nodelist sequence '2' but was '3' - comparing <Field...> at /UANodeSet[1]/UADataType[7]/Definition[1]/Field[3] to <Field...> at /UANodeSet[1]/UADataType[9]/Definition[1]/Field[4]
+====>Expected child nodelist sequence '3' but was '4' - comparing <Field...> at /UANodeSet[1]/UADataType[7]/Definition[1]/Field[4] to <Field...> at /UANodeSet[1]/UADataType[9]/Definition[1]/Field[5]
+====>Expected child nodelist sequence '4' but was '0' - comparing <Field...> at /UANodeSet[1]/UADataType[7]/Definition[1]/Field[5] to <Field...> at /UANodeSet[1]/UADataType[9]/Definition[1]/Field[1]
+====>Expected child nodelist sequence '6' but was '7' - comparing <Field...> at /UANodeSet[1]/UADataType[7]/Definition[1]/Field[7] to <Field...> at /UANodeSet[1]/UADataType[9]/Definition[1]/Field[8]
+====>Expected child nodelist sequence '7' but was '8' - comparing <Field...> at /UANodeSet[1]/UADataType[7]/Definition[1]/Field[8] to <Field...> at /UANodeSet[1]/UADataType[9]/Definition[1]/Field[9]
+====>Expected child nodelist sequence '8' but was '6' - comparing <Field...> at /UANodeSet[1]/UADataType[7]/Definition[1]/Field[9] to <Field...> at /UANodeSet[1]/UADataType[9]/Definition[1]/Field[7]
+====>Expected attribute name '/UANodeSet[1]/UADataType[7]/Definition[1]/Field[9]/@ValueRank' - comparing <Field...> at /UANodeSet[1]/UADataType[7]/Definition[1]/Field[9]/@ValueRank to <Field...> at /UANodeSet[1]/UADataType[9]/Definition[1]/Field[7]
+====>Expected attribute name '/UANodeSet[1]/UADataType[7]/Definition[1]/Field[9]/@ArrayDimensions' - comparing <Field...> at /UANodeSet[1]/UADataType[7]/Definition[1]/Field[9]/@ArrayDimensions to <Field...> at /UANodeSet[1]/UADataType[9]/Definition[1]/Field[7]
+====>Expected child nodelist sequence '0' but was '1' - comparing <Field...> at /UANodeSet[1]/UADataType[8]/Definition[1]/Field[1] to <Field...> at /UANodeSet[1]/UADataType[2]/Definition[1]/Field[2]
+====>Expected child nodelist sequence '1' but was '4' - comparing <Field...> at /UANodeSet[1]/UADataType[8]/Definition[1]/Field[2] to <Field...> at /UANodeSet[1]/UADataType[2]/Definition[1]/Field[5]
+====>Expected child nodelist sequence '2' but was '0' - comparing <Field...> at /UANodeSet[1]/UADataType[8]/Definition[1]/Field[3] to <Field...> at /UANodeSet[1]/UADataType[2]/Definition[1]/Field[1]
+====>Expected child nodelist sequence '4' but was '2' - comparing <Field...> at /UANodeSet[1]/UADataType[8]/Definition[1]/Field[5] to <Field...> at /UANodeSet[1]/UADataType[2]/Definition[1]/Field[3]
+====>Expected attribute name '/UANodeSet[1]/UADataType[8]/Definition[1]/Field[5]/@ValueRank' - comparing <Field...> at /UANodeSet[1]/UADataType[8]/Definition[1]/Field[5]/@ValueRank to <Field...> at /UANodeSet[1]/UADataType[2]/Definition[1]/Field[3]
+====>Expected attribute name '/UANodeSet[1]/UADataType[8]/Definition[1]/Field[5]/@ArrayDimensions' - comparing <Field...> at /UANodeSet[1]/UADataType[8]/Definition[1]/Field[5]/@ArrayDimensions to <Field...> at /UANodeSet[1]/UADataType[2]/Definition[1]/Field[3]
+====>Expected child nodelist sequence '0' but was '1' - comparing <Field...> at /UANodeSet[1]/UADataType[9]/Definition[1]/Field[1] to <Field...> at /UANodeSet[1]/UADataType[10]/Definition[1]/Field[2]
+====>Expected child nodelist sequence '1' but was '0' - comparing <Field...> at /UANodeSet[1]/UADataType[9]/Definition[1]/Field[2] to <Field...> at /UANodeSet[1]/UADataType[10]/Definition[1]/Field[1]
+====>Expected child nodelist sequence '3' but was '4' - comparing <Field...> at /UANodeSet[1]/UADataType[9]/Definition[1]/Field[4] to <Field...> at /UANodeSet[1]/UADataType[10]/Definition[1]/Field[5]
+====>Expected child nodelist sequence '4' but was '5' - comparing <Field...> at /UANodeSet[1]/UADataType[9]/Definition[1]/Field[5] to <Field...> at /UANodeSet[1]/UADataType[10]/Definition[1]/Field[6]
+====>Expected child nodelist sequence '5' but was '3' - comparing <Field...> at /UANodeSet[1]/UADataType[9]/Definition[1]/Field[6] to <Field...> at /UANodeSet[1]/UADataType[10]/Definition[1]/Field[4]
+====>Expected attribute name '/UANodeSet[1]/UADataType[9]/Definition[1]/Field[6]/@ValueRank' - comparing <Field...> at /UANodeSet[1]/UADataType[9]/Definition[1]/Field[6]/@ValueRank to <Field...> at /UANodeSet[1]/UADataType[10]/Definition[1]/Field[4]
+====>Expected attribute name '/UANodeSet[1]/UADataType[9]/Definition[1]/Field[6]/@ArrayDimensions' - comparing <Field...> at /UANodeSet[1]/UADataType[9]/Definition[1]/Field[6]/@ArrayDimensions to <Field...> at /UANodeSet[1]/UADataType[10]/Definition[1]/Field[4]
+====>Expected child nodelist sequence '0' but was '1' - comparing <Field...> at /UANodeSet[1]/UADataType[10]/Definition[1]/Field[1] to <Field...> at /UANodeSet[1]/UADataType[11]/Definition[1]/Field[2]
+====>Expected child nodelist sequence '1' but was '0' - comparing <Field...> at /UANodeSet[1]/UADataType[10]/Definition[1]/Field[2] to <Field...> at /UANodeSet[1]/UADataType[11]/Definition[1]/Field[1]
+====>Expected child nodelist sequence '3' but was '4' - comparing <Field...> at /UANodeSet[1]/UADataType[10]/Definition[1]/Field[4] to <Field...> at /UANodeSet[1]/UADataType[11]/Definition[1]/Field[5]
+====>Expected child nodelist sequence '4' but was '5' - comparing <Field...> at /UANodeSet[1]/UADataType[10]/Definition[1]/Field[5] to <Field...> at /UANodeSet[1]/UADataType[11]/Definition[1]/Field[6]
+====>Expected child nodelist sequence '5' but was '3' - comparing <Field...> at /UANodeSet[1]/UADataType[10]/Definition[1]/Field[6] to <Field...> at /UANodeSet[1]/UADataType[11]/Definition[1]/Field[4]
+====>Expected attribute name '/UANodeSet[1]/UADataType[10]/Definition[1]/Field[6]/@ValueRank' - comparing <Field...> at /UANodeSet[1]/UADataType[10]/Definition[1]/Field[6]/@ValueRank to <Field...> at /UANodeSet[1]/UADataType[11]/Definition[1]/Field[4]
+====>Expected attribute name '/UANodeSet[1]/UADataType[10]/Definition[1]/Field[6]/@ArrayDimensions' - comparing <Field...> at /UANodeSet[1]/UADataType[10]/Definition[1]/Field[6]/@ArrayDimensions to <Field...> at /UANodeSet[1]/UADataType[11]/Definition[1]/Field[4]
+====>Expected child nodelist sequence '0' but was '1' - comparing <Field...> at /UANodeSet[1]/UADataType[11]/Definition[1]/Field[1] to <Field...> at /UANodeSet[1]/UADataType[1]/Definition[1]/Field[2]
+====>Expected child nodelist sequence '1' but was '4' - comparing <Field...> at /UANodeSet[1]/UADataType[11]/Definition[1]/Field[2] to <Field...> at /UANodeSet[1]/UADataType[1]/Definition[1]/Field[5]
+====>Expected child nodelist sequence '2' but was '0' - comparing <Field...> at /UANodeSet[1]/UADataType[11]/Definition[1]/Field[3] to <Field...> at /UANodeSet[1]/UADataType[1]/Definition[1]/Field[1]
+====>Expected child nodelist sequence '4' but was '2' - comparing <Field...> at /UANodeSet[1]/UADataType[11]/Definition[1]/Field[5] to <Field...> at /UANodeSet[1]/UADataType[1]/Definition[1]/Field[3]
+====>Expected attribute name '/UANodeSet[1]/UADataType[11]/Definition[1]/Field[5]/@ValueRank' - comparing <Field...> at /UANodeSet[1]/UADataType[11]/Definition[1]/Field[5]/@ValueRank to <Field...> at /UANodeSet[1]/UADataType[1]/Definition[1]/Field[3]
+====>Expected attribute name '/UANodeSet[1]/UADataType[11]/Definition[1]/Field[5]/@ArrayDimensions' - comparing <Field...> at /UANodeSet[1]/UADataType[11]/Definition[1]/Field[5]/@ArrayDimensions to <Field...> at /UANodeSet[1]/UADataType[1]/Definition[1]/Field[3]
+====>Expected child nodelist sequence '0' but was '1' - comparing <Field...> at /UANodeSet[1]/UADataType[12]/Definition[1]/Field[1] to <Field...> at /UANodeSet[1]/UADataType[6]/Definition[1]/Field[2]
+====>Expected child nodelist sequence '1' but was '0' - comparing <Field...> at /UANodeSet[1]/UADataType[12]/Definition[1]/Field[2] to <Field...> at /UANodeSet[1]/UADataType[6]/Definition[1]/Field[1]
+====>Expected attribute name '/UANodeSet[1]/UADataType[12]/Definition[1]/Field[3]/@ValueRank' - comparing <Field...> at /UANodeSet[1]/UADataType[12]/Definition[1]/Field[3]/@ValueRank to <Field...> at /UANodeSet[1]/UADataType[6]/Definition[1]/Field[3]
+====>Expected attribute name '/UANodeSet[1]/UADataType[12]/Definition[1]/Field[3]/@ArrayDimensions' - comparing <Field...> at /UANodeSet[1]/UADataType[12]/Definition[1]/Field[3]/@ArrayDimensions to <Field...> at /UANodeSet[1]/UADataType[6]/Definition[1]/Field[3]
+====>Expected attribute name '/UANodeSet[1]/UAVariable[26]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[26] to <UAVariable...> at /UANodeSet[1]/UAVariable[15]/@UserAccessLevel
+====>Expected attribute name '/UANodeSet[1]/UAVariable[27]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[27] to <UAVariable...> at /UANodeSet[1]/UAVariable[11]/@UserAccessLevel
+====>Expected attribute name '/UANodeSet[1]/UAVariable[28]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[28] to <UAVariable...> at /UANodeSet[1]/UAVariable[13]/@UserAccessLevel
+====>Expected attribute name '/UANodeSet[1]/UAVariable[29]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[29] to <UAVariable...> at /UANodeSet[1]/UAVariable[14]/@UserAccessLevel
+====>Expected attribute name '/UANodeSet[1]/UAVariable[30]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[30] to <UAVariable...> at /UANodeSet[1]/UAVariable[17]/@UserAccessLevel
+====>Expected attribute name '/UANodeSet[1]/UAVariable[31]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[31] to <UAVariable...> at /UANodeSet[1]/UAVariable[16]/@UserAccessLevel
+====>Expected attribute name '/UANodeSet[1]/UAMethod[1]/@ParentNodeId' - comparing <UAMethod...> at /UANodeSet[1]/UAMethod[1]/@ParentNodeId to <UAMethod...> at /UANodeSet[1]/UAMethod[1]
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAMethod[1]/References[1]/Reference[2] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAMethod[1]/References[1]/Reference[4] to <NULL>
+====>Expected text value 'Contains the command to the Information Receiver on the action to be taken on the job order. ' but was 'Contains the command to the Information Receiver on the action to be taken on the job order.' - comparing <uax:Text ...>Contains the command to the Information Receiver on the action to be taken on the job order. </uax:Text> at /UANodeSet[1]/UAVariable[32]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[1]/Body[1]/Argument[1]/Description[1]/Text[1]/text()[1] to <uax:Text ...>Contains the command to the Information Receiver on the action to be taken on the job order.</uax:Text> at /UANodeSet[1]/UAVariable[18]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[1]/Body[1]/Argument[1]/Description[1]/Text[1]/text()[1]
+====>Expected attribute name '/UANodeSet[1]/UAVariable[34]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[34] to <UAVariable...> at /UANodeSet[1]/UAVariable[12]/@UserAccessLevel
+====>Expected attribute name '/UANodeSet[1]/UAMethod[2]/@ParentNodeId' - comparing <UAMethod...> at /UANodeSet[1]/UAMethod[2]/@ParentNodeId to <UAMethod...> at /UANodeSet[1]/UAMethod[2]
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAMethod[2]/References[1]/Reference[2] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAMethod[2]/References[1]/Reference[4] to <NULL>
+====>Expected attribute name '/UANodeSet[1]/UAMethod[3]/@ParentNodeId' - comparing <UAMethod...> at /UANodeSet[1]/UAMethod[3]/@ParentNodeId to <UAMethod...> at /UANodeSet[1]/UAMethod[3]
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAMethod[3]/References[1]/Reference[2] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAMethod[3]/References[1]/Reference[4] to <NULL>
+====>Expected attribute name '/UANodeSet[1]/UAObject[1]' - comparing <UAObject...> at /UANodeSet[1]/UAObject[1] to <UAObject...> at /UANodeSet[1]/UAObject[1]/@ParentNodeId
+====>Expected attribute name '/UANodeSet[1]/UAObject[2]' - comparing <UAObject...> at /UANodeSet[1]/UAObject[2] to <UAObject...> at /UANodeSet[1]/UAObject[2]/@ParentNodeId
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[2]/References[1]/Reference[3] to <NULL>
+====>Expected attribute name '/UANodeSet[1]/UAObject[3]' - comparing <UAObject...> at /UANodeSet[1]/UAObject[3] to <UAObject...> at /UANodeSet[1]/UAObject[3]/@ParentNodeId
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[3]/References[1]/Reference[3] to <NULL>
+====>Expected attribute name '/UANodeSet[1]/UAObject[4]' - comparing <UAObject...> at /UANodeSet[1]/UAObject[4] to <UAObject...> at /UANodeSet[1]/UAObject[4]/@ParentNodeId
+====>Expected attribute name '/UANodeSet[1]/UAObject[5]' - comparing <UAObject...> at /UANodeSet[1]/UAObject[5] to <UAObject...> at /UANodeSet[1]/UAObject[5]/@ParentNodeId
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[5]/References[1]/Reference[3] to <NULL>
+====>Expected attribute name '/UANodeSet[1]/UAObject[6]' - comparing <UAObject...> at /UANodeSet[1]/UAObject[6] to <UAObject...> at /UANodeSet[1]/UAObject[6]/@ParentNodeId
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[6]/References[1]/Reference[3] to <NULL>
+====>Expected attribute name '/UANodeSet[1]/UAObject[7]' - comparing <UAObject...> at /UANodeSet[1]/UAObject[7] to <UAObject...> at /UANodeSet[1]/UAObject[7]/@ParentNodeId
+====>Expected attribute name '/UANodeSet[1]/UAObject[8]' - comparing <UAObject...> at /UANodeSet[1]/UAObject[8] to <UAObject...> at /UANodeSet[1]/UAObject[8]/@ParentNodeId
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[8]/References[1]/Reference[3] to <NULL>
+====>Expected attribute name '/UANodeSet[1]/UAObject[9]' - comparing <UAObject...> at /UANodeSet[1]/UAObject[9] to <UAObject...> at /UANodeSet[1]/UAObject[9]/@ParentNodeId
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[9]/References[1]/Reference[3] to <NULL>
+====>Expected attribute name '/UANodeSet[1]/UAObject[10]' - comparing <UAObject...> at /UANodeSet[1]/UAObject[10] to <UAObject...> at /UANodeSet[1]/UAObject[10]/@ParentNodeId
+====>Expected attribute name '/UANodeSet[1]/UAObject[11]' - comparing <UAObject...> at /UANodeSet[1]/UAObject[11] to <UAObject...> at /UANodeSet[1]/UAObject[11]/@ParentNodeId
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[11]/References[1]/Reference[3] to <NULL>
+====>Expected attribute name '/UANodeSet[1]/UAObject[12]' - comparing <UAObject...> at /UANodeSet[1]/UAObject[12] to <UAObject...> at /UANodeSet[1]/UAObject[12]/@ParentNodeId
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[12]/References[1]/Reference[3] to <NULL>
+====>Expected attribute name '/UANodeSet[1]/UAObject[13]' - comparing <UAObject...> at /UANodeSet[1]/UAObject[13] to <UAObject...> at /UANodeSet[1]/UAObject[13]/@ParentNodeId
+====>Expected attribute name '/UANodeSet[1]/UAObject[14]' - comparing <UAObject...> at /UANodeSet[1]/UAObject[14] to <UAObject...> at /UANodeSet[1]/UAObject[14]/@ParentNodeId
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[14]/References[1]/Reference[3] to <NULL>
+====>Expected attribute name '/UANodeSet[1]/UAObject[15]' - comparing <UAObject...> at /UANodeSet[1]/UAObject[15] to <UAObject...> at /UANodeSet[1]/UAObject[15]/@ParentNodeId
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[15]/References[1]/Reference[3] to <NULL>
+====>Expected attribute name '/UANodeSet[1]/UAObject[16]' - comparing <UAObject...> at /UANodeSet[1]/UAObject[16] to <UAObject...> at /UANodeSet[1]/UAObject[16]/@ParentNodeId
+====>Expected attribute name '/UANodeSet[1]/UAObject[17]' - comparing <UAObject...> at /UANodeSet[1]/UAObject[17] to <UAObject...> at /UANodeSet[1]/UAObject[17]/@ParentNodeId
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[17]/References[1]/Reference[3] to <NULL>
+====>Expected attribute name '/UANodeSet[1]/UAObject[18]' - comparing <UAObject...> at /UANodeSet[1]/UAObject[18] to <UAObject...> at /UANodeSet[1]/UAObject[18]/@ParentNodeId
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[18]/References[1]/Reference[3] to <NULL>
+====>Expected attribute name '/UANodeSet[1]/UAObject[19]' - comparing <UAObject...> at /UANodeSet[1]/UAObject[19] to <UAObject...> at /UANodeSet[1]/UAObject[19]/@ParentNodeId
+====>Expected attribute name '/UANodeSet[1]/UAObject[20]' - comparing <UAObject...> at /UANodeSet[1]/UAObject[20] to <UAObject...> at /UANodeSet[1]/UAObject[20]/@ParentNodeId
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[20]/References[1]/Reference[3] to <NULL>
+====>Expected attribute name '/UANodeSet[1]/UAObject[21]' - comparing <UAObject...> at /UANodeSet[1]/UAObject[21] to <UAObject...> at /UANodeSet[1]/UAObject[21]/@ParentNodeId
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[21]/References[1]/Reference[3] to <NULL>
+====>Expected attribute name '/UANodeSet[1]/UAObject[22]' - comparing <UAObject...> at /UANodeSet[1]/UAObject[22] to <UAObject...> at /UANodeSet[1]/UAObject[22]/@ParentNodeId
+====>Expected attribute name '/UANodeSet[1]/UAObject[23]' - comparing <UAObject...> at /UANodeSet[1]/UAObject[23] to <UAObject...> at /UANodeSet[1]/UAObject[23]/@ParentNodeId
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[23]/References[1]/Reference[3] to <NULL>
+====>Expected attribute name '/UANodeSet[1]/UAObject[24]' - comparing <UAObject...> at /UANodeSet[1]/UAObject[24] to <UAObject...> at /UANodeSet[1]/UAObject[24]/@ParentNodeId
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[24]/References[1]/Reference[3] to <NULL>
+====>Expected attribute name '/UANodeSet[1]/UAObject[25]' - comparing <UAObject...> at /UANodeSet[1]/UAObject[25] to <UAObject...> at /UANodeSet[1]/UAObject[25]/@ParentNodeId
+====>Expected attribute name '/UANodeSet[1]/UAObject[26]' - comparing <UAObject...> at /UANodeSet[1]/UAObject[26] to <UAObject...> at /UANodeSet[1]/UAObject[26]/@ParentNodeId
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[26]/References[1]/Reference[3] to <NULL>
+====>Expected attribute name '/UANodeSet[1]/UAObject[27]' - comparing <UAObject...> at /UANodeSet[1]/UAObject[27] to <UAObject...> at /UANodeSet[1]/UAObject[27]/@ParentNodeId
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[27]/References[1]/Reference[3] to <NULL>
+====>Expected attribute name '/UANodeSet[1]/UAObject[28]' - comparing <UAObject...> at /UANodeSet[1]/UAObject[28] to <UAObject...> at /UANodeSet[1]/UAObject[28]/@ParentNodeId
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Extensions' but was '' - comparing <Extensions...> at /UANodeSet[1]/Extensions[1] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[4] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[5] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[6] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[7] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[8] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[9] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[10] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[11] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[12] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[13] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[14] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[15] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[16] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[17] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[18] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[19] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[20] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[21] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[22] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[23] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[24] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[25] to <NULL>
+====>Expected child '#comment' but was '' - comparing <!--
+ * Copyright (c) 2005-2021 The OPC Foundation, Inc. All rights reserved.
+ *
+ * OPC Foundation MIT License 1.00
+ * 
+ * Permission is hereby granted, free of charge, to any person
+ * obtaining a copy of this software and associated documentation
+ * files (the "Software"), to deal in the Software without
+ * restriction, including without limitation the rights to use,
+ * copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following
+ * conditions:
+ * 
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+ * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+ * OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * The complete license agreement can be found here:
+ * http://opcfoundation.org/License/MIT/1.00/
+--> at /comment()[1] to <NULL>

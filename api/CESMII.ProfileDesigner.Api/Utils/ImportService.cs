@@ -350,14 +350,14 @@ namespace CESMII.ProfileDesigner.Api.Utils
                         //TBD - once we stabilize, take out the specific exception message returned to user because user should not see a code message.
                         dalProfile.RollbackTransaction();
                         var message = e.InnerException != null ? e.InnerException.Message : e.Message;
-                        await CreateImportLogMessage(GetImportLogDalIsolated(), logId, userToken, $"An error occurred during the import: {message}.<br/>{filesImportedMsg}", TaskStatusEnum.Failed);
+                        await CreateImportLogMessage(GetImportLogDalIsolated(), logId, userToken, $"Import error: {message}.<br/>{filesImportedMsg}", TaskStatusEnum.Failed);
                     }
                 }
                 catch (Exception ex)
                 {
                     _logger.LogCritical($"ImportId:{logId}||ImportOpcUaNodeSet error", ex);
                     dalProfile.RollbackTransaction();
-                    await CreateImportLogMessage(GetImportLogDalIsolated(), logId, userToken, $"An error occurred during the import: {ex.Message}.<br/>{filesImportedMsg}", TaskStatusEnum.Failed);
+                    await CreateImportLogMessage(GetImportLogDalIsolated(), logId, userToken, $"Import error: {ex.Message}.<br/>{filesImportedMsg}", TaskStatusEnum.Failed);
                 }
 
                 //handle import warnings. Save to DB for each nodeset / profile.

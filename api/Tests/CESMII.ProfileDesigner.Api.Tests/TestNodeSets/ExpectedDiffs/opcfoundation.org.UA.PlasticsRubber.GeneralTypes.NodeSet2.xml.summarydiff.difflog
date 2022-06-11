@@ -5,22 +5,10 @@
 ====>Expected text value 'Diagnostics inactive ' but was 'Diagnostics inactive' - comparing <uax:Text ...>Diagnostics inactive </uax:Text> at /UANodeSet[1]/UAVariable[4]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[1]/Body[1]/EnumValueType[1]/Description[1]/Text[1]/text()[1] to <uax:Text ...>Diagnostics inactive</uax:Text> at /UANodeSet[1]/UAVariable[566]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[1]/Body[1]/EnumValueType[1]/Description[1]/Text[1]/text()[1]
 ====>Expected text value 'Diagnostics active ' but was 'Diagnostics active' - comparing <uax:Text ...>Diagnostics active </uax:Text> at /UANodeSet[1]/UAVariable[4]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[2]/Body[1]/EnumValueType[1]/Description[1]/Text[1]/text()[1] to <uax:Text ...>Diagnostics active</uax:Text> at /UANodeSet[1]/UAVariable[566]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[2]/Body[1]/EnumValueType[1]/Description[1]/Text[1]/text()[1]
 ====>Expected text value 'Support of UserLogType ' but was 'Support of UserLogType' - comparing <uax:Text ...>Support of UserLogType </uax:Text> at /UANodeSet[1]/UAVariable[7]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[2]/Body[1]/EnumValueType[1]/Description[1]/Text[1]/text()[1] to <uax:Text ...>Support of UserLogType</uax:Text> at /UANodeSet[1]/UAVariable[275]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[2]/Body[1]/EnumValueType[1]/Description[1]/Text[1]/text()[1]
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UADataType[17]/References[1]/Reference[1] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UADataType[17]/References[1]/Reference[2] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UADataType[17]/References[1]/Reference[3] to <NULL>
-====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UADataType[26]/References[1]/Reference[1]
 ====>Expected child nodelist sequence '1' but was '2' - comparing <Field...> at /UANodeSet[1]/UADataType[17]/Definition[1]/Field[2] to <Field...> at /UANodeSet[1]/UADataType[26]/Definition[1]/Field[3]
 ====>Expected child nodelist sequence '2' but was '1' - comparing <Field...> at /UANodeSet[1]/UADataType[17]/Definition[1]/Field[3] to <Field...> at /UANodeSet[1]/UADataType[26]/Definition[1]/Field[2]
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UADataType[18]/References[1]/Reference[1] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UADataType[18]/References[1]/Reference[2] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UADataType[18]/References[1]/Reference[3] to <NULL>
-====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UADataType[22]/References[1]/Reference[1]
 ====>Expected child nodelist sequence '0' but was '2' - comparing <Field...> at /UANodeSet[1]/UADataType[18]/Definition[1]/Field[1] to <Field...> at /UANodeSet[1]/UADataType[22]/Definition[1]/Field[3]
 ====>Expected child nodelist sequence '2' but was '0' - comparing <Field...> at /UANodeSet[1]/UADataType[18]/Definition[1]/Field[3] to <Field...> at /UANodeSet[1]/UADataType[22]/Definition[1]/Field[1]
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UADataType[19]/References[1]/Reference[1] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UADataType[19]/References[1]/Reference[2] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UADataType[19]/References[1]/Reference[3] to <NULL>
-====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UADataType[19]/References[1]/Reference[1]
 ====>Expected child nodelist sequence '0' but was '3' - comparing <Field...> at /UANodeSet[1]/UADataType[19]/Definition[1]/Field[1] to <Field...> at /UANodeSet[1]/UADataType[19]/Definition[1]/Field[4]
 ====>Expected child nodelist sequence '1' but was '2' - comparing <Field...> at /UANodeSet[1]/UADataType[19]/Definition[1]/Field[2] to <Field...> at /UANodeSet[1]/UADataType[19]/Definition[1]/Field[3]
 ====>Expected child nodelist sequence '2' but was '1' - comparing <Field...> at /UANodeSet[1]/UADataType[19]/Definition[1]/Field[3] to <Field...> at /UANodeSet[1]/UADataType[19]/Definition[1]/Field[2]
@@ -39,30 +27,12 @@
 ====>Expected child nodelist sequence '10' but was '8' - comparing <Field...> at /UANodeSet[1]/UADataType[19]/Definition[1]/Field[11] to <Field...> at /UANodeSet[1]/UADataType[19]/Definition[1]/Field[9]
 ====>Expected child nodelist sequence '11' but was '7' - comparing <Field...> at /UANodeSet[1]/UADataType[19]/Definition[1]/Field[12] to <Field...> at /UANodeSet[1]/UADataType[19]/Definition[1]/Field[8]
 ====>Expected child nodelist sequence '12' but was '5' - comparing <Field...> at /UANodeSet[1]/UADataType[19]/Definition[1]/Field[13] to <Field...> at /UANodeSet[1]/UADataType[19]/Definition[1]/Field[6]
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UADataType[20]/References[1]/Reference[2] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UADataType[20]/References[1]/Reference[3] to <NULL>
 ====>Expected child nodelist sequence '0' but was '3' - comparing <Field...> at /UANodeSet[1]/UADataType[20]/Definition[1]/Field[1] to <Field...> at /UANodeSet[1]/UADataType[20]/Definition[1]/Field[4]
 ====>Expected child nodelist sequence '1' but was '2' - comparing <Field...> at /UANodeSet[1]/UADataType[20]/Definition[1]/Field[2] to <Field...> at /UANodeSet[1]/UADataType[20]/Definition[1]/Field[3]
 ====>Expected child nodelist sequence '2' but was '0' - comparing <Field...> at /UANodeSet[1]/UADataType[20]/Definition[1]/Field[3] to <Field...> at /UANodeSet[1]/UADataType[20]/Definition[1]/Field[1]
 ====>Expected child nodelist sequence '3' but was '1' - comparing <Field...> at /UANodeSet[1]/UADataType[20]/Definition[1]/Field[4] to <Field...> at /UANodeSet[1]/UADataType[20]/Definition[1]/Field[2]
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UADataType[21]/References[1]/Reference[1] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UADataType[21]/References[1]/Reference[2] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UADataType[21]/References[1]/Reference[3] to <NULL>
-====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UADataType[12]/References[1]/Reference[1]
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UADataType[22]/References[1]/Reference[1] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UADataType[22]/References[1]/Reference[2] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UADataType[22]/References[1]/Reference[3] to <NULL>
-====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UADataType[24]/References[1]/Reference[1]
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UADataType[23]/References[1]/Reference[1] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UADataType[23]/References[1]/Reference[2] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UADataType[23]/References[1]/Reference[3] to <NULL>
-====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UADataType[21]/References[1]/Reference[1]
 ====>Expected child nodelist sequence '0' but was '2' - comparing <Field...> at /UANodeSet[1]/UADataType[23]/Definition[1]/Field[1] to <Field...> at /UANodeSet[1]/UADataType[21]/Definition[1]/Field[3]
 ====>Expected child nodelist sequence '2' but was '0' - comparing <Field...> at /UANodeSet[1]/UADataType[23]/Definition[1]/Field[3] to <Field...> at /UANodeSet[1]/UADataType[21]/Definition[1]/Field[1]
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UADataType[24]/References[1]/Reference[1] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UADataType[24]/References[1]/Reference[2] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UADataType[24]/References[1]/Reference[3] to <NULL>
-====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UADataType[4]/References[1]/Reference[1]
 ====>Expected child nodelist sequence '0' but was '11' - comparing <Field...> at /UANodeSet[1]/UADataType[24]/Definition[1]/Field[1] to <Field...> at /UANodeSet[1]/UADataType[4]/Definition[1]/Field[12]
 ====>Expected child nodelist sequence '1' but was '3' - comparing <Field...> at /UANodeSet[1]/UADataType[24]/Definition[1]/Field[2] to <Field...> at /UANodeSet[1]/UADataType[4]/Definition[1]/Field[4]
 ====>Expected child nodelist sequence '2' but was '8' - comparing <Field...> at /UANodeSet[1]/UADataType[24]/Definition[1]/Field[3] to <Field...> at /UANodeSet[1]/UADataType[4]/Definition[1]/Field[9]
@@ -82,24 +52,12 @@
 ====>Expected attribute name '/UANodeSet[1]/UADataType[24]/Definition[1]/Field[15]/@ArrayDimensions' - comparing <Field...> at /UANodeSet[1]/UADataType[24]/Definition[1]/Field[15]/@ArrayDimensions to <Field...> at /UANodeSet[1]/UADataType[4]/Definition[1]/Field[14]
 ====>Expected child nodelist sequence '15' but was '10' - comparing <Field...> at /UANodeSet[1]/UADataType[24]/Definition[1]/Field[16] to <Field...> at /UANodeSet[1]/UADataType[4]/Definition[1]/Field[11]
 ====>Expected child nodelist sequence '16' but was '12' - comparing <Field...> at /UANodeSet[1]/UADataType[24]/Definition[1]/Field[17] to <Field...> at /UANodeSet[1]/UADataType[4]/Definition[1]/Field[13]
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UADataType[25]/References[1]/Reference[1] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UADataType[25]/References[1]/Reference[2] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UADataType[25]/References[1]/Reference[3] to <NULL>
-====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UADataType[5]/References[1]/Reference[1]
 ====>Expected child nodelist sequence '0' but was '1' - comparing <Field...> at /UANodeSet[1]/UADataType[25]/Definition[1]/Field[1] to <Field...> at /UANodeSet[1]/UADataType[5]/Definition[1]/Field[2]
 ====>Expected child nodelist sequence '1' but was '0' - comparing <Field...> at /UANodeSet[1]/UADataType[25]/Definition[1]/Field[2] to <Field...> at /UANodeSet[1]/UADataType[5]/Definition[1]/Field[1]
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UADataType[26]/References[1]/Reference[1] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UADataType[26]/References[1]/Reference[2] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UADataType[26]/References[1]/Reference[3] to <NULL>
-====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UADataType[2]/References[1]/Reference[1]
 ====>Expected child nodelist sequence '0' but was '2' - comparing <Field...> at /UANodeSet[1]/UADataType[26]/Definition[1]/Field[1] to <Field...> at /UANodeSet[1]/UADataType[2]/Definition[1]/Field[3]
 ====>Expected child nodelist sequence '2' but was '0' - comparing <Field...> at /UANodeSet[1]/UADataType[26]/Definition[1]/Field[3] to <Field...> at /UANodeSet[1]/UADataType[2]/Definition[1]/Field[1]
 ====>Expected attribute name '/UANodeSet[1]/UADataType[26]/Definition[1]/Field[3]/@ValueRank' - comparing <Field...> at /UANodeSet[1]/UADataType[26]/Definition[1]/Field[3]/@ValueRank to <Field...> at /UANodeSet[1]/UADataType[2]/Definition[1]/Field[1]
 ====>Expected attribute name '/UANodeSet[1]/UADataType[26]/Definition[1]/Field[3]/@ArrayDimensions' - comparing <Field...> at /UANodeSet[1]/UADataType[26]/Definition[1]/Field[3]/@ArrayDimensions to <Field...> at /UANodeSet[1]/UADataType[2]/Definition[1]/Field[1]
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UADataType[27]/References[1]/Reference[1] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UADataType[27]/References[1]/Reference[2] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UADataType[27]/References[1]/Reference[3] to <NULL>
-====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UADataType[13]/References[1]/Reference[1]
 ====>Expected child nodelist sequence '1' but was '2' - comparing <Field...> at /UANodeSet[1]/UADataType[27]/Definition[1]/Field[2] to <Field...> at /UANodeSet[1]/UADataType[13]/Definition[1]/Field[3]
 ====>Expected child nodelist sequence '2' but was '1' - comparing <Field...> at /UANodeSet[1]/UADataType[27]/Definition[1]/Field[3] to <Field...> at /UANodeSet[1]/UADataType[13]/Definition[1]/Field[2]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[43]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[43] to <UAVariable...> at /UANodeSet[1]/UAVariable[202]/@UserAccessLevel
@@ -640,11 +598,8 @@
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:References' but was '' - comparing <References...> at /UANodeSet[1]/UAMethod[54]/References[1] to <NULL>
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[546]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[546] to <UAVariable...> at /UANodeSet[1]/UAVariable[11]/@UserAccessLevel
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAVariable[561]/References[1]/Reference[4] to <NULL>
-====>Expected child '' but was 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' - comparing <NULL> to <uax:Text...> at /UANodeSet[1]/UAVariable[565]/Value[1]/ExtensionObject[1]/Body[1]/EUInformation[1]/DisplayName[1]/Text[1]
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAVariable[568]/References[1]/Reference[4] to <NULL>
-====>Expected child '' but was 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' - comparing <NULL> to <uax:Text...> at /UANodeSet[1]/UAVariable[31]/Value[1]/ExtensionObject[1]/Body[1]/EUInformation[1]/DisplayName[1]/Text[1]
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAVariable[575]/References[1]/Reference[4] to <NULL>
-====>Expected child '' but was 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' - comparing <NULL> to <uax:Text...> at /UANodeSet[1]/UAVariable[133]/Value[1]/ExtensionObject[1]/Body[1]/EUInformation[1]/DisplayName[1]/Text[1]
 ====>Expected attribute name '/UANodeSet[1]/UAMethod[55]/@ParentNodeId' - comparing <UAMethod...> at /UANodeSet[1]/UAMethod[55]/@ParentNodeId to <UAMethod...> at /UANodeSet[1]/UAMethod[24]
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:References' but was '' - comparing <References...> at /UANodeSet[1]/UAMethod[55]/References[1] to <NULL>
 ====>Expected attribute name '/UANodeSet[1]/UAMethod[56]/@ParentNodeId' - comparing <UAMethod...> at /UANodeSet[1]/UAMethod[56]/@ParentNodeId to <UAMethod...> at /UANodeSet[1]/UAMethod[26]
@@ -784,50 +739,50 @@
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAVariable[678]/References[1]/Reference[2] to <NULL>
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[79]/References[1]/Reference[2]
 ====>Expected attribute name '/UANodeSet[1]/UAObject[40]' - comparing <UAObject...> at /UANodeSet[1]/UAObject[40] to <UAObject...> at /UANodeSet[1]/UAObject[61]/@ParentNodeId
+====>Expected attribute name '/UANodeSet[1]/UAObject[43]' - comparing <UAObject...> at /UANodeSet[1]/UAObject[43] to <UAObject...> at /UANodeSet[1]/UAObject[3]/@ParentNodeId
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[43]/References[1]/Reference[1] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[43]/References[1]/Reference[3] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[44]/References[1]/Reference[2] to <NULL>
+====>Expected attribute name '/UANodeSet[1]/UAObject[44]' - comparing <UAObject...> at /UANodeSet[1]/UAObject[44] to <UAObject...> at /UANodeSet[1]/UAObject[4]/@ParentNodeId
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[44]/References[1]/Reference[3] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[45]/References[1]/Reference[2] to <NULL>
+====>Expected attribute name '/UANodeSet[1]/UAObject[45]' - comparing <UAObject...> at /UANodeSet[1]/UAObject[45] to <UAObject...> at /UANodeSet[1]/UAObject[5]/@ParentNodeId
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[45]/References[1]/Reference[3] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[46]/References[1]/Reference[2] to <NULL>
+====>Expected attribute name '/UANodeSet[1]/UAObject[46]' - comparing <UAObject...> at /UANodeSet[1]/UAObject[46] to <UAObject...> at /UANodeSet[1]/UAObject[6]/@ParentNodeId
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[46]/References[1]/Reference[3] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[47]/References[1]/Reference[2] to <NULL>
+====>Expected attribute name '/UANodeSet[1]/UAObject[47]' - comparing <UAObject...> at /UANodeSet[1]/UAObject[47] to <UAObject...> at /UANodeSet[1]/UAObject[9]/@ParentNodeId
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[47]/References[1]/Reference[3] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[48]/References[1]/Reference[2] to <NULL>
+====>Expected attribute name '/UANodeSet[1]/UAObject[48]' - comparing <UAObject...> at /UANodeSet[1]/UAObject[48] to <UAObject...> at /UANodeSet[1]/UAObject[12]/@ParentNodeId
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[48]/References[1]/Reference[3] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[49]/References[1]/Reference[2] to <NULL>
+====>Expected attribute name '/UANodeSet[1]/UAObject[49]' - comparing <UAObject...> at /UANodeSet[1]/UAObject[49] to <UAObject...> at /UANodeSet[1]/UAObject[13]/@ParentNodeId
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[49]/References[1]/Reference[3] to <NULL>
+====>Expected attribute name '/UANodeSet[1]/UAObject[50]' - comparing <UAObject...> at /UANodeSet[1]/UAObject[50] to <UAObject...> at /UANodeSet[1]/UAObject[14]/@ParentNodeId
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[50]/References[1]/Reference[1] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[50]/References[1]/Reference[3] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[51]/References[1]/Reference[2] to <NULL>
+====>Expected attribute name '/UANodeSet[1]/UAObject[51]' - comparing <UAObject...> at /UANodeSet[1]/UAObject[51] to <UAObject...> at /UANodeSet[1]/UAObject[15]/@ParentNodeId
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[51]/References[1]/Reference[3] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[52]/References[1]/Reference[2] to <NULL>
+====>Expected attribute name '/UANodeSet[1]/UAObject[52]' - comparing <UAObject...> at /UANodeSet[1]/UAObject[52] to <UAObject...> at /UANodeSet[1]/UAObject[17]/@ParentNodeId
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[52]/References[1]/Reference[3] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[53]/References[1]/Reference[2] to <NULL>
+====>Expected attribute name '/UANodeSet[1]/UAObject[53]' - comparing <UAObject...> at /UANodeSet[1]/UAObject[53] to <UAObject...> at /UANodeSet[1]/UAObject[24]/@ParentNodeId
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[53]/References[1]/Reference[3] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[54]/References[1]/Reference[2] to <NULL>
+====>Expected attribute name '/UANodeSet[1]/UAObject[54]' - comparing <UAObject...> at /UANodeSet[1]/UAObject[54] to <UAObject...> at /UANodeSet[1]/UAObject[25]/@ParentNodeId
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[54]/References[1]/Reference[3] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[55]/References[1]/Reference[2] to <NULL>
+====>Expected attribute name '/UANodeSet[1]/UAObject[55]' - comparing <UAObject...> at /UANodeSet[1]/UAObject[55] to <UAObject...> at /UANodeSet[1]/UAObject[26]/@ParentNodeId
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[55]/References[1]/Reference[3] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[56]/References[1]/Reference[2] to <NULL>
+====>Expected attribute name '/UANodeSet[1]/UAObject[56]' - comparing <UAObject...> at /UANodeSet[1]/UAObject[56] to <UAObject...> at /UANodeSet[1]/UAObject[27]/@ParentNodeId
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[56]/References[1]/Reference[3] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[57]/References[1]/Reference[2] to <NULL>
+====>Expected attribute name '/UANodeSet[1]/UAObject[57]' - comparing <UAObject...> at /UANodeSet[1]/UAObject[57] to <UAObject...> at /UANodeSet[1]/UAObject[34]/@ParentNodeId
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[57]/References[1]/Reference[3] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[58]/References[1]/Reference[2] to <NULL>
+====>Expected attribute name '/UANodeSet[1]/UAObject[58]' - comparing <UAObject...> at /UANodeSet[1]/UAObject[58] to <UAObject...> at /UANodeSet[1]/UAObject[36]/@ParentNodeId
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[58]/References[1]/Reference[3] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[59]/References[1]/Reference[2] to <NULL>
+====>Expected attribute name '/UANodeSet[1]/UAObject[59]' - comparing <UAObject...> at /UANodeSet[1]/UAObject[59] to <UAObject...> at /UANodeSet[1]/UAObject[38]/@ParentNodeId
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[59]/References[1]/Reference[3] to <NULL>
+====>Expected attribute name '/UANodeSet[1]/UAObject[60]' - comparing <UAObject...> at /UANodeSet[1]/UAObject[60] to <UAObject...> at /UANodeSet[1]/UAObject[41]/@ParentNodeId
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[60]/References[1]/Reference[1] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[60]/References[1]/Reference[3] to <NULL>
+====>Expected attribute name '/UANodeSet[1]/UAObject[61]' - comparing <UAObject...> at /UANodeSet[1]/UAObject[61] to <UAObject...> at /UANodeSet[1]/UAObject[42]/@ParentNodeId
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[61]/References[1]/Reference[1] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[61]/References[1]/Reference[3] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[62]/References[1]/Reference[2] to <NULL>
+====>Expected attribute name '/UANodeSet[1]/UAObject[62]' - comparing <UAObject...> at /UANodeSet[1]/UAObject[62] to <UAObject...> at /UANodeSet[1]/UAObject[43]/@ParentNodeId
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[62]/References[1]/Reference[3] to <NULL>
+====>Expected attribute name '/UANodeSet[1]/UAObject[63]' - comparing <UAObject...> at /UANodeSet[1]/UAObject[63] to <UAObject...> at /UANodeSet[1]/UAObject[48]/@ParentNodeId
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[63]/References[1]/Reference[1] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[63]/References[1]/Reference[3] to <NULL>
+====>Expected attribute name '/UANodeSet[1]/UAObject[64]' - comparing <UAObject...> at /UANodeSet[1]/UAObject[64] to <UAObject...> at /UANodeSet[1]/UAObject[49]/@ParentNodeId
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[64]/References[1]/Reference[1] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[64]/References[1]/Reference[3] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Extensions' but was '' - comparing <Extensions...> at /UANodeSet[1]/Extensions[1] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[17] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[18] to <NULL>

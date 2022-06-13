@@ -78,9 +78,9 @@ jobs:
         run: |
           sudo -u postgres psql -l
 
-      - name: Build (${{env.PROJECT_DIRECTORY}})
+      - name: Test (${{env.SOLUTION_FILE}})
         run: dotnet test ${{env.SOLUTION_FILE}} --configuration Staging --no-restore --verbosity normal -l:"console;verbosity=normal"
-        working-directory: ${{env.PROJECT_DIRECTORY}}    
+        working-directory: ${{env.SOLUTION_DIRECTORY}}
 
       - name: Publish (${{env.PROJECT_DIRECTORY}}) TO ${{ env.PUBLISH_FOLDER_RELATIVE }}
         run: dotnet publish --configuration Staging --output ${{ env.PUBLISH_FOLDER_RELATIVE }}

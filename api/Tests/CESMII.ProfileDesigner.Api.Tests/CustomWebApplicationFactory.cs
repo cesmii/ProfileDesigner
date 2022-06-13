@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using CESMII.ProfileDesigner.Api.Controllers;
@@ -24,7 +25,13 @@ namespace CESMII.ProfileDesigner.Api.Tests
             //Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Test");
             return base.CreateHostBuilder()
                 .ConfigureHostConfiguration(
-                    config => config.AddEnvironmentVariables("ASPNETCORE"));
+                    config => config.AddEnvironmentVariables("ASPNETCORE")
+                        .AddInMemoryCollection(new Dictionary<string, string>
+                        {
+                            { "ServicePassword", "testpw" },
+                            { "ConnectionStrings:ProfileDesignerDB", "Server=localhost;Username=testuser;Database=profile_designer_local_test;Port=5432;Password=password;SSLMode=Prefer;Include Error Detail=true" },
+                        }))
+                        ;
         }
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {

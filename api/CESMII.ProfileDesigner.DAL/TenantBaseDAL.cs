@@ -51,7 +51,7 @@
         protected override DALResult<TModel> Where(Expression<Func<TEntity, bool>> predicate, UserToken user, int? skip = null, int? take = null, bool returnCount = false, bool verbose = false,
             Func<IQueryable<TEntity>, IQueryable<TEntity>> additionalQuery = null)
         {
-            var query = _repo.FindByCondition(predicate).Where(e => e.OwnerId == null || e.OwnerId == user.UserId);
+            var query = _repo.FindByCondition(e => e.OwnerId == null || e.OwnerId == user.UserId).Where(predicate);
             if (additionalQuery != null)
             {
                 query = additionalQuery(query);
@@ -70,7 +70,15 @@
             //if (take.HasValue) query = query.Take(take.Value);
             DALResult<TModel> result = new DALResult<TModel>();
             result.Count = count;
-            result.Data = MapToModels(data.ToList(), verbose);
+            try
+            {
+                result.Data = MapToModels(data.ToList(), verbose);
+            }
+            catch (InvalidOperationException)
+            {
+                // For some reason this throws due to modified collection on first try (local cache change due to side effect of mapping?)
+                result.Data = MapToModels(data.ToList(), verbose);
+            }
             result.SummaryData = null;
             return result;
         }

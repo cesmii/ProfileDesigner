@@ -32,15 +32,6 @@ function ErrorPage({ error, resetErrorBoundary }) {
         if (loadingProps.isLoading) {
             setLoadingProps({ isLoading: false });
         }
-        //if (_errorShown) {
-        //    setLoadingProps({ isLoading: false });
-        //    setErrorShown(true);
-        //}
-
-        //this will execute on unmount
-        return () => {
-            //console.log(generateLogMessageString('useEffect||wizardProps||Cleanup', CLASS_NAME));
-        };
     }, [loadingProps.isLoading]);
 
     //TBD - log exception to API - do not raise exception if fails
@@ -68,10 +59,6 @@ function ErrorPage({ error, resetErrorBoundary }) {
             console.warn(generateLogMessageString(`logError||Error occurred logging to the server.`, CLASS_NAME));
         });
 
-        //this will execute on unmount
-        return () => {
-            //console.log(generateLogMessageString('useEffect||wizardProps||Cleanup', CLASS_NAME));
-        };
     }, [_logError]);
 
     //allow user to log out from error page

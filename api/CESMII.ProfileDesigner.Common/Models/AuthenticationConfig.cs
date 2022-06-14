@@ -1,7 +1,5 @@
 ﻿namespace CESMII.ProfileDesigner.Common.Models
 {
-    //using System.Collections.Generic;
-
     public class AuthenticationConfig
     {
         //TBD - add in password settings - max retries, password minimums, etc. 

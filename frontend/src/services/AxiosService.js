@@ -24,7 +24,6 @@ axiosInstance.interceptors.request.use(
 			? JSON.parse(localStorage.getItem("authTicket")).token
 			: null;
 
-		//console.log(generateLogMessageString(`axiosInstance.interceptors.request||config||${config.method}||${config.baseURL}${config.url}||${token == null ? 'null' : token.substring(token.length - 60)}`, CLASS_NAME));
 		if (token == null) return config;
 		//append token to header if present. Some requests like login do not require token.
 		//everything else does.

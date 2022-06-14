@@ -38,7 +38,6 @@ function InlineMessage() {
         }, 6000);
     }
 
-    //console.log(generateLogMessageString('loading', CLASS_NAME));
     //TBD - check for dup messages and don't show.
     const renderMessages = loadingProps.inlineMessages?.map((msg) => {
         //apply special handling for sev="processing"

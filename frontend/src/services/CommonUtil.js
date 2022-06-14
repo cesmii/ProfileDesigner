@@ -18,7 +18,6 @@ const renderOKModal = (modalData) => {
             cancel={{
                 caption: modalData.captionOK,
                 callback: () => {
-                    //console.log(generateLogMessageString(`onErrorMessageOK`, CLASS_NAME));
                     if (modalData.callback) modalData.callback();
                 },
                 buttonVariant: modalData.severity //'danger'

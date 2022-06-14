@@ -455,14 +455,6 @@ namespace CESMII.ProfileDesigner.Api.Tests
                     {
                         Console.WriteLine($"Ignoring {file} because it has no expected diff file {diffFile}.");
                     }
-                    else
-                    {
-                        if (unstableTests.Contains(file))
-                        {
-                            Console.WriteLine($"Ignoring {file} because it is listed as unstable / pending investigation.");
-                            return false;
-                        }
-                    }
                     return bHasDiff;
                 }).ToList();
             }
@@ -480,9 +472,17 @@ namespace CESMII.ProfileDesigner.Api.Tests
             var remainingTestCaseList = testCasesWithExpectedDiff.Except(orderedTestCases).ToList();
 
             var remainingOrdered = orderedImportRequests.Select(ir => remainingTestCaseList.FirstOrDefault(tc => Path.Combine(Integration.strTestNodeSetDirectory, tc.TestMethodArguments[0].ToString()) == ir.FileName)).Where(tc => tc != null).ToList();
+            var excludedTestCases = new List<TTestCase>();
             foreach (var remaining in remainingOrdered)
             {
-                var index = orderedTestCases.FindIndex(tc => tc.TestMethodArguments[0].ToString() == remaining.TestMethodArguments[0].ToString());
+                var file = remaining.TestMethodArguments[0].ToString();
+                if (unstableTests.Contains(file))
+                {
+                    Console.WriteLine($"Ignoring {file} because it is listed as unstable / pending investigation.");
+                    excludedTestCases.Add(remaining);
+                    continue;
+                }
+                var index = orderedTestCases.FindIndex(tc => tc.TestMethodArguments[0].ToString() == file);
                 if (index >= 0)
                 {
                     orderedTestCases.Insert(index + 1, remaining);
@@ -495,7 +495,7 @@ namespace CESMII.ProfileDesigner.Api.Tests
             //orderedTestCases.AddRange(remainingOrdered);
 
             // Then all other tests
-            var remainingUnorderedTests = testCasesWithExpectedDiff.Except(orderedTestCases).ToList();
+            var remainingUnorderedTests = testCasesWithExpectedDiff.Except(orderedTestCases).Except(excludedTestCases).ToList();
 
             return orderedTestCases.Concat(remainingUnorderedTests).ToList();
         }

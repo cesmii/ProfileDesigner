@@ -85,7 +85,7 @@
         /// </summary>
         /// <param name="predicate"></param>
         /// <returns></returns>
-        public override DALResult<ProfileTypeDefinitionModel> Where(Expression<Func<ProfileTypeDefinition, bool>> predicate, UserToken user, int? skip, int? take,
+        public override DALResult<ProfileTypeDefinitionModel> Where(Expression<Func<ProfileTypeDefinition, bool>> predicate, UserToken user, int? skip = null, int? take = null,
             bool returnCount = false, bool verbose = false)
         {
             return base.Where(predicate, user, skip, take, returnCount, verbose, q => q

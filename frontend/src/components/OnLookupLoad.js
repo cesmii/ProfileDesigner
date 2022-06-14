@@ -58,15 +58,9 @@ export const OnLookupLoad = () => {
 
 
         if (loadingProps.lookupDataStatic == null || loadingProps.refreshLookupData === true) {
-            //console.log(generateLogMessageString('useEffect||refreshLookupData||Trigger fetch', CLASS_NAME));
             fetchData();
         }
 
-        //this will execute on unmount
-        return () => {
-            //console.log(generateLogMessageString('useEffect||refreshLookupData||Cleanup', CLASS_NAME));
-            //setFilterValOnChild('');
-        };
     }, [loadingProps.lookupDataStatic, loadingProps.refreshLookupData]);
 
     //-------------------------------------------------------------------
@@ -119,14 +113,8 @@ export const OnLookupLoad = () => {
         //trigger retrieval of lookup data - if necessary
         if (loadingProps == null || loadingProps.searchCriteria == null || loadingProps.searchCriteria.filters == null
             || loadingProps.refreshSearchCriteria) {
-            //console.log(generateLogMessageString('useEffect||refreshSearchCriteria||Trigger fetch', CLASS_NAME));
             fetchData();
         }
-
-        //this will execute on unmount
-        return () => {
-            //console.log(generateLogMessageString('useEffect||refreshSearchCriteria||Cleanup', CLASS_NAME));
-        };
 
     }, [loadingProps.searchCriteria, loadingProps.refreshSearchCriteria, authTicket.token]);
 
@@ -170,14 +158,9 @@ export const OnLookupLoad = () => {
         };
 
         if (loadingProps.favoritesList == null || loadingProps.refreshFavoritesList === true) {
-            //console.log(generateLogMessageString('useEffect||refreshFavoritesList||Trigger fetch', CLASS_NAME));
             fetchData();
         }
 
-        //this will execute on unmount
-        return () => {
-            //console.log(generateLogMessageString('useEffect||refreshLookupData||Cleanup', CLASS_NAME));
-        };
     }, [loadingProps.favoritesList, loadingProps.refreshFavoritesList]);
 
     //-------------------------------------------------------------------

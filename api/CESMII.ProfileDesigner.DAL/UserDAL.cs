@@ -138,7 +138,7 @@
         /// <param name="id"></param>
         /// <param name="orgId"></param>
         /// <returns></returns>
-        public async void CompleteRegistration(int id, string userName, string newPassword)
+        public async Task CompleteRegistration(int id, string userName, string newPassword)
         {
             //get user - match on user id, user name and is active
             var result = _repo.FindByCondition(u => u.ID.Equals(id) && u.UserName.ToLower().Equals(userName) && u.IsActive) 
@@ -231,7 +231,7 @@
         /// </summary>
         /// <param name="orgId"></param>
         /// <returns></returns>
-        public override DALResult<UserModel> GetAllPaged(UserToken userToken, int? skip, int? take, bool returnCount = true, bool verbose = false)
+        public override DALResult<UserModel> GetAllPaged(UserToken userToken, int? skip, int? take, bool returnCount = false, bool verbose = false)
         {
             var query = _repo.GetAll()
                 //.Where(u => u.IsActive)  //TBD - ok to return inactive in the list of users?
@@ -275,8 +275,8 @@
         /// </summary>
         /// <param name="predicate"></param>
         /// <returns></returns>
-        public override DALResult<UserModel> Where(Expression<Func<User, bool>> predicate, UserToken user, int? skip, int? take, 
-            bool returnCount = true, bool verbose = false)
+        public override DALResult<UserModel> Where(Expression<Func<User, bool>> predicate, UserToken user, int? skip = null, int? take = null, 
+            bool returnCount = false, bool verbose = false)
         {
             return base.Where(predicate, user, skip, take, returnCount, verbose,
                 q => q
@@ -347,7 +347,7 @@
             entity.FirstName = model.FirstName;
             entity.LastName = model.LastName;
             entity.IsActive = model.IsActive;
-            entity.OrganizationId = model.Organization == null ? null : model.Organization.ID;
+            entity.OrganizationId = model.Organization?.ID;
 
             //handle update of user permissions
             MapToEntityPermissions(ref entity, model.PermissionIds);
@@ -360,7 +360,7 @@
         /// <remarks>The permissions work off permission id.</remarks>
         /// <param name="entity"></param>
         /// <param name="permissions"></param>
-        protected void MapToEntityPermissions(ref User entity, List<int?> permissions)
+        protected static void MapToEntityPermissions(ref User entity, List<int?> permissions)
         {
             //init visit services for new scenario
             if (entity.UserPermissions == null) entity.UserPermissions = new List<UserPermission>();

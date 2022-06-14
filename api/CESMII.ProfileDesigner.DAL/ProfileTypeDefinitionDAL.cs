@@ -57,7 +57,7 @@
         /// Get all 
         /// </summary>
         /// <returns></returns>
-        public override DALResult<ProfileTypeDefinitionModel> GetAllPaged(UserToken userToken, int? skip = null, int? take = null, bool returnCount = false, bool verbose = false)
+        public override DALResult<ProfileTypeDefinitionModel> GetAllPaged(UserToken userToken, int? skip, int? take, bool returnCount = false, bool verbose = false)
         {
             //put the order by and where clause before skip.take so we skip/take on filtered/ordered query 
             var query = base.GetAllEntities(userToken)
@@ -85,7 +85,7 @@
         /// </summary>
         /// <param name="predicate"></param>
         /// <returns></returns>
-        public override DALResult<ProfileTypeDefinitionModel> Where(Expression<Func<ProfileTypeDefinition, bool>> predicate, UserToken user, int? skip, int? take, 
+        public override DALResult<ProfileTypeDefinitionModel> Where(Expression<Func<ProfileTypeDefinition, bool>> predicate, UserToken user, int? skip = null, int? take = null, 
             bool returnCount = false, bool verbose = false)
         {
             return base.Where(predicate, user, skip, take, returnCount, verbose, q => q
@@ -270,7 +270,7 @@
                     Created = entity.Created,
                     Updated = entity.Updated,
                     MetaTags = string.IsNullOrEmpty(entity.MetaTags) ? new List<string>() : JsonConvert.DeserializeObject<List<MetaTag>>(entity.MetaTags).Select(s => s.Name.Trim()).ToList(),
-                    MetaTagsConcatenated = string.IsNullOrEmpty(entity.MetaTags) ? "" : string.Join(", ", Enumerable.ToArray(JsonConvert.DeserializeObject<List<MetaTag>>(entity.MetaTags).Select(s => s.Name.Trim()).ToList())),
+                    MetaTagsConcatenated = string.IsNullOrEmpty(entity.MetaTags) ? "" : string.Join(", ", Enumerable.ToArray(JsonConvert.DeserializeObject<List<MetaTag>>(entity.MetaTags).Select(s => s.Name.Trim()))),
                     IsActive = entity.IsActive,
                     IsFavorite = entity.Favorite != null,
                     //calculated value which gives more emphasis on extending an item
@@ -593,6 +593,8 @@
                         throw new NotImplementedException($"Profiles must be added explicitly");
                     }
                 }
+                // Don't allow updates of Profile as a side-effect of updating a ProfileTypeDefinition
+                // TODO Log this?
                 entity.Profile = profileEntity;
             }
             entity.BrowseName = model.BrowseName;
@@ -654,7 +656,7 @@
 
             MapToEntityProfileAttribute(ref entity, model.Attributes, userToken);
             MapToEntityInterfaces(ref entity, model.Interfaces, userToken);
-            MapToEntityCompositions(ref entity, model.Compositions, userToken);
+            MapToEntityCompositionsInternal(ref entity, model.Compositions, userToken, modelsProcessed);
             MapToEntityMetaTags(ref entity, model.MetaTags);
         }
 
@@ -737,7 +739,11 @@
                                 variableType = CheckForExisting(source.VariableTypeDefinition, userToken);
                                 if (variableType == null)
                                 {
-                                    throw new Exception($"Unable to resolve variable type {source.VariableTypeDefinition} in {source} ");
+                                    variableType = modelsProcessed.FirstOrDefault(me => me.Item1 == source.VariableTypeDefinition).Item2 ?? null;
+                                }
+                                if (variableType == null)
+                                {
+                                    throw new ArgumentNullException($"Unable to resolve {source.VariableTypeDefinition} in {source} ");
                                 }
                             }
                         }
@@ -802,7 +808,7 @@
                             engUnit = _euDAL.CheckForExisting(attr.EngUnit, userToken);
                             if (engUnit == null)
                             {
-                                throw new Exception($"Engineering unit must be explicitly created: {attr.EngUnit} for {entity}");
+                                throw new ArgumentNullException($"Engineering unit must be explicitly created: {attr.EngUnit} for {entity}");
                             }
                         }
 
@@ -868,7 +874,7 @@
                 {
                     var current = entity.Interfaces[i];
                     //remove if no longer present
-                    var source = interfaces.Find(v => MatchIdentity(current.Interface, v));// */ v.ID.Equals(current.ID) || (v.OpcNodeId == current.Interface?.OpcNodeId && v.Profile.Namespace == current.Interface?.Profile.Namespace));
+                    var source = interfaces.Find(v => MatchIdentity(current.Interface, v));
                     if (source == null)
                     {
                         entity.Interfaces.RemoveAt(i);
@@ -920,7 +926,7 @@
                     var currentEntity = entity.Compositions[i];
 
                     //remove if no longer present
-                    var source = compositions.Find(v => MatchIdentity(currentEntity, v)); //(currentEntity.ID??0) != 0 ? v.ID.Equals(currentEntity.ID) : v.OpcNodeId == currentEntity.OpcNodeId && v.Profile.Namespace == currentEntity.ProfileTypeDefinition.Profile.Namespace );
+                    var source = compositions.Find(v => MatchIdentity(currentEntity, v)); 
                     if (source == null)
                     {
                         entity.Compositions.RemoveAt(i);
@@ -944,7 +950,7 @@
                     // -> importer: related id also 0 -> look up based on name/namespace etc.
                     // Add nodeId to profiles etc.
                     var composition = new ProfileComposition();
-                    MapToEntityCompositionInternal(ref composition, y, entity, userToken);
+                    MapToEntityCompositionInternal(ref composition, y, entity, modelsProcessed, userToken);
                     entity.Compositions.Add(composition);
                 }
             }
@@ -967,7 +973,7 @@
             }
             if (composition.ProfileTypeDefinition != null &&  composition.ProfileTypeDefinitionId != parentEntity.ID)
             {
-                throw new Exception($"Internal error: {composition.ProfileTypeDefinition} does not match {parentEntity}");
+                throw new System.InvalidOperationException($"Internal error: {composition.ProfileTypeDefinition} does not match {parentEntity}");
             }
             composition.ProfileTypeDefinitionId = parentEntity.ID;            //should be same
             if (composition.ProfileTypeDefinition == null && source.ProfileTypeDefinition != null)

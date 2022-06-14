@@ -6,7 +6,7 @@
 
     using CESMII.ProfileDesigner.Common.Models;
 
-    public class PasswordUtils
+    public static class PasswordUtils
     {
         private static readonly string _delimiter = "$";
         private static readonly string _delimiterLegacy = "$";
@@ -24,16 +24,17 @@
         {
             const string Chars = "0123456789abcdefghijklmnopqrstuvwxyz";
             var rnd = new Random();
-            var result = string.Empty;
+            var result = new System.Text.StringBuilder();
             for (var i = 0; i < length; i++)
             {
                 var randomPosition = rnd.Next(0, Chars.Length - 1);
                 var randomCase = rnd.Next(0, 1);
                 var randomChar = Chars.Substring(randomPosition, 1);
-                result += (randomCase == 0 ? randomChar.ToLower() : randomChar.ToUpper());
+                result.Append(randomCase == 0 ? randomChar.ToLower() : randomChar.ToUpper());
+                //Code Smell: use a stringbuilder instead...result += (randomCase == 0 ? randomChar.ToLower() : randomChar.ToUpper());
             }
 
-            return result;
+            return result.ToString();
         }
 
         /// <summary>
@@ -46,7 +47,7 @@
         {
             var randomSalt = new byte[16];
             //populate new salt w/ random bytes
-            using (RNGCryptoServiceProvider rngCsp = new RNGCryptoServiceProvider())
+            using (var rngCsp = new RNGCryptoServiceProvider())
             {
                 rngCsp.GetBytes(randomSalt);
             }
@@ -64,7 +65,7 @@
 
             //return 
             
-            return  $"{((int)encrLevel.Id).ToString()}{_delimiter}" +
+            return  $"{encrLevel.Id}{_delimiter}" +
                     $"{Convert.ToBase64String(randomSalt)}{_delimiter}" + 
                     $"{hashed}";
         }
@@ -159,135 +160,6 @@
             //true if they match
             return hashed == passwordParts[3];
         }
-
-        #region Django Reference - relevant encryption code
-
-        /* CODE: \fp-develop\Lib\site-packages\django\contrib\auth\hashers.py
-            //
-            //This is where the authentication happens
-            //
-
-            class PBKDF2PasswordHasher(BasePasswordHasher):
-                """
-                Secure password hashing using the PBKDF2 algorithm (recommended)
-
-                Configured to use PBKDF2 + HMAC + SHA256.
-                The result is a 64 byte binary string.  Iterations may be changed
-                safely but you must rename the algorithm if you change SHA256.
-                """
-                algorithm = "pbkdf2_sha256"
-                iterations = 216000
-                digest = hashlib.sha256
-
-                def encode(self, password, salt, iterations=None):
-                    assert password is not None
-                    assert salt and '$' not in salt
-                    iterations = iterations or self.iterations
-                    hash = pbkdf2(password, salt, iterations, digest=self.digest)
-                    hash = base64.b64encode(hash).decode('ascii').strip()
-                    return "%s$%d$%s$%s" % (self.algorithm, iterations, salt, hash)
-
-                def verify(self, password, encoded):
-                    algorithm, iterations, salt, hash = encoded.split('$', 3)
-                    assert algorithm == self.algorithm
-                    encoded_2 = self.encode(password, salt, int(iterations))
-                    return constant_time_compare(encoded, encoded_2)
-
-                def safe_summary(self, encoded):
-                    algorithm, iterations, salt, hash = encoded.split('$', 3)
-                    assert algorithm == self.algorithm
-                    return {
-                        _('algorithm'): algorithm,
-                        _('iterations'): iterations,
-                        _('salt'): mask_hash(salt),
-                        _('hash'): mask_hash(hash),
-                    }
-
-                def must_update(self, encoded):
-                    algorithm, iterations, salt, hash = encoded.split('$', 3)
-                    return int(iterations) != self.iterations
-
-                def harden_runtime(self, password, encoded):
-                    algorithm, iterations, salt, hash = encoded.split('$', 3)
-                    extra_iterations = self.iterations - int(iterations)
-                    if extra_iterations > 0:
-                        self.encode(password, salt, extra_iterations)
-         
-        */
-
-        /* CODE: fp-develop\Lib\site-packages\django\utils\crypto.py
-            //
-            //This is used to initially generate Salt value. Salt is unique per user. 
-            //
-            # RemovedInDjango40Warning: when the deprecation ends, replace with:
-            #   def get_random_string(length, allowed_chars='...'):
-            
-            def get_random_string(length=NOT_PROVIDED, allowed_chars=(
-                'abcdefghijklmnopqrstuvwxyz'
-                'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
-            )):
-                """
-                Return a securely generated random string.
-
-                The bit length of the returned value can be calculated with the formula:
-                    log_2(len(allowed_chars)^length)
-
-                For example, with default `allowed_chars` (26+26+10), this gives:
-                  * length: 12, bit length =~ 71 bits
-                  * length: 22, bit length =~ 131 bits
-                """
-                if length is NOT_PROVIDED:
-                    warnings.warn(
-                        'Not providing a length argument is deprecated.',
-                        RemovedInDjango40Warning,
-                    )
-                    length = 12
-                return ''.join(secrets.choice(allowed_chars) for i in range(length))
-
-
-            //
-            //This is where the encryption happens. Notice the use of force bytes on salt and pw.
-            //
-            def pbkdf2(password, salt, iterations, dklen=0, digest=None):
-                """Return the hash of password using pbkdf2."""
-                if digest is None:
-                    digest = hashlib.sha256
-                dklen = dklen or None
-                password = force_bytes(password)
-                salt = force_bytes(salt)
-                return hashlib.pbkdf2_hmac(digest().name, password, salt, iterations, dklen)
-         
-         */
-
-        /* CODE: \fp-develop\Lib\site-packages\django\utils\encoding.py
-            //
-            //This is the force_bytes call on a string
-            //
-
-            def force_bytes(s, encoding='utf-8', strings_only=False, errors='strict'):
-                """
-                Similar to smart_bytes, except that lazy instances are resolved to
-                strings, rather than kept as lazy objects.
-
-                If strings_only is True, don't convert (some) non-string-like objects.
-                """
-                # Handle the common case first for performance reasons.
-                if isinstance(s, bytes):
-                    if encoding == 'utf-8':
-                        return s
-                    else:
-                        return s.decode('utf-8', errors).encode(encoding, errors)
-                if strings_only and is_protected_type(s):
-                    return s
-                if isinstance(s, memoryview):
-                    return bytes(s)
-                return str(s).encode(encoding, errors)
-
-
-         
-         */
-
-        #endregion
 
     }
 }

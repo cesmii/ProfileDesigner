@@ -115,11 +115,6 @@ function DownloadMessage() {
                 });
             }
         }
-
-        //this will execute on unmount
-        return () => {
-            //console.log(generateLogMessageString('useEffect||Cleanup', CLASS_NAME));
-        };
     }, [loadingProps.downloadItems]);
 
     //-------------------------------------------------------------------
@@ -154,7 +149,6 @@ function DownloadMessage() {
         link.download = msg.download;
         document.body.appendChild(link);
         link.click();
-        //console.log("clicked");
         document.body.removeChild(link);
     }
 

@@ -20,15 +20,13 @@ namespace CESMII.ProfileDesigner.Api.Controllers
     public class AuthController : BaseController<AuthController>
     {
         private readonly UserDAL _dal;
-        private readonly MailRelayService _mailRelay;
         private readonly TokenUtils _tokenUtils;
 
-        public AuthController(UserDAL dal, TokenUtils tokenUtils, MailRelayService mailRelay, ConfigUtil config, ILogger<AuthController> logger) 
+        public AuthController(UserDAL dal, TokenUtils tokenUtils, ConfigUtil config, ILogger<AuthController> logger) 
             : base(config, logger)
         {
             _dal = dal;
             _tokenUtils = tokenUtils;
-            _mailRelay = mailRelay;
         }
 
         [AllowAnonymous, HttpPost, Route("Login")]

@@ -77,13 +77,13 @@ namespace CESMII.ProfileDesigner.OpcUa
 #endif
         public IDal<Data.Entities.Profile, DAL.Models.ProfileModel> _nsDal;
         private readonly IDal<NodeSetFile, NodeSetFileModel> _nsFileDal;
-        public ISystemContext _systemContext;
+        private ISystemContext _systemContext;
 
-        NodeStateCollection _importedNodes = new NodeStateCollection();
+        NodeStateCollection _importedNodes = new();
 
 
-        Dictionary<string, NodeSetModel> NodesetModels = new Dictionary<string, NodeSetModel>();
-        Dictionary<string, string> Aliases = new Dictionary<string, string>();
+        Dictionary<string, NodeSetModel> NodesetModels = new ();
+        Dictionary<string, string> Aliases = new();
 
         public System.Threading.Tasks.Task<List<NodeSetModel>> LoadNodeSetAsync(UANodeSet nodeSet, ProfileModel profile, bool doNotReimport = false)
         {
@@ -144,9 +144,9 @@ namespace CESMII.ProfileDesigner.OpcUa
             _dal.StartTransaction();
             foreach(var nsFile in profile.NodeSetFiles)
             {
-                await _nsFileDal.Upsert(nsFile, userToken, true);
+                await _nsFileDal.UpsertAsync(nsFile, userToken, true);
             }
-            var result = await _nsDal.Upsert(profile, userToken, true);
+            var result = await _nsDal.UpsertAsync(profile, userToken, true);
             var dalContext = new DALContext(this, userToken, authorToken, false);
             var profileItems = ImportProfileItems(nodeSetModel, dalContext);
             var sw = Stopwatch.StartNew();
@@ -512,7 +512,7 @@ namespace CESMII.ProfileDesigner.OpcUa
             _euDal.StartTransaction();
             foreach (var unit in units)
             {
-                await _euDal.Add(new EngineeringUnitModel
+                await _euDal.AddAsync(new EngineeringUnitModel
                 {
                     DisplayName = unit.DisplayName.Text,
                     Description = unit.Description.Text,
@@ -695,7 +695,7 @@ namespace CESMII.ProfileDesigner.OpcUa
         {
             //if (updateExisting)
             {
-                return _importer._dal.Upsert(profileItem, _userToken, updateExisting);
+                return _importer._dal.UpsertAsync(profileItem, _userToken, updateExisting);
             }
             //else
             //{
@@ -705,7 +705,7 @@ namespace CESMII.ProfileDesigner.OpcUa
 
         public async Task<int?> CreateCustomDataTypeAsync(LookupDataTypeModel customDataTypeLookup)
         {
-            return (await _importer._dtDal.Upsert(customDataTypeLookup, _userToken, false)).Item1;
+            return (await _importer._dtDal.UpsertAsync(customDataTypeLookup, _userToken, false)).Item1;
         }
 
         public Task<LookupDataTypeModel> GetCustomDataTypeAsync(ProfileTypeDefinitionModel customDataTypeProfile)
@@ -727,7 +727,7 @@ namespace CESMII.ProfileDesigner.OpcUa
 
         public EngineeringUnitModel GetOrCreateEngineeringUnitAsync(EngineeringUnitModel engUnit)
         {
-            engUnit.ID = _importer._euDal.Upsert(engUnit, _userToken, false).Result.Item1;
+            engUnit.ID = _importer._euDal.UpsertAsync(engUnit, _userToken, false).Result.Item1;
             return engUnit;
         }
 

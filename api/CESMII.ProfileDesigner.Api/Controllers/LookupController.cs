@@ -49,7 +49,6 @@ namespace CESMII.ProfileDesigner.Api.Controllers
 
             //profile types, attr types in here
             var data = _dal.GetAll(userToken);
-            //var lookupCustomDataType = data.Find(x => x.LookupType == LookupTypeEnum.ProfileType && x.Code.ToLower().Equals("customdatatype"));
 
             //get entire list and then split out into sub-lists
             var dataTypes = _dalDataType.Where(x => !x.Code.ToLower().Equals("composition"), userToken).Data.ToList();

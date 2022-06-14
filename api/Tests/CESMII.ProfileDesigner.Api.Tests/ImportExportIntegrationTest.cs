@@ -190,7 +190,7 @@ namespace CESMII.ProfileDesigner.Api.Tests
             {
                 var message = unexplainedLines > 1 ?
                     $"Diff lines {i - unexplainedLines + 1} to {i} have no explanation in {expectedDiffFile}."
-                    : $"Diff lines {i - unexplainedLines} has no explanation in {expectedDiffFile}.";
+                    : $"Diff line {i - unexplainedLines} has no explanation in {expectedDiffFile}.";
                 output.WriteLine(message);
                 issueCounts.TryGetValue("Untriaged", out var previousCount);
                 issueCounts["Untriaged"] = previousCount + unexplainedLines;

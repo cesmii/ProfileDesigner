@@ -104,7 +104,7 @@ namespace CESMII.ProfileDesigner.Api.Tests
                 File.WriteAllText($"{diffFileRoot}.controldiff.difflog", diffControl);
                 File.WriteAllText($"{diffFileRoot}.testdiff.difflog", diffTest);
 
-                var expectedDiffFile = file.Replace(strTestNodeSetDirectory, Path.Combine(strTestNodeSetDirectory, "ExpectedDiffs")) + ".summarydiff.difflog";
+                string expectedDiffFile = GetExpectedDiffFile(file);
                 if (!File.Exists(expectedDiffFile))
                 {
                     File.WriteAllText(expectedDiffFile, diffSummary);
@@ -115,11 +115,13 @@ namespace CESMII.ProfileDesigner.Api.Tests
                 var expectedSummaryLines = File.ReadAllLines(expectedDiffFile);
                 int i = 0;
                 var issueCounts = new Dictionary<string, int>();
+                int unexplainedLines = 0;
                 while (i < expectedSummaryLines.Length)
                 {
                     var line = expectedSummaryLines[i];
                     if (line.StartsWith("###"))
                     {
+                        unexplainedLines = ReportUnexplainedLines(expectedDiffFile, i, issueCounts, unexplainedLines);
                         var parts = line.Substring("###".Length).Split("#", 4);
                         int count = 1;
                         if (parts.Length > 1)
@@ -129,7 +131,7 @@ namespace CESMII.ProfileDesigner.Api.Tests
                             if (parts.Length > 2)
                             {
                                 issueCounts.TryGetValue(parts[1], out var previousCount);
-                                issueCounts[parts[1]] =  previousCount + count;
+                                issueCounts[parts[1]] = previousCount + count;
                                 if (parts[1].ToLowerInvariant() == "by design")
                                 {
                                     bIsTriaged = true;
@@ -138,7 +140,7 @@ namespace CESMII.ProfileDesigner.Api.Tests
                                 {
                                     if (parts.Length > 3)
                                     {
-                                        var issueNumber =parts[3];
+                                        var issueNumber = parts[3];
                                         if (!string.IsNullOrEmpty(issueNumber))
                                         {
                                             bIsTriaged = true;
@@ -157,17 +159,12 @@ namespace CESMII.ProfileDesigner.Api.Tests
                     }
                     else
                     {
-                        if (line.Length >= 2)
-                        {
-                            var message = $"Diff line {i} has no explanation in {expectedDiffFile}.";
-                            output.WriteLine(message);
-                            issueCounts.TryGetValue("Untriaged", out var previousCount);
-                            issueCounts["Untriaged"] = previousCount + 1;
-                            //Assert.True(false, message);
-                        }
+                        unexplainedLines++;
                     }
                     i++;
                 }
+                unexplainedLines = ReportUnexplainedLines(expectedDiffFile, i, issueCounts, unexplainedLines);
+
                 var diffCounts = issueCounts.Any() ? string.Join(", ", issueCounts.Select(kv => $"{kv.Key}: {kv.Value}")) : "none";
 
                 expectedSummary = Regex.Replace(expectedSummary, "^###.*$", "", RegexOptions.Multiline);
@@ -187,6 +184,27 @@ namespace CESMII.ProfileDesigner.Api.Tests
 
         }
 
+        private int ReportUnexplainedLines(string expectedDiffFile, int i, Dictionary<string, int> issueCounts, int unexplainedLines)
+        {
+            if (unexplainedLines > 0)
+            {
+                var message = unexplainedLines > 1 ?
+                    $"Diff lines {i - unexplainedLines + 1} to {i} have no explanation in {expectedDiffFile}."
+                    : $"Diff lines {i - unexplainedLines} has no explanation in {expectedDiffFile}.";
+                output.WriteLine(message);
+                issueCounts.TryGetValue("Untriaged", out var previousCount);
+                issueCounts["Untriaged"] = previousCount + unexplainedLines;
+                //Assert.True(false, message);
+                unexplainedLines = 0;
+            }
+
+            return unexplainedLines;
+        }
+
+        internal static string GetExpectedDiffFile(string file)
+        {
+            return file.Replace(strTestNodeSetDirectory, Path.Combine(strTestNodeSetDirectory, "ExpectedDiffs")) + ".summarydiff.difflog";
+        }
 
         private List<ImportOPCModel> CheckAndDeleteExistingProfiles(bool deleteProfiles, Client apiClient, string[] nodeSetFiles)
         {
@@ -279,7 +297,7 @@ namespace CESMII.ProfileDesigner.Api.Tests
                     var sw = Stopwatch.StartNew();
                     do
                     {
-                        System.Threading.Thread.Sleep(5000);
+                        System.Threading.Thread.Sleep(2000);
                         status = await apiClient.GetByIDAsync(statusModel);
                     } while (sw.Elapsed < TimeSpan.FromMinutes(15) &&
                              ((int)status.Status == (int)CESMII.ProfileDesigner.Common.Enums.TaskStatusEnum.InProgress
@@ -423,7 +441,23 @@ namespace CESMII.ProfileDesigner.Api.Tests
         }
         public IEnumerable<TTestCase> OrderTestCases<TTestCase>(IEnumerable<TTestCase> testCases) where TTestCase : ITestCase
         {
-            var importTestCaseList = testCases.Where(t => t.TestMethod.Method.Name == nameof(Integration.Import)).ToList();
+            bool ignoreTestsWithoutExpectedOutcome = true;
+            var testCasesWithExpectedDiff = testCases.ToList();
+            if (ignoreTestsWithoutExpectedOutcome)
+            {
+                testCasesWithExpectedDiff = testCases.Where(t =>
+                {
+                    var file = t.TestMethodArguments[0].ToString();
+                    var diffFile = Integration.GetExpectedDiffFile(Path.Combine(Integration.strTestNodeSetDirectory, file));
+                    var bHasDiff = File.Exists(diffFile);
+                    if (!bHasDiff)
+                    {
+                        Console.WriteLine($"Ignoring {file} because it has no expected diff file {diffFile}.");
+                    }
+                    return bHasDiff;
+                }).ToList();
+            }
+            var importTestCaseList = testCasesWithExpectedDiff.Where(t => t.TestMethod.Method.Name == nameof(Integration.Import)).ToList();
             var testFiles = importTestCaseList.Select(t => t.TestMethodArguments[0].ToString()).ToList();
             var importRequests = testFiles.Select(file =>
             {
@@ -434,7 +468,7 @@ namespace CESMII.ProfileDesigner.Api.Tests
             // Run import tests first, in dependency order
             var orderedTestCases = orderedImportRequests.Select(ir => importTestCaseList.FirstOrDefault(tc => Path.Combine(Integration.strTestNodeSetDirectory, tc.TestMethodArguments[0].ToString()) == ir.FileName)).ToList();
 
-            var remainingTestCaseList = testCases.Except(orderedTestCases).ToList();
+            var remainingTestCaseList = testCasesWithExpectedDiff.Except(orderedTestCases).ToList();
 
             var remainingOrdered = orderedImportRequests.Select(ir => remainingTestCaseList.FirstOrDefault(tc => Path.Combine(Integration.strTestNodeSetDirectory, tc.TestMethodArguments[0].ToString()) == ir.FileName)).Where(tc => tc != null).ToList();
             foreach (var remaining in remainingOrdered)
@@ -452,7 +486,7 @@ namespace CESMII.ProfileDesigner.Api.Tests
             //orderedTestCases.AddRange(remainingOrdered);
 
             // Then all other tests
-            var remainingUnorderedTests = testCases.Except(orderedTestCases).ToList();
+            var remainingUnorderedTests = testCasesWithExpectedDiff.Except(orderedTestCases).ToList();
 
             return orderedTestCases.Concat(remainingUnorderedTests).ToList();
         }

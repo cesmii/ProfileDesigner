@@ -61,7 +61,6 @@ function ProfileTypeDefinitionListGrid(props) {
         //scroll screen to top of grid on page change
         ////scroll a bit higher than the top edge so we get some of the header in the view
         window.scrollTo({ top: (_scrollToRef.current.offsetTop-120), behavior: 'smooth' }); 
-        //scrollToRef.current.scrollIntoView();
 
         //preserve choice in local storage
         setProfileTypePageSize(pageSize);
@@ -81,7 +80,6 @@ function ProfileTypeDefinitionListGrid(props) {
     };
 
     const toggleDisplayMode = (val) => {
-        //console.log(generateLogMessageString('toggleDisplayMode', CLASS_NAME));
         if (_displayMode === val) return;
         setDisplayMode(val);
         setProfileTypeDisplayMode(val);
@@ -96,10 +94,11 @@ function ProfileTypeDefinitionListGrid(props) {
         var copy = JSON.parse(JSON.stringify(_dataRows.all));
 
         //if single select mode, then loop over all others and mark selected to false
-        if (item.selected && props.selectMode === "single")
-        copy.forEach(r => {
-            if (r.id !== item.id) r.selected = false;
-        });
+        if (item.selected && props.selectMode === "single") {
+            copy.forEach(r => {
+                if (r.id !== item.id) r.selected = false;
+            });
+        }
         setDataRows({ ..._dataRows, all: copy });
         //bubble up to parent
         if (props.onGridRowSelect) props.onGridRowSelect(item);
@@ -151,7 +150,6 @@ function ProfileTypeDefinitionListGrid(props) {
                 }
                 //hide a spinner
                 setLoadingProps({ isLoading: false, message: null });
-                //setRefreshData(false);
 
             }).catch(e => {
                 if ((e.response && e.response.status === 401) || e.toString().indexOf('Network Error') > -1) {
@@ -174,67 +172,7 @@ function ProfileTypeDefinitionListGrid(props) {
             fetchData();
         }
 
-        //this will execute on unmount
-        return () => {
-            console.log(generateLogMessageString('useEffect||Cleanup', CLASS_NAME));
-            //setFilterValOnChild('');
-        };
     }, [_refreshData, props.searchCriteriaChanged]);
-
-    //-------------------------------------------------------------------
-    // Region: Update criteria if profileId(s) passed in
-    // //if profiles are passed in the props, update the search criteria to filter on the passed in properties
-    //-------------------------------------------------------------------
-/*
-    useEffect(() => {
-
-        //Scenarios
-        //Typical - search criteria cache populated on login - all dependent data in place
-        //Less common - search criteria missing as we go from older version to newer version.
-        //      In this case, if user is trying to ViewTypeDefinitions, we need the search criteria
-        //      so we can assign the profileId in the proper place. If this happens, set flag to go get 
-        //      data and then tell user to try loading page again.
-        //Note - the filter component will also be checking for existence of the searchCriteria - it will set the
-        //      refresh flag
-
-        if (props.searchCriteria == null || props.searchCriteria.filters == null) {
-            //update state to trigger retrieval of search criteria data
-            if (!loadingProps.refreshSearchCriteria) setLoadingProps({ refreshSearchCriteria: true });
-
-            //Scenario 1 - no search criteria data and profileId == null 
-            //Scenario 2 - no search criteria data and profileId != null 
-            //Inform user to reload page.By then, we will have data they need.
-            setLoadingProps({
-                inlineMessages: [
-                    { id: new Date().getTime(), severity: "danger", body: 'An error occurred loading the type library. Please try again.', isTimed: true }]
-            });
-            console.error(generateLogMessageString('useEffect||InitGrid||Search criteria data was not loaded yet. System is trying to reload data', CLASS_NAME));
-            return;
-        }
-        //Scenario 3 - typical 
-        else {
-            //update search criteria - if profile id passed in
-            var criteria = JSON.parse(JSON.stringify(props.searchCriteria));
-            if (props.filterProfiles != null && props.filterProfiles.length > 0) {
-                criteria = clearSearchCriteria(criteria);
-                //loop over each filter profile and update filter property
-                props.filterProfiles.forEach(id => {
-                    toggleSearchFilterSelected(criteria, AppSettings.SearchCriteriaCategory.Profile, parseInt(id));
-                });
-            }
-            //update state for other components to see
-            setLoadingProps({ searchCriteria: criteria });
-            //trigger API call
-            setRefreshData(_refreshData + 1);
-        }
-
-        //this will execute on unmount
-        return () => {
-            console.log(generateLogMessageString('useEffect||Cleanup', CLASS_NAME));
-            //setFilterValOnChild('');
-        };
-    }, [props.filterProfiles]);
-*/
 
     //-------------------------------------------------------------------
     // Region: Delete event handlers
@@ -315,7 +253,6 @@ function ProfileTypeDefinitionListGrid(props) {
                     cancel={{
                         caption: "OK",
                         callback: () => {
-                            //console.log(generateLogMessageString(`onErrorMessageOK`, CLASS_NAME));
                             setError({ show: false, caption: null, message: null });
                         },
                         buttonVariant: 'danger'

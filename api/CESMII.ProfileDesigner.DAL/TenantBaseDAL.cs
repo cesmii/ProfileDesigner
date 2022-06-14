@@ -14,7 +14,7 @@
 
     public abstract class TenantBaseDAL<TEntity, TModel> : BaseDAL<TEntity, TModel> where TEntity : AbstractEntityWithTenant, new() where TModel : AbstractModel
     {
-        public TenantBaseDAL(IRepository<TEntity> repo): base(repo)
+        protected TenantBaseDAL(IRepository<TEntity> repo): base(repo)
         {
         }
 
@@ -41,17 +41,19 @@
             var count = returnCount ? query.Count() : 0;
             if (skip.HasValue) query = query.Skip(skip.Value);
             if (take.HasValue) query = query.Take(take.Value);
-            DALResult<TModel> result = new DALResult<TModel>();
-            result.Count = count;
-            result.Data = MapToModels(query.ToList());
-            result.SummaryData = null;
+            var result = new DALResult<TModel>
+            {
+                Count = count,
+                Data = MapToModels(query.ToList()),
+                SummaryData = null
+            };
             return result;
         }
 
         protected override DALResult<TModel> Where(Expression<Func<TEntity, bool>> predicate, UserToken user, int? skip = null, int? take = null, bool returnCount = false, bool verbose = false,
             Func<IQueryable<TEntity>, IQueryable<TEntity>> additionalQuery = null)
         {
-            var query = _repo.FindByCondition(predicate).Where(e => e.OwnerId == null || e.OwnerId == user.UserId);
+            var query = _repo.FindByCondition(predicate).Where(e => e.OwnerId == null || e.OwnerId == user.UserId); //.Where(predicate);
             if (additionalQuery != null)
             {
                 query = additionalQuery(query);
@@ -66,11 +68,17 @@
             else if (skip.HasValue) data = query.Skip(skip.Value);
             else if (take.HasValue) data = query.Take(take.Value);
             else data = query;
-            //if (skip.HasValue) query = query.Skip(skip.Value);
-            //if (take.HasValue) query = query.Take(take.Value);
             DALResult<TModel> result = new DALResult<TModel>();
             result.Count = count;
-            result.Data = MapToModels(data.ToList(), verbose);
+            try
+            {
+                result.Data = MapToModels(data.ToList(), verbose);
+            }
+            catch (InvalidOperationException)
+            {
+                // For some reason this throws due to modified collection on first try (local cache change due to side effect of mapping?)
+                result.Data = MapToModels(data.ToList(), verbose);
+            }
             result.SummaryData = null;
             return result;
         }
@@ -94,12 +102,7 @@
             return _repo.GetAll().Where(u => u.OwnerId == null || u.OwnerId == userToken.UserId);
         }
 
-        //public virtual TModel GetByFunc(Expression<Func<TEntity, bool>> predicate, bool verbose)
-        //{
-        //    var tRes = _repo.FindByCondition(predicate)?.FirstOrDefault();
-        //    return MapToModel(tRes);
-        //}
-
+        
         protected override Task<int?> AddAsync(TEntity entity, TModel model, UserToken userToken)
         {
             // For now: TargetTenantId 0 means write globally, otherwise write to user's scope

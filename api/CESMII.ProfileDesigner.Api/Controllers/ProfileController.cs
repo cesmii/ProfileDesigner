@@ -454,7 +454,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             if (!ModelState.IsValid)
             {
                 var errors = ExtractModelStateErrors();
-                _logger.LogCritical($"ProfileController|Import|User Id:{User.GetUserID()}, Errors: {errors.ToString()}");
+                _logger.LogCritical($"ProfileController|Import|User Id:{User.GetUserID()}, Errors: {errors}");
                 return Ok(
                     new ResultMessageWithDataModel()
                     {
@@ -480,7 +480,6 @@ namespace CESMII.ProfileDesigner.Api.Controllers
 
             //pass in the author id as current user
             var userToken = UserExtension.DalUserToken(User);
-            //var result = await this.ImportOpcUaNodeSet(importer, model, userId, userId);
 
             //kick off background process, logid is returned immediately so front end can track progress...
             var logId = await _svcImport.ImportOpcUaNodeSet(model, userToken);
@@ -506,28 +505,6 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         [ProducesResponseType(200, Type = typeof(ResultMessageExportModel))]
         public async Task<IActionResult> Export([FromBody] IdIntModel model)
         {
-            /*
-            var xml = $"<?xml version=\"1.0\" encoding=\"utf-8\"?><Aliases><Alias Alias=\"Boolean\">i=1</Alias></Aliases>";
-            var num = 0;
-
-            switch (num)
-            {
-                case 2:
-                    return Ok(new ResultMessageExportModel() { IsSuccess = false, Message = "Error ABC has occurred." });
-                case 1:
-                    return Ok(new ResultMessageExportModel()
-                    {
-                        IsSuccess = true,
-                        Message = "",
-                        Data = xml,
-                        Warnings = new List<string>() { "Warning 1", "Warning 2", "Warning 3" }
-                    });
-                case 0:
-                default:
-                    return Ok(new ResultMessageExportModel() { IsSuccess = true, Message = "", Data = xml });
-            }
-            */
-
             var userToken = UserExtension.DalUserToken(User);
 
             //get profile to export
@@ -545,10 +522,8 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                     }
                 );
             }
-            int userId = User.GetUserID();
 
             // Populate the OPC model into a new importer instance
-
             try
             {
                 string result = null;
@@ -561,8 +536,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                         result = Encoding.UTF8.GetString(xmlNodeSetStream.ToArray());
                         _logger.LogTrace($"Timestamp||Export||Data Converted to Response: {sw.Elapsed}");
 
-                        // TODO read and include the required models in a ZIP file, optionally?
-
+                        //TBD - read and include the required models in a ZIP file, optionally?
                         //TBD - get the warnings that were logged on import and publish them here. 
                     }
                     else
@@ -574,7 +548,6 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                         });
                     }
                 }
-                //return Task.FromResult(new ResultMessageWithDataModel()
                 return Ok(new ResultMessageExportModel()
                 {
                     IsSuccess = true,

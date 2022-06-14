@@ -10,6 +10,7 @@
     using CESMII.ProfileDesigner.DAL.Models;
     using CESMII.ProfileDesigner.Data.Entities;
     using CESMII.ProfileDesigner.Data.Repositories;
+    using Microsoft.Extensions.Logging;
 
     public class LookupDataTypeDAL : TenantBaseDAL<LookupDataType, LookupDataTypeModel>, IDal<LookupDataType, LookupDataTypeModel>
     {
@@ -221,6 +222,11 @@
             entity.IsNumeric = model.IsNumeric;
             entity.UseMinMax = model.UseMinMax;
             entity.UseEngUnit = model.UseEngUnit;
+
+            if (CheckForExisting(model, userToken, false) == null)
+            {
+                _repo.Attach(entity); // Attach to context so CheckForExisting can find it if there are recursive references in subsequent mapping operations
+            }
             if (model.CustomTypeId != 0)
             {
                 entity.CustomTypeId = model.CustomTypeId != 0 ? model.CustomTypeId : null;
@@ -233,6 +239,7 @@
                     customTypeEntity = _profileTypeDefinitionDAL.CheckForExisting(model.CustomType, userToken);
                     if (customTypeEntity == null)
                     {
+                        _logger.Warn($"Creating custom type  {model.CustomType} as side effect of creating {model}");
                         _profileTypeDefinitionDAL.Add(model.CustomType, userToken).Wait();
                         customTypeEntity = _profileTypeDefinitionDAL.CheckForExisting(model.CustomType, userToken);
                     }

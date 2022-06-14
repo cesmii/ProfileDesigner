@@ -1,0 +1,7 @@
+opcfoundation.org.UA.I4AAS.NodeSet2.xml
+opcfoundation.org.UA.DI.NodeSet2.xml
+opcfoundation.org.UA.CNC.NodeSet2.xml
+opcfoundation.org.UA.CommercialKitchenEquipment.NodeSet2.xml
+opcfoundation.org.UA.Pumps.NodeSet2.xml
+opcfoundation.org.UA.Glass.Flat.NodeSet2.xml
+opcfoundation.org.UA.PlasticsRubber.TCD.NodeSet2.xml

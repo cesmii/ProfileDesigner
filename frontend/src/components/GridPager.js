@@ -74,7 +74,6 @@ function GridPager(props) { //(currentPage, pageSize, itemCount, onChangePage)
         // calculate start and end item indexes
         var startIndex = (currentPage - 1) * pageSize;
         var endIndex = Math.min(startIndex + pageSize - 1, itemCount - 1);
-        //console.log(generateLogMessageString(`getPagerData||Start index: ${startIndex}, End index: ${endIndex}, Current Page: ${currentPage}`, CLASS_NAME));
 
         // create an array of pages to ng-repeat in the pager control
         var pages = [...Array((endPage + 1) - startPage).keys()].map(i => startPage + i);
@@ -142,7 +141,6 @@ function GridPager(props) { //(currentPage, pageSize, itemCount, onChangePage)
 
     const renderPageSizeOptions = (pageSize) => {
 
-        //console.log(generateLogMessageString(`renderPageSizeOptions||Val: ${pageSize}`, CLASS_NAME));
         //make copy of options. If current page size is not represented, add it to options
         var pageSizeOptions = JSON.parse(JSON.stringify(AppSettings.PageSizeOptions));
         if (pageSizeOptions.find(item => { return item === pageSize; }) == null) {

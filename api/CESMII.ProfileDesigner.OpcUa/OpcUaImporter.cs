@@ -340,7 +340,7 @@ namespace CESMII.ProfileDesigner.OpcUa
                         {
 
                             var nodeIdParts = uaVariable.Parent.NodeId.Split(';');
-                            var attribute = dvGrandParent.Attributes.FirstOrDefault(a => a.OpcNodeId == nodeIdParts[1] && nodeIdParts[0].EndsWith(a.Namespace));
+                            var attribute = dvGrandParent.Attributes?.FirstOrDefault(a => a.OpcNodeId == nodeIdParts[1] && nodeIdParts[0].EndsWith(a.Namespace));
                             if (attribute != null && !string.IsNullOrEmpty(attribute.DataVariableNodeIds))
                             {
                                 var map = DataVariableNodeIdMap.GetMap(attribute.DataVariableNodeIds);
@@ -360,7 +360,7 @@ namespace CESMII.ProfileDesigner.OpcUa
                     if (dalContext.profileItems.TryGetValue(uaVariable.Parent.NodeId, out var parent))
                     {
                         var nodeIdParts = uaVariable.NodeId.Split(';');
-                        if (parent.Attributes.FirstOrDefault(a => a.OpcNodeId == nodeIdParts[1] && nodeIdParts[0].EndsWith(a.Namespace)) != null)
+                        if (parent.Attributes?.FirstOrDefault(a => a.OpcNodeId == nodeIdParts[1] && nodeIdParts[0].EndsWith(a.Namespace)) != null)
                         {
                             continue;
                         }
@@ -394,7 +394,7 @@ namespace CESMII.ProfileDesigner.OpcUa
             {
                 namespaces.GetIndexOrAppend(nsUri);
             }
-            HashSet<string> nodeIdsUsed = new HashSet<string>();
+            var nodeIdsUsed = new HashSet<string>();
             var items = ExportAllNodes(nodesetModel, aliases, namespaces, nodeIdsUsed);
 
             // remove unused aliases

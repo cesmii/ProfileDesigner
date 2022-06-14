@@ -47,7 +47,7 @@ namespace CESMII.ProfileDesigner.Api.Utils
         public async Task<int> ImportOpcUaNodeSet(List<ImportOPCModel> nodeSetXmlList, UserToken userToken)
         {
             //the rest of the fields are set in the dal
-            ImportLogModel logItem = new ImportLogModel()
+            var logItem = new ImportLogModel()
             {
                 FileList = nodeSetXmlList.Select(f => f.FileName).ToArray<string>(),
                 Messages = new List<ImportLogMessageModel>() {

@@ -443,6 +443,7 @@ namespace CESMII.ProfileDesigner.Api.Tests
         {
             bool ignoreTestsWithoutExpectedOutcome = true;
             var testCasesWithExpectedDiff = testCases.ToList();
+            var unstableTests = File.ReadAllLines(Path.Combine(Integration.strTestNodeSetDirectory, "ExpectedDiffs", "unstable.txt"));
             if (ignoreTestsWithoutExpectedOutcome)
             {
                 testCasesWithExpectedDiff = testCases.Where(t =>
@@ -453,6 +454,14 @@ namespace CESMII.ProfileDesigner.Api.Tests
                     if (!bHasDiff)
                     {
                         Console.WriteLine($"Ignoring {file} because it has no expected diff file {diffFile}.");
+                    }
+                    else
+                    {
+                        if (unstableTests.Contains(file))
+                        {
+                            Console.WriteLine($"Ignoring {file} because it is listed as unstable / pending investigation.");
+                            return false;
+                        }
                     }
                     return bHasDiff;
                 }).ToList();

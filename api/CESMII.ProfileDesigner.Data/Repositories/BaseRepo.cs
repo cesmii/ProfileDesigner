@@ -173,6 +173,11 @@
             _context.SaveChanges();
         }
 
+        public async void Attach(TEntity entity)
+        {
+            _context.Attach(entity);
+        }
+
         public async Task<int> SaveChanges()
         {
             return await _context.SaveChangesAsync();

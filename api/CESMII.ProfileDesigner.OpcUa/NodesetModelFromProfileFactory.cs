@@ -271,10 +271,9 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
 
     }
 
-    public class InstanceModelFromProfileFactory<TInstanceModel, TBaseTypeModel, TBaseTypeModelFromProfileFactory> : NodeModelFromProfileFactory<TInstanceModel>
+    public class InstanceModelFromProfileFactory<TInstanceModel, TBaseTypeModel> : NodeModelFromProfileFactory<TInstanceModel>
         where TInstanceModel : InstanceModel<TBaseTypeModel>, new()
         where TBaseTypeModel : BaseTypeModel, new()
-        where TBaseTypeModelFromProfileFactory : NodeModelFromProfileFactory<TBaseTypeModel>, new()
     {
 
         public override void Initialize(ProfileTypeDefinitionModel profileItem, IOpcUaContext opcContext, IDALContext dalContext)
@@ -322,7 +321,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
         }
     }
 
-    public class ObjectModelFromProfileFactory : InstanceModelFromProfileFactory<ObjectModel, ObjectTypeModel, ObjectTypeModelFromProfileFactory>
+    public class ObjectModelFromProfileFactory : InstanceModelFromProfileFactory<ObjectModel, ObjectTypeModel>
     {
         internal static ObjectModel Create(ProfileTypeDefinitionRelatedModel objectTypeRelated, ProfileTypeDefinitionModel composingProfile, IOpcUaContext opcContext, IDALContext dalContext)
         {
@@ -407,7 +406,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
     {
     }
 
-    public class VariableModelFromProfileFactory<TVariableModel> : InstanceModelFromProfileFactory<TVariableModel, VariableTypeModel, VariableTypeModelFromProfileFactory>
+    public class VariableModelFromProfileFactory<TVariableModel> : InstanceModelFromProfileFactory<TVariableModel, VariableTypeModel>
         where TVariableModel : VariableModel, new()
     {
         internal static T Create<T>(ProfileTypeDefinitionModel profileType, ProfileAttributeModel attribute, IOpcUaContext opcContext, IDALContext dalContext) where T : VariableModel, new()
@@ -577,7 +576,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
                 }
                 else
                 {
-                    throw new Exception($"Unable to resolve custom type profile {customDataType.Name}");
+                    throw new Exception($"Unable to resolve custom type profile {customDataType?.Name}");
                 }
             }
 

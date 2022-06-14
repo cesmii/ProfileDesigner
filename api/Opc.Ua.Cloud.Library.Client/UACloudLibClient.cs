@@ -168,7 +168,7 @@ namespace Opc.Ua.Cloud.Library.Client
                 throw new Exception(response.Errors[0].Message);
             }
 
-            string dataJson = response.Data?.First?.First?.ToString();
+            string dataJson = response?.Data?.First?.First?.ToString();
 
             return JsonConvert.DeserializeObject<T>(dataJson);
         }

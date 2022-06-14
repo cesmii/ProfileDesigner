@@ -59,7 +59,7 @@ jobs:
         working-directory: ${{env.SOLUTION_DIRECTORY}}
       - name: Build (${{env.PROJECT_DIRECTORY}})
         run: dotnet build ${{env.SOLUTION_FILE}} --configuration Staging --no-restore
-        working-directory: ${{env.PROJECT_DIRECTORY}}    
+        working-directory: ${{env.SOLUTION_DIRECTORY}}
       - name: Test (${{env.SOLUTION_FILE}})
         run: dotnet test ${{env.SOLUTION_FILE}} --configuration Staging --no-build --verbosity normal -l:"console;verbosity=normal"
         working-directory: ${{env.SOLUTION_DIRECTORY}}

@@ -394,7 +394,7 @@ namespace CESMII.ProfileDesigner.OpcUa
             {
                 namespaces.GetIndexOrAppend(nsUri);
             }
-            HashSet<string> nodeIdsUsed = new HashSet<string>();
+            var nodeIdsUsed = new HashSet<string>();
             var items = ExportAllNodes(nodesetModel, aliases, namespaces, nodeIdsUsed);
 
             // remove unused aliases

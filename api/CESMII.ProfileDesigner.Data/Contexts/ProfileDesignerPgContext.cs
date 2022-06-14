@@ -16,18 +16,10 @@
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            => optionsBuilder.UseLazyLoadingProxies(); //.UseNpgsql("Host=my_host;Database=my_db;Username=my_user;Password=my_pw");
+            => optionsBuilder.UseLazyLoadingProxies(); 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // Application Logs
-            //modelBuilder.Entity<ApplicationLog>()
-            //    .ToTable("ApplicationLogs", "web")
-
-            //    // Add timestamp UTC.
-            //    .Property(r => r.Time)
-            //    .HasDefaultValueSql("GETUTCDATE()");
-
             // Org
             modelBuilder.Entity<Organization>().ToTable("organization", "public");
 
@@ -98,7 +90,8 @@
                 .ToTable("profile_composition", "public");
             //FK lookups to composition
             modelBuilder.Entity<ProfileComposition>()
-                .HasOne(p => p.ProfileTypeDefinition).WithMany(p => p.Compositions).HasForeignKey(p => p.ProfileTypeDefinitionId);
+                .HasOne(p => p.ProfileTypeDefinition).WithMany(p => p.Compositions).HasForeignKey(p => p.ProfileTypeDefinitionId)
+                .OnDelete(DeleteBehavior.Cascade);
             modelBuilder.Entity<ProfileComposition>()
                 .HasOne(p => p.Composition).WithMany().HasForeignKey(p => p.CompositionId);
 
@@ -118,17 +111,6 @@
                 .HasOne(p => p.ProfileTypeDefinition).WithOne(p => p.Favorite) //.HasForeignKey(p => p.ProfileTypeDefinitionId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            ////------------------------------------------------
-            //// Custom Data types Join Table
-            ////------------------------------------------------
-            //modelBuilder.Entity<ProfileCustomDataType>()
-            //    .ToTable("profile_custom_data_type", "public");
-            ////FK lookups to custom data type
-            //modelBuilder.Entity<ProfileCustomDataType>()
-            //    .HasOne(p => p.Profile).WithMany(p => p.CustomDataTypes).HasForeignKey(p => p.ProfileId);
-            ////modelBuilder.Entity<ProfileCustomDataType>()
-            ////    .HasOne(p => p.VariableType).WithMany().HasForeignKey(p => p.VariableTypeId);
-
             //------------------------------------------------
             // Engineering Unit
             //------------------------------------------------
@@ -146,7 +128,7 @@
             modelBuilder.Entity<LookupItem>()
                 .HasOne(r => r.LookupType).WithMany().HasForeignKey(r => r.TypeId);
 
-            modelBuilder.Entity<LookupDataType>().ToTable("data_type", "public") //;
+            modelBuilder.Entity<LookupDataType>().ToTable("data_type", "public") 
                 .HasOne(a => a.CustomType).WithMany().HasForeignKey(a => a.CustomTypeId);
 
             //read only / get only version of this entity
@@ -195,13 +177,6 @@
             modelBuilder.Entity<ImportProfileWarning>()
                 .HasOne(x => x.Profile).WithMany(x => x.ImportWarnings).HasForeignKey(x => x.ProfileId)
                 ;
-                //.OnDelete(DeleteBehavior.Cascade);
-
-            //modelBuilder.Entity<ImportLog>().ToTable("import_log", "public")
-            //    .HasMany(f => f.Messages).WithOne(f => f.ImportLog).HasForeignKey(x => x.ImportLogId)
-            //;
-            //modelBuilder.Entity<ImportLogMessage>().ToTable("import_log_message", "public")
-            //    .HasOne(x => x.ImportLog).WithMany().HasForeignKey(r => r.ImportLogId);
 
         }
     }

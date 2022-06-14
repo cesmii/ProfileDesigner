@@ -42,7 +42,7 @@
                 .FirstOrDefault();
             if (entity == null)
             {
-                throw new Exception("NodeSet not found during update or access was denied.");
+                throw new ArgumentNullException("NodeSet not found during update or access was denied.");
             }
             this.MapToEntity(ref entity, model, userToken);
 
@@ -219,7 +219,7 @@
                     var fileEntity = _nodeSetFileDAL.CheckForExisting(file, userToken);
                     if (fileEntity == null)
                     {
-                        throw new Exception($"NodeSetFile must be added explicitly");
+                        throw new ArgumentNullException($"NodeSetFile must be added explicitly");
                     }
                     _nodeSetFileDAL.MapToEntityPublic(ref fileEntity, file, userToken);
                     entity.NodeSetFiles.Add(fileEntity);

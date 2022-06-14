@@ -58,9 +58,9 @@
         Task<(int?, bool)> Upsert(TModel model, UserToken userId, bool updateExisting = true);
         Task<TModel> GetExistingAsync(TModel model, UserToken userId, bool cacheOnly = false);
 
-        Task<int?> Delete(int id, UserToken userId);
+        Task<int?> Delete(int id, UserToken userToken);
 
-        Task<int> DeleteMany(List<int> ids, UserToken userId);
+        Task<int> DeleteMany(List<int> ids, UserToken userToken);
 
         /// <summary>
         /// Provide flexibility to filter on the repo before it is converted to list so that the executed query is performant.

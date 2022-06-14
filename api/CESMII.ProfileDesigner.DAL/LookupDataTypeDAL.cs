@@ -14,11 +14,10 @@
 
     public class LookupDataTypeDAL : TenantBaseDAL<LookupDataType, LookupDataTypeModel>, IDal<LookupDataType, LookupDataTypeModel>
     {
-        public LookupDataTypeDAL(IRepository<LookupDataType> repo, IServiceProvider serviceProvider, ILogger<LookupDataTypeDAL> diLogger) : base(repo)
+        public LookupDataTypeDAL(IRepository<LookupDataType> repo, IServiceProvider serviceProvider) : base(repo)
         {
             // TODO Clean this up so we only use the interface
             _serviceProvider = serviceProvider;
-            this._diLogger = diLogger;
         }
 
         private ProfileTypeDefinitionDAL _profileTypeDefinitionDALPrivate;
@@ -34,7 +33,6 @@
             }
         }
         private IServiceProvider _serviceProvider;
-        private readonly ILogger<LookupDataTypeDAL> _diLogger;
 
         public override async Task<int?> Add(LookupDataTypeModel model, UserToken userToken)
         {
@@ -241,7 +239,7 @@
                     customTypeEntity = _profileTypeDefinitionDAL.CheckForExisting(model.CustomType, userToken);
                     if (customTypeEntity == null)
                     {
-                        _diLogger.LogWarning($"Creating custom type  {model.CustomType} as side effect of creating {model}");
+                        _logger.Warn($"Creating custom type  {model.CustomType} as side effect of creating {model}");
                         _profileTypeDefinitionDAL.Add(model.CustomType, userToken).Wait();
                         customTypeEntity = _profileTypeDefinitionDAL.CheckForExisting(model.CustomType, userToken);
                     }

@@ -29,13 +29,13 @@ function ProfileTypeDefinitionListGrid(props) {
     //-------------------------------------------------------------------
     const authTicket = useAuthState();
     const { loadingProps, setLoadingProps } = useLoadingContext();
-    const _profilePreferences = getTypeDefPreferences();
+    const _profileTypeDefPreferences = getTypeDefPreferences();
     const _scrollToRef = useRef(null);
     const [_dataRows, setDataRows] = useState({
         all: [], itemCount: 0, profile: null
     });
-    const [_pager, setPager] = useState({ currentPage: 1, pageSize: _profilePreferences.pageSize, searchVal: null});
-    const [_displayMode, setDisplayMode] = useState(_profilePreferences.displayMode == null ? "list" : _profilePreferences.displayMode);
+    const [_pager, setPager] = useState({ currentPage: 1, pageSize: _profileTypeDefPreferences.pageSize, searchVal: null});
+    const [_displayMode, setDisplayMode] = useState(_profileTypeDefPreferences.displayMode == null ? "list" : _profileTypeDefPreferences.displayMode);
     const [_deleteModal, setDeleteModal] = useState({ show: false, item: null });
     const [_error, setError] = useState({ show: false, message: null, caption: null });
     const [_refreshData, setRefreshData] = useState(0);
@@ -74,6 +74,7 @@ function ProfileTypeDefinitionListGrid(props) {
         //console.log(generateLogMessageString('handleOnSearchChange||Search value: ' + val, CLASS_NAME));
         //setLoadingProps({ searchCriteria: criteria });
         //setRefreshData(_refreshData + 1);
+        setPager({ ..._pager, currentPage: 1 });
         //bubble up to parent component and it will save state
         if (props.onSearchCriteriaChanged != null) props.onSearchCriteriaChanged(criteria);
     };
@@ -119,6 +120,10 @@ function ProfileTypeDefinitionListGrid(props) {
             var url = `profiletypedefinition/library`;
             console.log(generateLogMessageString(`useEffect||fetchData||${url}`, CLASS_NAME));
 
+            //apply the page size info from this page
+            props.searchCriteria.skip = (_pager.currentPage - 1) * _pager.pageSize;
+            props.searchCriteria.take = _pager.pageSize;
+            //call search
             await axiosInstance.post(url, props.searchCriteria).then(result => {
                 if (result.status === 200) {
 

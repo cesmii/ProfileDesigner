@@ -71,9 +71,9 @@
         /// Async save to the database.
         /// </summary>
         /// <returns>The Generic Entity type of the repository. Must be an abstract entity.</returns>
-        Task<int> SaveChanges();
+        Task<int> SaveChangesAsync();
 
-        Task<int> Delete(TEntity entity);
+        Task<int> DeleteAsync(TEntity entity);
         Task LoadIntoCacheAsync(Expression<Func<TEntity, bool>> predicate);
     }
 }

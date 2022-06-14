@@ -51,7 +51,7 @@
         //}
 
 
-        public override async Task<int?> Update(TModel model, UserToken userToken)
+        public override async Task<int?> UpdateAsync(TModel model, UserToken userToken)
         {
             TEntity entity = base.GetAllEntities(userToken)
                     .Where(e => e.ID == model.ID).FirstOrDefault();
@@ -75,7 +75,7 @@
         //    return entity.ID;
         //}
 
-        public virtual async Task<int?> Delete(int id, UserToken userToken)
+        public virtual async Task<int?> DeleteAsync(int id, UserToken userToken)
         {
             var entity = _repo.GetAll()
                 .Where(e => e.ID == id && (e.OwnerId == null || e.OwnerId == userToken.UserId))
@@ -90,7 +90,7 @@
 
             //TBD - do we also de-activate users from this Profile. 
             await _repo.UpdateAsync(entity);
-            return await _repo.SaveChanges();
+            return await _repo.SaveChangesAsync();
         }
 
     }

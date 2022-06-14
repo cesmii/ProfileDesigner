@@ -32,7 +32,7 @@
 
 
         //add this layer so we can instantiate the new entity here.
-        public override async Task<int?> Add(ProfileTypeDefinitionModel model, UserToken userToken)
+        public override async Task<int?> AddAsync(ProfileTypeDefinitionModel model, UserToken userToken)
         {
             var entity = new ProfileTypeDefinition();
             model.ID = await base.AddAsync(entity, model, userToken);
@@ -156,7 +156,7 @@
         /// <param name="model"></param>
         /// <param name="userId"></param>
         /// <returns></returns>
-        public override async Task<int?> Update(ProfileTypeDefinitionModel model, UserToken userToken)
+        public override async Task<int?> UpdateAsync(ProfileTypeDefinitionModel model, UserToken userToken)
         {
             Expression<Func<ProfileTypeDefinition, bool>> filterExpression = GetIdentityExpression(model);
 
@@ -223,7 +223,7 @@
             return existingProfile;
         }
 
-        public override async Task<int?> Delete(int id, UserToken userToken)
+        public override async Task<int?> DeleteAsync(int id, UserToken userToken)
         {
             //can only delete your own stuff
             var entity = base.FindByCondition(userToken, x => x.ID == id && x.OwnerId.Equals(userToken.UserId))
@@ -235,7 +235,7 @@
 
             //hard delete
             //Note this deletes the dependent related data also
-            return await _repo.Delete(entity);
+            return await _repo.DeleteAsync(entity);
         }
 
 
@@ -621,7 +621,7 @@
                     if (parentProfileEntity == null)
                     {
                         this._diLogger.LogWarning($"Creating parent profile type {model.Parent.ProfileTypeDefinition} as side effect of creating {model}");
-                        this.Add(model.Parent.ProfileTypeDefinition, userToken).Wait();
+                        this.AddAsync(model.Parent.ProfileTypeDefinition, userToken).Wait();
                         parentProfileEntity = CheckForExisting(model.Parent.ProfileTypeDefinition, userToken);
                     }
                     entity.Parent = parentProfileEntity;
@@ -637,7 +637,7 @@
                     instanceParentEntity = CheckForExisting(model.InstanceParent, userToken);
                     if (instanceParentEntity == null)
                     {
-                        this.Add(model.InstanceParent, userToken).Wait();
+                        this.AddAsync(model.InstanceParent, userToken).Wait();
                         instanceParentEntity = CheckForExisting(model.InstanceParent, userToken);
                     }
                     entity.InstanceParent = instanceParentEntity;
@@ -778,7 +778,7 @@
                         var dataType = _dataTypeDAL.CheckForExisting(attr.DataType, userToken);
                         if (dataType == null)
                         {
-                            attr.DataType.ID = _dataTypeDAL.Add(attr.DataType, userToken).Result;
+                            attr.DataType.ID = _dataTypeDAL.AddAsync(attr.DataType, userToken).Result;
                             dataType = _dataTypeDAL.CheckForExisting(attr.DataType, userToken);
                         }
                         ProfileTypeDefinition variableType = null;
@@ -788,7 +788,7 @@
                             if (variableType == null)
                             {
                                 this._diLogger.LogWarning($"Creating variable type {attr.VariableTypeDefinition} as side effect of creating {attr}");
-                                this.Add(attr.VariableTypeDefinition, userToken).Wait();
+                                this.AddAsync(attr.VariableTypeDefinition, userToken).Wait();
                                 variableType = CheckForExisting(attr.VariableTypeDefinition, userToken);
                             }
                         }
@@ -956,7 +956,7 @@
                 var profileTypeDef = CheckForExisting(source.RelatedProfileTypeDefinition, userToken);
                 if (profileTypeDef == null)
                 {
-                    this.Add(source.RelatedProfileTypeDefinition, userToken).Wait();
+                    this.AddAsync(source.RelatedProfileTypeDefinition, userToken).Wait();
                     profileTypeDef = CheckForExisting(source.RelatedProfileTypeDefinition, userToken);
                 }
                 composition.Composition = profileTypeDef;

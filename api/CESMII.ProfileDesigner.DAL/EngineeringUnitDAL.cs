@@ -17,7 +17,7 @@
         {
         }
 
-        public override async Task<int?> Add(EngineeringUnitModel model, UserToken userToken)
+        public override async Task<int?> AddAsync(EngineeringUnitModel model, UserToken userToken)
         {
             var entity = new EngineeringUnit
             {
@@ -46,13 +46,13 @@
             return entity;
         }
 
-        public override async Task<int?> Update(EngineeringUnitModel model, UserToken userToken)
+        public override async Task<int?> UpdateAsync(EngineeringUnitModel model, UserToken userToken)
         {
             EngineeringUnit entity = _repo.FindByCondition(x => x.ID == model.ID).FirstOrDefault();
             this.MapToEntity(ref entity, model, userToken);
 
             await _repo.UpdateAsync(entity);
-            await _repo.SaveChanges();
+            await _repo.SaveChangesAsync();
             return entity.ID;
         }
 
@@ -112,13 +112,13 @@
                 );
         }
 
-        public async Task<int?> Delete(int id, UserToken userToken)
+        public async Task<int?> DeleteAsync(int id, UserToken userToken)
         {
             EngineeringUnit entity = base.FindByCondition(userToken, x => x.ID == id).FirstOrDefault();
             entity.IsActive = false;
 
             await _repo.UpdateAsync(entity);
-            await _repo.SaveChanges();
+            await _repo.SaveChangesAsync();
             return entity.ID;
         }
 

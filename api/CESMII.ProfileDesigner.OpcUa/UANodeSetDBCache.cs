@@ -39,7 +39,7 @@ namespace CESMII.ProfileDesigner.Opc.Ua.NodeSetDBCache
                     if (tMod.NewInThisImport)
                     {
                         //TODO: @Sean: If a nodeset is deleted from the cache table, some tables with references to the cache table might be broken.
-                        _dalNodeSetFile.Delete((tMod.NameVersion.CCacheId as NodeSetFileModel)?.ID ?? 0, _userToken); //Must force delete as Author ID is not in the results
+                        _dalNodeSetFile.DeleteAsync((tMod.NameVersion.CCacheId as NodeSetFileModel)?.ID ?? 0, _userToken); //Must force delete as Author ID is not in the results
                     }
                 }
             }
@@ -73,7 +73,7 @@ namespace CESMII.ProfileDesigner.Opc.Ua.NodeSetDBCache
                 //TODO: @Sean: If a nodeset is deleted from the cache table, some tables with references to the cache table might be broken.
                 var t = _dalNodeSetFile.GetAll(_userToken);
                 foreach (var rec in t)
-                    _dalNodeSetFile.Delete(rec.ID.Value, _userToken);
+                    _dalNodeSetFile.DeleteAsync(rec.ID.Value, _userToken);
             }
             catch (Exception e)
             {

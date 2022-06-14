@@ -17,7 +17,7 @@
         {
         }
 
-        public override /*async*/ Task<int?> Add(LookupTypeModel model, UserToken userToken)
+        public override Task<int?> AddAsync(LookupTypeModel model, UserToken userToken)
         {
             throw new NotSupportedException();
         }
@@ -103,12 +103,12 @@
             //return result;
         }
 
-        public override /*async */Task<int?> Update(LookupTypeModel model, UserToken userToken)
+        public override Task<int?> UpdateAsync(LookupTypeModel model, UserToken userToken)
         {
             throw new NotSupportedException();
         }
 
-        public /*async */Task<int?> Delete(int id, UserToken userToken)
+        public Task<int?> DeleteAsync(int id, UserToken userToken)
         {
             throw new NotSupportedException();
         }

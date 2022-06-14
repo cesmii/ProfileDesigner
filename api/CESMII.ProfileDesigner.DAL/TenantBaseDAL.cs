@@ -110,7 +110,7 @@
             return base.AddAsync(entity, model, userToken);
         }
 
-        public override Task<int> DeleteMany(List<int> ids, UserToken userToken)
+        public override Task<int> DeleteManyAsync(List<int> ids, UserToken userToken)
         {
             throw new NotImplementedException();
         }

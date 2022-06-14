@@ -76,7 +76,7 @@ namespace CESMII.ProfileDesigner.Api.Utils
                     _logger.LogError(new EventId(), ex, "Unhandled exception in background importer.");
                     //update import log to indicate unexpected failure
                     var dalImportLog = GetImportLogDalIsolated();
-                    CreateImportLogMessage(dalImportLog, logId.Value, userToken, "Unhandled exception in background importer.", TaskStatusEnum.Failed);
+                    await CreateImportLogMessage(dalImportLog, logId.Value, userToken, "Unhandled exception in background importer.", TaskStatusEnum.Failed);
                 }
             });
 
@@ -129,7 +129,7 @@ namespace CESMII.ProfileDesigner.Api.Utils
                 //init the warnings object outside the try/catch so that saving warnings happens after conclusion of import.
                 //We don't want an execption saving warnings to DB to cause a "failed" import message
                 //if something goes wrong on the saving of the warnings to the DB, we handle it outside of the import messages.  
-                List<WarningsByNodeSet> nodesetWarnings = new List<WarningsByNodeSet>();
+                var nodesetWarnings = new List<WarningsByNodeSet>();
 
                 //wrap the importNodesets for total coverage of exceptions
                 //we need to inform the front end of an exception and update the import log on 
@@ -198,7 +198,7 @@ namespace CESMII.ProfileDesigner.Api.Utils
                             await CreateImportLogMessage(dalImportLog, logId, userToken, resultSet.ErrorMessage.ToLower() + $"<br/>{filesImportedMsg}", TaskStatusEnum.Failed);
                             return;
                         }
-                        //{ 
+                        if (resultSet != null && resultSet.Models.Any()) { 
                             foreach (var tmodel in resultSet.Models)
                             {
                                 var nsModel = tmodel.NameVersion.CCacheId as NodeSetFileModel;
@@ -232,7 +232,7 @@ namespace CESMII.ProfileDesigner.Api.Utils
                                     NodeSetModel = tmodel,
                                 });
                             }
-                        //}
+                        }
                         await CreateImportLogMessage(dalImportLog, logId, userToken, $"Nodeset files validated.<br/>{filesImportedMsg}", TaskStatusEnum.InProgress);
                     }
                     catch (Exception e)
@@ -254,7 +254,7 @@ namespace CESMII.ProfileDesigner.Api.Utils
                     try
                     {
 
-                        Dictionary<string, ProfileTypeDefinitionModel> profileItems = new Dictionary<string, ProfileTypeDefinitionModel>();
+                        var profileItems = new Dictionary<string, ProfileTypeDefinitionModel>();
 
                         //CodeSmell:Remove: int? result = 0;
                         // TODO Expose in the UI? Feedback from Jonathan if this option is interesting
@@ -400,7 +400,7 @@ namespace CESMII.ProfileDesigner.Api.Utils
             return new ImportLogDAL(repo);
         }
 
-        private async Task CreateImportLogMessage(IDal<ImportLog, ImportLogModel> dalImportLog, int logId, UserToken userToken,
+        private static async Task CreateImportLogMessage(IDal<ImportLog, ImportLogModel> dalImportLog, int logId, UserToken userToken,
             string message, TaskStatusEnum status)
         {
             var logItem = dalImportLog.GetById(logId, userToken);
@@ -416,7 +416,7 @@ namespace CESMII.ProfileDesigner.Api.Utils
         /// <summary>
         /// Take a list of warnings and save them all in one step to the DB.
         /// </summary>
-        private async Task CreateImportLogWarnings(IDal<ImportLog, ImportLogModel> dalImportLog, int logId, WarningsByNodeSet warningsList, UserToken userToken)
+        private static async Task CreateImportLogWarnings(IDal<ImportLog, ImportLogModel> dalImportLog, int logId, WarningsByNodeSet warningsList, UserToken userToken)
         {
             var logItem = dalImportLog.GetById(logId, userToken);
             if (logItem.ProfileWarnings == null) logItem.ProfileWarnings = new List<ImportProfileWarningModel>();

@@ -162,10 +162,7 @@ namespace CESMII.ProfileDesigner.Api
                         },
                         OnAuthenticationFailed = context =>
                         {
-                            string tokenVal = context.Request.Headers["Authorization"];
-                            //System.Diagnostics.Debug.WriteLine($"Request Token: {tokenVal}");
-                            //System.Diagnostics.Debug.WriteLine($"Request Token: {tokenVal.Substring(tokenVal.Length - 60)}");
-
+                            //Code Smell: string tokenVal = context.Request.Headers["Authorization"];
                             if (context.Exception.GetType() == typeof(SecurityTokenExpiredException))
                             {
                                 context.Response.Headers.Add("Token-Expired", "true");
@@ -216,7 +213,7 @@ namespace CESMII.ProfileDesigner.Api
                 builder =>
                 {
                     //TBD - uncomment, come back to this and lock down the origins based on the appsettings config settings
-                    //builder.WithOrigins(configUtil.CorsSettings.AllowedOrigins);
+                    //Code Smell: builder.WithOrigins(configUtil.CorsSettings.AllowedOrigins);
                     builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
                 });
             });

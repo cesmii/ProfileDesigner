@@ -25,15 +25,12 @@ namespace CESMII.ProfileDesigner.Api.Controllers
     public class ImportLogController : BaseController<ImportLogController>
     {
         private readonly IDal<ImportLog, ImportLogModel> _dal;
-        private readonly Utils.ImportService _svcImport;
 
         public ImportLogController(IDal<ImportLog, ImportLogModel> dal,
-            Utils.ImportService svcImport, 
             ConfigUtil config, ILogger<ImportLogController> logger) 
             : base(config, logger)
         {
             _dal = dal;
-            _svcImport = svcImport;
         }
 
         [HttpPost, Route("GetByID")]
@@ -80,12 +77,10 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             if (string.IsNullOrEmpty(model.Query))
             {
                 return Ok(_dal.GetAllPaged(userToken, model.Skip, model.Take, false, true));
-                //return Ok(_dal.Where(s => s.OwnerId.Equals(userId), userId, model.Skip, model.Take, true));
             }
 
             model.Query = model.Query.ToLower();
             var result = _dal.Where(s =>
-                            //s.OwnerId.Equals(userId) &&
                             //string query section
                             string.Join(",", s.FileList).ToLower().Contains(model.Query)
                             ,userToken, null, null, false, true);

@@ -56,7 +56,7 @@ namespace CESMII.ProfileDesigner.DAL.Utils
             return result.OrderBy(p => p.Level).ThenBy(p => p.Name).ToList();
         }
 
-        public readonly static List<int?> ExcludedProfileTypes = new List<int?> { (int)ProfileItemTypeEnum.Object, (int)ProfileItemTypeEnum.Method, };
+        public readonly static List<int?> ExcludedProfileTypes = new() { (int)ProfileItemTypeEnum.Object, (int)ProfileItemTypeEnum.Method, };
 
         /// <summary>
         /// A nested representation of the profile's place relative to its ancestors and siblings
@@ -96,8 +96,10 @@ namespace CESMII.ProfileDesigner.DAL.Utils
                 curItem.Children = new List<ProfileTypeDefinitionAncestoryModel>();
             }
 
-            var result = new List<ProfileTypeDefinitionAncestoryModel>();
-            result.Add(root);
+            var result = new List<ProfileTypeDefinitionAncestoryModel>
+            {
+                root
+            };
 
             //build out a list and siblings will go on same level as the profile
 
@@ -177,7 +179,7 @@ namespace CESMII.ProfileDesigner.DAL.Utils
         public List<ProfileAttributeModel> GetExtendedAttributes(ProfileTypeDefinitionModel profile, UserToken userToken)
         {
             //navigate up the inheritance tree until the root. 
-            List<ProfileAttributeModel> result = new List<ProfileAttributeModel>();
+            var result = new List<ProfileAttributeModel>();
             var ancestor = profile;
             while (ancestor != null)
             {
@@ -343,14 +345,14 @@ namespace CESMII.ProfileDesigner.DAL.Utils
                 //add some special indicators these attrs are interface attr
                 foreach (var a in p.ProfileAttributes)
                 {
-                    a.Interface = new ProfileTypeDefinitionRelatedModel() { ID = p.ID, Name = p.Name, BrowseName = p.BrowseName, OpcNodeId = p.OpcNodeId }; ;
+                    a.Interface = new ProfileTypeDefinitionRelatedModel() { ID = p.ID, Name = p.Name, BrowseName = p.BrowseName, OpcNodeId = p.OpcNodeId };
                     a.InterfaceGroupId = counter;
                 }
 
                 //add some special indicators the ancestor attrs are interface attr associated with this interface
                 foreach (var a in p.ExtendedProfileAttributes)
                 {
-                    a.Interface = new ProfileTypeDefinitionRelatedModel() { ID = p.ID, Name = p.Name, BrowseName = p.BrowseName, OpcNodeId = p.OpcNodeId }; ;
+                    a.Interface = new ProfileTypeDefinitionRelatedModel() { ID = p.ID, Name = p.Name, BrowseName = p.BrowseName, OpcNodeId = p.OpcNodeId }; 
                     a.InterfaceGroupId = counter;
                 }
 
@@ -396,7 +398,7 @@ namespace CESMII.ProfileDesigner.DAL.Utils
             {
                 result.Add(MapToModelProfileSimple(p));
             }
-            return result.OrderBy(a => a.Name).ToList(); ;
+            return result.OrderBy(a => a.Name).ToList(); 
         }
 
         public ProfileTypeDefinitionSimpleModel MapToModelProfileSimple(ProfileTypeDefinitionModel item, int level = 0)
@@ -552,7 +554,7 @@ namespace CESMII.ProfileDesigner.DAL.Utils
                 //even acncestor attribs should be associated with this interface. 
                 foreach (var a in attrs)
                 {
-                    a.Interface = new ProfileTypeDefinitionRelatedModel() { ID = p.ID, Name = p.Name, BrowseName = p.BrowseName, OpcNodeId = p.OpcNodeId }; ;
+                    a.Interface = new ProfileTypeDefinitionRelatedModel() { ID = p.ID, Name = p.Name, BrowseName = p.BrowseName, OpcNodeId = p.OpcNodeId }; 
                     a.InterfaceGroupId = counter;
                 }
 

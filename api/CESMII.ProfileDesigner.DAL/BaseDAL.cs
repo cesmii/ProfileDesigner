@@ -21,7 +21,7 @@
         protected readonly IMockRepository<TEntity> _repoMock;
         protected readonly bool _useMock = false;
 
-        public BaseDAL(IRepository<TEntity> repo)
+        protected BaseDAL(IRepository<TEntity> repo)
         {
             _repo = repo;
             if (_useMock)
@@ -68,10 +68,12 @@
             var count = returnCount ? query.Count() : 0;
             if (skip.HasValue) query = query.Skip(skip.Value);
             if (take.HasValue) query = query.Take(take.Value);
-            DALResult<TModel> result = new DALResult<TModel>();
-            result.Count = count;
-            result.Data = MapToModels(query.ToList(), verbose);
-            result.SummaryData = null;
+            var result = new DALResult<TModel>
+            {
+                Count = count,
+                Data = MapToModels(query.ToList(), verbose),
+                SummaryData = null
+            };
             return result;
         }
 
@@ -97,12 +99,12 @@
             else if (skip.HasValue) data = query.Skip(skip.Value);
             else if (take.HasValue) data = query.Take(take.Value);
             else data = query;
-            //if (skip.HasValue) query = query.Skip(skip.Value);
-            //if (take.HasValue) query = query.Take(take.Value);
-            DALResult<TModel> result = new DALResult<TModel>();
-            result.Count = count;
-            result.Data = MapToModels(data.ToList(), verbose);
-            result.SummaryData = null;
+            var result = new DALResult<TModel>
+            {
+                Count = count,
+                Data = MapToModels(data.ToList(), verbose),
+                SummaryData = null
+            };
             return result;
         }
 
@@ -132,10 +134,12 @@
             else data = query;
 
             //put together the result
-            DALResult<TModel> result = new DALResult<TModel>();
-            result.Count = count;
-            result.Data = MapToModels(data.ToList(), verbose);
-            result.SummaryData = null;
+            var result = new DALResult<TModel>
+            {
+                Count = count,
+                Data = MapToModels(data.ToList(), verbose),
+                SummaryData = null
+            };
             return result;
         }
 
@@ -157,13 +161,6 @@
         {
             return _repo.GetAll();
         }
-
-        //public virtual TModel GetByFunc(Expression<Func<TEntity, bool>> predicate, bool verbose)
-        //{
-        //    var tRes = _repo.FindByCondition(predicate)?.FirstOrDefault();
-        //    return MapToModel(tRes);
-        //}
-
 
         /// <summary>
         /// If the item is present in the DB, then update the existing item. Otherwise insert a new record

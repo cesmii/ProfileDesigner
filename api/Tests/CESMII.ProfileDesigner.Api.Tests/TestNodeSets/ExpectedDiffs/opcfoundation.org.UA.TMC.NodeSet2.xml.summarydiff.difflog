@@ -74,6 +74,7 @@
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[50]/@UserAccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[50]/@UserAccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[342]
 ====>Expected child nodelist sequence '2' but was '1' - comparing <References...> at /UANodeSet[1]/UAVariable[50]/References[1] to <References...> at /UANodeSet[1]/UAVariable[342]/References[1]
 ====>Expected child nodelist sequence '3' but was '2' - comparing <Value...> at /UANodeSet[1]/UAVariable[50]/Value[1] to <Value...> at /UANodeSet[1]/UAVariable[342]/Value[1]
+====>Expected child '' but was 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' - comparing <NULL> to <uax:Text...> at /UANodeSet[1]/UAVariable[342]/Value[1]/ExtensionObject[1]/Body[1]/EUInformation[1]/DisplayName[1]/Text[1]
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Description' but was '' - comparing <Description...> at /UANodeSet[1]/UAVariable[50]/Description[1] to <NULL>
 ====>Expected attribute name '/UANodeSet[1]/UAVariableType[3]/@DataType' - comparing <UAVariableType...> at /UANodeSet[1]/UAVariableType[3]/@DataType to <UAVariableType...> at /UANodeSet[1]/UAVariableType[2]
 ====>Expected attribute name '/UANodeSet[1]/UAVariableType[3]/@ValueRank' - comparing <UAVariableType...> at /UANodeSet[1]/UAVariableType[3]/@ValueRank to <UAVariableType...> at /UANodeSet[1]/UAVariableType[2]
@@ -104,6 +105,7 @@
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[66]/@UserAccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[66]/@UserAccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[121]
 ====>Expected child nodelist sequence '2' but was '1' - comparing <References...> at /UANodeSet[1]/UAVariable[66]/References[1] to <References...> at /UANodeSet[1]/UAVariable[121]/References[1]
 ====>Expected child nodelist sequence '3' but was '2' - comparing <Value...> at /UANodeSet[1]/UAVariable[66]/Value[1] to <Value...> at /UANodeSet[1]/UAVariable[121]/Value[1]
+====>Expected child '' but was 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' - comparing <NULL> to <uax:Text...> at /UANodeSet[1]/UAVariable[121]/Value[1]/ExtensionObject[1]/Body[1]/EUInformation[1]/DisplayName[1]/Text[1]
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Description' but was '' - comparing <Description...> at /UANodeSet[1]/UAVariable[66]/Description[1] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAVariable[71]/References[1]/Reference[1] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAVariable[71]/References[1]/Reference[4] to <NULL>
@@ -112,6 +114,7 @@
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[73]/@UserAccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[73]/@UserAccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[119]
 ====>Expected child nodelist sequence '2' but was '1' - comparing <References...> at /UANodeSet[1]/UAVariable[73]/References[1] to <References...> at /UANodeSet[1]/UAVariable[119]/References[1]
 ====>Expected child nodelist sequence '3' but was '2' - comparing <Value...> at /UANodeSet[1]/UAVariable[73]/Value[1] to <Value...> at /UANodeSet[1]/UAVariable[119]/Value[1]
+====>Expected child '' but was 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' - comparing <NULL> to <uax:Text...> at /UANodeSet[1]/UAVariable[119]/Value[1]/ExtensionObject[1]/Body[1]/EUInformation[1]/DisplayName[1]/Text[1]
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Description' but was '' - comparing <Description...> at /UANodeSet[1]/UAVariable[73]/Description[1] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObjectType[9]/References[1]/Reference[1] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObjectType[9]/References[1]/Reference[4] to <NULL>
@@ -122,6 +125,7 @@
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[80]/@UserAccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[80]/@UserAccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[361]
 ====>Expected child nodelist sequence '2' but was '1' - comparing <References...> at /UANodeSet[1]/UAVariable[80]/References[1] to <References...> at /UANodeSet[1]/UAVariable[361]/References[1]
 ====>Expected child nodelist sequence '3' but was '2' - comparing <Value...> at /UANodeSet[1]/UAVariable[80]/Value[1] to <Value...> at /UANodeSet[1]/UAVariable[361]/Value[1]
+====>Expected child '' but was 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' - comparing <NULL> to <uax:Text...> at /UANodeSet[1]/UAVariable[361]/Value[1]/ExtensionObject[1]/Body[1]/EUInformation[1]/DisplayName[1]/Text[1]
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Description' but was '' - comparing <Description...> at /UANodeSet[1]/UAVariable[80]/Description[1] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObjectType[10]/References[1]/Reference[1] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObjectType[10]/References[1]/Reference[4] to <NULL>
@@ -132,6 +136,7 @@
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[87]/@UserAccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[87]/@UserAccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[38]
 ====>Expected child nodelist sequence '2' but was '1' - comparing <References...> at /UANodeSet[1]/UAVariable[87]/References[1] to <References...> at /UANodeSet[1]/UAVariable[38]/References[1]
 ====>Expected child nodelist sequence '3' but was '2' - comparing <Value...> at /UANodeSet[1]/UAVariable[87]/Value[1] to <Value...> at /UANodeSet[1]/UAVariable[38]/Value[1]
+====>Expected child '' but was 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' - comparing <NULL> to <uax:Text...> at /UANodeSet[1]/UAVariable[38]/Value[1]/ExtensionObject[1]/Body[1]/EUInformation[1]/DisplayName[1]/Text[1]
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Description' but was '' - comparing <Description...> at /UANodeSet[1]/UAVariable[87]/Description[1] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObjectType[11]/References[1]/Reference[1] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObjectType[11]/References[1]/Reference[4] to <NULL>
@@ -175,6 +180,7 @@
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[102]/@UserAccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[102]/@UserAccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[42]
 ====>Expected child nodelist sequence '2' but was '1' - comparing <References...> at /UANodeSet[1]/UAVariable[102]/References[1] to <References...> at /UANodeSet[1]/UAVariable[42]/References[1]
 ====>Expected child nodelist sequence '3' but was '2' - comparing <Value...> at /UANodeSet[1]/UAVariable[102]/Value[1] to <Value...> at /UANodeSet[1]/UAVariable[42]/Value[1]
+====>Expected child '' but was 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' - comparing <NULL> to <uax:Text...> at /UANodeSet[1]/UAVariable[42]/Value[1]/ExtensionObject[1]/Body[1]/EUInformation[1]/DisplayName[1]/Text[1]
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Description' but was '' - comparing <Description...> at /UANodeSet[1]/UAVariable[102]/Description[1] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObjectType[13]/References[1]/Reference[3] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObjectType[13]/References[1]/Reference[5] to <NULL>
@@ -185,6 +191,7 @@
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[109]/@UserAccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[109]/@UserAccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[115]
 ====>Expected child nodelist sequence '2' but was '1' - comparing <References...> at /UANodeSet[1]/UAVariable[109]/References[1] to <References...> at /UANodeSet[1]/UAVariable[115]/References[1]
 ====>Expected child nodelist sequence '3' but was '2' - comparing <Value...> at /UANodeSet[1]/UAVariable[109]/Value[1] to <Value...> at /UANodeSet[1]/UAVariable[115]/Value[1]
+====>Expected child '' but was 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' - comparing <NULL> to <uax:Text...> at /UANodeSet[1]/UAVariable[115]/Value[1]/ExtensionObject[1]/Body[1]/EUInformation[1]/DisplayName[1]/Text[1]
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Description' but was '' - comparing <Description...> at /UANodeSet[1]/UAVariable[109]/Description[1] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAVariable[114]/References[1]/Reference[1] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAVariable[114]/References[1]/Reference[4] to <NULL>
@@ -193,6 +200,7 @@
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[116]/@UserAccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[116]/@UserAccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[113]
 ====>Expected child nodelist sequence '2' but was '1' - comparing <References...> at /UANodeSet[1]/UAVariable[116]/References[1] to <References...> at /UANodeSet[1]/UAVariable[113]/References[1]
 ====>Expected child nodelist sequence '3' but was '2' - comparing <Value...> at /UANodeSet[1]/UAVariable[116]/Value[1] to <Value...> at /UANodeSet[1]/UAVariable[113]/Value[1]
+====>Expected child '' but was 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' - comparing <NULL> to <uax:Text...> at /UANodeSet[1]/UAVariable[113]/Value[1]/ExtensionObject[1]/Body[1]/EUInformation[1]/DisplayName[1]/Text[1]
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Description' but was '' - comparing <Description...> at /UANodeSet[1]/UAVariable[116]/Description[1] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObjectType[14]/References[1]/Reference[2] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObjectType[14]/References[1]/Reference[3] to <NULL>
@@ -207,6 +215,7 @@
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[123]/@UserAccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[123]/@UserAccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[152]
 ====>Expected child nodelist sequence '2' but was '1' - comparing <References...> at /UANodeSet[1]/UAVariable[123]/References[1] to <References...> at /UANodeSet[1]/UAVariable[152]/References[1]
 ====>Expected child nodelist sequence '3' but was '2' - comparing <Value...> at /UANodeSet[1]/UAVariable[123]/Value[1] to <Value...> at /UANodeSet[1]/UAVariable[152]/Value[1]
+====>Expected child '' but was 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' - comparing <NULL> to <uax:Text...> at /UANodeSet[1]/UAVariable[152]/Value[1]/ExtensionObject[1]/Body[1]/EUInformation[1]/DisplayName[1]/Text[1]
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Description' but was '' - comparing <Description...> at /UANodeSet[1]/UAVariable[123]/Description[1] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObjectType[16]/References[1]/Reference[1] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObjectType[16]/References[1]/Reference[4] to <NULL>
@@ -217,6 +226,7 @@
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[130]/@UserAccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[130]/@UserAccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[359]
 ====>Expected child nodelist sequence '2' but was '1' - comparing <References...> at /UANodeSet[1]/UAVariable[130]/References[1] to <References...> at /UANodeSet[1]/UAVariable[359]/References[1]
 ====>Expected child nodelist sequence '3' but was '2' - comparing <Value...> at /UANodeSet[1]/UAVariable[130]/Value[1] to <Value...> at /UANodeSet[1]/UAVariable[359]/Value[1]
+====>Expected child '' but was 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' - comparing <NULL> to <uax:Text...> at /UANodeSet[1]/UAVariable[359]/Value[1]/ExtensionObject[1]/Body[1]/EUInformation[1]/DisplayName[1]/Text[1]
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Description' but was '' - comparing <Description...> at /UANodeSet[1]/UAVariable[130]/Description[1] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObjectType[17]/References[1]/Reference[2] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObjectType[18]/References[1]/Reference[3] to <NULL>
@@ -640,6 +650,7 @@
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[290]/@UserAccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[290]/@UserAccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[357]
 ====>Expected child nodelist sequence '2' but was '1' - comparing <References...> at /UANodeSet[1]/UAVariable[290]/References[1] to <References...> at /UANodeSet[1]/UAVariable[357]/References[1]
 ====>Expected child nodelist sequence '3' but was '2' - comparing <Value...> at /UANodeSet[1]/UAVariable[290]/Value[1] to <Value...> at /UANodeSet[1]/UAVariable[357]/Value[1]
+====>Expected child '' but was 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' - comparing <NULL> to <uax:Text...> at /UANodeSet[1]/UAVariable[357]/Value[1]/ExtensionObject[1]/Body[1]/EUInformation[1]/DisplayName[1]/Text[1]
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Description' but was '' - comparing <Description...> at /UANodeSet[1]/UAVariable[290]/Description[1] to <NULL>
 ====>Expected text value 'nsu=http://opcfoundation.org/UA/TMC/;i=5008' but was 'nsu=http://opcfoundation.org/UA/DI/;i=5008' - comparing <uax:Identifier ...>nsu=http://opcfoundation.org/UA/TMC/;i=5008</uax:Identifier> at /UANodeSet[1]/UAVariable[296]/Value[1]/ExtensionObject[1]/TypeId[1]/Identifier[1]/text()[1] to <uax:Identifier ...>nsu=http://opcfoundation.org/UA/DI/;i=5008</uax:Identifier> at /UANodeSet[1]/UAVariable[340]/Value[1]/ExtensionObject[1]/TypeId[1]/Identifier[1]/text()[1]
 ====>Expected text value 'nsu=http://opcfoundation.org/UA/TMC/;i=5040' but was 'nsu=http://opcfoundation.org/UA/DI/;i=5040' - comparing <uax:Identifier ...>nsu=http://opcfoundation.org/UA/TMC/;i=5040</uax:Identifier> at /UANodeSet[1]/UAVariable[298]/Value[1]/ExtensionObject[1]/TypeId[1]/Identifier[1]/text()[1] to <uax:Identifier ...>nsu=http://opcfoundation.org/UA/DI/;i=5040</uax:Identifier> at /UANodeSet[1]/UAVariable[208]/Value[1]/ExtensionObject[1]/TypeId[1]/Identifier[1]/text()[1]
@@ -664,6 +675,7 @@
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[306]/@UserAccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[306]/@UserAccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[239]
 ====>Expected child nodelist sequence '2' but was '1' - comparing <References...> at /UANodeSet[1]/UAVariable[306]/References[1] to <References...> at /UANodeSet[1]/UAVariable[239]/References[1]
 ====>Expected child nodelist sequence '3' but was '2' - comparing <Value...> at /UANodeSet[1]/UAVariable[306]/Value[1] to <Value...> at /UANodeSet[1]/UAVariable[239]/Value[1]
+====>Expected child '' but was 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' - comparing <NULL> to <uax:Text...> at /UANodeSet[1]/UAVariable[239]/Value[1]/ExtensionObject[1]/Body[1]/EUInformation[1]/DisplayName[1]/Text[1]
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Description' but was '' - comparing <Description...> at /UANodeSet[1]/UAVariable[306]/Description[1] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAVariable[313]/References[1]/Reference[1] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAVariable[313]/References[1]/Reference[4] to <NULL>
@@ -672,6 +684,7 @@
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[315]/@UserAccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[315]/@UserAccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[346]
 ====>Expected child nodelist sequence '2' but was '1' - comparing <References...> at /UANodeSet[1]/UAVariable[315]/References[1] to <References...> at /UANodeSet[1]/UAVariable[346]/References[1]
 ====>Expected child nodelist sequence '3' but was '2' - comparing <Value...> at /UANodeSet[1]/UAVariable[315]/Value[1] to <Value...> at /UANodeSet[1]/UAVariable[346]/Value[1]
+====>Expected child '' but was 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' - comparing <NULL> to <uax:Text...> at /UANodeSet[1]/UAVariable[346]/Value[1]/ExtensionObject[1]/Body[1]/EUInformation[1]/DisplayName[1]/Text[1]
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Description' but was '' - comparing <Description...> at /UANodeSet[1]/UAVariable[315]/Description[1] to <NULL>
 ====>Expected attribute name '/UANodeSet[1]/UAMethod[38]/@ParentNodeId' - comparing <UAMethod...> at /UANodeSet[1]/UAMethod[38]/@ParentNodeId to <UAMethod...> at /UANodeSet[1]/UAMethod[42]
 ====>Expected attribute name '/UANodeSet[1]/UAMethod[38]/@MethodDeclarationId' - comparing <UAMethod...> at /UANodeSet[1]/UAMethod[38]/@MethodDeclarationId to <UAMethod...> at /UANodeSet[1]/UAMethod[42]
@@ -685,6 +698,7 @@
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[335]/@UserAccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[335]/@UserAccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[297]
 ====>Expected child nodelist sequence '2' but was '1' - comparing <References...> at /UANodeSet[1]/UAVariable[335]/References[1] to <References...> at /UANodeSet[1]/UAVariable[297]/References[1]
 ====>Expected child nodelist sequence '3' but was '2' - comparing <Value...> at /UANodeSet[1]/UAVariable[335]/Value[1] to <Value...> at /UANodeSet[1]/UAVariable[297]/Value[1]
+====>Expected child '' but was 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' - comparing <NULL> to <uax:Text...> at /UANodeSet[1]/UAVariable[297]/Value[1]/ExtensionObject[1]/Body[1]/EUInformation[1]/DisplayName[1]/Text[1]
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Description' but was '' - comparing <Description...> at /UANodeSet[1]/UAVariable[335]/Description[1] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAVariable[341]/References[1]/Reference[1] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAVariable[341]/References[1]/Reference[6] to <NULL>
@@ -692,6 +706,7 @@
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[343]/@UserAccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[343]/@UserAccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[299]
 ====>Expected child nodelist sequence '2' but was '1' - comparing <References...> at /UANodeSet[1]/UAVariable[343]/References[1] to <References...> at /UANodeSet[1]/UAVariable[299]/References[1]
 ====>Expected child nodelist sequence '3' but was '2' - comparing <Value...> at /UANodeSet[1]/UAVariable[343]/Value[1] to <Value...> at /UANodeSet[1]/UAVariable[299]/Value[1]
+====>Expected child '' but was 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' - comparing <NULL> to <uax:Text...> at /UANodeSet[1]/UAVariable[299]/Value[1]/ExtensionObject[1]/Body[1]/EUInformation[1]/DisplayName[1]/Text[1]
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Description' but was '' - comparing <Description...> at /UANodeSet[1]/UAVariable[343]/Description[1] to <NULL>
 ====>Expected attribute name '/UANodeSet[1]/UAMethod[39]/@ParentNodeId' - comparing <UAMethod...> at /UANodeSet[1]/UAMethod[39]/@ParentNodeId to <UAMethod...> at /UANodeSet[1]/UAMethod[58]
 ====>Expected attribute name '/UANodeSet[1]/UAMethod[39]/@MethodDeclarationId' - comparing <UAMethod...> at /UANodeSet[1]/UAMethod[39]/@MethodDeclarationId to <UAMethod...> at /UANodeSet[1]/UAMethod[58]
@@ -708,6 +723,7 @@
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[353]/@UserAccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[353]/@UserAccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[302]
 ====>Expected child nodelist sequence '2' but was '1' - comparing <References...> at /UANodeSet[1]/UAVariable[353]/References[1] to <References...> at /UANodeSet[1]/UAVariable[302]/References[1]
 ====>Expected child nodelist sequence '3' but was '2' - comparing <Value...> at /UANodeSet[1]/UAVariable[353]/Value[1] to <Value...> at /UANodeSet[1]/UAVariable[302]/Value[1]
+====>Expected child '' but was 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' - comparing <NULL> to <uax:Text...> at /UANodeSet[1]/UAVariable[302]/Value[1]/ExtensionObject[1]/Body[1]/EUInformation[1]/DisplayName[1]/Text[1]
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Description' but was '' - comparing <Description...> at /UANodeSet[1]/UAVariable[353]/Description[1] to <NULL>
 ====>Expected text value 'nsu=http://opcfoundation.org/UA/TMC/;i=5040' but was 'nsu=http://opcfoundation.org/UA/DI/;i=5040' - comparing <uax:Identifier ...>nsu=http://opcfoundation.org/UA/TMC/;i=5040</uax:Identifier> at /UANodeSet[1]/UAVariable[364]/Value[1]/ExtensionObject[1]/TypeId[1]/Identifier[1]/text()[1] to <uax:Identifier ...>nsu=http://opcfoundation.org/UA/DI/;i=5040</uax:Identifier> at /UANodeSet[1]/UAVariable[321]/Value[1]/ExtensionObject[1]/TypeId[1]/Identifier[1]/text()[1]
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAVariable[365]/References[1]/Reference[3] to <NULL>
@@ -720,6 +736,7 @@
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[373]/@UserAccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[373]/@UserAccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[243]
 ====>Expected child nodelist sequence '2' but was '1' - comparing <References...> at /UANodeSet[1]/UAVariable[373]/References[1] to <References...> at /UANodeSet[1]/UAVariable[243]/References[1]
 ====>Expected child nodelist sequence '3' but was '2' - comparing <Value...> at /UANodeSet[1]/UAVariable[373]/Value[1] to <Value...> at /UANodeSet[1]/UAVariable[243]/Value[1]
+====>Expected child '' but was 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' - comparing <NULL> to <uax:Text...> at /UANodeSet[1]/UAVariable[243]/Value[1]/ExtensionObject[1]/Body[1]/EUInformation[1]/DisplayName[1]/Text[1]
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Description' but was '' - comparing <Description...> at /UANodeSet[1]/UAVariable[373]/Description[1] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAVariable[378]/References[1]/Reference[1] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAVariable[378]/References[1]/Reference[4] to <NULL>
@@ -728,6 +745,7 @@
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[380]/@UserAccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[380]/@UserAccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[245]
 ====>Expected child nodelist sequence '2' but was '1' - comparing <References...> at /UANodeSet[1]/UAVariable[380]/References[1] to <References...> at /UANodeSet[1]/UAVariable[245]/References[1]
 ====>Expected child nodelist sequence '3' but was '2' - comparing <Value...> at /UANodeSet[1]/UAVariable[380]/Value[1] to <Value...> at /UANodeSet[1]/UAVariable[245]/Value[1]
+====>Expected child '' but was 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' - comparing <NULL> to <uax:Text...> at /UANodeSet[1]/UAVariable[245]/Value[1]/ExtensionObject[1]/Body[1]/EUInformation[1]/DisplayName[1]/Text[1]
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Description' but was '' - comparing <Description...> at /UANodeSet[1]/UAVariable[380]/Description[1] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAVariable[385]/References[1]/Reference[3] to <NULL>
 ====>Expected text value 'nsu=http://opcfoundation.org/UA/TMC/;i=5008' but was 'nsu=http://opcfoundation.org/UA/DI/;i=5008' - comparing <uax:Identifier ...>nsu=http://opcfoundation.org/UA/TMC/;i=5008</uax:Identifier> at /UANodeSet[1]/UAVariable[385]/Value[1]/ExtensionObject[1]/TypeId[1]/Identifier[1]/text()[1] to <uax:Identifier ...>nsu=http://opcfoundation.org/UA/DI/;i=5008</uax:Identifier> at /UANodeSet[1]/UAVariable[246]/Value[1]/ExtensionObject[1]/TypeId[1]/Identifier[1]/text()[1]
@@ -978,6 +996,7 @@
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[458]/@UserAccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[458]/@UserAccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[355]
 ====>Expected child nodelist sequence '2' but was '1' - comparing <References...> at /UANodeSet[1]/UAVariable[458]/References[1] to <References...> at /UANodeSet[1]/UAVariable[355]/References[1]
 ====>Expected child nodelist sequence '3' but was '2' - comparing <Value...> at /UANodeSet[1]/UAVariable[458]/Value[1] to <Value...> at /UANodeSet[1]/UAVariable[355]/Value[1]
+====>Expected child '' but was 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' - comparing <NULL> to <uax:Text...> at /UANodeSet[1]/UAVariable[355]/Value[1]/ExtensionObject[1]/Body[1]/EUInformation[1]/DisplayName[1]/Text[1]
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Description' but was '' - comparing <Description...> at /UANodeSet[1]/UAVariable[458]/Description[1] to <NULL>
 ====>Expected text value 'nsu=http://opcfoundation.org/UA/TMC/;i=5008' but was 'nsu=http://opcfoundation.org/UA/DI/;i=5008' - comparing <uax:Identifier ...>nsu=http://opcfoundation.org/UA/TMC/;i=5008</uax:Identifier> at /UANodeSet[1]/UAVariable[462]/Value[1]/ExtensionObject[1]/TypeId[1]/Identifier[1]/text()[1] to <uax:Identifier ...>nsu=http://opcfoundation.org/UA/DI/;i=5008</uax:Identifier> at /UANodeSet[1]/UAVariable[339]/Value[1]/ExtensionObject[1]/TypeId[1]/Identifier[1]/text()[1]
 ====>Expected text value 'nsu=http://opcfoundation.org/UA/TMC/;i=5040' but was 'nsu=http://opcfoundation.org/UA/DI/;i=5040' - comparing <uax:Identifier ...>nsu=http://opcfoundation.org/UA/TMC/;i=5040</uax:Identifier> at /UANodeSet[1]/UAVariable[463]/Value[1]/ExtensionObject[1]/TypeId[1]/Identifier[1]/text()[1] to <uax:Identifier ...>nsu=http://opcfoundation.org/UA/DI/;i=5040</uax:Identifier> at /UANodeSet[1]/UAVariable[14]/Value[1]/ExtensionObject[1]/TypeId[1]/Identifier[1]/text()[1]
@@ -1001,6 +1020,7 @@
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[469]/@UserAccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[469]/@UserAccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[16]
 ====>Expected child nodelist sequence '2' but was '1' - comparing <References...> at /UANodeSet[1]/UAVariable[469]/References[1] to <References...> at /UANodeSet[1]/UAVariable[16]/References[1]
 ====>Expected child nodelist sequence '3' but was '2' - comparing <Value...> at /UANodeSet[1]/UAVariable[469]/Value[1] to <Value...> at /UANodeSet[1]/UAVariable[16]/Value[1]
+====>Expected child '' but was 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' - comparing <NULL> to <uax:Text...> at /UANodeSet[1]/UAVariable[16]/Value[1]/ExtensionObject[1]/Body[1]/EUInformation[1]/DisplayName[1]/Text[1]
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Description' but was '' - comparing <Description...> at /UANodeSet[1]/UAVariable[469]/Description[1] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAVariable[473]/References[1]/Reference[1] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAVariable[473]/References[1]/Reference[4] to <NULL>
@@ -1009,6 +1029,7 @@
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[475]/@UserAccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[475]/@UserAccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[189]
 ====>Expected child nodelist sequence '2' but was '1' - comparing <References...> at /UANodeSet[1]/UAVariable[475]/References[1] to <References...> at /UANodeSet[1]/UAVariable[189]/References[1]
 ====>Expected child nodelist sequence '3' but was '2' - comparing <Value...> at /UANodeSet[1]/UAVariable[475]/Value[1] to <Value...> at /UANodeSet[1]/UAVariable[189]/Value[1]
+====>Expected child '' but was 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' - comparing <NULL> to <uax:Text...> at /UANodeSet[1]/UAVariable[189]/Value[1]/ExtensionObject[1]/Body[1]/EUInformation[1]/DisplayName[1]/Text[1]
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Description' but was '' - comparing <Description...> at /UANodeSet[1]/UAVariable[475]/Description[1] to <NULL>
 ====>Expected attribute name '/UANodeSet[1]/UAMethod[58]/@ParentNodeId' - comparing <UAMethod...> at /UANodeSet[1]/UAMethod[58]/@ParentNodeId to <UAMethod...> at /UANodeSet[1]/UAMethod[1]
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAMethod[58]/References[1]/Reference[1] to <NULL>
@@ -1021,6 +1042,7 @@
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[491]/@UserAccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[491]/@UserAccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[373]
 ====>Expected child nodelist sequence '2' but was '1' - comparing <References...> at /UANodeSet[1]/UAVariable[491]/References[1] to <References...> at /UANodeSet[1]/UAVariable[373]/References[1]
 ====>Expected child nodelist sequence '3' but was '2' - comparing <Value...> at /UANodeSet[1]/UAVariable[491]/Value[1] to <Value...> at /UANodeSet[1]/UAVariable[373]/Value[1]
+====>Expected child '' but was 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' - comparing <NULL> to <uax:Text...> at /UANodeSet[1]/UAVariable[373]/Value[1]/ExtensionObject[1]/Body[1]/EUInformation[1]/DisplayName[1]/Text[1]
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Description' but was '' - comparing <Description...> at /UANodeSet[1]/UAVariable[491]/Description[1] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAVariable[496]/References[1]/Reference[1] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAVariable[496]/References[1]/Reference[6] to <NULL>
@@ -1028,6 +1050,7 @@
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[498]/@UserAccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[498]/@UserAccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[352]
 ====>Expected child nodelist sequence '2' but was '1' - comparing <References...> at /UANodeSet[1]/UAVariable[498]/References[1] to <References...> at /UANodeSet[1]/UAVariable[352]/References[1]
 ====>Expected child nodelist sequence '3' but was '2' - comparing <Value...> at /UANodeSet[1]/UAVariable[498]/Value[1] to <Value...> at /UANodeSet[1]/UAVariable[352]/Value[1]
+====>Expected child '' but was 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' - comparing <NULL> to <uax:Text...> at /UANodeSet[1]/UAVariable[352]/Value[1]/ExtensionObject[1]/Body[1]/EUInformation[1]/DisplayName[1]/Text[1]
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Description' but was '' - comparing <Description...> at /UANodeSet[1]/UAVariable[498]/Description[1] to <NULL>
 ====>Expected attribute name '/UANodeSet[1]/UAMethod[59]/@ParentNodeId' - comparing <UAMethod...> at /UANodeSet[1]/UAMethod[59]/@ParentNodeId to <UAMethod...> at /UANodeSet[1]/UAMethod[61]
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAMethod[59]/References[1]/Reference[1] to <NULL>
@@ -1043,6 +1066,7 @@
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[505]/@UserAccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[505]/@UserAccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[350]
 ====>Expected child nodelist sequence '2' but was '1' - comparing <References...> at /UANodeSet[1]/UAVariable[505]/References[1] to <References...> at /UANodeSet[1]/UAVariable[350]/References[1]
 ====>Expected child nodelist sequence '3' but was '2' - comparing <Value...> at /UANodeSet[1]/UAVariable[505]/Value[1] to <Value...> at /UANodeSet[1]/UAVariable[350]/Value[1]
+====>Expected child '' but was 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' - comparing <NULL> to <uax:Text...> at /UANodeSet[1]/UAVariable[350]/Value[1]/ExtensionObject[1]/Body[1]/EUInformation[1]/DisplayName[1]/Text[1]
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Description' but was '' - comparing <Description...> at /UANodeSet[1]/UAVariable[505]/Description[1] to <NULL>
 ====>Expected text value 'nsu=http://opcfoundation.org/UA/TMC/;i=5040' but was 'nsu=http://opcfoundation.org/UA/DI/;i=5040' - comparing <uax:Identifier ...>nsu=http://opcfoundation.org/UA/TMC/;i=5040</uax:Identifier> at /UANodeSet[1]/UAVariable[516]/Value[1]/ExtensionObject[1]/TypeId[1]/Identifier[1]/text()[1] to <uax:Identifier ...>nsu=http://opcfoundation.org/UA/DI/;i=5040</uax:Identifier> at /UANodeSet[1]/UAVariable[353]/Value[1]/ExtensionObject[1]/TypeId[1]/Identifier[1]/text()[1]
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObjectType[38]/References[1]/Reference[17] to <NULL>
@@ -1054,6 +1078,7 @@
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[521]/@UserAccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[521]/@UserAccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[107]
 ====>Expected child nodelist sequence '2' but was '1' - comparing <References...> at /UANodeSet[1]/UAVariable[521]/References[1] to <References...> at /UANodeSet[1]/UAVariable[107]/References[1]
 ====>Expected child nodelist sequence '3' but was '2' - comparing <Value...> at /UANodeSet[1]/UAVariable[521]/Value[1] to <Value...> at /UANodeSet[1]/UAVariable[107]/Value[1]
+====>Expected child '' but was 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' - comparing <NULL> to <uax:Text...> at /UANodeSet[1]/UAVariable[107]/Value[1]/ExtensionObject[1]/Body[1]/EUInformation[1]/DisplayName[1]/Text[1]
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Description' but was '' - comparing <Description...> at /UANodeSet[1]/UAVariable[521]/Description[1] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAVariable[526]/References[1]/Reference[1] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAVariable[526]/References[1]/Reference[4] to <NULL>
@@ -1062,6 +1087,7 @@
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[528]/@UserAccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[528]/@UserAccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[105]
 ====>Expected child nodelist sequence '2' but was '1' - comparing <References...> at /UANodeSet[1]/UAVariable[528]/References[1] to <References...> at /UANodeSet[1]/UAVariable[105]/References[1]
 ====>Expected child nodelist sequence '3' but was '2' - comparing <Value...> at /UANodeSet[1]/UAVariable[528]/Value[1] to <Value...> at /UANodeSet[1]/UAVariable[105]/Value[1]
+====>Expected child '' but was 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' - comparing <NULL> to <uax:Text...> at /UANodeSet[1]/UAVariable[105]/Value[1]/ExtensionObject[1]/Body[1]/EUInformation[1]/DisplayName[1]/Text[1]
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Description' but was '' - comparing <Description...> at /UANodeSet[1]/UAVariable[528]/Description[1] to <NULL>
 ====>Expected text value 'nsu=http://opcfoundation.org/UA/TMC/;i=5008' but was 'nsu=http://opcfoundation.org/UA/DI/;i=5008' - comparing <uax:Identifier ...>nsu=http://opcfoundation.org/UA/TMC/;i=5008</uax:Identifier> at /UANodeSet[1]/UAVariable[533]/Value[1]/ExtensionObject[1]/TypeId[1]/Identifier[1]/text()[1] to <uax:Identifier ...>nsu=http://opcfoundation.org/UA/DI/;i=5008</uax:Identifier> at /UANodeSet[1]/UAVariable[103]/Value[1]/ExtensionObject[1]/TypeId[1]/Identifier[1]/text()[1]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[534]/@Historizing' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[534]/@Historizing to <UAVariable...> at /UANodeSet[1]/UAVariable[117]
@@ -1095,6 +1121,7 @@
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[551]/@UserAccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[551]/@UserAccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[285]
 ====>Expected child nodelist sequence '2' but was '1' - comparing <References...> at /UANodeSet[1]/UAVariable[551]/References[1] to <References...> at /UANodeSet[1]/UAVariable[285]/References[1]
 ====>Expected child nodelist sequence '3' but was '2' - comparing <Value...> at /UANodeSet[1]/UAVariable[551]/Value[1] to <Value...> at /UANodeSet[1]/UAVariable[285]/Value[1]
+====>Expected child '' but was 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' - comparing <NULL> to <uax:Text...> at /UANodeSet[1]/UAVariable[285]/Value[1]/ExtensionObject[1]/Body[1]/EUInformation[1]/DisplayName[1]/Text[1]
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Description' but was '' - comparing <Description...> at /UANodeSet[1]/UAVariable[551]/Description[1] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAVariable[558]/References[1]/Reference[1] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAVariable[558]/References[1]/Reference[4] to <NULL>
@@ -1103,6 +1130,7 @@
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[560]/@UserAccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[560]/@UserAccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[344]
 ====>Expected child nodelist sequence '2' but was '1' - comparing <References...> at /UANodeSet[1]/UAVariable[560]/References[1] to <References...> at /UANodeSet[1]/UAVariable[344]/References[1]
 ====>Expected child nodelist sequence '3' but was '2' - comparing <Value...> at /UANodeSet[1]/UAVariable[560]/Value[1] to <Value...> at /UANodeSet[1]/UAVariable[344]/Value[1]
+====>Expected child '' but was 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' - comparing <NULL> to <uax:Text...> at /UANodeSet[1]/UAVariable[344]/Value[1]/ExtensionObject[1]/Body[1]/EUInformation[1]/DisplayName[1]/Text[1]
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Description' but was '' - comparing <Description...> at /UANodeSet[1]/UAVariable[560]/Description[1] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAVariable[572]/References[1]/Reference[1] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAVariable[572]/References[1]/Reference[5] to <NULL>
@@ -1110,6 +1138,7 @@
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[574]/@UserAccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[574]/@UserAccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[306]
 ====>Expected child nodelist sequence '2' but was '1' - comparing <References...> at /UANodeSet[1]/UAVariable[574]/References[1] to <References...> at /UANodeSet[1]/UAVariable[306]/References[1]
 ====>Expected child nodelist sequence '3' but was '2' - comparing <Value...> at /UANodeSet[1]/UAVariable[574]/Value[1] to <Value...> at /UANodeSet[1]/UAVariable[306]/Value[1]
+====>Expected child '' but was 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' - comparing <NULL> to <uax:Text...> at /UANodeSet[1]/UAVariable[306]/Value[1]/ExtensionObject[1]/Body[1]/EUInformation[1]/DisplayName[1]/Text[1]
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Description' but was '' - comparing <Description...> at /UANodeSet[1]/UAVariable[574]/Description[1] to <NULL>
 ====>Expected attribute name '/UANodeSet[1]/UAObject[50]' - comparing <UAObject...> at /UANodeSet[1]/UAObject[50] to <UAObject...> at /UANodeSet[1]/UAObject[6]/@ParentNodeId
 ====>Expected attribute name '/UANodeSet[1]/UAObject[51]' - comparing <UAObject...> at /UANodeSet[1]/UAObject[51] to <UAObject...> at /UANodeSet[1]/UAObject[2]/@ParentNodeId

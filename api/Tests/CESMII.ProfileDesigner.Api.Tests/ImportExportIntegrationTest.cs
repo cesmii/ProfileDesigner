@@ -478,7 +478,7 @@ namespace CESMII.ProfileDesigner.Api.Tests
                 var file = remaining.TestMethodArguments[0].ToString();
                 if (unstableTests.Contains(file))
                 {
-                    Console.WriteLine($"Ignoring {file} because it is listed as unstable / pending investigation.");
+                    Console.WriteLine($"Not testing export for {file} because it is listed as unstable / pending investigation.");
                     excludedTestCases.Add(remaining);
                     continue;
                 }

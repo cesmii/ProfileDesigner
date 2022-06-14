@@ -15,14 +15,14 @@
         {
         }
 
-        public override async Task<int?> Add(EngineeringUnitRankedModel model, UserToken userToken)
+        public override Task<int?> AddAsync(EngineeringUnitRankedModel model, UserToken userToken)
         {
             throw new NotSupportedException("This DAL is for getting data only. Use the EngineeringUnitDAL for adding/editing/deleting eng units.");
         }
 
 
 
-        public override async Task<int?> Update(EngineeringUnitRankedModel model, UserToken userToken)
+        public override Task<int?> UpdateAsync(EngineeringUnitRankedModel model, UserToken userToken)
         {
             throw new NotSupportedException("This DAL is for getting data only. Use the EngineeringUnitDAL for adding/editing/deleting eng units.");
         }
@@ -88,7 +88,7 @@
                 );
         }
 
-        public async Task<int?> Delete(int id, UserToken userToken)
+        public Task<int?> DeleteAsync(int id, UserToken userToken)
         {
             throw new NotSupportedException("This DAL is for getting data only. Use the EngineeringUnitDAL for adding/editing/deleting eng units.");
         }

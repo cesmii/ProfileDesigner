@@ -19,7 +19,7 @@
         {
         }
 
-        public override async Task<int?> Add(ImportLogModel model, UserToken userToken)
+        public override async Task<int?> AddAsync(ImportLogModel model, UserToken userToken)
         {
             var entity = new ImportLog
             {
@@ -40,7 +40,7 @@
             return entity.ID;
         }
 
-        public override async Task<int?> Update(ImportLogModel model, UserToken userToken)
+        public override async Task<int?> UpdateAsync(ImportLogModel model, UserToken userToken)
         {
             ImportLog entity = base.FindByCondition(userToken, x => x.ID == model.ID)
                 .FirstOrDefault()
@@ -50,7 +50,7 @@
             entity.Updated = DateTime.UtcNow;
 
             await _repo.UpdateAsync(entity);
-            await _repo.SaveChanges();
+            await _repo.SaveChangesAsync();
             return entity.ID;
         }
 
@@ -107,12 +107,12 @@
                 );
         }
 
-        public async Task<int?> Delete(int id, UserToken userToken)
+        public async Task<int?> DeleteAsync(int id, UserToken userToken)
         {
             ImportLog entity = base.FindByCondition(userToken, x => x.ID == id && x.OwnerId == userToken.UserId).FirstOrDefault();
             entity.IsActive = false;
             _repo.Update(entity);
-            await _repo.SaveChanges();
+            await _repo.SaveChangesAsync();
             return entity.ID;
         }
 

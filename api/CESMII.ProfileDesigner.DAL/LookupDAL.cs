@@ -23,7 +23,7 @@
         {
         }
 
-        public override async Task<int?> Add(LookupItemModel model, UserToken userToken)
+        public override async Task<int?> AddAsync(LookupItemModel model, UserToken userToken)
         {
             LookupItem entity = new LookupItem
             {
@@ -43,14 +43,14 @@
             return entity.ID;
         }
 
-        public override async Task<int?> Update(LookupItemModel model, UserToken userToken)
+        public override async Task<int?> UpdateAsync(LookupItemModel model, UserToken userToken)
         {
             LookupItem entity = base.FindByCondition(userToken, x => x.ID == model.ID).FirstOrDefault();
             //model.Updated = DateTime.UtcNow;
             this.MapToEntity(ref entity, model, userToken);
 
             await _repo.UpdateAsync(entity);
-            await _repo.SaveChanges();
+            await _repo.SaveChangesAsync();
             return entity.ID;
         }
 
@@ -173,7 +173,7 @@
             //return result;
         }
 
-        public async Task<int?> Delete(int id, UserToken userToken)
+        public async Task<int?> DeleteAsync(int id, UserToken userToken)
         {
             LookupItem entity = base.FindByCondition(userToken, x => x.ID == id).FirstOrDefault();
             //entity.Updated = DateTime.UtcNow;
@@ -181,7 +181,7 @@
             entity.IsActive = false;
 
             await _repo.UpdateAsync(entity);
-            await _repo.SaveChanges();
+            await _repo.SaveChangesAsync();
             return entity.ID;
         }
 

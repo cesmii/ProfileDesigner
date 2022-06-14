@@ -34,7 +34,7 @@
         }
         private IServiceProvider _serviceProvider;
 
-        public override async Task<int?> Add(LookupDataTypeModel model, UserToken userToken)
+        public override async Task<int?> AddAsync(LookupDataTypeModel model, UserToken userToken)
         {
             LookupDataType entity = new LookupDataType
             {
@@ -69,7 +69,7 @@
             return entity;
         }
 
-        public override async Task<int?> Update(LookupDataTypeModel model, UserToken userToken)
+        public override async Task<int?> UpdateAsync(LookupDataTypeModel model, UserToken userToken)
         {
             LookupDataType entity = _repo.FindByCondition(
                 dt => 
@@ -81,7 +81,7 @@
             this.MapToEntity(ref entity, model, userToken);
 
             await _repo.UpdateAsync(entity);
-            await _repo.SaveChanges();
+            await _repo.SaveChangesAsync();
             return entity.ID;
         }
 
@@ -170,7 +170,7 @@
             //return result;
         }
 
-        public async Task<int?> Delete(int id, UserToken userToken)
+        public async Task<int?> DeleteAsync(int id, UserToken userToken)
         {
             LookupDataType entity = base.FindByCondition(userToken, x => x.ID == id).FirstOrDefault();
             //entity.Updated = DateTime.UtcNow;
@@ -178,7 +178,7 @@
             entity.IsActive = false;
 
             await _repo.UpdateAsync(entity);
-            await _repo.SaveChanges();
+            await _repo.SaveChangesAsync();
             return entity.ID;
         }
 
@@ -240,7 +240,7 @@
                     if (customTypeEntity == null)
                     {
                         _logger.Warn($"Creating custom type  {model.CustomType} as side effect of creating {model}");
-                        _profileTypeDefinitionDAL.Add(model.CustomType, userToken).Wait();
+                        _profileTypeDefinitionDAL.AddAsync(model.CustomType, userToken).Wait();
                         customTypeEntity = _profileTypeDefinitionDAL.CheckForExisting(model.CustomType, userToken);
                     }
                     entity.CustomType = customTypeEntity;

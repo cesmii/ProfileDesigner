@@ -56,7 +56,7 @@ namespace CESMII.ProfileDesigner.Api.Utils
                     }
                 }
             };
-            var logId = await _dalImportLog.Add(logItem, userToken);
+            var logId = await _dalImportLog.AddAsync(logItem, userToken);
 
             Task backgroundTask = null;
 
@@ -410,7 +410,7 @@ namespace CESMII.ProfileDesigner.Api.Utils
                 logItem.Completed = DateTime.UtcNow;
             }
             logItem.Messages.Add(new ImportLogMessageModel() { Message = message });
-            await dalImportLog.Update(logItem, userToken);
+            await dalImportLog.UpdateAsync(logItem, userToken);
         }
 
         /// <summary>
@@ -424,7 +424,7 @@ namespace CESMII.ProfileDesigner.Api.Utils
             {
                 logItem.ProfileWarnings.Add(new ImportProfileWarningModel() { Message = message, ProfileId = warningsList.ProfileId });
             }
-            await dalImportLog.Update(logItem, userToken);
+            await dalImportLog.UpdateAsync(logItem, userToken);
         }
 
         private sealed class ProfileModelAndNodeSet

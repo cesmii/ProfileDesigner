@@ -100,7 +100,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             var userToken = UserExtension.DalUserToken(User);
 
             //This is a soft delete
-            var result = await _dal.Delete(model.ID, userToken);
+            var result = await _dal.DeleteAsync(model.ID, userToken);
             if (result < 0)
             {
                 _logger.LogWarning($"ImportLogController|Delete|Could not delete item. Invalid id:{model.ID}.");

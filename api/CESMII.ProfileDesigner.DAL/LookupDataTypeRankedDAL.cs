@@ -17,14 +17,14 @@
         {
         }
 
-        public override async Task<int?> Add(LookupDataTypeRankedModel model, UserToken userToken)
+        public override Task<int?> AddAsync(LookupDataTypeRankedModel model, UserToken userToken)
         {
             throw new NotSupportedException("This DAL is for getting data only. Use the LookupDataTypeDAL for adding/editing/deleting data types.");
         }
 
 
 
-        public override async Task<int?> Update(LookupDataTypeRankedModel model, UserToken userToken)
+        public override Task<int?> UpdateAsync(LookupDataTypeRankedModel model, UserToken userToken)
         {
             throw new NotSupportedException("This DAL is for getting data only. Use the LookupDataTypeDAL for adding/editing/deleting data types.");
         }
@@ -92,7 +92,7 @@
                 );
         }
 
-        public async Task<int?> Delete(int id, UserToken userToken)
+        public Task<int?> DeleteAsync(int id, UserToken userToken)
         {
             throw new NotSupportedException("This DAL is for getting data only. Use the LookupDataTypeDAL for adding/editing/deleting data types.");
         }

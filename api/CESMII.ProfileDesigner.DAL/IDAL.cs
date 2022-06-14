@@ -40,14 +40,14 @@
         /// <returns></returns>
         DALResult<TModel> GetAllPaged(UserToken userToken, int? skip = null, int? take = null, 
             bool returnCount = false, bool verbose = false);
-        Task<int?> Add(TModel model, UserToken userId);
+        Task<int?> AddAsync(TModel model, UserToken userId);
         /// <summary>
         /// Update an entity asynchronously
         /// </summary>
         /// <param name="model"></param>
         /// <param name="userId"></param>
         /// <returns></returns>
-        Task<int?> Update(TModel model, UserToken userId);
+        Task<int?> UpdateAsync(TModel model, UserToken userId);
 
         /// <summary>
         /// Asynchronously update an entity if it exists, add if not
@@ -55,12 +55,12 @@
         /// <param name="model"></param>
         /// <param name="userId"></param>
         /// <returns></returns>
-        Task<(int?, bool)> Upsert(TModel model, UserToken userId, bool updateExisting = true);
+        Task<(int?, bool)> UpsertAsync(TModel model, UserToken userId, bool updateExisting = true);
         Task<TModel> GetExistingAsync(TModel model, UserToken userId, bool cacheOnly = false);
 
-        Task<int?> Delete(int id, UserToken userToken);
+        Task<int?> DeleteAsync(int id, UserToken userToken);
 
-        Task<int> DeleteMany(List<int> ids, UserToken userToken);
+        Task<int> DeleteManyAsync(List<int> ids, UserToken userToken);
 
         /// <summary>
         /// Provide flexibility to filter on the repo before it is converted to list so that the executed query is performant.

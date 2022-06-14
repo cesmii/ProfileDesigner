@@ -12,7 +12,7 @@
         {
         }
 
-        public override async Task<int?> Add(StandardNodeSetModel model, UserToken userToken)
+        public override async Task<int?> AddAsync(StandardNodeSetModel model, UserToken userToken)
         {
             StandardNodeSet entity = new StandardNodeSet
             {
@@ -25,24 +25,24 @@
             return entity.ID;
         }
 
-        public override async Task<int?> Update(StandardNodeSetModel model, UserToken userToken)
+        public override async Task<int?> UpdateAsync(StandardNodeSetModel model, UserToken userToken)
         {
             StandardNodeSet entity = base.FindByCondition(userToken, x => x.ID == model.ID).FirstOrDefault();
             this.MapToEntity(ref entity, model, userToken);
 
             await _repo.UpdateAsync(entity);
-            await _repo.SaveChanges();
+            await _repo.SaveChangesAsync();
             return entity.ID;
         }
 
-        public async Task<int?> Delete(int id, UserToken userToken)
+        public async Task<int?> DeleteAsync(int id, UserToken userToken)
         {
             StandardNodeSet entity = base.FindByCondition(userToken, x => x.ID == id).FirstOrDefault();
             //entity.Updated = DateTime.UtcNow;
             //entity.UpdatedBy = userId;
 
             await _repo.UpdateAsync(entity);
-            await _repo.SaveChanges();
+            await _repo.SaveChangesAsync();
             return entity.ID;
         }
 

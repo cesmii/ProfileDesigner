@@ -74,12 +74,12 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             var analytic = _dalAnalytics.Where(x => x.ProfileTypeDefinitionId == model.ID, userToken,  null, null, false).Data.FirstOrDefault();
             if (analytic == null)
             {
-                _dalAnalytics.Add(new ProfileTypeDefinitionAnalyticModel() {ProfileTypeDefinitionId = model.ID, PageVisitCount = 1}, userToken);
+                _dalAnalytics.AddAsync(new ProfileTypeDefinitionAnalyticModel() {ProfileTypeDefinitionId = model.ID, PageVisitCount = 1}, userToken);
             }
             else
             {
                 analytic.PageVisitCount += 1;
-                _dalAnalytics.Update(analytic, null);
+                _dalAnalytics.UpdateAsync(analytic, null);
             }
 
             return Ok(result);
@@ -597,25 +597,25 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             int? id = 0;
             if (isAdd)
             {
-                id = await _dal.Add(model, userToken);
+                id = await _dal.AddAsync(model, userToken);
 
                 //increment extend count for this item's parent
                 var analytic = _dalAnalytics.Where(x => x.ProfileTypeDefinitionId == model.Parent.ID, userToken, null, null, false).Data.FirstOrDefault();
                 if (analytic == null)
                 {
-                    await _dalAnalytics.Add(new ProfileTypeDefinitionAnalyticModel() { ProfileTypeDefinitionId = model.Parent.ID.Value, ExtendCount = 1 }, userToken);
+                    await _dalAnalytics.AddAsync(new ProfileTypeDefinitionAnalyticModel() { ProfileTypeDefinitionId = model.Parent.ID.Value, ExtendCount = 1 }, userToken);
                 }
                 else
                 {
                     analytic.ExtendCount += 1;
-                    await _dalAnalytics.Update(analytic, null);
+                    await _dalAnalytics.UpdateAsync(analytic, null);
                 }
 
 
             }
             else
             {
-                id = await _dal.Update(model, userToken);
+                id = await _dal.UpdateAsync(model, userToken);
             }
 
             if (id < 0)
@@ -657,7 +657,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             }
 
 
-            var result = await _dal.Delete(model.ID, userToken);
+            var result = await _dal.DeleteAsync(model.ID, userToken);
             if (result < 0)
             {
                 _logger.LogWarning($"ProfileTypeDefinitionController|Delete|Could not delete profile type definition. Invalid id:{model.ID}.");

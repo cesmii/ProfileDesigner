@@ -73,17 +73,49 @@ namespace NodeSetDiff
                 {
                     if (c.ControlDetails.Target == null || c.TestDetails.Target == null)
                     {
-                        var detailsNonNull= c.ControlDetails.Target == null ? c.TestDetails : c.ControlDetails;
-                        var detailsNull = c.ControlDetails.Target == null ? c.ControlDetails : c.TestDetails;
-                        if (detailsNonNull.Target.NamespaceURI == "http://opcfoundation.org/UA/2011/03/UANodeSet.xsd")
+                        Comparison.Detail detailsNonNull;
+                        Comparison.Detail detailsNull;
+                        Dictionary<string, string> aliasesNonNull, aliasesNull;
+                        NamespaceTable namespacesNonNull, namespacesNull;
+                        if (c.ControlDetails.Target == null)
                         {
+                            detailsNonNull = c.TestDetails;
+                            aliasesNonNull = testAliases;
+                            namespacesNonNull = testNamespaces;
+
+                            detailsNull = c.ControlDetails;
+                            aliasesNull = controlAliases;
+                            namespacesNull = controlNamespaces;
+                        }
+                        else
+                        {
+                            detailsNonNull = c.ControlDetails;
+                            aliasesNonNull = controlAliases;
+                            namespacesNonNull = controlNamespaces;
+
+                            detailsNull = c.TestDetails;
+                            aliasesNull = testAliases;
+                            namespacesNull = testNamespaces;
+                        }
+                        if (detailsNonNull.Target.NamespaceURI == "http://opcfoundation.org/UA/2011/03/UANodeSet.xsd" || string.IsNullOrEmpty(detailsNonNull.Target.NamespaceURI))
+                        {
+                            if (string.IsNullOrEmpty(detailsNonNull.Target.NamespaceURI))
+                            {
+
+                            }
+
+                            if (detailsNonNull.Target.Name == "References" && detailsNonNull.Target.ChildNodes.Count == 0)
+                            {
+                                return ComparisonResult.EQUAL;
+                            }
+
                             if (detailsNonNull.Target.LocalName == "Reference")
                             {
                                 // TODO apply aliases
-                                var referencedNodeId = detailsNonNull.Target.InnerText;
-                                var referenceType = detailsNonNull.Target.Attributes.GetNamedItem("ReferenceType").Value;
+                                var referencedNodeId = NormalizeNodeId(detailsNonNull.Target.InnerText, aliasesNonNull, namespacesNonNull);
+                                var referenceType = NormalizeNodeId(detailsNonNull.Target.Attributes.GetNamedItem("ReferenceType").Value, aliasesNonNull, namespacesNonNull);
                                 var isForward = (detailsNonNull.Target.Attributes.GetNamedItem("IsForward")?.Value?.ToLowerInvariant()??"true") != "false";
-                                var nodeId = detailsNonNull.Target.ParentNode.ParentNode.Attributes.GetNamedItem("NodeId").Value;
+                                var nodeId = NormalizeNodeId(detailsNonNull.Target.ParentNode.ParentNode.Attributes.GetNamedItem("NodeId").Value, aliasesNonNull, namespacesNonNull);
 
                                 // Check for matching reverse references (IsForward true/false)
                                 var nullDoc = c.ControlDetails.Target == null ? controlDoc : testDoc;
@@ -92,7 +124,9 @@ namespace NodeSetDiff
                                 foreach(var node in nodes)
                                 {
                                     var matchingRefs = node.Descendants().Where(e => e.Name.LocalName == "Reference" && e?.Attribute("IsForward")?.Value == (isForward ? "false" : "true") 
-                                        && e.Value == nodeId && e.Attribute("ReferenceType")?.Value == referenceType).ToList();
+                                        && NormalizeNodeId(e.Value, aliasesNull, namespacesNull) == nodeId 
+                                        && NormalizeNodeId(e.Attribute("ReferenceType")?.Value, aliasesNull, namespacesNull) == referenceType
+                                        ).ToList();
                                     var values = matchingRefs.Select(r => r.Value).ToList();
                                     if (matchingRefs.Any())
                                     {
@@ -120,10 +154,45 @@ namespace NodeSetDiff
                     }
                 }
             }
+            if (c.Type == ComparisonType.ATTR_NAME_LOOKUP)
+            {
+                if (outcome == ComparisonResult.DIFFERENT)
+                {
+                    if (c.ControlDetails.Target.Value == null && c.TestDetails.XPath.EndsWith("@DataType") && IsEqualNodeId("i=24", c.TestDetails.Target.Attributes["DataType"]?.Value.ToString()))
+                    {
+                        return ComparisonResult.EQUAL;
+                    }
+                }
+            }
+            if (c.Type == ComparisonType.ATTR_VALUE)
+            {
+                if (IsEqualNodeId(c.ControlDetails.Target.Value, c.TestDetails.Target.Value))
+                {
+                    return ComparisonResult.EQUAL;
+                }
+
+            }
+            if (c.Type == ComparisonType.TEXT_VALUE)
+            {
+                if (c.ControlDetails.Target.ParentNode.Name == "Reference")
+                {
+                    if (IsEqualNodeId(c.ControlDetails.Target.Value, c.TestDetails.Target.Value))
+                    {
+                        return ComparisonResult.EQUAL;
+                    }
+                }
+            }
             if (c.Type == ComparisonType.NAMESPACE_PREFIX)
             {
                 // XML namespaces can be different as long as the xml namespace URLs match
                 return ComparisonResult.EQUAL;
+            }
+            if (c.Type == ComparisonType.NAMESPACE_URI)
+            {
+                if (outcome != ComparisonResult.EQUAL)
+                {
+
+                }
             }
             return outcome;
         }
@@ -166,8 +235,8 @@ namespace NodeSetDiff
                             return c.GetAttribute("Alias") == t.GetAttribute("Alias");
                         case "Reference":
                             return
-                                c.GetAttribute("ReferenceType") == t.GetAttribute("ReferenceType")
-                                && c.InnerText == t.InnerText;
+                                IsEqualNodeId(c.GetAttribute("ReferenceType"), t.GetAttribute("ReferenceType"))
+                                && IsEqualNodeId(c.InnerText, t.InnerText);
                         case "Definition":
                         case "Field":
                             return
@@ -179,7 +248,7 @@ namespace NodeSetDiff
                         case "UAVariableType":
                         case "UAReferenceType":
                         case "UADataType":
-                            return NormalizeNodeId(c.GetAttribute("NodeId"), controlAliases, controlNamespaces) == NormalizeNodeId(t.GetAttribute("NodeId"), testAliases, testNamespaces);
+                            return IsEqualNodeId(c.GetAttribute("NodeId"), t.GetAttribute("NodeId"));
                     }
                     return true;
                 }
@@ -187,13 +256,25 @@ namespace NodeSetDiff
             }
             return true;
         }
+
+        private bool IsEqualNodeId(string cNodeId, string tNodeId)
+        {
+            var bEqual = NormalizeNodeId(cNodeId, controlAliases, controlNamespaces) == NormalizeNodeId(tNodeId, testAliases, testNamespaces);
+            return bEqual;
+        }
+
         private static string NormalizeNodeId(string nodeIdStr, Dictionary<string, string> aliases, NamespaceTable namespaces)
         {
-            foreach (var alias in aliases)
+            if (string.IsNullOrEmpty(nodeIdStr)) return nodeIdStr;
+            if (aliases.TryGetValue(nodeIdStr, out var value))
             {
-                nodeIdStr = nodeIdStr.Replace(alias.Key, alias.Value);
+                nodeIdStr = value;
             }
-            var nodeId = NodeId.Parse(nodeIdStr);
+            //foreach (var alias in aliases.OrderByDescending(a => a.Key.Length))
+            //{
+            //    nodeIdStr = nodeIdStr.Replace(alias.Key, alias.Value);
+            //}
+            var nodeId = ExpandedNodeId.Parse(nodeIdStr, namespaces);
             var exNodeId = new ExpandedNodeId(nodeId, namespaces.GetString(nodeId.NamespaceIndex));
             return exNodeId.ToString();
         }
@@ -230,7 +311,7 @@ namespace NodeSetDiff
         {
             foreach (var alias in aliases)
             {
-                xmlString = xmlString.Replace($"\"{alias.Key}\"", $"\"{alias.Value}\"");
+                //xmlString = xmlString.Replace($"\"{alias.Key}\"", $"\"{alias.Value}\"");
             }
 
             int i = 0;

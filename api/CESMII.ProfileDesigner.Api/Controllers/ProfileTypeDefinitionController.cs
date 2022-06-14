@@ -133,7 +133,6 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             //init 
             var result = new List<Expression<Func<ProfileTypeDefinition, bool>>>
             {
-
                 //Build collection of expressions - various parts depend on existence of values incoming in the model.
                 //Dal will loop over predicates and call query = query.where(predicate) which will 
                 //create AND between each predicate

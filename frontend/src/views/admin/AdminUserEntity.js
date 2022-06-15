@@ -393,11 +393,11 @@ function AdminUserEntity() {
         if (!_deleteModal.show) return;
 
         var message = `You are about to delete '${_deleteModal.item.userName}'. This action cannot be undone. Are you sure?`;
-        var caption = `Delete Item`;
+        var title = `Delete Item`;
 
         return (
             <>
-                <ConfirmationModal showModal={_deleteModal.show} caption={caption} message={message}
+                <ConfirmationModal showModal={_deleteModal.show} caption={title} message={message}
                     icon={{ name: "warning", color: color.trinidad }}
                     confirm={{ caption: "Delete", callback: onDeleteConfirm, buttonVariant: "danger" }}
                     cancel={{

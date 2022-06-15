@@ -119,8 +119,6 @@
             else if (skip.HasValue) data = query.Skip(skip.Value);
             else if (take.HasValue) data = query.Take(take.Value);
             else data = query;
-            //if (skip.HasValue) query = query.Skip(skip.Value);
-            //if (take.HasValue) query = query.Take(take.Value);
             DALResult<ProfileTypeDefinitionAnalyticModel> result = new DALResult<ProfileTypeDefinitionAnalyticModel>();
             result.Count = count;
             result.Data = MapToModels(data.ToList(), verbose);

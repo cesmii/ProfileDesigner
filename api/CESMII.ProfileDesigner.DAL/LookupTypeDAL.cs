@@ -58,20 +58,6 @@
             var result = base.Where(l => true, userToken, skip, take, returnCount, verbose, q => q
                 .OrderBy(l => l.Name));
             return result;
-            //var count = returnCount ? query.Count() : 0;
-            ////query returns IincludableQuery. Jump through the following to find right combo of skip and take
-            ////Goal is to have the query execute and not do in memory skip/take
-            //IQueryable<LookupType> data;
-            //if (skip.HasValue && take.HasValue) data = query.Skip(skip.Value).Take(take.Value);
-            //else if (skip.HasValue) data = query.Skip(skip.Value);
-            //else if (take.HasValue) data = query.Take(take.Value);
-            //else data = query;
-
-            //DALResult<LookupTypeModel> result = new DALResult<LookupTypeModel>();
-            //result.Count = count;
-            //result.Data = MapToModels(data.ToList(), verbose);
-            //result.SummaryData = null;
-            //return result;
         }
 
         /// <summary>
@@ -83,24 +69,9 @@
             bool returnCount = true, bool verbose = false)
         {
             return base.Where(predicate, user, skip, take, returnCount, verbose, q => q
-            ////put the order by and where clause before skip.take so we skip/take on filtered/ordered query 
-            //var query = _repo.FindByCondition(predicate)
+                //put the order by and where clause before skip.take so we skip/take on filtered/ordered query 
                 .OrderBy(l => l.Name)
                 );
-            //var count = returnCount ? query.Count() : 0;
-            ////query returns IincludableQuery. Jump through the following to find right combo of skip and take
-            ////Goal is to have the query execute and not do in memory skip/take
-            //IQueryable<LookupType> data;
-            //if (skip.HasValue && take.HasValue) data = query.Skip(skip.Value).Take(take.Value);
-            //else if (skip.HasValue) data = query.Skip(skip.Value);
-            //else if (take.HasValue) data = query.Take(take.Value);
-            //else data = query;
-
-            //DALResult<LookupTypeModel> result = new DALResult<LookupTypeModel>();
-            //result.Count = count;
-            //result.Data = MapToModels(data.ToList(), verbose);
-            //result.SummaryData = null;
-            //return result;
         }
 
         public override Task<int?> UpdateAsync(LookupTypeModel model, UserToken userToken)

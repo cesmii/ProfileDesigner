@@ -63,18 +63,6 @@
             return entity.ID;
         }
 
-        //public virtual int UpdateSync(TModel model, int userId)
-        //{
-        //    TEntity entity = _repo.GetAll()
-        //            .Where(e => e.ID == model.ID).FirstOrDefault();
-        //    entity.UpdatedById = userId;
-        //    entity.Updated = DateTime.UtcNow;
-        //    this.MapToEntity(ref entity, model);
-
-        //    _repo.Update(entity);
-        //    return entity.ID;
-        //}
-
         public virtual async Task<int?> DeleteAsync(int id, UserToken userToken)
         {
             var entity = _repo.GetAll()

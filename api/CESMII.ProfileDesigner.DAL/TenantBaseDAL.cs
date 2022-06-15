@@ -53,7 +53,7 @@
         protected override DALResult<TModel> Where(Expression<Func<TEntity, bool>> predicate, UserToken user, int? skip = null, int? take = null, bool returnCount = false, bool verbose = false,
             Func<IQueryable<TEntity>, IQueryable<TEntity>> additionalQuery = null)
         {
-            var query = _repo.FindByCondition(predicate).Where(e => e.OwnerId == null || e.OwnerId == user.UserId); //.Where(predicate);
+            var query = _repo.FindByCondition(predicate).Where(e => e.OwnerId == null || e.OwnerId == user.UserId);
             if (additionalQuery != null)
             {
                 query = additionalQuery(query);

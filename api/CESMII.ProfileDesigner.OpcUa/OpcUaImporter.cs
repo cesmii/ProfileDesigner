@@ -28,12 +28,13 @@ namespace CESMII.ProfileDesigner.OpcUa
     using global::Opc.Ua.Export;
     using System.Xml.Serialization;
     using System.Xml;
+    using System.Collections.Immutable;
 
     public class OpcUaImporter : IOpcUaContext
     {
 #pragma warning disable S1075 // URIs should not be hardcoded - these are not URLs representing endpoints, but OPC model identifiers (URIs) that are static and stable
-        const string strOpcNamespaceUri = "http://opcfoundation.org/UA/";
-        const string strOpcDiNamespaceUri = "http://opcfoundation.org/UA/DI/";
+        public const string strOpcNamespaceUri = "http://opcfoundation.org/UA/";
+        public const string strOpcDiNamespaceUri = "http://opcfoundation.org/UA/DI/";
 #pragma warning restore S1075 // URIs should not be hardcoded
 
         public OpcUaImporter(
@@ -112,7 +113,7 @@ namespace CESMII.ProfileDesigner.OpcUa
             return NodeModelFactoryOpc.LoadNodeSetAsync(this, nodeSet, profile, this.NodesetModels, _systemContext, this._importedNodes, out _, this.Aliases, doNotReimport);
         }
 
-        public static readonly List<string> _coreNodeSetUris = new List<string> { strOpcNamespaceUri, strOpcDiNamespaceUri };
+        public static readonly ImmutableList<string> _coreNodeSetUris = ImmutableList<string>.Empty.AddRange(new[] { strOpcNamespaceUri, strOpcDiNamespaceUri });
 
         public async System.Threading.Tasks.Task<Dictionary<string, ProfileTypeDefinitionModel>> ImportNodeSetModelAsync(NodeSetModel nodeSetModel, UserToken userToken)
         {
@@ -689,12 +690,12 @@ namespace CESMII.ProfileDesigner.OpcUa
             var result = _importer._nsDal.Where(ns => ns.Namespace == uaNamespace, _userToken, null, null, false, false);
             if (result?.Data?.Any() == true)
             {
-                var profile = result.Data.FirstOrDefault();
-                foreach (var info in result.Data.Skip(1))
+                if (result.Data.Count > 1)
                 {
                     // TODO handle multiple imported nodeset versions (compute highest etc.)
                     throw new Exception($"Found more than one version of {uaNamespace}");
                 }
+                var profile = result.Data.FirstOrDefault();
                 return profile;
             }
             return null;

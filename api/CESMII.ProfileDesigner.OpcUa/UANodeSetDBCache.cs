@@ -8,6 +8,7 @@ using CESMII.OpcUa.NodeSetImporter;
 using CESMII.ProfileDesigner.DAL;
 using CESMII.ProfileDesigner.DAL.Models;
 using CESMII.ProfileDesigner.Data.Entities;
+using CESMII.ProfileDesigner.OpcUa;
 using Opc.Ua.Export;
 using System;
 using System.IO;
@@ -50,13 +51,6 @@ namespace CESMII.ProfileDesigner.Opc.Ua.NodeSetDBCache
             var tns = _dalNodeSetFile.GetById(int.Parse(id), _userToken);
             if (tns != null)
             {
-                var tmav = new ModelNameAndVersion
-                {
-                    ModelUri = tns.FileName,
-                    ModelVersion = tns.Version,
-                    PublicationDate = tns.PublicationDate,
-                    CCacheId = tns.ID
-                };
                 UANodeSetImportResult res = new UANodeSetImportResult();
                 AddNodeSet(res, tns.FileCache, _userToken);
                 if (res?.Models?.Count > 0)
@@ -165,7 +159,7 @@ namespace CESMII.ProfileDesigner.Opc.Ua.NodeSetDBCache
             {
                 nodeSet.Models = new ModelTableEntry[] {
                         new ModelTableEntry { ModelUri = nodeSet.NamespaceUris?.FirstOrDefault(),
-                         RequiredModel = new ModelTableEntry[] { new ModelTableEntry { ModelUri = "http://opcfoundation.org/UA/" } },
+                         RequiredModel = new ModelTableEntry[] { new ModelTableEntry { ModelUri = OpcUaImporter.strOpcNamespaceUri } },
                          }
                     };
             }

@@ -22,19 +22,12 @@
         /// </returns>
         public static string GenerateRandomPassword(int length = 8)
         {
-            const string Chars = "0123456789abcdefghijklmnopqrstuvwxyz";
-            var rnd = new Random();
-            var result = new System.Text.StringBuilder();
-            for (var i = 0; i < length; i++)
-            {
-                var randomPosition = rnd.Next(0, Chars.Length - 1);
-                var randomCase = rnd.Next(0, 1);
-                var randomChar = Chars.Substring(randomPosition, 1);
-                result.Append(randomCase == 0 ? randomChar.ToLower() : randomChar.ToUpper());
-                //Code Smell: use a stringbuilder instead...result += (randomCase == 0 ? randomChar.ToLower() : randomChar.ToUpper());
-            }
-
-            return result.ToString();
+            var rng = RandomNumberGenerator.Create();
+            var bits = (length * 6);
+            var byte_size = ((bits + 7) / 8);
+            var bytesarray = new byte[byte_size];
+            rng.GetBytes(bytesarray);
+            return Convert.ToBase64String(bytesarray);
         }
 
         /// <summary>
@@ -45,12 +38,10 @@
         /// </returns>
         public static string EncryptNewPassword(EncryptionConfig encrConfig, string password)
         {
-            var randomSalt = new byte[16];
             //populate new salt w/ random bytes
-            using (var rngCsp = new RNGCryptoServiceProvider())
-            {
-                rngCsp.GetBytes(randomSalt);
-            }
+            var rng = RandomNumberGenerator.Create();
+            var randomSalt = new byte[16];
+            rng.GetBytes(randomSalt);
 
             EncryptionLevelConfig encrLevel = encrConfig.Levels.Find(e => e.Id == encrConfig.CurrentLevel);
             if (encrLevel == null) throw new ArgumentNullException($"Encryption Config Level is missing. Check appSettings.json. Current Level: {encrConfig.CurrentLevel}");

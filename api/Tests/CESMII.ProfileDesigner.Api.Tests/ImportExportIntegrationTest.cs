@@ -374,7 +374,7 @@ namespace CESMII.ProfileDesigner.Api.Tests
             {
                 var nodeSetFileName = GetFileNameFromNamespace(profile.Namespace);
 
-                if (nodeSetFiles.Where(f => string.Equals(Path.GetFileName(f), nodeSetFileName, StringComparison.InvariantCultureIgnoreCase)).Any())
+                if (nodeSetFiles.Any(f => string.Equals(Path.GetFileName(f), nodeSetFileName, StringComparison.InvariantCultureIgnoreCase)))
                 {
                     var exportResult = await apiClient.ExportAsync(new IdIntModel { Id = profile.Id ?? 0 });
                     Assert.True(exportResult.IsSuccess, $"Failed to export {profile.Namespace}: {exportResult.Message}");

@@ -22,7 +22,6 @@ namespace CESMII.ProfileDesigner.Api.Tests
 
         protected override IHostBuilder CreateHostBuilder()
         {
-            //Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Test");
             return base.CreateHostBuilder()
                 .ConfigureHostConfiguration(
                     config => config.AddEnvironmentVariables("ASPNETCORE")
@@ -37,39 +36,6 @@ namespace CESMII.ProfileDesigner.Api.Tests
             builder.ConfigureServices(services =>
             {
                 services.AddTransient<ProfileController>();
-
-                //var descriptor = services.SingleOrDefault(
-                //    d => d.ServiceType ==
-                //        typeof(DbContextOptions<ApplicationDbContext>));
-
-                //services.Remove(descriptor);
-
-                //services.AddDbContext<ApplicationDbContext>(options =>
-                //{
-                //    options.UseInMemoryDatabase("InMemoryDbForTesting");
-                //});
-
-                //var sp = services.BuildServiceProvider();
-
-                //using (var scope = sp.CreateScope())
-                //{
-                //    var scopedServices = scope.ServiceProvider;
-                //    //var db = scopedServices.GetRequiredService<ApplicationDbContext>();
-                //    var logger = scopedServices
-                //        .GetRequiredService<ILogger<CustomWebApplicationFactory<TStartup>>>();
-
-                //    //db.Database.EnsureCreated();
-
-                //    try
-                //    {
-                //        //Utilities.InitializeDbForTests(db);
-                //    }
-                //    catch (Exception ex)
-                //    {
-                //        logger.LogError(ex, "An error occurred seeding the " +
-                //            "database with test messages. Error: {Message}", ex.Message);
-                //    }
-                //}
             });
         }
 
@@ -81,7 +47,7 @@ namespace CESMII.ProfileDesigner.Api.Tests
         }
         internal Client GetApiClient(HttpClient client)
         {
-            var nswagClient = new MyNamespace.Client(client.BaseAddress.ToString(), client);
+            var nswagClient = new Client(client.BaseAddress.ToString(), client);
             return nswagClient;
         }
         internal void AddUserAuth(HttpClient client)
@@ -91,25 +57,6 @@ namespace CESMII.ProfileDesigner.Api.Tests
             var token = (response.Data as JObject).First.Values().FirstOrDefault()?.ToString();
 
             client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
-        }
-
-        string _token;
-        protected override void ConfigureClient(HttpClient client)
-        {
-            base.ConfigureClient(client);
-            if (false && client.DefaultRequestHeaders.Authorization == null)
-            {
-                if (_token == null)
-                {
-                    var nswagClient = new MyNamespace.Client(client.BaseAddress.ToString(), client);
-
-                    // Act
-                    var response = nswagClient.LoginAsync(new MyNamespace.LoginModel { UserName = "cesmii", Password = "cesmii", }).Result;
-                    var token = (response.Data as JObject).First.Values().FirstOrDefault()?.ToString();
-                    _token = token;
-                }
-                client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _token);
-            }
         }
     }
     #endregion

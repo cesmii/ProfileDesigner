@@ -33,8 +33,8 @@ namespace CESMII.ProfileDesigner.OpcUa
     public class OpcUaImporter : IOpcUaContext
     {
 #pragma warning disable S1075 // URIs should not be hardcoded - these are not URLs representing endpoints, but OPC model identifiers (URIs) that are static and stable
-        public const string strOpcNamespaceUri = "http://opcfoundation.org/UA/";
-        public const string strOpcDiNamespaceUri = "http://opcfoundation.org/UA/DI/";
+        public const string strOpcNamespaceUri = "http://opcfoundation.org/UA/"; //NOSONAR
+        public const string strOpcDiNamespaceUri = "http://opcfoundation.org/UA/DI/"; //NOSONAR
 #pragma warning restore S1075 // URIs should not be hardcoded
 
         public OpcUaImporter(

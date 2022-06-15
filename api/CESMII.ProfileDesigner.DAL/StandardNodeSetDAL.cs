@@ -38,8 +38,6 @@
         public async Task<int?> DeleteAsync(int id, UserToken userToken)
         {
             StandardNodeSet entity = base.FindByCondition(userToken, x => x.ID == id).FirstOrDefault();
-            //entity.Updated = DateTime.UtcNow;
-            //entity.UpdatedBy = userId;
 
             await _repo.UpdateAsync(entity);
             await _repo.SaveChangesAsync();

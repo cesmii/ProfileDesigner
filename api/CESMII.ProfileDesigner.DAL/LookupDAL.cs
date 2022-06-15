@@ -56,11 +56,6 @@
 
         public override LookupItem CheckForExisting(LookupItemModel model, UserToken userToken, bool cacheOnly)
         {
-            //var existing = base.CheckForExisting(model, userId);
-            //if (existing != null)
-            //{
-            //    return existing;
-            //}
             var existing = base.FindByCondition(userToken, l =>
                 (model.ID != 0 && model.ID != null && l.ID == model.ID)
                 || l.Code == model.Code, cacheOnly).FirstOrDefault();
@@ -124,20 +119,6 @@
                     .ThenBy(l => l.Name)
                     );
             return result;
-            //var count = returnCount ? query.Count() : 0;
-            ////query returns IincludableQuery. Jump through the following to find right combo of skip and take
-            ////Goal is to have the query execute and not do in memory skip/take
-            //IQueryable<LookupItem> data;
-            //if (skip.HasValue && take.HasValue) data = query.Skip(skip.Value).Take(take.Value);
-            //else if (skip.HasValue) data = query.Skip(skip.Value);
-            //else if (take.HasValue) data = query.Take(take.Value);
-            //else data = query;
-
-            //DALResult<LookupItemModel> result = new DALResult<LookupItemModel>();
-            //result.Count = count;
-            //result.Data = MapToModels(data.ToList(), verbose);
-            //result.SummaryData = null;
-            //return result;
         }
 
         /// <summary>
@@ -149,35 +130,18 @@
             bool returnCount = true, bool verbose = false)
         {
             return base.Where(predicate, user, skip, take, returnCount, verbose, q => q
-            ////put the order by and where clause before skip.take so we skip/take on filtered/ordered query 
-            //var query = _repo.FindByCondition(predicate)
+            //put the order by and where clause before skip.take so we skip/take on filtered/ordered query 
                 .Where(l => l.IsActive)
                 .Include(l => l.LookupType)
                 .OrderBy(l => l.LookupType.Name)
                 .ThenBy(l => l.DisplayOrder)
                 .ThenBy(l => l.Name)
                 );
-            //var count = returnCount ? query.Count() : 0;
-            ////query returns IincludableQuery. Jump through the following to find right combo of skip and take
-            ////Goal is to have the query execute and not do in memory skip/take
-            //IQueryable<LookupItem> data;
-            //if (skip.HasValue && take.HasValue) data = query.Skip(skip.Value).Take(take.Value);
-            //else if (skip.HasValue) data = query.Skip(skip.Value);
-            //else if (take.HasValue) data = query.Take(take.Value);
-            //else data = query;
-
-            //DALResult<LookupItemModel> result = new DALResult<LookupItemModel>();
-            //result.Count = count;
-            //result.Data = MapToModels(data.ToList(), verbose);
-            //result.SummaryData = null;
-            //return result;
         }
 
         public async Task<int?> DeleteAsync(int id, UserToken userToken)
         {
             LookupItem entity = base.FindByCondition(userToken, x => x.ID == id).FirstOrDefault();
-            //entity.Updated = DateTime.UtcNow;
-            //entity.UpdatedBy = userId;
             entity.IsActive = false;
 
             await _repo.UpdateAsync(entity);

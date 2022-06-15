@@ -32,7 +32,7 @@
                 return _profileTypeDefinitionDALPrivate;
             }
         }
-        private IServiceProvider _serviceProvider;
+        private readonly IServiceProvider _serviceProvider;
 
         public override async Task<int?> AddAsync(LookupDataTypeModel model, UserToken userToken)
         {
@@ -55,17 +55,12 @@
         }
         public override LookupDataType CheckForExisting(LookupDataTypeModel model, UserToken userToken, bool cacheOnly = false)
         {
-            //var entity = base.CheckForExisting(model, tenantId);
-            //if (entity != null && (entity.OwnerId == null || entity.OwnerId == tenantId))
-            //{
-            //    return entity;
-            //}
             var entity = base.FindByCondition(userToken, dt =>
                 (
                   (model.ID != 0 && model.ID != null && dt.ID == model.ID)
                   || ( dt.Name == model.Name && dt.Code == model.Code)
                 )
-                /*&& (dt.OwnerId == null || dt.OwnerId == tenantId)*/, cacheOnly).FirstOrDefault();
+                , cacheOnly).FirstOrDefault();
             return entity;
         }
 
@@ -77,7 +72,6 @@
                   || (dt.Name == model.Name && dt.Code == model.Code)
 
                 ).FirstOrDefault();
-            //model.Updated = DateTime.UtcNow;
             this.MapToEntity(ref entity, model, userToken);
 
             await _repo.UpdateAsync(entity);
@@ -148,33 +142,16 @@
             bool returnCount = true, bool verbose = false)
         {
             return base.Where(predicate, user, skip, take, returnCount, verbose, q => q
-            ////put the order by and where clause before skip.take so we skip/take on filtered/ordered query 
-            //var query = _repo.FindByCondition(predicate)
+                //put the order by and where clause before skip.take so we skip/take on filtered/ordered query 
                 .Where(l => l.IsActive)
                 .OrderBy(l => l.DisplayOrder)
                 .ThenBy(l => l.Name)
                 );
-            //var count = returnCount ? query.Count() : 0;
-            ////query returns IincludableQuery. Jump through the following to find right combo of skip and take
-            ////Goal is to have the query execute and not do in memory skip/take
-            //IQueryable<LookupDataType> data;
-            //if (skip.HasValue && take.HasValue) data = query.Skip(skip.Value).Take(take.Value);
-            //else if (skip.HasValue) data = query.Skip(skip.Value);
-            //else if (take.HasValue) data = query.Take(take.Value);
-            //else data = query;
-
-            //DALResult<LookupDataTypeModel> result = new DALResult<LookupDataTypeModel>();
-            //result.Count = count;
-            //result.Data = MapToModels(data.ToList(), verbose);
-            //result.SummaryData = null;
-            //return result;
         }
 
         public async Task<int?> DeleteAsync(int id, UserToken userToken)
         {
             LookupDataType entity = base.FindByCondition(userToken, x => x.ID == id).FirstOrDefault();
-            //entity.Updated = DateTime.UtcNow;
-            //entity.UpdatedBy = userId;
             entity.IsActive = false;
 
             await _repo.UpdateAsync(entity);

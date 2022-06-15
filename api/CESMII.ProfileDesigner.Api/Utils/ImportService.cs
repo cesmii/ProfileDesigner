@@ -257,7 +257,6 @@ namespace CESMII.ProfileDesigner.Api.Utils
                         var profileItems = new Dictionary<string, ProfileTypeDefinitionModel>();
 
                         //CodeSmell:Remove: int? result = 0;
-                        // TODO Expose in the UI? Feedback from Jonathan if this option is interesting
                         Task primeEFCacheTask = null;
                         var startEFCache = sw.Elapsed;
                         if (true)

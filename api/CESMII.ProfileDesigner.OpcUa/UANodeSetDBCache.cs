@@ -96,10 +96,8 @@ namespace CESMII.ProfileDesigner.Opc.Ua.NodeSetDBCache
             {
                 // workaround for bug https://github.com/dotnet/runtime/issues/67622
                 var fileCachepatched = myModel.FileCache.Replace("<Value/>", "<Value xsi:nil='true' />");
-                using (var nodeSetStream = new System.IO.MemoryStream(Encoding.UTF8.GetBytes(fileCachepatched)))
+                using (var nodeSetStream = new MemoryStream(Encoding.UTF8.GetBytes(fileCachepatched)))
                 {
-                    //nodeSetStream.Write(Encoding.UTF8.GetBytes(myModel.FileCache));
-                    //nodeSetStream.Position = 0;
                     UANodeSet nodeSet = UANodeSet.Read(nodeSetStream);
                     foreach (var ns in nodeSet.Models)
                     {
@@ -134,7 +132,7 @@ namespace CESMII.ProfileDesigner.Opc.Ua.NodeSetDBCache
             }
 
             var userToken = userId as UserToken;
-            myModel = _dalNodeSetFile?.Where(s => s.FileName == nameVersion.ModelUri /*&& (TenantID == null || s.AuthorId == null || s.AuthorId == (int)TenantID)*/, userToken, verbose: true)?.Data?.OrderByDescending(s => s.PublicationDate)?.FirstOrDefault();
+            myModel = _dalNodeSetFile?.Where(s => s.FileName == nameVersion.ModelUri, userToken, verbose: true)?.Data?.OrderByDescending(s => s.PublicationDate)?.FirstOrDefault();
             if (myModel != null)
             {
                 nameVersion.CCacheId = myModel;
@@ -234,14 +232,9 @@ namespace CESMII.ProfileDesigner.Opc.Ua.NodeSetDBCache
                             FileCache = nodeSetXml
                         };
                         // Defer Upsert until later to make it part of a transaction
-                        // _dalNodeSetFile.Upsert(myModel, userToken, false);
                         newInImport = true;
                     }
                     // Defer the updates to the import transaction
-                    //var resIns = _dalNodeSetFile.Upsert(nsModel, (AuthorID == null) ? 0 : (int)AuthorID, true).GetAwaiter().GetResult();
-
-                    //cacheId = resIns.Item1;
-                    //newInImport = resIns.Item2;
                     WasNewSet = true;
                 }
                 var tModel = results.AddModelAndDependencies(nodeSet, ns, null, WasNewSet);

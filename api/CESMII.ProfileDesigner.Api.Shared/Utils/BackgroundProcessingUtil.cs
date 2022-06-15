@@ -57,8 +57,10 @@ namespace CESMII.ProfileDesigner.Api.Shared.Utils
             while (!stoppingToken.IsCancellationRequested)
             {
                 var workItem = await queue.DequeueAsync(stoppingToken);
-                //await workItem(stoppingToken);
+                // Run all imports in parallel
+                // TODO Serialize for each user?
                 _ = workItem(stoppingToken);
+                //await workItem(stoppingToken);
             }
         }
     }

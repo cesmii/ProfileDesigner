@@ -13,8 +13,8 @@
     using CESMII.ProfileDesigner.Data.Repositories;
 
     using Newtonsoft.Json;
-    using Newtonsoft.Json.Linq;
     using CESMII.ProfileDesigner.Common.Enums;
+    using System.Runtime.Serialization;
 
     public class ProfileTypeDefinitionDAL : TenantBasePdDAL<ProfileTypeDefinition, ProfileTypeDefinitionModel>
     {
@@ -720,7 +720,7 @@
                             dataType = _dataTypeDAL.CheckForExisting(source.DataType, userToken);
                             if (dataType == null)
                             {
-                                throw new Exception($"Unable to resolve data type {source.DataType} in {source} ");
+                                throw new UnresolvedDataTypeException($"Unable to resolve data type {source.DataType} in {source} ");
                             }
                             current.DataType = dataType;
                         }
@@ -734,7 +734,7 @@
                                 variableType = CheckForExisting(source.VariableTypeDefinition, userToken);
                                 if (variableType == null)
                                 {
-                                    throw new Exception($"Unable to resolve variable type {source.VariableTypeDefinition} in {source} ");
+                                    throw new UnresolvedVariableTypeException($"Unable to resolve variable type {source.VariableTypeDefinition} in {source} ");
                                 }
                             }
                         }
@@ -799,7 +799,7 @@
                             engUnit = _euDAL.CheckForExisting(attr.EngUnit, userToken);
                             if (engUnit == null)
                             {
-                                throw new Exception($"Engineering unit must be explicitly created: {attr.EngUnit} for {entity}");
+                                throw new InvalidOperationException($"Engineering unit must be explicitly created: {attr.EngUnit} for {entity}");
                             }
                         }
 
@@ -964,7 +964,7 @@
             }
             if (composition.ProfileTypeDefinition != null && composition.ProfileTypeDefinitionId != parentEntity.ID)
             {
-                throw new Exception($"Internal error: {composition.ProfileTypeDefinition} does not match {parentEntity}");
+                throw new ArgumentException($"Internal error: {composition.ProfileTypeDefinition} does not match {parentEntity}");
             }
             composition.ProfileTypeDefinitionId = parentEntity.ID;            //should be same
             if (composition.ProfileTypeDefinition == null && source.ProfileTypeDefinition != null)
@@ -1016,5 +1016,65 @@
 
         #endregion
 
+    }
+
+    [Serializable]
+    public class UnresolvedNodeException : Exception
+    {
+        public UnresolvedNodeException()
+        {
+        }
+
+        public UnresolvedNodeException(string message) : base(message)
+        {
+        }
+
+        public UnresolvedNodeException(string message, Exception innerException) : base(message, innerException)
+        {
+        }
+
+        protected UnresolvedNodeException(SerializationInfo info, StreamingContext context) : base(info, context)
+        {
+        }
+    }
+
+    [Serializable]
+    public class UnresolvedVariableTypeException : UnresolvedNodeException
+    {
+        public UnresolvedVariableTypeException()
+        {
+        }
+
+        public UnresolvedVariableTypeException(string message) : base(message)
+        {
+        }
+
+        public UnresolvedVariableTypeException(string message, Exception innerException) : base(message, innerException)
+        {
+        }
+
+        protected UnresolvedVariableTypeException(SerializationInfo info, StreamingContext context) : base(info, context)
+        {
+        }
+    }
+
+    [Serializable]
+    public class UnresolvedDataTypeException : UnresolvedNodeException
+    {
+        public UnresolvedDataTypeException()
+        {
+        }
+
+        public UnresolvedDataTypeException(string message) : base(message)
+        {
+        }
+
+        public UnresolvedDataTypeException(string message, Exception innerException) : base(message, innerException)
+        {
+        }
+
+        protected UnresolvedDataTypeException(SerializationInfo info, StreamingContext context) : base(info, context)
+        {
+        }
     }
 }

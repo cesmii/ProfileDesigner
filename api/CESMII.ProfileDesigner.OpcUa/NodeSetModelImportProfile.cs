@@ -375,7 +375,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
 
 
                 string dataVariableNodeIds = null;
-                if (_model.DataVariables?.Any() == true && _model?.TypeDefinition?.DataVariables?.Any() == true)
+                if (_model.DataVariables?.Any() == true && _model.TypeDefinition?.DataVariables?.Any() == true)
                 {
                     var map = GetDataVariableNodeIds(_model.DataVariables, _model.TypeDefinition.DataVariables);
                     dataVariableNodeIds = DataVariableNodeIdMap.GetMapAsString(map);
@@ -578,7 +578,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
                 }
                 foreach (var field in _model.EnumFields)
                 {
-                    var int64DataType = dalContext.GetDataType("http://opcfoundation.org/UA/", DataTypeIds.Int64.ToString());
+                    var int64DataType = dalContext.GetDataType(OpcUaImporter.strOpcNamespaceUri, DataTypeIds.Int64.ToString());
                     if (int64DataType == null)
                     {
                         throw new Exception($"Unable to resolve Int64 data type.");

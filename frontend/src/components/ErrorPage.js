@@ -1,15 +1,14 @@
-import React, { useEffect } from "react";
+import React, { useState , useEffect } from "react";
 import { useHistory } from "react-router-dom";
 import { Button, Card } from "react-bootstrap";
 import { Helmet } from "react-helmet";
 
+import axiosInstance from "../services/AxiosService";
 import { useAuthDispatch, useAuthState } from "./authentication/AuthContext";
 import { useLoadingContext } from "./contexts/LoadingContext";
 import { AppSettings } from "../utils/appsettings";
 import { generateLogMessageString } from "../utils/UtilityService";
 import { logout } from "./authentication/AuthActions";
-import { useState } from "react";
-import axiosInstance from "../services/AxiosService";
 
 const CLASS_NAME = "ErrorPage";
 function ErrorPage({ error, resetErrorBoundary }) {

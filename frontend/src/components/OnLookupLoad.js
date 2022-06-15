@@ -54,7 +54,7 @@ export const OnLookupLoad = () => {
                     console.log(e);
                 }
             });
-        };
+        }
 
 
         if (loadingProps.lookupDataStatic == null || loadingProps.refreshLookupData === true) {
@@ -155,7 +155,7 @@ export const OnLookupLoad = () => {
                     console.log(e);
                 }
             });
-        };
+        }
 
         if (loadingProps.favoritesList == null || loadingProps.refreshFavoritesList === true) {
             fetchData();

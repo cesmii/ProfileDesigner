@@ -55,4 +55,4 @@ export function InfoModal(props) {
     return (
         renderOKModal(props.modalData)
     )
-};
+}

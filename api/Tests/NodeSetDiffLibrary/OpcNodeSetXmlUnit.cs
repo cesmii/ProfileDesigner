@@ -16,9 +16,9 @@ namespace NodeSetDiff
     public class OpcNodeSetXmlUnit
     {
 #pragma warning disable S1075 // URIs should not be hardcoded - these are not URLs representing endpoints, but OPC model identifiers (URIs) that are static and stable
-        private const string strUANodeSetSchemaUri = "http://opcfoundation.org/UA/2011/03/UANodeSet.xsd";
-        private const string strUATypesSchemaUri = "http://opcfoundation.org/UA/2008/02/Types.xsd";
-        private const string strOpcNamespaceUri = "http://opcfoundation.org/UA/";
+        private const string strUANodeSetSchemaUri = "http://opcfoundation.org/UA/2011/03/UANodeSet.xsd"; //NOSONAR
+        private const string strUATypesSchemaUri = "http://opcfoundation.org/UA/2008/02/Types.xsd"; //NOSONAR
+        private const string strOpcNamespaceUri = "http://opcfoundation.org/UA/"; //NOSONAR
 #pragma warning restore S1075 // URIs should not be hardcoded
 
         private readonly Dictionary<string, string> _controlAliases;

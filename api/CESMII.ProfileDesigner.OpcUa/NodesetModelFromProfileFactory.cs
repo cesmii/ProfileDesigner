@@ -25,7 +25,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
         bool UpdateExisting { get; }
         Task<(int?, bool)> UpsertAsync(ProfileTypeDefinitionModel profileItem, bool updateExisting);
 
-        LookupDataTypeModel GetDataType(string text);
+        LookupDataTypeModel GetDataType(string opcNamespace, string opcNodeId);
         Task<int?> CreateCustomDataTypeAsync(LookupDataTypeModel customDataTypeLookup);
         Task<LookupDataTypeModel> GetCustomDataTypeAsync(ProfileTypeDefinitionModel customDataTypeProfile);
         object GetNodeSetCustomState(string uaNamespace);

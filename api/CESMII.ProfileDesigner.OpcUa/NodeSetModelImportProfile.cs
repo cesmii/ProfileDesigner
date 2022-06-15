@@ -225,10 +225,9 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
         }
     }
 
-    public class InstanceModelImportProfile<TInstanceModel, TBaseTypeModel, TBaseTypeModelImportProfile> : NodeModelImportProfile<TInstanceModel>
+    public class InstanceModelImportProfile<TInstanceModel, TBaseTypeModel> : NodeModelImportProfile<TInstanceModel>
         where TInstanceModel : InstanceModel<TBaseTypeModel>, new()
         where TBaseTypeModel : BaseTypeModel, new()
-        where TBaseTypeModelImportProfile: NodeModelImportProfile<TBaseTypeModel>, new()
     {
         protected override void UpdateProfileItem(ProfileTypeDefinitionModel profileItem, IDALContext dalContext)
         {
@@ -283,7 +282,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
         }
     }
 
-    public class ObjectModelImportProfile : InstanceModelImportProfile<ObjectModel, ObjectTypeModel, ObjectTypeModelImportProfile>
+    public class ObjectModelImportProfile : InstanceModelImportProfile<ObjectModel, ObjectTypeModel>
     {
         protected override void UpdateProfileItem(ProfileTypeDefinitionModel profileItem, IDALContext dalContext)
         {
@@ -347,7 +346,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
         }
     }
 
-    public class VariableModelImportProfile<TVariableModel> : InstanceModelImportProfile<TVariableModel, VariableTypeModel, VariableTypeModelImportProfile>
+    public class VariableModelImportProfile<TVariableModel> : InstanceModelImportProfile<TVariableModel, VariableTypeModel>
         where TVariableModel : VariableModel, new()
     {
         public void AddVariableToProfileModel(ProfileTypeDefinitionModel profileItem, IDALContext dalContext)
@@ -579,8 +578,8 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
                 }
                 foreach (var field in _model.EnumFields)
                 {
-                    var int64DataType = dalContext.GetDataType("Int64");
-                    if (int64DataType == null/* || int64DataType.ID == 0*/)
+                    var int64DataType = dalContext.GetDataType("http://opcfoundation.org/UA/", DataTypeIds.Int64.ToString());
+                    if (int64DataType == null)
                     {
                         throw new Exception($"Unable to resolve Int64 data type.");
                     }
@@ -626,7 +625,6 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
                 //For custom (myNodeset), AuthorId has value and we use this to keep the separation by owner.
                 OwnerId = profileItem.AuthorId
             };
-            //if (GetBuiltinDataTypeNodeId(dataTypeLookup) == null)
             var dataTypeId = dalContext.CreateCustomDataTypeAsync(dataTypeLookup).Result;
             return bUpdated;
         }

@@ -187,13 +187,13 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
                         {
                             if (composition.RelatedReferenceIsInverse != true)
                             {
-                                _model.OtherChildren.Add(new NodeModel.ChildAndReference { Child = uaObject, Reference = composition.RelatedReferenceId });
-                                uaObject.OtherParents.Add(new NodeModel.ChildAndReference { Child = _model, Reference = composition.RelatedReferenceId });
+                                _model.OtherReferencedNodes.Add(new NodeModel.NodeAndReference { Node = uaObject, Reference = composition.RelatedReferenceId });
+                                uaObject.OtherReferencingNodes.Add(new NodeModel.NodeAndReference { Node = _model, Reference = composition.RelatedReferenceId });
                             }
                             else
                             {
-                                _model.OtherParents.Add(new NodeModel.ChildAndReference { Child = uaObject, Reference = composition.RelatedReferenceId });
-                                uaObject.OtherChildren.Add(new NodeModel.ChildAndReference { Child = _model, Reference = composition.RelatedReferenceId });
+                                _model.OtherReferencingNodes.Add(new NodeModel.NodeAndReference { Node = uaObject, Reference = composition.RelatedReferenceId });
+                                uaObject.OtherReferencedNodes.Add(new NodeModel.NodeAndReference { Node = _model, Reference = composition.RelatedReferenceId });
                             }
                         }
                     }

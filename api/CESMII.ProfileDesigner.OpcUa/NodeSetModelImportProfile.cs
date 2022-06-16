@@ -89,9 +89,9 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
         protected virtual bool OnProfileItemCreated(ProfileTypeDefinitionModel profileItem, IDALContext dalContext)
         {
             var bUpdated = false;
-            foreach (var parentRef in this._model.OtherParents)
+            foreach (var parentRef in this._model.OtherReferencingNodes)
             {
-                var parent = parentRef.Child;
+                var parent = parentRef.Node;
                 if (parent is ReferenceTypeModel)
                 {
                     // No support for reference types yet
@@ -172,9 +172,9 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
                 };
                 profileItem.Compositions.Add(composition);
             }
-            foreach (var childRef in this._model.OtherChildren)
+            foreach (var childRef in this._model.OtherReferencedNodes)
             {
-                var child = childRef.Child;
+                var child = childRef.Node;
                 if (child is ReferenceTypeModel)
                 {
                     // No support for reference types yet

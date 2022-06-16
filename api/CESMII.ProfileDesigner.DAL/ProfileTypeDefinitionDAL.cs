@@ -423,6 +423,7 @@
                 DataType = MapToModelDataType(item),
                 EngUnit = !item.EngUnitId.HasValue ? null : _euDAL.MapToModelPublic(item.EngUnit, true),
                 EngUnitOpcNodeId = item.EngUnitOpcNodeId,
+                EngUnitModelingRule = item.EngUnitModelingRule,
                 MinValue = item.MinValue,
                 MaxValue = item.MaxValue,
                 InstrumentMinValue = item.InstrumentMinValue,
@@ -550,6 +551,7 @@
                     RelatedName = i.Composition.Name,
                     RelatedDescription = i.Composition.Description,
                     RelatedReferenceId = i.ReferenceId,
+                    RelatedReferenceIsInverse = i.ReferenceIsInverse,
                     Type = i.Composition.ProfileType != null ? new LookupItemModel { ID = i.Composition.ProfileType.ID, Name = i.Composition.ProfileType.Name } : new LookupItemModel { ID = i.Composition.ProfileTypeId },
                 }).ToList();
             return result;
@@ -710,6 +712,7 @@
                         current.UpdatedById = userToken.UserId;
                         current.EngUnitId = source.EngUnit?.ID != 0 ? source.EngUnit?.ID : null;
                         current.EngUnitOpcNodeId = source.EngUnitOpcNodeId;
+                        current.EngUnitModelingRule = source.EngUnitModelingRule;
                         current.MinValue = source.MinValue;
                         current.MaxValue = source.MaxValue;
                         current.DataTypeId = source.DataType?.ID != 0 ? source.DataType.ID : null;
@@ -834,6 +837,7 @@
                             EngUnitId = attr.EngUnit != null && attr.EngUnit.ID != 0 ? attr.EngUnit.ID : null,
                             EngUnit = engUnit,
                             EngUnitOpcNodeId = attr.EngUnitOpcNodeId,
+                            EngUnitModelingRule = attr.EngUnitModelingRule,
 
                             AccessLevel = attr.AccessLevel,
                             UserAccessLevel = attr.UserAccessLevel,
@@ -991,6 +995,7 @@
             composition.ModelingRule = source.RelatedModelingRule;
             composition.IsEvent = source.RelatedIsEvent;
             composition.ReferenceId = source.RelatedReferenceId;
+            composition.ReferenceIsInverse = source.RelatedReferenceIsInverse;
             composition.Description = source.Description;
         }
 

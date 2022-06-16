@@ -185,7 +185,16 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
                         }
                         else
                         {
-                            _model.OtherChilden.Add(new NodeModel.ChildAndReference { Child = uaObject, Reference = composition.RelatedReferenceId });
+                            if (composition.RelatedReferenceIsInverse != true)
+                            {
+                                _model.OtherChildren.Add(new NodeModel.ChildAndReference { Child = uaObject, Reference = composition.RelatedReferenceId });
+                                uaObject.OtherParents.Add(new NodeModel.ChildAndReference { Child = _model, Reference = composition.RelatedReferenceId });
+                            }
+                            else
+                            {
+                                _model.OtherParents.Add(new NodeModel.ChildAndReference { Child = uaObject, Reference = composition.RelatedReferenceId });
+                                uaObject.OtherChildren.Add(new NodeModel.ChildAndReference { Child = _model, Reference = composition.RelatedReferenceId });
+                            }
                         }
                     }
                 }
@@ -467,6 +476,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
                     };
                 }
                 variableModel.EngUnitNodeId = attribute.EngUnitOpcNodeId;
+                variableModel.EngUnitModelingRule = attribute.EngUnitModelingRule;
                 variableModel.MinValue = (double?)attribute.MinValue;
                 variableModel.MaxValue = (double?)attribute.MaxValue;
                 variableModel.InstrumentMinValue = (double?)attribute.InstrumentMinValue;

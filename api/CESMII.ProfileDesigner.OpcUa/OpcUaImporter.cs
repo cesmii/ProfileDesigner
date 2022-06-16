@@ -228,6 +228,8 @@ namespace CESMII.ProfileDesigner.OpcUa
 
             // Export the nodesets
             var exportedNodeSet = new UANodeSet();
+            exportedNodeSet.LastModified = DateTime.UtcNow;
+            exportedNodeSet.LastModifiedSpecified = true;
             foreach (var model in this.NodesetModels.Values.Where(model => 
                 ((ProfileModel) model.CustomState).Namespace == profileModel.Namespace 
                 && ((ProfileModel) model.CustomState).PublishDate == profileModel.PublishDate))

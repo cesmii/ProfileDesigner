@@ -31,6 +31,7 @@
 
         public virtual EngineeringUnitModel EngUnit { get; set; }
         public string EngUnitOpcNodeId { get; set; }
+        public string EngUnitModelingRule { get; set; }
 
         /// <summary>
         /// Profile can have many properties (attributes) or data variables. Attribute type allows us to indicate which type of attribute this is. 

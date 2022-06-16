@@ -208,6 +208,7 @@
         /// Captures the id of custom references
         /// </summary>
         public string RelatedReferenceId { get; set; }
+        public bool? RelatedReferenceIsInverse { get; set; }
     }
 
     /// <summary>

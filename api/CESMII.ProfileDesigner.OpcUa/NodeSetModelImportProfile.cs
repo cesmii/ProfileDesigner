@@ -88,7 +88,53 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
         /// <param name="dalContext"></param>
         protected virtual bool OnProfileItemCreated(ProfileTypeDefinitionModel profileItem, IDALContext dalContext)
         {
-            return false;
+            var bUpdated = false;
+            foreach (var parentRef in this._model.OtherParents)
+            {
+                var parent = parentRef.Child;
+                if (parent is ReferenceTypeModel)
+                {
+                    // No support for reference types yet
+                    continue;
+                }
+                if (parent.Namespace == _model.Namespace)
+                {
+                    // Reverse references within a nodeset will be properly re-created on export
+                    continue;
+                }
+                var parentProfile = parent.ImportProfileItem(dalContext);
+                if (parentProfile != null)
+                {
+                    if (profileItem.Compositions == null)
+                    {
+                        profileItem.Compositions = new List<ProfileTypeDefinitionRelatedModel>();
+                    }
+                    var composition = new ProfileTypeDefinitionRelatedModel
+                    {
+                        ID = profileItem.ID,
+                        ProfileTypeDefinition = profileItem,
+                        Name = parent.DisplayName?.FirstOrDefault()?.Text,
+                        BrowseName = parent.BrowseName,
+                        Description = parent.Description?.FirstOrDefault()?.Text,
+                        RelatedProfileTypeDefinitionId = parentProfile.ID,
+                        RelatedProfileTypeDefinition = parentProfile,
+                        RelatedIsRequired = ObjectModelImportProfile.GetModelingRuleForProfile((parent as InstanceModelBase)?.ModelingRule),
+                        RelatedModelingRule = (parent as InstanceModelBase)?.ModelingRule,
+                        //OpcNodeId = NodeModelUtils.GetNodeIdIdentifier(child.NodeId),
+                        //Namespace = opcObject.Namespace,
+                        RelatedReferenceId = parentRef.Reference,
+                        RelatedReferenceIsInverse = true,
+                        Profile = parent.CustomState as ProfileModel,
+                    };
+                    profileItem.Compositions.Add(composition);
+                    bUpdated = true;
+                }
+                else
+                {
+                    // Reference not imported?
+                }
+            }
+            return bUpdated;
         }
 
         protected virtual void UpdateProfileItem(ProfileTypeDefinitionModel profileItem, IDALContext dalContext)
@@ -126,7 +172,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
                 };
                 profileItem.Compositions.Add(composition);
             }
-            foreach (var childRef in this._model.OtherChilden)
+            foreach (var childRef in this._model.OtherChildren)
             {
                 var child = childRef.Child;
                 if (child is ReferenceTypeModel)
@@ -423,6 +469,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
                     attribute.EngUnit = engUnit;
                 }
                 attribute.EngUnitOpcNodeId = _model.EngUnitNodeId;
+                attribute.EngUnitModelingRule = _model.EngUnitModelingRule;
                 attribute.MinValue = (decimal?)_model.MinValue;
                 attribute.MaxValue = (decimal?)_model.MaxValue;
                 attribute.InstrumentMinValue = (decimal?)_model.InstrumentMinValue;

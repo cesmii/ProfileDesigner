@@ -71,6 +71,8 @@
         public int? EngUnitId { get; set; }
         [Column(name: "eng_unit_nodeid")]
         public string EngUnitOpcNodeId { get; set; }
+        [Column(name: "eng_unit_modeling_rule")]
+        public string EngUnitModelingRule { get; set; }
 
         public virtual EngineeringUnit EngUnit { get; set; }
 

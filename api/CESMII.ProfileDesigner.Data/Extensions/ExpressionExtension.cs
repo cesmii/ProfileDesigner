@@ -9,11 +9,11 @@ namespace CESMII.ProfileDesigner.Data.Extensions
         public static Expression<Func<T, bool>> AndExtension<T>(this Expression<Func<T, bool>> expr1,
                Expression<Func<T, bool>> expr2)
         {
-            if (expr2 == null && expr1 != null)
-                return expr1;
+            if (expr1 == null && expr2 == null) return null;
 
-            if (expr1 == null && expr2 != null)
-                return expr2;
+            if (expr2 == null) return expr1;
+
+            if (expr1 == null) return expr2;
 
             var secondBody = expr2.Body.Replace(expr2.Parameters[0], expr1.Parameters[0]);
             return Expression.Lambda<Func<T, bool>>
@@ -23,11 +23,11 @@ namespace CESMII.ProfileDesigner.Data.Extensions
         public static Expression<Func<T, bool>> OrExtension<T>(this Expression<Func<T, bool>> expr1,
                Expression<Func<T, bool>> expr2)
         {
-            if (expr2 == null && expr1 != null)
-                return expr1;
+            if (expr1 == null && expr2 == null) return null;
 
-            if (expr1 == null && expr2 != null)
-                return expr2;
+            if (expr2 == null) return expr1;
+
+            if (expr1 == null) return expr2;
 
             var secondBody = expr2.Body.Replace(expr2.Parameters[0], expr1.Parameters[0]);
             return Expression.Lambda<Func<T, bool>>

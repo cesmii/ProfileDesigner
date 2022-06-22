@@ -290,36 +290,41 @@ namespace CESMII.ProfileDesigner.OpcUa
             {
                 if (uaVariable.Parent.Namespace != uaVariable.Namespace)
                 {
-                    dalContext.Logger.LogWarning($"UAVariable {uaVariable} ignored because it's parent {uaVariable.Parent} is in a different namespace {uaVariable.Parent.Namespace}.");
+                    dalContext.Logger.LogWarning($"UAVariable {uaVariable} ({uaVariable.GetDisplayNamePath()}) ignored because it's parent {uaVariable.Parent} is in a different namespace {uaVariable.Parent.Namespace}.");
                     continue;
                 }
                 if (uaVariable.Parent is DataVariableModel)
                 {
-                    if (dalContext.profileItems.TryGetValue(uaVariable.Parent.NodeId, out var parent))
-                    {
-                        var nodeIdParts = uaVariable.NodeId.Split(';');
-                        if (parent.Attributes.FirstOrDefault(a => a.OpcNodeId == nodeIdParts[1] && nodeIdParts[0].EndsWith(a.Namespace)) != null)
+                    var variableModel = uaVariable;
+                    var parentModel = uaVariable.Parent;
+                    //do
+                    //{
+                        if (dalContext.profileItems.TryGetValue(parentModel.NodeId, out var parentProfileItem))
                         {
-                            continue;
-                        }
-                    }
-                    else
-                    {
-                        if (uaVariable.Parent is DataVariableModel dvParentModel &&  dalContext.profileItems.TryGetValue(dvParentModel.Parent.NodeId, out var dvGrandParent))
-                        {
-
-                            var nodeIdParts = uaVariable.Parent.NodeId.Split(';');
-                            var attribute = dvGrandParent.Attributes?.FirstOrDefault(a => a.OpcNodeId == nodeIdParts[1] && nodeIdParts[0].EndsWith(a.Namespace));
-                            if (attribute != null && !string.IsNullOrEmpty(attribute.DataVariableNodeIds))
+                            var nodeIdParts = variableModel.NodeId.Split(';');
+                            if (parentProfileItem.Attributes.FirstOrDefault(a => a.OpcNodeId == nodeIdParts[1] && nodeIdParts[0].EndsWith(a.Namespace)) != null)
                             {
-                                var map = DataVariableNodeIdMap.GetMap(attribute.DataVariableNodeIds);
-                                if (map.DataVariableNodeIdsByBrowseName.ContainsKey(uaVariable.BrowseName))
+                                continue;
+                            }
+                        }
+                        else
+                        {
+                            if (uaVariable.Parent is DataVariableModel dvParentModel && dalContext.profileItems.TryGetValue(dvParentModel.Parent.NodeId, out var dvGrandParent))
+                            {
+
+                                var nodeIdParts = uaVariable.Parent.NodeId.Split(';');
+                                var attribute = dvGrandParent.Attributes?.FirstOrDefault(a => a.OpcNodeId == nodeIdParts[1] && nodeIdParts[0].EndsWith(a.Namespace));
+                                if (attribute != null && !string.IsNullOrEmpty(attribute.DataVariableNodeIds))
                                 {
-                                    continue;
+                                    var map = DataVariableNodeIdMap.GetMap(attribute.DataVariableNodeIds);
+                                    if (map?.DataVariableNodeIdsByBrowseName.ContainsKey(uaVariable.BrowseName) == true)
+                                    {
+                                        continue;
+                                    }
                                 }
                             }
                         }
-                    }
+                    //} while (false); // containingNode != null); // TODO support nested datavariable
                 }
                 if (uaVariable.Parent is ObjectTypeModel || uaVariable.Parent is ObjectModel || uaVariable.Parent is VariableTypeModel)
                 {
@@ -332,7 +337,7 @@ namespace CESMII.ProfileDesigner.OpcUa
                         }
                     }
                 }
-                dalContext.Logger.LogWarning($"UAVariable {uaVariable} ignored.");
+                dalContext.Logger.LogWarning($"UAVariable {uaVariable} ({uaVariable.GetDisplayNamePath()}) ignored.");
             }
 
             return dalContext.profileItems;
@@ -378,7 +383,7 @@ namespace CESMII.ProfileDesigner.OpcUa
                     var namespaceUri = namespaces.GetString(parsedNodeId.NamespaceIndex);
                     var nodeIdWithUri = new ExpandedNodeId(parsedNodeId, namespaceUri).ToString();
                     var nodeModel = nodesetModels.Select(nm => nm.Value.AllNodesByNodeId.TryGetValue(nodeIdWithUri, out var model) ? model : null).FirstOrDefault(n => n != null);
-                    var displayName = nodeModel.DisplayName?.FirstOrDefault()?.Text;
+                    var displayName = nodeModel?.DisplayName?.FirstOrDefault()?.Text;
                     if (displayName != null && !usedAliases.ContainsValue(displayName))
                     {
                         usedAliases.Add(nodeId, displayName);

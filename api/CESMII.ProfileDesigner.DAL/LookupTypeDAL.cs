@@ -42,7 +42,6 @@
         public override List<LookupTypeModel> GetAll(UserToken userToken, bool verbose = false)
         {
             var result = _repo.GetAll()
-                //.Include(p => p.UpdatedBy)
                 .OrderBy(s => s.Name)
                 .ToList();
             return MapToModels(result, verbose);
@@ -52,7 +51,7 @@
         /// Get all paged
         /// </summary>
         /// <returns></returns>
-        public override DALResult<LookupTypeModel> GetAllPaged(UserToken userToken, int? skip = null, int? take = null, bool returnCount = false, bool verbose = false)
+        public override DALResult<LookupTypeModel> GetAllPaged(UserToken userToken, int? skip, int? take, bool returnCount = false, bool verbose = false)
         {
             //put the order by and where clause before skip.take so we skip/take on filtered/ordered query 
             var result = base.Where(l => true, userToken, skip, take, returnCount, verbose, q => q
@@ -65,8 +64,8 @@
         /// </summary>
         /// <param name="predicate"></param>
         /// <returns></returns>
-        public override DALResult<LookupTypeModel> Where(Expression<Func<LookupType, bool>> predicate, UserToken user, int? skip, int? take, 
-            bool returnCount = true, bool verbose = false)
+        public override DALResult<LookupTypeModel> Where(Expression<Func<LookupType, bool>> predicate, UserToken user, int? skip = null, int? take = null, 
+            bool returnCount = false, bool verbose = false)
         {
             return base.Where(predicate, user, skip, take, returnCount, verbose, q => q
                 //put the order by and where clause before skip.take so we skip/take on filtered/ordered query 
@@ -85,7 +84,7 @@
         }
 
 
-        protected override LookupTypeModel MapToModel(LookupType entity, bool verbose = false)
+        protected override LookupTypeModel MapToModel(LookupType entity, bool verbose = true)
         {
             if (entity != null)
             {

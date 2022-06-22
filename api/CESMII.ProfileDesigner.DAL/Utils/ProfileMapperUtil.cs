@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
+
 using CESMII.ProfileDesigner.Common.Enums;
 using CESMII.ProfileDesigner.DAL.Models;
 using CESMII.ProfileDesigner.Data.Entities;
@@ -20,6 +20,11 @@ namespace CESMII.ProfileDesigner.DAL.Utils
         private readonly IDal<LookupItem, LookupItemModel> _dalLookup;
         private readonly IDal<LookupDataType, LookupDataTypeModel> _dalDataType;
         private readonly Common.ConfigUtil _config;
+        
+        private readonly static List<int?> _excludedProfileTypes = new() { (int)ProfileItemTypeEnum.Object, (int)ProfileItemTypeEnum.Method };
+        public static List<int?> ExcludedProfileTypes { 
+            get { return _excludedProfileTypes; }
+        }
 
         public ProfileMapperUtil(IDal<ProfileTypeDefinition, ProfileTypeDefinitionModel> dal,
             IDal<LookupItem, LookupItemModel> dalLookup,
@@ -55,8 +60,6 @@ namespace CESMII.ProfileDesigner.DAL.Utils
             //sort the result grandaprent / parent / profile
             return result.OrderBy(p => p.Level).ThenBy(p => p.Name).ToList();
         }
-
-        public readonly static List<int?> ExcludedProfileTypes = new() { (int)ProfileItemTypeEnum.Object, (int)ProfileItemTypeEnum.Method, };
 
         /// <summary>
         /// A nested representation of the profile's place relative to its ancestors and siblings
@@ -160,7 +163,6 @@ namespace CESMII.ProfileDesigner.DAL.Utils
             var children = _dal.Where(p => p.ParentId.Equals(parentId.Value) && !ProfileMapperUtil.ExcludedProfileTypes.Contains(p.ProfileTypeId) /*p.ProfileTypeId != (int)ProfileItemTypeEnum.Object*/, userToken, null, null, false).Data
                 .Select(s => MapToModelProfileAncestory(s, level));
             if (!children.Any()) return;
-            //CodeSmell:Remove: descendants.Union(children).ToList();
 
             //add grandchildren and their children recusive...
             level++;

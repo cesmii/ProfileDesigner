@@ -18,7 +18,7 @@ namespace CESMII.ProfileDesigner.DAL
 
         public override async Task<int?> AddAsync(NodeSetFileModel model, UserToken userToken)
         {
-            NodeSetFile entity = new NodeSetFile
+            var entity = new NodeSetFile
             {
                 ID = null
             };
@@ -62,49 +62,14 @@ namespace CESMII.ProfileDesigner.DAL
             var result = base.Where(f => true, userToken, skip, take, returnCount, verbose, q => q
                 .OrderBy(x => x.FileName).ThenByDescending(x => x.PublicationDate));
             return result;
-            //var count = returnCount ? query.Count() : 0;
-            ////query returns IincludableQuery. Jump through the following to find right combo of skip and take
-            ////Goal is to have the query execute and not do in memory skip/take
-            //IQueryable<NodeSetFile> data;
-            //if (skip.HasValue && take.HasValue) data = query.Skip(skip.Value).Take(take.Value);
-            //else if (skip.HasValue) data = query.Skip(skip.Value);
-            //else if (take.HasValue) data = query.Take(take.Value);
-            //else data = query;
-
-            //DALResult<NodeSetFileModel> result = new DALResult<NodeSetFileModel>();
-            //result.Count = count;
-            //result.Data = MapToModels(data.ToList(), verbose);
-            //result.SummaryData = null;
-            //return result;
         }
 
-        public override DALResult<NodeSetFileModel> Where(Expression<Func<NodeSetFile, bool>> predicate, UserToken user, int? skip, int? take, bool returnCount = false, bool verbose = false)
+        public override DALResult<NodeSetFileModel> Where(Expression<Func<NodeSetFile, bool>> predicate, UserToken user, int? skip = null, int? take = null, bool returnCount = false, bool verbose = false)
         {
             return base.Where(predicate, user, skip, take, returnCount, verbose, q => q
-            //var query = _repo.FindByCondition(predicate)
                 .OrderBy(x => x.FileName).ThenByDescending(x => x.PublicationDate)
                 );
-            //var count = returnCount ? query.Count() : 0;
-            ////query returns IincludableQuery. Jump through the following to find right combo of skip and take
-            ////Goal is to have the query execute and not do in memory skip/take
-            //IQueryable<NodeSetFile> data;
-            //if (skip.HasValue && take.HasValue) data = query.Skip(skip.Value).Take(take.Value);
-            //else if (skip.HasValue) data = query.Skip(skip.Value);
-            //else if (take.HasValue) data = query.Take(take.Value);
-            //else data = query;
-
-            //DALResult<NodeSetFileModel> result = new DALResult<NodeSetFileModel>();
-            //result.Count = count;
-            //result.Data = MapToModels(data.ToList(), verbose);
-            //result.SummaryData = null;
-            //return result;
         }
-
-        //public override NodeSetFileModel GetByFunc(Expression<Func<NodeSetFile, bool>> predicate, bool verbose)
-        //{
-        //    var tRes = _repo.FindByCondition(predicate).OrderByDescending(s => s.PublicationDate).FirstOrDefault();
-        //    return MapToModel(tRes, verbose);
-        //}
 
         /// <summary>
         /// Deletes a record from the NodeSetFile Cache
@@ -149,7 +114,7 @@ namespace CESMII.ProfileDesigner.DAL
         {
             return MapToModel(entity, verbose);
         }
-        protected override NodeSetFileModel MapToModel(NodeSetFile entity, bool verbose = false)
+        protected override NodeSetFileModel MapToModel(NodeSetFile entity, bool verbose = true)
         {
             if (entity != null)
             {

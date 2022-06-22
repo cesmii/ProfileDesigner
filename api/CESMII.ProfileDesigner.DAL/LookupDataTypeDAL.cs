@@ -100,7 +100,7 @@
         /// <returns></returns>
         public override List<LookupDataTypeModel> GetAll(UserToken userToken, bool verbose = false)
         {
-            DALResult<LookupDataTypeModel> result = GetAllPaged(userToken, verbose: verbose);
+            DALResult<LookupDataTypeModel> result = GetAllPaged(userToken,null, null, verbose: verbose);
             return result.Data;
         }
 
@@ -109,7 +109,7 @@
         /// </summary>
         /// <param name="orgId"></param>
         /// <returns></returns>
-        public override DALResult<LookupDataTypeModel> GetAllPaged(UserToken userToken, int? skip = null, int? take = null, bool returnCount = false, bool verbose = false)
+        public override DALResult<LookupDataTypeModel> GetAllPaged(UserToken userToken, int? skip, int? take, bool returnCount = false, bool verbose = false)
         {
             //put the order by and where clause before skip.take so we skip/take on filtered/ordered query 
             var result = base.Where(l => l.IsActive, userToken,skip, take, returnCount, verbose, q => q
@@ -117,20 +117,6 @@
                     .ThenBy(l => l.Name)
                     );
             return result;
-            //var count = returnCount ? query.Count() : 0;
-            ////query returns IincludableQuery. Jump through the following to find right combo of skip and take
-            ////Goal is to have the query execute and not do in memory skip/take
-            //IQueryable<LookupDataType> data;
-            //if (skip.HasValue && take.HasValue) data = query.Skip(skip.Value).Take(take.Value);
-            //else if (skip.HasValue) data = query.Skip(skip.Value);
-            //else if (take.HasValue) data = query.Take(take.Value);
-            //else data = query;
-
-            //DALResult<LookupDataTypeModel> result = new DALResult<LookupDataTypeModel>();
-            //result.Count = count;
-            //result.Data = MapToModels(data.ToList(), verbose);
-            //result.SummaryData = null;
-            //return result;
         }
 
         /// <summary>
@@ -138,8 +124,8 @@
         /// </summary>
         /// <param name="predicate"></param>
         /// <returns></returns>
-        public override DALResult<LookupDataTypeModel> Where(Expression<Func<LookupDataType, bool>> predicate, UserToken user, int? skip, int? take, 
-            bool returnCount = true, bool verbose = false)
+        public override DALResult<LookupDataTypeModel> Where(Expression<Func<LookupDataType, bool>> predicate, UserToken user, int? skip = null, int? take = null, 
+            bool returnCount = false, bool verbose = false)
         {
             return base.Where(predicate, user, skip, take, returnCount, verbose, q => q
                 //put the order by and where clause before skip.take so we skip/take on filtered/ordered query 

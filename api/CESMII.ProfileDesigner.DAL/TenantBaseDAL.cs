@@ -68,8 +68,10 @@
             else if (skip.HasValue) data = query.Skip(skip.Value);
             else if (take.HasValue) data = query.Take(take.Value);
             else data = query;
-            DALResult<TModel> result = new DALResult<TModel>();
-            result.Count = count;
+            var result = new DALResult<TModel>
+            {
+                Count = count
+            };
             try
             {
                 result.Data = MapToModels(data.ToList(), verbose);

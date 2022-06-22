@@ -76,33 +76,33 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         {
             //populate specific types
             var userToken = UserExtension.DalUserToken(User);
-            var filters = new List<LookupGroupByModel>();
-
-            // separate section for my type - follow the same structure for flexibility but only including one hardcoded type
-            filters.Add(new LookupGroupByModel()
+            var filters = new List<LookupGroupByModel>
             {
-                Name = SearchCriteriaCategoryEnum.Author.ToString(),
-                ID = (int)SearchCriteriaCategoryEnum.Author,
-                Items = new List<LookupItemFilterModel>() { new LookupItemFilterModel() { 
+                // separate section for my type - follow the same structure for flexibility but only including one hardcoded type
+                new LookupGroupByModel()
+                {
+                    Name = SearchCriteriaCategoryEnum.Author.ToString(),
+                    ID = (int)SearchCriteriaCategoryEnum.Author,
+                    Items = new List<LookupItemFilterModel>() { new LookupItemFilterModel() {
                     ID = User.GetUserID(),
                     Name = "My Types"
                 }}
-            });
-
-            // separate section for popular - follow the same structure for flexibility but only including one hardcoded type
-            filters.Add(new LookupGroupByModel()
-            {
-                Name = SearchCriteriaCategoryEnum.Popular.ToString(),
-                ID = (int)SearchCriteriaCategoryEnum.Popular,
-                Items = new List<LookupItemFilterModel>() { new LookupItemFilterModel() {
+                },
+                // separate section for popular - follow the same structure for flexibility but only including one hardcoded type
+                new LookupGroupByModel()
+                {
+                    Name = SearchCriteriaCategoryEnum.Popular.ToString(),
+                    ID = (int)SearchCriteriaCategoryEnum.Popular,
+                    Items = new List<LookupItemFilterModel>() { new LookupItemFilterModel() {
                     ID = -1,
                     Name = "Popular",
                     Visible = true //until we implement a popular calculator, leave this off the display
                 }}
-            });
+                }
+            };
 
             //group the result by lookup type
-            List<int?> excludeList = new List<int?> { (int)ProfileItemTypeEnum.Class };
+            var excludeList = new List<int?> { (int)ProfileItemTypeEnum.Class };
             excludeList = excludeList.Union(ProfileMapperUtil.ExcludedProfileTypes).ToList();
             var allItems = _dal.GetAll(userToken).Where(x => !excludeList.Contains(x.ID) &&
                 x.LookupType == LookupTypeEnum.ProfileType);
@@ -113,7 +113,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 {
                     Name = SearchCriteriaCategoryEnum.TypeDefinitionType.ToString(),
                     ID = (int)SearchCriteriaCategoryEnum.TypeDefinitionType,
-                    Items = item.ToList().Select(itm => new LookupItemFilterModel
+                    Items = item.Select(itm => new LookupItemFilterModel
                     {
                         ID = itm.ID,
                         Name = itm.Name,

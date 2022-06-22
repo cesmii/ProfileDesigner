@@ -14,7 +14,7 @@
 
         public override async Task<int?> AddAsync(StandardNodeSetModel model, UserToken userToken)
         {
-            StandardNodeSet entity = new StandardNodeSet
+            var entity = new StandardNodeSet
             {
                 ID = null,
             };

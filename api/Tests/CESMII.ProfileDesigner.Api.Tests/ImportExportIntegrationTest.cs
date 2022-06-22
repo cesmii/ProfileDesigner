@@ -89,8 +89,7 @@ namespace CESMII.ProfileDesigner.Api.Tests
             {
                 Diff d = OpcNodeSetXmlUnit.DiffNodeSetFiles(file, file.Replace(strTestNodeSetDirectory, Path.Combine(strTestNodeSetDirectory, "Exported")));
 
-                string diffControl, diffTest, diffSummary;
-                OpcNodeSetXmlUnit.GenerateDiffSummary(d, out diffControl, out diffTest, out diffSummary);
+                OpcNodeSetXmlUnit.GenerateDiffSummary(d, out string diffControl, out string diffTest, out string diffSummary);
 
                 var diffFileRoot = file.Replace(strTestNodeSetDirectory, Path.Combine(strTestNodeSetDirectory, "Diffs"));
 
@@ -274,7 +273,7 @@ namespace CESMII.ProfileDesigner.Api.Tests
 
         private async Task ImportNodeSets(Client apiClient, List<ImportOPCModel> importRequest)
         {
-            ImportLogModel status = null;
+            ImportLogModel status;
             if (importRequest.Any())
             {
                 var orderedImportRequest = importRequest?.Count == 1 ? importRequest : OrderImportsByDependencies(importRequest);
@@ -329,7 +328,7 @@ namespace CESMII.ProfileDesigner.Api.Tests
             }).ToList();
 
             var orderedImports = new List<(ImportOPCModel, string, List<string>)>();
-            var standalone = importsAndModels.Where(imr => imr.requiredModels.Any() != true).ToList();
+            var standalone = importsAndModels.Where(imr => !imr.requiredModels.Any()).ToList();
             orderedImports.AddRange(standalone);
             foreach (var imr in standalone)
             {

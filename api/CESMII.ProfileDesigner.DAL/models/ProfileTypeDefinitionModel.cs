@@ -60,6 +60,15 @@
         // OPC Objects have a parent in the type hierarchy (Parent property) and a parent in the instance hierarchy (InstanceParent)
         virtual public ProfileTypeDefinitionModel InstanceParent { get; set; }
 
+        // OPC enumerations can be marked as an option set (bit mask)
+        public bool? IsOptionSet { get; set; }
+
+        // OPC Variable Types have a DataType, independent of the variable type inheritance hierarchy
+        virtual public ProfileTypeDefinitionModel VariableDataType { get; set; }
+        public int? VariableValueRank { get; set; }
+        public string VariableArrayDimensions { get; set; }
+        public string VariableValue { get; set; }
+
         /// <summary>
         /// Valid values defined for convenience in ProfileItemTypeEnum
         /// </summary>

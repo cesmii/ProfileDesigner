@@ -27,11 +27,16 @@
         public decimal? InstrumentMinValue { get; set; }
         public decimal? InstrumentMaxValue { get; set; }
 
+        /// <summary>
+        /// Value of an enum field for AttributeType AttributeTypeIdEnum.EnumField, and the field order for AttributeType AttributeTypeIdEnum.StructureField)
+        /// </summary>
         public long? EnumValue { get; set; }
 
         public virtual EngineeringUnitModel EngUnit { get; set; }
         public string EngUnitOpcNodeId { get; set; }
         public string EngUnitModelingRule { get; set; }
+        public string EURangeOpcNodeId { get; set; }
+        public string EURangeModelingRule { get; set; }
 
         /// <summary>
         /// Profile can have many properties (attributes) or data variables. Attribute type allows us to indicate which type of attribute this is. 
@@ -104,7 +109,7 @@
         public bool IsArray { get; set; }
         public int? ValueRank { get; set; }
         public string ArrayDimensions { get; set; }
-
+        public uint? MaxStringLength { get; set; }
         public bool? IsRequired { get; set; }
         public string ModelingRule { get; set; }
 

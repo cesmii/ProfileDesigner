@@ -370,23 +370,29 @@ namespace CESMII.ProfileDesigner.Api.Tests
         private static async Task ExportNodeSets(Client apiClient, string[] nodeSetFiles)
         {
             var nodeSetResult = apiClient.LibraryAsync(new PagerFilterSimpleModel { Query = "", Skip = 0, Take = 999 }).Result;
-            foreach (var profile in nodeSetResult.Data)
+            foreach (var nodeSetFile in nodeSetFiles)
             {
-                var nodeSetFileName = GetFileNameFromNamespace(profile.Namespace);
-
-                if (nodeSetFiles.Any(f => string.Equals(Path.GetFileName(f), nodeSetFileName, StringComparison.InvariantCultureIgnoreCase)))
+                bool bExportFound = false;
+                foreach (var profile in nodeSetResult.Data)
                 {
-                    var exportResult = await apiClient.ExportAsync(new IdIntModel { Id = profile.Id ?? 0 });
-                    Assert.True(exportResult.IsSuccess, $"Failed to export {profile.Namespace}: {exportResult.Message}");
+                    var nodeSetFileName = GetFileNameFromNamespace(profile.Namespace);
 
-                    var exportedNodeSet = exportResult.Data.ToString();
-                    var nodeSetPath = Path.Combine(strTestNodeSetDirectory, "Exported", nodeSetFileName);
-                    if (!Directory.Exists(Path.GetDirectoryName(nodeSetPath)))
+                    if (string.Equals(Path.GetFileName(nodeSetFile), nodeSetFileName, StringComparison.InvariantCultureIgnoreCase))
                     {
-                        Directory.CreateDirectory(Path.GetDirectoryName(nodeSetPath));
+                        var exportResult = await apiClient.ExportAsync(new IdIntModel { Id = profile.Id ?? 0 });
+                        Assert.True(exportResult.IsSuccess, $"Failed to export {profile.Namespace}: {exportResult.Message}");
+
+                        var exportedNodeSet = exportResult.Data.ToString();
+                        var nodeSetPath = Path.Combine(strTestNodeSetDirectory, "Exported", nodeSetFileName);
+                        if (!Directory.Exists(Path.GetDirectoryName(nodeSetPath)))
+                        {
+                            Directory.CreateDirectory(Path.GetDirectoryName(nodeSetPath));
+                        }
+                        File.WriteAllText(nodeSetPath, exportedNodeSet);
+                        bExportFound = true;
                     }
-                    File.WriteAllText(nodeSetPath, exportedNodeSet);
                 }
+                Assert.True(bExportFound, $"Export for {nodeSetFile} not found.");
             }
         }
 

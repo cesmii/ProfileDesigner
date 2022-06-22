@@ -45,7 +45,7 @@
         }
 
 
-        protected override StandardNodeSetModel MapToModel(StandardNodeSet entity, bool verbose = false)
+        protected override StandardNodeSetModel MapToModel(StandardNodeSet entity, bool verbose = true)
         {
             if (entity != null)
             {

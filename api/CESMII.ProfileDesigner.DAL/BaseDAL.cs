@@ -17,17 +17,10 @@
         protected bool _disposed = false;
         protected static readonly Logger _logger = LogManager.GetCurrentClassLogger();
         protected readonly IRepository<TEntity> _repo;
-        //TBD - temp mock repo to allow us to load data from static JSON files. 
-        protected readonly IMockRepository<TEntity> _repoMock;
-        protected readonly bool _useMock = false;
 
         protected BaseDAL(IRepository<TEntity> repo)
         {
             _repo = repo;
-            if (_useMock)
-            {
-                _repoMock = new MockRepo<TEntity>();
-            }
         }
 
         public void StartTransaction()

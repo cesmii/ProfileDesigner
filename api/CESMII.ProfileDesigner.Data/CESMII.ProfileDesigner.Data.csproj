@@ -6,28 +6,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="MockData\CESMII.ProfileDesigner.Data.Entities.LookupDataType.json" />
-    <None Remove="MockData\CESMII.ProfileDesigner.Data.Entities.LookupItem.json" />
-    <None Remove="MockData\CESMII.ProfileDesigner.Data.Entities.ProfileItem.json" />
-    <None Remove="MockData\CESMII.ProfileDesigner.Data.Entities.User.json" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="MockData\CESMII.ProfileDesigner.Data.Entities.LookupDataType.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="MockData\CESMII.ProfileDesigner.Data.Entities.LookupItem.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="MockData\CESMII.ProfileDesigner.Data.Entities.ProfileItem.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="MockData\CESMII.ProfileDesigner.Data.Entities.User.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.4" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="6.0.4" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="6.0.4" />

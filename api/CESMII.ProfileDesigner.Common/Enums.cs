@@ -19,7 +19,7 @@
         Structure = 18, //9,
         Enumeration = 19, //10,
         Object = 11,
-        Method = 20,
+        Method = 20
     }
 
     public enum AttributeTypeIdEnum
@@ -27,7 +27,7 @@
         Property = 5,
         DataVariable = 6,
         StructureField = 7,
-        EnumField = 8,
+        EnumField = 8
     }
 
     public enum TaskStatusEnum

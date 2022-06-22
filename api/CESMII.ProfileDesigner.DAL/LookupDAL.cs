@@ -25,7 +25,7 @@
 
         public override async Task<int?> AddAsync(LookupItemModel model, UserToken userToken)
         {
-            LookupItem entity = new LookupItem
+            var entity = new LookupItem
             {
                 ID = null
             };

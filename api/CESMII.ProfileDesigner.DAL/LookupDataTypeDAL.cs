@@ -36,7 +36,7 @@
 
         public override async Task<int?> AddAsync(LookupDataTypeModel model, UserToken userToken)
         {
-            LookupDataType entity = new LookupDataType
+            var entity = new LookupDataType
             {
                 ID = null,
                 //,Created = DateTime.UtcNow

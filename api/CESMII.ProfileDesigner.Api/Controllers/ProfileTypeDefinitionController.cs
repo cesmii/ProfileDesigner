@@ -106,7 +106,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             var userToken = UserExtension.DalUserToken(User); 
 
             //search on some pre-determined fields
-            var orderByExprs = _profileUtils.BuildSearchOrderByExpressions(User.GetUserID(), (SearchCriteriaSortByEnum)model.SortByEnum);
+            var orderByExprs = _profileUtils.BuildSearchOrderByExpressions(User.GetUserID(), model.SortByEnum);
             var result = _dal.Where(BuildPredicate(model, userToken), userToken, model.Skip, model.Take, true, false, orderByExprs.ToArray());
 
             //TBD - come back to this - 

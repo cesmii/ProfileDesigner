@@ -1,6 +1,6 @@
+name: SonarCloud|API|Profile Designer - Scan
 on:
   workflow_dispatch:
-name: SonarCloud|API|Profile Designer - Scan
 jobs:
   sonarcloud:
     runs-on: ubuntu-latest

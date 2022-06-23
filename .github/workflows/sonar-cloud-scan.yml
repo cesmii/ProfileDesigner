@@ -1,6 +1,6 @@
-# This is a basic workflow that is manually triggered
+# SonarCloud|API|Profile Designer - Scan - manually triggered
 
-name: Manual workflow
+name: SonarCloud|API|Profile Designer - Scan
 
 # Controls when the action will run. Workflow runs when manually triggered using the UI
 # or API.
@@ -28,3 +28,19 @@ jobs:
     # Runs a single command using the runners shell
     - name: Send greeting
       run: echo "Hello ${{ github.event.inputs.name }}"
+      
+  sonarcloud:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        # Disabling shallow clone is recommended for improving relevancy of reporting
+        fetch-depth: 0
+    - name: SonarCloud Scan
+      uses: sonarsource/sonarcloud-github-action@master
+      env:
+        #Github creates dynamically for each workflow run: 
+        #https://docs.github.com/en/actions/security-guides/automatic-token-authentication
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        #in sonar.bat, this was the value assigned to login=token
+        SONAR_TOKEN: ${{ secrets.SONAR_ACCESS_TOKEN }}      

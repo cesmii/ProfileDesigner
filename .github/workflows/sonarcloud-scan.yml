@@ -1,0 +1,3 @@
+name: SonarCloud|API|Profile Designer - Scan
+on:
+  workflow_dispatch:

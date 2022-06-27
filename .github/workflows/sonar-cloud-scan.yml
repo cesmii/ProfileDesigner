@@ -20,7 +20,10 @@ jobs:
       uses: sonarsource/sonarcloud-github-action@master
       with:
         projectBaseDir: ./api
-      env:
+        args: >
+          -Dsonar.organization=cesmii
+          -Dsonar.projectKey=cesmii_ProfileDesigner
+    env:
         #Github creates dynamically for each workflow run: 
         #https://docs.github.com/en/actions/security-guides/automatic-token-authentication
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

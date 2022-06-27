@@ -11,22 +11,13 @@ on:
   #push:
   #  branches:
   #    - develop
-  # Inputs the workflow accepts.
-  inputs:
-    txtConfiguration:
-      # Friendly description to be shown in the UI instead of 'name'
-      description: 'Build Configuration (Release or Staging)'
-      # Default value if no value is explicitly provided
-      default: 'Release'
-      # Input has to be provided for the workflow to run
-      required: true
-      
+  
 env:
   # set this to the organization name, project key in Sonar
   SONAR_ORGANIZATION: 'cesmii'    
   SONAR_PROJECT_KEY: 'cesmii_ProfileDesigner'
   # set this to the .NET core version to use
-  SONAR_SCANNER_VERSION: "4.8.0"
+  SONAR_SCANNER_VERSION: "5.6.0"
   
   # set this to the path to your solution file, defaults to the repository root (this is the folder in the git repo)
   SOLUTION_DIRECTORY: './api'      
@@ -36,6 +27,8 @@ env:
   SOLUTION_FILE: 'CESMII.ProfileDesigner.sln'      
   # Project file to use
   PROJECT_NAME: 'CESMII.ProfileDesigner.Api'      
+  #Build configuration
+  BUILD_CONFIGURATION: 'Release'
   # Needed to get some information about the pull request, if any
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   
@@ -80,7 +73,7 @@ jobs:
         run: dotnet restore ${{env.SOLUTION_FILE}}
         working-directory: ${{env.SOLUTION_DIRECTORY}}
       - name: Build (${{env.PROJECT_DIRECTORY}})
-        run: dotnet build --configuration ${{ github.event.inputs.name }} --no-restore
+        run: dotnet build --configuration ${{ env.BUILD_CONFIGURATION }} --no-restore
         working-directory: ${{env.PROJECT_DIRECTORY}}    
       - name: SonarScan - End (${{env.SOLUTION_FILE}})
         run: dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_ACCESS_TOKEN }}"

@@ -41,11 +41,6 @@ jobs:
     name: SonarCloud
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v2
-        with:
-          # Shallow clones should be disabled for a better relevancy of analysis
-          fetch-depth: 0
-       
       #Set up Java which is needed for SonarScan post processing step
       - name: Setup Java JDK
       - uses: actions/setup-java@v3.4.0
@@ -53,6 +48,11 @@ jobs:
           distribution: 'microsoft' # See 'Supported distributions' for available options
           java-version: '11'
     
+      - uses: actions/checkout@v2
+        with:
+          # Shallow clones should be disabled for a better relevancy of analysis
+          fetch-depth: 0
+       
       # Speed-up analysis by caching the scanner workspace
       - name: SonarScan - Cache SonarCloud workspace
         uses: actions/cache@v1

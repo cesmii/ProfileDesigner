@@ -65,15 +65,17 @@ jobs:
       #  if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
       #  # The --version argument is optional. If it is omitted the latest version will be installed.
         run: |
-          New-Item -Path .\.sonar\scanner -ItemType Directory
-          dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner --version ${{env.SONAR_SCANNER_VERSION}} 
-      - name: SonarScan - Begin (${{env.SOLUTION_FILE}})
-        run: .\.sonar\scanner\dotnet-sonarscanner begin /o:"${{env.SONAR_ORGANIZATION}}" /k:"${{ secrets.SONAR_ACCESS_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login="${{ secrets.SONAR_ACCESS_TOKEN }}"
+          New-Item -Path ${{env.SOLUTION_DIRECTORY}}\.sonar\scanner -ItemType Directory
+          dotnet tool update dotnet-sonarscanner --tool-path ${{env.SOLUTION_DIRECTORY}}\.sonar\scanner --version ${{env.SONAR_SCANNER_VERSION}} 
+      - name: SonarScan - Begin (${{env.SONAR_PROJECT_KEY}})
+        run: \.sonar\scanner\dotnet-sonarscanner begin /o:"${{env.SONAR_ORGANIZATION}}" /k:"${{ secrets.SONAR_ACCESS_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login="${{ secrets.SONAR_ACCESS_TOKEN }}"
+        working-directory: ${{env.SOLUTION_DIRECTORY}}
       - name: Restore dependencies (${{env.SOLUTION_FILE}})
         run: dotnet restore ${{env.SOLUTION_FILE}}
         working-directory: ${{env.SOLUTION_DIRECTORY}}
       - name: Build (${{env.PROJECT_DIRECTORY}})
         run: dotnet build --configuration ${{ env.BUILD_CONFIGURATION }} --no-restore
         working-directory: ${{env.PROJECT_DIRECTORY}}    
-      - name: SonarScan - End (${{env.SOLUTION_FILE}})
-        run: .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_ACCESS_TOKEN }}"
+      - name: SonarScan - End (${{env.SONAR_PROJECT_KEY}})
+        run: \.sonar\scanner\dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_ACCESS_TOKEN }}"
+        working-directory: ${{env.SOLUTION_DIRECTORY}}

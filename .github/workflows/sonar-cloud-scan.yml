@@ -19,7 +19,7 @@ jobs:
     - name: SonarCloud Scan
       uses: sonarsource/sonarcloud-github-action@master
       with:
-        projectBaseDir: ./api
+        #projectBaseDir: ./api
         args: >
           -Dsonar.organization=cesmii
           -Dsonar.projectKey=cesmii_ProfileDesigner

@@ -1,12 +1,22 @@
-# SonarCloud|API|Profile Designer - Scan - manually triggered
-
+# SonarCloud|API|Profile Designer - Scan - manually triggered in main, automatically triggered in develop
+# see also sonar-project.properties file in root folder of repo
+# see also reference: https://github.com/marketplace/actions/sonarcloud-scan
 name: SonarCloud|API|Profile Designer - Scan
 
 # Controls when the action will run. Workflow runs when manually triggered using the UI
 # or API.
 on:
   workflow_dispatch:
+  # Trigger the workflow on push, # but only for the dev branch
+  push:
+    branches:
+      - develop
 
+env:
+  # set this to the organization name, project key in Sonar
+  SONAR_ORGANIZATION: 'cesmii'    
+  SONAR_PROJECT_KEY: 'cesmii_ProfileDesigner'
+  
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   sonarcloud:
@@ -19,10 +29,10 @@ jobs:
     - name: SonarCloud Scan
       uses: sonarsource/sonarcloud-github-action@master
       with:
-        #projectBaseDir: ./api
+        #projectBaseDir: ./api  ##this is set in sonar-project.properties
         args: >
-          -Dsonar.organization=cesmii
-          -Dsonar.projectKey=cesmii_ProfileDesigner
+          -Dsonar.organization=${{ env.SONAR_ORGANIZATION }}
+          -Dsonar.projectKey=${{ env.SONAR_PROJECT_KEY }}
     env:
         #Github creates dynamically for each workflow run: 
         #https://docs.github.com/en/actions/security-guides/automatic-token-authentication

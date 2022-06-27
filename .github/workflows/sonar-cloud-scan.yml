@@ -46,26 +46,26 @@ jobs:
           # Shallow clones should be disabled for a better relevancy of analysis
           fetch-depth: 0
        
-      ## Speed-up analysis by caching the scanner workspace
-      #- name: SonarScan - Cache SonarCloud workspace
-      #  uses: actions/cache@v1
-      #  with:
-      #    path: ~\.sonar\cache
-      #    key: ${{ runner.os }}-sonar-cache
-      #    restore-keys: ${{ runner.os }}-sonar-cache
+      # Speed-up analysis by caching the scanner workspace
+      - name: SonarScan - Cache SonarCloud workspace
+        uses: actions/cache@v1
+        with:
+          path: ~\.sonar\cache
+          key: ${{ runner.os }}-sonar-cache
+          restore-keys: ${{ runner.os }}-sonar-cache
 
-      ## Speed-up analysis by caching the scanner installation
-      #- name: SonarScan - Cache SonarCloud scanner
-      #  id: cache-sonar-scanner
-      #  uses: actions/cache@v1
-      #  with:
-      #    path: .\.sonar\scanner
-      #    key: ${{ runner.os }}-sonar-scanner
-      #    restore-keys: ${{ runner.os }}-sonar-scanner
+      # Speed-up analysis by caching the scanner installation
+      - name: SonarScan - Cache SonarCloud scanner
+        id: cache-sonar-scanner
+        uses: actions/cache@v1
+        with:
+          path: ${{env.SONAR_TOOL_PATH}}
+          key: ${{ runner.os }}-sonar-scanner
+          restore-keys: ${{ runner.os }}-sonar-scanner
 
       - name: SonarScan - Install SonarCloud scanner
-      #  if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
-      #  # The --version argument is optional. If it is omitted the latest version will be installed.
+        if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
+        # The --version argument is optional. If it is omitted the latest version will be installed.
         run: |
           New-Item -Path ${{env.SONAR_TOOL_PATH}} -ItemType Directory
           dotnet tool update dotnet-sonarscanner --tool-path ${{env.SONAR_TOOL_PATH}} --version ${{env.SONAR_SCANNER_VERSION}} 
@@ -73,7 +73,7 @@ jobs:
         run: ${{env.SONAR_TOOL_PATH}}\dotnet-sonarscanner begin /o:"${{env.SONAR_ORGANIZATION}}" /k:"${{ secrets.SONAR_ACCESS_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login="${{ secrets.SONAR_ACCESS_TOKEN }}"
       - name: Restore dependencies (${{env.SOLUTION_FILE}})
         run: dotnet restore ${{env.SOLUTION_DIRECTORY}}/${{env.SOLUTION_FILE}}
-      - name: Build (${{env.SOLUTION_DIRECTORY}}/${{env.SOLUTION_FILE}})
+      - name: Build (${{env.SOLUTION_FILE}})
         run: dotnet build ${{env.SOLUTION_DIRECTORY}}/${{env.SOLUTION_FILE}} --configuration ${{ env.BUILD_CONFIGURATION }} --no-restore
       - name: SonarScan - End (${{env.SONAR_PROJECT_KEY}})
         run: ${{env.SONAR_TOOL_PATH}}\dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_ACCESS_TOKEN }}"

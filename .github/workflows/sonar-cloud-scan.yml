@@ -8,9 +8,9 @@ name: SonarCloud|API|Profile Designer - Scan
 on:
   workflow_dispatch:
   # Trigger the workflow on push, # but only for the dev branch
-  push:
-    branches:
-      - develop
+  #push:
+  #  branches:
+  #    - develop
 
 env:
   # set this to the organization name, project key in Sonar
@@ -33,7 +33,8 @@ jobs:
         args: >
           -Dsonar.organization=${{ env.SONAR_ORGANIZATION }}
           -Dsonar.projectKey=${{ env.SONAR_PROJECT_KEY }}
-    env:
+          -Dsonar.verbose=true
+      env:
         #Github creates dynamically for each workflow run: 
         #https://docs.github.com/en/actions/security-guides/automatic-token-authentication
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

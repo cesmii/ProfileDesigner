@@ -11,32 +11,77 @@ on:
   #push:
   #  branches:
   #    - develop
-
+  # Inputs the workflow accepts.
+  inputs:
+    txtConfiguration:
+      # Friendly description to be shown in the UI instead of 'name'
+      description: 'Build Configuration (Release or Staging)'
+      # Default value if no value is explicitly provided
+      default: 'Release'
+      # Input has to be provided for the workflow to run
+      required: true
+      
 env:
   # set this to the organization name, project key in Sonar
   SONAR_ORGANIZATION: 'cesmii'    
   SONAR_PROJECT_KEY: 'cesmii_ProfileDesigner'
+  # set this to the .NET core version to use
+  SONAR_SCANNER_VERSION: "4.8.0"
+  
+  # set this to the path to your solution file, defaults to the repository root (this is the folder in the git repo)
+  SOLUTION_DIRECTORY: './api'      
+  # set this to the path to your web app project, defaults to the repository root (this is the folder in the git repo)
+  PROJECT_DIRECTORY: './api/CESMII.ProfileDesigner.Api'      
+  # Solution file to use
+  SOLUTION_FILE: 'CESMII.ProfileDesigner.sln'      
+  # Project file to use
+  PROJECT_NAME: 'CESMII.ProfileDesigner.Api'      
+  # Needed to get some information about the pull request, if any
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   sonarcloud:
-    runs-on: ubuntu-latest
+    name: SonarCloud
+    runs-on: windows-latest
     steps:
-    - uses: actions/checkout@v2
-      with:
-        # Disabling shallow clone is recommended for improving relevancy of reporting
-        fetch-depth: 0
-    - name: SonarCloud Scan
-      uses: sonarsource/sonarcloud-github-action@master
-      with:
-        #projectBaseDir: ./api  ##this is set in sonar-project.properties
-        args: >
-          -Dsonar.organization=${{ env.SONAR_ORGANIZATION }}
-          -Dsonar.projectKey=${{ env.SONAR_PROJECT_KEY }}
-          -Dsonar.verbose=true
-      env:
-        #Github creates dynamically for each workflow run: 
-        #https://docs.github.com/en/actions/security-guides/automatic-token-authentication
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        #in sonar.bat, this was the value assigned to login=token
-        SONAR_TOKEN: ${{ secrets.SONAR_ACCESS_TOKEN }}      
+      - uses: actions/checkout@v2
+        with:
+          # Shallow clones should be disabled for a better relevancy of analysis
+          fetch-depth: 0
+       
+      # Speed-up analysis by caching the scanner workspace
+      - name: SonarScan - Cache SonarCloud workspace
+        uses: actions/cache@v1
+        with:
+          path: ~\.sonar\cache
+          key: ${{ runner.os }}-sonar-cache
+          restore-keys: ${{ runner.os }}-sonar-cache
+
+      # Speed-up analysis by caching the scanner installation
+      - name: SonarScan - Cache SonarCloud scanner
+        id: cache-sonar-scanner
+        uses: actions/cache@v1
+        with:
+          path: .\.sonar\scanner
+          key: ${{ runner.os }}-sonar-scanner
+          restore-keys: ${{ runner.os }}-sonar-scanner
+
+      - name: SonarScan - Install SonarCloud scanner
+        if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
+        # The --version argument is optional. If it is omitted the latest version will be installed.
+        run: |
+          New-Item -Path .\.sonar\scanner -ItemType Directory
+          dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner --version ${{env.SONAR_SCANNER_VERSION}} 
+      - name: SonarScan - Begin (${{env.SOLUTION_FILE}})
+        run: dotnet sonarscanner begin /o:"${{env.SONAR_ORGANIZATION}}" /k:"${{ secrets.SONAR_ACCESS_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login="${{ secrets.SONAR_ACCESS_TOKEN }}"
+        working-directory: ${{env.SOLUTION_DIRECTORY}}
+      - name: Restore dependencies (${{env.SOLUTION_FILE}})
+        run: dotnet restore ${{env.SOLUTION_FILE}}
+        working-directory: ${{env.SOLUTION_DIRECTORY}}
+      - name: Build (${{env.PROJECT_DIRECTORY}})
+        run: dotnet build --configuration ${{ github.event.inputs.name }} --no-restore
+        working-directory: ${{env.PROJECT_DIRECTORY}}    
+      - name: SonarScan - End (${{env.SOLUTION_FILE}})
+        run: dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_ACCESS_TOKEN }}"
+        working-directory: ${{env.SOLUTION_DIRECTORY}}

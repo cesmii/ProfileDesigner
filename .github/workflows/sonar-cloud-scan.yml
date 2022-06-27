@@ -38,6 +38,8 @@ jobs:
         fetch-depth: 0
     - name: SonarCloud Scan
       uses: sonarsource/sonarcloud-github-action@master
+      with:
+        projectBaseDir: ./api
       env:
         #Github creates dynamically for each workflow run: 
         #https://docs.github.com/en/actions/security-guides/automatic-token-authentication

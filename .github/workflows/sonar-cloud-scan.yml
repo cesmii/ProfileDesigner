@@ -68,7 +68,7 @@ jobs:
           dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner --version ${{env.SONAR_SCANNER_VERSION}} 
       - name: SonarScan - Begin (${{env.SOLUTION_FILE}})
         #run: .\.sonar\scanner\dotnet-sonarscanner begin /o:"${{env.SONAR_ORGANIZATION}}" /k:"${{ secrets.SONAR_ACCESS_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login="${{ secrets.SONAR_ACCESS_TOKEN }}"
-        run: dotnet-sonarscanner begin /o:"${{env.SONAR_ORGANIZATION}}" /k:"${{ secrets.SONAR_ACCESS_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login="${{ secrets.SONAR_ACCESS_TOKEN }}"
+        run: .\.sonar\scanner\dotnet-sonarscanner begin /o:"${{env.SONAR_ORGANIZATION}}" /k:"${{ secrets.SONAR_ACCESS_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login="${{ secrets.SONAR_ACCESS_TOKEN }}"
         working-directory: ${{env.SOLUTION_DIRECTORY}}
       - name: Restore dependencies (${{env.SOLUTION_FILE}})
         run: dotnet restore ${{env.SOLUTION_FILE}}
@@ -78,5 +78,5 @@ jobs:
         working-directory: ${{env.PROJECT_DIRECTORY}}    
       - name: SonarScan - End (${{env.SOLUTION_FILE}})
         #run: dotnet .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_ACCESS_TOKEN }}"
-        run: dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_ACCESS_TOKEN }}"
+        run: .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_ACCESS_TOKEN }}"
         working-directory: ${{env.SOLUTION_DIRECTORY}}

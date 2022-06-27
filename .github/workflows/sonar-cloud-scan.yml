@@ -7,10 +7,11 @@ name: SonarCloud|API|Profile Designer - Scan
 # or API.
 on:
   workflow_dispatch:
-  # Trigger the workflow on push, # but only for the dev branch
-  #push:
-  #  branches:
-  #    - develop
+  # Trigger the workflow on push to a branch
+  push:
+    branches:
+      - main
+      #- develop
   
 env:
   # set this to the organization name, project key in Sonar
@@ -31,7 +32,7 @@ env:
   BUILD_CONFIGURATION: 'Release'
   # Needed to get some information about the pull request, if any
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  
+
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   sonarcloud:
@@ -67,9 +68,7 @@ jobs:
           New-Item -Path .\.sonar\scanner -ItemType Directory
           dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner --version ${{env.SONAR_SCANNER_VERSION}} 
       - name: SonarScan - Begin (${{env.SOLUTION_FILE}})
-        #run: .\.sonar\scanner\dotnet-sonarscanner begin /o:"${{env.SONAR_ORGANIZATION}}" /k:"${{ secrets.SONAR_ACCESS_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login="${{ secrets.SONAR_ACCESS_TOKEN }}"
         run: .\.sonar\scanner\dotnet-sonarscanner begin /o:"${{env.SONAR_ORGANIZATION}}" /k:"${{ secrets.SONAR_ACCESS_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login="${{ secrets.SONAR_ACCESS_TOKEN }}"
-        working-directory: ${{env.SOLUTION_DIRECTORY}}
       - name: Restore dependencies (${{env.SOLUTION_FILE}})
         run: dotnet restore ${{env.SOLUTION_FILE}}
         working-directory: ${{env.SOLUTION_DIRECTORY}}
@@ -77,6 +76,4 @@ jobs:
         run: dotnet build --configuration ${{ env.BUILD_CONFIGURATION }} --no-restore
         working-directory: ${{env.PROJECT_DIRECTORY}}    
       - name: SonarScan - End (${{env.SOLUTION_FILE}})
-        #run: dotnet .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_ACCESS_TOKEN }}"
         run: .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_ACCESS_TOKEN }}"
-        working-directory: ${{env.SOLUTION_DIRECTORY}}

@@ -1,4 +1,4 @@
-# STAGE Version - SonarCloud|API|Profile Designer - Scan - automatically triggered daily in develop
+# STAGE Version - SonarCloud|API|Profile Designer - Scan - on push to develop
 # see also reference: https://github.com/marketplace/actions/sonarcloud-scan
 name: Stage|SonarCloud|API|Profile Designer - Scan
 
@@ -7,14 +7,9 @@ name: Stage|SonarCloud|API|Profile Designer - Scan
 on:
   workflow_dispatch:
   # Trigger the workflow on push to a branch
-  #push:
-  #  branches:
-  #    - develop
-  schedule:
-    # Runs "at minute 1.11 every day" (see https://crontab.guru) on dev branch
-    - cron: '07 10 * * *'
-      branches:
-        -develop
+  push:
+    branches:
+      - develop
   
 env:
   # set this to the organization name, project key in Sonar

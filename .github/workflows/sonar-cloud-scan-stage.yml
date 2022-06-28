@@ -1,0 +1,92 @@
+# STAGE Version - SonarCloud|API|Profile Designer - Scan - automatically triggered daily in develop
+# see also reference: https://github.com/marketplace/actions/sonarcloud-scan
+name: Stage|SonarCloud|API|Profile Designer - Scan
+
+# Controls when the action will run. Workflow runs when manually triggered using the UI
+# or API.
+on:
+  workflow_dispatch:
+  # Trigger the workflow on push to a branch
+  #push:
+  #  branches:
+  #    - develop
+  schedule:
+    # Runs "at minute 1.11 every day" (see https://crontab.guru) on dev branch
+    - cron: '50 9 * * *'
+      branches:
+        -develop
+  
+env:
+  # set this to the organization name, project key in Sonar
+  SONAR_ORGANIZATION: 'cesmii'    
+  SONAR_PROJECT_KEY: 'cesmii_ProfileDesigner'
+  # set this to the .NET core version to use
+  SONAR_SCANNER_VERSION: "5.6.0"
+  #path where tool will be installed during workflow execution
+  SONAR_TOOL_PATH: '.\.sonar\scanner'
+  
+  # set this to the path to your solution file, defaults to the repository root (this is the folder in the git repo)
+  SOLUTION_DIRECTORY: './api'      
+  # set this to the path to your web app project, defaults to the repository root (this is the folder in the git repo)
+  PROJECT_DIRECTORY: './api/CESMII.ProfileDesigner.Api'      
+  # Solution file to use
+  SOLUTION_FILE: 'CESMII.ProfileDesigner.sln'      
+  # Project file to use
+  PROJECT_NAME: 'CESMII.ProfileDesigner.Api'      
+  #Build configuration
+  BUILD_CONFIGURATION: 'Staging'
+  # Needed to get some information about the pull request, if any
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  sonarcloud:
+    name: SonarCloud
+    #TBD - See if we can get this to rowk with ubuntu latest. The blocker is the 
+    #paths of tool install and calling tool was challenging to get all working and some of the pathing stuff 
+    #would need to be updated. 
+    runs-on: windows-latest
+    steps:
+      #Set up Java which is needed for SonarScan post processing step
+      - name: Setup Java JDK
+        uses: actions/setup-java@v3.4.0
+        with:
+          distribution: 'microsoft' # See 'Supported distributions' for available options
+          java-version: '11'
+    
+      - uses: actions/checkout@v2
+        #with:
+        #  # Shallow clones should be disabled for a better relevancy of analysis
+        #  fetch-depth: 0
+       
+      # Speed-up analysis by caching the scanner workspace
+      - name: SonarScan - Cache SonarCloud workspace
+        uses: actions/cache@v1
+        with:
+          path: ~\.sonar\cache
+          key: ${{ runner.os }}-sonar-cache
+          restore-keys: ${{ runner.os }}-sonar-cache
+
+      # Speed-up analysis by caching the scanner installation
+      - name: SonarScan - Cache SonarCloud scanner
+        id: cache-sonar-scanner
+        uses: actions/cache@v1
+        with:
+          path: ${{env.SONAR_TOOL_PATH}}
+          key: ${{ runner.os }}-sonar-scanner
+          restore-keys: ${{ runner.os }}-sonar-scanner
+
+      - name: SonarScan - Install SonarCloud scanner
+        if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
+        # The --version argument is optional. If it is omitted the latest version will be installed.
+        run: |
+          New-Item -Path ${{env.SONAR_TOOL_PATH}} -ItemType Directory
+          dotnet tool update dotnet-sonarscanner --tool-path ${{env.SONAR_TOOL_PATH}} --version ${{env.SONAR_SCANNER_VERSION}} 
+      - name: SonarScan - Begin (${{env.SONAR_PROJECT_KEY}})
+        run: ${{env.SONAR_TOOL_PATH}}\dotnet-sonarscanner begin /o:"${{env.SONAR_ORGANIZATION}}" /k:"${{ env.SONAR_PROJECT_KEY }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login="${{ secrets.SONAR_ACCESS_TOKEN }}"
+      - name: Restore dependencies (${{env.SOLUTION_FILE}})
+        run: dotnet restore ${{env.SOLUTION_DIRECTORY}}/${{env.SOLUTION_FILE}}
+      - name: Build (${{env.SOLUTION_FILE}})
+        run: dotnet build ${{env.SOLUTION_DIRECTORY}}/${{env.SOLUTION_FILE}} --configuration ${{ env.BUILD_CONFIGURATION }} --no-restore
+      - name: SonarScan - End (${{env.SONAR_PROJECT_KEY}})
+        run: ${{env.SONAR_TOOL_PATH}}\dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_ACCESS_TOKEN }}" 

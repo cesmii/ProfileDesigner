@@ -8,10 +8,6 @@ name: SonarCloud|API|Profile Designer - Scan
 on:
   workflow_dispatch:
   # Trigger the workflow on push to a branch
-  push:
-    branches:
-      - main
-      #- develop
   
 env:
   # set this to the organization name, project key in Sonar

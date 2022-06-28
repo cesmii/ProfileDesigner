@@ -19,7 +19,7 @@ env:
   SONAR_PROJECT_KEY: 'cesmii_ProfileDesigner'
   # set this to the .NET core version to use
   SONAR_SCANNER_VERSION: "5.6.0"
-  #
+  #path where tool will be installed during workflow execution
   SONAR_TOOL_PATH: '.\.sonar\scanner'
   
   # set this to the path to your solution file, defaults to the repository root (this is the folder in the git repo)
@@ -80,7 +80,7 @@ jobs:
           New-Item -Path ${{env.SONAR_TOOL_PATH}} -ItemType Directory
           dotnet tool update dotnet-sonarscanner --tool-path ${{env.SONAR_TOOL_PATH}} --version ${{env.SONAR_SCANNER_VERSION}} 
       - name: SonarScan - Begin (${{env.SONAR_PROJECT_KEY}})
-        run: ${{env.SONAR_TOOL_PATH}}\dotnet-sonarscanner begin /o:"${{env.SONAR_ORGANIZATION}}" /k:"${{ secrets.SONAR_PROJECT_KEY }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login="${{ secrets.SONAR_ACCESS_TOKEN }}"
+        run: ${{env.SONAR_TOOL_PATH}}\dotnet-sonarscanner begin /o:"${{env.SONAR_ORGANIZATION}}" /k:"${{ env.SONAR_PROJECT_KEY }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login="${{ secrets.SONAR_ACCESS_TOKEN }}"
       - name: Restore dependencies (${{env.SOLUTION_FILE}})
         run: dotnet restore ${{env.SOLUTION_DIRECTORY}}/${{env.SOLUTION_FILE}}
       - name: Build (${{env.SOLUTION_FILE}})

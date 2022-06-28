@@ -52,9 +52,9 @@ jobs:
           java-version: '11'
     
       - uses: actions/checkout@v2
-        with:
-          # Shallow clones should be disabled for a better relevancy of analysis
-          fetch-depth: 0
+        #with:
+        #  # Shallow clones should be disabled for a better relevancy of analysis
+        #  fetch-depth: 0
        
       # Speed-up analysis by caching the scanner workspace
       - name: SonarScan - Cache SonarCloud workspace

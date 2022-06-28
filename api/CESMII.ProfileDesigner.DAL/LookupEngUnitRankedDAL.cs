@@ -15,14 +15,14 @@
         {
         }
 
-        public override async Task<int?> Add(EngineeringUnitRankedModel model, UserToken userToken)
+        public override Task<int?> AddAsync(EngineeringUnitRankedModel model, UserToken userToken)
         {
             throw new NotSupportedException("This DAL is for getting data only. Use the EngineeringUnitDAL for adding/editing/deleting eng units.");
         }
 
 
 
-        public override async Task<int?> Update(EngineeringUnitRankedModel model, UserToken userToken)
+        public override Task<int?> UpdateAsync(EngineeringUnitRankedModel model, UserToken userToken)
         {
             throw new NotSupportedException("This DAL is for getting data only. Use the EngineeringUnitDAL for adding/editing/deleting eng units.");
         }
@@ -48,7 +48,7 @@
         /// <returns></returns>
         public override List<EngineeringUnitRankedModel> GetAll(UserToken userToken, bool verbose = false)
         {
-            DALResult<EngineeringUnitRankedModel> result = GetAllPaged(userToken, verbose: verbose);
+            DALResult<EngineeringUnitRankedModel> result = GetAllPaged(userToken, null, null, verbose: verbose);
             return result.Data;
         }
 
@@ -57,13 +57,11 @@
         /// </summary>
         /// <param name="orgId"></param>
         /// <returns></returns>
-        public override DALResult<EngineeringUnitRankedModel> GetAllPaged(UserToken userToken, int? skip = null, int? take = null, bool returnCount = false, bool verbose = false)
+        public override DALResult<EngineeringUnitRankedModel> GetAllPaged(UserToken userToken, int? skip, int? take, bool returnCount = false, bool verbose = false)
         {
             //put the order by and where clause before skip.take so we skip/take on filtered/ordered query 
             var result = base.Where(l => l.IsActive, userToken,skip, take, returnCount, verbose, q => q
                 .OrderByDescending(l => l.PopularityLevel)
-                //.OrderByDescending(l => l.PopularityIndex)
-                //.ThenByDescending(l => l.UsageCount)
                 .ThenBy(l => l.DisplayName)
                 );
             return result;
@@ -74,8 +72,8 @@
         /// </summary>
         /// <param name="predicate"></param>
         /// <returns></returns>
-        public override DALResult<EngineeringUnitRankedModel> Where(Expression<Func<EngineeringUnitRanked, bool>> predicate, UserToken user, int? skip, int? take, 
-            bool returnCount = true, bool verbose = false)
+        public override DALResult<EngineeringUnitRankedModel> Where(Expression<Func<EngineeringUnitRanked, bool>> predicate, UserToken user, int? skip = null, int? take = null, 
+            bool returnCount = false, bool verbose = false)
         {
             return base.Where(predicate, user, skip, take, returnCount, verbose, q => q
             ////put the order by and where clause before skip.take so we skip/take on filtered/ordered query 
@@ -88,7 +86,7 @@
                 );
         }
 
-        public async Task<int?> Delete(int id, UserToken userToken)
+        public Task<int?> DeleteAsync(int id, UserToken userToken)
         {
             throw new NotSupportedException("This DAL is for getting data only. Use the EngineeringUnitDAL for adding/editing/deleting eng units.");
         }

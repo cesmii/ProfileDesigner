@@ -14,18 +14,17 @@ export const initialState = {
     token: null || token
 };
 
-export const AuthReducer = (initialState, action) => {
-    //console.log(generateLogMessageString(`AuthReducer||${action.type}`, CLASS_NAME));
+export const AuthReducer = (initState, action) => {
     switch (action.type) {
         case "LOGIN_SUCCESS":
             return {
-                ...initialState,
+                ...initState,
                 user: action.payload.user,
                 token: action.payload.token
             };
         case "LOGOUT":
             return {
-                ...initialState,
+                ...initState,
                 user: null,
                 token: null
             };

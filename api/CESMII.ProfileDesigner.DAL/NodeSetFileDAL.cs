@@ -16,9 +16,9 @@ namespace CESMII.ProfileDesigner.DAL
         {
         }
 
-        public override async Task<int?> Add(NodeSetFileModel model, UserToken userToken)
+        public override async Task<int?> AddAsync(NodeSetFileModel model, UserToken userToken)
         {
-            NodeSetFile entity = new NodeSetFile
+            var entity = new NodeSetFile
             {
                 ID = null
             };
@@ -33,7 +33,7 @@ namespace CESMII.ProfileDesigner.DAL
             return entity.ID;
         }
 
-        public override async Task<int?> Update(NodeSetFileModel model, UserToken userToken)
+        public override async Task<int?> UpdateAsync(NodeSetFileModel model, UserToken userToken)
         {
             NodeSetFile entity = base.FindByCondition(userToken, x => x.ID == model.ID && x.AuthorId == model.AuthorId).FirstOrDefault();
             if (entity == null)
@@ -43,23 +43,18 @@ namespace CESMII.ProfileDesigner.DAL
             this.MapToEntity(ref entity, model, userToken);
 
             await _repo.UpdateAsync(entity);
-            await _repo.SaveChanges();
+            await _repo.SaveChangesAsync();
             return entity.ID;
         }
 
         public override NodeSetFile CheckForExisting(NodeSetFileModel model, UserToken userToken, bool cacheOnly = false)
         {
-            //var entity = base.CheckForExisting(model, tenantId);
-            //if (entity != null && ((model.AuthorId==null && entity.AuthorId==null) || entity.AuthorId == model.AuthorId))
-            //{
-            //    return entity;
-            //}
             return base.FindByCondition(userToken, x => 
                 ( 
                   (model.ID != 0 && model.ID != null && x.ID == model.ID)
                   || x.FileName == model.FileName
                 ) 
-                /*&& (model.AuthorId == null || x.AuthorId == model.AuthorId)*/, cacheOnly).FirstOrDefault();
+                , cacheOnly).FirstOrDefault();
         }
 
         public override DALResult<NodeSetFileModel> GetAllPaged(UserToken userToken, int? skip, int? take, bool returnCount = false, bool verbose = false)
@@ -67,49 +62,14 @@ namespace CESMII.ProfileDesigner.DAL
             var result = base.Where(f => true, userToken, skip, take, returnCount, verbose, q => q
                 .OrderBy(x => x.FileName).ThenByDescending(x => x.PublicationDate));
             return result;
-            //var count = returnCount ? query.Count() : 0;
-            ////query returns IincludableQuery. Jump through the following to find right combo of skip and take
-            ////Goal is to have the query execute and not do in memory skip/take
-            //IQueryable<NodeSetFile> data;
-            //if (skip.HasValue && take.HasValue) data = query.Skip(skip.Value).Take(take.Value);
-            //else if (skip.HasValue) data = query.Skip(skip.Value);
-            //else if (take.HasValue) data = query.Take(take.Value);
-            //else data = query;
-
-            //DALResult<NodeSetFileModel> result = new DALResult<NodeSetFileModel>();
-            //result.Count = count;
-            //result.Data = MapToModels(data.ToList(), verbose);
-            //result.SummaryData = null;
-            //return result;
         }
 
-        public override DALResult<NodeSetFileModel> Where(Expression<Func<NodeSetFile, bool>> predicate, UserToken user, int? skip, int? take, bool returnCount = false, bool verbose = false)
+        public override DALResult<NodeSetFileModel> Where(Expression<Func<NodeSetFile, bool>> predicate, UserToken user, int? skip = null, int? take = null, bool returnCount = false, bool verbose = false)
         {
             return base.Where(predicate, user, skip, take, returnCount, verbose, q => q
-            //var query = _repo.FindByCondition(predicate)
                 .OrderBy(x => x.FileName).ThenByDescending(x => x.PublicationDate)
                 );
-            //var count = returnCount ? query.Count() : 0;
-            ////query returns IincludableQuery. Jump through the following to find right combo of skip and take
-            ////Goal is to have the query execute and not do in memory skip/take
-            //IQueryable<NodeSetFile> data;
-            //if (skip.HasValue && take.HasValue) data = query.Skip(skip.Value).Take(take.Value);
-            //else if (skip.HasValue) data = query.Skip(skip.Value);
-            //else if (take.HasValue) data = query.Take(take.Value);
-            //else data = query;
-
-            //DALResult<NodeSetFileModel> result = new DALResult<NodeSetFileModel>();
-            //result.Count = count;
-            //result.Data = MapToModels(data.ToList(), verbose);
-            //result.SummaryData = null;
-            //return result;
         }
-
-        //public override NodeSetFileModel GetByFunc(Expression<Func<NodeSetFile, bool>> predicate, bool verbose)
-        //{
-        //    var tRes = _repo.FindByCondition(predicate).OrderByDescending(s => s.PublicationDate).FirstOrDefault();
-        //    return MapToModel(tRes, verbose);
-        //}
 
         /// <summary>
         /// Deletes a record from the NodeSetFile Cache
@@ -117,7 +77,7 @@ namespace CESMII.ProfileDesigner.DAL
         /// <param name="id">Id of the record to be deleted</param>
         /// <param name="userId">owner of the record. If set to -1 AuthorID is ignored (force delete)</param>
         /// <returns></returns>
-        public Task<int?> Delete(int id, UserToken userToken)
+        public Task<int?> DeleteAsync(int id, UserToken userToken)
         {
             //TBD - delete needs to add some include statements to pull back related children.
             //do filter on author id so that the user can only delete their stuff
@@ -132,7 +92,7 @@ namespace CESMII.ProfileDesigner.DAL
             return Task.FromResult<int?>(1);
         }
 
-        public override async Task<int> DeleteMany(List<int> ids, UserToken userToken)
+        public override async Task<int> DeleteManyAsync(List<int> ids, UserToken userToken)
         {
             //find matches in the db regardless of author. Note there could be a scenario where they pass in an id that
             //isn't there anymore which is why we check this way.
@@ -154,7 +114,7 @@ namespace CESMII.ProfileDesigner.DAL
         {
             return MapToModel(entity, verbose);
         }
-        protected override NodeSetFileModel MapToModel(NodeSetFile entity, bool verbose = false)
+        protected override NodeSetFileModel MapToModel(NodeSetFile entity, bool verbose = true)
         {
             if (entity != null)
             {

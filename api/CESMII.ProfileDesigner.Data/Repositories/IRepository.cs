@@ -62,12 +62,18 @@
         void Update(TEntity entity);
 
         /// <summary>
+        /// Attaches an entity to the context so that it can be found on future queries even if it has not been saved yet (helps handling recursive references)
+        /// </summary>
+        /// <param name="entity"></param>
+        void Attach(TEntity entity);
+
+        /// <summary>
         /// Async save to the database.
         /// </summary>
         /// <returns>The Generic Entity type of the repository. Must be an abstract entity.</returns>
-        Task<int> SaveChanges();
+        Task<int> SaveChangesAsync();
 
-        Task<int> Delete(TEntity entity);
+        Task<int> DeleteAsync(TEntity entity);
         Task LoadIntoCacheAsync(Expression<Func<TEntity, bool>> predicate);
     }
 }

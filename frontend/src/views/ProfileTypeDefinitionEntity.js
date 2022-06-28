@@ -233,26 +233,26 @@ function ProfileTypeDefinitionEntity() {
         return 'view';
     }
 
-    function buildTitleCaption(mode) {
-        var caption = getProfileTypeCaption(_item);
-        if (mode != null) {
-            switch (mode.toLowerCase()) {
+    function buildTitleCaption(formMode) {
+        var result = getProfileTypeCaption(_item);
+        if (formMode != null) {
+            switch (formMode.toLowerCase()) {
                 case "new":
-                    caption = `New ${caption}`
+                    result = `New ${result}`
                     break;
                 case "edit":
-                    caption = `Edit ${caption}`;
+                    result = `Edit ${result}`;
                     break;
                 case "extend":
-                    caption = `Extend ${caption}`;
+                    result = `Extend ${result}`;
                     break;
                 case "view":
                 default:
-                    caption = `View ${caption}`;
+                    result = `View ${result}`;
                     break;
             }
         }
-        return caption;
+        return result;
     }
 
     //-------------------------------------------------------------------
@@ -263,14 +263,7 @@ function ProfileTypeDefinitionEntity() {
         setIsValid({ ..._isValid, name: isValid });
     };
 
-    //const validateForm_profile = (e) => {
-    //    var isValid = e.target.value.toString() !== "-1";
-    //    setIsValid({ ..._isValid, profile: isValid });
-    //};
-
-    const validateForm_description = (e) => {
-        //var isValid = (e.target.value != null && e.target.value.trim().length > 0);
-        //setIsValid({ ..._isValid, description: isValid });
+    const validateForm_description = () => {
     };
 
     const validateForm_type = (e) => {
@@ -406,7 +399,6 @@ function ProfileTypeDefinitionEntity() {
 
     //on change handler to update state
     const onChange = (e) => {
-        //console.log(generateLogMessageString(`onEntityChange||e:${e.target}`, CLASS_NAME));
 
         //note you must update the state value for the input to be read only. It is not enough to simply have the onChange handler.
         switch (e.target.id) {
@@ -459,18 +451,7 @@ function ProfileTypeDefinitionEntity() {
         console.log(generateLogMessageString(`onSaveProfile`, CLASS_NAME));
         var autoSave = _profileEntityModal.autoSave;
         setProfileEntityModal({ show: false, item: null, autoSave: false });
-        ////add the new profile to the list
-        //_lookupProfiles.push(p);
-        //_lookupProfiles.sort((a, b) => {
-        //    var versionA = a.version == null ? '' : a.version;
-        //    var versionB = b.version == null ? '' : b.version;
-        //    var sortA = `${a.namespace}+${versionA.toString()}`.toLowerCase();
-        //    var sortB = `${b.namespace}+${versionB.toString()}`.toLowerCase();
-        //    if (sortA < sortB) return -1;
-        //    if (sortA > sortB) return 1;
-        //    return 0;
-        //}); //sort by name+version
-        //setLookupProfiles(JSON.parse(JSON.stringify(_lookupProfiles)));
+
         //and then assign it to the new item
         _item.profileId = p.id;
         _item.profile = p;
@@ -483,9 +464,6 @@ function ProfileTypeDefinitionEntity() {
 
     const onSaveProfileCancel = () => {
         console.log(generateLogMessageString(`onSaveProfileCancel`, CLASS_NAME));
-        //item.profileId = null;
-        //item.profile = null;
-        //setItem(JSON.parse(JSON.stringify(item)));
         setProfileEntityModal({ show: false, item: null });
     };
 
@@ -520,7 +498,6 @@ function ProfileTypeDefinitionEntity() {
     const onAttributeInterfaceAdd = (iface, profileAttributes, extendedProfileAttributes) => {
         //raised from add button click in child component
         console.log(generateLogMessageString(`onAttributeInterfaceAdd||interface:${iface.name}`, CLASS_NAME));
-        //console.log(generateLogMessageString(`onInterfaceAttributeAdd||interface:${JSON.stringify(iface)}`, CLASS_NAME));
 
         //make copy of item
         var itemCopy = JSON.parse(JSON.stringify(_item));
@@ -539,11 +516,11 @@ function ProfileTypeDefinitionEntity() {
         };
     };
 
-    const onAttributeDelete = (id) => {
+    const onAttributeDelete = (key) => {
         //raised from del button click in child component
-        console.log(generateLogMessageString(`onAttributeDelete||item id:${id}`, CLASS_NAME));
+        console.log(generateLogMessageString(`onAttributeDelete||item id:${key}`, CLASS_NAME));
 
-        var x = _item.profileAttributes.findIndex(attr => { return attr.id === id; });
+        var x = _item.profileAttributes.findIndex(attr => { return attr.id === key; });
         //no item found
         if (x < 0) {
             console.warn(generateLogMessageString(`onAttributeDelete||no item found to delete with this id`, CLASS_NAME));
@@ -564,15 +541,15 @@ function ProfileTypeDefinitionEntity() {
     };
 
     //delete all attributes for passed in interface id. 
-    const onAttributeInterfaceDelete = (id) => {
+    const onAttributeInterfaceDelete = (key) => {
         //raised from del button click in child component
-        console.log(generateLogMessageString(`onAttributeInterfaceDelete||interface id:${id}`, CLASS_NAME));
+        console.log(generateLogMessageString(`onAttributeInterfaceDelete||interface id:${key}`, CLASS_NAME));
 
         //delete the interface reference
-        var x = _item.interfaces.findIndex(i => { return i.id === id; });
+        var x = _item.interfaces.findIndex(i => { return i.id === key; });
         //no item found
         if (x < 0) {
-            console.warn(generateLogMessageString(`onAttributeInterfaceDelete||no interface found to delete with id: ${id}`, CLASS_NAME));
+            console.warn(generateLogMessageString(`onAttributeInterfaceDelete||no interface found to delete with id: ${key}`, CLASS_NAME));
             return {
                 profileAttributes: _item.profileAttributes, extendedProfileAttributes: _item.extendedProfileAttributes
             };
@@ -582,7 +559,7 @@ function ProfileTypeDefinitionEntity() {
 
         //Remove associated attributed. Can only delete interface in my attributes, not in extended attrib.
         //note all interface attributes are in the extended collection
-        var matches = _item.extendedProfileAttributes.filter(attr => { return attr.interface == null || attr.interface.id !== id; });
+        var matches = _item.extendedProfileAttributes.filter(attr => { return attr.interface == null || attr.interface.id !== key; });
 
         //no items found
         if (matches.length === _item.extendedProfileAttributes.length) {
@@ -625,9 +602,6 @@ function ProfileTypeDefinitionEntity() {
         };
     };
 
-    //const downloadMe = async () => {
-    //    downloadFileXML(item.id, cleanFileName(item.name), false);
-    //}
     const downloadProfile = async () => {
         console.log(generateLogMessageString(`downloadProfile||start`, CLASS_NAME));
         //add a row to download messages and this will kick off download
@@ -901,7 +875,6 @@ function ProfileTypeDefinitionEntity() {
 
     // TBD: need loop to remove and add styles for "nav-item" CSS animations
     const tabListener = (eventKey) => {
-        // alert(eventKey);
       }
 
 

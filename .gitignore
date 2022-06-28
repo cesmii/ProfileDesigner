@@ -127,3 +127,5 @@ dist
 /frontend/package-lock.json
 frontend/.env.development
 frontend/.env.development
+/api/sonar.bat
+/api/.sonarqube

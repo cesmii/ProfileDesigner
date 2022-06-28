@@ -3,7 +3,7 @@
     using System;
     using System.Net;
     using System.Net.Mail;
-
+    using System.Net.Security;
     using CESMII.ProfileDesigner.Common;
     using CESMII.ProfileDesigner.Common.Models;
 
@@ -37,11 +37,6 @@
                  EnableSsl = _config.EnableSsl,
                  DeliveryMethod = SmtpDeliveryMethod.Network
             };
-
-            if (_config.EnableSsl)
-            {
-                ServicePointManager.ServerCertificateValidationCallback = (s, certificate, chain, sslPolicyErrors) => true;
-            }
 
             Logger.Debug($"Email configuration | Server: {_config.Address} Port: {_config.Port} SSL: {_config.EnableSsl}");
 

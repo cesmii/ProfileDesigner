@@ -123,13 +123,10 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             if (string.IsNullOrEmpty(model.Query))
             {
                 return Ok(_dal.GetAllPaged(userId, model.Skip, model.Take, true));
-                //return Ok(_dal.Where(s => s.StandardProfileID.HasValue, // && (!s.AuthorId.HasValue || s.AuthorId.Value.Equals(userId)),
-                //                userId, model.Skip, model.Take, true));
             }
 
             //search on some pre-determined fields
             model.Query = model.Query.ToLower();
-            //var result = _dal.Where(s => s.StandardProfileID.HasValue && (!s.AuthorId.HasValue || s.AuthorId.Value.Equals(userId)) && 
             var result = _dal.Where(s =>
                             //string query section
                             s.Namespace.ToLower().Contains(model.Query),
@@ -148,7 +145,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         public IActionResult GetCounts()
         {
             var userToken = UserExtension.DalUserToken(User);
-            var all = _dal.Count(s => s.StandardProfileID.HasValue, userToken);// && (!s.AuthorId.HasValue || s.AuthorId.Value.Equals(userId)));
+            var all = _dal.Count(s => s.StandardProfileID.HasValue, userToken);
             var mine = _dal.Count(s => !s.StandardProfileID.HasValue && s.AuthorId.HasValue && s.AuthorId.Value.Equals(userToken.UserId), userToken);
             return Ok(new ProfileCountModel() { All = all, Mine = mine });
         }
@@ -196,7 +193,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 return BadRequest("The profile record is invalid. Please correct the following: " + errors.ToString());
             }
 
-            var id = await _dal.Add(model, userToken);
+            var id = await _dal.AddAsync(model, userToken);
             if (id < 0)
             {
                 _logger.LogWarning($"ProfileController|Add|Could not add profile item.");
@@ -309,7 +306,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 return BadRequest("The profile record is invalid. Please correct the following: " + errors.ToString());
             }
 
-            var result = await _dal.Update(model, userToken);
+            var result = await _dal.UpdateAsync(model, userToken);
             if (result < 0)
             {
                 _logger.LogWarning($"ProfileController|Update|Could not update profile item. Invalid id:{model.ID}.");
@@ -346,7 +343,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             //associated with this profile
             try
             {
-                var result = await _dal.Delete(model.ID, userToken);
+                var result = await _dal.DeleteAsync(model.ID, userToken);
                 if (result <= 0)
                 {
                     _logger.LogWarning($"ProfileController|Delete|Could not delete item. Invalid id:{model.ID}.");
@@ -380,7 +377,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
 
         internal int? DeleteInternalTestHook(IdIntModel model)
         {
-            return _dal.Delete(model.ID, new UserToken { UserId = -1 }).Result;
+            return _dal.DeleteAsync(model.ID, new UserToken { UserId = -1 }).Result;
         }
 
         /// <summary>
@@ -402,7 +399,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             //associated with this nodeset and its profiles
             try
             {
-                var result = await _dal.DeleteMany(model.Select(x => x.ID).ToList(), userToken);
+                var result = await _dal.DeleteManyAsync(model.Select(x => x.ID).ToList(), userToken);
                 if (result < 0)
                 {
                     _logger.LogWarning($"ProfileController|DeleteMany|Could not delete item(s). Invalid model:{string.Join(", ", ids)}.");
@@ -440,29 +437,6 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             return Task.FromResult<IActionResult>(Ok(new ResultMessageModel() { IsSuccess = true, Message = "Item was deleted." }));
         }
 
-        #region Slow Process Example
-        [HttpPost, Route("Import/Slow")]
-        [Authorize(Policy = nameof(PermissionEnum.CanManageProfile))]
-        [ProducesResponseType(200, Type = typeof(ResultMessageWithDataModel))]
-        public async Task<IActionResult> ImportSlow([FromBody] List<ImportOPCModel> model, [FromServices] OpcUaImporter importer)
-        {
-            _logger.LogInformation($"ImportLogController|Import/Slow.");
-
-            var userToken = UserExtension.DalUserToken(User);
-
-            var logId = await _svcImport.CallSlowMethod(model, userToken);
-
-            return Ok(
-                new ResultMessageWithDataModel()
-                {
-                    IsSuccess = true,
-                    Message = "Import is processing...",
-                    Data = logId
-                }
-            );
-        }
-        #endregion
-
         /// <summary>
         /// Import OPC UA nodeset uploaded by front end. There may be multiple files being uploaded. 
         /// </summary>
@@ -480,7 +454,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             if (!ModelState.IsValid)
             {
                 var errors = ExtractModelStateErrors();
-                _logger.LogCritical($"ProfileController|Import|User Id:{User.GetUserID()}, Errors: {errors.ToString()}");
+                _logger.LogCritical($"ProfileController|Import|User Id:{User.GetUserID()}, Errors: {errors}");
                 return Ok(
                     new ResultMessageWithDataModel()
                     {
@@ -506,7 +480,6 @@ namespace CESMII.ProfileDesigner.Api.Controllers
 
             //pass in the author id as current user
             var userToken = UserExtension.DalUserToken(User);
-            //var result = await this.ImportOpcUaNodeSet(importer, model, userId, userId);
 
             //kick off background process, logid is returned immediately so front end can track progress...
             var logId = await _svcImport.ImportOpcUaNodeSet(model, userToken);
@@ -530,30 +503,8 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         [HttpPost, Route("Export")]
         [Authorize(Policy = nameof(PermissionEnum.CanManageProfile))]
         [ProducesResponseType(200, Type = typeof(ResultMessageExportModel))]
-        public async Task<IActionResult> Export([FromBody] IdIntModel model)
+        public Task<IActionResult> Export([FromBody] IdIntModel model)
         {
-            /*
-            var xml = $"<?xml version=\"1.0\" encoding=\"utf-8\"?><Aliases><Alias Alias=\"Boolean\">i=1</Alias></Aliases>";
-            var num = 0;
-
-            switch (num)
-            {
-                case 2:
-                    return Ok(new ResultMessageExportModel() { IsSuccess = false, Message = "Error ABC has occurred." });
-                case 1:
-                    return Ok(new ResultMessageExportModel()
-                    {
-                        IsSuccess = true,
-                        Message = "",
-                        Data = xml,
-                        Warnings = new List<string>() { "Warning 1", "Warning 2", "Warning 3" }
-                    });
-                case 0:
-                default:
-                    return Ok(new ResultMessageExportModel() { IsSuccess = true, Message = "", Data = xml });
-            }
-            */
-
             var userToken = UserExtension.DalUserToken(User);
 
             //get profile to export
@@ -563,18 +514,15 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             if (item == null)
             {
                 //return Task.FromResult(new ResultMessageWithDataModel()
-                return Ok(
-                    new ResultMessageExportModel()
+                return Task.FromResult<IActionResult>(Ok(new ResultMessageExportModel()
                     {
                         IsSuccess = false,
                         Message = "Profile not found."
                     }
-                );
+                ));
             }
-            int userId = User.GetUserID();
 
             // Populate the OPC model into a new importer instance
-
             try
             {
                 string result = null;
@@ -587,37 +535,35 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                         result = Encoding.UTF8.GetString(xmlNodeSetStream.ToArray());
                         _logger.LogTrace($"Timestamp||Export||Data Converted to Response: {sw.Elapsed}");
 
-                        // TODO read and include the required models in a ZIP file, optionally?
-
+                        //TBD - read and include the required models in a ZIP file, optionally?
                         //TBD - get the warnings that were logged on import and publish them here. 
                     }
                     else
                     {
-                        return Ok(new ResultMessageExportModel()
+                        return Task.FromResult<IActionResult>(Ok(new ResultMessageExportModel()
                         {
                             IsSuccess = false,
                             Message = "An error occurred downloading the profile."
-                        });
+                        }));
                     }
                 }
-                //return Task.FromResult(new ResultMessageWithDataModel()
-                return Ok(new ResultMessageExportModel()
+                return Task.FromResult<IActionResult>(Ok(new ResultMessageExportModel()
                 {
                     IsSuccess = true,
                     Message = "",
                     Data = result,
                     Warnings = item.ImportWarnings.Select(x => x.Message).ToList()
-                });
+                }));
             }
             catch (Exception ex)
             {
                 _logger.LogCritical(ex, $"ProfileController|Export|Failed:{ex.Message}");
                 _logger.LogTrace($"Timestamp||Export||Error: {sw.Elapsed}|| {ex.Message}");
-                return Ok(new ResultMessageExportModel()
+                return Task.FromResult<IActionResult>(Ok(new ResultMessageExportModel()
                 {
                     IsSuccess = false,
                     Message = $"Technical details: {ex.Message}"
-                });
+                }));
             }
         }
     }

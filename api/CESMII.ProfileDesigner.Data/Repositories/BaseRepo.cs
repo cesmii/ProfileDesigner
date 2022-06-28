@@ -137,18 +137,17 @@
             return _context.Database.ExecuteSqlRawAsync(query, parameters);
             //return _context.Set<TEntity>().FromSqlRaw(query, parameters);
         }
-        const bool _NoSaveOnTx = true;
         public async Task<int> AddAsync(TEntity entity)
         {
             await _context.Set<TEntity>().AddAsync(entity);
-            if (_NoSaveOnTx && _context.Database.CurrentTransaction != null) return 0;
+            if (_context.Database.CurrentTransaction != null) return 0;
             return await _context.SaveChangesAsync();
         }
 
         public int Add(TEntity entity)
         {
             _context.Set<TEntity>().Add(entity);
-            if (_NoSaveOnTx && _context.Database.CurrentTransaction != null) return 0;
+            if (_context.Database.CurrentTransaction != null) return 0;
             return _context.SaveChanges();
         }
 
@@ -162,26 +161,31 @@
             {
                 // Entity not written yet: updating in the cache is sufficient
             }
-            if (_NoSaveOnTx && _context.Database.CurrentTransaction != null) return;
+            if (_context.Database.CurrentTransaction != null) return;
             await _context.SaveChangesAsync();
         }
 
         public void Update(TEntity entity)
         {
             _context.Set<TEntity>().Update(entity);
-            if (_NoSaveOnTx && _context.Database.CurrentTransaction != null) return;
+            if (_context.Database.CurrentTransaction != null) return;
             _context.SaveChanges();
         }
 
-        public async Task<int> SaveChanges()
+        public void Attach(TEntity entity)
+        {
+            _context.Attach(entity);
+        }
+
+        public async Task<int> SaveChangesAsync()
         {
             return await _context.SaveChangesAsync();
         }
 
-        public async Task<int> Delete(TEntity entity)
+        public async Task<int> DeleteAsync(TEntity entity)
         {
             _context.Remove(entity);
-            if (_NoSaveOnTx && _context.Database.CurrentTransaction != null) return 0;
+            if (_context.Database.CurrentTransaction != null) return 0;
             return await _context.SaveChangesAsync();
         }
 

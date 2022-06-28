@@ -35,12 +35,12 @@
         /// <param name="userId"></param>
         /// <returns></returns>
         //add this layer so we can instantiate the new entity here.
-        public override async Task<int?> Add(UserModel model, UserToken userToken)
+        public override async Task<int?> AddAsync(UserModel model, UserToken userToken)
         {
             //generate random password and then encrypt in here. 
             var password = PasswordUtils.GenerateRandomPassword(_configUtil.PasswordConfigSettings.RandomPasswordLength);
 
-            User entity = new User
+            var entity = new User
             {
                 ID = null
                 ,Created = DateTime.UtcNow
@@ -71,7 +71,7 @@
         //add this layer so we can instantiate the new entity here.
         public async Task<int?> AddOneStep(UserModel model, UserToken userToken, string password)
         {
-            User entity = new User
+            var entity = new User
             {
                 ID = null
                 ,Created = DateTime.UtcNow
@@ -115,8 +115,7 @@
             if (result == null) return null;
 
             //test against our encryption, means we match 
-            bool updateEncryptionLevel = false;
-            if (PasswordUtils.ValidatePassword(_configUtil.PasswordConfigSettings.EncryptionSettings, result.Password, password, out updateEncryptionLevel))
+            if (PasswordUtils.ValidatePassword(_configUtil.PasswordConfigSettings.EncryptionSettings, result.Password, password, out bool updateEncryptionLevel))
             {
                 //if the encryption level has been upgraded since original encryption, upgrade their pw now. 
                 if (updateEncryptionLevel)
@@ -125,7 +124,7 @@
                 }
                 result.LastLogin = DateTime.UtcNow;
                 await _repo.UpdateAsync(result);
-                await _repo.SaveChanges();
+                await _repo.SaveChangesAsync();
                 return this.MapToModel(result);
             }
 
@@ -139,14 +138,13 @@
         /// <param name="id"></param>
         /// <param name="orgId"></param>
         /// <returns></returns>
-        public async void CompleteRegistration(int id, string userName, string newPassword)
+        public async Task CompleteRegistration(int id, string userName, string newPassword)
         {
             //get user - match on user id, user name and is active
             var result = _repo.FindByCondition(u => u.ID.Equals(id) && u.UserName.ToLower().Equals(userName) && u.IsActive) 
                 .Include(p => p.UserPermissions)
                 .FirstOrDefault();
             if (result == null) return;
-            //if (result == null) return null;
 
             //only allow completing registration if NOT already completed
             if (result.RegistrationComplete.HasValue)
@@ -162,8 +160,7 @@
             result.LastLogin = DateTime.UtcNow;
             result.RegistrationComplete = DateTime.UtcNow;
             await _repo.UpdateAsync(result);
-            await _repo.SaveChanges();
-            //return this.MapToModel(result);
+            await _repo.SaveChangesAsync();
         }
 
         /// <summary>
@@ -184,7 +181,7 @@
             result.Password = PasswordUtils.EncryptNewPassword(_configUtil.PasswordConfigSettings.EncryptionSettings, newPassword);
             result.LastLogin = DateTime.UtcNow;
             await _repo.UpdateAsync(result);
-            await _repo.SaveChanges();
+            await _repo.SaveChangesAsync();
             return this.MapToModel(result);
         }
         
@@ -212,7 +209,7 @@
             existingUser.Password = PasswordUtils.EncryptNewPassword(_configUtil.PasswordConfigSettings.EncryptionSettings, newPassword);
             //save changes
             await _repo.UpdateAsync(existingUser);
-            return await _repo.SaveChanges();
+            return await _repo.SaveChangesAsync();
         }
 
         /// <summary>
@@ -234,7 +231,7 @@
         /// </summary>
         /// <param name="orgId"></param>
         /// <returns></returns>
-        public override DALResult<UserModel> GetAllPaged(UserToken userToken, int? skip, int? take, bool returnCount = true, bool verbose = false)
+        public override DALResult<UserModel> GetAllPaged(UserToken userToken, int? skip, int? take, bool returnCount = false, bool verbose = false)
         {
             var query = _repo.GetAll()
                 //.Where(u => u.IsActive)  //TBD - ok to return inactive in the list of users?
@@ -249,10 +246,12 @@
             else if (take.HasValue) data = query.Take(take.Value);
             else data = query;
 
-            DALResult<UserModel> result = new DALResult<UserModel>();
-            result.Count = count;
-            result.Data = MapToModels(data.ToList(), verbose);
-            result.SummaryData = null;
+            var result = new DALResult<UserModel>
+            {
+                Count = count,
+                Data = MapToModels(data.ToList(), verbose),
+                SummaryData = null
+            };
             return result;
         }
 
@@ -276,35 +275,17 @@
         /// </summary>
         /// <param name="predicate"></param>
         /// <returns></returns>
-        public override DALResult<UserModel> Where(Expression<Func<User, bool>> predicate, UserToken user, int? skip, int? take, 
-            bool returnCount = true, bool verbose = false)
+        public override DALResult<UserModel> Where(Expression<Func<User, bool>> predicate, UserToken user, int? skip = null, int? take = null, 
+            bool returnCount = false, bool verbose = false)
         {
             return base.Where(predicate, user, skip, take, returnCount, verbose,
                 q => q
                     .OrderByDescending(u => u.IsActive).ThenBy(u => u.LastName).ThenBy(u => u.FirstName).ThenBy(u => u.UserName)
                     //.Where(u => u.IsActive)  //TBD - ok to return inactive in the list of users?
                     .Include(u => u.UserPermissions));
-            //var query = _repo.FindByCondition(predicate)
-            //    .OrderBy(u => u.LastName).ThenBy(u => u.FirstName).ThenBy(u => u.UserName)
-            //    //.Where(u => u.IsActive)  //TBD - ok to return inactive in the list of users?
-            //    .Include(u => u.UserPermissions);
-            //var count = returnCount ? query.Count() : 0;
-            ////query returns IincludableQuery. Jump through the following to find right combo of skip and take
-            ////Goal is to have the query execute and not do in memory skip/take
-            //IQueryable<User> data;
-            //if (skip.HasValue && take.HasValue) data = query.Skip(skip.Value).Take(take.Value);
-            //else if (skip.HasValue) data = query.Skip(skip.Value);
-            //else if (take.HasValue) data = query.Take(take.Value);
-            //else data = query;
-
-            //DALResult<UserModel> result = new DALResult<UserModel>();
-            //result.Count = count;
-            //result.Data = MapToModels(data.ToList(), verbose);
-            //result.SummaryData = null;
-            //return result;
         }
 
-        public override async Task<int?> Update(UserModel item, UserToken userToken)
+        public override async Task<int?> UpdateAsync(UserModel item, UserToken userToken)
         {
             //TBD - if userId is not same as item.id, then check permissions of userId before updating
             var entity = _repo.FindByCondition(x => x.ID == item.ID)
@@ -313,12 +294,12 @@
             this.MapToEntity(ref entity, item, userToken);
 
             await _repo.UpdateAsync(entity);
-            await _repo.SaveChanges();
+            await _repo.SaveChangesAsync();
 
             return entity.ID;
         }
 
-        public async Task<int?> Delete(int id, UserToken userToken)
+        public async Task<int?> DeleteAsync(int id, UserToken userToken)
         {
             //perform a soft delete by setting active to false
             var entity = _repo.FindByCondition(x => x.ID == id)
@@ -326,13 +307,13 @@
             entity.IsActive = false;
 
             await _repo.UpdateAsync(entity);
-            await _repo.SaveChanges();
+            await _repo.SaveChangesAsync();
 
             return entity.ID;
         }
 
 
-        protected override UserModel MapToModel(User entity, bool verbose = false)
+        protected override UserModel MapToModel(User entity, bool verbose = true)
         {
             if (entity != null)
             {
@@ -366,8 +347,7 @@
             entity.FirstName = model.FirstName;
             entity.LastName = model.LastName;
             entity.IsActive = model.IsActive;
-            entity.OrganizationId = model.Organization == null ? null : model.Organization.ID;
-            //entity.LastLogin = model.LastLogin;
+            entity.OrganizationId = model.Organization?.ID;
 
             //handle update of user permissions
             MapToEntityPermissions(ref entity, model.PermissionIds);
@@ -380,7 +360,7 @@
         /// <remarks>The permissions work off permission id.</remarks>
         /// <param name="entity"></param>
         /// <param name="permissions"></param>
-        protected void MapToEntityPermissions(ref User entity, List<int?> permissions)
+        protected static void MapToEntityPermissions(ref User entity, List<int?> permissions)
         {
             //init visit services for new scenario
             if (entity.UserPermissions == null) entity.UserPermissions = new List<UserPermission>();

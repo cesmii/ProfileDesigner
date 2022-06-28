@@ -6,9 +6,6 @@
 
     public class UserModel : AbstractModel
     {
-        //in base class
-        //public int ID { get; set; }
-
         [Required(ErrorMessage = "Required")]
         [RegularExpression(@"^\S*$", ErrorMessage = "No spaces allowed")]
         public string UserName { get; set; }

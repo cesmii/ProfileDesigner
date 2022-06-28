@@ -46,7 +46,6 @@ function SideMenuItem(props) { //props are subMenuItems, bgColor, iconName, navU
     //-------------------------------------------------------------------
     // Region: Render
     //-------------------------------------------------------------------
-    //console.log(generateLogMessageString('render', CLASS_NAME));
     var cssClass = `sidemenu-item ${(history.location.pathname === props.navUrl) ? "current" : ""} `;
     return (
         <li className={cssClass} style={(history.location.pathname === props.navUrl) ? currentStyle : defaultStyle} >

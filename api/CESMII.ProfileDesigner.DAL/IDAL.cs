@@ -40,14 +40,14 @@
         /// <returns></returns>
         DALResult<TModel> GetAllPaged(UserToken userToken, int? skip = null, int? take = null, 
             bool returnCount = false, bool verbose = false);
-        Task<int?> Add(TModel model, UserToken userId);
+        Task<int?> AddAsync(TModel model, UserToken userId);
         /// <summary>
         /// Update an entity asynchronously
         /// </summary>
         /// <param name="model"></param>
         /// <param name="userId"></param>
         /// <returns></returns>
-        Task<int?> Update(TModel model, UserToken userId);
+        Task<int?> UpdateAsync(TModel model, UserToken userId);
 
         /// <summary>
         /// Asynchronously update an entity if it exists, add if not
@@ -55,31 +55,12 @@
         /// <param name="model"></param>
         /// <param name="userId"></param>
         /// <returns></returns>
-        Task<(int?, bool)> Upsert(TModel model, UserToken userId, bool updateExisting = true);
+        Task<(int?, bool)> UpsertAsync(TModel model, UserToken userId, bool updateExisting = true);
         Task<TModel> GetExistingAsync(TModel model, UserToken userId, bool cacheOnly = false);
 
+        Task<int?> DeleteAsync(int id, UserToken userToken);
 
-        /// <summary>
-        /// Add an entity synchronously
-        /// </summary>
-        /// <param name="model"></param>
-        /// <param name="userId"></param>
-        /// <returns></returns>
-        //int AddSync(TModel model, int userId);
-
-        /// <summary>
-        /// Update an entity synchronously
-        /// </summary>
-        /// <param name="model"></param>
-        /// <param name="userId"></param>
-        /// <returns></returns>
-        //int UpdateSync(TModel model, int userId);
-
-        //Task<long> Upsert(TModel model, int userId);
-        Task<int?> Delete(int id, UserToken userId);
-
-        //Task<long> Upsert(TModel model, int userId);
-        Task<int> DeleteMany(List<int> ids, UserToken userId);
+        Task<int> DeleteManyAsync(List<int> ids, UserToken userToken);
 
         /// <summary>
         /// Provide flexibility to filter on the repo before it is converted to list so that the executed query is performant.
@@ -119,12 +100,6 @@
         int Count(Expression<Func<TEntity, bool>> predicate, UserToken userToken);
         int Count(UserToken userToken);
 
-        /// <summary>
-        /// Gets one record by a given Expression
-        /// </summary>
-        /// <param name="predicate"></param>
-        /// <returns></returns>
-        //TModel GetByFunc(Expression<Func<TEntity, bool>> predicate, bool verbose);
         void StartTransaction();
         Task CommitTransactionAsync();
         void RollbackTransaction();

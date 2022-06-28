@@ -13,8 +13,8 @@
     using CESMII.ProfileDesigner.Data.Repositories;
 
     using Newtonsoft.Json;
-    using Newtonsoft.Json.Linq;
     using CESMII.ProfileDesigner.Common.Enums;
+    using System.Runtime.Serialization;
 
     public class ProfileTypeDefinitionDAL : TenantBasePdDAL<ProfileTypeDefinition, ProfileTypeDefinitionModel>
     {
@@ -32,9 +32,9 @@
 
 
         //add this layer so we can instantiate the new entity here.
-        public override async Task<int?> Add(ProfileTypeDefinitionModel model, UserToken userToken)
+        public override async Task<int?> AddAsync(ProfileTypeDefinitionModel model, UserToken userToken)
         {
-            ProfileTypeDefinition entity = new ProfileTypeDefinition();
+            var entity = new ProfileTypeDefinition();
             model.ID = await base.AddAsync(entity, model, userToken);
             return model.ID;
         }
@@ -45,15 +45,9 @@
         /// <param name="id"></param>
         /// <returns></returns>
         public override ProfileTypeDefinitionModel GetById(int id, UserToken userToken)
-        { 
+        {
             var entity = base.FindByCondition(userToken, x => x.ID == id)
                 .Include(p => p.ProfileType)
-                //.Include(p => p.ParentProfile)
-                //.Include(p => p.Interfaces).ThenInclude(x => x.Interface).ThenInclude(x => x.Attributes)
-                //.Include(p => p.Attributes)
-                //.Include(p => p.Compositions)
-                //.Include(p => p.VariableTypes)
-                //.Include(p => p.UpdatedBy)
                 .FirstOrDefault();
 
             return MapToModel(entity, true);
@@ -63,17 +57,11 @@
         /// Get all 
         /// </summary>
         /// <returns></returns>
-        public override DALResult<ProfileTypeDefinitionModel> GetAllPaged(UserToken userToken, int? skip = null, int? take = null, bool returnCount = false, bool verbose = false)
+        public override DALResult<ProfileTypeDefinitionModel> GetAllPaged(UserToken userToken, int? skip, int? take, bool returnCount = false, bool verbose = false)
         {
             //put the order by and where clause before skip.take so we skip/take on filtered/ordered query 
             var query = base.GetAllEntities(userToken)
                 .OrderBy(p => p.Name);
-                //.Include(p => p.ParentProfile)
-                //.Include(p => p.Interfaces)
-                //.Include(p => p.Attributes)
-                //.Include(p => p.Compositions)
-                //.Include(p => p.VariableTypes)
-                //.Include(p => p.UpdatedBy);
             var count = returnCount ? query.Count() : 0;
             //query returns IincludableQuery. Jump through the following to find right combo of skip and take
             //Goal is to have the query execute and not do in memory skip/take
@@ -83,10 +71,12 @@
             else if (take.HasValue) data = query.Take(take.Value);
             else data = query;
 
-            DALResult<ProfileTypeDefinitionModel> result = new DALResult<ProfileTypeDefinitionModel>();
-            result.Count = count;
-            result.Data = MapToModels(data.ToList(), verbose);
-            result.SummaryData = null;
+            var result = new DALResult<ProfileTypeDefinitionModel>
+            {
+                Count = count,
+                Data = MapToModels(data.ToList(), verbose),
+                SummaryData = null
+            };
             return result;
         }
 
@@ -95,47 +85,13 @@
         /// </summary>
         /// <param name="predicate"></param>
         /// <returns></returns>
-        public override DALResult<ProfileTypeDefinitionModel> Where(Expression<Func<ProfileTypeDefinition, bool>> predicate, UserToken user, int? skip, int? take, 
-            bool returnCount = true, bool verbose = false)
+        public override DALResult<ProfileTypeDefinitionModel> Where(Expression<Func<ProfileTypeDefinition, bool>> predicate, UserToken user, int? skip = null, int? take = null,
+            bool returnCount = false, bool verbose = false)
         {
             return base.Where(predicate, user, skip, take, returnCount, verbose, q => q
                 .OrderBy(p => p.Name)
                 .Include(p => p.ProfileType)
-                //.Include(p => p.ParentProfile)
-                //.Include(p => p.Interfaces)
-                //.Include(p => p.Attributes)
-                //    .ThenInclude(a => a.DataType)
-                //    .ThenInclude(dt => dt.CustomType)
-                //    .ThenInclude(ct => ct.Attributes)
-                //.Include(p => p.Compositions)
-                //.Include(p => p.VariableTypes)
-                //.Include(p => p.UpdatedBy)
             );
-            ////put the order by and where clause before skip.take so we skip/take on filtered/ordered query 
-            //var query = _repo.FindByCondition(predicate)
-            //    .OrderBy(p => p.Name)
-            //    .Include(p => p.ProfileType)
-            //    //.Include(p => p.ParentProfile)
-            //    //.Include(p => p.Interfaces)
-            //    //.Include(p => p.Attributes)
-            //    //.Include(p => p.Compositions)
-            //    //.Include(p => p.VariableTypes)
-            //    //.Include(p => p.UpdatedBy)
-            //    ;
-            //var count = returnCount ? query.Count() : 0;
-            ////query returns IincludableQuery. Jump through the following to find right combo of skip and take
-            ////Goal is to have the query execute and not do in memory skip/take
-            //IQueryable<ProfileTypeDefinition> data;
-            //if (skip.HasValue && take.HasValue) data = query.Skip(skip.Value).Take(take.Value);
-            //else if (skip.HasValue) data = query.Skip(skip.Value);
-            //else if (take.HasValue) data = query.Take(take.Value);
-            //else data = query;
-
-            //DALResult<ProfileTypeDefinitionModel> result = new DALResult<ProfileTypeDefinitionModel>();
-            //result.Count = count;
-            //result.Data = MapToModels(data.ToList(), verbose);
-            //result.SummaryData = null;
-            //return result;
         }
 
         /// <summary>
@@ -144,8 +100,8 @@
         /// </summary>
         /// <param name="predicate"></param>
         /// <returns></returns>
-        public override DALResult<ProfileTypeDefinitionModel> Where(List<Expression<Func<ProfileTypeDefinition, bool>>> predicates, 
-            UserToken user, int? skip = null, int? take = null, bool returnCount = false, bool verbose = false, 
+        public override DALResult<ProfileTypeDefinitionModel> Where(List<Expression<Func<ProfileTypeDefinition, bool>>> predicates,
+            UserToken user, int? skip = null, int? take = null, bool returnCount = false, bool verbose = false,
             params OrderByExpression<ProfileTypeDefinition>[] orderByExpressions)
         {
             if (predicates == null) predicates = new List<Expression<Func<ProfileTypeDefinition, bool>>>();
@@ -156,7 +112,7 @@
             {
                 query = query.Where(p).AsQueryable<ProfileTypeDefinition>();
             }
-            //filter out by user
+            //FIX - add filter out by user
             query = query.Where(x => x.OwnerId == null || x.OwnerId == user.UserId).AsQueryable<ProfileTypeDefinition>();
 
             //append order bys
@@ -185,27 +141,28 @@
             else data = query;
 
             //put together the result
-            DALResult<ProfileTypeDefinitionModel> result = new DALResult<ProfileTypeDefinitionModel>();
-            result.Count = count;
-            result.Data = MapToModels(data.ToList(), verbose);
-            result.SummaryData = null;
+            var result = new DALResult<ProfileTypeDefinitionModel>
+            {
+                Count = count,
+                Data = MapToModels(data.ToList(), verbose),
+                SummaryData = null
+            };
             return result;
         }
-        
+
         /// <summary>
         /// Update profile and associated data
         /// </summary>
         /// <param name="model"></param>
         /// <param name="userId"></param>
         /// <returns></returns>
-        public override async Task<int?> Update(ProfileTypeDefinitionModel model, UserToken userToken)
+        public override async Task<int?> UpdateAsync(ProfileTypeDefinitionModel model, UserToken userToken)
         {
             Expression<Func<ProfileTypeDefinition, bool>> filterExpression = GetIdentityExpression(model);
 
             var entity = base.FindByCondition(userToken, filterExpression)
                 .Include(p => p.Interfaces)
                 .Include(p => p.Compositions)
-                //.Include(p => p.CustomDataTypes)
                 .Include(p => p.Attributes).ThenInclude(a => a.DataType)
                 .FirstOrDefault();
             entity.UpdatedById = userToken.UserId;
@@ -232,9 +189,9 @@
 
             return filterExpression;
         }
-        private bool MatchIdentity(int? entityId, string entityOpcNodeId, string entityNamespace, int? modelId, string modelOpcNodeId, string modelNamespace)
+        private static bool MatchIdentity(int? entityId, string entityOpcNodeId, string entityNamespace, int? modelId, string modelOpcNodeId, string modelNamespace)
         {
-            if ((modelId??0) != 0 && (entityId??0) != 0)
+            if ((modelId ?? 0) != 0 && (entityId ?? 0) != 0)
             {
                 return modelId == entityId;
             }
@@ -243,40 +200,30 @@
                 return modelOpcNodeId == entityOpcNodeId && modelNamespace == entityNamespace;
             }
         }
-        private bool MatchIdentity(ProfileTypeDefinition entity, ProfileTypeDefinitionModel model)
+        private static bool MatchIdentity(ProfileTypeDefinition entity, ProfileTypeDefinitionModel model)
         {
             return MatchIdentity(entity.ID, entity.OpcNodeId, entity.Profile.Namespace, model.ID, model.OpcNodeId, model.Profile.Namespace);
         }
-        private bool MatchIdentity(ProfileComposition entity, ProfileTypeDefinitionRelatedModel model)
+        private static bool MatchIdentity(ProfileComposition entity, ProfileTypeDefinitionRelatedModel model)
         {
             // Compositions don't have a nodeid, matching happens on BrowseName
             return MatchIdentity(entity.ID, entity.BrowseName, null, model.ID, model.BrowseName, null);
         }
-        private bool MatchIdentity(ProfileAttribute entity, ProfileAttributeModel model)
+        private static bool MatchIdentity(ProfileAttribute entity, ProfileAttributeModel model)
         {
-            return MatchIdentity(entity.ID, entity.OpcNodeId, entity.Namespace, model.ID, model.OpcNodeId, model.Namespace) 
-                && ((model.ID??0) != 0 || (entity.Name == model.Name && entity.BrowseName == model.BrowseName));
+            return MatchIdentity(entity.ID, entity.OpcNodeId, entity.Namespace, model.ID, model.OpcNodeId, model.Namespace)
+                && ((model.ID ?? 0) != 0 || (entity.Name == model.Name && entity.BrowseName == model.BrowseName));
         }
 
         public override ProfileTypeDefinition CheckForExisting(ProfileTypeDefinitionModel model, UserToken userToken, bool cacheOnly = false)
         {
-            //var existingProfile = base.CheckForExisting(model, tenantId);
-            //if (existingProfile != null && (existingProfile.AuthorId == null || existingProfile.AuthorId == tenantId))
-            //{
-            //    return existingProfile;
-            //}
-            var existingProfile = base.FindByCondition(userToken, 
+            var existingProfile = base.FindByCondition(userToken,
                 GetIdentityExpression(model),
-                //pi =>
-                //(
-                //    (model.ID != 0 && model.ID != null && pi.ID == model.ID)
-                //    || (pi.OpcNodeId == model.OpcNodeId && pi.Profile.Namespace == model.Profile.Namespace)
-                //) /*&& (pi.AuthorId == null || pi.AuthorId == tenantId)*/,
                 cacheOnly).FirstOrDefault();
             return existingProfile;
         }
 
-        public override async Task<int?> Delete(int id, UserToken userToken)
+        public override async Task<int?> DeleteAsync(int id, UserToken userToken)
         {
             //can only delete your own stuff
             var entity = base.FindByCondition(userToken, x => x.ID == id && x.OwnerId.Equals(userToken.UserId))
@@ -288,7 +235,7 @@
 
             //hard delete
             //Note this deletes the dependent related data also
-            return await _repo.Delete(entity);
+            return await _repo.DeleteAsync(entity);
         }
 
 
@@ -297,7 +244,7 @@
         {
             return MapToModel(entity, verbose);
         }
-        protected override ProfileTypeDefinitionModel MapToModel(ProfileTypeDefinition entity, bool verbose = false)
+        protected override ProfileTypeDefinitionModel MapToModel(ProfileTypeDefinition entity, bool verbose = true)
         {
             if (entity != null)
             {
@@ -315,28 +262,20 @@
                     Type = entity.ProfileType != null ?
                         new LookupItemModel { ID = entity.ProfileType.ID, Name = entity.ProfileType.Name, TypeId = entity.ProfileType.ID }
                         : null,
-                    AuthorId = entity.AuthorId.HasValue ? entity.AuthorId.Value : null,
-                    Author = entity.Author == null ? null :
-                        new UserSimpleModel
-                        {
-                            ID = entity.Author.ID,
-                            FirstName = entity.Author.FirstName,
-                            LastName = entity.Author.LastName,
-                            Organization = !verbose || !entity.Author.OrganizationId.HasValue ? null :
-                            new OrganizationModel() { ID = entity.Author.Organization.ID, Name = entity.Author.Organization.Name }
-                        },
+                    AuthorId = entity.AuthorId ?? null,
+                    Author = MapToModelAuthor(entity),
                     ExternalAuthor = entity.ExternalAuthor,
                     DocumentUrl = entity.DocumentUrl,
                     IsAbstract = entity.IsAbstract,
                     Created = entity.Created,
                     Updated = entity.Updated,
                     MetaTags = string.IsNullOrEmpty(entity.MetaTags) ? new List<string>() : JsonConvert.DeserializeObject<List<MetaTag>>(entity.MetaTags).Select(s => s.Name.Trim()).ToList(),
-                    MetaTagsConcatenated = string.IsNullOrEmpty(entity.MetaTags) ? "" : string.Join(", ", JsonConvert.DeserializeObject<List<MetaTag>>(entity.MetaTags).Select(s => s.Name.Trim()).ToList().ToArray<string>()),
+                    MetaTagsConcatenated = string.IsNullOrEmpty(entity.MetaTags) ? "" : string.Join(", ", Enumerable.ToArray(JsonConvert.DeserializeObject<List<MetaTag>>(entity.MetaTags).Select(s => s.Name.Trim()))),
                     IsActive = entity.IsActive,
                     IsFavorite = entity.Favorite != null,
                     //calculated value which gives more emphasis on extending an item
                     PopularityIndex = MapToModelPopularityIndex(entity)
-                                        
+
                 };
 
                 //when getting a list of profiles, we need not get all of this stuff
@@ -344,11 +283,10 @@
                 if (verbose)
                 {
                     result.Parent = MapToModelProfileTypDefSimple(entity.Parent);
-                    result.InstanceParent = MapToModel(entity.InstanceParent);
+                    result.InstanceParent = MapToModel(entity.InstanceParent, false);
                     result.Attributes = MapToModelAttributes(entity);
                     result.Interfaces = MapToModelInterfaces(entity.Interfaces);
                     result.Compositions = MapToModelCompositions(entity.Compositions, result);
-                    //result.CustomDataTypes = MapToModelCustomDataTypes(entity.CustomDataTypes);
                     result.UpdatedBy = entity.UpdatedBy == null ? null : new UserSimpleModel { ID = entity.UpdatedBy.ID, FirstName = entity.UpdatedBy.FirstName, LastName = entity.UpdatedBy.LastName };
                     result.CreatedBy = entity.CreatedBy == null ? null : new UserSimpleModel { ID = entity.CreatedBy.ID, FirstName = entity.CreatedBy.FirstName, LastName = entity.CreatedBy.LastName };
                 }
@@ -361,7 +299,7 @@
 
         }
 
-        protected int MapToModelPopularityIndex(ProfileTypeDefinition entity)
+        protected static int MapToModelPopularityIndex(ProfileTypeDefinition entity)
         {
             if (entity != null)
             {
@@ -370,7 +308,7 @@
                 //1 pt for each page visit count
                 var result = entity.Favorite != null && entity.Favorite.IsFavorite ? 10 : 0;
                 result += entity.Analytics == null ? 0 :
-                        3 * entity.Analytics.ExtendCount + entity.Analytics.PageVisitCount 
+                        3 * entity.Analytics.ExtendCount + entity.Analytics.PageVisitCount
                         + entity.Analytics.ManualRank;
                 return result;
             }
@@ -381,7 +319,7 @@
 
         }
 
-        protected ProfileModel MapToModelProfile(Profile entity)
+        protected static ProfileModel MapToModelProfile(Profile entity)
         {
             if (entity != null)
             {
@@ -405,7 +343,7 @@
 
         }
 
-        protected ProfileTypeDefinitionSimpleModel MapToModelProfileTypDefSimple(ProfileTypeDefinition entity)
+        protected static ProfileTypeDefinitionSimpleModel MapToModelProfileTypDefSimple(ProfileTypeDefinition entity)
         {
             if (entity != null)
             {
@@ -421,17 +359,9 @@
                     IsAbstract = entity.IsAbstract,
                     Description = entity.Description,
                     Type = entity.ProfileType != null ?
-                        new LookupItemModel { ID = entity.ProfileType.ID, Name = entity.ProfileType.Name, TypeId = (int) LookupTypeEnum.ProfileType }
+                        new LookupItemModel { ID = entity.ProfileType.ID, Name = entity.ProfileType.Name, TypeId = (int)LookupTypeEnum.ProfileType }
                         : new LookupItemModel { ID = entity.ProfileTypeId }, // CODE REVIEW: ist the Name required anywhere? Should we do a lookup here?
-                    Author = entity.Author == null ? null :
-                        new UserSimpleModel
-                        {
-                            ID = entity.Author.ID,
-                            FirstName = entity.Author.FirstName,
-                            LastName = entity.Author.LastName,
-                            Organization = entity.Author.Organization == null ? null : 
-                                new OrganizationModel() { ID = entity.Author.Organization.ID, Name = entity.Author.Organization.Name },
-                        }
+                    Author = MapToModelAuthor(entity)
                 };
             }
             else
@@ -439,6 +369,19 @@
                 return null;
             }
 
+        }
+
+        private static UserSimpleModel MapToModelAuthor(ProfileTypeDefinition entity)
+        {
+            if (entity.Author == null) return null;
+            return new UserSimpleModel
+            {
+                ID = entity.Author.ID,
+                FirstName = entity.Author.FirstName,
+                LastName = entity.Author.LastName,
+                Organization = entity.Author.Organization == null ? null :
+                    new OrganizationModel() { ID = entity.Author.Organization.ID, Name = entity.Author.Organization.Name },
+            };
         }
 
         private List<ProfileAttributeModel> MapToModelAttributes(ProfileTypeDefinition entity)
@@ -477,17 +420,7 @@
                 DataVariableNodeIds = item.DataVariableNodeIds,
                 AttributeType = item.AttributeType != null ? new LookupItemModel() { ID = item.AttributeType.ID, Name = item.AttributeType.Name, Code = item.AttributeType.Code } : null,
                 //TBD - come back to this...mapping
-                DataType = item.DataType != null ?
-                        new LookupDataTypeModel
-                        {
-                            ID = item.DataType.ID,
-                            Name = item.DataType.Name,
-                            Code = item.DataType.Code,
-                            CustomTypeId = item.DataType.CustomTypeId,
-                            CustomType = item.DataType.CustomType != null ?
-                                                MapToModel(item.DataType.CustomType) : null,
-                        }
-                        : null,
+                DataType = MapToModelDataType(item),
                 EngUnit = !item.EngUnitId.HasValue ? null : _euDAL.MapToModelPublic(item.EngUnit, true),
                 EngUnitOpcNodeId = item.EngUnitOpcNodeId,
                 MinValue = item.MinValue,
@@ -503,15 +436,36 @@
                 //// Stored as JSON so return as JRaw, however, check to confirm there is a value first before trying to pass null.
                 //TODO: SC - come back to this. Web API not liking JRAW type as part of model.
                 //AdditionalData = !string.IsNullOrEmpty(item.AdditionalData) ? new JRaw(item.AdditionalData) : null,
-                
+
                 AccessLevel = item.AccessLevel,
                 UserAccessLevel = item.UserAccessLevel,
                 AccessRestrictions = item.AccessRestrictions,
                 WriteMask = item.WriteMask,
                 UserWriteMask = item.WriteMask,
-                
+
                 AdditionalData = item.AdditionalData,
                 IsActive = item.IsActive
+            };
+
+        }
+
+        /// <summary>
+        /// Re-factor this into its own method to address code smell
+        /// </summary>
+        /// <param name="item"></param>
+        /// <returns></returns>
+        private LookupDataTypeModel MapToModelDataType(ProfileAttribute item)
+        {
+            if (item.DataType == null) return null;
+
+            return new LookupDataTypeModel
+            {
+                ID = item.DataType.ID,
+                Name = item.DataType.Name,
+                Code = item.DataType.Code,
+                CustomTypeId = item.DataType.CustomTypeId,
+                CustomType = item.DataType.CustomType != null ?
+                             MapToModel(item.DataType.CustomType, false) : null,
             };
         }
 
@@ -580,49 +534,26 @@
             var result = compositions.OrderBy(i => i.Composition.Name)
                 .Select(i =>
                 new ProfileTypeDefinitionRelatedModel
-                    {
-                        ID = i.ID, //composingModel.ID,
-                        ProfileTypeDefinition = composingModel,
-                        Name = i.Name,
-                        BrowseName = i.BrowseName,
-                        /*Namespace = i.Namespace,*/
-                        Profile = composingModel.Profile,
+                {
+                    ID = i.ID, //composingModel.ID,
+                    ProfileTypeDefinition = composingModel,
+                    Name = i.Name,
+                    BrowseName = i.BrowseName,
+                    Profile = composingModel.Profile,
 
-                        //OpcNodeId = i.OpcNodeId,
-                        RelatedIsRequired = i.IsRequired,
-                        RelatedModelingRule = i.ModelingRule,
-                        RelatedIsEvent = i.IsEvent,
-                        Description = i.Description,
-                        RelatedProfileTypeDefinitionId = i.Composition.ID,
-                        RelatedProfileTypeDefinition = this.MapToModel(i.Composition),
-                        RelatedName = i.Composition.Name,
-                        RelatedDescription = i.Composition.Description,
-                        RelatedReferenceId = i.ReferenceId,
-                        //OpcNodeId = i.OpcNodeId,
-                        Type = i.Composition.ProfileType != null ? new LookupItemModel { ID = i.Composition.ProfileType.ID, Name = i.Composition.ProfileType.Name } : new LookupItemModel { ID = i.Composition.ProfileTypeId },
+                    RelatedIsRequired = i.IsRequired,
+                    RelatedModelingRule = i.ModelingRule,
+                    RelatedIsEvent = i.IsEvent,
+                    Description = i.Description,
+                    RelatedProfileTypeDefinitionId = i.Composition.ID,
+                    RelatedProfileTypeDefinition = this.MapToModel(i.Composition, false),
+                    RelatedName = i.Composition.Name,
+                    RelatedDescription = i.Composition.Description,
+                    RelatedReferenceId = i.ReferenceId,
+                    Type = i.Composition.ProfileType != null ? new LookupItemModel { ID = i.Composition.ProfileType.ID, Name = i.Composition.ProfileType.Name } : new LookupItemModel { ID = i.Composition.ProfileTypeId },
                 }).ToList();
             return result;
         }
-
-        //private List<ProfileItemRelatedModel> MapToModelCustomDataTypes(List<ProfileCustomDataType> customDataTypes)
-        //{
-        //    if (customDataTypes == null) return null;
-        //    var result = customDataTypes.OrderBy(i => i.CustomDataType.Name)
-        //        .Select(i => new ProfileItemRelatedModel
-        //        {
-        //            ID = i.ID,
-        //            Name = i.Name,
-        //            Description = i.Description,
-        //            OpcNodeId = i.OpcNodeId,
-        //            Namespace = i.Namespace,
-        //            RelatedId = i.CustomDataType.ID,
-        //            RelatedName = i.CustomDataType.Name,
-        //            RelatedDescription = i.CustomDataType.Description,
-        //            Type = new LookupItemModel { ID = i.CustomDataType.ProfileType.ID, Name = i.CustomDataType.ProfileType.Name }
-        //        }).ToList();
-        //    return result;
-        //}
-
 
         #endregion
 
@@ -631,18 +562,8 @@
         {
             MapToEntity(ref entity, model, userToken);
         }
-        //List<ProfileTypeDefinitionModel> _modelsProcessed = new List<ProfileTypeDefinitionModel>();
         protected override void MapToEntity(ref ProfileTypeDefinition entity, ProfileTypeDefinitionModel model, UserToken userToken)
         {
-            MapToEntityInternal(ref entity, model, new List<(ProfileTypeDefinitionModel, ProfileTypeDefinition)>(), userToken);
-        }
-        void MapToEntityInternal(ref ProfileTypeDefinition entity, ProfileTypeDefinitionModel model, List<(ProfileTypeDefinitionModel,ProfileTypeDefinition)> modelsProcessed, UserToken userToken)
-        {
-            if (modelsProcessed.Any(m => m.Item1 == model))
-            {
-                return;
-            }
-            modelsProcessed.Add((model, entity));
             //updated by, created by - set in base class.
             entity.Name = model.Name;
             if (string.IsNullOrEmpty(model.OpcNodeId))// && !string.IsNullOrEmpty(model.Profile?.Namespace))
@@ -672,9 +593,6 @@
                         throw new NotImplementedException($"Profiles must be added explicitly");
                     }
                 }
-                // Don't allow updates of Profile as a side-effect of updating a ProfileTypeDefinition
-                // TODO Log this?
-                //_profileDAL.MapToEntityPublic(ref profileEntity, model.Profile, tenantId);
                 entity.Profile = profileEntity;
             }
             entity.BrowseName = model.BrowseName;
@@ -689,6 +607,10 @@
 
             entity.AuthorId = model.AuthorId;
             entity.ExternalAuthor = model.ExternalAuthor;
+            if (CheckForExisting(model, userToken, true) == null)
+            {
+                _repo.Attach(entity);  // Attach to context so CheckForExisting can find it if there are recursive references in subsequent mapping operations
+            }
             entity.ParentId = model.Parent?.ID != 0 ? model.Parent?.ID : null;
             if (model.Parent?.ProfileTypeDefinition != null)
             {
@@ -698,12 +620,8 @@
                     parentProfileEntity = CheckForExisting(model.Parent.ProfileTypeDefinition, userToken);
                     if (parentProfileEntity == null)
                     {
-                        parentProfileEntity = modelsProcessed.FirstOrDefault(me => me.Item1 == model.Parent.ProfileTypeDefinition).Item2 ?? null;
-                    }
-                    if (parentProfileEntity == null)
-                    {
                         this._diLogger.LogWarning($"Creating parent profile type {model.Parent.ProfileTypeDefinition} as side effect of creating {model}");
-                        this.Add(model.Parent.ProfileTypeDefinition, userToken).Wait();
+                        this.AddAsync(model.Parent.ProfileTypeDefinition, userToken).Wait();
                         parentProfileEntity = CheckForExisting(model.Parent.ProfileTypeDefinition, userToken);
                     }
                     entity.Parent = parentProfileEntity;
@@ -719,12 +637,7 @@
                     instanceParentEntity = CheckForExisting(model.InstanceParent, userToken);
                     if (instanceParentEntity == null)
                     {
-                        instanceParentEntity = modelsProcessed.FirstOrDefault(me => me.Item1 == model.InstanceParent).Item2 ?? null;
-                    }
-
-                    if (instanceParentEntity == null)
-                    {
-                        this.Add(model.InstanceParent, userToken).Wait();
+                        this.AddAsync(model.InstanceParent, userToken).Wait();
                         instanceParentEntity = CheckForExisting(model.InstanceParent, userToken);
                     }
                     entity.InstanceParent = instanceParentEntity;
@@ -738,19 +651,17 @@
             //favorite
             MapToEntityFavorite(ref entity, model, userToken);
 
-            MapToEntityProfileAttribute(ref entity, model.Attributes, userToken, modelsProcessed);
+            MapToEntityProfileAttribute(ref entity, model.Attributes, userToken);
             MapToEntityInterfaces(ref entity, model.Interfaces, userToken);
-            MapToEntityCompositionsInternal(ref entity, model.Compositions, userToken, modelsProcessed);
-            //MapToEntityCustomDataTypes(ref entity, model.CustomDataTypes, entity.UpdatedById);
-            MapToEntityMetaTags(ref entity, model.MetaTags, entity.UpdatedById);
+            MapToEntityCompositions(ref entity, model.Compositions, userToken);
+            MapToEntityMetaTags(ref entity, model.MetaTags);
         }
 
-        protected void MapToEntityFavorite(ref ProfileTypeDefinition entity, ProfileTypeDefinitionModel model, UserToken userToken)
+        protected static void MapToEntityFavorite(ref ProfileTypeDefinition entity, ProfileTypeDefinitionModel model, UserToken userToken)
         {
             if (model.IsFavorite.HasValue && model.IsFavorite.Value)
             {
-                entity.Favorite = entity.Favorite != null ? entity.Favorite :
-                    new ProfileTypeDefinitionFavorite() { OwnerId = userToken.UserId, ProfileTypeDefinitionId = model.ID.Value };
+                entity.Favorite ??= new ProfileTypeDefinitionFavorite() { OwnerId = userToken.UserId, ProfileTypeDefinitionId = model.ID.Value };
                 entity.Favorite.IsFavorite = model.IsFavorite.Value;
             }
             else
@@ -759,7 +670,7 @@
             }
         }
 
-        protected void MapToEntityProfileAttribute(ref ProfileTypeDefinition entity, List<Models.ProfileAttributeModel> attributes, UserToken userToken, List<(ProfileTypeDefinitionModel, ProfileTypeDefinition)> modelsProcessed)
+        protected void MapToEntityProfileAttribute(ref ProfileTypeDefinition entity, List<Models.ProfileAttributeModel> attributes, UserToken userToken)
         {
             //init visit services for new scenario
             if (entity.Attributes == null) entity.Attributes = new List<ProfileAttribute>();
@@ -774,10 +685,8 @@
                     var current = entity.Attributes[i];
 
                     //remove if no longer present
-                    var source = attributes?.Find(x => 
+                    var source = attributes?.Find(x =>
                         MatchIdentity(current, x)
-                        //((current.ID??0) != 0 && x.ID.Equals(current.ID))
-                        //|| (x.Name == current.Name && x.BrowseName == current.BrowseName && x.OpcNodeId == current.OpcNodeId && x.Namespace == current.Namespace)
                         );
                     if (source == null)
                     {
@@ -806,31 +715,28 @@
                         current.DataTypeId = source.DataType?.ID != 0 ? source.DataType.ID : null;
                         current.DataVariableNodeIds = source.DataVariableNodeIds;
                         var dataType = current.DataType;
-                        if (dataType == null)
+                        if (dataType == null || dataType.ID != source.DataType.ID)
                         {
-                            dataType = new LookupDataType { };
+                            dataType = _dataTypeDAL.CheckForExisting(source.DataType, userToken);
+                            if (dataType == null)
+                            {
+                                throw new UnresolvedDataTypeException($"Unable to resolve data type {source.DataType} in {source} ");
+                            }
+                            current.DataType = dataType;
                         }
-                        _dataTypeDAL.MapToEntityPublic(ref dataType, source.DataType, userToken);
-                        current.DataType = dataType;
-
 
                         current.VariableTypeDefinitionId = source.VariableTypeDefinition?.ID != 0 ? source.VariableTypeDefinitionId : null;
                         var variableType = current.VariableTypeDefinition;
                         if (source.VariableTypeDefinition != null)
                         {
-                            if (variableType == null)
+                            if (variableType == null || variableType.ID != source.VariableTypeDefinition.ID)
                             {
                                 variableType = CheckForExisting(source.VariableTypeDefinition, userToken);
                                 if (variableType == null)
                                 {
-                                    variableType = modelsProcessed.FirstOrDefault(me => me.Item1 == source.VariableTypeDefinition).Item2 ?? null;
-                                }
-                                if (variableType == null)
-                                {
-                                    throw new Exception($"Unable to resolve {source.VariableTypeDefinition} in {source} ");
+                                    throw new UnresolvedVariableTypeException($"Unable to resolve variable type {source.VariableTypeDefinition} in {source} ");
                                 }
                             }
-                            MapToEntity(ref variableType, source.VariableTypeDefinition, userToken);
                         }
                         else
                         {
@@ -867,14 +773,12 @@
                 {
                     if (
                         entity.Attributes.Find(up => MatchIdentity(up, attr)) == null
-                        //((attr.ID??0) == 0 || entity.Attributes.Find(up => up.ID.Equals(attr.ID)) == null)
-                        //&& entity.Attributes.Find(up => up.BrowseName == attr.BrowseName && up.Name == attr.Name && up.OpcNodeId == attr.OpcNodeId && up.ProfileTypeDefinition?.Profile?.Namespace == attr.Namespace) == null
                         )
                     {
                         var dataType = _dataTypeDAL.CheckForExisting(attr.DataType, userToken);
                         if (dataType == null)
                         {
-                            attr.DataType.ID = _dataTypeDAL.Add(attr.DataType, userToken).Result;
+                            attr.DataType.ID = _dataTypeDAL.AddAsync(attr.DataType, userToken).Result;
                             dataType = _dataTypeDAL.CheckForExisting(attr.DataType, userToken);
                         }
                         ProfileTypeDefinition variableType = null;
@@ -883,12 +787,8 @@
                             variableType = CheckForExisting(attr.VariableTypeDefinition, userToken);
                             if (variableType == null)
                             {
-                                variableType = modelsProcessed.FirstOrDefault(me => me.Item1 == attr.VariableTypeDefinition).Item2 ?? null;
-                            }
-
-                            if (variableType == null)
-                            {
-                                this.Add(attr.VariableTypeDefinition, userToken).Wait();
+                                this._diLogger.LogWarning($"Creating variable type {attr.VariableTypeDefinition} as side effect of creating {attr}");
+                                this.AddAsync(attr.VariableTypeDefinition, userToken).Wait();
                                 variableType = CheckForExisting(attr.VariableTypeDefinition, userToken);
                             }
                         }
@@ -899,7 +799,7 @@
                             engUnit = _euDAL.CheckForExisting(attr.EngUnit, userToken);
                             if (engUnit == null)
                             {
-                                throw new Exception($"Engineering unit must be explicitly created: {attr.EngUnit} for {entity}");
+                                throw new InvalidOperationException($"Engineering unit must be explicitly created: {attr.EngUnit} for {entity}");
                             }
                         }
 
@@ -965,7 +865,7 @@
                 {
                     var current = entity.Interfaces[i];
                     //remove if no longer present
-                    var source = interfaces.Find(v => MatchIdentity(current.Interface, v));// */ v.ID.Equals(current.ID) || (v.OpcNodeId == current.Interface?.OpcNodeId && v.Profile.Namespace == current.Interface?.Profile.Namespace));
+                    var source = interfaces.Find(v => MatchIdentity(current.Interface, v));
                     if (source == null)
                     {
                         entity.Interfaces.RemoveAt(i);
@@ -978,51 +878,34 @@
             }
 
             // Loop over interfaces passed in and only add those not already there
-            if (interfaces != null)
+            foreach (var y in interfaces)
             {
-                foreach (var y in interfaces)
+                if (
+                    entity.Interfaces.Find(x => MatchIdentity(x.Interface, y)) == null
+                    )
                 {
-                    if (
-                        entity.Interfaces.Find(x => MatchIdentity(x.Interface, y)) == null
-                        //((y.ID??0) == 0 || entity.Interfaces.Find(x => x.ID.Equals(y.ID)) == null)
-                        //&& entity.Interfaces.Find(x => x.Interface.OpcNodeId == y.OpcNodeId && x.Interface.Profile.Namespace == y.Profile.Namespace) == null
-                        )
+                    var interfaceEntity = CheckForExisting(y, userToken);
+                    if (interfaceEntity == null)
                     {
-                        var interfaceEntity = CheckForExisting(y, userToken);
-                        if (interfaceEntity == null)
-                        {
-                            throw new NotImplementedException("Interface must be added explicitly");
-                            //interfaceEntity = new ProfileTypeDefinition
-                            //{
-                            //    CreatedById = entity.CreatedById,
-                            //    CreatedBy = entity.CreatedBy,
-                            //    UpdatedById = entity.UpdatedById,
-                            //    UpdatedBy = entity.UpdatedBy,
-                            //};
-                            //MapToEntity(ref interfaceEntity, y, tenantId);
-                        }
-                        entity.Interfaces.Add(new ProfileInterface
-                        {
-                            ProfileTypeDefinitionId = entity.ID,
-                            ProfileTypeDefinition = entity,
-                            InterfaceId = interfaceEntity.ID,
-                            Interface = interfaceEntity,
-                        });
+                        throw new NotImplementedException("Interface must be added explicitly");
                     }
+                    entity.Interfaces.Add(new ProfileInterface
+                    {
+                        ProfileTypeDefinitionId = entity.ID,
+                        ProfileTypeDefinition = entity,
+                        InterfaceId = interfaceEntity.ID,
+                        Interface = interfaceEntity,
+                    });
                 }
             }
         }
 
         protected void MapToEntityCompositions(ref ProfileTypeDefinition entity, List<ProfileTypeDefinitionRelatedModel> compositions, UserToken userToken)
         {
-            MapToEntityCompositionsInternal(ref entity, compositions, userToken, new List<(ProfileTypeDefinitionModel, ProfileTypeDefinition)>());
-        }
-        void MapToEntityCompositionsInternal(ref ProfileTypeDefinition entity, List<ProfileTypeDefinitionRelatedModel> compositions, UserToken userToken, List<(ProfileTypeDefinitionModel, ProfileTypeDefinition)> modelsProcessed)
-        {
             //init compositions obj for new scenario
             if (entity.Compositions == null) entity.Compositions = new List<Data.Entities.ProfileComposition>();
 
-            if (compositions == null) return; //this shouldn't happen. If all diagnoses removed, then it should be a collection w/ 0 items.
+            if (compositions == null) return; //this shouldn't happen. If all items removed, then it should be a collection w/ 0 items.
 
             // Remove compositions no longer used
             // Use counter from end of collection so we can remove and not mess up loop iterator 
@@ -1034,7 +917,7 @@
                     var currentEntity = entity.Compositions[i];
 
                     //remove if no longer present
-                    var source = compositions.Find(v => MatchIdentity(currentEntity, v)); //(currentEntity.ID??0) != 0 ? v.ID.Equals(currentEntity.ID) : v.OpcNodeId == currentEntity.OpcNodeId && v.Profile.Namespace == currentEntity.ProfileTypeDefinition.Profile.Namespace );
+                    var source = compositions.Find(v => MatchIdentity(currentEntity, v)); 
                     if (source == null)
                     {
                         entity.Compositions.RemoveAt(i);
@@ -1043,32 +926,29 @@
                     {
                         //if present, update name, description
                         var composition = currentEntity;
-                        MapToEntityCompositionInternal(ref composition, source, entity, modelsProcessed, userToken);
+                        MapToEntityCompositionInternal(ref composition, source, entity, userToken);
                         entity.Compositions[i] = composition;
                     }
                 }
             }
 
             // Loop over compositions passed in and only add those not already there
-            if (compositions != null)
+            foreach (var y in compositions)
             {
-                foreach (var y in compositions)
+                if (entity.Compositions.Find(x => MatchIdentity(x, y)) == null)//(y.ID ?? 0) != 0 ? x.ID.Equals(y.ID) : x.OpcNodeId == y.OpcNodeId && x.ProfileTypeDefinition.Profile.Namespace == y.Profile.Namespace) == null)
                 {
-                    if (entity.Compositions.Find(x => MatchIdentity(x, y)) == null)//(y.ID ?? 0) != 0 ? x.ID.Equals(y.ID) : x.OpcNodeId == y.OpcNodeId && x.ProfileTypeDefinition.Profile.Namespace == y.Profile.Namespace) == null)
-                    {
-                        // -> front end: composition id will be set
-                        // -> importer: related id also 0 -> look up based on name/namespace etc.
-                        // Add nodeId to profiles etc.
-                        var composition = new Data.Entities.ProfileComposition();
-                        MapToEntityCompositionInternal(ref composition, y, entity, modelsProcessed, userToken);
-                        entity.Compositions.Add(composition);
-                    }
+                    // -> front end: composition id will be set
+                    // -> importer: related id also 0 -> look up based on name/namespace etc.
+                    // Add nodeId to profiles etc.
+                    var composition = new ProfileComposition();
+                    MapToEntityCompositionInternal(ref composition, y, entity, userToken);
+                    entity.Compositions.Add(composition);
                 }
             }
         }
 
 
-        private void MapToEntityCompositionInternal(ref ProfileComposition composition, ProfileTypeDefinitionRelatedModel source, ProfileTypeDefinition parentEntity, List<(ProfileTypeDefinitionModel, ProfileTypeDefinition)> modelsProcessed, UserToken userToken)
+        private void MapToEntityCompositionInternal(ref ProfileComposition composition, ProfileTypeDefinitionRelatedModel source, ProfileTypeDefinition parentEntity, /*List<(ProfileTypeDefinitionModel Model, ProfileTypeDefinition Entity)> modelsProcessed, */UserToken userToken)
         {
             composition.CompositionId = source.RelatedProfileTypeDefinitionId; //should be same
             if (composition.Composition == null && source.RelatedProfileTypeDefinition != null)
@@ -1076,24 +956,15 @@
                 var profileTypeDef = CheckForExisting(source.RelatedProfileTypeDefinition, userToken);
                 if (profileTypeDef == null)
                 {
-                    profileTypeDef = modelsProcessed.FirstOrDefault(me => me.Item1 == source.RelatedProfileTypeDefinition).Item2 ?? null;
-                }
-                if (profileTypeDef == null)
-                {
-                    this.Add(source.RelatedProfileTypeDefinition, userToken).Wait();
+                    this.AddAsync(source.RelatedProfileTypeDefinition, userToken).Wait();
                     profileTypeDef = CheckForExisting(source.RelatedProfileTypeDefinition, userToken);
-                    if (profileTypeDef == null)
-                    {
-                        throw new NotImplementedException("Profile must be added explicitly");
-
-                    }
                 }
                 composition.Composition = profileTypeDef;
                 composition.CompositionId = profileTypeDef.ID;
             }
-            if (composition.ProfileTypeDefinition != null &&  composition.ProfileTypeDefinitionId != parentEntity.ID)
+            if (composition.ProfileTypeDefinition != null && composition.ProfileTypeDefinitionId != parentEntity.ID)
             {
-                throw new Exception($"Internal error: {composition.ProfileTypeDefinition} does not match {parentEntity}");
+                throw new ArgumentException($"Internal error: {composition.ProfileTypeDefinition} does not match {parentEntity}");
             }
             composition.ProfileTypeDefinitionId = parentEntity.ID;            //should be same
             if (composition.ProfileTypeDefinition == null && source.ProfileTypeDefinition != null)
@@ -1108,19 +979,7 @@
                     profileTypeDef = CheckForExisting(source.ProfileTypeDefinition, userToken);
                     if (profileTypeDef == null)
                     {
-                        profileTypeDef = modelsProcessed.FirstOrDefault(me => me.Item1 == source.ProfileTypeDefinition).Item2 ?? null;
-                    }
-                    if (profileTypeDef == null)
-                    {
                         throw new NotImplementedException("Profile must be added explicitly");
-                        //profileTypeDef = new ProfileTypeDefinition
-                        //{
-                        //    CreatedById = parentEntity.CreatedById,
-                        //    CreatedBy = parentEntity.CreatedBy,
-                        //    UpdatedById = parentEntity.UpdatedById,
-                        //    UpdatedBy = parentEntity.UpdatedBy,
-                        //};
-                        //MapToEntityInternal(ref profileTypeDef, source.ProfileTypeDefinition, modelsProcessed, tenantId);
                     }
                 }
                 composition.ProfileTypeDefinition = profileTypeDef;
@@ -1128,7 +987,6 @@
             }
             composition.Name = source.Name;
             composition.BrowseName = source.BrowseName;
-            //composition.OpcNodeId = source.OpcNodeId;
             composition.IsRequired = source.RelatedIsRequired;
             composition.ModelingRule = source.RelatedModelingRule;
             composition.IsEvent = source.RelatedIsEvent;
@@ -1136,64 +994,9 @@
             composition.Description = source.Description;
         }
 
-        //protected void MapToEntityCustomDataTypes(ref ProfileItem entity, List<ProfileItemRelatedModel> customDataTypes, int updatedById)
-        //{
-        //    //init variableTypes obj for new scenario
-        //    if (entity.CustomDataTypes == null) entity.CustomDataTypes = new List<Data.Entities.ProfileCustomDataType>();
-
-        //    if (customDataTypes == null) return; //this shouldn't happen. If all diagnoses removed, then it should be a collection w/ 0 items.
-
-        //    // Remove variableTypes no longer used
-        //    // Use counter from end of collection so we can remove and not mess up loop iterator 
-        //    if (entity.CustomDataTypes.Count > 0)
-        //    {
-        //        var length = entity.CustomDataTypes.Count - 1;
-        //        for (var i = length; i >= 0; i--)
-        //        {
-        //            var currentId = entity.CustomDataTypes[i].ID;
-
-        //            //remove if no longer present
-        //            var source = customDataTypes.Find(v => v.ID.Equals(currentId));
-        //            if (source == null)
-        //            {
-        //                entity.CustomDataTypes.RemoveAt(i);
-        //            }
-        //            else
-        //            {
-        //                //if present, update name, description
-        //                entity.CustomDataTypes[i].CustomDataTypeId = source.RelatedId;
-        //                entity.CustomDataTypes[i].Name = source.Name;
-        //                entity.CustomDataTypes[i].Description = source.Description;
-        //                entity.CustomDataTypes[i].OpcNodeId = source.OpcNodeId;
-        //                entity.CustomDataTypes[i].Namespace = source.Namespace;
-        //            }
-        //        }
-        //    }
-
-        //    // Loop over variableTypes passed in and only add those not already there
-        //    if (customDataTypes != null)
-        //    {
-        //        foreach (var y in customDataTypes)
-        //        {
-        //            if (y.ID == 0 || entity.CustomDataTypes.Find(x => x.ID.Equals(y.ID)) == null)
-        //            {
-        //                entity.CustomDataTypes.Add(new Data.Entities.ProfileCustomDataType
-        //                {
-        //                    ProfileId = entity.ID,
-        //                    CustomDataTypeId = y.RelatedId,
-        //                    Name = y.Name,
-        //                    Description = y.Description,
-        //                    OpcNodeId = y.OpcNodeId,
-        //                    Namespace = y.Namespace,
-        //                });
-        //            }
-        //        }
-        //    }
-        //}
-
-        protected void MapToEntityMetaTags(ref ProfileTypeDefinition entity, List<string> metaTags, int? updatedById)
+        protected static void MapToEntityMetaTags(ref ProfileTypeDefinition entity, List<string> metaTags)
         {
-            if (metaTags == null || metaTags.Count() == 0)
+            if (metaTags == null || !metaTags.Any())
             {
                 entity.MetaTags = null;
             }
@@ -1213,5 +1016,65 @@
 
         #endregion
 
+    }
+
+    [Serializable]
+    public class UnresolvedNodeException : Exception
+    {
+        public UnresolvedNodeException()
+        {
+        }
+
+        public UnresolvedNodeException(string message) : base(message)
+        {
+        }
+
+        public UnresolvedNodeException(string message, Exception innerException) : base(message, innerException)
+        {
+        }
+
+        protected UnresolvedNodeException(SerializationInfo info, StreamingContext context) : base(info, context)
+        {
+        }
+    }
+
+    [Serializable]
+    public class UnresolvedVariableTypeException : UnresolvedNodeException
+    {
+        public UnresolvedVariableTypeException()
+        {
+        }
+
+        public UnresolvedVariableTypeException(string message) : base(message)
+        {
+        }
+
+        public UnresolvedVariableTypeException(string message, Exception innerException) : base(message, innerException)
+        {
+        }
+
+        protected UnresolvedVariableTypeException(SerializationInfo info, StreamingContext context) : base(info, context)
+        {
+        }
+    }
+
+    [Serializable]
+    public class UnresolvedDataTypeException : UnresolvedNodeException
+    {
+        public UnresolvedDataTypeException()
+        {
+        }
+
+        public UnresolvedDataTypeException(string message) : base(message)
+        {
+        }
+
+        public UnresolvedDataTypeException(string message, Exception innerException) : base(message, innerException)
+        {
+        }
+
+        protected UnresolvedDataTypeException(SerializationInfo info, StreamingContext context) : base(info, context)
+        {
+        }
     }
 }

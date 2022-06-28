@@ -23,7 +23,9 @@ namespace CESMII.ProfileDesigner.Api
                  {
                      logging.ClearProviders();
                      logging.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
+#if DEBUG
                      logging.AddDebug();
+#endif
                  })
                 // Use NLog to provide ILogger instances.
                 .UseNLog();

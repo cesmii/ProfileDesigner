@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 
 using System.Text.Json;
 using CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile;
+using Opc.Ua;
 
 namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
 {
@@ -29,6 +30,13 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
             {
                 return existingProfileItem;
             }
+
+            if (_model is VariableModel)
+            {
+                // Variables are captured as compositions, not profile type definitions
+                return null;
+            }
+
             var profile = dalContext.GetNodeSetCustomState(this._model.Namespace) as ProfileModel;
             var profileItem = new ProfileTypeDefinitionModel
             {
@@ -127,27 +135,34 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
                     continue;
                 }
                 var objectProfile = child.ImportProfileItem(dalContext);
-                if (profileItem.Compositions == null)
+                if (objectProfile != null)
                 {
-                    profileItem.Compositions = new List<ProfileTypeDefinitionRelatedModel>();
+                    if (profileItem.Compositions == null)
+                    {
+                        profileItem.Compositions = new List<ProfileTypeDefinitionRelatedModel>();
+                    }
+                    var composition = new ProfileTypeDefinitionRelatedModel
+                    {
+                        ID = profileItem.ID,
+                        ProfileTypeDefinition = profileItem,
+                        Name = child.DisplayName?.FirstOrDefault()?.Text,
+                        BrowseName = child.BrowseName,
+                        Description = child.Description?.FirstOrDefault()?.Text,
+                        RelatedProfileTypeDefinitionId = objectProfile.ID,
+                        RelatedProfileTypeDefinition = objectProfile,
+                        RelatedIsRequired = ObjectModelImportProfile.GetModelingRuleForProfile((child as InstanceModelBase)?.ModelingRule),
+                        RelatedModelingRule = (child as InstanceModelBase)?.ModelingRule,
+                        //OpcNodeId = NodeModelUtils.GetNodeIdIdentifier(child.NodeId),
+                        //Namespace = opcObject.Namespace,
+                        RelatedReferenceId = childRef.Reference,
+                        Profile = child.CustomState as ProfileModel,
+                    };
+                    profileItem.Compositions.Add(composition);
                 }
-                var composition = new ProfileTypeDefinitionRelatedModel
+                else
                 {
-                    ID = profileItem.ID,
-                    ProfileTypeDefinition = profileItem,
-                    Name = child.DisplayName?.FirstOrDefault()?.Text,
-                    BrowseName = child.BrowseName,
-                    Description = child.Description?.FirstOrDefault()?.Text,
-                    RelatedProfileTypeDefinitionId = objectProfile.ID,
-                    RelatedProfileTypeDefinition = objectProfile,
-                    RelatedIsRequired = ObjectModelImportProfile.GetModelingRuleForProfile((child as InstanceModelBase)?.ModelingRule),
-                    RelatedModelingRule = (child as InstanceModelBase)?.ModelingRule,
-                    //OpcNodeId = NodeModelUtils.GetNodeIdIdentifier(child.NodeId),
-                    //Namespace = opcObject.Namespace,
-                    RelatedReferenceId = childRef.Reference,
-                    Profile = child.CustomState as ProfileModel,
-                };
-                profileItem.Compositions.Add(composition);
+                    // Reference not imported?
+                }
             }
             foreach (var uaInterface in this._model.Interfaces)
             {
@@ -210,10 +225,9 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
         }
     }
 
-    public class InstanceModelImportProfile<TInstanceModel, TBaseTypeModel, TBaseTypeModelImportProfile> : NodeModelImportProfile<TInstanceModel>
+    public class InstanceModelImportProfile<TInstanceModel, TBaseTypeModel> : NodeModelImportProfile<TInstanceModel>
         where TInstanceModel : InstanceModel<TBaseTypeModel>, new()
         where TBaseTypeModel : BaseTypeModel, new()
-        where TBaseTypeModelImportProfile: NodeModelImportProfile<TBaseTypeModel>, new()
     {
         protected override void UpdateProfileItem(ProfileTypeDefinitionModel profileItem, IDALContext dalContext)
         {
@@ -268,7 +282,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
         }
     }
 
-    public class ObjectModelImportProfile : InstanceModelImportProfile<ObjectModel, ObjectTypeModel, ObjectTypeModelImportProfile>
+    public class ObjectModelImportProfile : InstanceModelImportProfile<ObjectModel, ObjectTypeModel>
     {
         protected override void UpdateProfileItem(ProfileTypeDefinitionModel profileItem, IDALContext dalContext)
         {
@@ -296,26 +310,16 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
 
         public LookupDataTypeModel GetAttributeDataType(ProfileTypeDefinitionModel profileItem, IDALContext dalContext)
         {
-            var attributeDataType = dalContext.GetDataType(_model.DisplayName?.FirstOrDefault()?.Text);
+            var dataTypeProfile = this.ImportProfileItem(dalContext);
+            if (dataTypeProfile == null)
+            {
+                throw new Exception($"Undefined data type {_model.DisplayName?.FirstOrDefault()?.Text} {_model.NodeId} in profile {profileItem.Name} ({profileItem.ID})");
+            }
+
+            var attributeDataType = dalContext.GetCustomDataTypeAsync(dataTypeProfile).Result;
             if (attributeDataType == null)
             {
-                //TODO: SC - Question - MH - Please review this.
-                //At this point, can we add the custom data type record (the profile item and the data type record)
-                //Note we first do need to insert the custom data type as a profile item.
-                //Possibly wrap ImportProfileItemAsync and a ImportCustomDataTypeAsync into one call.
-                // MH: DataType.ImportProfileItemAsync now creates the Data Type lookup entry
-                var dataTypeProfile = this.ImportProfileItem(dalContext);
-                if (dataTypeProfile == null)
-                {
-                    throw new Exception($"Undefined data type {_model.DisplayName?.FirstOrDefault()?.Text} {_model.NodeId} in profile {profileItem.Name} ({profileItem.ID})");
-                }
-
-                attributeDataType = dalContext.GetCustomDataTypeAsync(dataTypeProfile).Result;
-                if (attributeDataType == null)
-                {
-                    // TODO expand LookupDataTypeModel with object reference
-                    attributeDataType = new LookupDataTypeModel { Name = dataTypeProfile.Name, Code = "custom", CustomType = dataTypeProfile };
-                }
+                attributeDataType = new LookupDataTypeModel { Name = dataTypeProfile.Name, Code = "custom", CustomType = dataTypeProfile };
             }
             return attributeDataType;
         }
@@ -342,7 +346,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
         }
     }
 
-    public class VariableModelImportProfile<TVariableModel> : InstanceModelImportProfile<TVariableModel, VariableTypeModel, VariableTypeModelImportProfile>
+    public class VariableModelImportProfile<TVariableModel> : InstanceModelImportProfile<TVariableModel, VariableTypeModel>
         where TVariableModel : VariableModel, new()
     {
         public void AddVariableToProfileModel(ProfileTypeDefinitionModel profileItem, IDALContext dalContext)
@@ -371,7 +375,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
 
 
                 string dataVariableNodeIds = null;
-                if (_model.DataVariables?.Any() == true && _model?.TypeDefinition?.DataVariables?.Any() == true)
+                if (_model.DataVariables?.Any() == true && _model.TypeDefinition?.DataVariables?.Any() == true)
                 {
                     var map = GetDataVariableNodeIds(_model.DataVariables, _model.TypeDefinition.DataVariables);
                     dataVariableNodeIds = DataVariableNodeIdMap.GetMapAsString(map);
@@ -444,12 +448,19 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
             foreach (var typeDataVariable in typeDataVariables)
             {
                 var dataVariable = dataVariables.FirstOrDefault(dv => dv.BrowseName.EndsWith(typeDataVariable.BrowseName));
-                var map = new DataVariableNodeIdMapEntry
+                if (dataVariable != null)
                 {
-                    NodeId = dataVariable.NodeId,
-                    Map = GetDataVariableNodeIds(dataVariable.DataVariables, typeDataVariable.DataVariables)
-                };
-                dataVariableNodeIdMap.DataVariableNodeIdsByBrowseName.Add(dataVariable.BrowseName, map);
+                    var map = new DataVariableNodeIdMapEntry
+                    {
+                        NodeId = dataVariable.NodeId,
+                        Map = GetDataVariableNodeIds(dataVariable.DataVariables, typeDataVariable.DataVariables)
+                    };
+                    dataVariableNodeIdMap.DataVariableNodeIdsByBrowseName.Add(dataVariable.BrowseName, map);
+                }
+                else if (!typeDataVariable.ModelingRule.Contains("Optional"))
+                {
+                    throw new Exception($"Unable to resolve mandatory data variable {typeDataVariable} declared in type {typeDataVariable.Parent} by browse name.");
+                }
             }
             return dataVariableNodeIdMap;
         }
@@ -567,8 +578,8 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
                 }
                 foreach (var field in _model.EnumFields)
                 {
-                    var int64DataType = dalContext.GetDataType("Int64");
-                    if (int64DataType == null/* || int64DataType.ID == 0*/)
+                    var int64DataType = dalContext.GetDataType(OpcUaImporter.strOpcNamespaceUri, DataTypeIds.Int64.ToString());
+                    if (int64DataType == null)
                     {
                         throw new Exception($"Unable to resolve Int64 data type.");
                     }
@@ -614,7 +625,6 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
                 //For custom (myNodeset), AuthorId has value and we use this to keep the separation by owner.
                 OwnerId = profileItem.AuthorId
             };
-            //if (GetBuiltinDataTypeNodeId(dataTypeLookup) == null)
             var dataTypeId = dalContext.CreateCustomDataTypeAsync(dataTypeLookup).Result;
             return bUpdated;
         }

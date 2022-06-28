@@ -1,8 +1,7 @@
 import React from 'react';
-import { Pagination } from 'react-bootstrap'
+import { Pagination, Dropdown } from 'react-bootstrap'
 import { AppSettings } from '../utils/appsettings';
 import { generateLogMessageString } from '../utils/UtilityService'
-import { Dropdown } from 'react-bootstrap'
 import './styles/GridPager.scss';
 
 const CLASS_NAME = "GridPager";
@@ -74,7 +73,6 @@ function GridPager(props) { //(currentPage, pageSize, itemCount, onChangePage)
         // calculate start and end item indexes
         var startIndex = (currentPage - 1) * pageSize;
         var endIndex = Math.min(startIndex + pageSize - 1, itemCount - 1);
-        //console.log(generateLogMessageString(`getPagerData||Start index: ${startIndex}, End index: ${endIndex}, Current Page: ${currentPage}`, CLASS_NAME));
 
         // create an array of pages to ng-repeat in the pager control
         var pages = [...Array((endPage + 1) - startPage).keys()].map(i => startPage + i);
@@ -142,7 +140,6 @@ function GridPager(props) { //(currentPage, pageSize, itemCount, onChangePage)
 
     const renderPageSizeOptions = (pageSize) => {
 
-        //console.log(generateLogMessageString(`renderPageSizeOptions||Val: ${pageSize}`, CLASS_NAME));
         //make copy of options. If current page size is not represented, add it to options
         var pageSizeOptions = JSON.parse(JSON.stringify(AppSettings.PageSizeOptions));
         if (pageSizeOptions.find(item => { return item === pageSize; }) == null) {
@@ -157,8 +154,6 @@ function GridPager(props) { //(currentPage, pageSize, itemCount, onChangePage)
             </Dropdown.Toggle>
         );
         const pageOptionsHTML = pageSizeOptions.map((item) => {
-            if (item === pageSize) {
-            }
             return (<Dropdown.Item key={item} onSelect={() => onPageSizeSelect(item)} >{item} per page</Dropdown.Item>);
         });
 

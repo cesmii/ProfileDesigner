@@ -25,7 +25,6 @@ namespace CESMII.ProfileDesigner.Api.Controllers
     public class UserController : BaseController<UserController>
     {
         private readonly UserDAL _dal;
-        //private int _pageSize = 30;
 
         public UserController(UserDAL dal,
             ConfigUtil config, ILogger<UserController> logger)
@@ -105,7 +104,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         {
             //get existing user, wipe out certain pieces of info, add new user
             //update new user's password, 
-            UserModel result = new UserModel();
+            var result = new UserModel();
 
             //return object
             return Ok(result);
@@ -128,11 +127,11 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 {
                     IsSuccess = false,
                     Message = ExtractModelStateErrors().ToString()
-                }); ;
+                });
             }
             var userToken = UserExtension.DalUserToken(User);
 
-            var result = await _dal.Add(model, userToken);
+            var result = await _dal.AddAsync(model, userToken);
             model.ID = result;
             if (result == 0)
             {
@@ -141,7 +140,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 {
                     IsSuccess = false,
                     Message = "Could not add user. "
-                }); ;
+                });
             }
             _logger.LogInformation($"Added user item. Id:{result}.");
 
@@ -172,7 +171,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 {
                     IsSuccess = false,
                     Message = ExtractModelStateErrors().ToString()
-                }); ;
+                });
             }
 
 
@@ -185,7 +184,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 {
                     IsSuccess = false,
                     Message = "Could not add user. "
-                }); ;
+                });
             }
             _logger.LogInformation($"Added user item. Id:{result}.");
 
@@ -193,52 +192,6 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             return Ok(new ResultMessageModel() { IsSuccess = true, Message = "Item was copied." });
         }
         
-        //public async Task<IActionResult> AddCopy([FromBody] UserCopyModel model)
-                 //{
-                 //    var userToken = UserExtension.DalUserToken(User);
-                 //    ValidateCopyModel(model, userToken);
-
-        //    if (!ModelState.IsValid)
-        //    {
-        //        //var errors = ExtractModelStateErrors();
-        //        return BadRequest("The user record is invalid. Please correct the following:...TBD - join errors collection into string list.");
-        //    }
-
-        //    //get existing user, wipe out certain pieces of info, add new user
-        //    //update new user's password, 
-        //    var copyUser = _dal.GetById(model.UserId, userToken);
-        //    if (copyUser == null)
-        //    {
-        //        //var errors = ExtractModelStateErrors();
-        //        return BadRequest("Original user not found.");
-        //    }
-
-        //    //keep permissions and organization same
-        //    model.UserName = model.UserName.ToLower();
-        //    copyUser.ID = null;
-        //    copyUser.Created = DateTime.UtcNow;
-        //    copyUser.Email = model.Email;
-        //    copyUser.FirstName = model.FirstName;
-        //    copyUser.LastName = model.LastName;
-        //    copyUser.UserName = model.UserName;
-        //    copyUser.LastLogin = null;
-        //    copyUser.RegistrationComplete = null;
-
-        //    var result = await _dal.Add(copyUser, userToken);
-        //    if (result == 0)
-        //    {
-        //        _logger.LogWarning($"Could not add user: {model.FirstName} {model.LastName}.");
-        //        return BadRequest("Could not add user. ");
-        //    }
-        //    _logger.LogInformation($"Added user item. Id:{result}.");
-
-        //    //now update user's password. This also set's a registration complete date so that user can log in.
-        //    await _dal.CompleteRegistration(result.Value, model.UserName, model.Password);
-
-        //    //return success message object
-        //    return Ok(new ResultMessageModel() { IsSuccess = true, Message = "Item was copied." });
-        //}
-
         /// <summary>
         /// Copy an existing user, clear out certain characteristics (user name, first name, last name, etc.) and then 
         /// return a model to allow caller to set those unique user characteristics.
@@ -257,7 +210,6 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             var result = _dal.GetById(model.ID, userToken);
             if (result == null)
             {
-                //var errors = ExtractModelStateErrors();
                 return BadRequest("Original user not found.");
             }
 
@@ -289,10 +241,10 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 {
                     IsSuccess = false,
                     Message = ExtractModelStateErrors().ToString()
-                }); ;
+                });
             }
 
-            var result = await _dal.Update(model, userToken);
+            var result = await _dal.UpdateAsync(model, userToken);
             if (result < 0)
             {
                 _logger.LogWarning($"Could not update user. Invalid id:{model.ID}.");
@@ -300,7 +252,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 {
                     IsSuccess = false,
                     Message = "Could not update user. Invalid id."
-                }); ;
+                });
             }
             _logger.LogInformation($"Updated user. Id:{model.ID}.");
 
@@ -314,7 +266,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         public async Task<IActionResult> Delete([FromBody] IdIntModel model)
         {
             var userToken = UserExtension.DalUserToken(User);
-            var result = await _dal.Delete(model.ID, userToken);
+            var result = await _dal.DeleteAsync(model.ID, userToken);
             if (result < 0)
             {
                 _logger.LogWarning($"Could not delete user. Invalid id:{model.ID}.");
@@ -352,11 +304,6 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             {
                 ModelState.AddModelError("User Name", "Duplicate user name. Please enter a different user name.");
             }
-            //Check for duplicate service and return model state error
-            //if (model.Attributes != null && model.Attributes.GroupBy(v => v.Name).Where(g => g.Count() > 1).Any())
-            //{
-            //    ModelState.AddModelError("", "Duplicate attribute names found. Remove the duplicates.");
-            //}
         }
     }
 

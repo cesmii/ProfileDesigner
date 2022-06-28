@@ -22,9 +22,9 @@
         {
         }
 
-        public override async Task<int?> Add(ProfileTypeDefinitionAnalyticModel model, UserToken userToken)
+        public override async Task<int?> AddAsync(ProfileTypeDefinitionAnalyticModel model, UserToken userToken)
         {
-            ProfileTypeDefinitionAnalytic entity = new ProfileTypeDefinitionAnalytic
+            var entity = new ProfileTypeDefinitionAnalytic
             {
                 ID = null
                 //,Created = DateTime.UtcNow
@@ -40,7 +40,7 @@
             return entity.ID;
         }
 
-        public override async Task<int?> Update(ProfileTypeDefinitionAnalyticModel model, UserToken userToken)
+        public override async Task<int?> UpdateAsync(ProfileTypeDefinitionAnalyticModel model, UserToken userToken)
         {
             ProfileTypeDefinitionAnalytic entity = _repo.FindByCondition(x => x.ID == model.ID)
                 .FirstOrDefault();
@@ -50,7 +50,7 @@
             this.MapToEntity(ref entity, model, userToken);
 
             await _repo.UpdateAsync(entity);
-            await _repo.SaveChanges();
+            await _repo.SaveChangesAsync();
             return entity.ID;
         }
 
@@ -75,7 +75,7 @@
         /// <returns></returns>
         public override List<ProfileTypeDefinitionAnalyticModel> GetAll(UserToken userToken, bool verbose = false)
         {
-            DALResult<ProfileTypeDefinitionAnalyticModel> result = GetAllPaged(userToken, verbose: verbose);
+            DALResult<ProfileTypeDefinitionAnalyticModel> result = GetAllPaged(userToken, null, null, verbose: verbose);
             return result.Data;
         }
 
@@ -83,7 +83,7 @@
         /// Get all lookup items (with paging)
         /// </summary>
         /// <returns></returns>
-        public override DALResult<ProfileTypeDefinitionAnalyticModel> GetAllPaged(UserToken userToken, int? skip = null, int? take = null, bool returnCount = false, bool verbose = false)
+        public override DALResult<ProfileTypeDefinitionAnalyticModel> GetAllPaged(UserToken userToken, int? skip, int? take, bool returnCount = false, bool verbose = false)
         {
             //put the order by and where clause before skip.take so we skip/take on filtered/ordered query 
             var query = _repo.GetAll();
@@ -94,12 +94,11 @@
             else if (skip.HasValue) data = query.Skip(skip.Value);
             else if (take.HasValue) data = query.Take(take.Value);
             else data = query;
-            //if (skip.HasValue) query = query.Skip(skip.Value);
-            //if (take.HasValue) query = query.Take(take.Value);
-            DALResult<ProfileTypeDefinitionAnalyticModel> result = new DALResult<ProfileTypeDefinitionAnalyticModel>();
-            result.Count = count;
-            result.Data = MapToModels(data.ToList(), verbose);
-            result.SummaryData = null;
+            var result = new DALResult<ProfileTypeDefinitionAnalyticModel>() {
+                Count = count,
+                Data = MapToModels(data.ToList(), verbose),
+                SummaryData = null
+            };
             return result;
         }
 
@@ -108,8 +107,8 @@
         /// </summary>
         /// <param name="predicate"></param>
         /// <returns></returns>
-        public override DALResult<ProfileTypeDefinitionAnalyticModel> Where(Expression<Func<ProfileTypeDefinitionAnalytic, bool>> predicate, UserToken user, int? skip, int? take, 
-            bool returnCount = true, bool verbose = false)
+        public override DALResult<ProfileTypeDefinitionAnalyticModel> Where(Expression<Func<ProfileTypeDefinitionAnalytic, bool>> predicate, UserToken user, int? skip = null, int? take = null, 
+            bool returnCount = false, bool verbose = false)
         {
             var query = _repo.FindByCondition(predicate);
             var count = returnCount ? query.Count() : 0;
@@ -119,26 +118,26 @@
             else if (skip.HasValue) data = query.Skip(skip.Value);
             else if (take.HasValue) data = query.Take(take.Value);
             else data = query;
-            //if (skip.HasValue) query = query.Skip(skip.Value);
-            //if (take.HasValue) query = query.Take(take.Value);
-            DALResult<ProfileTypeDefinitionAnalyticModel> result = new DALResult<ProfileTypeDefinitionAnalyticModel>();
-            result.Count = count;
-            result.Data = MapToModels(data.ToList(), verbose);
-            result.SummaryData = null;
+            var result = new DALResult<ProfileTypeDefinitionAnalyticModel>
+            {
+                Count = count,
+                Data = MapToModels(data.ToList(), verbose),
+                SummaryData = null
+            };
             return result;
         }
 
-        public async Task<int?> Delete(int id, UserToken userToken)
+        public async Task<int?> DeleteAsync(int id, UserToken userToken)
         {
             ProfileTypeDefinitionAnalytic entity = _repo.FindByCondition(x => x.ID == id)
                 .FirstOrDefault();
-            await _repo.Delete(entity);
-            await _repo.SaveChanges();
+            await _repo.DeleteAsync(entity);
+            await _repo.SaveChangesAsync();
             return entity.ID;
         }
 
 
-        protected override ProfileTypeDefinitionAnalyticModel MapToModel(ProfileTypeDefinitionAnalytic entity, bool verbose = false)
+        protected override ProfileTypeDefinitionAnalyticModel MapToModel(ProfileTypeDefinitionAnalytic entity, bool verbose = true)
         {
             if (entity != null)
             {

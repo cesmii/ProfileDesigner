@@ -17,17 +17,10 @@
         protected bool _disposed = false;
         protected static readonly Logger _logger = LogManager.GetCurrentClassLogger();
         protected readonly IRepository<TEntity> _repo;
-        //TBD - temp mock repo to allow us to load data from static JSON files. 
-        protected readonly IMockRepository<TEntity> _repoMock;
-        protected readonly bool _useMock = false;
 
-        public BaseDAL(IRepository<TEntity> repo)
+        protected BaseDAL(IRepository<TEntity> repo)
         {
             _repo = repo;
-            if (_useMock)
-            {
-                _repoMock = new MockRepo<TEntity>();
-            }
         }
 
         public void StartTransaction()
@@ -62,16 +55,18 @@
             return MapToModels(result, verbose);
         }
 
-        public virtual DALResult<TModel> GetAllPaged(UserToken userToken, int? skip, int? take, bool returnCount = true, bool verbose = false)
+        public virtual DALResult<TModel> GetAllPaged(UserToken userToken, int? skip, int? take, bool returnCount = false, bool verbose = false)
         {
             var query = _repo.GetAll();
             var count = returnCount ? query.Count() : 0;
             if (skip.HasValue) query = query.Skip(skip.Value);
             if (take.HasValue) query = query.Take(take.Value);
-            DALResult<TModel> result = new DALResult<TModel>();
-            result.Count = count;
-            result.Data = MapToModels(query.ToList());
-            result.SummaryData = null;
+            var result = new DALResult<TModel>
+            {
+                Count = count,
+                Data = MapToModels(query.ToList(), verbose),
+                SummaryData = null
+            };
             return result;
         }
 
@@ -97,12 +92,12 @@
             else if (skip.HasValue) data = query.Skip(skip.Value);
             else if (take.HasValue) data = query.Take(take.Value);
             else data = query;
-            //if (skip.HasValue) query = query.Skip(skip.Value);
-            //if (take.HasValue) query = query.Take(take.Value);
-            DALResult<TModel> result = new DALResult<TModel>();
-            result.Count = count;
-            result.Data = MapToModels(data.ToList(), verbose);
-            result.SummaryData = null;
+            var result = new DALResult<TModel>
+            {
+                Count = count,
+                Data = MapToModels(data.ToList(), verbose),
+                SummaryData = null
+            };
             return result;
         }
 
@@ -132,10 +127,12 @@
             else data = query;
 
             //put together the result
-            DALResult<TModel> result = new DALResult<TModel>();
-            result.Count = count;
-            result.Data = MapToModels(data.ToList(), verbose);
-            result.SummaryData = null;
+            var result = new DALResult<TModel>
+            {
+                Count = count,
+                Data = MapToModels(data.ToList(), verbose),
+                SummaryData = null
+            };
             return result;
         }
 
@@ -158,13 +155,6 @@
             return _repo.GetAll();
         }
 
-        //public virtual TModel GetByFunc(Expression<Func<TEntity, bool>> predicate, bool verbose)
-        //{
-        //    var tRes = _repo.FindByCondition(predicate)?.FirstOrDefault();
-        //    return MapToModel(tRes);
-        //}
-
-
         /// <summary>
         /// If the item is present in the DB, then update the existing item. Otherwise insert a new record
         /// </summary>
@@ -173,30 +163,30 @@
         /// <param name="orgId"></param>
         /// <param name="userId"></param>
         /// <returns></returns>
-        public virtual async Task<(int?, bool)> Upsert(TModel model, UserToken userToken, bool updateExisting = true)
+        public virtual async Task<(int?, bool)> UpsertAsync(TModel model, UserToken userToken, bool updateExisting = true)
         {
             TEntity entity = CheckForExisting(model, userToken);
             if (entity == null)
             {
-                return (await Add(model, userToken), true);
+                return (await AddAsync(model, userToken), true);
             }
             else
             {
                 model.ID = entity.ID; //assign the id so update knows which row to update. 
                 if (updateExisting)
                 {
-                    return (await Update(model, userToken), true);
+                    return (await UpdateAsync(model, userToken), true);
                 }
                 return (model.ID, false);
             }
         }
 
-        public virtual Task<int?> Update(TModel model, UserToken userToken)
+        public virtual Task<int?> UpdateAsync(TModel model, UserToken userToken)
         {
             throw new NotImplementedException();
         }
 
-        public virtual Task<int?> Add(TModel model, UserToken userToken)
+        public virtual Task<int?> AddAsync(TModel model, UserToken userToken)
         {
             throw new NotImplementedException();
         }
@@ -213,7 +203,7 @@
             return entity.ID;
         }
 
-        public virtual Task<int> DeleteMany(List<int> ids, UserToken userToken)
+        public virtual Task<int> DeleteManyAsync(List<int> ids, UserToken userToken)
         {
             throw new NotImplementedException();
         }

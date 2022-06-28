@@ -34,10 +34,6 @@
 ====>Expected attribute name '/UANodeSet[1]/UADataType[6]/Definition[1]/Field[3]/Description[1]/@Locale' - comparing <Description...> at /UANodeSet[1]/UADataType[6]/Definition[1]/Field[3]/Description[1]/@Locale to <Description...> at /UANodeSet[1]/UADataType[1]/Definition[1]/Field[3]/Description[1]
 ====>Expected attribute name '/UANodeSet[1]/UADataType[7]/DisplayName[1]/@Locale' - comparing <DisplayName...> at /UANodeSet[1]/UADataType[7]/DisplayName[1]/@Locale to <DisplayName...> at /UANodeSet[1]/UADataType[7]/DisplayName[1]
 ====>Expected attribute name '/UANodeSet[1]/UADataType[7]/Description[1]/@Locale' - comparing <Description...> at /UANodeSet[1]/UADataType[7]/Description[1]/@Locale to <Description...> at /UANodeSet[1]/UADataType[7]/Description[1]
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UADataType[7]/References[1]/Reference[1] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UADataType[7]/References[1]/Reference[2] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UADataType[7]/References[1]/Reference[3] to <NULL>
-====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UADataType[7]/References[1]/Reference[1]
 ====>Expected attribute name '/UANodeSet[1]/UAVariableType[1]/@DataType' - comparing <UAVariableType...> at /UANodeSet[1]/UAVariableType[1]/@DataType to <UAVariableType...> at /UANodeSet[1]/UAVariableType[1]
 ====>Expected attribute name '/UANodeSet[1]/UAVariableType[1]/DisplayName[1]/@Locale' - comparing <DisplayName...> at /UANodeSet[1]/UAVariableType[1]/DisplayName[1]/@Locale to <DisplayName...> at /UANodeSet[1]/UAVariableType[1]/DisplayName[1]
 ====>Expected attribute name '/UANodeSet[1]/UAVariableType[1]/Description[1]/@Locale' - comparing <Description...> at /UANodeSet[1]/UAVariableType[1]/Description[1]/@Locale to <Description...> at /UANodeSet[1]/UAVariableType[1]/Description[1]
@@ -843,10 +839,10 @@
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[469]/Description[1]/@Locale' - comparing <Description...> at /UANodeSet[1]/UAVariable[469]/Description[1]/@Locale to <Description...> at /UANodeSet[1]/UAVariable[79]/Description[1]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[470]/DisplayName[1]/@Locale' - comparing <DisplayName...> at /UANodeSet[1]/UAVariable[470]/DisplayName[1]/@Locale to <DisplayName...> at /UANodeSet[1]/UAVariable[80]/DisplayName[1]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[470]/Description[1]/@Locale' - comparing <Description...> at /UANodeSet[1]/UAVariable[470]/Description[1]/@Locale to <Description...> at /UANodeSet[1]/UAVariable[80]/Description[1]
+====>Expected attribute name '/UANodeSet[1]/UAObject[13]' - comparing <UAObject...> at /UANodeSet[1]/UAObject[13] to <UAObject...> at /UANodeSet[1]/UAObject[1]/@ParentNodeId
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[13]/References[1]/Reference[1] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[13]/References[1]/Reference[3] to <NULL>
+====>Expected attribute name '/UANodeSet[1]/UAObject[17]' - comparing <UAObject...> at /UANodeSet[1]/UAObject[17] to <UAObject...> at /UANodeSet[1]/UAObject[7]/@ParentNodeId
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[17]/References[1]/Reference[1] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[17]/References[1]/Reference[3] to <NULL>
 ====>Expected attribute name '/UANodeSet[1]/UAObject[23]' - comparing <UAObject...> at /UANodeSet[1]/UAObject[23] to <UAObject...> at /UANodeSet[1]/UAObject[18]/@ParentNodeId
 ====>Expected attribute name '/UANodeSet[1]/UAObject[23]/DisplayName[1]/@Locale' - comparing <DisplayName...> at /UANodeSet[1]/UAObject[23]/DisplayName[1]/@Locale to <DisplayName...> at /UANodeSet[1]/UAObject[18]/DisplayName[1]
 ====>Expected attribute name '/UANodeSet[1]/UAObject[23]/Description[1]/@Locale' - comparing <Description...> at /UANodeSet[1]/UAObject[23]/Description[1]/@Locale to <Description...> at /UANodeSet[1]/UAObject[18]/Description[1]

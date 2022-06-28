@@ -1,15 +1,14 @@
-import React, { useEffect } from "react";
+import React, { useState , useEffect } from "react";
 import { useHistory } from "react-router-dom";
 import { Button, Card } from "react-bootstrap";
 import { Helmet } from "react-helmet";
 
+import axiosInstance from "../services/AxiosService";
 import { useAuthDispatch, useAuthState } from "./authentication/AuthContext";
 import { useLoadingContext } from "./contexts/LoadingContext";
 import { AppSettings } from "../utils/appsettings";
 import { generateLogMessageString } from "../utils/UtilityService";
 import { logout } from "./authentication/AuthActions";
-import { useState } from "react";
-import axiosInstance from "../services/AxiosService";
 
 const CLASS_NAME = "ErrorPage";
 function ErrorPage({ error, resetErrorBoundary }) {
@@ -32,15 +31,6 @@ function ErrorPage({ error, resetErrorBoundary }) {
         if (loadingProps.isLoading) {
             setLoadingProps({ isLoading: false });
         }
-        //if (_errorShown) {
-        //    setLoadingProps({ isLoading: false });
-        //    setErrorShown(true);
-        //}
-
-        //this will execute on unmount
-        return () => {
-            //console.log(generateLogMessageString('useEffect||wizardProps||Cleanup', CLASS_NAME));
-        };
     }, [loadingProps.isLoading]);
 
     //TBD - log exception to API - do not raise exception if fails
@@ -68,10 +58,6 @@ function ErrorPage({ error, resetErrorBoundary }) {
             console.warn(generateLogMessageString(`logError||Error occurred logging to the server.`, CLASS_NAME));
         });
 
-        //this will execute on unmount
-        return () => {
-            //console.log(generateLogMessageString('useEffect||wizardProps||Cleanup', CLASS_NAME));
-        };
     }, [_logError]);
 
     //allow user to log out from error page

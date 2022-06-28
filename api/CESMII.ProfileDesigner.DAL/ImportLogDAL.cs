@@ -19,9 +19,9 @@
         {
         }
 
-        public override async Task<int?> Add(ImportLogModel model, UserToken userToken)
+        public override async Task<int?> AddAsync(ImportLogModel model, UserToken userToken)
         {
-            ImportLog entity = new ImportLog
+            var entity = new ImportLog
             {
                 ID = null
                 , Created = DateTime.UtcNow
@@ -33,8 +33,6 @@
             };
             model.Status = Common.Enums.TaskStatusEnum.InProgress; //set in model because the map to entity will assign val from model.
 
-            //this.MapToEntity(ref entity, model, userToken);
-
             //this will maptoentity, add and call saveChanges
             await base.AddAsync(entity, model, userToken);
             model.ID = entity.ID;
@@ -42,20 +40,17 @@
             return entity.ID;
         }
 
-        public override async Task<int?> Update(ImportLogModel model, UserToken userToken)
+        public override async Task<int?> UpdateAsync(ImportLogModel model, UserToken userToken)
         {
             ImportLog entity = base.FindByCondition(userToken, x => x.ID == model.ID)
-                //.Include(l => l.Messages)
-                //.Include(l => l.ProfileWarnings)
                 .FirstOrDefault()
                 ;
             if (entity == null) return null;
-            //model.Updated = DateTime.UtcNow;
             this.MapToEntity(ref entity, model, userToken);
             entity.Updated = DateTime.UtcNow;
 
             await _repo.UpdateAsync(entity);
-            await _repo.SaveChanges();
+            await _repo.SaveChangesAsync();
             return entity.ID;
         }
 
@@ -78,7 +73,7 @@
         /// <returns></returns>
         public override List<ImportLogModel> GetAll(UserToken userToken, bool verbose = false)
         {
-            DALResult<ImportLogModel> result = GetAllPaged(userToken, verbose: verbose);
+            DALResult<ImportLogModel> result = GetAllPaged(userToken,null, null, verbose: verbose);
             return result.Data;
         }
 
@@ -86,29 +81,14 @@
         /// Get all lookup items (with paging)
         /// </summary>
         /// <returns></returns>
-        public override DALResult<ImportLogModel> GetAllPaged(UserToken userToken, int? skip = null, int? take = null, bool returnCount = false, bool verbose = false)
+        public override DALResult<ImportLogModel> GetAllPaged(UserToken userToken, int? skip, int? take, bool returnCount = false, bool verbose = false)
         {
             //put the order by and where clause before skip.take so we skip/take on filtered/ordered query 
             var result = base.Where(x => x.IsActive, userToken, skip, take, returnCount, verbose, q => q
-                //.Include(l => l.Messages)
                 .OrderByDescending(l => l.Completed)
                 .ThenByDescending(l => l.StatusId)
                 );
             return result;
-            //var count = returnCount ? query.Count() : 0;
-            ////query returns IincludableQuery. Jump through the following to find right combo of skip and take
-            ////Goal is to have the query execute and not do in memory skip/take
-            //IQueryable<ImportLog> data;
-            //if (skip.HasValue && take.HasValue) data = query.Skip(skip.Value).Take(take.Value);
-            //else if (skip.HasValue) data = query.Skip(skip.Value);
-            //else if (take.HasValue) data = query.Take(take.Value);
-            //else data = query;
-
-            //DALResult<ImportLogModel> result = new DALResult<ImportLogModel>();
-            //result.Count = count;
-            //result.Data = MapToModels(data.ToList(), verbose);
-            //result.SummaryData = null;
-            //return result;
         }
 
         /// <summary>
@@ -116,45 +96,28 @@
         /// </summary>
         /// <param name="predicate"></param>
         /// <returns></returns>
-        public override DALResult<ImportLogModel> Where(Expression<Func<ImportLog, bool>> predicate, UserToken user, int? skip, int? take, 
-            bool returnCount = true, bool verbose = false)
+        public override DALResult<ImportLogModel> Where(Expression<Func<ImportLog, bool>> predicate, UserToken user, int? skip = null, int? take = null, 
+            bool returnCount = false, bool verbose = false)
         {
             return base.Where(predicate, user, skip, take, returnCount, verbose, q => q
-            ////put the order by and where clause before skip.take so we skip/take on filtered/ordered query 
-            //var query = _repo.FindByCondition(predicate)
+                //put the order by and where clause before skip.take so we skip/take on filtered/ordered query 
                 .Where(x => x.IsActive)
-                //.Include(l => l.Messages)
                 .OrderByDescending(l => l.Completed)
                 .ThenByDescending(l => l.StatusId)
                 );
-            //var count = returnCount ? query.Count() : 0;
-            ////query returns IincludableQuery. Jump through the following to find right combo of skip and take
-            ////Goal is to have the query execute and not do in memory skip/take
-            //IQueryable<ImportLog> data;
-            //if (skip.HasValue && take.HasValue) data = query.Skip(skip.Value).Take(take.Value);
-            //else if (skip.HasValue) data = query.Skip(skip.Value);
-            //else if (take.HasValue) data = query.Take(take.Value);
-            //else data = query;
-
-            //DALResult<ImportLogModel> result = new DALResult<ImportLogModel>();
-            //result.Count = count;
-            //result.Data = MapToModels(data.ToList(), verbose);
-            //result.SummaryData = null;
-            //return result;
         }
 
-        public async Task<int?> Delete(int id, UserToken userToken)
+        public async Task<int?> DeleteAsync(int id, UserToken userToken)
         {
             ImportLog entity = base.FindByCondition(userToken, x => x.ID == id && x.OwnerId == userToken.UserId).FirstOrDefault();
             entity.IsActive = false;
             _repo.Update(entity);
-            //await _repo.Delete(entity);
-            await _repo.SaveChanges();
+            await _repo.SaveChangesAsync();
             return entity.ID;
         }
 
 
-        protected override ImportLogModel MapToModel(ImportLog entity, bool verbose = false)
+        protected override ImportLogModel MapToModel(ImportLog entity, bool verbose = true)
         {
             if (entity != null)
             {
@@ -168,12 +131,6 @@
                     Updated = entity.Updated,
                     OwnerId = entity.OwnerId??0,
                     IsActive = entity.IsActive
-                    //Owner = new UserSimpleModel
-                    //{
-                    //    ID = entity.Owner.ID,
-                    //    FirstName = entity.Owner.FirstName,
-                    //    LastName = entity.Owner.LastName,
-                    //}
                 };
 
                 if (verbose)
@@ -190,7 +147,7 @@
 
         }
 
-        private List<ImportLogMessageModel> MapToModelMessages(ImportLog entity)
+        private static List<ImportLogMessageModel> MapToModelMessages(ImportLog entity)
         {
             if (entity.Messages == null) return null;
             return entity.Messages.OrderByDescending(x => x.Created)
@@ -204,7 +161,7 @@
                 .ToList();
         }
 
-        private List<ImportProfileWarningModel> MapToModelProfileWarnings(ImportLog entity)
+        private static List<ImportProfileWarningModel> MapToModelProfileWarnings(ImportLog entity)
         {
             if (entity.ProfileWarnings == null) return null;
             return entity.ProfileWarnings.OrderByDescending(x => x.Created)
@@ -212,7 +169,6 @@
                 {
                     ID = msg.ID,
                     Message = msg.Message,
-                    //ProfileId = msg.ProfileId,
                     Created = msg.Created
                 }
                 )
@@ -222,17 +178,16 @@
         protected override void MapToEntity(ref ImportLog entity, ImportLogModel model, UserToken userToken)
         {
             //only update file list, owner, created on add
-            //entity.Name = model.Name;
             entity.StatusId = (int)model.Status;
             if (model.Completed.HasValue)
             {
                 entity.Completed = model.Completed;
             }
-            MapToEntityMessages(ref entity, model.Messages, userToken);
-            MapToEntityProfileWarnings(ref entity, model.ProfileWarnings, userToken);
+            MapToEntityMessages(ref entity, model.Messages);
+            MapToEntityProfileWarnings(ref entity, model.ProfileWarnings);
         }
 
-        protected void MapToEntityMessages(ref ImportLog entity, List<Models.ImportLogMessageModel> messages, UserToken userToken)
+        protected static void MapToEntityMessages(ref ImportLog entity, List<Models.ImportLogMessageModel> messages)
         {
             //init visit services for new scenario
             if (entity.Messages == null) entity.Messages = new List<ImportLogMessage>();
@@ -276,7 +231,7 @@
             }
         }
 
-        protected void MapToEntityProfileWarnings(ref ImportLog entity, List<Models.ImportProfileWarningModel> warnings, UserToken userToken)
+        protected static void MapToEntityProfileWarnings(ref ImportLog entity, List<Models.ImportProfileWarningModel> warnings)
         {
             //init for new scenario
             if (entity.ProfileWarnings == null) entity.ProfileWarnings = new List<ImportProfileWarning>();

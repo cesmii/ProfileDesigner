@@ -6,7 +6,6 @@
  */
 
 using Microsoft.Extensions.Options;
-//using Microsoft.Extensions.Options.ConfigurationExtensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 
@@ -18,7 +17,7 @@ namespace CESMII.OpcUa.NodeSetImporter
         {
             services
                 .Configure<UANodeSetCloudLibraryResolver.CloudLibraryOptions>(configurationSection)
-                .AddScoped<IUANodeSetResolverWithProgress, UANodeSetCloudLibraryResolver>(sp => new UANodeSetCloudLibraryResolver(sp.GetRequiredService<IOptions<UANodeSetCloudLibraryResolver.CloudLibraryOptions>>().Value));
+                .AddScoped<IUANodeSetResolverWithProgress, UANodeSetCloudLibraryResolver>(sp => new UANodeSetCloudLibraryResolver(sp.GetRequiredService<IOptions<UANodeSetCloudLibraryResolver.CloudLibraryOptions>>().Value))
                 ;
             return services;
         }

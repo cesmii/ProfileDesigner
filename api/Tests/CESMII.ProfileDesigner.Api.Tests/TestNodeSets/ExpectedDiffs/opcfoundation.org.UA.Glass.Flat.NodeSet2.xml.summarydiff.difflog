@@ -20,9 +20,7 @@
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[25]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[25] to <UAVariable...> at /UANodeSet[1]/UAVariable[36]/@UserAccessLevel
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[27]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[27] to <UAVariable...> at /UANodeSet[1]/UAVariable[269]/@UserAccessLevel
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[29]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[29] to <UAVariable...> at /UANodeSet[1]/UAVariable[113]/@UserAccessLevel
-====>Expected text value '%' but was '% or pct' - comparing <uax:Text ...>%</uax:Text> at /UANodeSet[1]/UAVariable[30]/Value[1]/ExtensionObject[1]/Body[1]/EUInformation[1]/DisplayName[1]/Text[1]/text()[1] to <uax:Text ...>% or pct</uax:Text> at /UANodeSet[1]/UAVariable[114]/Value[1]/ExtensionObject[1]/Body[1]/EUInformation[1]/DisplayName[1]/Text[1]/text()[1]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[32]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[32] to <UAVariable...> at /UANodeSet[1]/UAVariable[116]/@UserAccessLevel
-====>Expected text value '%' but was '% or pct' - comparing <uax:Text ...>%</uax:Text> at /UANodeSet[1]/UAVariable[33]/Value[1]/ExtensionObject[1]/Body[1]/EUInformation[1]/DisplayName[1]/Text[1]/text()[1] to <uax:Text ...>% or pct</uax:Text> at /UANodeSet[1]/UAVariable[117]/Value[1]/ExtensionObject[1]/Body[1]/EUInformation[1]/DisplayName[1]/Text[1]/text()[1]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[35]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[35] to <UAVariable...> at /UANodeSet[1]/UAVariable[198]/@UserAccessLevel
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[37]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[37] to <UAVariable...> at /UANodeSet[1]/UAVariable[94]/@UserAccessLevel
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[38]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[38] to <UAVariable...> at /UANodeSet[1]/UAVariable[202]/@UserAccessLevel
@@ -41,7 +39,6 @@
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[57]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[57] to <UAVariable...> at /UANodeSet[1]/UAVariable[266]/@UserAccessLevel
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[58]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[58] to <UAVariable...> at /UANodeSet[1]/UAVariable[177]/@UserAccessLevel
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[59]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[59] to <UAVariable...> at /UANodeSet[1]/UAVariable[167]/@UserAccessLevel
-====>Expected text value '%' but was '% or pct' - comparing <uax:Text ...>%</uax:Text> at /UANodeSet[1]/UAVariable[60]/Value[1]/ExtensionObject[1]/Body[1]/EUInformation[1]/DisplayName[1]/Text[1]/text()[1] to <uax:Text ...>% or pct</uax:Text> at /UANodeSet[1]/UAVariable[168]/Value[1]/ExtensionObject[1]/Body[1]/EUInformation[1]/DisplayName[1]/Text[1]/text()[1]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[61]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[61] to <UAVariable...> at /UANodeSet[1]/UAVariable[162]/@UserAccessLevel
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAVariable[61]/References[1]/Reference[3] to <NULL>
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[64]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[64] to <UAVariable...> at /UANodeSet[1]/UAVariable[164]/@UserAccessLevel

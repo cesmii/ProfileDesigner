@@ -546,9 +546,8 @@ namespace CESMII.ProfileDesigner.OpcUa
             return null;
         }
 
-        public NodeSetModel GetOrAddNodesetModel(NodeModel nodeModel)
+        public NodeSetModel GetOrAddNodesetModel(string uaNamespace)
         {
-            var uaNamespace = nodeModel.Namespace;
             if (!NodesetModels.TryGetValue(uaNamespace, out var nodesetModel))
             {
                 var profile = _lastDalContext?.GetProfileForNamespace(uaNamespace);
@@ -566,7 +565,6 @@ namespace CESMII.ProfileDesigner.OpcUa
                 }
                 NodesetModels.Add(uaNamespace, nodesetModel);
             }
-            nodeModel.NodeSet = nodesetModel;
             return nodesetModel;
         }
 

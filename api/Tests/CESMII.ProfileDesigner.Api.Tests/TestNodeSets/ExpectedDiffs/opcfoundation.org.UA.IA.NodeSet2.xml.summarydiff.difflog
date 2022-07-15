@@ -11,9 +11,9 @@
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[16]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[16] to <UAVariable...> at /UANodeSet[1]/UAVariable[44]/@UserAccessLevel
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[17]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[17] to <UAVariable...> at /UANodeSet[1]/UAVariable[45]/@UserAccessLevel
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[18]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[18] to <UAVariable...> at /UANodeSet[1]/UAVariable[53]/@UserAccessLevel
-====>Expected attribute name '/UANodeSet[1]/UAVariable[19]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[19] to <UAVariable...> at /UANodeSet[1]/UAVariable[54]/@UserAccessLevel
+====>Expected attribute name '/UANodeSet[1]/UAVariable[19]/@AccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[19]/@AccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[54]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[20]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[20] to <UAVariable...> at /UANodeSet[1]/UAVariable[55]/@UserAccessLevel
-====>Expected attribute name '/UANodeSet[1]/UAVariable[21]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[21] to <UAVariable...> at /UANodeSet[1]/UAVariable[56]/@UserAccessLevel
+====>Expected attribute name '/UANodeSet[1]/UAVariable[21]/@AccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[21]/@AccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[56]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[22]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[22] to <UAVariable...> at /UANodeSet[1]/UAVariable[57]/@UserAccessLevel
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[23]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[23] to <UAVariable...> at /UANodeSet[1]/UAVariable[52]/@UserAccessLevel
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[24]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[24] to <UAVariable...> at /UANodeSet[1]/UAVariable[69]/@UserAccessLevel

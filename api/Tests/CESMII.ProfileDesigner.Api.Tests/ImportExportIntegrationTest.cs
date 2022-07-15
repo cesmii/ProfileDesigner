@@ -449,7 +449,6 @@ namespace CESMII.ProfileDesigner.Api.Tests
         {
             bool ignoreTestsWithoutExpectedOutcome = true;
             var testCasesWithExpectedDiff = testCases.ToList();
-            var unstableTests = File.ReadAllLines(Path.Combine(Integration.strTestNodeSetDirectory, "ExpectedDiffs", "unstable.txt"));
             if (ignoreTestsWithoutExpectedOutcome)
             {
                 testCasesWithExpectedDiff = testCases.Where(t =>
@@ -479,6 +478,13 @@ namespace CESMII.ProfileDesigner.Api.Tests
 
             var remainingOrdered = orderedImportRequests.Select(ir => remainingTestCaseList.FirstOrDefault(tc => Path.Combine(Integration.strTestNodeSetDirectory, tc.TestMethodArguments[0].ToString()) == ir.FileName)).Where(tc => tc != null).ToList();
             var excludedTestCases = new List<TTestCase>();
+            string[] unstableTests = new string[0];
+
+            var unstableFileName = Path.Combine(Integration.strTestNodeSetDirectory, "ExpectedDiffs", "unstable.txt");
+            if (File.Exists(unstableFileName))
+            {
+                File.ReadAllLines(Path.Combine(Integration.strTestNodeSetDirectory, "ExpectedDiffs", "unstable.txt"));
+            }
             foreach (var remaining in remainingOrdered)
             {
                 var file = remaining.TestMethodArguments[0].ToString();

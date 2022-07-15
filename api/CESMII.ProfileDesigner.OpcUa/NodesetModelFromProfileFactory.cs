@@ -135,8 +135,6 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
             // TODO capture locales in profile type definitions
             _model.Description = NodeModel.LocalizedText.ListFromText(profileItem.Description);
             _model.DisplayName = NodeModel.LocalizedText.ListFromText(profileItem.Name);
-            _model.Namespace = profileItem.Profile.Namespace;
-
             _model.BrowseName = profileItem.BrowseName;
             _model.SymbolicName = profileItem.SymbolicName;
             _model.NodeId = GetProfileItemNodeId(profileItem);

@@ -873,6 +873,8 @@
                             EngUnit = engUnit,
                             EngUnitOpcNodeId = attr.EngUnitOpcNodeId,
                             EngUnitModelingRule = attr.EngUnitModelingRule,
+                            EURangeOpcNodeId = attr.EURangeOpcNodeId,
+                            EURangeModelingRule = attr.EURangeModelingRule,
 
                             AccessLevel = attr.AccessLevel,
                             UserAccessLevel = attr.UserAccessLevel,

@@ -218,6 +218,13 @@ namespace NodeSetDiff
                         return ComparisonResult.EQUAL;
                     }
                 }
+                if (outcome != ComparisonResult.EQUAL && c.ControlDetails.Target?.Value?.EndsWith(" ") == true)
+                {
+                    if (c.ControlDetails.Target?.Value?.TrimEnd() == c.TestDetails.Target?.Value)
+                    {
+                        return ComparisonResult.EQUAL;
+                    }
+                }
             }
             if (c.Type == ComparisonType.NAMESPACE_PREFIX)
             {

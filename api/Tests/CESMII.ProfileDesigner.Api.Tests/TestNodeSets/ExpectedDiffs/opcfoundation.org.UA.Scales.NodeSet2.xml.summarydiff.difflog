@@ -622,7 +622,6 @@
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAVariable[1166]/References[1]/Reference[4] to <NULL>
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[1170]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[1170] to <UAVariable...> at /UANodeSet[1]/UAVariable[628]/@UserAccessLevel
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[1172]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[1172] to <UAVariable...> at /UANodeSet[1]/UAVariable[412]/@UserAccessLevel
-====>Expected text value '1.0 ' but was '1.0' - comparing <uax:String ...>1.0 </uax:String> at /UANodeSet[1]/UAVariable[1176]/Value[1]/String[1]/text()[1] to <uax:String ...>1.0</uax:String> at /UANodeSet[1]/UAVariable[950]/Value[1]/String[1]/text()[1]
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[128]/References[1]/Reference[3] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[129]/References[1]/Reference[3] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[131]/References[1]/Reference[3] to <NULL>

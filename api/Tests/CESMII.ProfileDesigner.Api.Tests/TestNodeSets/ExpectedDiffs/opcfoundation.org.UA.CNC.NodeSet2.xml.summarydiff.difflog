@@ -1,8 +1,12 @@
+###2#By Design#LastModified and PublicationDate change on export
 ====>Expected attribute name '/UANodeSet[1]' - comparing <UANodeSet...> at /UANodeSet[1] to <UANodeSet...> at /UANodeSet[1]/@LastModified
 ====>Expected attribute value '2017-06-19T16:01:03Z' but was '2017-06-19T00:00:00Z' - comparing <Model PublicationDate="2017-06-19T16:01:03Z"...> at /UANodeSet[1]/Models[1]/Model[1]/@PublicationDate to <Model PublicationDate="2017-06-19T00:00:00Z"...> at /UANodeSet[1]/Models[1]/Model[1]/@PublicationDate
+###2#Feature#Export: Allow specifying versions of dependent profiles that are lower than the imported one#C2-193
 ====>Expected attribute value '1.03' but was '1.04.7' - comparing <RequiredModel Version="1.03"...> at /UANodeSet[1]/Models[1]/Model[1]/RequiredModel[1]/@Version to <RequiredModel Version="1.04.7"...> at /UANodeSet[1]/Models[1]/Model[1]/RequiredModel[1]/@Version
 ====>Expected attribute value '2016-04-15T00:00:00Z' but was '2020-07-15T00:00:00Z' - comparing <RequiredModel PublicationDate="2016-04-15T00:00:00Z"...> at /UANodeSet[1]/Models[1]/Model[1]/RequiredModel[1]/@PublicationDate to <RequiredModel PublicationDate="2020-07-15T00:00:00Z"...> at /UANodeSet[1]/Models[1]/Model[1]/RequiredModel[1]/@PublicationDate
+###1#Feature#Capture default value for variable types#Capture default value for variable types
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Value' but was '' - comparing <Value...> at /UANodeSet[1]/UAVariableType[1]/Value[1] to <NULL>
+###132#Feature#Capture AccessLevel#Capture AccessLevel
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[42]/@AccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[42]/@AccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[845]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[42]/@UserAccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[42]/@UserAccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[845]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[43]/@AccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[43]/@AccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[846]
@@ -135,6 +139,7 @@
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[444]/@UserAccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[444]/@UserAccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[129]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[445]/@AccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[445]/@AccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[130]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[445]/@UserAccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[445]/@UserAccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[130]
+###10#Explanation missing
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[13]/References[1]/Reference[1] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[17]/References[1]/Reference[1] to <NULL>
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[84]/References[1]/Reference[2]
@@ -145,66 +150,84 @@
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[161]/References[1]/Reference[2]
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[276]/References[1]/Reference[2]
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[277]/References[1]/Reference[2]
+###4#Feature#Capture AccessLevel#Capture AccessLevel
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[525]/@AccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[525]/@AccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[274]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[525]/@UserAccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[525]/@UserAccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[274]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[526]/@AccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[526]/@AccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[275]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[526]/@UserAccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[526]/@UserAccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[275]
+###3#Explanation missing
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[278]/References[1]/Reference[2]
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[311]/References[1]/Reference[2]
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[312]/References[1]/Reference[2]
+###4#Feature#Capture AccessLevel#Capture AccessLevel
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[552]/@AccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[552]/@AccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[309]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[552]/@UserAccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[552]/@UserAccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[309]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[553]/@AccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[553]/@AccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[310]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[553]/@UserAccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[553]/@UserAccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[310]
+###3#Explanation missing
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[313]/References[1]/Reference[2]
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[346]/References[1]/Reference[2]
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[347]/References[1]/Reference[2]
+###4#Feature#Capture AccessLevel#Capture AccessLevel
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[579]/@AccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[579]/@AccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[344]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[579]/@UserAccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[579]/@UserAccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[344]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[580]/@AccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[580]/@AccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[345]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[580]/@UserAccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[580]/@UserAccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[345]
+###3#Explanation missing
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[348]/References[1]/Reference[2]
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[381]/References[1]/Reference[2]
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[382]/References[1]/Reference[2]
+###4#Feature#Capture AccessLevel#Capture AccessLevel
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[606]/@AccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[606]/@AccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[379]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[606]/@UserAccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[606]/@UserAccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[379]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[607]/@AccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[607]/@AccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[380]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[607]/@UserAccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[607]/@UserAccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[380]
+###3#Explanation missing
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[383]/References[1]/Reference[2]
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[389]/References[1]/Reference[2]
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[390]/References[1]/Reference[2]
+###4#Feature#Capture AccessLevel#Capture AccessLevel
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[612]/@AccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[612]/@AccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[387]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[612]/@UserAccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[612]/@UserAccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[387]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[613]/@AccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[613]/@AccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[388]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[613]/@UserAccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[613]/@UserAccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[388]
+###3#Explanation missing
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[391]/References[1]/Reference[2]
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[422]/References[1]/Reference[2]
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[423]/References[1]/Reference[2]
+###4#Feature#Capture AccessLevel#Capture AccessLevel
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[635]/@AccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[635]/@AccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[420]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[635]/@UserAccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[635]/@UserAccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[420]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[636]/@AccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[636]/@AccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[421]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[636]/@UserAccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[636]/@UserAccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[421]
+###3#Explanation missing
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[424]/References[1]/Reference[2]
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[453]/References[1]/Reference[2]
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[454]/References[1]/Reference[2]
+###4#Feature#Capture AccessLevel#Capture AccessLevel
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[658]/@AccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[658]/@AccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[451]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[658]/@UserAccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[658]/@UserAccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[451]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[659]/@AccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[659]/@AccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[452]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[659]/@UserAccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[659]/@UserAccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[452]
+###3#Explanation missing
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[455]/References[1]/Reference[2]
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[552]/References[1]/Reference[2]
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[553]/References[1]/Reference[2]
+###4#Feature#Capture AccessLevel#Capture AccessLevel
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[747]/@AccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[747]/@AccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[550]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[747]/@UserAccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[747]/@UserAccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[550]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[748]/@AccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[748]/@AccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[551]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[748]/@UserAccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[748]/@UserAccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[551]
+###3#Explanation missing
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[560]/References[1]/Reference[2]
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[598]/References[1]/Reference[2]
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[599]/References[1]/Reference[2]
+###4#Feature#Capture AccessLevel#Capture AccessLevel
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[769]/@AccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[769]/@AccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[596]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[769]/@UserAccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[769]/@UserAccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[596]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[770]/@AccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[770]/@AccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[597]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[770]/@UserAccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[770]/@UserAccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[597]
+###69#Explanation missing
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[600]/References[1]/Reference[2]
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[639]/References[1]/Reference[2]
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[640]/References[1]/Reference[2]
@@ -274,6 +297,7 @@
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[826]/References[1]/Reference[2]
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[830]/References[1]/Reference[2]
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[831]/References[1]/Reference[2]
+###100#Feature#Capture AccessLevel#Capture AccessLevel
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[889]/@AccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[889]/@AccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[828]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[889]/@UserAccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[889]/@UserAccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[828]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[890]/@AccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[890]/@AccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[72]
@@ -374,91 +398,117 @@
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[937]/@UserAccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[937]/@UserAccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[823]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[938]/@AccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[938]/@AccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[829]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[938]/@UserAccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[938]/@UserAccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[829]
+###3#Explanation missing
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[837]/References[1]/Reference[2]
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[841]/References[1]/Reference[2]
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[842]/References[1]/Reference[2]
+###4#Feature#Capture AccessLevel#Capture AccessLevel
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[943]/@AccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[943]/@AccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[839]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[943]/@UserAccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[943]/@UserAccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[839]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[944]/@AccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[944]/@AccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[840]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[944]/@UserAccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[944]/@UserAccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[840]
+###3#Explanation missing
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[843]/References[1]/Reference[2]
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[872]/References[1]/Reference[2]
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[873]/References[1]/Reference[2]
+###4#Feature#Capture AccessLevel#Capture AccessLevel
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[949]/@AccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[949]/@AccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[870]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[949]/@UserAccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[949]/@UserAccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[870]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[950]/@AccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[950]/@AccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[871]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[950]/@UserAccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[950]/@UserAccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[871]
+###3#Explanation missing
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[874]/References[1]/Reference[2]
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[878]/References[1]/Reference[2]
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[879]/References[1]/Reference[2]
+###4#Feature#Capture AccessLevel#Capture AccessLevel
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[955]/@AccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[955]/@AccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[876]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[955]/@UserAccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[955]/@UserAccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[876]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[956]/@AccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[956]/@AccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[877]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[956]/@UserAccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[956]/@UserAccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[877]
+###3#Explanation missing
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[880]/References[1]/Reference[2]
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[885]/References[1]/Reference[2]
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[886]/References[1]/Reference[2]
+###4#Feature#Capture AccessLevel#Capture AccessLevel
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[961]/@AccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[961]/@AccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[882]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[961]/@UserAccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[961]/@UserAccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[882]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[962]/@AccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[962]/@AccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[883]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[962]/@UserAccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[962]/@UserAccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[883]
+###3#Explanation missing
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[887]/References[1]/Reference[2]
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[891]/References[1]/Reference[2]
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[892]/References[1]/Reference[2]
+###4#Feature#Capture AccessLevel#Capture AccessLevel
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[967]/@AccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[967]/@AccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[889]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[967]/@UserAccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[967]/@UserAccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[889]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[968]/@AccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[968]/@AccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[890]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[968]/@UserAccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[968]/@UserAccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[890]
+###3#Explanation missing
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[893]/References[1]/Reference[2]
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[897]/References[1]/Reference[2]
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[898]/References[1]/Reference[2]
+###4#Feature#Capture AccessLevel#Capture AccessLevel
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[973]/@AccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[973]/@AccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[895]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[973]/@UserAccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[973]/@UserAccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[895]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[974]/@AccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[974]/@AccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[896]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[974]/@UserAccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[974]/@UserAccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[896]
+###3#Explanation missing
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[899]/References[1]/Reference[2]
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[903]/References[1]/Reference[2]
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[904]/References[1]/Reference[2]
+###4#Feature#Capture AccessLevel#Capture AccessLevel
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[979]/@AccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[979]/@AccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[901]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[979]/@UserAccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[979]/@UserAccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[901]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[980]/@AccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[980]/@AccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[902]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[980]/@UserAccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[980]/@UserAccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[902]
+###3#Explanation missing
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[905]/References[1]/Reference[2]
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[939]/References[1]/Reference[2]
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[940]/References[1]/Reference[2]
+###4#Feature#Capture AccessLevel#Capture AccessLevel
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[996]/@AccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[996]/@AccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[937]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[996]/@UserAccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[996]/@UserAccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[937]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[997]/@AccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[997]/@AccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[938]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[997]/@UserAccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[997]/@UserAccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[938]
+###3#Explanation missing
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[941]/References[1]/Reference[2]
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[945]/References[1]/Reference[2]
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[946]/References[1]/Reference[2]
+###4#Feature#Capture AccessLevel#Capture AccessLevel
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[1002]/@AccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[1002]/@AccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[943]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[1002]/@UserAccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[1002]/@UserAccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[943]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[1003]/@AccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[1003]/@AccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[944]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[1003]/@UserAccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[1003]/@UserAccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[944]
+###3#Explanation missing
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[948]/References[1]/Reference[2]
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[1038]/References[1]/Reference[2]
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[1039]/References[1]/Reference[2]
+###4#Feature#Capture AccessLevel#Capture AccessLevel
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[1044]/@AccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[1044]/@AccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[1037]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[1044]/@UserAccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[1044]/@UserAccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[1037]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[1045]/@AccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[1045]/@AccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[1036]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[1045]/@UserAccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[1045]/@UserAccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[1036]
+###3#Explanation missing
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[1040]/References[1]/Reference[2]
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[1044]/References[1]/Reference[2]
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[1045]/References[1]/Reference[2]
+###4#Feature#Capture AccessLevel#Capture AccessLevel
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[1050]/@AccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[1050]/@AccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[1043]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[1050]/@UserAccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[1050]/@UserAccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[1043]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[1051]/@AccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[1051]/@AccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[1042]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[1051]/@UserAccessLevel' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[1051]/@UserAccessLevel to <UAVariable...> at /UANodeSet[1]/UAVariable[1042]
+###1#Explanation missing
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[1046]/References[1]/Reference[2]
+###1#Feature#Extensions not supported#C2-90
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Extensions' but was '' - comparing <Extensions...> at /UANodeSet[1]/Extensions[1] to <NULL>
+###6#Explanation missing
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[7] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[8] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[9] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[10] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[11] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[12] to <NULL>
+###28#Feature#Preserve comments#C2-194
 ====>Expected child '#comment' but was '' - comparing <!--
  * Copyright (c) 2005-2020 The OPC Foundation, Inc. All rights reserved.
  *

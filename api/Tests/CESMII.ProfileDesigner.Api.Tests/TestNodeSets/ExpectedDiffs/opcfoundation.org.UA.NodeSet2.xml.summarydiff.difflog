@@ -1,7 +1,4 @@
-###87#Explanation missing
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Uri' but was '' - comparing <Uri...> at /UANodeSet[1]/NamespaceUris[1]/Uri[1] to <NULL>
-====>Expected attribute name '/UANodeSet[1]/UAReferenceType[1]/@Symmetric' - comparing <UAReferenceType...> at /UANodeSet[1]/UAReferenceType[1]/@Symmetric to <UAReferenceType...> at /UANodeSet[1]/UAReferenceType[22]
-====>Expected attribute name '/UANodeSet[1]/UAReferenceType[2]/@Symmetric' - comparing <UAReferenceType...> at /UANodeSet[1]/UAReferenceType[2]/@Symmetric to <UAReferenceType...> at /UANodeSet[1]/UAReferenceType[23]
+###14#Feature#Support MinimumSamplingInterval on Variables#Support MinimumSamplingInterval on Variables
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[41]/@MinimumSamplingInterval' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[41]/@MinimumSamplingInterval to <UAVariable...> at /UANodeSet[1]/UAVariable[1656]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[42]/@MinimumSamplingInterval' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[42]/@MinimumSamplingInterval to <UAVariable...> at /UANodeSet[1]/UAVariable[1657]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[43]/@MinimumSamplingInterval' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[43]/@MinimumSamplingInterval to <UAVariable...> at /UANodeSet[1]/UAVariable[673]
@@ -16,8 +13,10 @@
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[58]/@MinimumSamplingInterval' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[58]/@MinimumSamplingInterval to <UAVariable...> at /UANodeSet[1]/UAVariable[2065]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[59]/@MinimumSamplingInterval' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[59]/@MinimumSamplingInterval to <UAVariable...> at /UANodeSet[1]/UAVariable[431]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[60]/@MinimumSamplingInterval' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[60]/@MinimumSamplingInterval to <UAVariable...> at /UANodeSet[1]/UAVariable[1212]
+###2#Feature#Support UserAccessLevel#Support UserAccessLevel
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[84]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[84] to <UAVariable...> at /UANodeSet[1]/UAVariable[2168]/@UserAccessLevel
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[123]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[123] to <UAVariable...> at /UANodeSet[1]/UAVariable[1721]/@UserAccessLevel
+###12#Feature#Support MinimumSamplingInterval on Variables#Support MinimumSamplingInterval on Variables
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[352]/@MinimumSamplingInterval' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[352]/@MinimumSamplingInterval to <UAVariable...> at /UANodeSet[1]/UAVariable[2235]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[353]/@MinimumSamplingInterval' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[353]/@MinimumSamplingInterval to <UAVariable...> at /UANodeSet[1]/UAVariable[2236]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[354]/@MinimumSamplingInterval' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[354]/@MinimumSamplingInterval to <UAVariable...> at /UANodeSet[1]/UAVariable[2237]
@@ -30,7 +29,9 @@
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[363]/@MinimumSamplingInterval' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[363]/@MinimumSamplingInterval to <UAVariable...> at /UANodeSet[1]/UAVariable[2122]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[364]/@MinimumSamplingInterval' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[364]/@MinimumSamplingInterval to <UAVariable...> at /UANodeSet[1]/UAVariable[2123]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[365]/@MinimumSamplingInterval' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[365]/@MinimumSamplingInterval to <UAVariable...> at /UANodeSet[1]/UAVariable[2124]
+###1#Feature#Support EventNotifier attribute#Support EventNotifier attribute
 ====>Expected attribute name '/UANodeSet[1]/UAObject[36]/@EventNotifier' - comparing <UAObject...> at /UANodeSet[1]/UAObject[36]/@EventNotifier to <UAObject...> at /UANodeSet[1]/UAObject[461]
+###13#Feature#Support MinimumSamplingInterval on Variables#Support MinimumSamplingInterval on Variables
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[564]/@MinimumSamplingInterval' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[564]/@MinimumSamplingInterval to <UAVariable...> at /UANodeSet[1]/UAVariable[1953]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[565]/@MinimumSamplingInterval' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[565]/@MinimumSamplingInterval to <UAVariable...> at /UANodeSet[1]/UAVariable[1954]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[566]/@MinimumSamplingInterval' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[566]/@MinimumSamplingInterval to <UAVariable...> at /UANodeSet[1]/UAVariable[1955]
@@ -44,19 +45,9 @@
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[580]/@MinimumSamplingInterval' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[580]/@MinimumSamplingInterval to <UAVariable...> at /UANodeSet[1]/UAVariable[2097]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[581]/@MinimumSamplingInterval' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[581]/@MinimumSamplingInterval to <UAVariable...> at /UANodeSet[1]/UAVariable[433]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[582]/@MinimumSamplingInterval' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[582]/@MinimumSamplingInterval to <UAVariable...> at /UANodeSet[1]/UAVariable[1216]
+###1#Feature#Support UserAccessLevel#Support UserAccessLevel
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[625]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[625] to <UAVariable...> at /UANodeSet[1]/UAVariable[1984]/@UserAccessLevel
-====>Expected attribute name '/UANodeSet[1]/UADataType[43]/Definition[1]/@SymbolicName' - comparing <Definition...> at /UANodeSet[1]/UADataType[43]/Definition[1]/@SymbolicName to <Definition...> at /UANodeSet[1]/UADataType[107]/Definition[1]
-====>Expected attribute name '/UANodeSet[1]/UADataType[45]/Definition[1]/@SymbolicName' - comparing <Definition...> at /UANodeSet[1]/UADataType[45]/Definition[1]/@SymbolicName to <Definition...> at /UANodeSet[1]/UADataType[109]/Definition[1]
-====>Expected attribute name '/UANodeSet[1]/UADataType[47]/Definition[1]/@SymbolicName' - comparing <Definition...> at /UANodeSet[1]/UADataType[47]/Definition[1]/@SymbolicName to <Definition...> at /UANodeSet[1]/UADataType[111]/Definition[1]
-====>Expected attribute name '/UANodeSet[1]/UADataType[49]/Definition[1]/@SymbolicName' - comparing <Definition...> at /UANodeSet[1]/UADataType[49]/Definition[1]/@SymbolicName to <Definition...> at /UANodeSet[1]/UADataType[113]/Definition[1]
-====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAObject[485]/References[1]/Reference[6]
-====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[1028]/References[1]/Reference[3]
-====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAObject[341]/References[1]/Reference[4]
-====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAObject[90]/References[1]/Reference[9]
-====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAObject[348]/References[1]/Reference[14]
-====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAObject[350]/References[1]/Reference[8]
-====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAObject[369]/References[1]/Reference[8]
-====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAObject[374]/References[1]/Reference[15]
+###28#Feature#Preserve comments#C2-194
 ====>Expected child '#comment' but was '' - comparing <!--
  * Copyright (c) 2005-2020 The OPC Foundation, Inc. All rights reserved.
  *

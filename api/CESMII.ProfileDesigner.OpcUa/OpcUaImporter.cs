@@ -406,7 +406,14 @@ namespace CESMII.ProfileDesigner.OpcUa
             }
 
             var allNamespaces = namespaces.ToArray();
-            nodeSet.NamespaceUris = allNamespaces.Where(ns => ns != strOpcNamespaceUri).ToArray();
+            if (allNamespaces.Length > 1)
+            {
+                nodeSet.NamespaceUris = allNamespaces.Where(ns => ns != strOpcNamespaceUri).ToArray();
+            }
+            else
+            {
+                nodeSet.NamespaceUris = allNamespaces;
+            }
             foreach (var uaNamespace in allNamespaces.Except(namespaceUris))
             {
                 if (!requiredModels.Any(m => m.ModelUri == uaNamespace))
@@ -465,10 +472,10 @@ namespace CESMII.ProfileDesigner.OpcUa
             foreach (var node in nodesetModel.AllNodesByNodeId /*.Where(n => n.Value.Namespace == opcNamespace)*/.OrderBy(n => n.Key))
             {
                 var result = NodeModelExportOpc.GetUANode(node.Value, namespaces, aliases, nodeIdsUsed);
-                items.Add(result.Item1);
-                if (result.Item2 != null)
+                items.Add(result.ExportedNode);
+                if (result.AdditionalNodes != null)
                 {
-                    items.AddRange(result.Item2);
+                    items.AddRange(result.AdditionalNodes);
                 }
             }
             return items;

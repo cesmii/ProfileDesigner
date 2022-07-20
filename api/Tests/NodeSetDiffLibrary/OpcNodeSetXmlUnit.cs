@@ -10,6 +10,7 @@ using Opc.Ua;
 using Opc.Ua.Export;
 using System.Text;
 using System.Xml.Linq;
+using System.Text.RegularExpressions;
 
 namespace NodeSetDiff
 {
@@ -54,7 +55,19 @@ namespace NodeSetDiff
             }
             if (c.Type == ComparisonType.CHILD_NODELIST_SEQUENCE)
             {
-                if (new[] { "Reference", "UAVariable", "UAVariableType", "UAObject", "UAObjectType", "UADataType", "UAMethod", "UAReferenceType", "UANodeSet", "Alias", "Uri", "RequiredModel" }.Contains(c.ControlDetails.Target.Name))
+                var xPath = Regex.Replace(c.ControlDetails.XPath, "\\[\\d*\\]", "");
+
+                if (new[] {
+                    "/UANodeSet",
+                    "/UANodeSet/",
+                    "/UANodeSet/Aliases/",
+                    "/UANodeSet/NamespaceUris/",
+                    "/UANodeSet/Models/",
+                    "/UANodeSet/Models/Model/",
+                    "/UANodeSet/UAVariable/", "/UANodeSet/UAVariableType/", "/UANodeSet/UAObjectType/", "/UANodeSet/UADataType/", "/UANodeSet/UAReferenceType/", "/UANodeSet/UAObject/", "/UANodeSet/UAMethod/",
+                    "/UANodeSet/UAVariable/References/", "/UANodeSet/UAVariableType/References/", "/UANodeSet/UAObjectType/References/", "/UANodeSet/UADataType/References/", "/UANodeSet/UAReferenceType/References/", "/UANodeSet/UAObject/References/","/UANodeSet/UAMethod/References/",
+                    }
+                    .Any(p => xPath.StartsWith(p) && xPath.Substring(p.Length).IndexOf("/") < 0))
                 {
                     return ComparisonResult.EQUAL;
                 }
@@ -62,7 +75,12 @@ namespace NodeSetDiff
                 {
                     if (c.ControlDetails.XPath.Split('/', 4)?[3] == c.TestDetails.XPath.Split('/', 4)?[3])
                     {
-                        return ComparisonResult.EQUAL;
+                        if (((int) c.ControlDetails.Value) == ((int) c.TestDetails.Value)+ 1 &&  c.ControlDetails.Target.PreviousSibling.LocalName=="Locale" && c.ControlDetails.Target.Value == null)
+                        {
+                            // treat null locale vs missing locale element as same
+                            return ComparisonResult.EQUAL;
+                        }
+                        //return ComparisonResult.EQUAL;
                     }
                 }
             }
@@ -109,23 +127,31 @@ namespace NodeSetDiff
                             {
                                 return ComparisonResult.EQUAL;
                             }
+                            if (detailsNonNull.Target.Name == "Description" && detailsNonNull.Target.InnerXml == "")
+                            {
+                                return ComparisonResult.EQUAL;
+                            }
+                            if (detailsNonNull.Target.Name == "Locale")
+                            {
+                                return ComparisonResult.EQUAL;
+                            }
 
                             if (detailsNonNull.Target.LocalName == "Reference")
                             {
                                 // TODO apply aliases
                                 var referencedNodeId = NormalizeNodeId(detailsNonNull.Target.InnerText, aliasesNonNull, namespacesNonNull);
                                 var referenceType = NormalizeNodeId(detailsNonNull.Target.Attributes.GetNamedItem("ReferenceType").Value, aliasesNonNull, namespacesNonNull);
-                                var isForward = (detailsNonNull.Target.Attributes.GetNamedItem("IsForward")?.Value?.ToLowerInvariant()??"true") != "false";
+                                var isForward = (detailsNonNull.Target.Attributes.GetNamedItem("IsForward")?.Value?.ToLowerInvariant() ?? "true") != "false";
                                 var nodeId = NormalizeNodeId(detailsNonNull.Target.ParentNode.ParentNode.Attributes.GetNamedItem("NodeId").Value, aliasesNonNull, namespacesNonNull);
 
                                 // Check for matching reverse references (IsForward true/false)
                                 var nullDoc = c.ControlDetails.Target == null ? _controlDoc : _testDoc;
 
-                                var nodes = nullDoc.Root.Descendants().Where(e => e.Attribute("NodeId")?.Value == referencedNodeId).ToList();
-                                foreach(var node in nodes)
+                                var nodes = nullDoc.Root.Descendants().Where(e => NormalizeNodeId(e.Attribute("NodeId")?.Value, aliasesNull, namespacesNull) == referencedNodeId).ToList();
+                                foreach (var node in nodes)
                                 {
-                                    var matchingRefs = node.Descendants().Where(e => e.Name.LocalName == "Reference" && e?.Attribute("IsForward")?.Value == (isForward ? "false" : "true") 
-                                        && NormalizeNodeId(e.Value, aliasesNull, namespacesNull) == nodeId 
+                                    var matchingRefs = node.Descendants().Where(e => e.Name.LocalName == "Reference" && (e?.Attribute("IsForward")?.Value?.ToLowerInvariant() ?? "true") == (isForward ? "false" : "true")
+                                        && NormalizeNodeId(e.Value, aliasesNull, namespacesNull) == nodeId
                                         && NormalizeNodeId(e.Attribute("ReferenceType")?.Value, aliasesNull, namespacesNull) == referenceType
                                         ).ToList();
                                     if (matchingRefs.Any())
@@ -156,6 +182,14 @@ namespace NodeSetDiff
             }
             if (c.Type == ComparisonType.ATTR_NAME_LOOKUP)
             {
+                if (c.ControlDetails.XPath.EndsWith("@Locale"))
+                {
+                    if (c.ControlDetails.Target.Attributes["Locale"]?.Value == "en"
+                    && string.IsNullOrEmpty(c.TestDetails.Target?.Attributes["Locale"]?.Value))
+                    {
+                        return ComparisonResult.EQUAL;
+                    }
+                }
                 if (outcome == ComparisonResult.DIFFERENT)
                 {
                     if (c.ControlDetails.Target.Value == null && c.TestDetails.XPath.EndsWith("@DataType") && IsEqualNodeId("i=24", c.TestDetails.Target.Attributes["DataType"]?.Value.ToString()))
@@ -170,13 +204,23 @@ namespace NodeSetDiff
                 {
                     return ComparisonResult.EQUAL;
                 }
-
+                if (c.ControlDetails.Target?.LocalName == "LastModified" || c.TestDetails.Target?.LocalName == "LastModified")
+                {
+                    return ComparisonResult.EQUAL;
+                }
             }
             if (c.Type == ComparisonType.TEXT_VALUE)
             {
                 if (c.ControlDetails.Target.ParentNode.Name == "Reference")
                 {
                     if (IsEqualNodeId(c.ControlDetails.Target.Value, c.TestDetails.Target.Value))
+                    {
+                        return ComparisonResult.EQUAL;
+                    }
+                }
+                if (outcome != ComparisonResult.EQUAL && c.ControlDetails.Target?.Value?.EndsWith(" ") == true)
+                {
+                    if (c.ControlDetails.Target?.Value?.TrimEnd() == c.TestDetails.Target?.Value)
                     {
                         return ComparisonResult.EQUAL;
                     }
@@ -296,6 +340,9 @@ namespace NodeSetDiff
                      .CheckForSimilar()
                      .WithDifferenceEvaluator(diffHelper.OpcNodeSetDifferenceEvaluator)
                      .WithNodeMatcher(new DefaultNodeMatcher(new ElementSelector[] { diffHelper.OpcElementSelector }))
+                     .WithAttributeFilter(a => // ParentNodeId is not part of the address space/information model, ignore
+                        !(a.LocalName == "ParentNodeId" 
+                        && new[] { "UAObject", "UAVariable", "UAMethod", "UAView", }.Contains(a.OwnerElement.LocalName)))
                      .Build();
             return d;
         }

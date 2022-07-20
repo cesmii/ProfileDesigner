@@ -135,8 +135,6 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
             // TODO capture locales in profile type definitions
             _model.Description = NodeModel.LocalizedText.ListFromText(profileItem.Description);
             _model.DisplayName = NodeModel.LocalizedText.ListFromText(profileItem.Name);
-            _model.Namespace = profileItem.Profile.Namespace;
-
             _model.BrowseName = profileItem.BrowseName;
             _model.SymbolicName = profileItem.SymbolicName;
             _model.NodeId = GetProfileItemNodeId(profileItem);
@@ -177,15 +175,30 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
                     }
                     else
                     {
-                        var uaObject = ObjectModelFromProfileFactory.Create(composition, profileItem, opcContext, dalContext);
-                        uaObject.Parent = this._model;
-                        if (string.IsNullOrEmpty(composition.RelatedReferenceId))
+                        var nodeModel = ObjectModelFromProfileFactory.Create(composition, profileItem, opcContext, dalContext);
+                        if (nodeModel is ObjectModel uaObjectModel)
                         {
-                            _model.Objects.Add(uaObject);
+                            if (uaObjectModel.Parent == null)
+                            {
+                                uaObjectModel.Parent = this._model;
+                            }
+                            if (string.IsNullOrEmpty(composition.RelatedReferenceId))
+                            {
+                                _model.Objects.Add(uaObjectModel);
+                            }
                         }
-                        else
+                        if (!string.IsNullOrEmpty(composition.RelatedReferenceId))
                         {
-                            _model.OtherChilden.Add(new NodeModel.ChildAndReference { Child = uaObject, Reference = composition.RelatedReferenceId });
+                            if (composition.RelatedReferenceIsInverse != true)
+                            {
+                                _model.OtherReferencedNodes.Add(new NodeModel.NodeAndReference { Node = nodeModel, Reference = composition.RelatedReferenceId });
+                                nodeModel.OtherReferencingNodes.Add(new NodeModel.NodeAndReference { Node = _model, Reference = composition.RelatedReferenceId });
+                            }
+                            else
+                            {
+                                _model.OtherReferencingNodes.Add(new NodeModel.NodeAndReference { Node = nodeModel, Reference = composition.RelatedReferenceId });
+                                nodeModel.OtherReferencedNodes.Add(new NodeModel.NodeAndReference { Node = _model, Reference = composition.RelatedReferenceId });
+                            }
                         }
                     }
                 }
@@ -216,24 +229,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
                     }
                     else if (attribute.AttributeType?.ID == (int)AttributeTypeIdEnum.StructureField)
                     {
-                        var structure = this._model as DataTypeModel;
-                        var fieldDataType = DataTypeModelFromProfileFactory.GetDataTypeModel(attribute, opcContext, dalContext);
-                        if (fieldDataType == null)
-                        {
-                            throw new Exception($"Unable to resolve data type for field {attribute.DisplayName}");
-                        }
-                        var field = new DataTypeModel.StructureField
-                        {
-                            Name = attribute.Name,
-                            DataType = fieldDataType,
-                            Description = NodeModel.LocalizedText.ListFromText(attribute.Description),
-                            IsOptional = !attribute.IsRequired ?? false,
-                        };
-                        if (structure.StructureFields == null)
-                        {
-                            structure.StructureFields = new List<DataTypeModel.StructureField>();
-                        }
-                        structure.StructureFields.Add(field);
+                        // Processed separately to preserve field order
                     }
                     else if (attribute.AttributeType?.ID == (int)AttributeTypeIdEnum.EnumField)
                     {
@@ -257,6 +253,30 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
                     }
                 }
             }
+            foreach (var attribute in profileItem.Attributes.Where(a => a.AttributeType?.ID == (int)AttributeTypeIdEnum.StructureField).OrderBy(a => a.EnumValue))
+            {
+                var structure = this._model as DataTypeModel;
+                var fieldDataType = DataTypeModelFromProfileFactory.GetDataTypeModel(attribute, opcContext, dalContext);
+                if (fieldDataType == null)
+                {
+                    throw new Exception($"Unable to resolve data type for field {attribute.DisplayName}");
+                }
+                var field = new DataTypeModel.StructureField
+                {
+                    Name = attribute.Name,
+                    DataType = fieldDataType,
+                    ValueRank = attribute.ValueRank,
+                    ArrayDimensions = attribute.ArrayDimensions,
+                    MaxStringLength = attribute.MaxStringLength,
+                    Description = NodeModel.LocalizedText.ListFromText(attribute.Description),
+                    IsOptional = !attribute.IsRequired ?? false,
+                };
+                if (structure.StructureFields == null)
+                {
+                    structure.StructureFields = new List<DataTypeModel.StructureField>();
+                }
+                structure.StructureFields.Add(field);
+            }
             if (profileItem.Interfaces?.Any() == true)
             {
                 foreach (var profileInterface in profileItem.Interfaces)
@@ -273,7 +293,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
 
     public class InstanceModelFromProfileFactory<TInstanceModel, TBaseTypeModel> : NodeModelFromProfileFactory<TInstanceModel>
         where TInstanceModel : InstanceModel<TBaseTypeModel>, new()
-        where TBaseTypeModel : BaseTypeModel, new()
+        where TBaseTypeModel : NodeModel, new()
     {
 
         public override void Initialize(ProfileTypeDefinitionModel profileItem, IOpcUaContext opcContext, IDALContext dalContext)
@@ -323,7 +343,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
 
     public class ObjectModelFromProfileFactory : InstanceModelFromProfileFactory<ObjectModel, ObjectTypeModel>
     {
-        internal static ObjectModel Create(ProfileTypeDefinitionRelatedModel objectTypeRelated, ProfileTypeDefinitionModel composingProfile, IOpcUaContext opcContext, IDALContext dalContext)
+        internal static NodeModel Create(ProfileTypeDefinitionRelatedModel objectTypeRelated, ProfileTypeDefinitionModel composingProfile, IOpcUaContext opcContext, IDALContext dalContext)
         {
             var objectProfile = objectTypeRelated.RelatedProfileTypeDefinition;
             if (objectProfile == null)
@@ -332,17 +352,21 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
             }
             var objectOrTypeModel = Create(objectProfile, opcContext, dalContext);
             var modelingRule = GetModelingRuleFromProfile(objectTypeRelated.RelatedIsRequired, objectTypeRelated.RelatedModelingRule);
-            if (objectOrTypeModel is ObjectModel objectModel)
+            if (string.IsNullOrEmpty(objectTypeRelated.OpcNodeId))
             {
-                objectModel.ModelingRule = modelingRule;
-                return objectModel;
+                if (objectOrTypeModel is InstanceModelBase instanceModel)
+                {
+                    instanceModel.ModelingRule = modelingRule;
+                    return instanceModel;
+                }
+                return objectOrTypeModel;
             }
             else if (objectOrTypeModel is ObjectTypeModel objectTypeModel)
             {
                 // In the profile designer we allow composition directly with a class: create the intermediate OPC Object required
                 try
                 {
-                    objectModel = NodeModelFactoryOpc<NodeModel>.Create<ObjectModel>(opcContext, GetProfileItemNodeId(objectTypeRelated), objectTypeRelated.Profile.Namespace ?? composingProfile.Profile.Namespace, objectTypeRelated.Profile, out var created);
+                    var objectModel = NodeModelFactoryOpc<NodeModel>.Create<ObjectModel>(opcContext, GetProfileItemNodeId(objectTypeRelated), objectTypeRelated.Profile.Namespace ?? composingProfile.Profile.Namespace, objectTypeRelated.Profile, out var created);
                     if (created)
                     {
                         objectModel.DisplayName = NodeModel.LocalizedText.ListFromText(objectTypeRelated.Name);
@@ -467,6 +491,9 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
                     };
                 }
                 variableModel.EngUnitNodeId = attribute.EngUnitOpcNodeId;
+                variableModel.EngUnitModelingRule = attribute.EngUnitModelingRule;
+                variableModel.EURangeNodeId = attribute.EURangeOpcNodeId;
+                variableModel.EURangeModelingRule = attribute.EURangeModelingRule;
                 variableModel.MinValue = (double?)attribute.MinValue;
                 variableModel.MaxValue = (double?)attribute.MaxValue;
                 variableModel.InstrumentMinValue = (double?)attribute.InstrumentMinValue;
@@ -485,11 +512,14 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
         private static void ProcessDataVariableNodeIds(DataVariableNodeIdMap map, VariableModel variableModel
             , IOpcUaContext opcContext, ProfileTypeDefinitionModel profileType)
         {
-            foreach (var typeDataVariable in variableModel.TypeDefinition.DataVariables)
+            foreach (var typeDataVariable in variableModel.TypeDefinition.DataVariables.Concat(variableModel.TypeDefinition.Properties))
             {
-                if (map.DataVariableNodeIdsByBrowseName.TryGetValue(typeDataVariable.BrowseName, out var mapEntry))
+                if (map?.DataVariableNodeIdsByBrowseName.TryGetValue(typeDataVariable.BrowseName, out var mapEntry) == true)
                 {
-                    var dataVariable = NodeModelFactoryOpc.Create<DataVariableModel>(opcContext, mapEntry.NodeId, variableModel.Namespace, profileType, out var dvCreated);
+                    VariableModel dataVariable = 
+                        mapEntry.IsProperty ?
+                            NodeModelFactoryOpc.Create<PropertyModel>(opcContext, mapEntry.NodeId, variableModel.Namespace, profileType, out var dvCreated)
+                            :NodeModelFactoryOpc.Create<DataVariableModel>(opcContext, mapEntry.NodeId, variableModel.Namespace, profileType, out dvCreated);
                     if (dvCreated)
                     {
                         dataVariable.DataType = typeDataVariable.DataType;
@@ -514,7 +544,14 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
                         dataVariable.WriteMask = typeDataVariable.WriteMask;
                         dataVariable.UserWriteMask = typeDataVariable.UserWriteMask;
                     }
-                    variableModel.DataVariables.Add(dataVariable);
+                    if (mapEntry.IsProperty)
+                    {
+                        variableModel.Properties.Add(dataVariable);
+                    }
+                    else
+                    {
+                        variableModel.DataVariables.Add(dataVariable as DataVariableModel);
+                    }
                     if (mapEntry.Map != null)
                     {
                         ProcessDataVariableNodeIds(mapEntry.Map, dataVariable, opcContext, profileType);
@@ -532,16 +569,11 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
     {
     }
 
-    public class MethodModelFromProfileFactory : NodeModelFromProfileFactory<MethodModel>
+    public class MethodModelFromProfileFactory : InstanceModelFromProfileFactory<MethodModel, MethodModel>
     {
         internal static MethodModel Create(ProfileTypeDefinitionRelatedModel methodRelated, ProfileTypeDefinitionModel composingProfile, IOpcUaContext opcContext, IDALContext dalContext)
         {
-            var methodProfile = methodRelated.RelatedProfileTypeDefinition;
-            if (methodProfile == null)
-            {
-                methodProfile = dalContext.GetProfileItemById(methodRelated.RelatedProfileTypeDefinitionId);
-            }
-            var nodeModel = Create(methodProfile, opcContext, dalContext);
+            var nodeModel = ObjectModelFromProfileFactory.Create(methodRelated, composingProfile, opcContext, dalContext);
             if (nodeModel is MethodModel methodModel)
             {
                 return methodModel;
@@ -556,12 +588,42 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
 
     public class VariableTypeModelFromProfileFactory : BaseTypeModelFromProfileFactory<VariableTypeModel>
     {
+        public override void Initialize(ProfileTypeDefinitionModel profileItem, IOpcUaContext opcContext, IDALContext dalContext)
+        {
+            base.Initialize(profileItem, opcContext, dalContext);
+
+            if (profileItem.VariableDataType != null)
+            {
+                var dataTypeModel = NodeModelFromProfileFactory<DataTypeModel>.Create(profileItem.VariableDataType, opcContext, dalContext) as DataTypeModel;
+                if (dataTypeModel == null)
+                {
+                    throw new Exception($"Unable to resolve data type {profileItem.VariableDataType.Name}");
+                }
+                _model.DataType = dataTypeModel;
+
+                _model.ValueRank = profileItem.VariableValueRank;
+
+                if (!string.IsNullOrEmpty(profileItem.VariableArrayDimensions))
+                {
+                    _model.ArrayDimensions = profileItem.VariableArrayDimensions;
+                }
+                else
+                {
+                    _model.ArrayDimensions = null;
+                }
+            }
+        }
     }
     public class DataTypeModelFromProfileFactory : BaseTypeModelFromProfileFactory<DataTypeModel>
     {
+        public override void Initialize(ProfileTypeDefinitionModel profileItem, IOpcUaContext opcContext, IDALContext dalContext)
+        {
+            base.Initialize(profileItem, opcContext, dalContext);
+            _model.IsOptionSet = profileItem.IsOptionSet;
+        }
         public static DataTypeModel GetDataTypeModel(ProfileAttributeModel attribute, IOpcUaContext opcContext, IDALContext dalContext)
         {
-            DataTypeModel dataTypeModel = null; // DataTypeModel.GetBuiltinDataType(opcContext, attribute.DataType);
+            DataTypeModel dataTypeModel = null;
             if (attribute.DataTypeId != 0 || attribute.DataType != null)
             {
                 var customDataType = attribute.DataType;

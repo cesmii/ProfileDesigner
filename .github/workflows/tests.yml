@@ -10,6 +10,10 @@ on:
     branches:
       - develop
       - main
+  pull_request:
+    branches:
+      - develop
+      - main
 
 env:
   # set this to the path to your solution file, defaults to the repository root (this is the folder in the git repo)

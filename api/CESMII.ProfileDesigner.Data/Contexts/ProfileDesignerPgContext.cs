@@ -45,6 +45,8 @@
                 .HasOne(p => p.Parent).WithMany(/*p => p.Children*/).HasForeignKey(p => p.ParentId);
             modelBuilder.Entity<ProfileTypeDefinition>()
                 .HasOne(p => p.InstanceParent).WithMany(/*p => p.Children*/).HasForeignKey(p => p.InstanceParentId);
+            modelBuilder.Entity<ProfileTypeDefinition>()
+                .HasOne(p => p.VariableDataType).WithMany(/*p => p.Children*/).HasForeignKey(p => p.VariableDataTypeId);
             //FK lookups to profile
             modelBuilder.Entity<ProfileTypeDefinition>()
                 .HasOne(p => p.ProfileType).WithMany().HasForeignKey(p => p.ProfileTypeId);

@@ -284,6 +284,11 @@
                 {
                     result.Parent = MapToModelProfileTypDefSimple(entity.Parent);
                     result.InstanceParent = MapToModel(entity.InstanceParent, false);
+                    result.IsOptionSet = entity.IsOptionSet;
+                    result.VariableDataType = MapToModel(entity.VariableDataType);
+                    result.VariableValueRank = entity.VariableValueRank;
+                    result.VariableArrayDimensions = entity.VariableArrayDimensions;
+                    result.VariableValue = entity.VariableValue;
                     result.Attributes = MapToModelAttributes(entity);
                     result.Interfaces = MapToModelInterfaces(entity.Interfaces);
                     result.Compositions = MapToModelCompositions(entity.Compositions, result);
@@ -423,6 +428,9 @@
                 DataType = MapToModelDataType(item),
                 EngUnit = !item.EngUnitId.HasValue ? null : _euDAL.MapToModelPublic(item.EngUnit, true),
                 EngUnitOpcNodeId = item.EngUnitOpcNodeId,
+                EngUnitModelingRule = item.EngUnitModelingRule,
+                EURangeOpcNodeId = item.EURangeOpcNodeId,
+                EURangeModelingRule = item.EURangeModelingRule,
                 MinValue = item.MinValue,
                 MaxValue = item.MaxValue,
                 InstrumentMinValue = item.InstrumentMinValue,
@@ -433,6 +441,7 @@
                 IsArray = item.IsArray,
                 ValueRank = item.ValueRank,
                 ArrayDimensions = item.ArrayDimensions,
+                MaxStringLength = item.MaxStringLength,
                 //// Stored as JSON so return as JRaw, however, check to confirm there is a value first before trying to pass null.
                 //TODO: SC - come back to this. Web API not liking JRAW type as part of model.
                 //AdditionalData = !string.IsNullOrEmpty(item.AdditionalData) ? new JRaw(item.AdditionalData) : null,
@@ -550,6 +559,7 @@
                     RelatedName = i.Composition.Name,
                     RelatedDescription = i.Composition.Description,
                     RelatedReferenceId = i.ReferenceId,
+                    RelatedReferenceIsInverse = i.ReferenceIsInverse,
                     Type = i.Composition.ProfileType != null ? new LookupItemModel { ID = i.Composition.ProfileType.ID, Name = i.Composition.ProfileType.Name } : new LookupItemModel { ID = i.Composition.ProfileTypeId },
                 }).ToList();
             return result;
@@ -648,6 +658,30 @@
                 }
             }
 
+            entity.VariableDataTypeId = model.VariableDataType?.ID != 0 ? model.VariableDataType?.ID : null;
+            if (model.VariableDataType != null)
+            {
+                var variableDataTypeEntity = entity.VariableDataType;
+                if (variableDataTypeEntity == null)
+                {
+                    variableDataTypeEntity = CheckForExisting(model.VariableDataType, userToken);
+                    if (variableDataTypeEntity == null)
+                    {
+                        this.AddAsync(model.VariableDataType, userToken).Wait();
+                        variableDataTypeEntity = CheckForExisting(model.VariableDataType, userToken);
+                    }
+                    entity.VariableDataType = variableDataTypeEntity;
+                }
+                if (variableDataTypeEntity != null)
+                {
+                    _diLogger.LogInformation($"Variable Data Type  {model.VariableDataType} in {model} has an entity and was updated.");
+                }
+            }
+            entity.VariableValueRank = model.VariableValueRank;
+            entity.IsOptionSet = model.IsOptionSet;
+            entity.VariableArrayDimensions = model.VariableArrayDimensions;
+            entity.VariableValue= model.VariableValue;
+
             //favorite
             MapToEntityFavorite(ref entity, model, userToken);
 
@@ -710,6 +744,9 @@
                         current.UpdatedById = userToken.UserId;
                         current.EngUnitId = source.EngUnit?.ID != 0 ? source.EngUnit?.ID : null;
                         current.EngUnitOpcNodeId = source.EngUnitOpcNodeId;
+                        current.EngUnitModelingRule = source.EngUnitModelingRule;
+                        current.EURangeOpcNodeId = source.EURangeOpcNodeId;
+                        current.EURangeModelingRule = source.EURangeModelingRule;
                         current.MinValue = source.MinValue;
                         current.MaxValue = source.MaxValue;
                         current.DataTypeId = source.DataType?.ID != 0 ? source.DataType.ID : null;
@@ -747,13 +784,13 @@
                         {
                             current.AttributeTypeId = source.AttributeType.ID;
                         }
-                        current.EnumValue = source.AttributeType?.ID == (int)AttributeTypeIdEnum.EnumField ? source.EnumValue : null;
+                        current.EnumValue = source.EnumValue;
                         current.IsRequired = source.IsRequired;
                         current.ModelingRule = source.ModelingRule;
                         current.IsArray = source.IsArray;
                         current.ValueRank = source.ValueRank;
                         current.ArrayDimensions = source.ArrayDimensions;
-
+                        current.MaxStringLength = source.MaxStringLength;
                         current.AccessLevel = source.AccessLevel;
                         current.UserAccessLevel = source.UserAccessLevel;
                         current.AccessRestrictions = source.AccessRestrictions;
@@ -825,15 +862,19 @@
                             VariableTypeDefinitionId = attr.VariableTypeDefinitionId,
                             VariableTypeDefinition = variableType,
                             AttributeTypeId = attr.AttributeType?.ID ?? 0,
-                            EnumValue = attr.AttributeType?.ID == (int)AttributeTypeIdEnum.EnumField ? attr.EnumValue : null,
+                            EnumValue = attr.EnumValue,
                             IsRequired = attr.IsRequired,
                             ModelingRule = attr.ModelingRule,
                             IsArray = attr.IsArray,
                             ValueRank = attr.ValueRank,
                             ArrayDimensions = attr.ArrayDimensions,
+                            MaxStringLength = attr.MaxStringLength,
                             EngUnitId = attr.EngUnit != null && attr.EngUnit.ID != 0 ? attr.EngUnit.ID : null,
                             EngUnit = engUnit,
                             EngUnitOpcNodeId = attr.EngUnitOpcNodeId,
+                            EngUnitModelingRule = attr.EngUnitModelingRule,
+                            EURangeOpcNodeId = attr.EURangeOpcNodeId,
+                            EURangeModelingRule = attr.EURangeModelingRule,
 
                             AccessLevel = attr.AccessLevel,
                             UserAccessLevel = attr.UserAccessLevel,
@@ -991,6 +1032,7 @@
             composition.ModelingRule = source.RelatedModelingRule;
             composition.IsEvent = source.RelatedIsEvent;
             composition.ReferenceId = source.RelatedReferenceId;
+            composition.ReferenceIsInverse = source.RelatedReferenceIsInverse;
             composition.Description = source.Description;
         }
 

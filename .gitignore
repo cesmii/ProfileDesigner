@@ -129,3 +129,4 @@ frontend/.env.development
 frontend/.env.development
 /api/.sonarqube/conf
 /api/sonar.bat
+/api/sonarcesmii.bat

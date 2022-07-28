@@ -89,8 +89,7 @@ namespace CESMII.ProfileDesigner.Api.Tests
             {
                 Diff d = OpcNodeSetXmlUnit.DiffNodeSetFiles(file, file.Replace(strTestNodeSetDirectory, Path.Combine(strTestNodeSetDirectory, "Exported")));
 
-                string diffControl, diffTest, diffSummary;
-                OpcNodeSetXmlUnit.GenerateDiffSummary(d, out diffControl, out diffTest, out diffSummary);
+                OpcNodeSetXmlUnit.GenerateDiffSummary(d, out string diffControl, out string diffTest, out string diffSummary);
 
                 var diffFileRoot = file.Replace(strTestNodeSetDirectory, Path.Combine(strTestNodeSetDirectory, "Diffs"));
 
@@ -274,7 +273,7 @@ namespace CESMII.ProfileDesigner.Api.Tests
 
         private async Task ImportNodeSets(Client apiClient, List<ImportOPCModel> importRequest)
         {
-            ImportLogModel status = null;
+            ImportLogModel status;
             if (importRequest.Any())
             {
                 var orderedImportRequest = importRequest?.Count == 1 ? importRequest : OrderImportsByDependencies(importRequest);
@@ -329,7 +328,7 @@ namespace CESMII.ProfileDesigner.Api.Tests
             }).ToList();
 
             var orderedImports = new List<(ImportOPCModel, string, List<string>)>();
-            var standalone = importsAndModels.Where(imr => imr.requiredModels.Any() != true).ToList();
+            var standalone = importsAndModels.Where(imr => !imr.requiredModels.Any()).ToList();
             orderedImports.AddRange(standalone);
             foreach (var imr in standalone)
             {
@@ -370,23 +369,29 @@ namespace CESMII.ProfileDesigner.Api.Tests
         private static async Task ExportNodeSets(Client apiClient, string[] nodeSetFiles)
         {
             var nodeSetResult = apiClient.LibraryAsync(new PagerFilterSimpleModel { Query = "", Skip = 0, Take = 999 }).Result;
-            foreach (var profile in nodeSetResult.Data)
+            foreach (var nodeSetFile in nodeSetFiles)
             {
-                var nodeSetFileName = GetFileNameFromNamespace(profile.Namespace);
-
-                if (nodeSetFiles.Where(f => string.Equals(Path.GetFileName(f), nodeSetFileName, StringComparison.InvariantCultureIgnoreCase)).Any())
+                bool bExportFound = false;
+                foreach (var profile in nodeSetResult.Data)
                 {
-                    var exportResult = await apiClient.ExportAsync(new IdIntModel { Id = profile.Id ?? 0 });
-                    Assert.True(exportResult.IsSuccess, $"Failed to export {profile.Namespace}: {exportResult.Message}");
+                    var nodeSetFileName = GetFileNameFromNamespace(profile.Namespace);
 
-                    var exportedNodeSet = exportResult.Data.ToString();
-                    var nodeSetPath = Path.Combine(strTestNodeSetDirectory, "Exported", nodeSetFileName);
-                    if (!Directory.Exists(Path.GetDirectoryName(nodeSetPath)))
+                    if (string.Equals(Path.GetFileName(nodeSetFile), nodeSetFileName, StringComparison.InvariantCultureIgnoreCase))
                     {
-                        Directory.CreateDirectory(Path.GetDirectoryName(nodeSetPath));
+                        var exportResult = await apiClient.ExportAsync(new IdIntModel { Id = profile.Id ?? 0 });
+                        Assert.True(exportResult.IsSuccess, $"Failed to export {profile.Namespace}: {exportResult.Message}");
+
+                        var exportedNodeSet = exportResult.Data.ToString();
+                        var nodeSetPath = Path.Combine(strTestNodeSetDirectory, "Exported", nodeSetFileName);
+                        if (!Directory.Exists(Path.GetDirectoryName(nodeSetPath)))
+                        {
+                            Directory.CreateDirectory(Path.GetDirectoryName(nodeSetPath));
+                        }
+                        File.WriteAllText(nodeSetPath, exportedNodeSet);
+                        bExportFound = true;
                     }
-                    File.WriteAllText(nodeSetPath, exportedNodeSet);
                 }
+                Assert.True(bExportFound, $"Export for {nodeSetFile} not found.");
             }
         }
 
@@ -443,7 +448,6 @@ namespace CESMII.ProfileDesigner.Api.Tests
         {
             bool ignoreTestsWithoutExpectedOutcome = true;
             var testCasesWithExpectedDiff = testCases.ToList();
-            var unstableTests = File.ReadAllLines(Path.Combine(Integration.strTestNodeSetDirectory, "ExpectedDiffs", "unstable.txt"));
             if (ignoreTestsWithoutExpectedOutcome)
             {
                 testCasesWithExpectedDiff = testCases.Where(t =>
@@ -473,6 +477,13 @@ namespace CESMII.ProfileDesigner.Api.Tests
 
             var remainingOrdered = orderedImportRequests.Select(ir => remainingTestCaseList.FirstOrDefault(tc => Path.Combine(Integration.strTestNodeSetDirectory, tc.TestMethodArguments[0].ToString()) == ir.FileName)).Where(tc => tc != null).ToList();
             var excludedTestCases = new List<TTestCase>();
+            string[] unstableTests = new string[0];
+
+            var unstableFileName = Path.Combine(Integration.strTestNodeSetDirectory, "ExpectedDiffs", "unstable.txt");
+            if (File.Exists(unstableFileName))
+            {
+                File.ReadAllLines(Path.Combine(Integration.strTestNodeSetDirectory, "ExpectedDiffs", "unstable.txt"));
+            }
             foreach (var remaining in remainingOrdered)
             {
                 var file = remaining.TestMethodArguments[0].ToString();

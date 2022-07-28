@@ -53,7 +53,7 @@
         protected override DALResult<TModel> Where(Expression<Func<TEntity, bool>> predicate, UserToken user, int? skip = null, int? take = null, bool returnCount = false, bool verbose = false,
             Func<IQueryable<TEntity>, IQueryable<TEntity>> additionalQuery = null)
         {
-            var query = _repo.FindByCondition(predicate).Where(e => e.OwnerId == null || e.OwnerId == user.UserId); //.Where(predicate);
+            var query = _repo.FindByCondition(predicate).Where(e => e.OwnerId == null || e.OwnerId == user.UserId);
             if (additionalQuery != null)
             {
                 query = additionalQuery(query);
@@ -68,8 +68,10 @@
             else if (skip.HasValue) data = query.Skip(skip.Value);
             else if (take.HasValue) data = query.Take(take.Value);
             else data = query;
-            DALResult<TModel> result = new DALResult<TModel>();
-            result.Count = count;
+            var result = new DALResult<TModel>
+            {
+                Count = count
+            };
             try
             {
                 result.Data = MapToModels(data.ToList(), verbose);
@@ -110,7 +112,7 @@
             return base.AddAsync(entity, model, userToken);
         }
 
-        public override Task<int> DeleteMany(List<int> ids, UserToken userToken)
+        public override Task<int> DeleteManyAsync(List<int> ids, UserToken userToken)
         {
             throw new NotImplementedException();
         }

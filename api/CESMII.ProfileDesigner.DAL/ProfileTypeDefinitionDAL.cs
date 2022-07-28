@@ -13,8 +13,8 @@
     using CESMII.ProfileDesigner.Data.Repositories;
 
     using Newtonsoft.Json;
-    using Newtonsoft.Json.Linq;
     using CESMII.ProfileDesigner.Common.Enums;
+    using System.Runtime.Serialization;
 
     public class ProfileTypeDefinitionDAL : TenantBasePdDAL<ProfileTypeDefinition, ProfileTypeDefinitionModel>
     {
@@ -32,7 +32,7 @@
 
 
         //add this layer so we can instantiate the new entity here.
-        public override async Task<int?> Add(ProfileTypeDefinitionModel model, UserToken userToken)
+        public override async Task<int?> AddAsync(ProfileTypeDefinitionModel model, UserToken userToken)
         {
             var entity = new ProfileTypeDefinition();
             model.ID = await base.AddAsync(entity, model, userToken);
@@ -156,7 +156,7 @@
         /// <param name="model"></param>
         /// <param name="userId"></param>
         /// <returns></returns>
-        public override async Task<int?> Update(ProfileTypeDefinitionModel model, UserToken userToken)
+        public override async Task<int?> UpdateAsync(ProfileTypeDefinitionModel model, UserToken userToken)
         {
             Expression<Func<ProfileTypeDefinition, bool>> filterExpression = GetIdentityExpression(model);
 
@@ -223,7 +223,7 @@
             return existingProfile;
         }
 
-        public override async Task<int?> Delete(int id, UserToken userToken)
+        public override async Task<int?> DeleteAsync(int id, UserToken userToken)
         {
             //can only delete your own stuff
             var entity = base.FindByCondition(userToken, x => x.ID == id && x.OwnerId.Equals(userToken.UserId))
@@ -235,7 +235,7 @@
 
             //hard delete
             //Note this deletes the dependent related data also
-            return await _repo.Delete(entity);
+            return await _repo.DeleteAsync(entity);
         }
 
 
@@ -284,6 +284,11 @@
                 {
                     result.Parent = MapToModelProfileTypDefSimple(entity.Parent);
                     result.InstanceParent = MapToModel(entity.InstanceParent, false);
+                    result.IsOptionSet = entity.IsOptionSet;
+                    result.VariableDataType = MapToModel(entity.VariableDataType);
+                    result.VariableValueRank = entity.VariableValueRank;
+                    result.VariableArrayDimensions = entity.VariableArrayDimensions;
+                    result.VariableValue = entity.VariableValue;
                     result.Attributes = MapToModelAttributes(entity);
                     result.Interfaces = MapToModelInterfaces(entity.Interfaces);
                     result.Compositions = MapToModelCompositions(entity.Compositions, result);
@@ -423,6 +428,9 @@
                 DataType = MapToModelDataType(item),
                 EngUnit = !item.EngUnitId.HasValue ? null : _euDAL.MapToModelPublic(item.EngUnit, true),
                 EngUnitOpcNodeId = item.EngUnitOpcNodeId,
+                EngUnitModelingRule = item.EngUnitModelingRule,
+                EURangeOpcNodeId = item.EURangeOpcNodeId,
+                EURangeModelingRule = item.EURangeModelingRule,
                 MinValue = item.MinValue,
                 MaxValue = item.MaxValue,
                 InstrumentMinValue = item.InstrumentMinValue,
@@ -433,6 +441,7 @@
                 IsArray = item.IsArray,
                 ValueRank = item.ValueRank,
                 ArrayDimensions = item.ArrayDimensions,
+                MaxStringLength = item.MaxStringLength,
                 //// Stored as JSON so return as JRaw, however, check to confirm there is a value first before trying to pass null.
                 //TODO: SC - come back to this. Web API not liking JRAW type as part of model.
                 //AdditionalData = !string.IsNullOrEmpty(item.AdditionalData) ? new JRaw(item.AdditionalData) : null,
@@ -550,6 +559,7 @@
                     RelatedName = i.Composition.Name,
                     RelatedDescription = i.Composition.Description,
                     RelatedReferenceId = i.ReferenceId,
+                    RelatedReferenceIsInverse = i.ReferenceIsInverse,
                     Type = i.Composition.ProfileType != null ? new LookupItemModel { ID = i.Composition.ProfileType.ID, Name = i.Composition.ProfileType.Name } : new LookupItemModel { ID = i.Composition.ProfileTypeId },
                 }).ToList();
             return result;
@@ -621,7 +631,7 @@
                     if (parentProfileEntity == null)
                     {
                         this._diLogger.LogWarning($"Creating parent profile type {model.Parent.ProfileTypeDefinition} as side effect of creating {model}");
-                        this.Add(model.Parent.ProfileTypeDefinition, userToken).Wait();
+                        this.AddAsync(model.Parent.ProfileTypeDefinition, userToken).Wait();
                         parentProfileEntity = CheckForExisting(model.Parent.ProfileTypeDefinition, userToken);
                     }
                     entity.Parent = parentProfileEntity;
@@ -637,7 +647,7 @@
                     instanceParentEntity = CheckForExisting(model.InstanceParent, userToken);
                     if (instanceParentEntity == null)
                     {
-                        this.Add(model.InstanceParent, userToken).Wait();
+                        this.AddAsync(model.InstanceParent, userToken).Wait();
                         instanceParentEntity = CheckForExisting(model.InstanceParent, userToken);
                     }
                     entity.InstanceParent = instanceParentEntity;
@@ -647,6 +657,30 @@
                     _diLogger.LogInformation($"Instance parent {model.InstanceParent} in {model} has an entity and was updated.");
                 }
             }
+
+            entity.VariableDataTypeId = model.VariableDataType?.ID != 0 ? model.VariableDataType?.ID : null;
+            if (model.VariableDataType != null)
+            {
+                var variableDataTypeEntity = entity.VariableDataType;
+                if (variableDataTypeEntity == null)
+                {
+                    variableDataTypeEntity = CheckForExisting(model.VariableDataType, userToken);
+                    if (variableDataTypeEntity == null)
+                    {
+                        this.AddAsync(model.VariableDataType, userToken).Wait();
+                        variableDataTypeEntity = CheckForExisting(model.VariableDataType, userToken);
+                    }
+                    entity.VariableDataType = variableDataTypeEntity;
+                }
+                if (variableDataTypeEntity != null)
+                {
+                    _diLogger.LogInformation($"Variable Data Type  {model.VariableDataType} in {model} has an entity and was updated.");
+                }
+            }
+            entity.VariableValueRank = model.VariableValueRank;
+            entity.IsOptionSet = model.IsOptionSet;
+            entity.VariableArrayDimensions = model.VariableArrayDimensions;
+            entity.VariableValue= model.VariableValue;
 
             //favorite
             MapToEntityFavorite(ref entity, model, userToken);
@@ -710,6 +744,9 @@
                         current.UpdatedById = userToken.UserId;
                         current.EngUnitId = source.EngUnit?.ID != 0 ? source.EngUnit?.ID : null;
                         current.EngUnitOpcNodeId = source.EngUnitOpcNodeId;
+                        current.EngUnitModelingRule = source.EngUnitModelingRule;
+                        current.EURangeOpcNodeId = source.EURangeOpcNodeId;
+                        current.EURangeModelingRule = source.EURangeModelingRule;
                         current.MinValue = source.MinValue;
                         current.MaxValue = source.MaxValue;
                         current.DataTypeId = source.DataType?.ID != 0 ? source.DataType.ID : null;
@@ -720,7 +757,7 @@
                             dataType = _dataTypeDAL.CheckForExisting(source.DataType, userToken);
                             if (dataType == null)
                             {
-                                throw new Exception($"Unable to resolve data type {source.DataType} in {source} ");
+                                throw new UnresolvedDataTypeException($"Unable to resolve data type {source.DataType} in {source} ");
                             }
                             current.DataType = dataType;
                         }
@@ -734,7 +771,7 @@
                                 variableType = CheckForExisting(source.VariableTypeDefinition, userToken);
                                 if (variableType == null)
                                 {
-                                    throw new Exception($"Unable to resolve variable type {source.VariableTypeDefinition} in {source} ");
+                                    throw new UnresolvedVariableTypeException($"Unable to resolve variable type {source.VariableTypeDefinition} in {source} ");
                                 }
                             }
                         }
@@ -747,13 +784,13 @@
                         {
                             current.AttributeTypeId = source.AttributeType.ID;
                         }
-                        current.EnumValue = source.AttributeType?.ID == (int)AttributeTypeIdEnum.EnumField ? source.EnumValue : null;
+                        current.EnumValue = source.EnumValue;
                         current.IsRequired = source.IsRequired;
                         current.ModelingRule = source.ModelingRule;
                         current.IsArray = source.IsArray;
                         current.ValueRank = source.ValueRank;
                         current.ArrayDimensions = source.ArrayDimensions;
-
+                        current.MaxStringLength = source.MaxStringLength;
                         current.AccessLevel = source.AccessLevel;
                         current.UserAccessLevel = source.UserAccessLevel;
                         current.AccessRestrictions = source.AccessRestrictions;
@@ -778,7 +815,7 @@
                         var dataType = _dataTypeDAL.CheckForExisting(attr.DataType, userToken);
                         if (dataType == null)
                         {
-                            attr.DataType.ID = _dataTypeDAL.Add(attr.DataType, userToken).Result;
+                            attr.DataType.ID = _dataTypeDAL.AddAsync(attr.DataType, userToken).Result;
                             dataType = _dataTypeDAL.CheckForExisting(attr.DataType, userToken);
                         }
                         ProfileTypeDefinition variableType = null;
@@ -788,7 +825,7 @@
                             if (variableType == null)
                             {
                                 this._diLogger.LogWarning($"Creating variable type {attr.VariableTypeDefinition} as side effect of creating {attr}");
-                                this.Add(attr.VariableTypeDefinition, userToken).Wait();
+                                this.AddAsync(attr.VariableTypeDefinition, userToken).Wait();
                                 variableType = CheckForExisting(attr.VariableTypeDefinition, userToken);
                             }
                         }
@@ -799,7 +836,7 @@
                             engUnit = _euDAL.CheckForExisting(attr.EngUnit, userToken);
                             if (engUnit == null)
                             {
-                                throw new Exception($"Engineering unit must be explicitly created: {attr.EngUnit} for {entity}");
+                                throw new InvalidOperationException($"Engineering unit must be explicitly created: {attr.EngUnit} for {entity}");
                             }
                         }
 
@@ -825,15 +862,19 @@
                             VariableTypeDefinitionId = attr.VariableTypeDefinitionId,
                             VariableTypeDefinition = variableType,
                             AttributeTypeId = attr.AttributeType?.ID ?? 0,
-                            EnumValue = attr.AttributeType?.ID == (int)AttributeTypeIdEnum.EnumField ? attr.EnumValue : null,
+                            EnumValue = attr.EnumValue,
                             IsRequired = attr.IsRequired,
                             ModelingRule = attr.ModelingRule,
                             IsArray = attr.IsArray,
                             ValueRank = attr.ValueRank,
                             ArrayDimensions = attr.ArrayDimensions,
+                            MaxStringLength = attr.MaxStringLength,
                             EngUnitId = attr.EngUnit != null && attr.EngUnit.ID != 0 ? attr.EngUnit.ID : null,
                             EngUnit = engUnit,
                             EngUnitOpcNodeId = attr.EngUnitOpcNodeId,
+                            EngUnitModelingRule = attr.EngUnitModelingRule,
+                            EURangeOpcNodeId = attr.EURangeOpcNodeId,
+                            EURangeModelingRule = attr.EURangeModelingRule,
 
                             AccessLevel = attr.AccessLevel,
                             UserAccessLevel = attr.UserAccessLevel,
@@ -956,7 +997,7 @@
                 var profileTypeDef = CheckForExisting(source.RelatedProfileTypeDefinition, userToken);
                 if (profileTypeDef == null)
                 {
-                    this.Add(source.RelatedProfileTypeDefinition, userToken).Wait();
+                    this.AddAsync(source.RelatedProfileTypeDefinition, userToken).Wait();
                     profileTypeDef = CheckForExisting(source.RelatedProfileTypeDefinition, userToken);
                 }
                 composition.Composition = profileTypeDef;
@@ -964,7 +1005,7 @@
             }
             if (composition.ProfileTypeDefinition != null && composition.ProfileTypeDefinitionId != parentEntity.ID)
             {
-                throw new Exception($"Internal error: {composition.ProfileTypeDefinition} does not match {parentEntity}");
+                throw new ArgumentException($"Internal error: {composition.ProfileTypeDefinition} does not match {parentEntity}");
             }
             composition.ProfileTypeDefinitionId = parentEntity.ID;            //should be same
             if (composition.ProfileTypeDefinition == null && source.ProfileTypeDefinition != null)
@@ -991,6 +1032,7 @@
             composition.ModelingRule = source.RelatedModelingRule;
             composition.IsEvent = source.RelatedIsEvent;
             composition.ReferenceId = source.RelatedReferenceId;
+            composition.ReferenceIsInverse = source.RelatedReferenceIsInverse;
             composition.Description = source.Description;
         }
 
@@ -1016,5 +1058,65 @@
 
         #endregion
 
+    }
+
+    [Serializable]
+    public class UnresolvedNodeException : Exception
+    {
+        public UnresolvedNodeException()
+        {
+        }
+
+        public UnresolvedNodeException(string message) : base(message)
+        {
+        }
+
+        public UnresolvedNodeException(string message, Exception innerException) : base(message, innerException)
+        {
+        }
+
+        protected UnresolvedNodeException(SerializationInfo info, StreamingContext context) : base(info, context)
+        {
+        }
+    }
+
+    [Serializable]
+    public class UnresolvedVariableTypeException : UnresolvedNodeException
+    {
+        public UnresolvedVariableTypeException()
+        {
+        }
+
+        public UnresolvedVariableTypeException(string message) : base(message)
+        {
+        }
+
+        public UnresolvedVariableTypeException(string message, Exception innerException) : base(message, innerException)
+        {
+        }
+
+        protected UnresolvedVariableTypeException(SerializationInfo info, StreamingContext context) : base(info, context)
+        {
+        }
+    }
+
+    [Serializable]
+    public class UnresolvedDataTypeException : UnresolvedNodeException
+    {
+        public UnresolvedDataTypeException()
+        {
+        }
+
+        public UnresolvedDataTypeException(string message) : base(message)
+        {
+        }
+
+        public UnresolvedDataTypeException(string message, Exception innerException) : base(message, innerException)
+        {
+        }
+
+        protected UnresolvedDataTypeException(SerializationInfo info, StreamingContext context) : base(info, context)
+        {
+        }
     }
 }

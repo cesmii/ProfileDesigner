@@ -1,8 +1,7 @@
 import React from 'react';
-import { Pagination } from 'react-bootstrap'
+import { Pagination, Dropdown } from 'react-bootstrap'
 import { AppSettings } from '../utils/appsettings';
 import { generateLogMessageString } from '../utils/UtilityService'
-import { Dropdown } from 'react-bootstrap'
 import './styles/GridPager.scss';
 
 const CLASS_NAME = "GridPager";
@@ -155,8 +154,6 @@ function GridPager(props) { //(currentPage, pageSize, itemCount, onChangePage)
             </Dropdown.Toggle>
         );
         const pageOptionsHTML = pageSizeOptions.map((item) => {
-            if (item === pageSize) {
-            }
             return (<Dropdown.Item key={item} onSelect={() => onPageSizeSelect(item)} >{item} per page</Dropdown.Item>);
         });
 

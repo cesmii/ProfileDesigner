@@ -131,7 +131,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             }
             var userToken = UserExtension.DalUserToken(User);
 
-            var result = await _dal.Add(model, userToken);
+            var result = await _dal.AddAsync(model, userToken);
             model.ID = result;
             if (result == 0)
             {
@@ -244,7 +244,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 });
             }
 
-            var result = await _dal.Update(model, userToken);
+            var result = await _dal.UpdateAsync(model, userToken);
             if (result < 0)
             {
                 _logger.LogWarning($"Could not update user. Invalid id:{model.ID}.");
@@ -266,7 +266,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         public async Task<IActionResult> Delete([FromBody] IdIntModel model)
         {
             var userToken = UserExtension.DalUserToken(User);
-            var result = await _dal.Delete(model.ID, userToken);
+            var result = await _dal.DeleteAsync(model.ID, userToken);
             if (result < 0)
             {
                 _logger.LogWarning($"Could not delete user. Invalid id:{model.ID}.");

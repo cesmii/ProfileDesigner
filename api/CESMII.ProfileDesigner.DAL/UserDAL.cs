@@ -35,7 +35,7 @@
         /// <param name="userId"></param>
         /// <returns></returns>
         //add this layer so we can instantiate the new entity here.
-        public override async Task<int?> Add(UserModel model, UserToken userToken)
+        public override async Task<int?> AddAsync(UserModel model, UserToken userToken)
         {
             //generate random password and then encrypt in here. 
             var password = PasswordUtils.GenerateRandomPassword(_configUtil.PasswordConfigSettings.RandomPasswordLength);
@@ -124,7 +124,7 @@
                 }
                 result.LastLogin = DateTime.UtcNow;
                 await _repo.UpdateAsync(result);
-                await _repo.SaveChanges();
+                await _repo.SaveChangesAsync();
                 return this.MapToModel(result);
             }
 
@@ -160,7 +160,7 @@
             result.LastLogin = DateTime.UtcNow;
             result.RegistrationComplete = DateTime.UtcNow;
             await _repo.UpdateAsync(result);
-            await _repo.SaveChanges();
+            await _repo.SaveChangesAsync();
         }
 
         /// <summary>
@@ -181,7 +181,7 @@
             result.Password = PasswordUtils.EncryptNewPassword(_configUtil.PasswordConfigSettings.EncryptionSettings, newPassword);
             result.LastLogin = DateTime.UtcNow;
             await _repo.UpdateAsync(result);
-            await _repo.SaveChanges();
+            await _repo.SaveChangesAsync();
             return this.MapToModel(result);
         }
         
@@ -209,7 +209,7 @@
             existingUser.Password = PasswordUtils.EncryptNewPassword(_configUtil.PasswordConfigSettings.EncryptionSettings, newPassword);
             //save changes
             await _repo.UpdateAsync(existingUser);
-            return await _repo.SaveChanges();
+            return await _repo.SaveChangesAsync();
         }
 
         /// <summary>
@@ -285,7 +285,7 @@
                     .Include(u => u.UserPermissions));
         }
 
-        public override async Task<int?> Update(UserModel item, UserToken userToken)
+        public override async Task<int?> UpdateAsync(UserModel item, UserToken userToken)
         {
             //TBD - if userId is not same as item.id, then check permissions of userId before updating
             var entity = _repo.FindByCondition(x => x.ID == item.ID)
@@ -294,12 +294,12 @@
             this.MapToEntity(ref entity, item, userToken);
 
             await _repo.UpdateAsync(entity);
-            await _repo.SaveChanges();
+            await _repo.SaveChangesAsync();
 
             return entity.ID;
         }
 
-        public async Task<int?> Delete(int id, UserToken userToken)
+        public async Task<int?> DeleteAsync(int id, UserToken userToken)
         {
             //perform a soft delete by setting active to false
             var entity = _repo.FindByCondition(x => x.ID == id)
@@ -307,7 +307,7 @@
             entity.IsActive = false;
 
             await _repo.UpdateAsync(entity);
-            await _repo.SaveChanges();
+            await _repo.SaveChangesAsync();
 
             return entity.ID;
         }

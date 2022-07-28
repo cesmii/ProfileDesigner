@@ -17,17 +17,10 @@
         protected bool _disposed = false;
         protected static readonly Logger _logger = LogManager.GetCurrentClassLogger();
         protected readonly IRepository<TEntity> _repo;
-        //TBD - temp mock repo to allow us to load data from static JSON files. 
-        protected readonly IMockRepository<TEntity> _repoMock;
-        protected readonly bool _useMock = false;
 
         protected BaseDAL(IRepository<TEntity> repo)
         {
             _repo = repo;
-            if (_useMock)
-            {
-                _repoMock = new MockRepo<TEntity>();
-            }
         }
 
         public void StartTransaction()
@@ -170,30 +163,30 @@
         /// <param name="orgId"></param>
         /// <param name="userId"></param>
         /// <returns></returns>
-        public virtual async Task<(int?, bool)> Upsert(TModel model, UserToken userToken, bool updateExisting = true)
+        public virtual async Task<(int?, bool)> UpsertAsync(TModel model, UserToken userToken, bool updateExisting = true)
         {
             TEntity entity = CheckForExisting(model, userToken);
             if (entity == null)
             {
-                return (await Add(model, userToken), true);
+                return (await AddAsync(model, userToken), true);
             }
             else
             {
                 model.ID = entity.ID; //assign the id so update knows which row to update. 
                 if (updateExisting)
                 {
-                    return (await Update(model, userToken), true);
+                    return (await UpdateAsync(model, userToken), true);
                 }
                 return (model.ID, false);
             }
         }
 
-        public virtual Task<int?> Update(TModel model, UserToken userToken)
+        public virtual Task<int?> UpdateAsync(TModel model, UserToken userToken)
         {
             throw new NotImplementedException();
         }
 
-        public virtual Task<int?> Add(TModel model, UserToken userToken)
+        public virtual Task<int?> AddAsync(TModel model, UserToken userToken)
         {
             throw new NotImplementedException();
         }
@@ -210,7 +203,7 @@
             return entity.ID;
         }
 
-        public virtual Task<int> DeleteMany(List<int> ids, UserToken userToken)
+        public virtual Task<int> DeleteManyAsync(List<int> ids, UserToken userToken)
         {
             throw new NotImplementedException();
         }

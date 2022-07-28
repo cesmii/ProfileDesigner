@@ -71,8 +71,15 @@
         public int? EngUnitId { get; set; }
         [Column(name: "eng_unit_nodeid")]
         public string EngUnitOpcNodeId { get; set; }
+        [Column(name: "eng_unit_modeling_rule")]
+        public string EngUnitModelingRule { get; set; }
 
         public virtual EngineeringUnit EngUnit { get; set; }
+
+        [Column(name: "eu_range_nodeid")]
+        public string EURangeOpcNodeId { get; set; }
+        [Column(name: "eu_range_modeling_rule")]
+        public string EURangeModelingRule { get; set; }
 
         [Column(name: "data_type_id")]
         public int? DataTypeId { get; set; }
@@ -94,6 +101,8 @@
         public int? ValueRank { get; set; }
         [Column(name: "array_dimensions")]
         public string ArrayDimensions { get; set; }
+        [Column(name: "max_string_length")]
+        public uint? MaxStringLength { get; set; }
         [Column(name: "is_required")]
         public bool? IsRequired { get; set; }
         [Column(name: "modeling_rule")]

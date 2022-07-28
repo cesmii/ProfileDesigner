@@ -243,11 +243,12 @@ namespace CESMII.ProfileDesigner.Api
         {
             app.Use(async (context, next) =>
             {
-                context.Response.OnStarting(async o => {
+                context.Response.OnStarting(o => {
                     if (o is HttpContext ctx)
                     {
                         ctx.Response.Headers["x-api-version"] = _version;
                     }
+                    return Task.CompletedTask;
                 }, context);
                 await next();
             });

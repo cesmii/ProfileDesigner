@@ -10,29 +10,36 @@ using Opc.Ua;
 using Opc.Ua.Export;
 using System.Text;
 using System.Xml.Linq;
+using System.Text.RegularExpressions;
 
 namespace NodeSetDiff
 {
     public class OpcNodeSetXmlUnit
     {
-        private readonly Dictionary<string, string> controlAliases;
-        private readonly NamespaceTable controlNamespaces;
-        private readonly Dictionary<string, string> testAliases;
-        private readonly NamespaceTable testNamespaces;
-        private readonly string controlFile;
-        private readonly string testFile;
-        private XDocument controlDoc;
-        private XDocument testDoc;
+#pragma warning disable S1075 // URIs should not be hardcoded - these are not URLs representing endpoints, but OPC model identifiers (URIs) that are static and stable
+        private const string strUANodeSetSchemaUri = "http://opcfoundation.org/UA/2011/03/UANodeSet.xsd"; //NOSONAR
+        private const string strUATypesSchemaUri = "http://opcfoundation.org/UA/2008/02/Types.xsd"; //NOSONAR
+        private const string strOpcNamespaceUri = "http://opcfoundation.org/UA/"; //NOSONAR
+#pragma warning restore S1075 // URIs should not be hardcoded
+
+        private readonly Dictionary<string, string> _controlAliases;
+        private readonly NamespaceTable _controlNamespaces;
+        private readonly Dictionary<string, string> _testAliases;
+        private readonly NamespaceTable _testNamespaces;
+        private readonly string _controlFile;
+        private readonly string _testFile;
+        private XDocument _controlDoc;
+        private XDocument _testDoc;
 
         public OpcNodeSetXmlUnit(Dictionary<string, string> controlAliases, NamespaceTable controlNamespaces, Dictionary<string, string> testAliases, NamespaceTable testNamespaces,
             string controlFile, string testFile)
         {
-            this.controlAliases = controlAliases;
-            this.controlNamespaces = controlNamespaces;
-            this.testAliases = testAliases;
-            this.testNamespaces = testNamespaces;
-            this.controlFile = controlFile;
-            this.testFile = testFile;
+            this._controlAliases = controlAliases;
+            this._controlNamespaces = controlNamespaces;
+            this._testAliases = testAliases;
+            this._testNamespaces = testNamespaces;
+            this._controlFile = controlFile;
+            this._testFile = testFile;
         }
         public ComparisonResult OpcNodeSetDifferenceEvaluator(Comparison c, ComparisonResult outcome)
         {
@@ -48,7 +55,19 @@ namespace NodeSetDiff
             }
             if (c.Type == ComparisonType.CHILD_NODELIST_SEQUENCE)
             {
-                if (new[] { "Reference", "UAVariable", "UAVariableType", "UAObject", "UAObjectType", "UADataType", "UAMethod", "UAReferenceType", "UANodeSet", "Alias", "Uri", "RequiredModel" }.Contains(c.ControlDetails.Target.Name))
+                var xPath = Regex.Replace(c.ControlDetails.XPath, "\\[\\d*\\]", "");
+
+                if (new[] {
+                    "/UANodeSet",
+                    "/UANodeSet/",
+                    "/UANodeSet/Aliases/",
+                    "/UANodeSet/NamespaceUris/",
+                    "/UANodeSet/Models/",
+                    "/UANodeSet/Models/Model/",
+                    "/UANodeSet/UAVariable/", "/UANodeSet/UAVariableType/", "/UANodeSet/UAObjectType/", "/UANodeSet/UADataType/", "/UANodeSet/UAReferenceType/", "/UANodeSet/UAObject/", "/UANodeSet/UAMethod/",
+                    "/UANodeSet/UAVariable/References/", "/UANodeSet/UAVariableType/References/", "/UANodeSet/UAObjectType/References/", "/UANodeSet/UADataType/References/", "/UANodeSet/UAReferenceType/References/", "/UANodeSet/UAObject/References/","/UANodeSet/UAMethod/References/",
+                    }
+                    .Any(p => xPath.StartsWith(p) && xPath.Substring(p.Length).IndexOf("/") < 0))
                 {
                     return ComparisonResult.EQUAL;
                 }
@@ -56,7 +75,12 @@ namespace NodeSetDiff
                 {
                     if (c.ControlDetails.XPath.Split('/', 4)?[3] == c.TestDetails.XPath.Split('/', 4)?[3])
                     {
-                        return ComparisonResult.EQUAL;
+                        if (((int) c.ControlDetails.Value) == ((int) c.TestDetails.Value)+ 1 &&  c.ControlDetails.Target.PreviousSibling.LocalName=="Locale" && c.ControlDetails.Target.Value == null)
+                        {
+                            // treat null locale vs missing locale element as same
+                            return ComparisonResult.EQUAL;
+                        }
+                        //return ComparisonResult.EQUAL;
                     }
                 }
             }
@@ -80,31 +104,34 @@ namespace NodeSetDiff
                         if (c.ControlDetails.Target == null)
                         {
                             detailsNonNull = c.TestDetails;
-                            aliasesNonNull = testAliases;
-                            namespacesNonNull = testNamespaces;
+                            aliasesNonNull = _testAliases;
+                            namespacesNonNull = _testNamespaces;
 
                             detailsNull = c.ControlDetails;
-                            aliasesNull = controlAliases;
-                            namespacesNull = controlNamespaces;
+                            aliasesNull = _controlAliases;
+                            namespacesNull = _controlNamespaces;
                         }
                         else
                         {
                             detailsNonNull = c.ControlDetails;
-                            aliasesNonNull = controlAliases;
-                            namespacesNonNull = controlNamespaces;
+                            aliasesNonNull = _controlAliases;
+                            namespacesNonNull = _controlNamespaces;
 
                             detailsNull = c.TestDetails;
-                            aliasesNull = testAliases;
-                            namespacesNull = testNamespaces;
+                            aliasesNull = _testAliases;
+                            namespacesNull = _testNamespaces;
                         }
-                        if (detailsNonNull.Target.NamespaceURI == "http://opcfoundation.org/UA/2011/03/UANodeSet.xsd" || string.IsNullOrEmpty(detailsNonNull.Target.NamespaceURI))
+                        if (detailsNonNull.Target.NamespaceURI == strUANodeSetSchemaUri || string.IsNullOrEmpty(detailsNonNull.Target.NamespaceURI))
                         {
-                            if (string.IsNullOrEmpty(detailsNonNull.Target.NamespaceURI))
-                            {
-
-                            }
-
                             if (detailsNonNull.Target.Name == "References" && detailsNonNull.Target.ChildNodes.Count == 0)
+                            {
+                                return ComparisonResult.EQUAL;
+                            }
+                            if (detailsNonNull.Target.Name == "Description" && detailsNonNull.Target.InnerXml == "")
+                            {
+                                return ComparisonResult.EQUAL;
+                            }
+                            if (detailsNonNull.Target.Name == "Locale")
                             {
                                 return ComparisonResult.EQUAL;
                             }
@@ -114,20 +141,19 @@ namespace NodeSetDiff
                                 // TODO apply aliases
                                 var referencedNodeId = NormalizeNodeId(detailsNonNull.Target.InnerText, aliasesNonNull, namespacesNonNull);
                                 var referenceType = NormalizeNodeId(detailsNonNull.Target.Attributes.GetNamedItem("ReferenceType").Value, aliasesNonNull, namespacesNonNull);
-                                var isForward = (detailsNonNull.Target.Attributes.GetNamedItem("IsForward")?.Value?.ToLowerInvariant()??"true") != "false";
+                                var isForward = (detailsNonNull.Target.Attributes.GetNamedItem("IsForward")?.Value?.ToLowerInvariant() ?? "true") != "false";
                                 var nodeId = NormalizeNodeId(detailsNonNull.Target.ParentNode.ParentNode.Attributes.GetNamedItem("NodeId").Value, aliasesNonNull, namespacesNonNull);
 
                                 // Check for matching reverse references (IsForward true/false)
-                                var nullDoc = c.ControlDetails.Target == null ? controlDoc : testDoc;
+                                var nullDoc = c.ControlDetails.Target == null ? _controlDoc : _testDoc;
 
-                                var nodes = nullDoc.Root.Descendants().Where(e => e.Attribute("NodeId")?.Value == referencedNodeId).ToList();
-                                foreach(var node in nodes)
+                                var nodes = nullDoc.Root.Descendants().Where(e => NormalizeNodeId(e.Attribute("NodeId")?.Value, aliasesNull, namespacesNull) == referencedNodeId).ToList();
+                                foreach (var node in nodes)
                                 {
-                                    var matchingRefs = node.Descendants().Where(e => e.Name.LocalName == "Reference" && e?.Attribute("IsForward")?.Value == (isForward ? "false" : "true") 
-                                        && NormalizeNodeId(e.Value, aliasesNull, namespacesNull) == nodeId 
+                                    var matchingRefs = node.Descendants().Where(e => e.Name.LocalName == "Reference" && (e?.Attribute("IsForward")?.Value?.ToLowerInvariant() ?? "true") == (isForward ? "false" : "true")
+                                        && NormalizeNodeId(e.Value, aliasesNull, namespacesNull) == nodeId
                                         && NormalizeNodeId(e.Attribute("ReferenceType")?.Value, aliasesNull, namespacesNull) == referenceType
                                         ).ToList();
-                                    var values = matchingRefs.Select(r => r.Value).ToList();
                                     if (matchingRefs.Any())
                                     {
                                         return ComparisonResult.EQUAL;
@@ -140,7 +166,7 @@ namespace NodeSetDiff
                                 return ComparisonResult.EQUAL;
                             }
                         }
-                        else if (detailsNonNull.Target.NamespaceURI == "http://opcfoundation.org/UA/2008/02/Types.xsd")
+                        else if (detailsNonNull.Target.NamespaceURI == strUATypesSchemaUri)
                         {
                             if (detailsNonNull.Target.LocalName == "Locale" || detailsNonNull.Target.LocalName == "Description")
                             {
@@ -156,6 +182,14 @@ namespace NodeSetDiff
             }
             if (c.Type == ComparisonType.ATTR_NAME_LOOKUP)
             {
+                if (c.ControlDetails.XPath.EndsWith("@Locale"))
+                {
+                    if (c.ControlDetails.Target.Attributes["Locale"]?.Value == "en"
+                    && string.IsNullOrEmpty(c.TestDetails.Target?.Attributes["Locale"]?.Value))
+                    {
+                        return ComparisonResult.EQUAL;
+                    }
+                }
                 if (outcome == ComparisonResult.DIFFERENT)
                 {
                     if (c.ControlDetails.Target.Value == null && c.TestDetails.XPath.EndsWith("@DataType") && IsEqualNodeId("i=24", c.TestDetails.Target.Attributes["DataType"]?.Value.ToString()))
@@ -170,7 +204,10 @@ namespace NodeSetDiff
                 {
                     return ComparisonResult.EQUAL;
                 }
-
+                if (c.ControlDetails.Target?.LocalName == "LastModified" || c.TestDetails.Target?.LocalName == "LastModified")
+                {
+                    return ComparisonResult.EQUAL;
+                }
             }
             if (c.Type == ComparisonType.TEXT_VALUE)
             {
@@ -181,31 +218,31 @@ namespace NodeSetDiff
                         return ComparisonResult.EQUAL;
                     }
                 }
+                if (outcome != ComparisonResult.EQUAL && c.ControlDetails.Target?.Value?.EndsWith(" ") == true)
+                {
+                    if (c.ControlDetails.Target?.Value?.TrimEnd() == c.TestDetails.Target?.Value)
+                    {
+                        return ComparisonResult.EQUAL;
+                    }
+                }
             }
             if (c.Type == ComparisonType.NAMESPACE_PREFIX)
             {
                 // XML namespaces can be different as long as the xml namespace URLs match
                 return ComparisonResult.EQUAL;
             }
-            if (c.Type == ComparisonType.NAMESPACE_URI)
-            {
-                if (outcome != ComparisonResult.EQUAL)
-                {
-
-                }
-            }
             return outcome;
         }
 
         public bool OpcElementSelector(XmlElement c, XmlElement t)
         {
-            if (controlDoc == null)
+            if (_controlDoc == null)
             {
-                controlDoc = XDocument.Parse(c.OwnerDocument.OuterXml);
+                _controlDoc = XDocument.Parse(c.OwnerDocument.OuterXml);
             }
-            if (testDoc == null)
+            if (_testDoc == null)
             {
-                testDoc = XDocument.Parse(t.OwnerDocument.OuterXml);
+                _testDoc = XDocument.Parse(t.OwnerDocument.OuterXml);
             }
             if (c.NodeType == XmlNodeType.Element)
             {
@@ -259,7 +296,7 @@ namespace NodeSetDiff
 
         private bool IsEqualNodeId(string cNodeId, string tNodeId)
         {
-            var bEqual = NormalizeNodeId(cNodeId, controlAliases, controlNamespaces) == NormalizeNodeId(tNodeId, testAliases, testNamespaces);
+            var bEqual = NormalizeNodeId(cNodeId, _controlAliases, _controlNamespaces) == NormalizeNodeId(tNodeId, _testAliases, _testNamespaces);
             return bEqual;
         }
 
@@ -303,6 +340,9 @@ namespace NodeSetDiff
                      .CheckForSimilar()
                      .WithDifferenceEvaluator(diffHelper.OpcNodeSetDifferenceEvaluator)
                      .WithNodeMatcher(new DefaultNodeMatcher(new ElementSelector[] { diffHelper.OpcElementSelector }))
+                     .WithAttributeFilter(a => // ParentNodeId is not part of the address space/information model, ignore
+                        !(a.LocalName == "ParentNodeId" 
+                        && new[] { "UAObject", "UAVariable", "UAMethod", "UAView", }.Contains(a.OwnerElement.LocalName)))
                      .Build();
             return d;
         }
@@ -327,7 +367,7 @@ namespace NodeSetDiff
 
         private static (NamespaceTable, Dictionary<string, string>) LoadNamespaces(string file)
         {
-            var namespaces = new NamespaceTable(new[] { "http://opcfoundation.org/UA/" });
+            var namespaces = new NamespaceTable(new[] { strOpcNamespaceUri });
             using (var nodeSetStream = File.OpenRead(file))
             {
                 UANodeSet nodeSet = UANodeSet.Read(nodeSetStream);
@@ -379,8 +419,6 @@ namespace NodeSetDiff
                     testWriter = XmlWriter.Create(diffTest, settings);
                     diffTest.AppendLine();
                 }
-                //diffControl.AppendLine(diff.Comparison.ControlDetails.Target..OuterXml ?? "");
-                //diffTest.AppendLine(diff.Comparison.TestDetails.Target?.OuterXml ?? "");
             }
             diffControlStr = diffControl.ToString();
             diffTestStr = diffTest.ToString();

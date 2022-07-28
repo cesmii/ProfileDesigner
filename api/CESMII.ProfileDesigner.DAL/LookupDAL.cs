@@ -23,13 +23,11 @@
         {
         }
 
-        public override async Task<int?> Add(LookupItemModel model, UserToken userToken)
+        public override async Task<int?> AddAsync(LookupItemModel model, UserToken userToken)
         {
-            LookupItem entity = new LookupItem
+            var entity = new LookupItem
             {
                 ID = null
-                //,Created = DateTime.UtcNow
-                //,CreatedBy = userId
             };
 
             this.MapToEntity(ref entity, model, userToken);
@@ -43,24 +41,18 @@
             return entity.ID;
         }
 
-        public override async Task<int?> Update(LookupItemModel model, UserToken userToken)
+        public override async Task<int?> UpdateAsync(LookupItemModel model, UserToken userToken)
         {
             LookupItem entity = base.FindByCondition(userToken, x => x.ID == model.ID).FirstOrDefault();
-            //model.Updated = DateTime.UtcNow;
             this.MapToEntity(ref entity, model, userToken);
 
             await _repo.UpdateAsync(entity);
-            await _repo.SaveChanges();
+            await _repo.SaveChangesAsync();
             return entity.ID;
         }
 
-        public override LookupItem CheckForExisting(LookupItemModel model, UserToken userToken, bool cacheOnly)
+        public override LookupItem CheckForExisting(LookupItemModel model, UserToken userToken, bool cacheOnly = false)
         {
-            //var existing = base.CheckForExisting(model, userId);
-            //if (existing != null)
-            //{
-            //    return existing;
-            //}
             var existing = base.FindByCondition(userToken, l =>
                 (model.ID != 0 && model.ID != null && l.ID == model.ID)
                 || l.Code == model.Code, cacheOnly).FirstOrDefault();
@@ -76,14 +68,6 @@
         /// <returns></returns>
         public override LookupItemModel GetById(int id, UserToken userToken)
         {
-            //TBD - temp mock data
-            if (_useMock)
-            {
-                var mock = _repoMock.FindByCondition(x => x.ID == id)
-                    .FirstOrDefault();
-                return MapToModel(mock);
-            }
-
             var entity = base.FindByCondition(userToken, x => x.ID == id)
                 .Include(l => l.LookupType)
                 .FirstOrDefault();
@@ -97,14 +81,7 @@
         /// <returns></returns>
         public override List<LookupItemModel> GetAll(UserToken userToken, bool verbose = false)
         {
-            //TBD - temp mock data
-            if (_useMock)
-            {
-                var mock = _repoMock.GetAll().OrderBy(p => p.Name).ToList();
-                return MapToModels(mock);
-            }
-
-            DALResult<LookupItemModel> result = GetAllPaged(userToken, verbose: verbose);
+            DALResult<LookupItemModel> result = GetAllPaged(userToken, null, null, verbose: verbose);
             return result.Data;
         }
 
@@ -113,7 +90,7 @@
         /// </summary>
         /// <param name="orgId"></param>
         /// <returns></returns>
-        public override DALResult<LookupItemModel> GetAllPaged(UserToken userToken, int? skip = null, int? take = null, bool returnCount = false, bool verbose = false)
+        public override DALResult<LookupItemModel> GetAllPaged(UserToken userToken, int? skip, int? take, bool returnCount = false, bool verbose = false)
         {
             //put the order by and where clause before skip.take so we skip/take on filtered/ordered query 
             var result = base
@@ -124,20 +101,6 @@
                     .ThenBy(l => l.Name)
                     );
             return result;
-            //var count = returnCount ? query.Count() : 0;
-            ////query returns IincludableQuery. Jump through the following to find right combo of skip and take
-            ////Goal is to have the query execute and not do in memory skip/take
-            //IQueryable<LookupItem> data;
-            //if (skip.HasValue && take.HasValue) data = query.Skip(skip.Value).Take(take.Value);
-            //else if (skip.HasValue) data = query.Skip(skip.Value);
-            //else if (take.HasValue) data = query.Take(take.Value);
-            //else data = query;
-
-            //DALResult<LookupItemModel> result = new DALResult<LookupItemModel>();
-            //result.Count = count;
-            //result.Data = MapToModels(data.ToList(), verbose);
-            //result.SummaryData = null;
-            //return result;
         }
 
         /// <summary>
@@ -145,48 +108,31 @@
         /// </summary>
         /// <param name="predicate"></param>
         /// <returns></returns>
-        public override DALResult<LookupItemModel> Where(Expression<Func<LookupItem, bool>> predicate, UserToken user, int? skip, int? take, 
-            bool returnCount = true, bool verbose = false)
+        public override DALResult<LookupItemModel> Where(Expression<Func<LookupItem, bool>> predicate, UserToken user, int? skip = null, int? take = null, 
+            bool returnCount = false, bool verbose = false)
         {
             return base.Where(predicate, user, skip, take, returnCount, verbose, q => q
-            ////put the order by and where clause before skip.take so we skip/take on filtered/ordered query 
-            //var query = _repo.FindByCondition(predicate)
+            //put the order by and where clause before skip.take so we skip/take on filtered/ordered query 
                 .Where(l => l.IsActive)
                 .Include(l => l.LookupType)
                 .OrderBy(l => l.LookupType.Name)
                 .ThenBy(l => l.DisplayOrder)
                 .ThenBy(l => l.Name)
                 );
-            //var count = returnCount ? query.Count() : 0;
-            ////query returns IincludableQuery. Jump through the following to find right combo of skip and take
-            ////Goal is to have the query execute and not do in memory skip/take
-            //IQueryable<LookupItem> data;
-            //if (skip.HasValue && take.HasValue) data = query.Skip(skip.Value).Take(take.Value);
-            //else if (skip.HasValue) data = query.Skip(skip.Value);
-            //else if (take.HasValue) data = query.Take(take.Value);
-            //else data = query;
-
-            //DALResult<LookupItemModel> result = new DALResult<LookupItemModel>();
-            //result.Count = count;
-            //result.Data = MapToModels(data.ToList(), verbose);
-            //result.SummaryData = null;
-            //return result;
         }
 
-        public async Task<int?> Delete(int id, UserToken userToken)
+        public async Task<int?> DeleteAsync(int id, UserToken userToken)
         {
             LookupItem entity = base.FindByCondition(userToken, x => x.ID == id).FirstOrDefault();
-            //entity.Updated = DateTime.UtcNow;
-            //entity.UpdatedBy = userId;
             entity.IsActive = false;
 
             await _repo.UpdateAsync(entity);
-            await _repo.SaveChanges();
+            await _repo.SaveChangesAsync();
             return entity.ID;
         }
 
 
-        protected override LookupItemModel MapToModel(LookupItem entity, bool verbose = false)
+        protected override LookupItemModel MapToModel(LookupItem entity, bool verbose = true)
         {
             if (entity != null)
             {

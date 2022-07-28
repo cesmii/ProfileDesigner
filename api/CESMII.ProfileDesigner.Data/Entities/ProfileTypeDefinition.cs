@@ -59,6 +59,17 @@
         [Column(name: "instance_parent_id")]
         public int? InstanceParentId { get; set; }
 
+        [Column(name: "is_option_set")] 
+        public bool? IsOptionSet { get; set; }
+        [Column(name: "variable_data_type_id")]
+        public int? VariableDataTypeId {get;set;}
+        [Column(name: "variable_value_rank")]
+        public int? VariableValueRank{ get; set; }
+        [Column(name: "variable_array_dimensions")]
+        public string VariableArrayDimensions { get; set; }
+        [Column(name: "variable_value")]
+        public string VariableValue{ get; set; }
+
         /// <summary>
         /// Profile can be a type of class, interface or variable type
         /// </summary>
@@ -112,6 +123,8 @@
         public virtual ProfileTypeDefinition Parent { get; set; }
 
         public virtual ProfileTypeDefinition InstanceParent { get; set; }
+
+        public virtual ProfileTypeDefinition VariableDataType { get; set; }
 
         ///// <remarks>
         ///// This is mapped to SubTypes in the importer class.

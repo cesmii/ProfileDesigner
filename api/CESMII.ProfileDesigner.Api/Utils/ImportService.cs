@@ -56,7 +56,7 @@ namespace CESMII.ProfileDesigner.Api.Utils
                     }
                 }
             };
-            var logId = await _dalImportLog.Add(logItem, userToken);
+            var logId = await _dalImportLog.AddAsync(logItem, userToken);
 
             Task backgroundTask = null;
 
@@ -257,7 +257,6 @@ namespace CESMII.ProfileDesigner.Api.Utils
                         var profileItems = new Dictionary<string, ProfileTypeDefinitionModel>();
 
                         //CodeSmell:Remove: int? result = 0;
-                        // TODO Expose in the UI? Feedback from Jonathan if this option is interesting
                         Task primeEFCacheTask = null;
                         var startEFCache = sw.Elapsed;
                         if (true)
@@ -410,7 +409,7 @@ namespace CESMII.ProfileDesigner.Api.Utils
                 logItem.Completed = DateTime.UtcNow;
             }
             logItem.Messages.Add(new ImportLogMessageModel() { Message = message });
-            await dalImportLog.Update(logItem, userToken);
+            await dalImportLog.UpdateAsync(logItem, userToken);
         }
 
         /// <summary>
@@ -424,7 +423,7 @@ namespace CESMII.ProfileDesigner.Api.Utils
             {
                 logItem.ProfileWarnings.Add(new ImportProfileWarningModel() { Message = message, ProfileId = warningsList.ProfileId });
             }
-            await dalImportLog.Update(logItem, userToken);
+            await dalImportLog.UpdateAsync(logItem, userToken);
         }
 
         private sealed class ProfileModelAndNodeSet

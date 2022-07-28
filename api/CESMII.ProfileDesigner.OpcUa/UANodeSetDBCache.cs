@@ -8,6 +8,7 @@ using CESMII.OpcUa.NodeSetImporter;
 using CESMII.ProfileDesigner.DAL;
 using CESMII.ProfileDesigner.DAL.Models;
 using CESMII.ProfileDesigner.Data.Entities;
+using CESMII.ProfileDesigner.OpcUa;
 using Opc.Ua.Export;
 using System;
 using System.IO;
@@ -39,7 +40,7 @@ namespace CESMII.ProfileDesigner.Opc.Ua.NodeSetDBCache
                     if (tMod.NewInThisImport)
                     {
                         //TODO: @Sean: If a nodeset is deleted from the cache table, some tables with references to the cache table might be broken.
-                        _dalNodeSetFile.Delete((tMod.NameVersion.CCacheId as NodeSetFileModel)?.ID ?? 0, _userToken); //Must force delete as Author ID is not in the results
+                        _dalNodeSetFile.DeleteAsync((tMod.NameVersion.CCacheId as NodeSetFileModel)?.ID ?? 0, _userToken); //Must force delete as Author ID is not in the results
                     }
                 }
             }
@@ -50,13 +51,6 @@ namespace CESMII.ProfileDesigner.Opc.Ua.NodeSetDBCache
             var tns = _dalNodeSetFile.GetById(int.Parse(id), _userToken);
             if (tns != null)
             {
-                var tmav = new ModelNameAndVersion
-                {
-                    ModelUri = tns.FileName,
-                    ModelVersion = tns.Version,
-                    PublicationDate = tns.PublicationDate,
-                    CCacheId = tns.ID
-                };
                 UANodeSetImportResult res = new UANodeSetImportResult();
                 AddNodeSet(res, tns.FileCache, _userToken);
                 if (res?.Models?.Count > 0)
@@ -73,7 +67,7 @@ namespace CESMII.ProfileDesigner.Opc.Ua.NodeSetDBCache
                 //TODO: @Sean: If a nodeset is deleted from the cache table, some tables with references to the cache table might be broken.
                 var t = _dalNodeSetFile.GetAll(_userToken);
                 foreach (var rec in t)
-                    _dalNodeSetFile.Delete(rec.ID.Value, _userToken);
+                    _dalNodeSetFile.DeleteAsync(rec.ID.Value, _userToken);
             }
             catch (Exception e)
             {
@@ -96,10 +90,8 @@ namespace CESMII.ProfileDesigner.Opc.Ua.NodeSetDBCache
             {
                 // workaround for bug https://github.com/dotnet/runtime/issues/67622
                 var fileCachepatched = myModel.FileCache.Replace("<Value/>", "<Value xsi:nil='true' />");
-                using (var nodeSetStream = new System.IO.MemoryStream(Encoding.UTF8.GetBytes(fileCachepatched)))
+                using (var nodeSetStream = new MemoryStream(Encoding.UTF8.GetBytes(fileCachepatched)))
                 {
-                    //nodeSetStream.Write(Encoding.UTF8.GetBytes(myModel.FileCache));
-                    //nodeSetStream.Position = 0;
                     UANodeSet nodeSet = UANodeSet.Read(nodeSetStream);
                     foreach (var ns in nodeSet.Models)
                     {
@@ -134,7 +126,7 @@ namespace CESMII.ProfileDesigner.Opc.Ua.NodeSetDBCache
             }
 
             var userToken = userId as UserToken;
-            myModel = _dalNodeSetFile?.Where(s => s.FileName == nameVersion.ModelUri /*&& (TenantID == null || s.AuthorId == null || s.AuthorId == (int)TenantID)*/, userToken, verbose: true)?.Data?.OrderByDescending(s => s.PublicationDate)?.FirstOrDefault();
+            myModel = _dalNodeSetFile?.Where(s => s.FileName == nameVersion.ModelUri, userToken, verbose: true)?.Data?.OrderByDescending(s => s.PublicationDate)?.FirstOrDefault();
             if (myModel != null)
             {
                 nameVersion.CCacheId = myModel;
@@ -167,7 +159,7 @@ namespace CESMII.ProfileDesigner.Opc.Ua.NodeSetDBCache
             {
                 nodeSet.Models = new ModelTableEntry[] {
                         new ModelTableEntry { ModelUri = nodeSet.NamespaceUris?.FirstOrDefault(),
-                         RequiredModel = new ModelTableEntry[] { new ModelTableEntry { ModelUri = "http://opcfoundation.org/UA/" } },
+                         RequiredModel = new ModelTableEntry[] { new ModelTableEntry { ModelUri = OpcUaImporter.strOpcNamespaceUri } },
                          }
                     };
             }
@@ -234,14 +226,9 @@ namespace CESMII.ProfileDesigner.Opc.Ua.NodeSetDBCache
                             FileCache = nodeSetXml
                         };
                         // Defer Upsert until later to make it part of a transaction
-                        // _dalNodeSetFile.Upsert(myModel, userToken, false);
                         newInImport = true;
                     }
                     // Defer the updates to the import transaction
-                    //var resIns = _dalNodeSetFile.Upsert(nsModel, (AuthorID == null) ? 0 : (int)AuthorID, true).GetAwaiter().GetResult();
-
-                    //cacheId = resIns.Item1;
-                    //newInImport = resIns.Item2;
                     WasNewSet = true;
                 }
                 var tModel = results.AddModelAndDependencies(nodeSet, ns, null, WasNewSet);

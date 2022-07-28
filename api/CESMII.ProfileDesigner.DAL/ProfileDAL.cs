@@ -19,7 +19,7 @@
         private readonly NodeSetFileDAL _nodeSetFileDAL;
 
 
-        public override async Task<int?> Add(ProfileModel model, UserToken userToken)
+        public override async Task<int?> AddAsync(ProfileModel model, UserToken userToken)
         {
             var entity = new Profile
             {
@@ -36,7 +36,7 @@
             return entity.ID;
         }
 
-        public override async Task<int?> Update(ProfileModel model, UserToken userToken)
+        public override async Task<int?> UpdateAsync(ProfileModel model, UserToken userToken)
         {
             Profile entity = base.FindByCondition(userToken, x => x.ID == model.ID && x.AuthorId == model.AuthorId)
                 .FirstOrDefault();
@@ -47,7 +47,7 @@
             this.MapToEntity(ref entity, model, userToken);
 
             await _repo.UpdateAsync(entity);
-            await _repo.SaveChanges();
+            await _repo.SaveChangesAsync();
             return entity.ID;
         }
 
@@ -82,7 +82,7 @@
         /// <param name="id">Id of the record to be deleted</param>
         /// <param name="userId">owner of the record. If set to -1 AuthorID is ignored (force delete)</param>
         /// <returns></returns>
-        public async Task<int?> Delete(int id, UserToken userToken)
+        public async Task<int?> DeleteAsync(int id, UserToken userToken)
         {
             //TBD - delete needs to add some include statements to pull back related children.
             //do filter on author id so that the user can only delete their stuff
@@ -93,11 +93,11 @@
             //complex delete with many cascading implications, call stored proc which deletes all dependent objects 
             // in proper order, etc.
             await _repo.ExecStoredProcedureAsync("call public.sp_nodeset_delete({0})", id.ToString());
-            await _repo.SaveChanges(); // SP does not get executed until SaveChanges
+            await _repo.SaveChangesAsync(); // SP does not get executed until SaveChanges
             return 1;
         }
 
-        public override async Task<int> DeleteMany(List<int> ids, UserToken userToken)
+        public override async Task<int> DeleteManyAsync(List<int> ids, UserToken userToken)
         {
             //find matches in the db regardless of author. Note there could be a scenario where they pass in an id that
             //isn't there anymore which is why we check this way.

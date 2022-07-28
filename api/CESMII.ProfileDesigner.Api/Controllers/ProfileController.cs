@@ -193,7 +193,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 return BadRequest("The profile record is invalid. Please correct the following: " + errors.ToString());
             }
 
-            var id = await _dal.Add(model, userToken);
+            var id = await _dal.AddAsync(model, userToken);
             if (id < 0)
             {
                 _logger.LogWarning($"ProfileController|Add|Could not add profile item.");
@@ -306,7 +306,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 return BadRequest("The profile record is invalid. Please correct the following: " + errors.ToString());
             }
 
-            var result = await _dal.Update(model, userToken);
+            var result = await _dal.UpdateAsync(model, userToken);
             if (result < 0)
             {
                 _logger.LogWarning($"ProfileController|Update|Could not update profile item. Invalid id:{model.ID}.");
@@ -343,7 +343,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             //associated with this profile
             try
             {
-                var result = await _dal.Delete(model.ID, userToken);
+                var result = await _dal.DeleteAsync(model.ID, userToken);
                 if (result <= 0)
                 {
                     _logger.LogWarning($"ProfileController|Delete|Could not delete item. Invalid id:{model.ID}.");
@@ -377,7 +377,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
 
         internal int? DeleteInternalTestHook(IdIntModel model)
         {
-            return _dal.Delete(model.ID, new UserToken { UserId = -1 }).Result;
+            return _dal.DeleteAsync(model.ID, new UserToken { UserId = -1 }).Result;
         }
 
         /// <summary>
@@ -399,7 +399,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             //associated with this nodeset and its profiles
             try
             {
-                var result = await _dal.DeleteMany(model.Select(x => x.ID).ToList(), userToken);
+                var result = await _dal.DeleteManyAsync(model.Select(x => x.ID).ToList(), userToken);
                 if (result < 0)
                 {
                     _logger.LogWarning($"ProfileController|DeleteMany|Could not delete item(s). Invalid model:{string.Join(", ", ids)}.");
@@ -503,7 +503,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         [HttpPost, Route("Export")]
         [Authorize(Policy = nameof(PermissionEnum.CanManageProfile))]
         [ProducesResponseType(200, Type = typeof(ResultMessageExportModel))]
-        public async Task<IActionResult> Export([FromBody] IdIntModel model)
+        public Task<IActionResult> Export([FromBody] IdIntModel model)
         {
             var userToken = UserExtension.DalUserToken(User);
 
@@ -514,13 +514,12 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             if (item == null)
             {
                 //return Task.FromResult(new ResultMessageWithDataModel()
-                return Ok(
-                    new ResultMessageExportModel()
+                return Task.FromResult<IActionResult>(Ok(new ResultMessageExportModel()
                     {
                         IsSuccess = false,
                         Message = "Profile not found."
                     }
-                );
+                ));
             }
 
             // Populate the OPC model into a new importer instance
@@ -541,30 +540,30 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                     }
                     else
                     {
-                        return Ok(new ResultMessageExportModel()
+                        return Task.FromResult<IActionResult>(Ok(new ResultMessageExportModel()
                         {
                             IsSuccess = false,
                             Message = "An error occurred downloading the profile."
-                        });
+                        }));
                     }
                 }
-                return Ok(new ResultMessageExportModel()
+                return Task.FromResult<IActionResult>(Ok(new ResultMessageExportModel()
                 {
                     IsSuccess = true,
                     Message = "",
                     Data = result,
                     Warnings = item.ImportWarnings.Select(x => x.Message).ToList()
-                });
+                }));
             }
             catch (Exception ex)
             {
                 _logger.LogCritical(ex, $"ProfileController|Export|Failed:{ex.Message}");
                 _logger.LogTrace($"Timestamp||Export||Error: {sw.Elapsed}|| {ex.Message}");
-                return Ok(new ResultMessageExportModel()
+                return Task.FromResult<IActionResult>(Ok(new ResultMessageExportModel()
                 {
                     IsSuccess = false,
                     Message = $"Technical details: {ex.Message}"
-                });
+                }));
             }
         }
     }

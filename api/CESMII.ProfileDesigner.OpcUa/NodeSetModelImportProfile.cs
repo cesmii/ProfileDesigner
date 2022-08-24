@@ -26,7 +26,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
 
         public ProfileTypeDefinitionModel ImportProfileItem(IDALContext dalContext)
         {
-            if (dalContext.profileItems.TryGetValue(this._model.NodeId, out var existingProfileItem))
+            if (dalContext.profileItemsByNodeId.TryGetValue(this._model.NodeId, out var existingProfileItem))
             {
                 return existingProfileItem;
             }
@@ -57,12 +57,12 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
             existingProfileItem = dalContext.CheckExisting(profileItem);
             if (existingProfileItem != null)
             {
-                dalContext.profileItems.Add(this._model.NodeId, existingProfileItem);
+                dalContext.profileItemsByNodeId.Add(this._model.NodeId, existingProfileItem);
                 return existingProfileItem;
             }
 
             // Add incomplete profile item to the lookup list to support recursive types like DictionaryEntryType, which contains an object of type DictionaryEntryType
-            dalContext.profileItems.Add(this._model.NodeId, profileItem);
+            dalContext.profileItemsByNodeId.Add(this._model.NodeId, profileItem);
 
             UpdateProfileItem(profileItem, dalContext);
 
@@ -371,7 +371,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
         }
     }
 
-    public class ObjectTypeModelImportProfile<TTypeModel> : BaseTypeModelImportProfile<TTypeModel> where TTypeModel : ObjectTypeModel, new()
+    public class ObjectTypeModelImportProfile<TTypeModel> : BaseTypeModelImportProfile<TTypeModel> where TTypeModel : BaseTypeModel, new()
     {
     }
 
@@ -443,8 +443,9 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
                     VariableTypeDefinition = typeDefinitionModel,
                     OpcNodeId = NodeModelUtils.GetNodeIdIdentifier(_model.NodeId),
                     AdditionalData = _model.Value,
+                    MinimumSamplingInterval = _model.MinimumSamplingInterval,
                     AccessLevel = _model.AccessLevel,
-                    UserAccessLevel = _model.UserAccessLevel,
+                    // deprecated UserAccessLevel = _model.UserAccessLevel,
                     AccessRestrictions = _model.AccessRestrictions,
                     WriteMask = _model.WriteMask,
                     UserWriteMask = _model.UserWriteMask,
@@ -465,8 +466,10 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
                 }
                 attribute.EngUnitOpcNodeId = _model.EngUnitNodeId;
                 attribute.EngUnitModelingRule = _model.EngUnitModelingRule;
+                attribute.EngUnitAccessLevel = _model.EngUnitAccessLevel;
                 attribute.EURangeOpcNodeId = _model.EURangeNodeId;
                 attribute.EURangeModelingRule = _model.EURangeModelingRule;
+                attribute.EURangeAccessLevel = _model.EURangeAccessLevel;
 
                 attribute.MinValue = (decimal?)_model.MinValue;
                 attribute.MaxValue = (decimal?)_model.MaxValue;
@@ -503,6 +506,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
                     {
                         NodeId = dataVariable.NodeId,
                         IsProperty = dataVariableContainer.Properties.Contains(dataVariable),
+                        ModelingRule = dataVariable.ModelingRule,
                         Map = GetDataVariableNodeIds(dataVariable, dataVariable.TypeDefinition)
                     };
                     dataVariableNodeIdMap.DataVariableNodeIdsByBrowseName.Add(dataVariable.BrowseName, map);
@@ -520,6 +524,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
     {
         public string NodeId { get; set; }
         public bool IsProperty { get; set; }
+        public string ModelingRule { get; set; }
         public DataVariableNodeIdMap Map { get; set; }
     }
     public class DataVariableNodeIdMap
@@ -598,7 +603,6 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
                 {
                     profileItem.Attributes = new List<ProfileAttributeModel>();
                 }
-                int fieldIndex = 0;
                 foreach (var field in _model.StructureFields ?? new List<DataTypeModel.StructureField>())
                 {
                     var fieldDataType = field.DataType;
@@ -626,10 +630,9 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
                         ArrayDimensions = field.ArrayDimensions,
                         MaxStringLength = field.MaxStringLength,
                         OpcNodeId = NodeModelUtils.GetNodeIdIdentifier(_model.NodeId),
-                        EnumValue = fieldIndex,
+                        EnumValue = field.FieldOrder,
                     };
                     profileItem.Attributes.Add(attribute);
-                fieldIndex++;
                 }
             }
             if (_model.EnumFields?.Any() == true)

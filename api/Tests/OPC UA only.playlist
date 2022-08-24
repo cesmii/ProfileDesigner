@@ -1,0 +1,42 @@
+<Playlist Version="2.0">
+  <Rule Name="Includes" Match="Any">
+    <Rule Match="All">
+      <Property Name="Solution" />
+      <Rule Match="Any">
+        <Rule Match="All">
+          <Property Name="Project" Value="CESMII.ProfileDesigner.Api.Tests" />
+          <Rule Match="Any">
+            <Rule Match="All">
+              <Property Name="Namespace" Value="CESMII.ProfileDesigner.Api.Tests" />
+              <Rule Match="Any">
+                <Rule Match="All">
+                  <Property Name="Class" Value="Integration" />
+                  <Rule Match="Any">
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="CESMII.ProfileDesigner.Api.Tests.Integration.Import" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="CESMII.ProfileDesigner.Api.Tests.Integration.Import(file: &quot;opcfoundation.org.UA.NodeSet2.xml&quot;)" />
+                      </Rule>
+                    </Rule>
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="CESMII.ProfileDesigner.Api.Tests.Integration.Export" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="CESMII.ProfileDesigner.Api.Tests.Integration.Export(file: &quot;opcfoundation.org.UA.NodeSet2.xml&quot;)" />
+                      </Rule>
+                    </Rule>
+                    <Rule Match="All">
+                      <Property Name="TestWithNormalizedFullyQualifiedName" Value="CESMII.ProfileDesigner.Api.Tests.Integration.ExportModelOnly" />
+                      <Rule Match="Any">
+                        <Property Name="DisplayName" Value="CESMII.ProfileDesigner.Api.Tests.Integration.ExportModelOnly(file: &quot;opcfoundation.org.UA.NodeSet2.xml&quot;)" />
+                      </Rule>
+                    </Rule>
+                  </Rule>
+                </Rule>
+              </Rule>
+            </Rule>
+          </Rule>
+        </Rule>
+      </Rule>
+    </Rule>
+  </Rule>
+</Playlist>

@@ -429,8 +429,11 @@
                 EngUnit = !item.EngUnitId.HasValue ? null : _euDAL.MapToModelPublic(item.EngUnit, true),
                 EngUnitOpcNodeId = item.EngUnitOpcNodeId,
                 EngUnitModelingRule = item.EngUnitModelingRule,
+                EngUnitAccessLevel = item.EngUnitAccessLevel,
                 EURangeOpcNodeId = item.EURangeOpcNodeId,
                 EURangeModelingRule = item.EURangeModelingRule,
+                EURangeAccessLevel = item.EURangeAccessLevel,
+                MinimumSamplingInterval = item.MinimumSamplingInterval,
                 MinValue = item.MinValue,
                 MaxValue = item.MaxValue,
                 InstrumentMinValue = item.InstrumentMinValue,
@@ -447,7 +450,7 @@
                 //AdditionalData = !string.IsNullOrEmpty(item.AdditionalData) ? new JRaw(item.AdditionalData) : null,
 
                 AccessLevel = item.AccessLevel,
-                UserAccessLevel = item.UserAccessLevel,
+                // deprecated: UserAccessLevel = item.UserAccessLevel,
                 AccessRestrictions = item.AccessRestrictions,
                 WriteMask = item.WriteMask,
                 UserWriteMask = item.WriteMask,
@@ -745,8 +748,11 @@
                         current.EngUnitId = source.EngUnit?.ID != 0 ? source.EngUnit?.ID : null;
                         current.EngUnitOpcNodeId = source.EngUnitOpcNodeId;
                         current.EngUnitModelingRule = source.EngUnitModelingRule;
+                        current.EngUnitAccessLevel = source.EngUnitAccessLevel;
                         current.EURangeOpcNodeId = source.EURangeOpcNodeId;
                         current.EURangeModelingRule = source.EURangeModelingRule;
+                        current.EURangeAccessLevel = source.EURangeAccessLevel;
+                        current.MinimumSamplingInterval = source.MinimumSamplingInterval;
                         current.MinValue = source.MinValue;
                         current.MaxValue = source.MaxValue;
                         current.DataTypeId = source.DataType?.ID != 0 ? source.DataType.ID : null;
@@ -792,7 +798,7 @@
                         current.ArrayDimensions = source.ArrayDimensions;
                         current.MaxStringLength = source.MaxStringLength;
                         current.AccessLevel = source.AccessLevel;
-                        current.UserAccessLevel = source.UserAccessLevel;
+                        // deprecated: current.UserAccessLevel = source.UserAccessLevel;
                         current.AccessRestrictions = source.AccessRestrictions;
                         current.WriteMask = source.WriteMask;
                         current.UserWriteMask = source.UserWriteMask;
@@ -873,11 +879,14 @@
                             EngUnit = engUnit,
                             EngUnitOpcNodeId = attr.EngUnitOpcNodeId,
                             EngUnitModelingRule = attr.EngUnitModelingRule,
+                            EngUnitAccessLevel = attr.EngUnitAccessLevel,
                             EURangeOpcNodeId = attr.EURangeOpcNodeId,
                             EURangeModelingRule = attr.EURangeModelingRule,
+                            EURangeAccessLevel = attr.EURangeAccessLevel,
+                            MinimumSamplingInterval = attr.MinimumSamplingInterval,
 
                             AccessLevel = attr.AccessLevel,
-                            UserAccessLevel = attr.UserAccessLevel,
+                            // deprecated: UserAccessLevel = attr.UserAccessLevel,
                             AccessRestrictions = attr.AccessRestrictions,
                             WriteMask = attr.WriteMask,
                             UserWriteMask = attr.UserWriteMask,

@@ -236,6 +236,7 @@ namespace CESMII.ProfileDesigner.Opc.Ua.NodeSetDBCache
                 {
                     tModel.NameVersion.CCacheId = myModel;
                     tModel.NewInThisImport = newInImport;
+                    tModel.NameVersion.UAStandardModelID = _dalLookupNodeSet.Where(sns => sns.Namespace == tModel.NameVersion.ModelUri, userToken).Data?.FirstOrDefault()?.ID;
                 }
                 foreach (var model in results.Models)
                 {

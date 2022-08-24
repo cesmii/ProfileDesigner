@@ -263,7 +263,7 @@ namespace CESMII.ProfileDesigner.Api
             {
                 app.UseHsts();
             }
-
+            app.UseOpcUaImporter();
             app.UseHttpsRedirection();
 
             app.UseRouting();

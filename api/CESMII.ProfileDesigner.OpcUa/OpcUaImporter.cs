@@ -548,7 +548,7 @@ namespace CESMII.ProfileDesigner.OpcUa
 
             foreach (var uaVariable in nodesetModel.DataVariables)
             {
-                if (uaVariable.Parent.Namespace != uaVariable.Namespace)
+                if (uaVariable.Parent != null && uaVariable.Parent.Namespace != uaVariable.Namespace)
                 {
                     dalContext.Logger.LogWarning($"UAVariable {uaVariable} ({uaVariable.GetDisplayNamePath()}) ignored because it's parent {uaVariable.Parent} is in a different namespace {uaVariable.Parent.Namespace}.");
                     continue;
@@ -596,6 +596,18 @@ namespace CESMII.ProfileDesigner.OpcUa
                             continue;
                         }
                     }
+                }
+                foreach(var referencingNode in uaVariable.OtherReferencingNodes)
+                {
+                    if (dalContext.profileItemsByNodeId.TryGetValue(referencingNode.Node.NodeId, out var referencingProfileType))
+                    {
+                        var nodeIdParts = uaVariable.NodeId.Split(';');
+                        if (referencingProfileType.Attributes?.FirstOrDefault(a => a.OpcNodeId == nodeIdParts[1] && nodeIdParts[0].EndsWith(a.Namespace)) != null)
+                        {
+                            continue;
+                        }
+                    }
+
                 }
                 dalContext.Logger.LogWarning($"UAVariable {uaVariable} ({uaVariable.GetDisplayNamePath()}) ignored.");
             }

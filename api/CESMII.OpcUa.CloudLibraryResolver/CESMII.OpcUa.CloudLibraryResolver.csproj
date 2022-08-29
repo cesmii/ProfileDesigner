@@ -26,7 +26,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="CESMII.OpcUa.NodeSetImporter" Version="1.0.0-beta.10" />
+	  <PackageReference Include="CESMII.OpcUa.NodeSetImporter" Version="1.0.0-beta.11" />
 	  <ProjectReference Include="..\Opc.Ua.Cloud.Library.Client\Opc.Ua.Cloud.Library.Client.csproj" />
 	</ItemGroup>
 

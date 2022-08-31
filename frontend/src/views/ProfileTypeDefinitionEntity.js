@@ -606,7 +606,14 @@ function ProfileTypeDefinitionEntity() {
         console.log(generateLogMessageString(`downloadProfile||start`, CLASS_NAME));
         //add a row to download messages and this will kick off download
         var msgs = loadingProps.downloadItems || [];
-        msgs.push({ profileId: _item.profile?.id, fileName: cleanFileName(_item.profile?.namespace), immediateDownload: true });
+        msgs.push({ profileId: _item.profile?.id, fileName: cleanFileName(_item.profile?.namespace), immediateDownload: true});
+        setLoadingProps({ downloadItems: JSON.parse(JSON.stringify(msgs)) });
+    }
+    const downloadProfileAsAASX = async () => {
+        console.log(generateLogMessageString(`downloadProfile||start`, CLASS_NAME));
+        //add a row to download messages and this will kick off download
+        var msgs = loadingProps.downloadItems || [];
+        msgs.push({ profileId: _item.profile?.id, fileName: cleanFileName(_item.profile?.namespace), immediateDownload: true, downloadFormat: AppSettings.ExportFormatEnum.AASX });
         setLoadingProps({ downloadItems: JSON.parse(JSON.stringify(msgs)) });
     }
 
@@ -715,6 +722,7 @@ function ProfileTypeDefinitionEntity() {
                     <Dropdown.Item href={`/type/extend/${_item.id}`}>Extend '{_item.name}'</Dropdown.Item>
                     {/*<Dropdown.Item onClick={downloadMe} >Download '{item.name}'</Dropdown.Item>*/}
                     <Dropdown.Item onClick={downloadProfile} >Download Profile '{getProfileCaption(_item.profile)}'</Dropdown.Item>
+                    <Dropdown.Item onClick={downloadProfileAsAASX} >Download Profile '{getProfileCaption(_item.profile)} as AASX'</Dropdown.Item>
                 </Dropdown.Menu>
             </Dropdown>
         );

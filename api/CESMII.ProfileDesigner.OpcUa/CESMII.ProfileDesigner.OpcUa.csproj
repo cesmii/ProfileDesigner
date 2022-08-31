@@ -19,9 +19,16 @@
 	<PackageReference Include="CESMII.OpcUa.NodeSetModel.Factory.Opc" Version="1.0.0-beta.11" />
 	<PackageReference Include="CESMII.OpcUa.NodeSetImporter" Version="1.0.0-beta.11" />
 	<PackageReference Include="CESMII.OpcUa.NodeSetModel.EF" Version="1.0.0-beta.11" />
+    <PackageReference Include="System.IO.Packaging" Version="6.0.0" />
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="AASX\aasenv-with-no-id.aas.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="AASX\submodel.aas.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="NodeSets\Opc.Ua.NodeSet2.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

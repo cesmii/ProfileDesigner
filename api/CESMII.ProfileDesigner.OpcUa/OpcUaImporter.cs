@@ -420,23 +420,40 @@ namespace CESMII.ProfileDesigner.OpcUa
             return profileItemsByNodeId;
         }
 
-        public bool ExportNodeSet(CESMII.ProfileDesigner.DAL.Models.ProfileModel nodeSetModel, Stream xmlNodeSet, UserToken userToken, UserToken authorId)
+        public List<(UANodeSet nodeSet, string xml)> ExportNodeSet(CESMII.ProfileDesigner.DAL.Models.ProfileModel nodeSetModel, UserToken userToken, UserToken authorId, bool includeRequiredModels, bool bForceReexport)
         {
-            return ExportInternal(nodeSetModel, null, xmlNodeSet, userToken, authorId);
-        }
-        public bool ExportProfileItem(ProfileTypeDefinitionModel profileItem, Stream xmlNodeSet, UserToken userToken, UserToken authorId)
-        {
-            return ExportInternal(null, profileItem, xmlNodeSet, userToken, authorId);
+            List<(UANodeSet nodeSet, string xml)> exportedNodeSets = new();
+            var exportedNodeSet = ExportInternal(nodeSetModel, userToken, authorId, bForceReexport);
+            exportedNodeSets.Add(exportedNodeSet);
+            if (includeRequiredModels)
+            {
+                var requiredModels = exportedNodeSet.nodeSet.Models.SelectMany(m => m.RequiredModel)?.GroupBy(m => m.ModelUri).Select(mg => mg.MaxBy(m => m.PublicationDate)).ToList();
+                foreach (var requiredModel in requiredModels)
+                {
+                    var requiredProfile = _profileDal.Where(p => p.Namespace == requiredModel.ModelUri && p.PublishDate >= requiredModel.PublicationDate, userToken).Data?.OrderByDescending(p => p.PublishDate)?.FirstOrDefault();
+                    var requiredNodeSet = ExportInternal(requiredProfile, userToken, authorId, bForceReexport);
+                    exportedNodeSets.Add(requiredNodeSet);
+                }
+            }
+            return exportedNodeSets;
         }
 
-        public bool ExportInternal(CESMII.ProfileDesigner.DAL.Models.ProfileModel profileModel, ProfileTypeDefinitionModel profileItem, Stream xmlNodeSet, UserToken userToken, UserToken authorId)
+        public (UANodeSet nodeSet, string xml) ExportInternal(CESMII.ProfileDesigner.DAL.Models.ProfileModel profileModel, UserToken userToken, UserToken authorId, bool bForceReexport)
         {
-            if (profileItem?.ProfileId != null)
+            if (profileModel.StandardProfile != null && !bForceReexport)
             {
-                profileModel = _profileDal.GetById(profileItem.ProfileId.Value, userToken);
+                var nodeSetFile = _nodeSetFileDal.Where(nsf => nsf.Profiles.Any(p => p.ID == profileModel.ID), userToken, verbose: true).Data?.FirstOrDefault();
+                var nodeSetXml = nodeSetFile?.FileCache;
+                using (MemoryStream ms = new(Encoding.UTF8.GetBytes(nodeSetXml)))
+                {
+                    var nodeSet = UANodeSet.Read(ms);
+                    return (nodeSet, nodeSetXml);
+                }
             }
             var dalContext = new DALContext(this, userToken, authorId, false);
             _lastDalContext = dalContext;
+
+            // pre-load OPC UA base model
             if (!this._nodesetModels.ContainsKey(strOpcNamespaceUri))
             {
                 try
@@ -461,21 +478,15 @@ namespace CESMII.ProfileDesigner.OpcUa
                 }
             }
 
-            if (profileItem == null)
+            var profileItemsResult = _dal.Where(pi => pi.ProfileId == profileModel.ID /*&& (pi.AuthorId == null || pi.AuthorId == userId)*/, userToken, null, null, false, true);
+            if (profileItemsResult.Data != null)
             {
-                var profileItemsResult = _dal.Where(pi => pi.ProfileId == profileModel.ID /*&& (pi.AuthorId == null || pi.AuthorId == userId)*/, userToken, null, null, false, true);
-                if (profileItemsResult.Data != null)
+                foreach (var profile in profileItemsResult.Data)
                 {
-                    foreach (var profile in profileItemsResult.Data)
-                    {
-                        NodeModelFromProfileFactory.Create(profile, this, dalContext);
-                    }
+                    NodeModelFromProfileFactory.Create(profile, this, dalContext);
                 }
             }
-            else
-            {
-                NodeModelFromProfileFactory.Create(profileItem, this, dalContext);
-            }
+
             // Export the nodesets
             UANodeSet exportedNodeSet = null;
             foreach (var model in this._nodesetModels.Values.Where(model =>
@@ -499,20 +510,25 @@ namespace CESMII.ProfileDesigner.OpcUa
                 exportedNodeSet = UANodeSetModelImporter.ExportNodeSet(model, this._nodesetModels, this.Aliases);
             }
             // .Net6 changed the default to no-identation: https://github.com/dotnet/runtime/issues/64885
-            using (StreamWriter writer = new StreamWriter(xmlNodeSet, Encoding.UTF8))
+            string exportedNodeSetXml;
+            using (MemoryStream ms = new())
             {
-                try
+                using (StreamWriter writer = new(ms, Encoding.UTF8))
                 {
-                    var xmlWriter = XmlWriter.Create(writer, new XmlWriterSettings { Indent = true, });
-                    XmlSerializer serializer = new XmlSerializer(typeof(UANodeSet));
-                    serializer.Serialize(xmlWriter, exportedNodeSet);
+                    try
+                    {
+                        var xmlWriter = XmlWriter.Create(writer, new XmlWriterSettings { Indent = true, });
+                        XmlSerializer serializer = new XmlSerializer(typeof(UANodeSet));
+                        serializer.Serialize(xmlWriter, exportedNodeSet);
+                    }
+                    finally
+                    {
+                        writer.Flush();
+                    }
                 }
-                finally
-                {
-                    writer.Flush();
-                }
+                exportedNodeSetXml = Encoding.UTF8.GetString(ms.ToArray());
             }
-            return true;
+            return (exportedNodeSet, exportedNodeSetXml);
         }
 
         /// <summary>

@@ -669,48 +669,6 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             return Ok(new ResultMessageModel() { IsSuccess = true, Message = "Item was deleted." });
         }
 
-
-        /// <summary>
-        /// Exports a type definition to aa file
-        /// </summary>
-        /// <param name="model"></param>
-        /// <returns>Returns the OPC UA nodeset in XML format</returns>
-        [HttpPost, Route("Export")]
-        [Authorize(Policy = nameof(PermissionEnum.CanManageProfile))]
-        [ProducesResponseType(200, Type = typeof(ResultMessageWithDataModel))]
-        public Task<ResultMessageWithDataModel> Export([FromBody] IdIntModel model, [FromServices] OpcUaImporter exporter)
-        {
-            var userToken = UserExtension.DalUserToken(User);
-            var profileItem = _dal.GetById(model.ID, userToken);
-            if (profileItem == null/* || !(profileItem.AuthorId == null || profileItem.AuthorId == userToken)*/)
-            {
-                return Task.FromResult(new ResultMessageWithDataModel()
-                {
-                    IsSuccess = false,
-                    Message = $"Item {model?.ID} not found",
-                });
-            }
-
-            // Populate the OPC model into a new importer instance
-
-            string xmlNodeSet = null;
-            using (var xmlNodeSetStream = new MemoryStream())
-            {
-                if (exporter.ExportProfileItem(profileItem, xmlNodeSetStream, userToken, null))
-                {
-                    xmlNodeSet = Encoding.UTF8.GetString(xmlNodeSetStream.ToArray());
-
-                    // TODO read and include the required models in a ZIP file, optionally?
-                }
-            }
-            return Task.FromResult(new ResultMessageWithDataModel()
-            {
-                IsSuccess = true,
-                Message = "Type definition was exported.",
-                Data = xmlNodeSet,
-            });
-        }
-
         private ProfileTypeDefinitionModel GetItem(int id)
         {
             var userToken = UserExtension.DalUserToken(User);

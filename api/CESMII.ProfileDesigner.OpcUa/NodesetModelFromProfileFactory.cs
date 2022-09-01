@@ -93,7 +93,12 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
                 if (profileItem.Attributes == null && profileItem.ID != null)
                 {
                     // TODO Figure out why these are not getting loaded even with Verbose flag
-                    profileItem = dalContext.GetProfileItemById(profileItem.ID);
+                    var profileItem2 = dalContext.GetProfileItemById(profileItem.ID);
+                    if (profileItem2 == null)
+                    {
+                        throw new Exception($"Inconsistent database: profile type {profileItem} ({profileItem.ID}) not found for user {dalContext.authorId}");
+                    }
+                    profileItem = profileItem2;
                 }
 
                 nodeModelFactory.Initialize(profileItem, opcContext, dalContext);

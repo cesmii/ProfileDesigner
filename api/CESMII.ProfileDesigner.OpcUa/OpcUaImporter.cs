@@ -34,12 +34,7 @@ namespace CESMII.ProfileDesigner.OpcUa
     using CESMII.OpcUa.NodeSetImporter;
     using Microsoft.Extensions.DependencyInjection;
 
-    public class OpcUaImporter :
-#if NODESETDBTEST
-        DbOpcUaContext
-#else
-        DefaultOpcUaContext
-#endif
+    public class OpcUaImporter
     {
 #pragma warning disable S1075 // URIs should not be hardcoded - these are not URLs representing endpoints, but OPC model identifiers (URIs) that are static and stable
         public const string strOpcNamespaceUri = "http://opcfoundation.org/UA/"; //NOSONAR
@@ -58,15 +53,14 @@ namespace CESMII.ProfileDesigner.OpcUa
             ILogger<OpcUaImporter> logger
 #if NODESETDBTEST
             , NodeSetModelContext nsDBContext
-            ) : base(nsDBContext, logger)
-#else
-            ) : base(logger)
 #endif
+            )
         {
             _dal = dal;
             _dtDal = dtDal;
             _euDal = euDal;
             this.Logger = new LoggerCapture(logger);
+            this._logger = logger;
 #if NODESETDBTEST
             this.nsDBContext = nsDBContext;
 #endif
@@ -82,6 +76,7 @@ namespace CESMII.ProfileDesigner.OpcUa
         public readonly IDal<EngineeringUnit, EngineeringUnitModel> _euDal;
         public readonly ProfileMapperUtil _profileUtils;
         public readonly LoggerCapture Logger;
+        public readonly ILogger _logger;
         private readonly IUANodeSetResolverWithProgress _nodeSetResolver;
 #if NODESETDBTEST
         private readonly NodeSetModelContext nsDBContext;
@@ -198,12 +193,16 @@ namespace CESMII.ProfileDesigner.OpcUa
                 try
                 {
                     // Performance: Load the profiles and data types into the EF cache, in a singe database query
-                    Task primeEFCacheTask = null;
                     var startEFCache = sw.Elapsed;
                     var profileIds = profilesAndNodeSets.Select(pn => pn.Profile.ID).Where(i => (i ?? 0) != 0);
                     _logger.LogTrace($"Timestamp||ImportId:{logId}||Loading EF cache: {sw.Elapsed}");
-                    primeEFCacheTask = _dal.LoadIntoCacheAsync(pt => profileIds.Contains(pt.ProfileId));
-                    primeEFCacheTask = primeEFCacheTask.ContinueWith((t) => _dtDal.LoadIntoCacheAsync(dt => profileIds.Contains(dt.CustomType.ProfileId))).Unwrap();
+                    await _dal.LoadIntoCacheAsync(pt => profileIds.Contains(pt.ProfileId));
+                    await _dtDal.LoadIntoCacheAsync(dt => profileIds.Contains(dt.CustomType.ProfileId));
+                    var endEFCache = sw.Elapsed;
+                    _logger.LogTrace($"Timestamp||ImportId:{logId}||Finished loading EF cache: {endEFCache - startEFCache}");
+
+                    var nodeSetModels = new Dictionary<string, NodeSetModel>();
+                    var dalOpcContext = new DalOpcContext(this, nodeSetModels, userToken, userToken, false);
 
                     var profileItemsByNodeId = new Dictionary<string, ProfileTypeDefinitionModel>();
                     var modelsToImport = new List<NodeSetModel>();
@@ -217,24 +216,15 @@ namespace CESMII.ProfileDesigner.OpcUa
                         var logList = new List<string>();
                         (Logger as LoggerCapture).LogList = logList;
 
-                        var nodeSetModels = await LoadNodeSetAsync(profileAndNodeSet.NodeSetModel.NodeSet, profileAndNodeSet.Profile, !profileAndNodeSet.NodeSetModel.NewInThisImport);
+                        var loadedNodeSetModels = await LoadNodeSetAsync(dalOpcContext, profileAndNodeSet.NodeSetModel.NodeSet, profileAndNodeSet.Profile, !profileAndNodeSet.NodeSetModel.NewInThisImport);
                         if (profileAndNodeSet.NodeSetModel.NewInThisImport)
                         {
-                            foreach (var model in nodeSetModels)
+                            foreach (var model in loadedNodeSetModels)
                             {
                                 if (modelsToImport.FirstOrDefault(m => m.ModelUri == model.ModelUri) == null)
                                 {
                                     modelsToImport.Add(model);
-                                    if (primeEFCacheTask != null)
-                                    {
-                                        _logger.LogTrace($"Timestamp||ImportId:{logId}||Waiting for EF cache to load");
-                                        await primeEFCacheTask;
-                                        var endEFCache = sw.Elapsed;
-                                        _logger.LogTrace($"Timestamp||ImportId:{logId}||Finished loading EF cache: {endEFCache - startEFCache}");
-                                        primeEFCacheTask = null;
-                                    }
-
-                                    var itemsByNodeId = await ImportNodeSetModelAsync(model, userToken);
+                                    var itemsByNodeId = await ImportNodeSetModelAsync(model, dalOpcContext, userToken);
                                     if (itemsByNodeId != null)
                                     {
                                         foreach (var item in itemsByNodeId)
@@ -348,7 +338,7 @@ namespace CESMII.ProfileDesigner.OpcUa
         }
 
 
-        public System.Threading.Tasks.Task<List<NodeSetModel>> LoadNodeSetAsync(UANodeSet nodeSet, ProfileModel profile, bool doNotReimport = false)
+        public System.Threading.Tasks.Task<List<NodeSetModel>> LoadNodeSetAsync(IOpcUaContext opcContext,  UANodeSet nodeSet, ProfileModel profile, bool doNotReimport = false)
         {
             if (!nodeSet.Models.Any())
             {
@@ -367,12 +357,12 @@ namespace CESMII.ProfileDesigner.OpcUa
                 throw new Exception($"Mismatching primary model meta data and meta data from cache");
             }
 
-            return NodeModelFactoryOpc.LoadNodeSetAsync(this, nodeSet, profile, this.Aliases, doNotReimport);
+            return NodeModelFactoryOpc.LoadNodeSetAsync(opcContext, nodeSet, profile, this.Aliases, doNotReimport);
         }
 
         public static readonly ImmutableList<string> _coreNodeSetUris = ImmutableList<string>.Empty.AddRange(new[] { strOpcNamespaceUri, strOpcDiNamespaceUri });
 
-        public async System.Threading.Tasks.Task<Dictionary<string, ProfileTypeDefinitionModel>> ImportNodeSetModelAsync(NodeSetModel nodeSetModel, UserToken userToken)
+        public async System.Threading.Tasks.Task<Dictionary<string, ProfileTypeDefinitionModel>> ImportNodeSetModelAsync(NodeSetModel nodeSetModel, IDALContext dalContext, UserToken userToken)
         {
 #if NODESETDBTEST
             {
@@ -403,7 +393,6 @@ namespace CESMII.ProfileDesigner.OpcUa
                 await _nodeSetFileDal.UpsertAsync(nsFile, userToken, true);
             }
             await _profileDal.UpsertAsync(profile, userToken, true);
-            var dalContext = new DALContext(this, userToken, authorToken, false);
             var profileItemsByNodeId = ImportProfileItems(nodeSetModel, dalContext);
             var sw = Stopwatch.StartNew();
             Logger.LogTrace($"Commiting transaction");
@@ -438,7 +427,7 @@ namespace CESMII.ProfileDesigner.OpcUa
             return exportedNodeSets;
         }
 
-        public (UANodeSet nodeSet, string xml) ExportInternal(CESMII.ProfileDesigner.DAL.Models.ProfileModel profileModel, UserToken userToken, UserToken authorId, bool bForceReexport)
+        public (UANodeSet nodeSet, string xml) ExportInternal(ProfileModel profileModel, UserToken userToken, UserToken authorId, bool bForceReexport)
         {
             if (profileModel.StandardProfile != null && !bForceReexport)
             {
@@ -450,11 +439,11 @@ namespace CESMII.ProfileDesigner.OpcUa
                     return (nodeSet, nodeSetXml);
                 }
             }
-            var dalContext = new DALContext(this, userToken, authorId, false);
-            _lastDalContext = dalContext;
+            Dictionary<string, NodeSetModel> nodeSetModels = new();
+            var dalOpcContext = new DalOpcContext(this, nodeSetModels, userToken, authorId, false);
 
             // pre-load OPC UA base model
-            if (!this._nodesetModels.ContainsKey(strOpcNamespaceUri))
+            if (!nodeSetModels.ContainsKey(strOpcNamespaceUri))
             {
                 try
                 {
@@ -469,7 +458,7 @@ namespace CESMII.ProfileDesigner.OpcUa
                         var opcModel = nodeSet.Models[0];
                         var opcProfile = _profileDal.Where(ns => ns.Namespace == opcModel.ModelUri, userToken, null, null).Data?.FirstOrDefault();
                         //TODO - this next line is time consuming, but still faster than loading from database.
-                        this.LoadNodeSetAsync(nodeSet, opcProfile, true).Wait();
+                        this.LoadNodeSetAsync(dalOpcContext, nodeSet, opcProfile, true).Wait();
                     }
                 }
                 catch (Exception ex)
@@ -483,13 +472,13 @@ namespace CESMII.ProfileDesigner.OpcUa
             {
                 foreach (var profile in profileItemsResult.Data)
                 {
-                    NodeModelFromProfileFactory.Create(profile, this, dalContext);
+                    NodeModelFromProfileFactory.Create(profile, dalOpcContext, dalOpcContext);
                 }
             }
 
             // Export the nodesets
             UANodeSet exportedNodeSet = null;
-            foreach (var model in this._nodesetModels.Values.Where(model =>
+            foreach (var model in nodeSetModels.Values.Where(model =>
                 ((ProfileModel)model.CustomState).Namespace == profileModel.Namespace
                 && ((ProfileModel)model.CustomState).PublishDate == profileModel.PublishDate).ToList())
             {
@@ -507,7 +496,7 @@ namespace CESMII.ProfileDesigner.OpcUa
 #else
                 model.UpdateIndices();
 #endif
-                exportedNodeSet = UANodeSetModelImporter.ExportNodeSet(model, this._nodesetModels, this.Aliases);
+                exportedNodeSet = UANodeSetModelImporter.ExportNodeSet(model, nodeSetModels, this.Aliases);
             }
             // .Net6 changed the default to no-identation: https://github.com/dotnet/runtime/issues/64885
             string exportedNodeSetXml;
@@ -537,7 +526,7 @@ namespace CESMII.ProfileDesigner.OpcUa
         /// <param name="nodesetModel">nodeset model to import</param>
         /// <param name="updateExisting">Indicates if existing profile items should be updated/overwritten or kept unchanged.</param>
         /// <returns></returns>
-        private static Dictionary<string, ProfileTypeDefinitionModel> ImportProfileItems(NodeSetModel nodesetModel, DALContext dalContext)
+        private static Dictionary<string, ProfileTypeDefinitionModel> ImportProfileItems(NodeSetModel nodesetModel, IDALContext dalContext)
         {
             nodesetModel.UpdateIndices();
             foreach (var dataType in nodesetModel.DataTypes)
@@ -566,7 +555,8 @@ namespace CESMII.ProfileDesigner.OpcUa
             {
                 if (uaVariable.Parent != null && uaVariable.Parent.Namespace != uaVariable.Namespace)
                 {
-                    dalContext.Logger.LogWarning($"UAVariable {uaVariable} ({uaVariable.GetDisplayNamePath()}) ignored because it's parent {uaVariable.Parent} is in a different namespace {uaVariable.Parent.Namespace}.");
+                    // TODO is this really still necessary
+                    dalContext.Logger.LogDebug($"UAVariable {uaVariable} ({uaVariable.GetDisplayNamePath()}) ignored because it's parent {uaVariable.Parent} is in a different namespace {uaVariable.Parent.Namespace}.");
                     continue;
                 }
                 if (uaVariable.Parent is DataVariableModel)
@@ -793,40 +783,162 @@ namespace CESMII.ProfileDesigner.OpcUa
             await _euDal.CommitTransactionAsync();
         }
 
-        private DALContext _lastDalContext;
+        private sealed class ProfileModelAndNodeSet
+        {
+            public ProfileModel Profile { get; set; }
+            public ModelValue NodeSetModel { get; set; }
+        }
 
-#region IOpcUaContext
-//        public override NodeModel GetModelForNode(string nodeId)
-//        {
-//            var nodesetModel = base.GetModelForNode(nodeId);
-//            if (nodesetModel != null)
-//            {
-//                return nodesetModel;
-//            }
+        public sealed class WarningsByNodeSet
+        {
+            public int ProfileId { get; set; }
+            public string Key { get; set; }
+            public List<string> Warnings { get; set; }
+        }
 
-//            var uaNamespace = NodeModelUtils.GetNamespaceFromNodeId(nodeId);
+    }
 
-//#if NODESETDBTEST
+    public class LoggerCapture : ILogger<OpcUaImporter>
+    {
+        private readonly ILogger<OpcUaImporter> logger;
 
-//            var nodeModelDb = nsDBContext.NodeModels.FirstOrDefault(nm => nm.NodeId == nodeId && nm.NodeSet.ModelUri == uaNamespace);
-//            if (nodeModelDb != null)
-//            {
-//                if (!nodeModelDb.NodeSet.AllNodesByNodeId.ContainsKey(nodeModelDb.NodeId))
-//                {
-//                    nodeModelDb.NodeSet.AllNodesByNodeId.Add(nodeModelDb.NodeId, nodeModelDb);
-//                }
-//            }
-//            return nodeModelDb;
-//#else
-//            return null;
-//#endif
-//        }
+        public LoggerCapture(ILogger<OpcUaImporter> logger)
+        {
+            this.logger = logger;
+        }
+
+        public IDisposable BeginScope<TState>(TState state)
+        {
+            return logger.BeginScope(state);
+        }
+
+        public bool IsEnabled(LogLevel logLevel)
+        {
+            return logger.IsEnabled(logLevel);
+        }
+
+        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
+        {
+            if (logLevel >= LogLevel.Warning)
+            {
+                LogList?.Add($"{logLevel}: {formatter(state, exception)}");
+            }
+            logger.Log(logLevel, eventId, state, exception, formatter);
+        }
+        public List<string> LogList { get; set; }
+    }
+
+    public class DalOpcContext : 
+#if NODESETDBTEST
+        DbOpcUaContext
+#else
+        DefaultOpcUaContext
+#endif
+        , IDALContext
+    {
+        private readonly OpcUaImporter _importer;
+        private readonly UserToken _authorToken;
+        private readonly UserToken _userToken;
+        private readonly Dictionary<string, NodeSetModel> _nodeSetModels;
+        public DalOpcContext(OpcUaImporter importer, Dictionary<string, NodeSetModel> nodeSetModels, UserToken userToken, UserToken authorToken, bool UpdateExisting)
+#if NODESETDBTEST
+             : base(nodesetModels, importer.nsDBContext, importer.Logger)
+#else
+             : base(nodeSetModels, importer.Logger)
+#endif
+        {
+            _importer = importer;
+            _authorToken = authorToken;
+            _userToken = userToken;
+            _nodeSetModels = nodeSetModels;
+        }
+        public UserToken authorId => _authorToken;
+
+        public bool UpdateExisting { get; set; }
+        public Dictionary<string, ProfileTypeDefinitionModel> profileItemsByNodeId { get; } = new Dictionary<string, ProfileTypeDefinitionModel>();
+
+        public ILogger Logger => _importer.Logger;
+
+        public LookupDataTypeModel GetDataType(string opcNamespace, string opcNodeId)
+        {
+            return _importer._dtDal.Where(dt => dt.CustomType.Profile.Namespace == opcNamespace && dt.CustomType.OpcNodeId == opcNodeId, _userToken, null, null)?.Data?.FirstOrDefault();
+        }
+
+        public ProfileTypeDefinitionModel GetProfileItemById(int? propertyTypeDefinitionId)
+        {
+            if (propertyTypeDefinitionId == null) return null;
+            var item = _importer._dal.GetById(propertyTypeDefinitionId.Value, _userToken);
+            return item;
+        }
+
+        public Task<(int?, bool)> UpsertAsync(ProfileTypeDefinitionModel profileItem, bool updateExisting)
+        {
+            return _importer._dal.UpsertAsync(profileItem, _userToken, updateExisting);
+        }
+
+        public async Task<int?> CreateCustomDataTypeAsync(LookupDataTypeModel customDataTypeLookup)
+        {
+            return (await _importer._dtDal.UpsertAsync(customDataTypeLookup, _userToken, false)).Item1;
+        }
+
+        public Task<LookupDataTypeModel> GetCustomDataTypeAsync(ProfileTypeDefinitionModel customDataTypeProfile)
+        {
+            var result = _importer._dtDal.Where(l =>
+                (
+                    ((customDataTypeProfile.ID ?? 0) != 0 && l.CustomTypeId == customDataTypeProfile.ID)
+                    || ((customDataTypeProfile.ID ?? 0) == 0 && l.CustomType != null && l.CustomType.OpcNodeId == customDataTypeProfile.OpcNodeId && l.CustomType.Profile.Namespace == customDataTypeProfile.Profile.Namespace)
+                )
+                /*&& (l.OwnerId == null || l.OwnerId == _userId)*/,
+            _userToken, null, 1, false, false);
+            return Task.FromResult(result.Data.FirstOrDefault());
+        }
+
+        public object GetNodeSetCustomState(string uaNamespace)
+        {
+            if (_nodeSetModels.TryGetValue(uaNamespace, out var nodesetModel))
+            {
+                return (ProfileModel)nodesetModel.CustomState;
+            }
+            return null;
+        }
+
+        public EngineeringUnitModel GetOrCreateEngineeringUnitAsync(EngineeringUnitModel engUnit)
+        {
+            engUnit.ID = _importer._euDal.UpsertAsync(engUnit, _userToken, false).Result.Item1;
+            return engUnit;
+        }
+
+        public ProfileTypeDefinitionSimpleModel MapToModelProfileSimple(ProfileTypeDefinitionModel profileTypeDef)
+        {
+            return _importer._profileUtils.MapToModelProfileSimple(profileTypeDef);
+        }
+
+        public ProfileModel GetProfileForNamespace(string uaNamespace)
+        {
+            var result = _importer._profileDal.Where(ns => ns.Namespace == uaNamespace, _userToken, null, null, false, false);
+            if (result?.Data?.Any() == true)
+            {
+                if (result.Data.Count > 1)
+                {
+                    // TODO handle multiple imported nodeset versions (compute highest etc.)
+                    throw new Exception($"Found more than one version of {uaNamespace}");
+                }
+                var profile = result.Data.FirstOrDefault();
+                return profile;
+            }
+            return null;
+        }
+
+        public ProfileTypeDefinitionModel CheckExisting(ProfileTypeDefinitionModel profileItem)
+        {
+            return _importer._dal.GetExistingAsync(profileItem, _userToken, true).Result;
+        }
 
         public override NodeSetModel GetOrAddNodesetModel(ModelTableEntry model, bool createNew = true)
         {
-            if (!_nodesetModels.TryGetValue(model.ModelUri, out var nodesetModel))
+            if (!_nodeSetModels.TryGetValue(model.ModelUri, out var nodesetModel))
             {
-                var profile = _lastDalContext?.GetProfileForNamespace(model.ModelUri);
+                var profile = GetProfileForNamespace(model.ModelUri);
 #if NODESETDBTEST
                 var existingNodeSet = GetMatchingOrHigherNodeSetAsync(model.ModelUri, model.PublicationDateSpecified ? model.PublicationDate : null).Result;
                 if (existingNodeSet != null)
@@ -876,147 +988,5 @@ namespace CESMII.ProfileDesigner.OpcUa
         }
 #endif
 
-#endregion
-        internal ProfileModel GetNodeSetProfile(string uaNamespace)
-        {
-            if (_nodesetModels.TryGetValue(uaNamespace, out var nodesetModel))
-            {
-                return (ProfileModel)nodesetModel.CustomState;
-            }
-            return null;
-        }
-        private sealed class ProfileModelAndNodeSet
-        {
-            public ProfileModel Profile { get; set; }
-            public ModelValue NodeSetModel { get; set; }
-        }
-
-        public sealed class WarningsByNodeSet
-        {
-            public int ProfileId { get; set; }
-            public string Key { get; set; }
-            public List<string> Warnings { get; set; }
-        }
-
-    }
-
-    public class LoggerCapture : ILogger<OpcUaImporter>
-    {
-        private readonly ILogger<OpcUaImporter> logger;
-
-        public LoggerCapture(ILogger<OpcUaImporter> logger)
-        {
-            this.logger = logger;
-        }
-
-        public IDisposable BeginScope<TState>(TState state)
-        {
-            return logger.BeginScope(state);
-        }
-
-        public bool IsEnabled(LogLevel logLevel)
-        {
-            return logger.IsEnabled(logLevel);
-        }
-
-        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
-        {
-            if (logLevel >= LogLevel.Warning)
-            {
-                LogList?.Add($"{logLevel}: {formatter(state, exception)}");
-            }
-            logger.Log(logLevel, eventId, state, exception, formatter);
-        }
-        public List<string> LogList { get; set; }
-    }
-
-    public class DALContext : IDALContext
-    {
-        private readonly OpcUaImporter _importer;
-        private readonly UserToken _authorToken;
-        private readonly UserToken _userToken;
-        public DALContext(OpcUaImporter importer, UserToken userToken, UserToken authorToken, bool UpdateExisting)
-        {
-            _importer = importer;
-            _authorToken = authorToken;
-            _userToken = userToken;
-        }
-        public UserToken authorId => _authorToken;
-
-        public bool UpdateExisting { get; set; }
-        public Dictionary<string, ProfileTypeDefinitionModel> profileItemsByNodeId { get; } = new Dictionary<string, ProfileTypeDefinitionModel>();
-
-        public ILogger Logger => _importer.Logger;
-
-        public LookupDataTypeModel GetDataType(string opcNamespace, string opcNodeId)
-        {
-            return _importer._dtDal.Where(dt => dt.CustomType.Profile.Namespace == opcNamespace && dt.CustomType.OpcNodeId == opcNodeId, _userToken, null, null)?.Data?.FirstOrDefault();
-        }
-
-        public ProfileTypeDefinitionModel GetProfileItemById(int? propertyTypeDefinitionId)
-        {
-            if (propertyTypeDefinitionId == null) return null;
-            var item = _importer._dal.GetById(propertyTypeDefinitionId.Value, _userToken);
-            return item;
-        }
-
-        public Task<(int?, bool)> UpsertAsync(ProfileTypeDefinitionModel profileItem, bool updateExisting)
-        {
-            return _importer._dal.UpsertAsync(profileItem, _userToken, updateExisting);
-        }
-
-        public async Task<int?> CreateCustomDataTypeAsync(LookupDataTypeModel customDataTypeLookup)
-        {
-            return (await _importer._dtDal.UpsertAsync(customDataTypeLookup, _userToken, false)).Item1;
-        }
-
-        public Task<LookupDataTypeModel> GetCustomDataTypeAsync(ProfileTypeDefinitionModel customDataTypeProfile)
-        {
-            var result = _importer._dtDal.Where(l =>
-                (
-                    ((customDataTypeProfile.ID ?? 0) != 0 && l.CustomTypeId == customDataTypeProfile.ID)
-                    || ((customDataTypeProfile.ID ?? 0) == 0 && l.CustomType != null && l.CustomType.OpcNodeId == customDataTypeProfile.OpcNodeId && l.CustomType.Profile.Namespace == customDataTypeProfile.Profile.Namespace)
-                )
-                /*&& (l.OwnerId == null || l.OwnerId == _userId)*/,
-            _userToken, null, 1, false, false);
-            return Task.FromResult(result.Data.FirstOrDefault());
-        }
-
-        public object GetNodeSetCustomState(string uaNamespace)
-        {
-            return _importer.GetNodeSetProfile(uaNamespace);
-        }
-
-        public EngineeringUnitModel GetOrCreateEngineeringUnitAsync(EngineeringUnitModel engUnit)
-        {
-            engUnit.ID = _importer._euDal.UpsertAsync(engUnit, _userToken, false).Result.Item1;
-            return engUnit;
-        }
-
-        public ProfileTypeDefinitionSimpleModel MapToModelProfileSimple(ProfileTypeDefinitionModel profileTypeDef)
-        {
-            return _importer._profileUtils.MapToModelProfileSimple(profileTypeDef);
-        }
-
-        public ProfileModel GetProfileForNamespace(string uaNamespace)
-        {
-            var result = _importer._profileDal.Where(ns => ns.Namespace == uaNamespace, _userToken, null, null, false, false);
-            if (result?.Data?.Any() == true)
-            {
-                if (result.Data.Count > 1)
-                {
-                    // TODO handle multiple imported nodeset versions (compute highest etc.)
-                    throw new Exception($"Found more than one version of {uaNamespace}");
-                }
-                var profile = result.Data.FirstOrDefault();
-                return profile;
-            }
-            return null;
-        }
-
-        public ProfileTypeDefinitionModel CheckExisting(ProfileTypeDefinitionModel profileItem)
-        {
-            return _importer._dal.GetExistingAsync(profileItem, _userToken, true).Result;
-        }
     }
 }

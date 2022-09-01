@@ -17,7 +17,7 @@ on:
 
 env:
   # set this to the path to your solution file, defaults to the repository root (this is the folder in the git repo)
-  SOLUTION_DIRECTORY: './api'      
+  SOLUTION_DIRECTORY: './'      
   # set this to the path to your web app project, defaults to the repository root (this is the folder in the git repo)
   PROJECT_DIRECTORY: './api/CESMII.ProfileDesigner.Api'      
   # Solution file to use
@@ -61,7 +61,7 @@ jobs:
       - name: Restore dependencies (${{env.SOLUTION_FILE}})
         run: dotnet restore ${{env.SOLUTION_FILE}}
         working-directory: ${{env.SOLUTION_DIRECTORY}}
-      - name: Build (${{env.PROJECT_DIRECTORY}})
+      - name: Build (${{env.SOLUTION_FILE}})
         run: dotnet build ${{env.SOLUTION_FILE}} --configuration Staging --no-restore
         working-directory: ${{env.SOLUTION_DIRECTORY}}
       - name: Test (${{env.SOLUTION_FILE}})

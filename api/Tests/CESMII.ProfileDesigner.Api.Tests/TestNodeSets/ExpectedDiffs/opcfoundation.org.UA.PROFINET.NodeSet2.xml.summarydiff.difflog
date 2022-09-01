@@ -55,8 +55,6 @@ Furthermore, it shall be used if none of the below defined types are appropriate
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAObjectType[29]/References[1]/Reference[1]
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[22]/References[1]/Reference[1] to <NULL>
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAObject[35]/References[1]/Reference[6]
-====>Expected attribute name '/UANodeSet[1]/UAVariable[105]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[105] to <UAVariable...> at /UANodeSet[1]/UAVariable[155]/@UserAccessLevel
-====>Expected attribute name '/UANodeSet[1]/UAVariable[111]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[111] to <UAVariable...> at /UANodeSet[1]/UAVariable[148]/@UserAccessLevel
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObjectType[22]/References[1]/Reference[1] to <NULL>
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAObjectType[6]/References[1]/Reference[1]
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[24]/References[1]/Reference[1] to <NULL>

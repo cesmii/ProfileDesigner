@@ -17,7 +17,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
 {
     public interface IDALContext
     {
-        Dictionary<string, ProfileTypeDefinitionModel> profileItems { get; }
+        Dictionary<string, ProfileTypeDefinitionModel> profileItemsByNodeId { get; }
         UserToken authorId { get; }
 
         ProfileTypeDefinitionModel GetProfileItemById(int? propertyTypeDefinitionId);
@@ -270,6 +270,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
                     MaxStringLength = attribute.MaxStringLength,
                     Description = NodeModel.LocalizedText.ListFromText(attribute.Description),
                     IsOptional = !attribute.IsRequired ?? false,
+                    FieldOrder = (int) (attribute.EnumValue ?? 0),
                 };
                 if (structure.StructureFields == null)
                 {
@@ -455,6 +456,10 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
                 variableModel.SymbolicName = attribute.SymbolicName;
                 variableModel.BrowseName = attribute.BrowseName;
                 variableModel.Description = NodeModel.LocalizedText.ListFromText(attribute.Description);
+                if (variableModel.NodeId.EndsWith("i=6080"))
+                {
+
+                }
                 variableModel.ModelingRule = GetModelingRuleFromProfile(attribute.IsRequired, attribute.ModelingRule);
                 if (attribute.ValueRank != null)
                 {
@@ -492,16 +497,20 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
                 }
                 variableModel.EngUnitNodeId = attribute.EngUnitOpcNodeId;
                 variableModel.EngUnitModelingRule = attribute.EngUnitModelingRule;
+                variableModel.EngUnitAccessLevel = attribute.EngUnitAccessLevel;
                 variableModel.EURangeNodeId = attribute.EURangeOpcNodeId;
                 variableModel.EURangeModelingRule = attribute.EURangeModelingRule;
+                variableModel.EURangeAccessLevel = attribute.EURangeAccessLevel;
+
                 variableModel.MinValue = (double?)attribute.MinValue;
                 variableModel.MaxValue = (double?)attribute.MaxValue;
                 variableModel.InstrumentMinValue = (double?)attribute.InstrumentMinValue;
                 variableModel.InstrumentMaxValue = (double?)attribute.InstrumentMaxValue;
                 variableModel.Value = attribute.AdditionalData;
+                variableModel.MinimumSamplingInterval = attribute.MinimumSamplingInterval;
 
                 variableModel.AccessLevel = attribute.AccessLevel;
-                variableModel.UserAccessLevel = attribute.UserAccessLevel;
+                // deprecated variableModel.UserAccessLevel = attribute.UserAccessLevel;
                 variableModel.AccessRestrictions = attribute.AccessRestrictions;
                 variableModel.WriteMask = attribute.WriteMask;
                 variableModel.UserWriteMask = attribute.UserWriteMask;
@@ -520,6 +529,10 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
                         mapEntry.IsProperty ?
                             NodeModelFactoryOpc.Create<PropertyModel>(opcContext, mapEntry.NodeId, variableModel.Namespace, profileType, out var dvCreated)
                             :NodeModelFactoryOpc.Create<DataVariableModel>(opcContext, mapEntry.NodeId, variableModel.Namespace, profileType, out dvCreated);
+                    if (dataVariable.NodeId.EndsWith("i=6080"))
+                    {
+
+                    }
                     if (dvCreated)
                     {
                         dataVariable.DataType = typeDataVariable.DataType;
@@ -537,9 +550,9 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
                         dataVariable.Value = typeDataVariable.Value;
                         dataVariable.ValueRank = typeDataVariable.ValueRank;
                         dataVariable.Parent = variableModel;
-                        dataVariable.ModelingRule = typeDataVariable.ModelingRule;
+                        dataVariable.ModelingRule = mapEntry.ModelingRule;
                         dataVariable.AccessLevel = typeDataVariable.AccessLevel;
-                        dataVariable.UserAccessLevel = typeDataVariable.UserAccessLevel;
+                        // deprecated dataVariable.UserAccessLevel = typeDataVariable.UserAccessLevel;
                         dataVariable.AccessRestrictions = typeDataVariable.AccessRestrictions;
                         dataVariable.WriteMask = typeDataVariable.WriteMask;
                         dataVariable.UserWriteMask = typeDataVariable.UserWriteMask;

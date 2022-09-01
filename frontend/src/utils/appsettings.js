@@ -66,6 +66,10 @@ export const AppSettings = {
         Failed: 16,
         Cancelled: 17
     }
+    , ExportFormatEnum : {
+        XML: 'Xml',
+        AASX: 'AASX'
+    }
 }
 
 export const LookupData = {

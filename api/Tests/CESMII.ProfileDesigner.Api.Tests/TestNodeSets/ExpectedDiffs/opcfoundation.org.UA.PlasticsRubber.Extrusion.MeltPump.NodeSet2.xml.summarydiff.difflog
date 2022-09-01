@@ -2,28 +2,6 @@
 ====>Expected attribute value '2019-09-09T00:00:00Z' but was '2020-07-15T00:00:00Z' - comparing <RequiredModel PublicationDate="2019-09-09T00:00:00Z"...> at /UANodeSet[1]/Models[1]/Model[1]/RequiredModel[1]/@PublicationDate to <RequiredModel PublicationDate="2020-07-15T00:00:00Z"...> at /UANodeSet[1]/Models[1]/Model[1]/RequiredModel[1]/@PublicationDate
 ====>Expected attribute value '1.04.3' but was '1.04.7' - comparing <RequiredModel Version="1.04.3"...> at /UANodeSet[1]/Models[1]/Model[1]/RequiredModel[1]/@Version to <RequiredModel Version="1.04.7"...> at /UANodeSet[1]/Models[1]/Model[1]/RequiredModel[1]/@Version
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:RequiredModel' but was '' - comparing <RequiredModel...> at /UANodeSet[1]/Models[1]/Model[1]/RequiredModel[2] to <NULL>
-====>Expected attribute name '/UANodeSet[1]/UAVariable[23]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[23] to <UAVariable...> at /UANodeSet[1]/UAVariable[35]/@UserAccessLevel
-====>Expected attribute name '/UANodeSet[1]/UAVariable[26]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[26] to <UAVariable...> at /UANodeSet[1]/UAVariable[43]/@UserAccessLevel
-====>Expected attribute name '/UANodeSet[1]/UAVariable[27]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[27] to <UAVariable...> at /UANodeSet[1]/UAVariable[44]/@UserAccessLevel
-====>Expected attribute name '/UANodeSet[1]/UAVariable[30]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[30] to <UAVariable...> at /UANodeSet[1]/UAVariable[47]/@UserAccessLevel
-====>Expected attribute name '/UANodeSet[1]/UAVariable[33]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[33] to <UAVariable...> at /UANodeSet[1]/UAVariable[50]/@UserAccessLevel
-====>Expected attribute name '/UANodeSet[1]/UAVariable[36]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[36] to <UAVariable...> at /UANodeSet[1]/UAVariable[53]/@UserAccessLevel
-====>Expected attribute name '/UANodeSet[1]/UAVariable[39]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[39] to <UAVariable...> at /UANodeSet[1]/UAVariable[56]/@UserAccessLevel
-====>Expected attribute name '/UANodeSet[1]/UAVariable[48]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[48] to <UAVariable...> at /UANodeSet[1]/UAVariable[63]/@UserAccessLevel
-====>Expected attribute name '/UANodeSet[1]/UAVariable[51]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[51] to <UAVariable...> at /UANodeSet[1]/UAVariable[66]/@UserAccessLevel
-====>Expected attribute name '/UANodeSet[1]/UAVariable[54]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[54] to <UAVariable...> at /UANodeSet[1]/UAVariable[69]/@UserAccessLevel
-====>Expected attribute name '/UANodeSet[1]/UAVariable[57]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[57] to <UAVariable...> at /UANodeSet[1]/UAVariable[72]/@UserAccessLevel
-====>Expected attribute name '/UANodeSet[1]/UAVariable[62]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[62] to <UAVariable...> at /UANodeSet[1]/UAVariable[73]/@UserAccessLevel
-====>Expected attribute name '/UANodeSet[1]/UAVariable[65]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[65] to <UAVariable...> at /UANodeSet[1]/UAVariable[74]/@UserAccessLevel
-====>Expected attribute name '/UANodeSet[1]/UAVariable[66]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[66] to <UAVariable...> at /UANodeSet[1]/UAVariable[75]/@UserAccessLevel
-====>Expected attribute name '/UANodeSet[1]/UAVariable[69]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[69] to <UAVariable...> at /UANodeSet[1]/UAVariable[78]/@UserAccessLevel
-====>Expected attribute name '/UANodeSet[1]/UAVariable[72]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[72] to <UAVariable...> at /UANodeSet[1]/UAVariable[81]/@UserAccessLevel
-====>Expected attribute name '/UANodeSet[1]/UAVariable[75]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[75] to <UAVariable...> at /UANodeSet[1]/UAVariable[84]/@UserAccessLevel
-====>Expected attribute name '/UANodeSet[1]/UAVariable[78]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[78] to <UAVariable...> at /UANodeSet[1]/UAVariable[87]/@UserAccessLevel
-====>Expected attribute name '/UANodeSet[1]/UAVariable[87]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[87] to <UAVariable...> at /UANodeSet[1]/UAVariable[94]/@UserAccessLevel
-====>Expected attribute name '/UANodeSet[1]/UAVariable[90]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[90] to <UAVariable...> at /UANodeSet[1]/UAVariable[97]/@UserAccessLevel
-====>Expected attribute name '/UANodeSet[1]/UAVariable[93]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[93] to <UAVariable...> at /UANodeSet[1]/UAVariable[100]/@UserAccessLevel
-====>Expected attribute name '/UANodeSet[1]/UAVariable[111]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[111] to <UAVariable...> at /UANodeSet[1]/UAVariable[106]/@UserAccessLevel
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Extensions' but was '' - comparing <Extensions...> at /UANodeSet[1]/Extensions[1] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[24] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[25] to <NULL>

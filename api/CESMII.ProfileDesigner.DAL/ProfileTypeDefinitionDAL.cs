@@ -633,7 +633,7 @@
                     parentProfileEntity = CheckForExisting(model.Parent.ProfileTypeDefinition, userToken);
                     if (parentProfileEntity == null)
                     {
-                        this._diLogger.LogWarning($"Creating parent profile type {model.Parent.ProfileTypeDefinition} as side effect of creating {model}");
+                        this._diLogger.LogTrace($"Creating parent profile type {model.Parent.ProfileTypeDefinition} as side effect of creating {model}");
                         this.AddAsync(model.Parent.ProfileTypeDefinition, userToken).Wait();
                         parentProfileEntity = CheckForExisting(model.Parent.ProfileTypeDefinition, userToken);
                     }
@@ -830,7 +830,7 @@
                             variableType = CheckForExisting(attr.VariableTypeDefinition, userToken);
                             if (variableType == null)
                             {
-                                this._diLogger.LogWarning($"Creating variable type {attr.VariableTypeDefinition} as side effect of creating {attr}");
+                                this._diLogger.LogTrace($"Creating variable type {attr.VariableTypeDefinition} as side effect of creating {attr}");
                                 this.AddAsync(attr.VariableTypeDefinition, userToken).Wait();
                                 variableType = CheckForExisting(attr.VariableTypeDefinition, userToken);
                             }

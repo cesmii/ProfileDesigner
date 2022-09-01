@@ -555,8 +555,6 @@ namespace CESMII.ProfileDesigner.OpcUa
             {
                 if (uaVariable.Parent != null && uaVariable.Parent.Namespace != uaVariable.Namespace)
                 {
-                    // TODO is this really still necessary
-                    dalContext.Logger.LogDebug($"UAVariable {uaVariable} ({uaVariable.GetDisplayNamePath()}) ignored because it's parent {uaVariable.Parent} is in a different namespace {uaVariable.Parent.Namespace}.");
                     continue;
                 }
                 if (uaVariable.Parent is DataVariableModel)

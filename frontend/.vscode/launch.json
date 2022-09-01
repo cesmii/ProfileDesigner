@@ -1,20 +1,21 @@
 {
   "version": "0.2.0",
   "configurations": [
-    {
-      "name": "Launch via NPM",
-      "request": "launch",
-      "runtimeArgs": [
-        "start",
-        "run-script",
-        "debug"
-      ],
-      "runtimeExecutable": "npm",
-      "skipFiles": [
-        "<node_internals>/**"
-      ],
-      "type": "pwa-node"
-    },
+    // Use this with VS code
+    //{
+    //  "name": "Launch via NPM",
+    //  "request": "launch",
+    //  "runtimeArgs": [
+    //    "start",
+    //    "run-script",
+    //    "debug"
+    //  ],
+    //  "runtimeExecutable": "npm",
+    //  "skipFiles": [
+    //    "<node_internals>/**"
+    //  ],
+    //  "type": "pwa-node"
+    //},
     {
       "type": "chrome",
       "request": "launch",

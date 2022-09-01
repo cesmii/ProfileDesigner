@@ -18,6 +18,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CESMII.ProfileDesigner.OpcUa.AASX;
 
 namespace CESMII.ProfileDesigner.Api.Controllers
 {
@@ -503,7 +504,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         [HttpPost, Route("Export")]
         [Authorize(Policy = nameof(PermissionEnum.CanManageProfile))]
         [ProducesResponseType(200, Type = typeof(ResultMessageExportModel))]
-        public Task<IActionResult> Export([FromBody] IdIntModel model)
+        public Task<IActionResult> Export([FromBody] ExportRequestModel model)
         {
             var userToken = UserExtension.DalUserToken(User);
 
@@ -526,27 +527,44 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             try
             {
                 string result = null;
-                using (var xmlNodeSetStream = new MemoryStream())
+                
+                _logger.LogTrace($"Timestamp||Export||Starting: {sw.Elapsed}");
+                bool bIncludeRequiredModels = model.Format?.ToUpper() == "AASX";
+                var exportedNodeSets = _exporter.ExportNodeSet(item, userToken, null, bIncludeRequiredModels, model.ForceReexport);
+                if (exportedNodeSets != null)
                 {
-                    _logger.LogTrace($"Timestamp||Export||Starting: {sw.Elapsed}");
-                    if (_exporter.ExportNodeSet(item, xmlNodeSetStream, userToken, null))
+                    if (model.Format?.ToUpper() == "AASX")
                     {
-                        _logger.LogTrace($"Timestamp||Export||Nodeset Stream generated: {sw.Elapsed}");
-                        result = Encoding.UTF8.GetString(xmlNodeSetStream.ToArray());
-                        _logger.LogTrace($"Timestamp||Export||Data Converted to Response: {sw.Elapsed}");
-
-                        //TBD - read and include the required models in a ZIP file, optionally?
-                        //TBD - get the warnings that were logged on import and publish them here. 
+                        var aasxPackage = AASXGenerator.GenerateAAS(exportedNodeSets);
+                        if (aasxPackage != null)
+                        {
+                            return Task.FromResult<IActionResult>(Ok(new ResultMessageExportModel()
+                            {
+                                IsSuccess = true,
+                                Message = "",
+                                Data = aasxPackage,
+                                Warnings = item.ImportWarnings.Select(x => x.Message).ToList()
+                            }));
+                        }
                     }
                     else
                     {
-                        return Task.FromResult<IActionResult>(Ok(new ResultMessageExportModel()
-                        {
-                            IsSuccess = false,
-                            Message = "An error occurred downloading the profile."
-                        }));
+                        _logger.LogTrace($"Timestamp||Export||Nodeset Stream generated: {sw.Elapsed}");
+                        result = (string) exportedNodeSets.FirstOrDefault().xml;
+                        _logger.LogTrace($"Timestamp||Export||Data Converted to Response: {sw.Elapsed}");
+                        //TBD - read and include the required models in a ZIP file, optionally?
+                        //TBD - get the warnings that were logged on import and publish them here. 
                     }
                 }
+                else
+                {
+                    return Task.FromResult<IActionResult>(Ok(new ResultMessageExportModel()
+                    {
+                        IsSuccess = false,
+                        Message = "An error occurred downloading the profile."
+                    }));
+                }
+                
                 return Task.FromResult<IActionResult>(Ok(new ResultMessageExportModel()
                 {
                     IsSuccess = true,

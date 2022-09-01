@@ -73,6 +73,8 @@
         public string EngUnitOpcNodeId { get; set; }
         [Column(name: "eng_unit_modeling_rule")]
         public string EngUnitModelingRule { get; set; }
+        [Column(name: "eng_unit_access_level")]
+        public uint? EngUnitAccessLevel { get; set; }
 
         public virtual EngineeringUnit EngUnit { get; set; }
 
@@ -80,6 +82,10 @@
         public string EURangeOpcNodeId { get; set; }
         [Column(name: "eu_range_modeling_rule")]
         public string EURangeModelingRule { get; set; }
+        [Column(name: "eu_range_access_level")]
+        public uint? EURangeAccessLevel { get; set; }
+        [Column(name: "minimum_sampling_interval")]
+        public double? MinimumSamplingInterval { get; set; }
 
         [Column(name: "data_type_id")]
         public int? DataTypeId { get; set; }
@@ -110,8 +116,6 @@
 
         [Column(name: "access_level")]
         public uint? AccessLevel { get; set; }
-        [Column(name: "user_access_level")]
-        public uint? UserAccessLevel { get; set; }
         [Column(name: "access_restrictions")]
         public ushort? AccessRestrictions { get; set; }
         [Column(name: "write_mask")]

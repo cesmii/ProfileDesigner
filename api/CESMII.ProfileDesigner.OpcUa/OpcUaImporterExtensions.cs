@@ -1,8 +1,9 @@
-﻿#define NODESETDBTEST
+﻿//#define NODESETDBTEST
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using CESMII.OpcUa.NodeSetModel;
 using CESMII.OpcUa.NodeSetImporter;
+using Microsoft.AspNetCore.Builder;
 
 #if NODESETDBTEST
 using Microsoft.EntityFrameworkCore;
@@ -21,12 +22,27 @@ namespace CESMII.ProfileDesigner.OpcUa
 
             services.AddDbContext<NodeSetModelContext>(options =>
                 options
-                        .UseNpgsql(connectionStringNodeSetModel, b => b.MigrationsAssembly("CESMII.ProfileDesigner.Api"))
+                        .UseNpgsql(connectionStringNodeSetModel, o =>
+                        {
+                            o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
+                            o.MigrationsAssembly("CESMII.ProfileDesigner.Api");
+                        })
                         .EnableSensitiveDataLogging()
             );
 #endif
             services.AddCloudLibraryResolver(configuration.GetSection("CloudLibrary"));
         }
+        public static void UseOpcUaImporter(this IApplicationBuilder app)
+        {
+#if NODESETDBTEST
+            using (var scope = app.ApplicationServices.CreateScope())
+            {
+                var nsDBContext = scope.ServiceProvider.GetService<NodeSetModelContext>();
+                nsDBContext.Database.Migrate();
+            }
+#endif
+        }
+
     }
 
 }

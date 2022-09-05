@@ -25,8 +25,8 @@ namespace CESMII.ProfileDesigner.OpcUa
         , IDALContext
     {
         private readonly OpcUaImporter _importer;
-        private readonly UserToken _authorToken;
-        private readonly UserToken _userToken;
+        private UserToken _authorToken;
+        private UserToken _userToken;
         private readonly Dictionary<string, NodeSetModel> _nodeSetModels;
         public DalOpcContext(OpcUaImporter importer, Dictionary<string, NodeSetModel> nodeSetModels, UserToken userToken, UserToken authorToken, bool UpdateExisting)
 #if NODESETDBTEST
@@ -40,6 +40,14 @@ namespace CESMII.ProfileDesigner.OpcUa
             _userToken = userToken;
             _nodeSetModels = nodeSetModels;
         }
+
+        public void SetUser(UserToken userToken, UserToken authorToken)
+        {
+            _userToken = userToken;
+            _authorToken = authorToken;
+        }
+
+
         public UserToken authorId => _authorToken;
 
         public bool UpdateExisting { get; set; }

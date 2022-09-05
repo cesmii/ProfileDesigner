@@ -387,6 +387,9 @@ namespace CESMII.ProfileDesigner.OpcUa
                 userToken = UserToken.GetGlobalUser(userToken);
                 authorToken = null;
             }
+
+            dalContext.SetUser(userToken, authorToken);
+
             _dal.StartTransaction();
             foreach (var nsFile in profile.NodeSetFiles)
             {

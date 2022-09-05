@@ -35,6 +35,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
         ProfileTypeDefinitionSimpleModel MapToModelProfileSimple(ProfileTypeDefinitionModel profileTypeDef);
         ProfileModel GetProfileForNamespace(string uaNamespace);
         ProfileTypeDefinitionModel CheckExisting(ProfileTypeDefinitionModel profileItem);
+        void SetUser(UserToken userToken, UserToken authorToken);
     }
 
     public class NodeModelFromProfileFactory : NodeModelFromProfileFactory<NodeModel>

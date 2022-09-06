@@ -18,6 +18,13 @@ namespace CESMII.ProfileDesigner.OpcUa.AASX
 {
     public class AASXGenerator
     {
+#pragma warning disable S5332 // Using http protocol is insecure. - these are not URLs representing endpoints, but identifiers (URIs) that are static and stable
+        private const string strAASXOriginUri = "http://www.admin-shell.io/aasx/relationships/aasx-origin";
+        private const string strOpcUaTypeUri = "http://www.opcfoundation.org/type/opcua/";
+        private const string strAASXRelationshipSuppl = "http://www.admin-shell.io/aasx/relationships/aas-suppl";
+        private const string strAASXRelationshipSpec = "http://www.admin-shell.io/aasx/relationships/aas-spec";
+#pragma warning restore S5332 // UUsing http protocol is insecure.
+
         public static byte[] GenerateAAS(List<(UANodeSet nodeSet, string nodeSetXml)> nodeSets)
         {
             try
@@ -35,7 +42,7 @@ namespace CESMII.ProfileDesigner.OpcUa.AASX
                             var bytes = Encoding.ASCII.GetBytes("Intentionally empty.");
                             fileStream.Write(bytes, 0, bytes.Length);
                         }
-                        package.CreateRelationship(origin.Uri, TargetMode.Internal, "http://www.admin-shell.io/aasx/relationships/aasx-origin");
+                        package.CreateRelationship(origin.Uri, TargetMode.Internal, strAASXOriginUri);
                         var aasxDirectory = Path.Combine(Directory.GetParent(Assembly.GetExecutingAssembly().Location).FullName, "AASX");
                         // create package spec part
                         string packageSpecPath = Path.Combine(aasxDirectory, "aasenv-with-no-id.aas.xml");
@@ -63,7 +70,7 @@ namespace CESMII.ProfileDesigner.OpcUa.AASX
                                         IdType = "URI",
                                         Local = true,
                                         Type = "Submodel",
-                                        Text = "http://www.opcfoundation.org/type/opcua/" + filename.Replace(".", "").ToLower()
+                                        Text = strOpcUaTypeUri + filename.Replace(".", "").ToLower()
                                     };
 
                                     aasEnv.AssetAdministrationShells.AssetAdministrationShell.SubmodelRefs.Add(nodesetReference);
@@ -93,7 +100,7 @@ namespace CESMII.ProfileDesigner.OpcUa.AASX
                                 var nodeSetStream2 = new MemoryStream(nodeSetXmlBytes);
                                 CopyStream(nodeSetStream2, supplementalDoc.GetStream());
 
-                                package.CreateRelationship(supplementalDoc.Uri, TargetMode.Internal, "http://www.admin-shell.io/aasx/relationships/aas-suppl");
+                                package.CreateRelationship(supplementalDoc.Uri, TargetMode.Internal, strAASXRelationshipSuppl);
                             }
 
                             using (var packageSpecStream = new MemoryStream())
@@ -108,7 +115,7 @@ namespace CESMII.ProfileDesigner.OpcUa.AASX
                                     PackagePart spec = package.CreatePart(new Uri("/aasx/aasenv-with-no-id/aasenv-with-no-id.aas.xml", UriKind.Relative), MediaTypeNames.Text.Xml);
                                     CopyStream(packageSpecStream, spec.GetStream());
 
-                                    origin.CreateRelationship(spec.Uri, TargetMode.Internal, "http://www.admin-shell.io/aasx/relationships/aas-spec");
+                                    origin.CreateRelationship(spec.Uri, TargetMode.Internal, strAASXRelationshipSpec);
                                 }
                             }
                         }

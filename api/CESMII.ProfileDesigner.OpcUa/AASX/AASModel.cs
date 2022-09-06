@@ -20,12 +20,13 @@ namespace UANodesetWebViewer.Models
 
 		[XmlElement(ElementName = "conceptDescriptions")]
 		public object ConceptDescriptions { get; set; }
-
-		[XmlAttribute(Namespace = XmlSchema.InstanceNamespace)]
+#pragma warning disable S5332 // Using http protocol is insecure. - these are not URLs representing endpoints, but identifiers (URIs) that are static and stable
+        [XmlAttribute(Namespace = XmlSchema.InstanceNamespace)]
 		public string schemaLocation = "http://www.admin-shell.io/aas/1/0 AAS.xsd http://www.admin-shell.io/IEC61360/1/0 IEC61360.xsd";
-	}
+#pragma warning restore S5332 // Using http protocol is insecure.
+    }
 
-	[XmlRoot(ElementName = "assetAdministrationShells")]
+    [XmlRoot(ElementName = "assetAdministrationShells")]
 	public class AssetAdministrationShells
 	{
 		[XmlElement(ElementName = "assetAdministrationShell")]

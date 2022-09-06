@@ -202,7 +202,7 @@
                     customTypeEntity = _profileTypeDefinitionDAL.CheckForExisting(model.CustomType, userToken);
                     if (customTypeEntity == null)
                     {
-                        _logger.Warn($"Creating custom type  {model.CustomType} as side effect of creating {model}");
+                        _logger.Trace($"Creating custom type  {model.CustomType} as side effect of creating {model}");
                         _profileTypeDefinitionDAL.AddAsync(model.CustomType, userToken).Wait();
                         customTypeEntity = _profileTypeDefinitionDAL.CheckForExisting(model.CustomType, userToken);
                     }

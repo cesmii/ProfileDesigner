@@ -39,6 +39,11 @@
         /// </summary>
         [Column(name: "reference_id")]
         public string ReferenceId { get; set; }
+        /// <summary>
+        /// Indicates that the reference is inverse
+        /// </summary>
+        [Column(name: "reference_is_inverse")]
+        public bool? ReferenceIsInverse { get; set; }
 
         /// <summary>
         /// Different than the profile's description. This is the description for this usage of this as the composition. 

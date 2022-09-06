@@ -6,6 +6,7 @@ import { SVGIcon, SVGDownloadIcon } from '../../components/SVGIcon'
 import { renderProfileIcon } from './ProfileRenderHelpers';
 import { cleanFileName, formatDate, generateLogMessageString } from '../../utils/UtilityService';
 import { getProfileCaption } from '../../services/ProfileService'
+import { AppSettings } from '../../utils/appsettings';
 
 const CLASS_NAME = "ProfileItemRow";
 
@@ -31,6 +32,13 @@ function ProfileItemRow(props) { //props are item, showActions
         //add a row to download messages and this will kick off download
         var msgs = loadingProps.downloadItems || [];
         msgs.push({ profileId: props.item.id, fileName: cleanFileName(props.item.namespace), immediateDownload: true });
+        setLoadingProps({ downloadItems: JSON.parse(JSON.stringify(msgs)) });
+    }
+    const downloadItemAsAASX = async () => {
+        console.log(generateLogMessageString(`downloadItem||start`, CLASS_NAME));
+        //add a row to download messages and this will kick off download
+        var msgs = loadingProps.downloadItems || [];
+        msgs.push({ profileId: props.item.id, fileName: cleanFileName(props.item.namespace), immediateDownload: true, downloadFormat: AppSettings.ExportFormatEnum.AASX });
         setLoadingProps({ downloadItems: JSON.parse(JSON.stringify(msgs)) });
     }
 
@@ -82,6 +90,7 @@ function ProfileItemRow(props) { //props are item, showActions
                             <Dropdown.Item key="moreVert3" onClick={onDeleteItem} ><span className="mr-3" alt="delete"><SVGIcon name="delete" /></span>Delete Profile</Dropdown.Item>
                         }
                         <Dropdown.Item key="moreVert4" onClick={downloadItem} ><span className="mr-3" alt="arrow-drop-down"><SVGDownloadIcon name="download" /></span>Download Profile</Dropdown.Item>
+                        <Dropdown.Item key="moreVert5" onClick={downloadItemAsAASX} ><span className="mr-3" alt="arrow-drop-down"><SVGDownloadIcon name="downloadAASX" /></span>Download Profile as AASX</Dropdown.Item>
                     </Dropdown.Menu>
                 </Dropdown>
             </div>

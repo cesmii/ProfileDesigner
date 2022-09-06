@@ -6,6 +6,7 @@ import { SVGIcon, SVGDownloadIcon } from '../../components/SVGIcon'
 import { renderTypeIcon } from './ProfileRenderHelpers';
 import { cleanFileName, generateLogMessageString } from '../../utils/UtilityService';
 import { getProfileCaption } from '../../services/ProfileService'
+import { AppSettings } from '../../utils/appsettings';
  
 const CLASS_NAME = "ProfileTypeDefinitionRow";
 
@@ -21,6 +22,13 @@ function ProfileTypeDefinitionRow(props) { //props are item, showActions
         //add a row to download messages and this will kick off download
         var msgs = loadingProps.downloadItems || [];
         msgs.push({ profileId: props.item.profile?.id, fileName: cleanFileName(props.item.profile?.namespace), immediateDownload: true });
+        setLoadingProps({ downloadItems: JSON.parse(JSON.stringify(msgs)) });
+    }
+    const downloadProfileAsAASX = async () => {
+        console.log(generateLogMessageString(`downloadProfile||start`, CLASS_NAME));
+        //add a row to download messages and this will kick off download
+        var msgs = loadingProps.downloadItems || [];
+        msgs.push({ profileId: props.item.profile?.id, fileName: cleanFileName(props.item.profile?.namespace), immediateDownload: true, downloadFormat: AppSettings.ExportFormatEnum.AASX });
         setLoadingProps({ downloadItems: JSON.parse(JSON.stringify(msgs)) });
     }
 
@@ -76,6 +84,7 @@ function ProfileTypeDefinitionRow(props) { //props are item, showActions
                             <Dropdown.Item key="moreVert3" onClick={onDeleteItem} ><span className="mr-3" alt="delete"><SVGIcon name="delete" /></span>Delete Type Definition</Dropdown.Item>
                         }
                         <Dropdown.Item key="moreVert5" onClick={downloadProfile} ><span className="mr-3" alt="arrow-drop-down"><SVGDownloadIcon name="downloadNodeset" /></span>Download Profile '{getProfileCaption(props.item.profile)}'</Dropdown.Item>
+                        <Dropdown.Item key="moreVert6" onClick={downloadProfileAsAASX} ><span className="mr-3" alt="arrow-drop-down"><SVGDownloadIcon name="downloadNodeset" /></span>Download Profile '{getProfileCaption(props.item.profile)}' as AASX</Dropdown.Item>
                     </Dropdown.Menu>
                 </Dropdown>
             </>

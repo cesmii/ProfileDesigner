@@ -26,7 +26,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
 
         public ProfileTypeDefinitionModel ImportProfileItem(IDALContext dalContext)
         {
-            if (dalContext.profileItems.TryGetValue(this._model.NodeId, out var existingProfileItem))
+            if (dalContext.profileItemsByNodeId.TryGetValue(this._model.NodeId, out var existingProfileItem))
             {
                 return existingProfileItem;
             }
@@ -57,12 +57,12 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
             existingProfileItem = dalContext.CheckExisting(profileItem);
             if (existingProfileItem != null)
             {
-                dalContext.profileItems.Add(this._model.NodeId, existingProfileItem);
+                dalContext.profileItemsByNodeId.Add(this._model.NodeId, existingProfileItem);
                 return existingProfileItem;
             }
 
             // Add incomplete profile item to the lookup list to support recursive types like DictionaryEntryType, which contains an object of type DictionaryEntryType
-            dalContext.profileItems.Add(this._model.NodeId, profileItem);
+            dalContext.profileItemsByNodeId.Add(this._model.NodeId, profileItem);
 
             UpdateProfileItem(profileItem, dalContext);
 
@@ -88,7 +88,53 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
         /// <param name="dalContext"></param>
         protected virtual bool OnProfileItemCreated(ProfileTypeDefinitionModel profileItem, IDALContext dalContext)
         {
-            return false;
+            var bUpdated = false;
+            foreach (var parentRef in this._model.OtherReferencingNodes)
+            {
+                var parent = parentRef.Node;
+                if (parent is ReferenceTypeModel)
+                {
+                    // No support for reference types yet
+                    continue;
+                }
+                if (parent.Namespace == _model.Namespace)
+                {
+                    // Reverse references within a nodeset will be properly re-created on export
+                    continue;
+                }
+                var parentProfile = parent.ImportProfileItem(dalContext);
+                if (parentProfile != null)
+                {
+                    if (profileItem.Compositions == null)
+                    {
+                        profileItem.Compositions = new List<ProfileTypeDefinitionRelatedModel>();
+                    }
+                    var composition = new ProfileTypeDefinitionRelatedModel
+                    {
+                        ID = profileItem.ID,
+                        ProfileTypeDefinition = profileItem,
+                        Name = parent.DisplayName?.FirstOrDefault()?.Text,
+                        BrowseName = parent.BrowseName,
+                        Description = parent.Description?.FirstOrDefault()?.Text,
+                        RelatedProfileTypeDefinitionId = parentProfile.ID,
+                        RelatedProfileTypeDefinition = parentProfile,
+                        RelatedIsRequired = ObjectModelImportProfile.GetModelingRuleForProfile((parent as InstanceModelBase)?.ModelingRule),
+                        RelatedModelingRule = (parent as InstanceModelBase)?.ModelingRule,
+                        //OpcNodeId = NodeModelUtils.GetNodeIdIdentifier(child.NodeId),
+                        //Namespace = opcObject.Namespace,
+                        RelatedReferenceId = parentRef.Reference,
+                        RelatedReferenceIsInverse = true,
+                        Profile = parent.CustomState as ProfileModel ?? dalContext.GetProfileForNamespace(parent.Namespace),
+                    };
+                    profileItem.Compositions.Add(composition);
+                    bUpdated = true;
+                }
+                else
+                {
+                    // Reference not imported?
+                }
+            }
+            return bUpdated;
         }
 
         protected virtual void UpdateProfileItem(ProfileTypeDefinitionModel profileItem, IDALContext dalContext)
@@ -122,13 +168,13 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
                     RelatedModelingRule = opcObject.ModelingRule,
                     //OpcNodeId = NodeModelUtils.GetNodeIdIdentifier(opcObject.NodeId),
                     //Namespace = opcObject.Namespace,
-                    Profile = opcObject.CustomState as ProfileModel,
+                    Profile = opcObject.CustomState as ProfileModel ?? dalContext.GetProfileForNamespace(opcObject.Namespace),
                 };
                 profileItem.Compositions.Add(composition);
             }
-            foreach (var childRef in this._model.OtherChilden)
+            foreach (var childRef in this._model.OtherReferencedNodes)
             {
-                var child = childRef.Child;
+                var child = childRef.Node;
                 if (child is ReferenceTypeModel)
                 {
                     // No support for reference types yet
@@ -155,7 +201,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
                         //OpcNodeId = NodeModelUtils.GetNodeIdIdentifier(child.NodeId),
                         //Namespace = opcObject.Namespace,
                         RelatedReferenceId = childRef.Reference,
-                        Profile = child.CustomState as ProfileModel,
+                        Profile = child.CustomState as ProfileModel ?? dalContext.GetProfileForNamespace(child.Namespace),
                     };
                     profileItem.Compositions.Add(composition);
                 }
@@ -193,7 +239,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
                     RelatedModelingRule = uaMethod.ModelingRule,
                     //OpcNodeId = NodeModelUtils.GetNodeIdIdentifier(uaMethod.NodeId),
                     //Namespace = opcObject.Namespace,
-                    Profile = uaMethod.CustomState as ProfileModel,
+                    Profile = uaMethod.CustomState as ProfileModel ?? dalContext.GetProfileForNamespace(uaMethod.Namespace),
                 };
                 profileItem.Compositions.Add(composition); // TODO Confirm that this results in correct nodeset on export
             }
@@ -218,7 +264,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
                     //RelatedModelingRule = uaEvent.ModelingRule,
                     //OpcNodeId = NodeModelUtils.GetNodeIdIdentifier(uaEvent.NodeId),
                     //Namespace = opcObject.Namespace,
-                    Profile = uaEvent.CustomState as ProfileModel,
+                    Profile = uaEvent.CustomState as ProfileModel ?? dalContext.GetProfileForNamespace(uaEvent.Namespace),
                 };
                 profileItem.Compositions.Add(composition); // TODO Confirm that this results in correct nodeset on export
             }
@@ -227,7 +273,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
 
     public class InstanceModelImportProfile<TInstanceModel, TBaseTypeModel> : NodeModelImportProfile<TInstanceModel>
         where TInstanceModel : InstanceModel<TBaseTypeModel>, new()
-        where TBaseTypeModel : BaseTypeModel, new()
+        where TBaseTypeModel : NodeModel, new()
     {
         protected override void UpdateProfileItem(ProfileTypeDefinitionModel profileItem, IDALContext dalContext)
         {
@@ -325,7 +371,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
         }
     }
 
-    public class ObjectTypeModelImportProfile<TTypeModel> : BaseTypeModelImportProfile<TTypeModel> where TTypeModel : ObjectTypeModel, new()
+    public class ObjectTypeModelImportProfile<TTypeModel> : BaseTypeModelImportProfile<TTypeModel> where TTypeModel : BaseTypeModel, new()
     {
     }
 
@@ -354,7 +400,6 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
             string description = _model.Description?.FirstOrDefault()?.Text;
             var typeDefinitionModel = _model.TypeDefinition?.ImportProfileItem(dalContext);
 
-            // TODO Capture the DataVariable TypeDefinition somewhere in the ProfileItem
             var attributeDataType = _model.DataType.GetAttributeDataType(profileItem, dalContext);
 
             if (attributeDataType != null)
@@ -373,13 +418,9 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
                     throw new Exception($"Unexpected child item {_model?.DisplayName} of type {this.GetType().Name} on item {profileItem.Name} ({profileItem.ID})");
                 }
 
+                var map = GetDataVariableNodeIds(_model, _model.TypeDefinition);
+                var dataVariableNodeIds = DataVariableNodeIdMap.GetMapAsString(map);
 
-                string dataVariableNodeIds = null;
-                if (_model.DataVariables?.Any() == true && _model.TypeDefinition?.DataVariables?.Any() == true)
-                {
-                    var map = GetDataVariableNodeIds(_model.DataVariables, _model.TypeDefinition.DataVariables);
-                    dataVariableNodeIds = DataVariableNodeIdMap.GetMapAsString(map);
-                }
                 var attribute = new ProfileAttributeModel
                 {
                     IsActive = true,
@@ -402,8 +443,9 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
                     VariableTypeDefinition = typeDefinitionModel,
                     OpcNodeId = NodeModelUtils.GetNodeIdIdentifier(_model.NodeId),
                     AdditionalData = _model.Value,
+                    MinimumSamplingInterval = _model.MinimumSamplingInterval,
                     AccessLevel = _model.AccessLevel,
-                    UserAccessLevel = _model.UserAccessLevel,
+                    // deprecated UserAccessLevel = _model.UserAccessLevel,
                     AccessRestrictions = _model.AccessRestrictions,
                     WriteMask = _model.WriteMask,
                     UserWriteMask = _model.UserWriteMask,
@@ -423,6 +465,12 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
                     attribute.EngUnit = engUnit;
                 }
                 attribute.EngUnitOpcNodeId = _model.EngUnitNodeId;
+                attribute.EngUnitModelingRule = _model.EngUnitModelingRule;
+                attribute.EngUnitAccessLevel = _model.EngUnitAccessLevel;
+                attribute.EURangeOpcNodeId = _model.EURangeNodeId;
+                attribute.EURangeModelingRule = _model.EURangeModelingRule;
+                attribute.EURangeAccessLevel = _model.EURangeAccessLevel;
+
                 attribute.MinValue = (decimal?)_model.MinValue;
                 attribute.MaxValue = (decimal?)_model.MaxValue;
                 attribute.InstrumentMinValue = (decimal?)_model.InstrumentMinValue;
@@ -440,10 +488,14 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
             }
         }
 
-        private static DataVariableNodeIdMap GetDataVariableNodeIds(List<DataVariableModel> dataVariables, List<DataVariableModel> typeDataVariables)
+        private static DataVariableNodeIdMap GetDataVariableNodeIds(VariableModel dataVariableContainer, VariableTypeModel dataVariableContainerType)
         {
+            var dataVariables = (dataVariableContainer.DataVariables.Concat(dataVariableContainer.Properties)).ToList();
+            var typeDataVariables = dataVariableContainerType.DataVariables.Concat(dataVariableContainerType.Properties).ToList();
+
             if (dataVariables?.Any() != true || typeDataVariables?.Any() != true)
                 return null;
+
             var dataVariableNodeIdMap = new DataVariableNodeIdMap();
             foreach (var typeDataVariable in typeDataVariables)
             {
@@ -453,13 +505,15 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
                     var map = new DataVariableNodeIdMapEntry
                     {
                         NodeId = dataVariable.NodeId,
-                        Map = GetDataVariableNodeIds(dataVariable.DataVariables, typeDataVariable.DataVariables)
+                        IsProperty = dataVariableContainer.Properties.Contains(dataVariable),
+                        ModelingRule = dataVariable.ModelingRule,
+                        Map = GetDataVariableNodeIds(dataVariable, dataVariable.TypeDefinition)
                     };
                     dataVariableNodeIdMap.DataVariableNodeIdsByBrowseName.Add(dataVariable.BrowseName, map);
                 }
                 else if (!typeDataVariable.ModelingRule.Contains("Optional"))
                 {
-                    throw new Exception($"Unable to resolve mandatory data variable {typeDataVariable} declared in type {typeDataVariable.Parent} by browse name.");
+                    //throw new Exception($"Unable to resolve mandatory data variable {typeDataVariable} declared in type {typeDataVariable.Parent} by browse name.");
                 }
             }
             return dataVariableNodeIdMap;
@@ -469,6 +523,8 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
     public class DataVariableNodeIdMapEntry
     {
         public string NodeId { get; set; }
+        public bool IsProperty { get; set; }
+        public string ModelingRule { get; set; }
         public DataVariableNodeIdMap Map { get; set; }
     }
     public class DataVariableNodeIdMap
@@ -496,7 +552,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
     {
     }
 
-    public class MethodModelImportProfile : NodeModelImportProfile<MethodModel>
+    public class MethodModelImportProfile : InstanceModelImportProfile<MethodModel, MethodModel> // NodeModelImportProfile<MethodModel>
     {
         protected override void UpdateProfileItem(ProfileTypeDefinitionModel profileItem, IDALContext dalContext)
         {
@@ -519,6 +575,11 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
             {
                 throw new Exception();
             }
+            var dataTypeProfileItem = _model.DataType.ImportProfileItem(dalContext);
+            profileItem.VariableDataType = dataTypeProfileItem;
+            profileItem.VariableValueRank = _model.ValueRank;
+            profileItem.VariableArrayDimensions = _model.ArrayDimensions;
+            profileItem.VariableValue = _model.Value;
         }
 
     }
@@ -532,6 +593,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
             {
                 throw new Exception();
             }
+            profileItem.IsOptionSet = _model.IsOptionSet;
             var attributeNamespace = NodeModelUtils.GetNamespaceFromNodeId(_model.NodeId);
             if (_model.StructureFields?.Any() == true || _model.HasBaseType("nsu=http://opcfoundation.org/UA/;i=22"))
             {
@@ -564,7 +626,11 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
                         Description = field.Description?.FirstOrDefault()?.Text,
                         AttributeType = new LookupItemModel { ID = (int)AttributeTypeIdEnum.StructureField },
                         DataType = attributeDataType,
+                        ValueRank = field.ValueRank,
+                        ArrayDimensions = field.ArrayDimensions,
+                        MaxStringLength = field.MaxStringLength,
                         OpcNodeId = NodeModelUtils.GetNodeIdIdentifier(_model.NodeId),
+                        EnumValue = field.FieldOrder,
                     };
                     profileItem.Attributes.Add(attribute);
                 }

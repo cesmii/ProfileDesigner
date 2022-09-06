@@ -1618,7 +1618,7 @@ namespace MyNamespace
 
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public System.Threading.Tasks.Task<ResultMessageWithDataModel> ExportAsync(IdIntModel body)
+        public System.Threading.Tasks.Task<ResultMessageWithDataModel> ExportAsync(ExportModel body)
         {
             return ExportAsync(body, System.Threading.CancellationToken.None);
         }
@@ -1626,7 +1626,7 @@ namespace MyNamespace
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public async System.Threading.Tasks.Task<ResultMessageWithDataModel> ExportAsync(IdIntModel body, System.Threading.CancellationToken cancellationToken)
+        public async System.Threading.Tasks.Task<ResultMessageWithDataModel> ExportAsync(ExportModel body, System.Threading.CancellationToken cancellationToken)
         {
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/api/Profile/Export");
@@ -3354,6 +3354,18 @@ namespace MyNamespace
         public int Id { get; set; }
 
     }
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.3.0 (NJsonSchema v10.6.4.0 (Newtonsoft.Json v12.0.0.0))")]
+    public partial class ExportModel
+    {
+        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int Id { get; set; }
+        [Newtonsoft.Json.JsonProperty("format", Required = Newtonsoft.Json.Required.AllowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Format { get; set; }
+        [Newtonsoft.Json.JsonProperty("forcereexport", Required = Newtonsoft.Json.Required.AllowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? ForceReexport{ get; set; }
+
+    }
+
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.15.3.0 (NJsonSchema v10.6.4.0 (Newtonsoft.Json v12.0.0.0))")]
     public enum TaskStatusEnum

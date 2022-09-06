@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Packaging;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -55,7 +56,17 @@ namespace CESMII.ProfileDesigner.Api.Tests
 
         [Theory]
         [ClassData(typeof(TestNodeSetFiles))]
-        public async Task Export(string file)
+        public Task Export(string file)
+        {
+            return ExportInternal(file, false);
+        }
+        [Theory]
+        [ClassData(typeof(TestNodeSetFiles))]
+        public Task ExportAASX(string file)
+        {
+            return ExportInternal(file, true);
+        }
+        public async Task ExportInternal(string file, bool exportAASX)
         {
             file = Path.Combine(strTestNodeSetDirectory, file);
             output.WriteLine($"Testing {file}");
@@ -63,7 +74,7 @@ namespace CESMII.ProfileDesigner.Api.Tests
             var apiClient = _factory.GetApiClientAuthenticated();
 
             // ACT
-            await ExportNodeSets(apiClient, new string[] { file });
+            await ExportNodeSets(apiClient, new string[] { file }, exportAASX);
 
             //if (_ImportExportPending)
             //{
@@ -366,26 +377,54 @@ namespace CESMII.ProfileDesigner.Api.Tests
             return orderedImportRequest;
         }
 
-        private static async Task ExportNodeSets(Client apiClient, string[] nodeSetFiles)
+        private static async Task ExportNodeSets(Client apiClient, string[] nodeSetFiles, bool exportAASX)
         {
             var nodeSetResult = apiClient.LibraryAsync(new PagerFilterSimpleModel { Query = "", Skip = 0, Take = 999 }).Result;
-            foreach (var profile in nodeSetResult.Data)
+            foreach (var nodeSetFile in nodeSetFiles)
             {
-                var nodeSetFileName = GetFileNameFromNamespace(profile.Namespace);
-
-                if (nodeSetFiles.Any(f => string.Equals(Path.GetFileName(f), nodeSetFileName, StringComparison.InvariantCultureIgnoreCase)))
+                bool bExportFound = false;
+                foreach (var profile in nodeSetResult.Data)
                 {
-                    var exportResult = await apiClient.ExportAsync(new IdIntModel { Id = profile.Id ?? 0 });
-                    Assert.True(exportResult.IsSuccess, $"Failed to export {profile.Namespace}: {exportResult.Message}");
+                    var nodeSetFileName = GetFileNameFromNamespace(profile.Namespace);
 
-                    var exportedNodeSet = exportResult.Data.ToString();
-                    var nodeSetPath = Path.Combine(strTestNodeSetDirectory, "Exported", nodeSetFileName);
-                    if (!Directory.Exists(Path.GetDirectoryName(nodeSetPath)))
+                    if (string.Equals(Path.GetFileName(nodeSetFile), nodeSetFileName, StringComparison.InvariantCultureIgnoreCase))
                     {
-                        Directory.CreateDirectory(Path.GetDirectoryName(nodeSetPath));
+                        var exportResult = await apiClient.ExportAsync(new ExportModel { Id = profile.Id ?? 0, ForceReexport = true, Format = exportAASX ? "AASX" : null } );
+                        Assert.True(exportResult.IsSuccess, $"Failed to export {profile.Namespace}: {exportResult.Message}");
+
+                        string exportedNodeSet;
+                        if (exportAASX)
+                        {
+                            using (var aasxPackageStream = new MemoryStream(Convert.FromBase64String(exportResult.Data.ToString())))
+                            {
+                                using (Package package = Package.Open(aasxPackageStream, FileMode.Open))
+                                {
+                                    //new Uri("/aasx/" + strippedFileName, UriKind.Relative), MediaTypeNames.Text.Xml
+                                    var strippedFileName = nodeSetFileName.Replace(".NodeSet2.xml", "");
+                                    var xmlPart = package.GetPart(new Uri("/aasx/" + strippedFileName, UriKind.Relative));
+                                    using (var xmlStream = xmlPart.GetStream())
+                                    {
+                                        var xmlBytes = new byte[xmlStream.Length];
+                                        xmlStream.Read(xmlBytes, 0, xmlBytes.Length);
+                                        exportedNodeSet = Encoding.UTF8.GetString(xmlBytes);
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            exportedNodeSet = exportResult.Data.ToString();
+                        }
+                        var nodeSetPath = Path.Combine(strTestNodeSetDirectory, "Exported", nodeSetFileName);
+                        if (!Directory.Exists(Path.GetDirectoryName(nodeSetPath)))
+                        {
+                            Directory.CreateDirectory(Path.GetDirectoryName(nodeSetPath));
+                        }
+                        File.WriteAllText(nodeSetPath, exportedNodeSet);
+                        bExportFound = true;
                     }
-                    File.WriteAllText(nodeSetPath, exportedNodeSet);
                 }
+                Assert.True(bExportFound, $"Export for {nodeSetFile} not found.");
             }
         }
 
@@ -442,7 +481,6 @@ namespace CESMII.ProfileDesigner.Api.Tests
         {
             bool ignoreTestsWithoutExpectedOutcome = true;
             var testCasesWithExpectedDiff = testCases.ToList();
-            var unstableTests = File.ReadAllLines(Path.Combine(Integration.strTestNodeSetDirectory, "ExpectedDiffs", "unstable.txt"));
             if (ignoreTestsWithoutExpectedOutcome)
             {
                 testCasesWithExpectedDiff = testCases.Where(t =>
@@ -472,6 +510,13 @@ namespace CESMII.ProfileDesigner.Api.Tests
 
             var remainingOrdered = orderedImportRequests.Select(ir => remainingTestCaseList.FirstOrDefault(tc => Path.Combine(Integration.strTestNodeSetDirectory, tc.TestMethodArguments[0].ToString()) == ir.FileName)).Where(tc => tc != null).ToList();
             var excludedTestCases = new List<TTestCase>();
+            string[] unstableTests = new string[0];
+
+            var unstableFileName = Path.Combine(Integration.strTestNodeSetDirectory, "ExpectedDiffs", "unstable.txt");
+            if (File.Exists(unstableFileName))
+            {
+                File.ReadAllLines(Path.Combine(Integration.strTestNodeSetDirectory, "ExpectedDiffs", "unstable.txt"));
+            }
             foreach (var remaining in remainingOrdered)
             {
                 var file = remaining.TestMethodArguments[0].ToString();

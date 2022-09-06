@@ -599,6 +599,11 @@ CREATE TABLE public.profile_type_definition
     type_id integer NOT NULL,  --formerly profile_type_id. this is FK to lookup with values such as class, interface, structure, dataType
     parent_id integer NULL,
     instance_parent_id integer NULL,
+	is_option_set boolean NULL,
+	variable_data_type_id integer NULL,
+	variable_value_rank integer NULL,
+	variable_array_dimensions character varying(256) NULL,
+	variable_value character varying NULL,
     opc_node_id character varying(256) NULL,
     name character varying(256) COLLATE pg_catalog."default" NOT NULL,
     --namespace character varying(512) COLLATE pg_catalog."default" NULL,
@@ -626,6 +631,11 @@ CREATE TABLE public.profile_type_definition
         ON DELETE NO ACTION
         DEFERRABLE INITIALLY DEFERRED,
     CONSTRAINT prof_type_def_inst_parent_fk_inst_parent_id FOREIGN KEY (instance_parent_id)
+        REFERENCES public.profile_type_definition (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+        DEFERRABLE INITIALLY DEFERRED,
+    CONSTRAINT prof_type_def_variable_data_type_fk_variable_data_type_id FOREIGN KEY (variable_data_type_id)
         REFERENCES public.profile_type_definition (id) MATCH SIMPLE
         ON UPDATE NO ACTION
         ON DELETE NO ACTION
@@ -739,6 +749,7 @@ CREATE TABLE public.profile_composition
 	modeling_rule character varying(256) NULL,
     is_event boolean NULL,
 	reference_id character varying(256) NULL,
+	reference_is_inverse boolean NULL,
     description character varying COLLATE pg_catalog."default" NULL,
     CONSTRAINT profile_composition_id_fk_id FOREIGN KEY (composition_id)
         REFERENCES public.profile_type_definition (id) MATCH SIMPLE
@@ -909,15 +920,21 @@ CREATE TABLE public.profile_attribute
 	instrument_max_value numeric NULL,
 	eng_unit_id integer NULL,
 	eng_unit_nodeid character varying(256) NULL,
+	eng_unit_modeling_rule character varying(256) NULL,
+	eng_unit_access_level integer NULL,
+	eu_range_nodeid character varying(256) NULL,
+	eu_range_modeling_rule character varying(256) NULL,
+	eu_range_access_level integer NULL,
+	minimum_sampling_interval numeric NULL,
     is_array boolean NOT NULL default(false),
 	value_rank integer NULL,
 	array_dimensions character varying(256) NULL,
+	max_string_length integer NULL,
     is_required boolean NULL,
 	modeling_rule character varying(256) NULL,
     enum_value bigint NULL,
 
 	access_level integer NULL,
-    user_access_level integer NULL,
 	access_restrictions integer NULL,
 	write_mask integer NULL,
 	user_write_mask integer NULL,

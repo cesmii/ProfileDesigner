@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 using CESMII.ProfileDesigner.Common;
 using CESMII.ProfileDesigner.Api.Shared.Models;
 using CESMII.ProfileDesigner.Api.Shared.Controllers;
-using CESMII.ProfileDesigner.Api.Shared.Extensions;
+using CESMII.ProfileDesigner.DAL;
 
 namespace CESMII.ProfileDesigner.Api.Controllers
 {
@@ -14,8 +14,8 @@ namespace CESMII.ProfileDesigner.Api.Controllers
     [Authorize]
     public class SystemController : BaseController<SystemController>
     {
-        public SystemController(ConfigUtil config, ILogger<SystemController> logger) 
-            : base(config, logger)
+        public SystemController(UserDAL dalUser, ConfigUtil config, ILogger<SystemController> logger) 
+            : base(config, logger, dalUser)
         {
         }
 
@@ -38,7 +38,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         {
             var result = new ResultMessageWithDataModel() { IsSuccess = true, Message = "", Data = null };
 
-            _logger.LogCritical($"REACT|LogMessage|User:{User.GetUserID()}|Error:{model.Message}|Url:{model.Url}");
+            _logger.LogCritical($"REACT|LogMessage|User:{LocalUser.ID}|Error:{model.Message}|Url:{model.Url}");
 
             return Ok(result);
         }

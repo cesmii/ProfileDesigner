@@ -1,19 +1,20 @@
 import React from 'react'
-import { useHistory } from 'react-router-dom'
-import { useAuthDispatch, useAuthState } from "./authentication/AuthContext";
-import { logout } from "./authentication/AuthActions";
+import { useHistory } from "react-router-dom"
+import { InteractionStatus } from "@azure/msal-browser";
+import { useIsAuthenticated, useMsal } from "@azure/msal-react";
 
 import Dropdown from 'react-bootstrap/Dropdown'
 
-import { generateLogMessageString } from '../utils/UtilityService';
+import { isInRole } from '../utils/UtilityService';
 import logo from './img/Logo-CESMII.svg'
 import { SVGIcon } from './SVGIcon'
 import Color from './Constants'
 
 import './styles/Navbar.scss'
 import { AppSettings } from '../utils/appsettings';
+import LoginButton from './LoginButton';
 
-const CLASS_NAME = "Navbar";
+//const CLASS_NAME = "Navbar";
 
 function Navbar() {
 
@@ -21,37 +22,35 @@ function Navbar() {
     // Region: Initialization
     //-------------------------------------------------------------------
     const history = useHistory();
-    const authTicket = useAuthState();
-    const dispatch = useAuthDispatch() //get the dispatch method from the useDispatch custom hook
+    const { instance, inProgress } = useMsal();
+    const _isAuthenticated = useIsAuthenticated();
+    const _activeAccount = instance.getActiveAccount();
+
+    //-------------------------------------------------------------------
+    // Region: Hooks
+    //-------------------------------------------------------------------
 
     //-------------------------------------------------------------------
     // Region: event handlers
     //-------------------------------------------------------------------
     const onLogoutClick = () => {
-        //updates state and removes user auth ticket from local storage
-        let logoutAction = logout(dispatch);
-        if (!logoutAction) {
-            console.error(generateLogMessageString(`onLogoutClick||logoutAction||An error occurred setting the logout state.`, CLASS_NAME));
-        }
-        else {
-            history.push(`/`);
-        }
-        //setAuthTicket(null);
+        //MSAL logout
+        instance.logoutPopup();
+        history.push(`/`);
     }
 
     const renderNav = () => {
-        if (authTicket == null || authTicket.user == null) return;
         return (
             <nav className="navbar navbar-dark bg-primary navbar-expand-md">
                 <div className="container-fluid pr-0">
                     <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                        <span className="navbar-toggler-icon">
-                            {/*<i className="material-icons">menu</i>*/}
-                        </span>
+                        <span className="navbar-toggler-icon"></span>
                     </button>
-                    <div className="collapse navbar-collapse" id="navbarNav">
-                        <ul className="navbar-nav">
-                            {renderLogoutButton()}
+                    <div className="collapse navbar-collapse mt-2 mt-md-0" id="navbarNav">
+                        <ul className="navbar-nav align-items-start align-items-md-center">
+
+                            <LoginButton />
+                            {renderAdminMenu()}
                         </ul>
                     </div>
                 </div>
@@ -59,30 +58,29 @@ function Navbar() {
         );
     };
 
-    const renderLogoutButton = () => {
-        if (authTicket == null || authTicket.user == null) return;
-
-        //check if can manage users
-        var canManageUsers = authTicket.user.permissionNames.findIndex(x => x === 'CanManageUsers') >= 0;
-
+    const renderAdminMenu = () => {
+        if (!_isAuthenticated || _activeAccount == null) return;
         return (
             <li className="nav-item" >
                 <Dropdown>
                     <Dropdown.Toggle className="ml-0 ml-md-2 px-1 dropdown-custom-components d-flex align-items-center">
                         <SVGIcon name="account-circle" size="32" fill={Color.white} className="mr-2" />
-                        {authTicket.user.fullName}
+                        {_activeAccount?.name}
                     </Dropdown.Toggle>
                     <Dropdown.Menu>
-                        <Dropdown.Item eventKey="1" href="/user">Account details</Dropdown.Item>
-                        {canManageUsers &&
+                        <Dropdown.Item eventKey="1" href="/account">Account Profile</Dropdown.Item>
+                        <Dropdown.Divider />
+                        {(isInRole(_activeAccount, 'cesmii.profiledesigner.admin')) &&
                             <Dropdown.Item eventKey="3" href="/admin/user/list">Manage Users</Dropdown.Item>
                         }
                         <Dropdown.Divider />
-                        <Dropdown.Item eventKey="2" onClick={onLogoutClick} >Logout</Dropdown.Item>
+                        {(inProgress !== InteractionStatus.Startup && inProgress !== InteractionStatus.HandleRedirect) &&
+                            <Dropdown.Item eventKey="10" onClick={onLogoutClick} >Logout</Dropdown.Item>
+                        }
                     </Dropdown.Menu>
                 </Dropdown>
             </li>
-        );
+            );
     };
 
 
@@ -102,7 +100,7 @@ function Navbar() {
                 </div>
             </div>
         </header>
-    )
+        )
 }
 
 export default Navbar

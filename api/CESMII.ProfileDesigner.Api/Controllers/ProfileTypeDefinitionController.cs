@@ -32,7 +32,6 @@ namespace CESMII.ProfileDesigner.Api.Controllers
     {
         private readonly IDal<ProfileTypeDefinition, ProfileTypeDefinitionModel> _dal;
         private readonly IDal<ProfileTypeDefinitionAnalytic, ProfileTypeDefinitionAnalyticModel> _dalAnalytics;
-        private readonly UserDAL _dalUser;
         private readonly ProfileMapperUtil _profileUtils;
         private readonly IDal<Profile, ProfileModel> _dalProfile;
 
@@ -41,12 +40,11 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             IDal<Profile, ProfileModel> dalProfile,
             UserDAL dalUser, 
             ConfigUtil config, ProfileMapperUtil profileUtils, ILogger<ProfileTypeDefinitionController> logger)
-            : base(config, logger)
+            : base(config, logger, dalUser)
         {
             _dal = dal;
             _dalAnalytics = dalAnalytics;
             _dalProfile = dalProfile;
-            _dalUser = dalUser;
             _profileUtils = profileUtils;
         }
 
@@ -70,11 +68,10 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             }
 
             //increment page visit count for this item
-            var userToken = UserExtension.DalUserToken(User);
-            var analytic = _dalAnalytics.Where(x => x.ProfileTypeDefinitionId == model.ID, userToken,  null, null, false).Data.FirstOrDefault();
+            var analytic = _dalAnalytics.Where(x => x.ProfileTypeDefinitionId == model.ID, base.DalUserToken,  null, null, false).Data.FirstOrDefault();
             if (analytic == null)
             {
-                _dalAnalytics.AddAsync(new ProfileTypeDefinitionAnalyticModel() {ProfileTypeDefinitionId = model.ID, PageVisitCount = 1}, userToken);
+                _dalAnalytics.AddAsync(new ProfileTypeDefinitionAnalyticModel() {ProfileTypeDefinitionId = model.ID, PageVisitCount = 1}, base.DalUserToken);
             }
             else
             {
@@ -103,11 +100,10 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 _logger.LogWarning("ProfileTypeDefinitionController|GetLibrary|Invalid model");
                 return BadRequest("ProfileTypeDefinitionController|Library|Invalid model");
             }
-            var userToken = UserExtension.DalUserToken(User); 
 
             //search on some pre-determined fields
-            var orderByExprs = _profileUtils.BuildSearchOrderByExpressions(User.GetUserID(), model.SortByEnum);
-            var result = _dal.Where(BuildPredicate(model, userToken), userToken, model.Skip, model.Take, true, false, orderByExprs.ToArray());
+            var orderByExprs = _profileUtils.BuildSearchOrderByExpressions(LocalUser.ID.Value, model.SortByEnum);
+            var result = _dal.Where(BuildPredicate(model, base.DalUserToken), base.DalUserToken, model.Skip, model.Take, true, false, orderByExprs.ToArray());
 
             //TBD - come back to this - 
             //This is used when user clicks on View Type Defs for a single profile. 
@@ -122,7 +118,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 SummaryData = result.SummaryData,
                 //return the profiles used in the filter -null, one or many
                 Profiles = profileFilters == null ? null : 
-                    _dalProfile.Where(x => profileFilters.Contains(x.ID.Value), userToken).Data
+                    _dalProfile.Where(x => profileFilters.Contains(x.ID.Value), base.DalUserToken).Data
             });
         }
 
@@ -147,9 +143,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 result.Add(x => x.Name.ToLower().Contains(model.Query) ||
                          x.Description.ToLower().Contains(model.Query) ||
                         (x.Profile != null && x.Profile.Namespace.ToLower().Contains(model.Query)) ||
-                        (x.Author != null && x.Author.FirstName.ToLower().Contains(model.Query)) ||
-                        (x.Author != null && x.Author.LastName.ToLower().Contains(model.Query)) ||
-                        (x.Author != null && (x.Author.FirstName.ToLower() + x.Author.LastName.ToLower()).Contains(model.Query.Replace(" ", ""))) ||
+                        (x.Author != null && x.Author.DisplayName.ToLower().Contains(model.Query)) ||
                         (x.ExternalAuthor != null && x.ExternalAuthor.ToLower().Contains(model.Query)) ||
                          x.MetaTags.ToLower().Contains(model.Query));
             }
@@ -241,12 +235,12 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             {
                 return Ok(new ProfileLookupModel());
             }
-            var userToken = UserExtension.DalUserToken(User);
-            var profile = _dal.GetById(model.ID, userToken);
+
+            var profile = _dal.GetById(model.ID, base.DalUserToken);
             var result = new ProfileLookupModel
             {
-                Compositions = _profileUtils.BuildCompositionLookup(profile, userToken),
-                Interfaces = _profileUtils.BuildInterfaceLookup(profile, userToken)
+                Compositions = _profileUtils.BuildCompositionLookup(profile, base.DalUserToken),
+                Interfaces = _profileUtils.BuildInterfaceLookup(profile, base.DalUserToken)
             };
             return Ok(result);
         }
@@ -266,12 +260,11 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         [ProducesResponseType(400)]
         public IActionResult LookupProfileRelatedExtend([FromBody] IdIntModel model)
         {
-            var userToken = UserExtension.DalUserToken(User);
-            var parent = _dal.GetById(model.ID, userToken);
+            var parent = _dal.GetById(model.ID, base.DalUserToken);
             var result = new ProfileLookupModel
             {
-                Compositions = _profileUtils.BuildCompositionLookupExtend(parent, userToken),
-                Interfaces = _profileUtils.BuildInterfaceLookup(null, userToken)
+                Compositions = _profileUtils.BuildCompositionLookupExtend(parent, base.DalUserToken),
+                Interfaces = _profileUtils.BuildInterfaceLookup(null, base.DalUserToken)
             };
             return Ok(result);
         }
@@ -286,10 +279,8 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         [ProducesResponseType(400)]
         public IActionResult GetCounts()
         {
-            var userToken = UserExtension.DalUserToken(User);
-
-            var all = _dal.Count(p => p.Author == null && !ProfileMapperUtil.ExcludedProfileTypes.Contains(p.ProfileTypeId), userToken); 
-            var mine = _dal.Count(p => p.Author != null && p.Author.ID.Equals(userToken.UserId) && !ProfileMapperUtil.ExcludedProfileTypes.Contains(p.ProfileTypeId), userToken); 
+            var all = _dal.Count(p => p.Author == null && !ProfileMapperUtil.ExcludedProfileTypes.Contains(p.ProfileTypeId), base.DalUserToken); 
+            var mine = _dal.Count(p => p.Author != null && p.Author.ID.Equals(DalUserToken.UserId) && !ProfileMapperUtil.ExcludedProfileTypes.Contains(p.ProfileTypeId), base.DalUserToken); 
             return Ok(new ProfileCountModel() { All = all, Mine = mine });
         }
 
@@ -309,9 +300,8 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 _logger.LogWarning($"ProfileTypeDefinitionController|GetProfileExplorer|Invalid model (null)");
                 return BadRequest($"Invalid model (null)");
             }
-            var userToken = UserExtension.DalUserToken(User);
 
-            var profile = _dal.GetById(model.ID, userToken);
+            var profile = _dal.GetById(model.ID, base.DalUserToken);
 
             if (profile == null)
             {
@@ -320,10 +310,10 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             }
 
             //Build the explorer...
-            var dependencies = _profileUtils.GenerateDependencies(profile, userToken);
+            var dependencies = _profileUtils.GenerateDependencies(profile, base.DalUserToken);
 
             //Build the explorer inheritance tree...
-            var treeview = _profileUtils.GenerateAncestoryTree(profile, userToken, true);
+            var treeview = _profileUtils.GenerateAncestoryTree(profile, base.DalUserToken, true);
 
             // note interfaces, compositions already accounted for in profile object
             var result = new ProfileExplorerModel()
@@ -347,10 +337,8 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         [ProducesResponseType(200, Type = typeof(DALResult<ProfileTypeDefinitionModel>))]
         public IActionResult LookupFavorites()
         {
-            var userToken = UserExtension.DalUserToken(User);
-
             //search on some pre-determined fields
-            var result = _dal.Where(x => x.Favorite != null && x.Favorite.IsFavorite, userToken, null, null, false, false);
+            var result = _dal.Where(x => x.Favorite != null && x.Favorite.IsFavorite, base.DalUserToken, null, null, false, false);
 
             return Ok(result);
         }
@@ -366,15 +354,14 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         [ProducesResponseType(400)]
         public IActionResult Extend([FromBody] IdIntModel model)
         {
-            var userToken = UserExtension.DalUserToken(User);
-            var parent = _dal.GetById(model.ID, userToken);
+            var parent = _dal.GetById(model.ID, base.DalUserToken);
             if (parent == null)
             {
                 _logger.LogWarning($"ProfileTypeDefinitionController|Extend|No records found matching this ID: {model.ID}");
                 return BadRequest($"No records found matching this ID: {model.ID}");
             }
 
-            var result = ExtendTypeDefinitionInternal(parent, null, true, userToken);
+            var result = ExtendTypeDefinitionInternal(parent, null, true, base.DalUserToken);
 
             return Ok(result);
         }
@@ -390,15 +377,14 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         [ProducesResponseType(400)]
         public IActionResult ExtendWizard([FromBody] ProfileTypeDefinitionWizardExtendModel model)
         {
-            var userToken = UserExtension.DalUserToken(User);
-            var parent = _dal.GetById(model.ID, userToken);
+            var parent = _dal.GetById(model.ID, base.DalUserToken);
             if (parent == null)
             {
                 _logger.LogWarning($"ProfileTypeDefinitionController|ExtendWizard|No records found matching this ID: {model.ID}");
                 return BadRequest($"No records found matching this ID: {model.ID}");
             }
 
-            var result = ExtendTypeDefinitionInternal(parent, model.ProfileId, true, userToken);
+            var result = ExtendTypeDefinitionInternal(parent, model.ProfileId, true, base.DalUserToken);
 
             return Ok(result);
         }
@@ -414,12 +400,10 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         [ProducesResponseType(400)]
         public IActionResult InitProfileTypeDefinition()
         {
-            var userToken = UserExtension.DalUserToken(User);
-
             //TBD - move search condition to config file
             //TBD - also include opc node id as qualifier?
             //always extend from baseObjectType. If null, throw exception.
-            var matches = _dal.Where(x => x.Name.ToLower().Equals("baseobjecttype"), userToken, null, null, false, true).Data;
+            var matches = _dal.Where(x => x.Name.ToLower().Equals("baseobjecttype"), base.DalUserToken, null, null, false, true).Data;
             if (matches == null || matches.Count == 0)
             {
                 _logger.LogWarning($"ProfileTypeDefinitionController|InitProfileTypeDefinition|BaseObjectType not found");
@@ -431,7 +415,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 return BadRequest($"Multiple items with name BaseObjectType found");
             }
 
-            var result = ExtendTypeDefinitionInternal(matches[0], null, false, userToken);
+            var result = ExtendTypeDefinitionInternal(matches[0], null, false, base.DalUserToken);
             //reset the type id so the user can select type.
             result.Type = null;
             result.TypeId = -1;
@@ -442,7 +426,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         private ProfileTypeDefinitionModel ExtendTypeDefinitionInternal(ProfileTypeDefinitionModel parent, int? profileId, bool isExtend, UserToken userToken)
         {
             //used to populate author info
-            var user = _dalUser.GetById(userToken.UserId, userToken);
+            var user = _dalUser.GetById(userToken.UserId, base.DalUserToken);
 
             //update the new profile to clean out and update some key parts of the item
             //make clean copy of parent and then remove some lingering parent data items
@@ -454,12 +438,11 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             result.DocumentUrl = null;
             result.Name = isExtend ? "[Extend]" : "[New]"; //name useful in ancestory tree. After that is built, we clear name.
             result.Parent = _profileUtils.MapToModelProfileSimple(parent);
-            result.AuthorId = User.GetUserID();
+            result.AuthorId = LocalUser.ID;
             result.Author = new UserSimpleModel()
             {
                 ID = user.ID,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
+                DisplayName = user.DisplayName,
                 Organization = user.Organization
             };
             result.CreatedBy = result.Author;
@@ -468,11 +451,11 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             result.Updated = DateTime.UtcNow;
             //return dependencies, ancestory for this profile as part of this response to reduce volume of calls for a profile. 
             result.Dependencies = new List<ProfileTypeDefinitionSimpleModel>();
-            result.Ancestory = _profileUtils.GenerateAncestoryLineage(result, userToken);
+            result.Ancestory = _profileUtils.GenerateAncestoryLineage(result, base.DalUserToken);
             result.ProfileAttributes = new List<ProfileAttributeModel>();
             result.Interfaces = new List<ProfileTypeDefinitionModel>();
             result.Compositions = new List<ProfileTypeDefinitionRelatedModel>();
-            result.ExtendedProfileAttributes = _profileUtils.GetExtendedAttributes(result, userToken);
+            result.ExtendedProfileAttributes = _profileUtils.GetExtendedAttributes(result, base.DalUserToken);
 
             //clear name, profile fk before returning...
             result.Name = "";
@@ -531,8 +514,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         [ProducesResponseType(200, Type = typeof(ResultMessageWithDataModel))]
         public async Task<IActionResult> ToggleFavorite([FromBody] IdIntModel model)
         {
-            var userToken = UserExtension.DalUserToken(User);
-            var item = _dal.GetById(model.ID, userToken);
+            var item = _dal.GetById(model.ID, base.DalUserToken);
             item.IsFavorite = !item.IsFavorite;
             return await UpdateInternal(item, false);
         }
@@ -544,8 +526,6 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         /// <returns></returns>
         private async Task<IActionResult> UpdateInternal(ProfileTypeDefinitionModel model, bool isAdd)
         {
-            var userToken = UserExtension.DalUserToken(User);
-
             //For front end, set Profile to null to ensure that the DAL does not see this as a changed object that must be updated.
             //Setting ProfileId will suffice.
             if (model.ProfileId.HasValue && model.ProfileId.Value > 0)
@@ -597,13 +577,13 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             int? id = 0;
             if (isAdd)
             {
-                id = await _dal.AddAsync(model, userToken);
+                id = await _dal.AddAsync(model, base.DalUserToken);
 
                 //increment extend count for this item's parent
-                var analytic = _dalAnalytics.Where(x => x.ProfileTypeDefinitionId == model.Parent.ID, userToken, null, null, false).Data.FirstOrDefault();
+                var analytic = _dalAnalytics.Where(x => x.ProfileTypeDefinitionId == model.Parent.ID, base.DalUserToken, null, null, false).Data.FirstOrDefault();
                 if (analytic == null)
                 {
-                    await _dalAnalytics.AddAsync(new ProfileTypeDefinitionAnalyticModel() { ProfileTypeDefinitionId = model.Parent.ID.Value, ExtendCount = 1 }, userToken);
+                    await _dalAnalytics.AddAsync(new ProfileTypeDefinitionAnalyticModel() { ProfileTypeDefinitionId = model.Parent.ID.Value, ExtendCount = 1 }, base.DalUserToken);
                 }
                 else
                 {
@@ -615,7 +595,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             }
             else
             {
-                id = await _dal.UpdateAsync(model, userToken);
+                id = await _dal.UpdateAsync(model, base.DalUserToken);
             }
 
             if (id < 0)
@@ -646,8 +626,6 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         [ProducesResponseType(200, Type = typeof(List<ProfileTypeDefinitionModel>))]
         public async Task<IActionResult> Delete([FromBody] IdIntModel model)
         {
-            var userToken = UserExtension.DalUserToken(User);
-
             //check for dependencies - if other profile types depend on this, it cannot be deleted. 
             var item = GetItem(model.ID);
             if (item.Dependencies != null && item.Dependencies.Count > 0)
@@ -657,7 +635,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             }
 
 
-            var result = await _dal.DeleteAsync(model.ID, userToken);
+            var result = await _dal.DeleteAsync(model.ID, base.DalUserToken);
             if (result < 0)
             {
                 _logger.LogWarning($"ProfileTypeDefinitionController|Delete|Could not delete profile type definition. Invalid id:{model.ID}.");
@@ -671,14 +649,13 @@ namespace CESMII.ProfileDesigner.Api.Controllers
 
         private ProfileTypeDefinitionModel GetItem(int id)
         {
-            var userToken = UserExtension.DalUserToken(User);
-            var result = _dal.GetById(id, userToken);
+            var result = _dal.GetById(id, base.DalUserToken);
             if (result == null) return null;
             //return dependencies, ancestory for this profile as part of this response to reduce volume of calls for a profile. 
-            result.Dependencies = _profileUtils.GenerateDependencies(result, userToken);
-            result.Ancestory = _profileUtils.GenerateAncestoryLineage(result, userToken);
+            result.Dependencies = _profileUtils.GenerateDependencies(result, base.DalUserToken);
+            result.Ancestory = _profileUtils.GenerateAncestoryLineage(result, base.DalUserToken);
             //pull extended attributes from ancestory AND interface attributes
-            result.ExtendedProfileAttributes = _profileUtils.GetExtendedAttributes(result, userToken);
+            result.ExtendedProfileAttributes = _profileUtils.GetExtendedAttributes(result, base.DalUserToken);
             //merge profile attributes, compositions, variable types
             result.ProfileAttributes = _profileUtils.MergeProfileAttributes(result);
             //reduce size of returned object and clear out individual collections

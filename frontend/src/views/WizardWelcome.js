@@ -1,5 +1,6 @@
 import React, { useEffect }  from 'react'
 import { Helmet } from "react-helmet"
+import { useIsAuthenticated, useMsal } from "@azure/msal-react";
 
 import { Button } from 'react-bootstrap'
 
@@ -16,9 +17,19 @@ function WizardWelcome() {
     //-------------------------------------------------------------------
     // Region: Initialization
     //-------------------------------------------------------------------
+    const { instance } = useMsal();
+    const _isAuthenticated = useIsAuthenticated();
+    const _activeAccount = instance.getActiveAccount();
+
     const { loadingProps } = useLoadingContext();
     const { wizardProps, setWizardProps } = useWizardContext();
     const _currentPage = WizardSettings.panels.find(p => { return p.id === 'Welcome'; });
+
+    //check for logged in status on this welcome page, redirect to public facing login if no active account
+    if (_isAuthenticated && _activeAccount == null) {
+        //MSAL logout
+        instance.logout();
+    }
 
     //-------------------------------------------------------------------
     // Region: hooks

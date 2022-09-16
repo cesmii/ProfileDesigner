@@ -5,10 +5,9 @@ import {Switch } from "react-router-dom"
 import PrivateRoute from './authentication/PrivateRoute'
 import WizardRoute from './authentication/WizardRoute'
 import AdminRoute from './authentication/AdminRoute'
-import { PublicFixedRoute, PublicRoute } from './PublicRoute'
+import { PublicRoute } from './PublicRoute'
 
 //page level imports
-import Login from "../views/Login"
 import ProfileTypeDefinitionList from "../views/ProfileTypeDefinitionList"
 import ProfileTypeDefinitionEntity from "../views/ProfileTypeDefinitionEntity"
 //wizard pages
@@ -54,10 +53,8 @@ function Routes() {
             <WizardRoute path="/wizard/select-base-type" component={WizardSelectBaseType} />
             <WizardRoute path="/wizard/extend/:parentId/p=:profileId" component={ProfileTypeDefinitionEntity} />
             <WizardRoute path="/wizard/extend/:parentId" component={ProfileTypeDefinitionEntity} />
-            <AdminRoute path="/admin/user/list" component={AdminUserList} />
-            <AdminRoute path="/admin/user/copy/:copyId" component={AdminUserEntity} />
-            <AdminRoute path="/admin/user/:id" component={AdminUserEntity} />
-            <PublicFixedRoute exact path="/login" component={Login} />
+            <AdminRoute path="/admin/user/list" component={AdminUserList} roles={['cesmii.profiledesigner.admin']}/>
+            <AdminRoute path="/admin/user/:id" component={AdminUserEntity} roles={['cesmii.profiledesigner.admin']} />
             <PublicRoute component={PageNotFound} />
         </Switch>
 

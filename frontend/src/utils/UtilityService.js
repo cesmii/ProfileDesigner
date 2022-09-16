@@ -416,3 +416,36 @@ export const getRandomArrayIndexes = (items, limit = 6) => {
     return result;
 }
 
+
+///--------------------------------------------------------------------------
+/// isInRole - is user in a certain role
+///  account is an MSAL account
+//--------------------------------------------------------------------------
+export const isInRoles = (account, roleNames) => {
+    if (account == null) return false;
+    if (account.idTokenClaims == null) return false;
+
+    var roles = account.idTokenClaims.roles;
+    if (roles == null || roles.length === 0) return false;
+
+    //loop over a list of role names and see if any of them match with roles in claims
+    var result = false;
+    roleNames.forEach((r) => {
+        if (!result) {
+            result = roles.findIndex(x => x.toLowerCase() === r.toLowerCase()) > -1;
+        }
+    });
+
+    return result;
+}
+
+export const isInRole = (account, roleName) => {
+    if (account == null) return false;
+    if (account.idTokenClaims == null) return false;
+
+    var roles = account.idTokenClaims.roles;
+    if (roles == null || roles.length === 0) return false;
+
+    //check if role name has a match in array
+    return roles.findIndex(x => x.toLowerCase() === roleName.toLowerCase()) > -1;
+}

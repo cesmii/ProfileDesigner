@@ -26,9 +26,9 @@ namespace CESMII.ProfileDesigner.Api.Controllers
     {
         private readonly IDal<ImportLog, ImportLogModel> _dal;
 
-        public ImportLogController(IDal<ImportLog, ImportLogModel> dal,
+        public ImportLogController(IDal<ImportLog, ImportLogModel> dal, UserDAL dalUser,
             ConfigUtil config, ILogger<ImportLogController> logger) 
-            : base(config, logger)
+            : base(config, logger, dalUser)
         {
             _dal = dal;
         }
@@ -45,9 +45,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 _logger.LogWarning($"ImportLogController|GetByID|Invalid model (null)");
                 return BadRequest($"Invalid model (null)");
             }
-            var userToken = UserExtension.DalUserToken(User);
-
-            var result = _dal.GetById(model.ID, userToken);
+            var result = _dal.GetById(model.ID, base.DalUserToken);
             if (result == null)
             {
                 _logger.LogWarning($"ImportLogController|GetById|No records found matching this ID: {model.ID}");
@@ -73,17 +71,16 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 return BadRequest("Profile|GetMine|Invalid model");
             }
 
-            var userToken= new UserToken { UserId = User.GetUserID() };
             if (string.IsNullOrEmpty(model.Query))
             {
-                return Ok(_dal.GetAllPaged(userToken, model.Skip, model.Take, false, true));
+                return Ok(_dal.GetAllPaged(base.DalUserToken, model.Skip, model.Take, false, true));
             }
 
             model.Query = model.Query.ToLower();
             var result = _dal.Where(s =>
                             //string query section
                             string.Join(",", s.FileList).ToLower().Contains(model.Query)
-                            ,userToken, null, null, false, true);
+                            , base.DalUserToken, null, null, false, true);
             return Ok(result);
         }
 
@@ -97,10 +94,8 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         [ProducesResponseType(200, Type = typeof(ResultMessageModel))]
         public async Task<IActionResult> Delete([FromBody] IdIntModel model)
         {
-            var userToken = UserExtension.DalUserToken(User);
-
             //This is a soft delete
-            var result = await _dal.DeleteAsync(model.ID, userToken);
+            var result = await _dal.DeleteAsync(model.ID, base.DalUserToken);
             if (result < 0)
             {
                 _logger.LogWarning($"ImportLogController|Delete|Could not delete item. Invalid id:{model.ID}.");

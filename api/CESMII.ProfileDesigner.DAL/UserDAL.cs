@@ -5,8 +5,7 @@
     using System.Linq;
     using System.Linq.Expressions;
     using System.Threading.Tasks;
-    using Microsoft.EntityFrameworkCore;
-
+    
     using CESMII.ProfileDesigner.DAL.Models;
     using CESMII.ProfileDesigner.Data.Entities;
     using CESMII.ProfileDesigner.Data.Repositories;
@@ -37,8 +36,9 @@
         //add this layer so we can instantiate the new entity here.
         public override async Task<int?> AddAsync(UserModel model, UserToken userToken)
         {
+            //AAD changes - much of this will no longer come into play.
             //generate random password and then encrypt in here. 
-            var password = PasswordUtils.GenerateRandomPassword(_configUtil.PasswordConfigSettings.RandomPasswordLength);
+            //var password = PasswordUtils.GenerateRandomPassword(_configUtil.PasswordConfigSettings.RandomPasswordLength);
 
             var entity = new User
             {
@@ -46,12 +46,12 @@
                 ,Created = DateTime.UtcNow
                 //not actually used during registration but keep it here because db expects non null.
                 //if future, the user sets their own pw on register complete
-                ,Password = PasswordUtils.EncryptNewPassword(_configUtil.PasswordConfigSettings.EncryptionSettings, password)
+                //,Password = PasswordUtils.EncryptNewPassword(_configUtil.PasswordConfigSettings.EncryptionSettings, password)
             };
 
             this.MapToEntity(ref entity, model, userToken);
             //do this after mapping to enforce isactive is true on add
-            entity.IsActive = true;
+            //entity.IsActive = true;
 
             //this will add and call saveChanges
             await _repo.AddAsync(entity);
@@ -61,6 +61,7 @@
             return entity.ID;
         }
 
+        /* AAD - no longer needed
         /// <summary>
         /// The user Add flow works differently than the other add. This allows caller to add and complete
         /// registration in one step rather than two. 
@@ -90,7 +91,9 @@
             // Return id for newly added user
             return entity.ID;
         }
-        
+        */
+
+        /* AAD - no longer needed
         /// <summary>
         /// Get rule and related data
         /// </summary>
@@ -131,7 +134,9 @@
             // No user match found, username or password incorrect. 
             return null;
         }
+        */
 
+        /* AAD - no longer needed
         /// <summary>
         /// Complete user registration
         /// </summary>
@@ -162,7 +167,9 @@
             await _repo.UpdateAsync(result);
             await _repo.SaveChangesAsync();
         }
+        */
 
+        /* AAD - no longer needed
         /// <summary>
         /// Complete user registration
         /// </summary>
@@ -184,7 +191,9 @@
             await _repo.SaveChangesAsync();
             return this.MapToModel(result);
         }
-        
+        */
+
+        /* AAD - no longer needed
         /// <summary>
         /// Update the user's pasword
         /// </summary>
@@ -211,6 +220,7 @@
             await _repo.UpdateAsync(existingUser);
             return await _repo.SaveChangesAsync();
         }
+        */
 
         /// <summary>
         /// Get user
@@ -221,7 +231,20 @@
         public override UserModel GetById(int id, UserToken userToken)
         {
             var entity = _repo.FindByCondition(x => x.ID == id)
-                .Include(u => u.UserPermissions)
+                //.Include(u => u.UserPermissions)
+                .FirstOrDefault();
+            return MapToModel(entity, true);
+        }
+
+        /// <summary>
+        /// Get user by user's Azure AAD
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="orgId"></param>
+        /// <returns></returns>
+        public UserModel GetByIdAAD(string userIdAAD)
+        {
+            var entity = _repo.FindByCondition(x => x.ObjectIdAAD.ToLower().Equals(userIdAAD))
                 .FirstOrDefault();
             return MapToModel(entity, true);
         }
@@ -235,8 +258,9 @@
         {
             var query = _repo.GetAll()
                 //.Where(u => u.IsActive)  //TBD - ok to return inactive in the list of users?
-                .OrderByDescending(u => u.IsActive).ThenBy(u => u.LastName).ThenBy(u => u.FirstName).ThenBy(u => u.UserName)
-                .Include(u => u.UserPermissions);
+                .OrderBy(u => u.DisplayName);
+                //.OrderByDescending(u => u.IsActive).ThenBy(u => u.LastName).ThenBy(u => u.FirstName).ThenBy(u => u.UserName)
+                //.Include(u => u.UserPermissions);
 
             var count = returnCount ? query.Count() : 0;
 
@@ -264,8 +288,9 @@
         {
             var result = _repo.GetAll()
                 //.Where(u => u.IsActive)  //TBD - ok to return inactive in the list of users?
-                .OrderByDescending(u => u.IsActive).ThenBy(u => u.LastName).ThenBy(u => u.FirstName).ThenBy(u => u.UserName)
-                .Include(u => u.UserPermissions)
+                .OrderBy(u => u.DisplayName)
+                //.OrderByDescending(u => u.IsActive).ThenBy(u => u.LastName).ThenBy(u => u.FirstName).ThenBy(u => u.UserName)
+                //.Include(u => u.UserPermissions)
                 .ToList();
             return MapToModels(result, verbose);
         }
@@ -280,16 +305,17 @@
         {
             return base.Where(predicate, user, skip, take, returnCount, verbose,
                 q => q
-                    .OrderByDescending(u => u.IsActive).ThenBy(u => u.LastName).ThenBy(u => u.FirstName).ThenBy(u => u.UserName)
+                    .OrderBy(u => u.DisplayName));
+                    //.OrderByDescending(u => u.IsActive).ThenBy(u => u.LastName).ThenBy(u => u.FirstName).ThenBy(u => u.UserName)
                     //.Where(u => u.IsActive)  //TBD - ok to return inactive in the list of users?
-                    .Include(u => u.UserPermissions));
+                    //.Include(u => u.UserPermissions));
         }
 
         public override async Task<int?> UpdateAsync(UserModel item, UserToken userToken)
         {
             //TBD - if userId is not same as item.id, then check permissions of userId before updating
             var entity = _repo.FindByCondition(x => x.ID == item.ID)
-                .Include(p => p.UserPermissions)
+                //.Include(p => p.UserPermissions)
                 .FirstOrDefault();
             this.MapToEntity(ref entity, item, userToken);
 
@@ -304,7 +330,7 @@
             //perform a soft delete by setting active to false
             var entity = _repo.FindByCondition(x => x.ID == id)
                 .FirstOrDefault();
-            entity.IsActive = false;
+            //entity.IsActive = false;
 
             await _repo.UpdateAsync(entity);
             await _repo.SaveChangesAsync();
@@ -320,17 +346,19 @@
                 return new UserModel
                 {
                     ID = entity.ID,
-                    Email = entity.Email,
-                    UserName = entity.UserName,
-                    PermissionNames = entity.UserPermissions == null ? new List<string>() : entity.UserPermissions.Select(s => s.Permission.Name).ToList(),
-                    PermissionIds = entity.UserPermissions == null ? new List<int?>() : entity.UserPermissions.Select(s => s.Permission.ID).ToList(),
-                    FirstName = entity.FirstName,
-                    LastName = entity.LastName,
+                    ObjectIdAAD = entity.ObjectIdAAD,
+                    //AAD - no longer stored in db
+                    //Email = entity.Email,
+                    //UserName = entity.UserName,
+                    //PermissionNames = entity.UserPermissions == null ? new List<string>() : entity.UserPermissions.Select(s => s.Permission.Name).ToList(),
+                    //PermissionIds = entity.UserPermissions == null ? new List<int?>() : entity.UserPermissions.Select(s => s.Permission.ID).ToList(),
+                    //FirstName = entity.FirstName,
+                    //LastName = entity.LastName,
                     Organization = entity.Organization == null ? null : new OrganizationModel() { ID = entity.Organization.ID, Name = entity.Organization.Name },
                     Created = entity.Created,
-                    LastLogin = entity.LastLogin,
-                    IsActive = entity.IsActive,
-                    RegistrationComplete = entity.RegistrationComplete,
+                    LastLogin = entity.LastLogin
+                    //IsActive = entity.IsActive,
+                    //RegistrationComplete = entity.RegistrationComplete,
                 };
             }
             else
@@ -342,17 +370,17 @@
 
         protected override void MapToEntity(ref User entity, UserModel model, UserToken userToken)
         {
-            entity.UserName = model.UserName;
-            entity.Email = model.Email;
-            entity.FirstName = model.FirstName;
-            entity.LastName = model.LastName;
-            entity.IsActive = model.IsActive;
+            entity.ObjectIdAAD = model.ObjectIdAAD;
+            entity.LastLogin = model.LastLogin;
+            entity.DisplayName = model.DisplayName;
             entity.OrganizationId = model.Organization?.ID;
 
+            //AAD - no longer needed
             //handle update of user permissions
-            MapToEntityPermissions(ref entity, model.PermissionIds);
+            //MapToEntityPermissions(ref entity, model.PermissionIds);
         }
 
+        /* AAD - no longer needed
         /// <summary>
         /// This will reconcile the incoming permission list against the user's current list.
         /// The incoming list will be the one we are updating to match.
@@ -402,6 +430,7 @@
                 }
             }
         }
+        */
 
     }
 }

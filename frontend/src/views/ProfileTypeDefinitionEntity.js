@@ -172,7 +172,7 @@ function ProfileTypeDefinitionEntity() {
 
             var result = null;
             try {
-                var url = `profiletypedefinition/init`
+                const url = `profiletypedefinition/init`
                 result = await axiosInstance.get(url);
             }
             catch (err) {

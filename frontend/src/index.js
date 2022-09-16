@@ -1,12 +1,21 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
+
+import { PublicClientApplication } from "@azure/msal-browser";
+import { MsalProvider } from "@azure/msal-react";
+
 import App from './App';
 import { AuthContextProvider } from "./components/authentication/AuthContext";
 import { LoadingContextProvider } from "./components/contexts/LoadingContext";
 import reportWebVitals from './reportWebVitals';
+import { AppSettings } from './utils/appsettings';
+
+import './index.css';
 
 require('dotenv').config()
+//create PublicClientApplication instance
+//export it so that our non-component code can access this instance.
+export const Msal_Instance = new PublicClientApplication(AppSettings.MsalConfig);
 
 //var express = require('express');
 //var server = express();
@@ -17,14 +26,16 @@ require('dotenv').config()
 //server.listen(process.env.PORT);
 
 ReactDOM.render(
-  <React.StrictMode>
-    <AuthContextProvider>  {/*When the context within this is null or false, user can't get to private routes. When true, they can*/}
-        <LoadingContextProvider>
-            <App />
-        </LoadingContextProvider>
-    </AuthContextProvider>
-  </React.StrictMode>,
-  document.getElementById('root')
+    <React.StrictMode>
+        <MsalProvider instance={Msal_Instance}>
+            <AuthContextProvider>  {/*When the context within this is null or false, user can't get to private routes. When true, they can*/}
+            <LoadingContextProvider>
+                <App />
+            </LoadingContextProvider>
+            </AuthContextProvider>
+        </MsalProvider>
+    </React.StrictMode>,
+    document.getElementById('root')
 );
 
 // If you want to start measuring performance in your app, pass a function

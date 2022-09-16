@@ -6,46 +6,67 @@
 
     public class UserModel : AbstractModel
     {
+        /// <summary>
+        /// Stored in the marketplace db. 
+        /// Assume this is unique and won't change for a user. 
+        /// populated by evaluating the claims passed in with token
+        /// </summary>
         [Required(ErrorMessage = "Required")]
         [RegularExpression(@"^\S*$", ErrorMessage = "No spaces allowed")]
+        public string ObjectIdAAD { get; set; }
+
+        /// <summary>
+        /// Not stored in the marketplace db. 
+        /// Assume this could change so don't use as a mapping key.
+        /// </summary>
         public string UserName { get; set; }
 
-        [Required(ErrorMessage = "Required")]
-        //[RegularExpression(@"^([\w\.\-]+)@([\w\-]+)((\.(\w){2,3})+)$", ErrorMessage = "Invalid format")]
-        [EmailAddress(ErrorMessage = "Invalid Format")]
+        /// <summary>
+        /// Not stored in the marketplace db. 
+        /// Only populated by evaluating the claims passed in with token
+        /// </summary>
         public string Email { get; set; }
 
-        [Required(ErrorMessage = "Required")]
+        /// <summary>
+        /// Not stored in the marketplace db. 
+        /// Only populated by evaluating the claims passed in with token
+        /// </summary>
         public string FirstName { get; set; }
 
-        [Required(ErrorMessage = "Required")]
+        /// <summary>
+        /// Not stored in the marketplace db. 
+        /// Only populated by evaluating the claims passed in with token
+        /// </summary>
         public string LastName { get; set; }
 
-        public string FullName {
-            get {
-                if (string.IsNullOrEmpty(this.FirstName)) return this.LastName;
-                if (string.IsNullOrEmpty(this.LastName)) return this.FirstName;
-                return $"{this.FirstName} {this.LastName}";
-            }
-        }
+        /// <summary>
+        /// Not stored in the marketplace db. 
+        /// Only populated by evaluating the claims passed in with token
+        /// </summary>
+        public string DisplayName { get; set; }
 
-        public bool IsActive { get; set; }
+        /// <summary>
+        /// Not stored in the marketplace db. 
+        /// Only populated by evaluating the claims passed in with token
+        /// </summary>
+        public string TenantId { get; set; }
 
-        public DateTime Created { get; set; }
+        /// <summary>
+        /// Not stored in the marketplace db. 
+        /// Only populated by evaluating the claims passed in with token
+        /// TBD - enhance this to get a list of permission enums
+        /// </summary>
+        public string Roles { get; set; }
+
+        /// <summary>
+        /// Not stored in the marketplace db. 
+        /// Only populated by evaluating the claims passed in with token
+        /// </summary>
+        public string Scope { get; set; }
+
+        public DateTime? Created { get; set; }
 
         public DateTime? LastLogin { get; set; }
-
-        public DateTime? RegistrationComplete { get; set; }
-
-        /// <summary>
-        /// This list of permission names is used in the sign in manager to assign claims
-        /// </summary>
-        public List<string> PermissionNames { get; set; }
-
-        /// <summary>
-        /// This list of permission ids is used in the multi-select of the admin user edit
-        /// </summary>
-        public List<int?> PermissionIds { get; set; }
 
         public OrganizationModel Organization { get; set; }
 
@@ -53,29 +74,11 @@
 
     public class UserSimpleModel : AbstractModel
     {
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public string FullName
-        {
-            get
-            {
-                if (string.IsNullOrEmpty(this.FirstName)) return this.LastName;
-                if (string.IsNullOrEmpty(this.LastName)) return this.FirstName;
-                return $"{this.FirstName} {this.LastName}";
-            }
-        }
+        public string UserIdAAD { get; set; }
+
+        public string DisplayName { get; set; }
         public OrganizationModel Organization { get; set; }
     }
 
-    /// <summary>
-    /// Adding password property to UserModel so front end could set it when admin adds user
-    /// </summary>
-    public class UserAddModel : UserModel
-    {
-        [Required(ErrorMessage = "Required")]
-        [MinLength(8, ErrorMessage = "Min Length is 8 characters")]
-        [RegularExpression(@"^\S*$", ErrorMessage = "No spaces allowed")]
-        public string Password { get; set; }
-
-    }
+ 
 }

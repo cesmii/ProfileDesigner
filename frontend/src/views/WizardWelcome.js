@@ -9,6 +9,7 @@ import { useWizardContext } from '../components/contexts/WizardContext';
 import { AppSettings } from '../utils/appsettings'
 import { generateLogMessageString } from '../utils/UtilityService';
 import { renderWizardHeader, renderWizardIntroContent, WizardSettings } from '../services/WizardUtil';
+import LoginButton from '../components/LoginButton';
 
 const CLASS_NAME = "WizardWelcome";
 
@@ -63,24 +64,19 @@ function WizardWelcome() {
             mode: null, profile: null, profileId: null, parentId: null
         });
 
-        //this will execute on unmount
-        return () => {
-            console.log(generateLogMessageString('useEffect||wizardProps||Cleanup', CLASS_NAME));
-            //setFilterValOnChild('');
-        };
     }, [wizardProps.currentPage, loadingProps.searchCriteriaRefreshed]);
 
     //-------------------------------------------------------------------
     // Region: Render helpers
     //-------------------------------------------------------------------
-    const renderTileButton = (pg, welcomeContent, href) => {
+    const renderTileButton = (pg, content, href) => {
         return (
             <div className="col-sm-6 d-flex" >
                 <div className={`card d-flex flex-column h-100`} >
                     <div className={`card-body p-4 pt-3 d-flex flex-column h-100`} >
                         <div className="">
                             <h2 className="font-weight-bold">{pg.caption}</h2>
-                            {welcomeContent}
+                            {content}
                         </div>
                         <div className="mt-auto mx-auto">
                             <Button variant="secondary" type="button" className="m-auto auto-width" href={href} >{pg.caption}</Button>
@@ -138,9 +134,9 @@ function WizardWelcome() {
     };
 
     const renderMainContent = () => {
-        var pgCreate = WizardSettings.panels.find(p => { return p.id === 'CreateProfile'; });
-        var pgImport = WizardSettings.panels.find(p => { return p.id === 'ImportProfile'; });
-        var pgSelect = WizardSettings.panels.find(p => { return p.id === 'SelectExistingProfile'; });
+        //var pgCreate = WizardSettings.panels.find(p => { return p.id === 'CreateProfile'; });
+        let pgImport = WizardSettings.panels.find(p => { return p.id === 'ImportProfile'; });
+        let pgSelect = WizardSettings.panels.find(p => { return p.id === 'SelectExistingProfile'; });
 
         return (
             <>
@@ -151,6 +147,71 @@ function WizardWelcome() {
                 <div className="row mb-3">
                     {renderAboutProfileLibrary()}
                     {renderAboutTypeLibrary()}
+                </div>
+            </>
+        );
+    };
+
+    ///Public facing content to display before user is logged in
+    const renderMainContentPublic = () => {
+
+        const bgImageStyle1 = {
+            backgroundImage: "url(/img/sm-platform.jpg)"
+        };
+        const bgImageStyle2 = {
+            backgroundImage: "url(/img/sm-worker-landscape.jpg)"
+        };
+
+        return (
+            <>
+                <div className={`row mx-0 p-0 pt-4 mb-5`}>
+                    <div className="col-sm-6 col-md-5 p-0 d-none d-sm-block" >
+                        <div className="image-bg" >
+                            <div className="overlay-icon cover rounded shadow" style={bgImageStyle1} >&nbsp;</div>
+                        </div>
+                    </div>
+                    <div className="col-sm-6 col-md-7 px-0 pl-5" >
+                        <h1>Welcome!</h1>
+                        <p className="p-0 py-1 mb-2 lh-intro" >
+                            SM Profiles are an innovative way of representing data in structured information models that provide
+                            the ability to move "data-in-context" from source to consumption, and between components that
+                            consume the data to provide a solution. Developers and end-users will adapt or customize the
+                            information model with constructs that are specific to a particular domain, platform or application.
+                            In other words, a profile is a digital extension mechanism to seamlessly connect, collect,
+                            analyze and act at the edge, the cloud and in the Apps that connect to the SM Innovation Platform.
+                            Profiles will be crowd sourced from industry.  Machine Builders, System Integrators, Product Vendors
+                            in all shapes and sizes and even you, whoever you are, will be able to create profiles and submit
+                            them to the CESMII Smart Manufacturing Marketplace, for others to download and use in their systems.
+                        </p>
+                        <div className="d-flex mt-auto mx-auto">
+                            <LoginButton />
+                        </div>
+                        <p className="mt-3 mb-0 text-center" >
+                            <span className="font-weight-bold mr-1" >Don't have an account?</span>
+                            Email us at <a href="mailto:devops@cesmii.org" >devops@cesmii.org</a> to get registered.
+                            Please provide your project name or SOPO number with your request.
+                        </p>
+                    </div>
+                </div>
+                <div className={`row mx-0 p-0 mb-5`}>
+                    <div className="col-sm-6 col-md-7 px-0 pr-5" >
+                        <h2>How it Works</h2>
+                        <p className="p-0 py-1 mb-2 lh-intro" >
+                            The SM Profile Designer &trade; allows disparate manufacturers and engineers to build manufacturing profiles that could be shared amongst a community of smart manufacturing entities. The profile is a class definition (or collection of class definitions) describing a piece of manufacturing equipment (or conceivably, a manufacturing process or manufactured good). Profiles have relationships to other profiles within the scope of the user's work context. These relationships are of the kinds typically seen in a UML (Unified Modeling Language) diagram, including inheritance, aggregation (or composition), interface implementation, and dependency.
+                        </p>
+                    </div>
+                    <div className="col-sm-6 col-md-5 p-0 d-none d-sm-block" >
+                        <div className="image-bg" >
+                            <div className="overlay-icon cover rounded shadow" style={bgImageStyle2} >&nbsp;</div>
+                        </div>
+                    </div>
+                </div>
+                <div className={`row mx-0 p-0 pt-2 pb-5 mb-5 d-none d-lg-block`}>
+                    <div className="col-12 p-0" >
+                        <div className="d-flex image-bg" >
+                            <img className="mx-auto rounded shadow mw-100 h-auto" src="/img/sm-profile-diagram.jpg" alt="sm-profile-diagram" />
+                        </div>
+                    </div>
                 </div>
             </>
         );
@@ -175,7 +236,7 @@ function WizardWelcome() {
     };
 
     const renderAboutTypeLibrary = () => {
-        var content = (
+        let content = (
             <p className="mb-0">
                 The <strong>Type Library</strong> stores all the Type definitions associated with the SM Profiles available in your workspace.<br/>
                 From here, you can quickly search for, view and extend any Type definition. You can <em>edit</em> Type definitions that belong to one of your Profiles, but you cannot edit Type definitions that were created by someone else -- to customize those, you must <em>extend</em> the Type.<br/>
@@ -186,7 +247,7 @@ function WizardWelcome() {
     };
 
     const renderAboutProfileLibrary = () => {
-        var content = (
+        let content = (
             <p className="mb-0">
                 The <strong>Profile Library</strong> stores all SM Profiles available in your workspace. You can add to your workspace by importing or creating SM Profiles.<br/>
                 Each SM Profile contains a collection of Type definitions -- you can find them in the Type Library.<br/>
@@ -198,10 +259,10 @@ function WizardWelcome() {
         return renderTileWideButton("About Profile Library", content, '/profiles/library', "Go to Profile Library", "primary");
     };
 
-
     const renderAboutProfileDesigner = () => {
         return null;
 
+    /*
         return (
             <div className="row mb-3">
                 <div className="col-sm-12">
@@ -218,6 +279,7 @@ function WizardWelcome() {
                 </div>
             </div>
         );
+    */
     };
 
     //-------------------------------------------------------------------
@@ -228,10 +290,17 @@ function WizardWelcome() {
             <Helmet>
                 <title>{AppSettings.Titles.Main + " | " + _currentPage.caption}</title>
             </Helmet>
-            {renderWizardHeader(_currentPage.caption)}
-            {renderWizardIntroContent(_currentPage.introContent)}
-            {renderMainContent()}
-            {renderAboutProfileDesigner()}
+            {_isAuthenticated 
+                ? <>
+                {renderWizardHeader(_currentPage.caption)}
+                {renderWizardIntroContent(_currentPage.introContent)}
+                {renderMainContent()}
+                {renderAboutProfileDesigner()}
+                </>
+                : <>
+                {renderMainContentPublic()}
+                </>
+            }
         </>
     )
 }

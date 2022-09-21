@@ -1,7 +1,8 @@
 import React from "react";
 import { Route, Redirect } from "react-router-dom";
+import { useIsAuthenticated, useMsal } from "@azure/msal-react";
 
-import { useAuthState } from "./AuthContext";
+import { isInRoles } from "../../utils/UtilityService";
 import { InlineMessage } from "../InlineMessage";
 import SideMenu from "../SideMenu";
 
@@ -16,26 +17,21 @@ const AdminLayout = ({ children }) => (
     </div>
 );
 
-function AdminRoute({ component: Component, ...rest }) {
+export function AdminRoute({ component: Component, ...rest }) {
 
-    const authTicket = useAuthState();
-
-    //TBD - this would become more elaborate. Do more than just check for the existence of this value. Check for a token expiry, etc.
-    //TBD - check individual permissions - ie can manage users, etc.
-    //check if can manage users
-    var isAdmin =
-        authTicket != null && authTicket.token != null && 
-        authTicket.user.permissionNames.findIndex(x => x === 'CanManageUsers') >= 0;
+    const { instance } = useMsal();
+    const _isAuthenticated = useIsAuthenticated();
+    const _activeAccount = instance.getActiveAccount();
+    //Check for is authenticated. Check individual permissions - ie can manage profile designer.
+    let isAuthorized = _isAuthenticated && _activeAccount != null && (rest.roles == null || isInRoles(_activeAccount, rest.roles));
 
     return (
         <Route
             {...rest}
-            render={props => (isAdmin) ?
+            render={props => isAuthorized ?
                 (<AdminLayout><Component {...props} /></AdminLayout>) :
-                (<Redirect to="/login" />)
+                (<Redirect to="/" />)
             }
         />
     );
 }
-
-export default AdminRoute;

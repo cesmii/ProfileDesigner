@@ -48,8 +48,6 @@ function Navbar() {
                     </button>
                     <div className="collapse navbar-collapse mt-2 mt-md-0" id="navbarNav">
                         <ul className="navbar-nav align-items-start align-items-md-center">
-
-                            <LoginButton />
                             {renderAdminMenu()}
                         </ul>
                     </div>
@@ -69,9 +67,11 @@ function Navbar() {
                     </Dropdown.Toggle>
                     <Dropdown.Menu>
                         <Dropdown.Item eventKey="1" href="/account">Account Profile</Dropdown.Item>
-                        <Dropdown.Divider />
                         {(isInRole(_activeAccount, 'cesmii.profiledesigner.admin')) &&
+                            <>
+                            <Dropdown.Divider />
                             <Dropdown.Item eventKey="3" href="/admin/user/list">Manage Users</Dropdown.Item>
+                            </>
                         }
                         <Dropdown.Divider />
                         {(inProgress !== InteractionStatus.Startup && inProgress !== InteractionStatus.HandleRedirect) &&
@@ -83,10 +83,9 @@ function Navbar() {
             );
     };
 
-
     return (
         <header>
-            <div className="container-fluid d-flex h-100" >
+            <div className={`container-fluid d-flex h-100 ${_isAuthenticated && _activeAccount != null ? "" : "container-lg"}`} >
                 <div className="col-sm-12 px-0 px-sm-1 d-flex align-content-center" >
                     <div className="d-flex align-items-center">
                         <a className="navbar-brand d-flex align-items-center" href="/">

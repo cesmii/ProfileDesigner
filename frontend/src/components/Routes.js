@@ -4,7 +4,7 @@ import {Switch } from "react-router-dom"
 //common components
 import PrivateRoute from './authentication/PrivateRoute'
 import WizardRoute from './authentication/WizardRoute'
-import AdminRoute from './authentication/AdminRoute'
+import { AdminRoute } from './authentication/AdminRoute'
 import { PublicRoute } from './PublicRoute'
 
 //page level imports

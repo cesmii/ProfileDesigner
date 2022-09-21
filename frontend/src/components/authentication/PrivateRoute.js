@@ -1,7 +1,7 @@
 import React from "react";
 import { Route, Redirect } from "react-router-dom";
+import { useIsAuthenticated } from "@azure/msal-react";
 
-import { useAuthState } from "./AuthContext";
 import { InlineMessage } from "../InlineMessage";
 import SideMenu from "../SideMenu";
 import { ImportMessage } from "../ImportMessage";
@@ -22,15 +22,14 @@ const PrivateLayout = ({ children }) => (
 
 function PrivateRoute({ component: Component, ...rest }) {
 
-    const authTicket = useAuthState();
+    const _isAuthenticated = useIsAuthenticated();
 
-    //TBD - this would become more elaborate. Do more than just check for the existence of this value. Check for a token expiry, etc.
     return (
         <Route
             {...rest}
-            render={props => (authTicket != null && authTicket.token != null)  ?
+            render={props => _isAuthenticated  ?
                 (<PrivateLayout><Component {...props} /></PrivateLayout>) :
-                (<Redirect to="/login" />)
+                (<Redirect to="/" />)
             }
         />
     );

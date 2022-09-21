@@ -44,7 +44,7 @@ export const WizardSettings = {
         {
             id: 'Welcome', caption: `Welcome to the Smart Manufacturing Profile™ Designer`,
             introContent: (
-                <p>
+                <p className="p-0 py-1 mb-2 lh-intro" >
                     An SM Profile defines the Information Model for a manufacturing asset or process, with a goal to arrive at common, re-usable interfaces for accessing data.<br/>
                     As a key design principal, all SM Profiles should derive from (extend, or re-use) other SM Profiles. You can start with core and standardized building blocks provided by the OPC Foundation, or import a starting point provided by created by another designer, standards group or organization.
                 </p>

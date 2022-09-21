@@ -1,7 +1,7 @@
 import React from "react";
-import { Route, Redirect } from "react-router-dom";
+import { Route } from "react-router-dom";
+import { useIsAuthenticated } from "@azure/msal-react";
 
-import { useAuthState } from "./AuthContext";
 import { InlineMessage } from "../InlineMessage";
 import SideMenu from "../SideMenu";
 import { ImportMessage } from "../ImportMessage";
@@ -26,17 +26,30 @@ const WizardLayout = ({ children }) => (
     </div>
 );
 
+const WizardLayoutPublic = ({ children }) => (
+
+    <div id="--routes-wrapper" className="container" >
+        <div className="main-panel m-4">
+            <InlineMessage />
+            <WizardContextProvider>
+                <WizardMaster>
+                    {children}
+                </WizardMaster>
+            </WizardContextProvider>
+        </div>
+    </div>
+);
+
 function WizardRoute({ component: Component, ...rest }) {
 
-    const authTicket = useAuthState();
+    const _isAuthenticated = useIsAuthenticated();
 
-    //TBD - this would become more elaborate. Do more than just check for the existence of this value. Check for a token expiry, etc.
     return (
         <Route
             {...rest}
-            render={props => (authTicket != null && authTicket.token != null) ?
+            render={props => _isAuthenticated ?
                 (<WizardLayout><Component {...props} /></WizardLayout>) :
-                (<Redirect to="/login" />)
+                (<WizardLayoutPublic><Component {...props} /></WizardLayoutPublic>)
             }
         />
     );

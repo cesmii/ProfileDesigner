@@ -30,7 +30,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         }
 
         [HttpPost, Route("onAADLogin")]
-        [Authorize(Roles = "cesmii.marketplace.user")]
+        [Authorize(Roles = "cesmii.profiledesigner.user")]
         public IActionResult OnAADLogin()
         {
             //extract user name from identity passed in via token

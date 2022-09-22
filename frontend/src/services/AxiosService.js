@@ -20,7 +20,7 @@ axiosInstance.interceptors.request.use(
 	async config => {
 		//moved to the other axiosInstance so that public endpoints do not have to wait for 
 		//token to be retrieved on their calls.
-		var token = await getBearerToken();
+		const token = await getBearerToken();
 
 		if (token == null) return config;
 		//append token to header if present. Some requests like public facing pages do not require token.
@@ -44,13 +44,13 @@ async function getBearerToken() {
 	//if user is logged in, get a refresh bearer token.
 	const account = instance.getActiveAccount();
 	if (account) {
-		var loginRequest = {
+		const loginRequest = {
 			scopes: AppSettings.MsalScopes,
 			account: account,
 		};
 
 		try {
-			var response = await instance.acquireTokenSilent(loginRequest);
+			const response = await instance.acquireTokenSilent(loginRequest);
 			return response.accessToken;
 		}
 		catch (err) {

@@ -52,10 +52,6 @@
             {
                 if (_dalUserToken != null) return _dalUserToken;
 
-                if (_user == null)
-                {
-                    _user = InitLocalUser();
-                }
                 _dalUserToken = User.GetDalUserToken(LocalUser.ID.Value);
                 return _dalUserToken;
             }
@@ -135,8 +131,8 @@
                     result.ID = _dalUser.AddAsync(result, this.DalUserToken).Result;
                     break;
                 default:
-                    _logger.LogWarning($"OnAADLogin||More than one Marketplace user found with user name {userAAD.ObjectIdAAD}.");
-                    throw new ArgumentNullException($"On AAD Login, more than one Marketplace user found with user name {userAAD.ObjectIdAAD}.");
+                    _logger.LogWarning($"OnAADLogin||More than one Profile designer user found with user name {userAAD.ObjectIdAAD}.");
+                    throw new ArgumentNullException($"On AAD Login, more than one Profile designer user found with user name {userAAD.ObjectIdAAD}.");
             }
 
             //apply add'l claims not stored in db

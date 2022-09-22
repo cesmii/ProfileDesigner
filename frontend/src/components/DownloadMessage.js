@@ -21,10 +21,10 @@ function DownloadMessage() {
     //-------------------------------------------------------------------
     useEffect(() => {
         async function downloadProfile(item) {
-            var url = `profile/export`;
+            const url = `profile/export`;
             console.log(generateLogMessageString(`downloadProfile||${url}`));
 
-            var data = { id: item.profileId, format: item.downloadFormat };
+            const data = { id: item.profileId, format: item.downloadFormat };
             await axiosInstance.post(url, data).then(async result => {
                 console.log(generateLogMessageString(`downloadProfile||${result.data.isSuccess ? 'success' : 'fail'}`));
                 if (result.status === 200 && result.data.isSuccess) {
@@ -33,7 +33,7 @@ function DownloadMessage() {
                     //if success show w/ link for download
                     //update item
                     var extension = "xml";
-                    if (item.downloadFormat == "AASX") {
+                    if (item.downloadFormat === "AASX") {
                         extension = "aasx"
                     }
                     item = {...item, 
@@ -99,7 +99,7 @@ function DownloadMessage() {
         //-------------------------------------------------------------------------------
         if (loadingProps.downloadItems != null && loadingProps.downloadItems.length > 0) {
 
-            var itemsNotStarted = loadingProps.downloadItems.filter((x) => { return x.statusName == null; });
+            const itemsNotStarted = loadingProps.downloadItems.filter((x) => { return x.statusName == null; });
 
             //only export the new ones
             if (itemsNotStarted.length > 0) {
@@ -141,7 +141,7 @@ function DownloadMessage() {
 
     const onDismiss = (e) => {
         console.log(generateLogMessageString('onDismiss||', CLASS_NAME));
-        var id = e.currentTarget.getAttribute("data-id");
+        const id = e.currentTarget.getAttribute("data-id");
         dismissMessage(id);
     }
 
@@ -149,7 +149,7 @@ function DownloadMessage() {
         console.log(generateLogMessageString(`openFile`, CLASS_NAME));
         var blobType = 'application/xml';
         var blobData = msg.data;
-        if (msg.downloadFormat == "AASX") {
+        if (msg.downloadFormat === "AASX") {
             blobType = 'application/octet-stream';
             blobData = Buffer.from(msg.data, "base64");
         }

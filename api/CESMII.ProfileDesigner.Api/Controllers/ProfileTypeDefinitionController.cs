@@ -49,7 +49,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         }
 
         [HttpPost, Route("GetByID")]
-        [Authorize(Policy = nameof(PermissionEnum.CanManageProfile))]
+        [Authorize(Roles = "cesmii.profiledesigner.user")]
         [ProducesResponseType(200, Type = typeof(ProfileTypeDefinitionModel))]
         [ProducesResponseType(400)]
         public IActionResult GetByID([FromBody] IdIntModel model)
@@ -91,7 +91,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost, Route("library")]
-        [Authorize(Policy = nameof(PermissionEnum.CanViewProfile))]
+        [Authorize(Roles = "cesmii.profiledesigner.user")]
         [ProducesResponseType(200, Type = typeof(DALResult<ProfileTypeDefinitionModel>))]
         public IActionResult GetLibrary([FromBody] ProfileTypeDefFilterModel model)
         {
@@ -225,7 +225,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost, Route("lookup/profilerelated")]
-        [Authorize(Policy = nameof(PermissionEnum.CanManageProfile))]
+        [Authorize(Roles = "cesmii.profiledesigner.user")]
         [ProducesResponseType(200, Type = typeof(ProfileLookupModel))]
         [ProducesResponseType(400)]
         public IActionResult LookupProfileRelated([FromBody] IdIntModel model)
@@ -255,7 +255,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost, Route("lookup/profilerelated/extend")]
-        [Authorize(Policy = nameof(PermissionEnum.CanManageProfile))]
+        [Authorize(Roles = "cesmii.profiledesigner.user")]
         [ProducesResponseType(200, Type = typeof(ProfileLookupModel))]
         [ProducesResponseType(400)]
         public IActionResult LookupProfileRelatedExtend([FromBody] IdIntModel model)
@@ -274,7 +274,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet, Route("Count")]
-        [Authorize(Policy = nameof(PermissionEnum.CanViewProfile))]
+        [Authorize(Roles = "cesmii.profiledesigner.user")]
         [ProducesResponseType(200, Type = typeof(ProfileCountModel))]
         [ProducesResponseType(400)]
         public IActionResult GetCounts()
@@ -290,7 +290,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost, Route("Explorer")]
-        [Authorize(Policy = nameof(PermissionEnum.CanManageProfile))]
+        [Authorize(Roles = "cesmii.profiledesigner.user")]
         [ProducesResponseType(200, Type = typeof(ProfileExplorerModel))]
         [ProducesResponseType(400)]
         public IActionResult GetProfileExplorer([FromBody] IdIntModel model)
@@ -333,7 +333,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpGet, Route("lookup/favorites")]
-        [Authorize(Policy = nameof(PermissionEnum.CanViewProfile))]
+        [Authorize(Roles = "cesmii.profiledesigner.user")]
         [ProducesResponseType(200, Type = typeof(DALResult<ProfileTypeDefinitionModel>))]
         public IActionResult LookupFavorites()
         {
@@ -349,7 +349,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost, Route("Extend")]
-        [Authorize(Policy = nameof(PermissionEnum.CanManageProfile))]
+        [Authorize(Roles = "cesmii.profiledesigner.user")]
         [ProducesResponseType(200, Type = typeof(ProfileTypeDefinitionModel))]
         [ProducesResponseType(400)]
         public IActionResult Extend([FromBody] IdIntModel model)
@@ -372,7 +372,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost, Route("Wizard/Extend")]
-        [Authorize(Policy = nameof(PermissionEnum.CanManageProfile))]
+        [Authorize(Roles = "cesmii.profiledesigner.user")]
         [ProducesResponseType(200, Type = typeof(ProfileTypeDefinitionModel))]
         [ProducesResponseType(400)]
         public IActionResult ExtendWizard([FromBody] ProfileTypeDefinitionWizardExtendModel model)
@@ -395,7 +395,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpGet, Route("Init")]
-        [Authorize(Policy = nameof(PermissionEnum.CanManageProfile))]
+        [Authorize(Roles = "cesmii.profiledesigner.user")]
         [ProducesResponseType(200, Type = typeof(ProfileTypeDefinitionModel))]
         [ProducesResponseType(400)]
         public IActionResult InitProfileTypeDefinition()
@@ -483,7 +483,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost, Route("Add")]
-        [Authorize(Policy = nameof(PermissionEnum.CanManageProfile))]
+        [Authorize(Roles = "cesmii.profiledesigner.user")]
         [ProducesResponseType(200, Type = typeof(ResultMessageWithDataModel))]
         public async Task<IActionResult> Add([FromBody] ProfileTypeDefinitionModel model)
         {
@@ -497,7 +497,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost, Route("Update")]
-        [Authorize(Policy = nameof(PermissionEnum.CanManageProfile))]
+        [Authorize(Roles = "cesmii.profiledesigner.user")]
         [ProducesResponseType(200, Type = typeof(ResultMessageWithDataModel))]
         public async Task<IActionResult> Update([FromBody] ProfileTypeDefinitionModel model)
         {
@@ -510,7 +510,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost, Route("togglefavorite")]
-        [Authorize(Policy = nameof(PermissionEnum.CanManageProfile))]
+        [Authorize(Roles = "cesmii.profiledesigner.user")]
         [ProducesResponseType(200, Type = typeof(ResultMessageWithDataModel))]
         public async Task<IActionResult> ToggleFavorite([FromBody] IdIntModel model)
         {
@@ -622,7 +622,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost, Route("Delete")]
-        [Authorize(Policy = nameof(PermissionEnum.CanDeleteProfile))]
+        [Authorize(Roles = "cesmii.profiledesigner.user")]
         [ProducesResponseType(200, Type = typeof(List<ProfileTypeDefinitionModel>))]
         public async Task<IActionResult> Delete([FromBody] IdIntModel model)
         {

@@ -16,12 +16,15 @@ ADD display_name character varying(250) COLLATE pg_catalog."default" NULL
 UPDATE public."user" 
 SET objectid_aad = 'dcfd0710-d766-4705-8e04-5cd8afa639ed'
 	,display_name = 'David Wickman'
+WHERE username='davidw';	
 UPDATE public."user" 
 SET objectid_aad = 'c79a4d42-8c58-42f4-9b32-3ddb9ce4fd79'
 	,display_name = 'Sean Coxen'
+WHERE username='seanc';	
 UPDATE public."user" 
 SET objectid_aad = '1f25a66e-cb03-467e-a164-14ba265d472a'
 	,display_name = 'Markus Horstmann'
+WHERE username='markush';	
 
 --set not null for objectIdAAD
 ALTER TABLE public."user"

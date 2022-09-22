@@ -12,7 +12,6 @@ import Color from './Constants'
 
 import './styles/Navbar.scss'
 import { AppSettings } from '../utils/appsettings';
-import LoginButton from './LoginButton';
 
 //const CLASS_NAME = "Navbar";
 

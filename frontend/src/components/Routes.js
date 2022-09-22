@@ -5,7 +5,7 @@ import {Switch } from "react-router-dom"
 import PrivateRoute from './authentication/PrivateRoute'
 import WizardRoute from './authentication/WizardRoute'
 import { AdminRoute } from './authentication/AdminRoute'
-import { PublicRoute } from './PublicRoute'
+import { PublicFixedRoute } from './PublicRoute'
 
 //page level imports
 import ProfileTypeDefinitionList from "../views/ProfileTypeDefinitionList"
@@ -55,7 +55,7 @@ function Routes() {
             <WizardRoute path="/wizard/extend/:parentId" component={ProfileTypeDefinitionEntity} />
             <AdminRoute path="/admin/user/list" component={AdminUserList} roles={['cesmii.profiledesigner.admin']}/>
             <AdminRoute path="/admin/user/:id" component={AdminUserEntity} roles={['cesmii.profiledesigner.admin']} />
-            <PublicRoute component={PageNotFound} />
+            <PublicFixedRoute component={PageNotFound} />
         </Switch>
 
     )

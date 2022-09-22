@@ -34,7 +34,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         }
 
         [HttpPost, Route("GetByID")]
-        [Authorize(Policy = nameof(PermissionEnum.CanManageProfile))]
+        [Authorize(Roles = "cesmii.profiledesigner.user")]
         //[ProducesResponseType(200, Type = typeof(NodeSetModel))]
         [ProducesResponseType(200, Type = typeof(ImportLogModel))]
         [ProducesResponseType(400)]
@@ -61,7 +61,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost, Route("Mine")]
-        [Authorize(Policy = nameof(PermissionEnum.CanViewProfile))]
+        [Authorize(Roles = "cesmii.profiledesigner.user")]
         [ProducesResponseType(200, Type = typeof(DALResult<ProfileModel>))]
         public IActionResult GetMine([FromBody] PagerFilterSimpleModel model)
         {
@@ -90,7 +90,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost, Route("Delete")]
-        [Authorize(Policy = nameof(PermissionEnum.CanDeleteProfile))]
+        [Authorize(Roles = "cesmii.profiledesigner.user")]
         [ProducesResponseType(200, Type = typeof(ResultMessageModel))]
         public async Task<IActionResult> Delete([FromBody] IdIntModel model)
         {

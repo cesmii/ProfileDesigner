@@ -35,8 +35,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
 
 
         [HttpGet, Route("All")]
-        //[Authorize(Policy = nameof(PermissionEnum.CanManageUsers))]
-        [Authorize(Roles = "cesmii.marketplace.useradmin")]
+        [Authorize(Roles = "cesmii.profiledesigner.admin")]
         [ProducesResponseType(200, Type = typeof(List<UserModel>))]
         [ProducesResponseType(400)]
         public IActionResult GetAll()
@@ -50,8 +49,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         }
 
         [HttpPost, Route("GetByID")]
-        //[Authorize(Policy = nameof(PermissionEnum.CanManageUsers))]
-        [Authorize(Roles = "cesmii.marketplace.useradmin")]
+        [Authorize(Roles = "cesmii.profiledesigner.admin")]
         [ProducesResponseType(200, Type = typeof(UserModel))]
         [ProducesResponseType(400)]
         public IActionResult GetByID([FromBody] IdIntModel model)
@@ -65,8 +63,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         }
 
         [HttpPost, Route("Search")]
-        //[Authorize(Policy = nameof(PermissionEnum.CanManageUsers))]
-        [Authorize(Roles = "cesmii.marketplace.useradmin")]
+        [Authorize(Roles = "cesmii.profiledesigner.admin")]
         [ProducesResponseType(200, Type = typeof(DALResult<UserModel>))]
         public IActionResult Search([FromBody] PagerFilterSimpleModel model)
         {

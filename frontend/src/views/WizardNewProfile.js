@@ -46,11 +46,6 @@ function WizardNewProfile() {
         //update state on load 
         setWizardProps({currentPage: _currentPage.id, mode: _mode});
 
-        //this will execute on unmount
-        return () => {
-            console.log(generateLogMessageString('useEffect||wizardProps||Cleanup', CLASS_NAME));
-            //setFilterValOnChild('');
-        };
     }, [wizardProps.currentPage]);
 
 
@@ -60,7 +55,7 @@ function WizardNewProfile() {
         //only want this to run once on load
         if (wizardProps.profile == null) {
             //init me as the author
-            var p = JSON.parse(JSON.stringify(profileNew));
+            const p = JSON.parse(JSON.stringify(profileNew));
             //p.authorId = authTicket.user.id;
             //p.author = {
             //    id: authTicket.user.id, name: authTicket.user.fullName
@@ -74,11 +69,6 @@ function WizardNewProfile() {
             setItem(JSON.parse(JSON.stringify(wizardProps.profile)));
         }
 
-        //this will execute on unmount
-        return () => {
-            console.log(generateLogMessageString('useEffect||wizardProps||Cleanup', CLASS_NAME));
-            //setFilterValOnChild('');
-        };
     }, [wizardProps.profile]);
 
     //-------------------------------------------------------------------

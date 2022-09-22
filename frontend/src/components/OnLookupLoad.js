@@ -1,8 +1,8 @@
 import { useEffect } from 'react';
+import { useIsAuthenticated, useMsal } from "@azure/msal-react";
 
 import axiosInstance from '../services/AxiosService'
 import { useLoadingContext } from "./contexts/LoadingContext";
-import { useAuthState } from './authentication/AuthContext';
 import { generateLogMessageString, getTypeDefIconName } from '../utils/UtilityService';
 import { getTypeDefPreferences } from '../services/ProfileService';
 
@@ -18,7 +18,9 @@ export const OnLookupLoad = () => {
     // Region: Initialization
     //-------------------------------------------------------------------
     const { loadingProps, setLoadingProps } = useLoadingContext();
-    const authTicket = useAuthState();
+    const { instance } = useMsal();
+    const _activeAccount = instance.getActiveAccount();
+    const _isAuthenticated = useIsAuthenticated() && _activeAccount != null;
 
     //-------------------------------------------------------------------
     // Region: hooks
@@ -28,7 +30,7 @@ export const OnLookupLoad = () => {
         // Load lookup data upon certain triggers in the background
         async function fetchData() {
 
-            var url = `lookup/all`;
+            const url = `lookup/all`;
             console.log(generateLogMessageString(`useEffect||fetchData||${url}`, CLASS_NAME));
 
             await axiosInstance.get(url).then(result => {
@@ -56,12 +58,14 @@ export const OnLookupLoad = () => {
             });
         }
 
+        //if not logged in yet, return
+        if (!_isAuthenticated) return;
 
         if (loadingProps.lookupDataStatic == null || loadingProps.refreshLookupData === true) {
             fetchData();
         }
 
-    }, [loadingProps.lookupDataStatic, loadingProps.refreshLookupData]);
+    }, [loadingProps.lookupDataStatic, loadingProps.refreshLookupData, _isAuthenticated]);
 
     //-------------------------------------------------------------------
     // Region: hooks
@@ -70,7 +74,7 @@ export const OnLookupLoad = () => {
     useEffect(() => {
         async function fetchData() {
 
-            var url = `lookup/searchcriteria`;
+            const url = `lookup/searchcriteria`;
             console.log(generateLogMessageString(`useEffect||fetchData||${url}`, CLASS_NAME));
 
             await axiosInstance.get(url).then(result => {
@@ -96,7 +100,6 @@ export const OnLookupLoad = () => {
             }).catch(e => {
                 if ((e.response && e.response.status === 401) || e.toString().indexOf('Network Error') > -1) {
                     //do nothing, this is handled in routes.js using common interceptor
-                    //setAuthTicket(null); //the call of this will clear the current user and the token
                 }
                 else {
                     setLoadingProps({
@@ -108,7 +111,7 @@ export const OnLookupLoad = () => {
         }
 
         //if not logged in yet, return
-        if (authTicket == null || authTicket.token == null) return;
+        if (!_isAuthenticated) return;
 
         //trigger retrieval of lookup data - if necessary
         if (loadingProps == null || loadingProps.searchCriteria == null || loadingProps.searchCriteria.filters == null
@@ -116,7 +119,7 @@ export const OnLookupLoad = () => {
             fetchData();
         }
 
-    }, [loadingProps.searchCriteria, loadingProps.refreshSearchCriteria, authTicket.token]);
+    }, [loadingProps.searchCriteria, loadingProps.refreshSearchCriteria, _isAuthenticated]);
 
     //-------------------------------------------------------------------
     // Region: hooks
@@ -126,13 +129,13 @@ export const OnLookupLoad = () => {
         // Load lookup data upon certain triggers in the background
         async function fetchData() {
 
-            var url = `profiletypedefinition/lookup/favorites`;
+            const url = `profiletypedefinition/lookup/favorites`;
             console.log(generateLogMessageString(`useEffect||fetchData||${url}`, CLASS_NAME));
 
             await axiosInstance.get(url).then(result => {
                 if (result.status === 200) {
                     //convert the data into a format for the sideMenuLinkList
-                    var favoritesListLocal = result.data.data.map(p => {
+                    const favoritesListLocal = result.data.data.map(p => {
                         return { url: `/type/${p.id}`, caption: p.name, iconName: getTypeDefIconName(p), authorId: p.authorId };
                     });
 
@@ -157,11 +160,14 @@ export const OnLookupLoad = () => {
             });
         }
 
+        //if not logged in yet, return
+        if (!_isAuthenticated) return;
+
         if (loadingProps.favoritesList == null || loadingProps.refreshFavoritesList === true) {
             fetchData();
         }
 
-    }, [loadingProps.favoritesList, loadingProps.refreshFavoritesList]);
+    }, [loadingProps.favoritesList, loadingProps.refreshFavoritesList, _isAuthenticated]);
 
     //-------------------------------------------------------------------
     // Region: Render

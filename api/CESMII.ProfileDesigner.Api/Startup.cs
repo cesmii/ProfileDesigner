@@ -34,6 +34,7 @@ using CESMII.ProfileDesigner.DAL;
 using CESMII.ProfileDesigner.DAL.Models;
 using CESMII.ProfileDesigner.Common.Enums;
 using CESMII.ProfileDesigner.OpcUa;
+using CESMII.ProfileDesigner.Api.Shared.Extensions;
 
 namespace CESMII.ProfileDesigner.Api
 {
@@ -182,6 +183,7 @@ namespace CESMII.ProfileDesigner.Api
             // Add permission authorization requirements.
             services.AddAuthorization(options =>
             {
+                /*
                 // Ability to...
                 options.AddPolicy(
                     nameof(PermissionEnum.CanViewProfile),
@@ -211,7 +213,12 @@ namespace CESMII.ProfileDesigner.Api
                 options.AddPolicy(
                     nameof(PermissionEnum.CanImpersonateUsers),
                     policy => policy.Requirements.Add(new PermissionRequirement(PermissionEnum.CanImpersonateUsers)));
+                */
 
+                // this "permission" is set once AD user has a mapping to a user record in the Profile Designer DB
+                options.AddPolicy(
+                    nameof(PermissionEnum.UserAzureADMapped),
+                    policy => policy.Requirements.Add(new PermissionRequirement(PermissionEnum.UserAzureADMapped)));
             });
 
             services.AddCors(options =>
@@ -280,6 +287,8 @@ namespace CESMII.ProfileDesigner.Api
 
             // Enable authentications (Jwt in our case)
             app.UseAuthentication();
+
+            app.UseMiddleware<UserAzureADMapping>();
 
             app.UseAuthorization();
 

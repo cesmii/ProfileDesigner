@@ -42,6 +42,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
 
 
         [HttpGet, Route("All")]
+        [Authorize(Roles = "cesmii.profiledesigner.user", Policy = nameof(PermissionEnum.UserAzureADMapped))]
         [ProducesResponseType(200, Type = typeof(AppLookupModel))]
         [ProducesResponseType(400)]
         public IActionResult GetAll()
@@ -69,6 +70,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
 
 
         [HttpGet, Route("searchcriteria")]
+        [Authorize(Roles = "cesmii.profiledesigner.user", Policy = nameof(PermissionEnum.UserAzureADMapped))]
         [ProducesResponseType(200, Type = typeof(ProfileTypeDefFilterModel))]
         [ProducesResponseType(400)]
         public IActionResult GetSearchCriteria() //[FromBody] LookupGroupByModel model)

@@ -317,7 +317,7 @@ function AdminUserList() {
                     <h1>Admin | Manage Users</h1>
                 </div>
                 <div className="col-sm-4 d-flex align-items-center justify-content-end" >
-                    <HeaderSearch showAdvancedSearch={false} filterVal={_pager.searchVal == null ? null : _pager.searchVal} onSearch={handleOnSearchChange} searchMode="standard" currentUserId={_activeAccount?.username} />
+                    <HeaderSearch showAdvancedSearch={false} filterVal={_pager.searchVal == null ? null : _pager.searchVal} onSearch={handleOnSearchChange} searchMode="standard" activeAccount={_activeAccount} />
                 </div>
             </div>
 

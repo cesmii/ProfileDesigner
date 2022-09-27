@@ -118,7 +118,7 @@ function SideMenu() {
         //    var id = parseInt(history.location.state.id);
 
         return (
-            <ProfileExplorer currentUserId={_activeAccount?.username} currentProfileId={id} />
+            <ProfileExplorer activeAccount={_activeAccount} currentProfileId={id} />
         );
     };
 

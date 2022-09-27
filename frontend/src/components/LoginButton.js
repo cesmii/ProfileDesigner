@@ -1,7 +1,7 @@
 import React from "react";
 import Button from 'react-bootstrap/Button'
 
-import {BrowserAuthError, InteractionRequiredAuthError,InteractionStatus} from "@azure/msal-browser";
+import { BrowserAuthError, InteractionRequiredAuthError, InteractionStatus } from "@azure/msal-browser";
 import { useIsAuthenticated, useMsal } from "@azure/msal-react";
 
 import axiosInstance from "../services/AxiosService";
@@ -33,6 +33,7 @@ function LoginButton() {
             .then(result => {
                 if (result.data.isSuccess) {
                     console.log(generateLogMessageString(`onAfterAADLogin||${result.data.message}`, CLASS_NAME));
+                    setLoadingProps({ refreshLookupData: true, refreshSearchCriteria: true, refreshFavorites: true });
                 }
                 else {
                     console.warn(generateLogMessageString(`onAfterAADLogin||Initialize Failed||${result.data.message}`, CLASS_NAME));
@@ -74,7 +75,6 @@ function LoginButton() {
 
                     //trigger additional actions to pull back data from mktplace once logged in
                     setLoadingProps({ isLoading: false, message: null });
-                    setLoadingProps({ refreshMarketplaceCount: true, hasSidebar: true, refreshLookupData: true, refreshFavorites: true, refreshSearchCriteria: true });
                 })
                 .catch((error) => {
                     var msg = 'An error occurred attempting to launch the login window. Please contact the system administrator.';
@@ -89,7 +89,7 @@ function LoginButton() {
                                 //no need to inform user they cancelled
                                 msg = null;
                                 break;
-                            case 'popup_blocker':
+                            case 'popup_window_error':
                                 console.warn(generateLogMessageString(`onLoginClick||loginPopup||${error}`, CLASS_NAME));
                                 msg = "The Login UI uses a popup window. Please disable Popup blocker for this site.";
                                 break;

@@ -54,7 +54,7 @@ async function getBearerToken() {
 			return response.accessToken;
 		}
 		catch (err) {
-			console.error(generateLogMessageString(`onLoginClick||loginPopup||${err}`, CLASS_NAME));
+			console.error(generateLogMessageString(`getBearerToken||${err}`, CLASS_NAME));
 		}
 
 	}

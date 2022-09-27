@@ -66,6 +66,13 @@
                 Roles = string.Join(", ", user.FindAll(x => x.Type.Contains("role")).Select(x => x.Value).ToArray()),
                 Scope = user.FindFirst(x => x.Type.Contains("scope"))?.Value
             };
+            //apply id - should be present after onlogin handler, it gets set by middleware when request is inbound
+            var permission = EnumUtils.GetEnumDescription(PermissionEnum.UserAzureADMapped);
+            if (int.TryParse(user.FindFirst(x => x.Type.ToLower().Equals(permission.ToLower()))?.Value, out int oId))
+            { 
+                result.ID = oId;
+            }
+
             return result;
         }
 

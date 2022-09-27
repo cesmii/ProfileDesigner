@@ -49,6 +49,7 @@ export const OnLookupLoad = () => {
                     });
                 }
             }).catch(e => {
+                setLoadingProps({ refreshLookupData: false });
                 if (e.response && e.response.status === 401) {
                 }
                 else {
@@ -59,7 +60,7 @@ export const OnLookupLoad = () => {
         }
 
         //if not logged in yet, return
-        if (!_isAuthenticated) return;
+        if (!_isAuthenticated || !loadingProps.refreshLookupData) return;
 
         if (loadingProps.lookupDataStatic == null || loadingProps.refreshLookupData === true) {
             fetchData();
@@ -98,6 +99,7 @@ export const OnLookupLoad = () => {
                 }
 
             }).catch(e => {
+                setLoadingProps({ refreshSearchCriteria: false });
                 if ((e.response && e.response.status === 401) || e.toString().indexOf('Network Error') > -1) {
                     //do nothing, this is handled in routes.js using common interceptor
                 }
@@ -111,7 +113,7 @@ export const OnLookupLoad = () => {
         }
 
         //if not logged in yet, return
-        if (!_isAuthenticated) return;
+        if (!_isAuthenticated || !loadingProps.refreshSearchCriteria) return;
 
         //trigger retrieval of lookup data - if necessary
         if (loadingProps == null || loadingProps.searchCriteria == null || loadingProps.searchCriteria.filters == null
@@ -151,6 +153,7 @@ export const OnLookupLoad = () => {
                     });
                 }
             }).catch(e => {
+                setLoadingProps({refreshFavoritesList: false});
                 if (e.response && e.response.status === 401) {
                 }
                 else {
@@ -161,7 +164,7 @@ export const OnLookupLoad = () => {
         }
 
         //if not logged in yet, return
-        if (!_isAuthenticated) return;
+        if (!_isAuthenticated || !loadingProps.refreshFavoritesList) return;
 
         if (loadingProps.favoritesList == null || loadingProps.refreshFavoritesList === true) {
             fetchData();

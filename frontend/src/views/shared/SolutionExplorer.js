@@ -44,7 +44,7 @@ function SolutionExplorer(props) {
     useEffect(() => {
         async function fetchData() {
 
-            var url = `${AppSettings.BASE_API_URL}/profile`;
+            const url = `${AppSettings.BASE_API_URL}/profile`;
             console.log(generateLogMessageString(`useEffect||fetchData||${url}`, CLASS_NAME));
             const result = await axios(url);
 
@@ -57,7 +57,7 @@ function SolutionExplorer(props) {
         return () => {
             console.log(generateLogMessageString('useEffect||Cleanup', CLASS_NAME));
         };
-    }, [props.profile, props.currentUserId]);
+    }, [props.profile]);
 
     //-------------------------------------------------------------------
     // Region: Render helpers
@@ -88,7 +88,7 @@ function SolutionExplorer(props) {
             <>
                 <li id={key} key={key} className={cssClass} >
                     <div style={{ paddingLeft: padding}}>
-                        {renderTypeIcon(p, props.currentUserId)}
+                        {renderTypeIcon(p, props.activeAccount)}
                         {renderLinkedName(p)}
                     </div>
                     {/*recursively build out children*/}

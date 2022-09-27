@@ -218,7 +218,7 @@ function ProfileExplorer(props) {
         return (
             <li id={key} key={key} className={cssClass} >
                 <div style={{ paddingLeft: padding }} className="hierarchy-link d-flex pr-3">
-                    {renderTypeIcon(p, props.currentUserId, 18)}
+                    {renderTypeIcon(p, props.activeAccount, 18)}
                     <span className="hierarchy-item text-break">{renderLinkedName(p)}</span>
                     {/* Affordance for "go-to / view" */}
                     <SVGIcon name="chevron-right" fill={color.silver} className="view-affordance-icon float-right" />

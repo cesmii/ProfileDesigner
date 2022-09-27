@@ -3,7 +3,7 @@ import { Dropdown } from 'react-bootstrap'
 
 import { useLoadingContext } from "../../components/contexts/LoadingContext";
 import { SVGIcon, SVGDownloadIcon } from '../../components/SVGIcon'
-import { renderProfileIcon } from './ProfileRenderHelpers';
+import { isOwner, renderProfileIcon } from './ProfileRenderHelpers';
 import { cleanFileName, formatDate, generateLogMessageString } from '../../utils/UtilityService';
 import { getProfileCaption } from '../../services/ProfileService'
 import { AppSettings } from '../../utils/appsettings';
@@ -86,7 +86,7 @@ function ProfileItemRow(props) { //props are item, showActions
                         {/*{(props.currentUserId != null && props.currentUserId === item.authorId) &&*/}
                         {/*    <Dropdown.Item key="moreVert2" href={getTypeDefinitionNewUrl()} ><span className="mr-3" alt="extend"><SVGIcon name="extend" /></span>New Type Definition</Dropdown.Item>*/}
                         {/*}*/}
-                        {(props.currentUserId != null && props.currentUserId === item.authorId) &&
+                        {isOwner(item, props.activeAccount) &&
                             <Dropdown.Item key="moreVert3" onClick={onDeleteItem} ><span className="mr-3" alt="delete"><SVGIcon name="delete" /></span>Delete Profile</Dropdown.Item>
                         }
                         <Dropdown.Item key="moreVert4" onClick={downloadItem} ><span className="mr-3" alt="arrow-drop-down"><SVGDownloadIcon name="download" /></span>Download Profile</Dropdown.Item>
@@ -116,14 +116,14 @@ function ProfileItemRow(props) { //props are item, showActions
     //render simplified Profile show on profile type entity or profile type list 
     const renderRowSimple = () => {
 
-        var isSelected = props.item != null && IsRowSelected(props.item) ? "selected" : "";
-        var cssClass = `row py-1 align-items-center ${props.cssClass == null ? '' : props.cssClass} ${isSelected} ${props.selectMode != null ? "selectable" : ""}`;
-        var avatarCss = `col-avatar mr-2 rounded-circle avatar-${props.currentUserId == null || props.item == null || props.currentUserId !== props.item.authorId ? "locked" : "unlocked"} elevated`;
+        const isSelected = props.item != null && IsRowSelected(props.item) ? "selected" : "";
+        const cssClass = `row py-1 align-items-center ${props.cssClass == null ? '' : props.cssClass} ${isSelected} ${props.selectMode != null ? "selectable" : ""}`;
+        const avatarCss = `col-avatar mr-2 rounded-circle avatar-${!isOwner(props.item, props.activeAccount) ? "locked" : "unlocked"} elevated`;
         //var colCss = `${props.actionUI == null ? "col-sm-12" : "col-sm-10"} d-flex align-items-center`;
-        var caption = props.item == null ? "" : getProfileCaption(props.item);
-        var profileIcon = props.item == null ?
-            renderProfileIcon({ authorId: null }, props.currentUserId, 20, false) :
-            renderProfileIcon(props.item, props.currentUserId, 20, false);
+        const caption = props.item == null ? "" : getProfileCaption(props.item);
+        const profileIcon = props.item == null ?
+            renderProfileIcon({ authorId: null }, props.activeAccount, 20, false) :
+            renderProfileIcon(props.item, props.activeAccount, 20, false);
 
         return (
             <div className={cssClass} onClick={onRowSelect} >
@@ -155,8 +155,8 @@ function ProfileItemRow(props) { //props are item, showActions
                     {props.selectMode != null &&
                         renderSelectColumn(props.item)
                     }
-                    <div className={`col-avatar mt-1 mr-2 rounded-circle avatar-${props.currentUserId == null || props.currentUserId !== props.item.authorId ? "locked" : "unlocked"} elevated`} >
-                        {renderProfileIcon(props.item, props.currentUserId, 24, false)}
+                    <div className={`col-avatar mt-1 mr-2 rounded-circle avatar-${!isOwner(props.item, props.activeAccount) ? "locked" : "unlocked"} elevated`} >
+                        {renderProfileIcon(props.item, props.activeAccount, 24, false)}
                     </div>
                     <div className="col-sm-11 d-flex align-items-center" >
                         <div className="d-block" >

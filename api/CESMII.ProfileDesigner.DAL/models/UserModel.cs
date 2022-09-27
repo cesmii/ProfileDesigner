@@ -74,7 +74,7 @@
 
     public class UserSimpleModel : AbstractModel
     {
-        public string UserIdAAD { get; set; }
+        public string ObjectIdAAD { get; set; }
 
         public string DisplayName { get; set; }
         public OrganizationModel Organization { get; set; }

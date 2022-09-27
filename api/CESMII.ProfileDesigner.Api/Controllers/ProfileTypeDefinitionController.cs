@@ -442,6 +442,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             result.Author = new UserSimpleModel()
             {
                 ID = user.ID,
+                ObjectIdAAD = LocalUser.ObjectIdAAD,
                 DisplayName = user.DisplayName,
                 Organization = user.Organization
             };

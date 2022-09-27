@@ -292,8 +292,8 @@
                     result.Attributes = MapToModelAttributes(entity);
                     result.Interfaces = MapToModelInterfaces(entity.Interfaces);
                     result.Compositions = MapToModelCompositions(entity.Compositions, result);
-                    result.UpdatedBy = entity.UpdatedBy == null ? null : new UserSimpleModel { ID = entity.UpdatedBy.ID, DisplayName = entity.UpdatedBy.DisplayName };
-                    result.CreatedBy = entity.CreatedBy == null ? null : new UserSimpleModel { ID = entity.CreatedBy.ID, DisplayName = entity.CreatedBy.DisplayName };
+                    result.UpdatedBy = entity.UpdatedBy == null ? null : new UserSimpleModel { ID = entity.UpdatedBy.ID, ObjectIdAAD = entity.UpdatedBy.ObjectIdAAD, DisplayName = entity.UpdatedBy.DisplayName };
+                    result.CreatedBy = entity.CreatedBy == null ? null : new UserSimpleModel { ID = entity.CreatedBy.ID, ObjectIdAAD = entity.CreatedBy.ObjectIdAAD, DisplayName = entity.CreatedBy.DisplayName };
                 }
                 return result;
             }
@@ -382,6 +382,7 @@
             return new UserSimpleModel
             {
                 ID = entity.Author.ID,
+                ObjectIdAAD = entity.Author.ObjectIdAAD,
                 DisplayName = entity.Author.DisplayName,
                 Organization = entity.Author.Organization == null ? null :
                     new OrganizationModel() { ID = entity.Author.Organization.ID, Name = entity.Author.Organization.Name },
@@ -414,9 +415,9 @@
                 Description = item.Description,
                 DisplayName = item.DisplayName,
                 Created = item.Created,
-                CreatedBy = item.CreatedBy == null ? null : new UserSimpleModel { ID = item.CreatedBy.ID, DisplayName = item.CreatedBy.DisplayName },
+                CreatedBy = item.CreatedBy == null ? null : new UserSimpleModel { ID = item.CreatedBy.ID, ObjectIdAAD = item.CreatedBy.ObjectIdAAD, DisplayName = item.CreatedBy.DisplayName },
                 Updated = item.Updated,
-                UpdatedBy = item.UpdatedBy == null ? null : new UserSimpleModel { ID = item.UpdatedBy.ID, DisplayName = item.UpdatedBy.DisplayName },
+                UpdatedBy = item.UpdatedBy == null ? null : new UserSimpleModel { ID = item.UpdatedBy.ID, ObjectIdAAD = item.UpdatedBy.ObjectIdAAD, DisplayName = item.UpdatedBy.DisplayName },
                 VariableTypeDefinitionId = item.VariableTypeDefinitionId,
                 VariableTypeDefinition = MapToModel(item.VariableTypeDefinition, false),
                 TypeDefinitionId = typeDefinitionId,

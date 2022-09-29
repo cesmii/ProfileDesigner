@@ -167,6 +167,15 @@ namespace Opc.Ua.Cloud.Library.Client
         /// <value>The additional properties.</value>
         [JsonProperty("additionalProperties")]
         public UAProperty[] AdditionalProperties { get; set; }
+
+        /// <summary>
+        /// String representation for logging and debugging
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            return $"{Title} {Nodeset} {ValidationStatus}";
+        }
     }
 
     /// <summary>Property Class</summary>
@@ -292,16 +301,25 @@ namespace Opc.Ua.Cloud.Library.Client
         /// <summary>Gets or sets the publication date.</summary>
         /// <value>The publication date.</value>
         [JsonProperty("publicationDate")]
-        public DateTime? PublicationDate { get; set; }
+        public DateTime PublicationDate { get; set; }
 
         /// <summary>Gets or sets the last modified date.</summary>
         /// <value>The last modified date.</value>
         [JsonProperty("lastModifiedDate")]
-        public DateTime? LastModifiedDate { get; set; }
+        public DateTime LastModifiedDate { get; set; }
         /// <summary>
         /// Nodesets that this nodeset depends on
         /// </summary>
-        public List<RequiredModelInfo> RequiredModels { get; internal set; }
+        public List<RequiredModelInfo> RequiredModels { get; set; }
+
+        /// <summary>
+        /// String representation for logging and debugging
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            return $"{NamespaceUri} {PublicationDate} {Version} {Identifier} {ValidationStatus}";
+        }
     }
 
     /// <summary>

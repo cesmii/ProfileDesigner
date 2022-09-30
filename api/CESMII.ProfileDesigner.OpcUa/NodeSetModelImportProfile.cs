@@ -449,7 +449,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
                     AccessRestrictions = _model.AccessRestrictions,
                     WriteMask = _model.WriteMask,
                     UserWriteMask = _model.UserWriteMask,
-               };
+                };
 
                 var euInfo = NodeModelOpcExtensions.GetEUInformation(_model.EngineeringUnit);
                 if (euInfo != null)
@@ -507,6 +507,9 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
                         NodeId = dataVariable.NodeId,
                         IsProperty = dataVariableContainer.Properties.Contains(dataVariable),
                         ModelingRule = dataVariable.ModelingRule,
+                        Value = dataVariable.Value,
+                        ValueRank = dataVariable.ValueRank,
+                        ArrayDimensions = dataVariable.ArrayDimensions,
                         Map = GetDataVariableNodeIds(dataVariable, dataVariable.TypeDefinition)
                     };
                     dataVariableNodeIdMap.DataVariableNodeIdsByBrowseName.Add(dataVariable.BrowseName, map);
@@ -525,6 +528,9 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
         public string NodeId { get; set; }
         public bool IsProperty { get; set; }
         public string ModelingRule { get; set; }
+        public int? ValueRank { get; set; }
+        public string ArrayDimensions { get; set; }
+        public string Value { get; set; }
         public DataVariableNodeIdMap Map { get; set; }
     }
     public class DataVariableNodeIdMap

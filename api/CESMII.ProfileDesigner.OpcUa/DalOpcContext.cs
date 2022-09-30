@@ -27,7 +27,6 @@ namespace CESMII.ProfileDesigner.OpcUa
         private readonly OpcUaImporter _importer;
         private UserToken _authorToken;
         private UserToken _userToken;
-        private readonly Dictionary<string, NodeSetModel> _nodeSetModels;
         public DalOpcContext(OpcUaImporter importer, Dictionary<string, NodeSetModel> nodeSetModels, UserToken userToken, UserToken authorToken, bool UpdateExisting)
 #if NODESETDBTEST
              : base(nodesetModels, importer.nsDBContext, importer.Logger)
@@ -38,7 +37,6 @@ namespace CESMII.ProfileDesigner.OpcUa
             _importer = importer;
             _authorToken = authorToken;
             _userToken = userToken;
-            _nodeSetModels = nodeSetModels;
         }
 
         public void SetUser(UserToken userToken, UserToken authorToken)
@@ -91,7 +89,7 @@ namespace CESMII.ProfileDesigner.OpcUa
 
         public object GetNodeSetCustomState(string uaNamespace)
         {
-            if (_nodeSetModels.TryGetValue(uaNamespace, out var nodesetModel))
+            if (_nodesetModels.TryGetValue(uaNamespace, out var nodesetModel))
             {
                 return (ProfileModel)nodesetModel.CustomState;
             }
@@ -132,7 +130,7 @@ namespace CESMII.ProfileDesigner.OpcUa
 
         public override NodeSetModel GetOrAddNodesetModel(ModelTableEntry model, bool createNew = true)
         {
-            if (!_nodeSetModels.TryGetValue(model.ModelUri, out var nodesetModel))
+            if (!_nodesetModels.TryGetValue(model.ModelUri, out var nodesetModel))
             {
                 var profile = GetProfileForNamespace(model.ModelUri);
 #if NODESETDBTEST

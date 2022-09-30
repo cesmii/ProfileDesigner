@@ -2,7 +2,6 @@
 {
     using System;
     using System.ComponentModel.DataAnnotations;
-    using Newtonsoft.Json.Linq;
 
     public class ProfileAttributeModel : AbstractProfileDesignerModel
     {
@@ -51,12 +50,15 @@
         /// </remarks>
         public LookupItemModel AttributeType { get; set; }
 
+        /// <summary>
+        ///  The profile type to which this attribute belongs
+        /// </summary>
         public int? TypeDefinitionId { get; set; }
 
         public virtual ProfileTypeDefinitionModel TypeDefinition { get; set; }
 
         /// <summary>
-        /// The VariableType for the attribute
+        /// The VariableType for the attribute: indicates Property vs Datavariable (or derived)
         /// </summary>
         public int? VariableTypeDefinitionId { get; set; }
 

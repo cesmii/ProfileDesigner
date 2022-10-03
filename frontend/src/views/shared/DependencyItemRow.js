@@ -22,7 +22,7 @@ function DependencyItemRow(props) { //props are item, showActions
         if (props.item == null || props.item.type == null) return;
 
         var iconName = getTypeDefIconName(props.item);
-        var iconColor = (props.currentUserId == null || props.currentUserId !== props.item.author?.id) ? color.nevada : color.cornflower;
+        var iconColor = !isOwner(props.item, props.activeAccount) ? color.nevada : color.cornflower;
 
         return (<span className="mr-2" ><SVGIcon name={iconName} fill={iconColor} alt={iconName} /></span>)
     }

@@ -138,7 +138,7 @@ export const OnLookupLoad = () => {
                 if (result.status === 200) {
                     //convert the data into a format for the sideMenuLinkList
                     const favoritesListLocal = result.data.data.map(p => {
-                        return { url: `/type/${p.id}`, caption: p.name, iconName: getTypeDefIconName(p), authorId: p.authorId };
+                        return { url: `/type/${p.id}`, caption: p.name, iconName: getTypeDefIconName(p), authorId: p.author?.objectIdAAD };
                     });
 
                     //set the data in local storage

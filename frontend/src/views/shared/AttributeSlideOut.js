@@ -67,7 +67,7 @@ function AttributeSlideOut(props) { //props are item, showActions
                 <div className="col-sm-12">
                     {(props.item != null && !props.showDetail) &&
                         <AttributeList typeDefinition={props.item} profileAttributes={props.item.profileAttributes} extendedProfileAttributes={props.item.extendedProfileAttributes} readOnly={true} isPopout={true}
-                        currentUserId={props.currentUserId} />
+                            activeAccount={props.activeAccount} />
 
                     }
                     {(props.item != null && props.showDetail) &&

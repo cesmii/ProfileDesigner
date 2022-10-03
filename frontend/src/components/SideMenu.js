@@ -157,10 +157,10 @@ function SideMenu() {
                 <SideMenuItem caption="Profile Library" bgColor={color.shark} iconName="folder-profile" navUrl="/profiles/library" />
             </ul>
             {(loadingProps.favoritesList != null && loadingProps.favoritesList.length > 0) &&
-                <SideMenuLinkList caption='Favorites' bgColor={color.citron} iconName='favorite' items={loadingProps.favoritesList} currentUserId={_activeAccount?.username} ></SideMenuLinkList>
+                <SideMenuLinkList caption='Favorites' bgColor={color.citron} iconName='favorite' items={loadingProps.favoritesList} activeAccount={_activeAccount} ></SideMenuLinkList>
             }
             {(loadingProps.recentFileList != null && loadingProps.recentFileList.length > 0) &&
-                <SideMenuLinkList caption='Recent / Open Items' bgColor={color.shark} iconName='access-time' items={loadingProps.recentFileList} currentUserId={_activeAccount?.username} ></SideMenuLinkList>
+                <SideMenuLinkList caption='Recent / Open Items' bgColor={color.shark} iconName='access-time' items={loadingProps.recentFileList} activeAccount={_activeAccount} ></SideMenuLinkList>
             }
             {renderProfileExplorer()}
         </div>

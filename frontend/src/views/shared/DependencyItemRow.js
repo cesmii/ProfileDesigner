@@ -1,7 +1,7 @@
 import React from 'react'
 
 //import { generateLogMessageString } from '../../utils/UtilityService'
-import { renderLinkedName } from './ProfileRenderHelpers';
+import { isOwner, renderLinkedName } from './ProfileRenderHelpers';
 import { getTypeDefIconName } from '../../utils/UtilityService';
 import { SVGIcon } from '../../components/SVGIcon'
 import color from '../../components/Constants'

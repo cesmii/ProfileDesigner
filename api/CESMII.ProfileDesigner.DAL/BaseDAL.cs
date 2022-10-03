@@ -257,6 +257,26 @@
             return result;
         }
 
+        /// <summary>
+        /// Helper function for mapping UpdatedBy, CreatedBy consistently across objects
+        /// </summary>
+        /// <param name="usr"></param>
+        /// <returns></returns>
+        protected static UserSimpleModel MapToModelSimpleUser(User usr)
+        {
+            return usr == null ?
+                null : new UserSimpleModel { 
+                    ID = usr.ID, 
+                    ObjectIdAAD = usr.ObjectIdAAD, 
+                    DisplayName = usr.DisplayName,
+                    Organization = usr.Organization == null ? null :
+                    new OrganizationModel() { 
+                        ID = usr.Organization.ID, 
+                        Name = usr.Organization.Name }
+                };
+        }
+
+
         protected virtual void MapToEntity(ref TEntity entity, TModel model, UserToken userToken)
         {
             throw new NotImplementedException();

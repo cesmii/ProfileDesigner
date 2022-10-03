@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useParams, useHistory } from 'react-router-dom'
 import { Helmet } from "react-helmet"
+import { useMsal } from "@azure/msal-react";
 import axiosInstance from "../services/AxiosService";
 
 import Form from 'react-bootstrap/Form'
@@ -11,7 +12,6 @@ import Tab from 'react-bootstrap/Tab'
 import Nav from 'react-bootstrap/Nav'
 
 import { useLoadingContext, UpdateRecentFileList } from "../components/contexts/LoadingContext";
-import { useAuthState } from "../components/authentication/AuthContext";
 import { useWizardContext } from '../components/contexts/WizardContext';
 import { AppSettings } from '../utils/appsettings';
 import { generateLogMessageString, getTypeDefIconName, getProfileTypeCaption, cleanFileName, validate_NoSpecialCharacters } from '../utils/UtilityService'
@@ -24,6 +24,7 @@ import ProfileItemRow from './shared/ProfileItemRow';
 import { SVGIcon } from "../components/SVGIcon";
 import { getProfileCaption } from '../services/ProfileService';
 import { getWizardNavInfo, renderWizardBreadcrumbs, WizardSettings } from '../services/WizardUtil';
+import { isOwner } from './shared/ProfileRenderHelpers';
 import './styles/ProfileTypeDefinitionEntity.scss';
 
 const CLASS_NAME = "ProfileTypeDefinitionEntity";
@@ -41,10 +42,11 @@ function ProfileTypeDefinitionEntity() {
     // Region: Initialization
     //-------------------------------------------------------------------
     const history = useHistory();
+    const { instance } = useMsal();
+    const _activeAccount = instance.getActiveAccount();
 
     const { id, parentId, profileId } = useParams();
     const { loadingProps, setLoadingProps } = useLoadingContext();
-    const authTicket = useAuthState();
 
     //var pageMode = //state is not always present. If user types a url or we use an href link, state is null. history.location.state.viewMode;
     //see logic below for how we calculate.
@@ -133,7 +135,7 @@ function ProfileTypeDefinitionEntity() {
             // we force them back to view mode
             var thisMode = 'view';
             if (id != null) {
-                thisMode = (result.data.isReadOnly || result.data.author == null || result.data.author.id !== authTicket.user.id) ? "view" : "edit";
+                thisMode = (result.data.isReadOnly || !isOwner(result.data, _activeAccount)) ? "view" : "edit";
             }
             // if we're extending a class, result will have the class we're inheriting from
             // and we'll need to move some info around to support this
@@ -158,7 +160,7 @@ function ProfileTypeDefinitionEntity() {
             if (thisMode.toLowerCase() === "view" || thisMode.toLowerCase() === "edit") {
                 var revisedList = UpdateRecentFileList(loadingProps.recentFileList, {
                     url: history.location.pathname, caption: result.data.name, iconName: getTypeDefIconName(result.data),
-                    authorId: result.data.author != null ? result.data.author.id : null });
+                    authorId: result.data.author != null ? result.data.author.objectIdAAD : null });
                 setLoadingProps({ recentFileList: revisedList });
             }
 
@@ -217,7 +219,7 @@ function ProfileTypeDefinitionEntity() {
         return () => {
             console.log(generateLogMessageString('useEffect||Cleanup', CLASS_NAME));
         };
-    }, [id, parentId, profileId, authTicket.user]);
+    }, [id, parentId, profileId ]);
 
     function initPageMode() {
         //if path contains extend and parent id is set, mode is extend
@@ -627,12 +629,12 @@ function ProfileTypeDefinitionEntity() {
             return (
                 <>
                     {renderWizardBreadcrumbs(wizardProps.mode, _navInfo.stepNum)}
-                    <ProfileBreadcrumbs item={_item} currentUserId={authTicket.user.id} />
+                    <ProfileBreadcrumbs item={_item} />
                 </>
             );
         }
         return (
-            <ProfileBreadcrumbs item={_item} currentUserId={authTicket.user.id} />
+            <ProfileBreadcrumbs item={_item} />
         );
     };
 
@@ -691,7 +693,7 @@ function ProfileTypeDefinitionEntity() {
             <div className="row pt-2 mb-2">
                 <div className="col-md-12">
                     <ProfileItemRow key="p-1" mode="simple" item={_item.profile} actionUI={actionUI}
-                        currentUserId={authTicket.user.id} cssClass="shaded profile-list-item rounded no-gutters px-2" />
+                        activeAccount={_activeAccount} cssClass="shaded profile-list-item rounded no-gutters px-2" />
                 </div>
             </div>
         );
@@ -929,7 +931,7 @@ function ProfileTypeDefinitionEntity() {
                                     <Card className="">
                                         <Card.Body className="pt-3">
                                             <AttributeList typeDefinition={_item} profileAttributes={_item.profileAttributes} extendedProfileAttributes={_item.extendedProfileAttributes} readOnly={mode === "view"}
-                                                onAttributeAdd={onAttributeAdd} onAttributeInterfaceAdd={onAttributeInterfaceAdd} currentUserId={authTicket.user.id}
+                                                onAttributeAdd={onAttributeAdd} onAttributeInterfaceAdd={onAttributeInterfaceAdd} activeAccount={_activeAccount}
                                                 onAttributeDelete={onAttributeDelete} onAttributeInterfaceDelete={onAttributeInterfaceDelete} onAttributeUpdate={onAttributeUpdate} />
                                         </Card.Body>
                                     </Card>
@@ -938,7 +940,7 @@ function ProfileTypeDefinitionEntity() {
                                     {/* DEPENDENCIES CONTENT */}
                                     <Card className="">
                                         <Card.Body className="pt-3">
-                                            <DependencyList typeDefinition={_item} />
+                                            <DependencyList typeDefinition={_item} activeAccount={_activeAccount} />
                                         </Card.Body>
                                     </Card>
                                 </Tab.Pane>

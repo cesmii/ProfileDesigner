@@ -1,6 +1,6 @@
 import React from "react";
-import { Route } from "react-router-dom";
-import { useIsAuthenticated } from "@azure/msal-react";
+import { Route, Redirect } from "react-router-dom";
+import { useIsAuthenticated, useMsal } from "@azure/msal-react";
 
 import { InlineMessage } from "../InlineMessage";
 import SideMenu from "../SideMenu";
@@ -26,30 +26,20 @@ const WizardLayout = ({ children }) => (
     </div>
 );
 
-const WizardLayoutPublic = ({ children }) => (
-
-    <div id="--routes-wrapper" className="container" >
-        <div className="main-panel m-4">
-            <InlineMessage />
-            <WizardContextProvider>
-                <WizardMaster>
-                    {children}
-                </WizardMaster>
-            </WizardContextProvider>
-        </div>
-    </div>
-);
-
 function WizardRoute({ component: Component, ...rest }) {
 
+    const { instance } = useMsal();
     const _isAuthenticated = useIsAuthenticated();
+    const _activeAccount = instance.getActiveAccount();
+    //Check for is authenticated. Check individual permissions - ie can manage marketplace items.
+    var isAuthorized = _isAuthenticated && _activeAccount != null;
 
     return (
         <Route
             {...rest}
-            render={props => _isAuthenticated ?
+            render={props => isAuthorized ?
                 (<WizardLayout><Component {...props} /></WizardLayout>) :
-                (<WizardLayoutPublic><Component {...props} /></WizardLayoutPublic>)
+                (<Redirect to="/login" />)
             }
         />
     );

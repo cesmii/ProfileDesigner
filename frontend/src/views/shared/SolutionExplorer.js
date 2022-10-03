@@ -7,12 +7,10 @@ import axios from 'axios'
 
 import { AppSettings } from '../../utils/appsettings'
 import { generateLogMessageString } from '../../utils/UtilityService'
-//import { useAuthContext } from "../../components/authentication/AuthContext";
 import { filterSolutionExplorer, filterProfiles } from '../../services/ProfileService';
 import { renderTypeIcon, renderLinkedName } from './ProfileRenderHelpers';
 
 import { SVGIcon } from '../../components/SVGicon'
-import color from '../../components/Constants'
 import '../styles/ProfileExplorer.scss';
 
 const CLASS_NAME = "SolutionExplorer";
@@ -22,7 +20,6 @@ function SolutionExplorer(props) {
     //-------------------------------------------------------------------
     // Region: Initialization
     //-------------------------------------------------------------------
-    //const authTicket = useAuthState();
     const [_items, setItems] = useState({all:[], filtered:[], explorer:[]});
     const [_filterVal, setFilterVal] = useState('');
 

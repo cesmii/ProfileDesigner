@@ -6,7 +6,6 @@ import Button from 'react-bootstrap/Button'
 import axiosInstance from "../../services/AxiosService";
 
 import { generateLogMessageString } from '../../utils/UtilityService'
-//import { useAuthContext } from "../../components/authentication/AuthContext";
 import { filterProfiles, getTypeDefEntityLink } from '../../services/ProfileService';
 import { renderTypeIcon, renderLinkedName } from './ProfileRenderHelpers';
 
@@ -29,7 +28,6 @@ function ProfileExplorer(props) {
     //-------------------------------------------------------------------
     // Region: Initialization
     //-------------------------------------------------------------------
-    //const { authTicket } = useAuthState();
     const [_items, setItems] = useState({
         item: {},
         all: { inheritanceTree: [], compositions: [], dependencies: [], interfaces: [] },

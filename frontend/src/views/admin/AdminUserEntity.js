@@ -10,7 +10,6 @@ import Dropdown from 'react-bootstrap/Dropdown'
 import { AppSettings } from '../../utils/appsettings';
 import { generateLogMessageString, validate_Email } from '../../utils/UtilityService'
 import { useLoadingContext } from "../../components/contexts/LoadingContext";
-import { useAuthState } from "../../components/authentication/AuthContext";
 
 import { SVGIcon } from "../../components/SVGIcon";
 import color from "../../components/Constants";
@@ -33,7 +32,6 @@ function AdminUserEntity() {
 
     const [isLoading, setIsLoading] = useState(true);
     const { loadingProps, setLoadingProps } = useLoadingContext();
-    const authTicket = useAuthState();
     const [_isValid, setIsValid] = useState({
         userName: true, firstName: true, lastName: true, email: true, emailFormat: true
         , password: true, confirmPassword: true, matchPassword: true
@@ -136,7 +134,7 @@ function AdminUserEntity() {
         return () => {
             console.log(generateLogMessageString('useEffect||Cleanup', CLASS_NAME));
         };
-    }, [id, copyId, authTicket.user]);
+    }, [id, copyId]);
 
 
     //-------------------------------------------------------------------

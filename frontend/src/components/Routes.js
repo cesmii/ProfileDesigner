@@ -22,6 +22,7 @@ import PageNotFound from "../views/PageNotFound"
 import ProfileList from '../views/ProfileList'
 import AdminUserEntity from '../views/admin/AdminUserEntity'
 import AdminUserList from '../views/admin/AdminUserList'
+import Login from '../views/Login'
 
 //const CLASS_NAME = "Routes";
 
@@ -34,6 +35,7 @@ function Routes() {
     return(
         <Switch>
             <WizardRoute exact path="/" component={WizardWelcome} />
+            <PublicFixedRoute exact path="/login" component={Login} />
             <PrivateRoute path="/profiles/library" component={ProfileList} />
             {/*Handles types/all and types/mine in the component*/}
             <PrivateRoute path="/types/library/profile/:profileId" component={ProfileTypeDefinitionList} />

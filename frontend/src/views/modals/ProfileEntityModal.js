@@ -1,20 +1,21 @@
 import React, { useEffect, useState } from 'react'
 import Modal from 'react-bootstrap/Modal'
+import { useMsal } from "@azure/msal-react";
 import axiosInstance from "../../services/AxiosService";
 
 import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
 
 import { generateLogMessageString } from '../../utils/UtilityService'
-import { useAuthState } from "../../components/authentication/AuthContext";
 import { useLoadingContext } from "../../components/contexts/LoadingContext";
 
 import { SVGIcon } from "../../components/SVGIcon";
 import { getProfileCaption, isProfileValid, profileNew } from '../../services/ProfileService';
 import { Nav } from 'react-bootstrap';
-import '../styles/ProfileEntity.scss';
 import ProfileEntity from '../shared/ProfileEntity';
 import { validate_All } from '../../services/ProfileService';
+import '../styles/ProfileEntity.scss';
+import { isOwner } from '../shared/ProfileRenderHelpers';
 
 const CLASS_NAME = "ProfileEntityModal";
 
@@ -23,7 +24,8 @@ function ProfileEntityModal(props) {
     //-------------------------------------------------------------------
     // Region: Initialization
     //-------------------------------------------------------------------
-    const authTicket = useAuthState();
+    const { instance } = useMsal();
+    const _activeAccount = instance.getActiveAccount();
     const { setLoadingProps } = useLoadingContext();
     const [_isValid, setIsValid] = useState({ namespace: true, namespaceFormat: true, selectedItem: true });
     const [showModal, setShowModal] = useState(props.showModal);
@@ -333,8 +335,8 @@ function ProfileEntityModal(props) {
     if (_item == null) return;
 
     var mode = "view";
-    if (!_item.isReadOnly && _item.authorId === authTicket.user.id && _item.id > 0) mode = "edit";
     if (_item.id === null || _item.id === 0) mode = "new";
+    else if (!_item.isReadOnly && isOwner(_item, _activeAccount) && _item.id > 0) mode = "edit";
 
     var caption = buildTitleCaption(mode);
 
@@ -354,7 +356,7 @@ function ProfileEntityModal(props) {
                     { props.showSelectUI && renderTabbedForm() }
                 </Modal.Body>
                 <Modal.Footer>
-                    {((!_item.isReadOnly && authTicket.user.id === _item.authorId) || (_item.id == null || _item.id === 0)) &&
+                    {((!_item.isReadOnly && isOwner(_item, _activeAccount)) || (_item.id == null || _item.id === 0)) &&
                         <>
                             <Button variant="text-solo" className="mx-1" onClick={onCancel} >Cancel</Button>
                             {(!props.showSelectUI || _activeTab === "profile-new") &&
@@ -365,7 +367,7 @@ function ProfileEntityModal(props) {
                             }
                         </>
                     }
-                    {(_item.isReadOnly || (authTicket.user.id !== _item.authorId && _item.id !== null && _item.id !== 0)) &&
+                    {(_item.isReadOnly || (!isOwner(_item, _activeAccount) && _item.id !== null && _item.id !== 0)) &&
                         <Button variant="secondary" className="mx-1" onClick={onCancel} >Close</Button>
                     }
                 </Modal.Footer>

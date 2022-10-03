@@ -86,7 +86,7 @@ function ProfileItemRow(props) { //props are item, showActions
                         {/*{(props.currentUserId != null && props.currentUserId === item.authorId) &&*/}
                         {/*    <Dropdown.Item key="moreVert2" href={getTypeDefinitionNewUrl()} ><span className="mr-3" alt="extend"><SVGIcon name="extend" /></span>New Type Definition</Dropdown.Item>*/}
                         {/*}*/}
-                        {isOwner(item, props.activeAccount) &&
+                        {isOwner(props.item, props.activeAccount) &&
                             <Dropdown.Item key="moreVert3" onClick={onDeleteItem} ><span className="mr-3" alt="delete"><SVGIcon name="delete" /></span>Delete Profile</Dropdown.Item>
                         }
                         <Dropdown.Item key="moreVert4" onClick={downloadItem} ><span className="mr-3" alt="arrow-drop-down"><SVGDownloadIcon name="download" /></span>Download Profile</Dropdown.Item>

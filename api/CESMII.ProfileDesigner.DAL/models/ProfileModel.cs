@@ -23,6 +23,8 @@
 
         public int? AuthorId { get; set; }
 
+        public UserSimpleModel Author { get; set; }
+
         public bool IsReadOnly
         {
             get

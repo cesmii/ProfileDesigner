@@ -186,7 +186,7 @@ function ProfileListGrid(props) {
             )
         }
         const mainBody = _dataRows.all.map((item) => {
-            return (<ProfileItemRow key={item.id} item={item} currentUserId={authTicket.user.id}
+            return (<ProfileItemRow key={item.id} item={item} currentUserId={authTicket?.user?.id}
                 showActions={true} cssClass={`profile-list-item ${props.rowCssClass ?? ''}`} selectMode={props.selectMode}
                 onEditCallback={onEdit} onDeleteCallback={onDeleteItemClick} onRowSelect={onRowSelect}
                 selectedItems={props.selectedItems} 

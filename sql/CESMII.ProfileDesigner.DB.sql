@@ -131,16 +131,18 @@ CREATE TABLE public.user
 (
     id SERIAL PRIMARY KEY,
     organization_id integer NULL,
-    
+    --password character varying(128) COLLATE pg_catalog."default" NULL,
     last_login timestamp with time zone,
-    username character varying(150) COLLATE pg_catalog."default" NOT NULL,
-    first_name character varying(30) COLLATE pg_catalog."default" NOT NULL,
-    last_name character varying(30) COLLATE pg_catalog."default" NOT NULL,
-    email character varying(254) COLLATE pg_catalog."default" NOT NULL,
-    is_active boolean NOT NULL,
+    --username character varying(150) COLLATE pg_catalog."default" NOT NULL,
+    display_name character varying(150) COLLATE pg_catalog."default"  NULL,	
+    objectid_aad character varying(150) COLLATE pg_catalog."default"  NULL,	
+    --first_name character varying(30) COLLATE pg_catalog."default" NOT NULL,
+    --last_name character varying(30) COLLATE pg_catalog."default" NOT NULL,
+    --email character varying(254) COLLATE pg_catalog."default" NOT NULL,
+    --is_active boolean NOT NULL,
     date_joined timestamp with time zone NOT NULL,
-    registration_complete timestamp with time zone,
-    CONSTRAINT user_username_key UNIQUE (username),
+    --registration_complete timestamp with time zone,
+    --CONSTRAINT user_username_key UNIQUE (username),
     CONSTRAINT user_id_fk_org_id FOREIGN KEY (organization_id)
         REFERENCES public.organization (id) MATCH SIMPLE
         ON UPDATE NO ACTION
@@ -156,14 +158,15 @@ ALTER TABLE public.user
 
 -- DROP INDEX public.user_username_6821ab7c_like;
 
-CREATE INDEX user_username_6821ab7c_like
+/*CREATE INDEX user_username_6821ab7c_like
     ON public.user USING btree
     (username COLLATE pg_catalog."default" varchar_pattern_ops ASC NULLS LAST)
     TABLESPACE pg_default;
-	
+*/	
 ---------------------------------------------------------------------
 --	Insert users
 ---------------------------------------------------------------------
+/*
 with _organization (_id) as (select id FROM public.organization WHERE name = 'CESMII')
 INSERT INTO public.user(id, organization_id, username, first_name, last_name, email, is_active, date_joined, registration_complete, password)
 SELECT 1, _id, 'cesmii', 'CESMII', 'User', 'cesmii@cesmii.org', true,  CURRENT_TIMESTAMP, CURRENT_TIMESTAMP  FROM _organization
@@ -174,6 +177,7 @@ UNION SELECT 5, _id, 'chrism', 'Chris', 'M', 'chrism@cesmii.org', true,  CURRENT
 UNION SELECT 6, _id, 'markush', 'Markus', 'H', 'markush@cesmii.org', true,  CURRENT_TIMESTAMP, CURRENT_TIMESTAMP  FROM _organization
 UNION SELECT 7, _id, 'davidw', 'David', 'W', 'davidw@cesmii.org', true,  CURRENT_TIMESTAMP, CURRENT_TIMESTAMP  FROM _organization
 ;
+*/
 --manually adjust the identity starting val
 SELECT setval('user_id_seq', 7);
 	
@@ -266,7 +270,7 @@ SELECT id, _id FROM public.user, _permission;
 with _permission (_id) as (select id FROM public.permission WHERE name = 'CanDeleteProfile')
 INSERT INTO public.user_permission (user_id, permission_id)
 SELECT id, _id FROM public.user, _permission;
-
+/*
 with _permission (_id) as (select id FROM public.permission WHERE name = 'CanManageUsers')
 INSERT INTO public.user_permission (user_id, permission_id)
 SELECT id, _id FROM public.user, _permission WHERE username <> 'cesmii';
@@ -278,7 +282,7 @@ SELECT id, _id FROM public.user, _permission WHERE username <> 'cesmii';
 with _permission (_id) as (select id FROM public.permission WHERE name = 'CanImpersonateUsers')
 INSERT INTO public.user_permission (user_id, permission_id)
 SELECT id, _id FROM public.user, _permission WHERE username <> 'cesmii';
-
+*/
 ---------------------------------------------------------------------
 --	TABLE LOOKUP TYPE
 ---------------------------------------------------------------------

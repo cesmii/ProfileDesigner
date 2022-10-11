@@ -23,7 +23,7 @@ using Xunit.Sdk;
 namespace CESMII.ProfileDesigner.Api.Tests
 {
     [TestCaseOrderer("CESMII.ProfileDesigner.Api.Tests.ImportExportIntegrationTestCaseOrderer", "CESMII.ProfileDesigner.Api.Tests")]
-    public class Integration
+    public partial class Integration
         : IClassFixture<CustomWebApplicationFactory<CESMII.ProfileDesigner.Api.Startup>>
     {
         private readonly CustomWebApplicationFactory<CESMII.ProfileDesigner.Api.Startup> _factory;
@@ -66,7 +66,7 @@ namespace CESMII.ProfileDesigner.Api.Tests
         {
             return ExportInternal(file, true);
         }
-        public async Task ExportInternal(string file, bool exportAASX)
+        internal async Task ExportInternal(string file, bool exportAASX)
         {
             file = Path.Combine(strTestNodeSetDirectory, file);
             output.WriteLine($"Testing {file}");
@@ -389,7 +389,7 @@ namespace CESMII.ProfileDesigner.Api.Tests
 
                     if (string.Equals(Path.GetFileName(nodeSetFile), nodeSetFileName, StringComparison.InvariantCultureIgnoreCase))
                     {
-                        var exportResult = await apiClient.ExportAsync(new ExportModel { Id = profile.Id ?? 0, ForceReexport = true, Format = exportAASX ? "AASX" : null } );
+                        var exportResult = await apiClient.ExportAsync(new ExportRequestModel { Id = profile.Id ?? 0, ForceReexport = true, Format = exportAASX ? "AASX" : null } );
                         Assert.True(exportResult.IsSuccess, $"Failed to export {profile.Namespace}: {exportResult.Message}");
 
                         string exportedNodeSet;
@@ -485,6 +485,10 @@ namespace CESMII.ProfileDesigner.Api.Tests
             {
                 testCasesWithExpectedDiff = testCases.Where(t =>
                 {
+                    if (!new [] { nameof(Integration.Import), nameof(Integration.Export), nameof(Integration.ExportAASX) }.Contains(t.TestMethod.Method.Name))
+                    {
+                        return true;
+                    }
                     var file = t.TestMethodArguments[0].ToString();
                     var diffFile = Integration.GetExpectedDiffFile(Path.Combine(Integration.strTestNodeSetDirectory, file));
                     var bHasDiff = File.Exists(diffFile);
@@ -508,7 +512,7 @@ namespace CESMII.ProfileDesigner.Api.Tests
 
             var remainingTestCaseList = testCasesWithExpectedDiff.Except(orderedTestCases).ToList();
 
-            var remainingOrdered = orderedImportRequests.Select(ir => remainingTestCaseList.FirstOrDefault(tc => Path.Combine(Integration.strTestNodeSetDirectory, tc.TestMethodArguments[0].ToString()) == ir.FileName)).Where(tc => tc != null).ToList();
+            var remainingOrdered = orderedImportRequests.Select(ir => remainingTestCaseList.FirstOrDefault(tc => tc.TestMethodArguments != null && Path.Combine(Integration.strTestNodeSetDirectory, tc.TestMethodArguments[0].ToString()) == ir.FileName)).Where(tc => tc != null).ToList();
             var excludedTestCases = new List<TTestCase>();
             string[] unstableTests = new string[0];
 

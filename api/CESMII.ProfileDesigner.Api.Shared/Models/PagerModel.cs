@@ -22,6 +22,30 @@
     {
         public string Query { get; set; }
     }
+    public class PagerKeywordsFilterModel : PagerModel
+    {
+    }
+    public class CloudLibFilterModel
+    {
+        /// <summary>
+        /// This is the start index
+        /// </summary>
+        public int Take { get; set; }
+
+        /// <summary>
+        /// This is the number of items to include in the page
+        /// </summary>
+        public string Cursor { get; set; }
+        public List<string> Keywords { get; set; }
+        /// <summary>
+        /// Adds any profiles in the user's library to the returned list if they are not already in the cloud library result
+        /// </summary>
+        public bool AddLocalLibrary { get; set; }
+        /// <summary>
+        /// Removes any profiles that are already in the user's library from the returned list
+        /// </summary>
+        public bool ExcludeLocalLibrary { get; set; }
+    }
 
     public class PagerFilterLookupModel : PagerFilterSimpleModel
     {

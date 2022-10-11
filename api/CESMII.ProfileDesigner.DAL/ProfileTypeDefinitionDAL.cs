@@ -48,6 +48,7 @@
         {
             var entity = base.FindByCondition(userToken, x => x.ID == id)
                 .Include(p => p.ProfileType)
+                .Include(p => p.Attributes)
                 .FirstOrDefault();
 
             return MapToModel(entity, true);
@@ -91,6 +92,7 @@
             return base.Where(predicate, user, skip, take, returnCount, verbose, q => q
                 .OrderBy(p => p.Name)
                 .Include(p => p.ProfileType)
+                .Include(p => p.Attributes)
             );
         }
 
@@ -792,7 +794,6 @@
                         current.UserWriteMask = source.UserWriteMask;
 
                         current.AdditionalData = source.AdditionalData;
-
                     }
                 }
             }
@@ -880,8 +881,8 @@
                             UserWriteMask = attr.UserWriteMask,
 
                             AdditionalData = attr.AdditionalData,
-                            IsActive = true
-                        });
+                            IsActive = true,
+                    });
                     }
                 }
             }

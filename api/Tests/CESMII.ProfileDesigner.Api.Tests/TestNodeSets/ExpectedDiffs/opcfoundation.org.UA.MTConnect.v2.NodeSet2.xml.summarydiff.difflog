@@ -1589,17 +1589,11 @@
 ====>Expected child '#comment' but was '' - comparing <!-- http://opcfoundation.org/UA/MTConnect/2.0/::StaticNodeIdTypes : IdType[1] --> at /UANodeSet[1]/comment()[7] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- http://opcfoundation.org/UA/MTConnect/2.0/::StaticNumericNodeIdRange : NumericRange[1] --> at /UANodeSet[1]/comment()[8] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Instantiation of Object Opc.Ua.MTConnect(Binary) ns=1;i=2729 --> at /UANodeSet[1]/comment()[9] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[8] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Opc.Ua.MTConnect(Binary)::Deprecated : Boolean[1] --> at /UANodeSet[1]/comment()[10] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[9] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Opc.Ua.MTConnect(Binary)::NamespaceUri : String[1] --> at /UANodeSet[1]/comment()[11] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[10] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Instantiation of Object Opc.Ua.MTConnect(XML) ns=1;i=2733 --> at /UANodeSet[1]/comment()[12] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[11] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Opc.Ua.MTConnect(XML)::Deprecated : Boolean[1] --> at /UANodeSet[1]/comment()[13] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[12] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Opc.Ua.MTConnect(XML)::NamespaceUri : String[1] --> at /UANodeSet[1]/comment()[14] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[13] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Definition of Object MTChannelType ns=1;i=2059 --> at /UANodeSet[1]/comment()[15] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- MTChannelType::CalibrationDate : UtcTime[0..1] --> at /UANodeSet[1]/comment()[16] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- MTChannelType::CalibrationInitials : String[0..1] --> at /UANodeSet[1]/comment()[17] to <NULL>
@@ -1682,12 +1676,9 @@
 ====>Expected child '#comment' but was '' - comparing <!-- Definition of DataType AssetEventDataType ns=1;i=2618 --> at /UANodeSet[1]/comment()[94] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Default Binary encoding of AssetEventDataType --> at /UANodeSet[1]/comment()[95] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Binary DataTypeDescription for AssetEventDataType --> at /UANodeSet[1]/comment()[96] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[46] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- DictionaryFragment for AssetEventDataType --> at /UANodeSet[1]/comment()[97] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[47] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Default XML encoding of AssetEventDataType --> at /UANodeSet[1]/comment()[98] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- XML DataTypeDescription for AssetEventDataType --> at /UANodeSet[1]/comment()[99] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[48] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Default JSON encoding of AssetEventDataType --> at /UANodeSet[1]/comment()[100] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Definition of Variable MTAssetEventType ns=1;i=2621 --> at /UANodeSet[1]/comment()[101] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- MTAssetEventType::Category : MTCategoryType[1] --> at /UANodeSet[1]/comment()[102] to <NULL>
@@ -1708,7 +1699,6 @@
 ====>Expected child '#comment' but was '' - comparing <!-- MTCategoryType::EnumStrings ns=1;i=2765 --> at /UANodeSet[1]/comment()[117] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Default XML encoding of MTCategoryType --> at /UANodeSet[1]/comment()[118] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- XML DataTypeDescription for MTCategoryType --> at /UANodeSet[1]/comment()[119] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[63] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Definition of Object MTConditionClassType ns=1;i=2629 --> at /UANodeSet[1]/comment()[120] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Definition of Object MTConstraintType ns=1;i=2647 --> at /UANodeSet[1]/comment()[121] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- MTConstraintType::Maximum : Float[0..1] --> at /UANodeSet[1]/comment()[122] to <NULL>
@@ -1735,7 +1725,6 @@
 ====>Expected child '#comment' but was '' - comparing <!-- MTCoordinateSystemType::EnumStrings ns=1;i=2785 --> at /UANodeSet[1]/comment()[143] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Default XML encoding of MTCoordinateSystemType --> at /UANodeSet[1]/comment()[144] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- XML DataTypeDescription for MTCoordinateSystemType --> at /UANodeSet[1]/comment()[145] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[83] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Definition of Object MTEventClassType ns=1;i=2631 --> at /UANodeSet[1]/comment()[146] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Definition of Object MTMessageEventType ns=1;i=2656 --> at /UANodeSet[1]/comment()[147] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- MTMessageEventType::NativeCode : String[0..1] --> at /UANodeSet[1]/comment()[148] to <NULL>
@@ -1783,12 +1772,10 @@
 ====>Expected child '#comment' but was '' - comparing <!-- MTRepresentationType::EnumStrings ns=1;i=2827 --> at /UANodeSet[1]/comment()[190] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Default XML encoding of MTRepresentationType --> at /UANodeSet[1]/comment()[191] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- XML DataTypeDescription for MTRepresentationType --> at /UANodeSet[1]/comment()[192] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[122] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Definition of Enumeration MTResetTriggerType ns=1;i=2636 --> at /UANodeSet[1]/comment()[193] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- MTResetTriggerType::EnumStrings ns=1;i=2833 --> at /UANodeSet[1]/comment()[194] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Default XML encoding of MTResetTriggerType --> at /UANodeSet[1]/comment()[195] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- XML DataTypeDescription for MTResetTriggerType --> at /UANodeSet[1]/comment()[196] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[124] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Definition of Variable MTSampleType ns=1;i=2429 --> at /UANodeSet[1]/comment()[197] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- MTSampleType::Category : MTCategoryType[1] --> at /UANodeSet[1]/comment()[198] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- MTSampleType::MTSubTypeName : String[0..1] --> at /UANodeSet[1]/comment()[199] to <NULL>
@@ -1818,7 +1805,6 @@
 ====>Expected child '#comment' but was '' - comparing <!-- MTStatisticType::EnumStrings ns=1;i=2861 --> at /UANodeSet[1]/comment()[223] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Default XML encoding of MTStatisticType --> at /UANodeSet[1]/comment()[224] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- XML DataTypeDescription for MTStatisticType --> at /UANodeSet[1]/comment()[225] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[149] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Definition of Variable MTStringEventType ns=1;i=2433 --> at /UANodeSet[1]/comment()[226] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- MTStringEventType::Category : MTCategoryType[1] --> at /UANodeSet[1]/comment()[227] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- MTStringEventType::MTSubTypeName : String[0..1] --> at /UANodeSet[1]/comment()[228] to <NULL>
@@ -1863,22 +1849,16 @@
 ====>Expected child '#comment' but was '' - comparing <!-- Definition of DataType MessageDataType ns=1;i=2653 --> at /UANodeSet[1]/comment()[267] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Default Binary encoding of MessageDataType --> at /UANodeSet[1]/comment()[268] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Binary DataTypeDescription for MessageDataType --> at /UANodeSet[1]/comment()[269] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[187] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- DictionaryFragment for MessageDataType --> at /UANodeSet[1]/comment()[270] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[188] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Default XML encoding of MessageDataType --> at /UANodeSet[1]/comment()[271] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- XML DataTypeDescription for MessageDataType --> at /UANodeSet[1]/comment()[272] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[189] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Default JSON encoding of MessageDataType --> at /UANodeSet[1]/comment()[273] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Definition of DataType ThreeSpaceSampleDataType ns=1;i=2637 --> at /UANodeSet[1]/comment()[274] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Default Binary encoding of ThreeSpaceSampleDataType --> at /UANodeSet[1]/comment()[275] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Binary DataTypeDescription for ThreeSpaceSampleDataType --> at /UANodeSet[1]/comment()[276] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[190] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- DictionaryFragment for ThreeSpaceSampleDataType --> at /UANodeSet[1]/comment()[277] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[191] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Default XML encoding of ThreeSpaceSampleDataType --> at /UANodeSet[1]/comment()[278] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- XML DataTypeDescription for ThreeSpaceSampleDataType --> at /UANodeSet[1]/comment()[279] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[192] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Default JSON encoding of ThreeSpaceSampleDataType --> at /UANodeSet[1]/comment()[280] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Definition of Object MTConditionEventType ns=1;i=4326 --> at /UANodeSet[1]/comment()[281] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- MTConditionEventType::ActiveState : LocalizedText[1] --> at /UANodeSet[1]/comment()[282] to <NULL>
@@ -1908,12 +1888,10 @@
 ====>Expected child '#comment' but was '' - comparing <!-- MTSeverityDataType::EnumStrings ns=1;i=2937 --> at /UANodeSet[1]/comment()[306] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Default XML encoding of MTSeverityDataType --> at /UANodeSet[1]/comment()[307] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- XML DataTypeDescription for MTSeverityDataType --> at /UANodeSet[1]/comment()[308] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[215] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Definition of Enumeration QualifierDataType ns=1;i=2668 --> at /UANodeSet[1]/comment()[309] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- QualifierDataType::EnumStrings ns=1;i=2943 --> at /UANodeSet[1]/comment()[310] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Default XML encoding of QualifierDataType --> at /UANodeSet[1]/comment()[311] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- XML DataTypeDescription for QualifierDataType --> at /UANodeSet[1]/comment()[312] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[217] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Definition of Object MTDataItemClassType ns=1;i=2425 --> at /UANodeSet[1]/comment()[313] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Definition of Object MTMessageClassType ns=1;i=2427 --> at /UANodeSet[1]/comment()[314] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Definition of Object MTSampleClassType ns=1;i=2345 --> at /UANodeSet[1]/comment()[315] to <NULL>
@@ -1962,62 +1940,50 @@
 ====>Expected child '#comment' but was '' - comparing <!-- ActiveStateDataType::EnumStrings ns=1;i=2949 --> at /UANodeSet[1]/comment()[358] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Default XML encoding of ActiveStateDataType --> at /UANodeSet[1]/comment()[359] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- XML DataTypeDescription for ActiveStateDataType --> at /UANodeSet[1]/comment()[360] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[219] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Definition of Enumeration AvailabilityDataType ns=1;i=2198 --> at /UANodeSet[1]/comment()[361] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- AvailabilityDataType::EnumStrings ns=1;i=2955 --> at /UANodeSet[1]/comment()[362] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Default XML encoding of AvailabilityDataType --> at /UANodeSet[1]/comment()[363] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- XML DataTypeDescription for AvailabilityDataType --> at /UANodeSet[1]/comment()[364] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[221] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Definition of Enumeration AxisCouplingDataType ns=1;i=2199 --> at /UANodeSet[1]/comment()[365] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- AxisCouplingDataType::EnumStrings ns=1;i=2961 --> at /UANodeSet[1]/comment()[366] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Default XML encoding of AxisCouplingDataType --> at /UANodeSet[1]/comment()[367] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- XML DataTypeDescription for AxisCouplingDataType --> at /UANodeSet[1]/comment()[368] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[223] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Definition of Enumeration AxisStateDataType ns=1;i=2200 --> at /UANodeSet[1]/comment()[369] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- AxisStateDataType::EnumStrings ns=1;i=2967 --> at /UANodeSet[1]/comment()[370] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Default XML encoding of AxisStateDataType --> at /UANodeSet[1]/comment()[371] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- XML DataTypeDescription for AxisStateDataType --> at /UANodeSet[1]/comment()[372] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[225] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Definition of Enumeration CompositionStateDataType ns=1;i=2202 --> at /UANodeSet[1]/comment()[373] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- CompositionStateDataType::EnumStrings ns=1;i=2973 --> at /UANodeSet[1]/comment()[374] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Default XML encoding of CompositionStateDataType --> at /UANodeSet[1]/comment()[375] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- XML DataTypeDescription for CompositionStateDataType --> at /UANodeSet[1]/comment()[376] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[227] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Definition of Enumeration ControllerModeDataType ns=1;i=2203 --> at /UANodeSet[1]/comment()[377] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- ControllerModeDataType::EnumStrings ns=1;i=2979 --> at /UANodeSet[1]/comment()[378] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Default XML encoding of ControllerModeDataType --> at /UANodeSet[1]/comment()[379] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- XML DataTypeDescription for ControllerModeDataType --> at /UANodeSet[1]/comment()[380] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[229] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Definition of Enumeration DirectionDataType ns=1;i=2205 --> at /UANodeSet[1]/comment()[381] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- DirectionDataType::EnumStrings ns=1;i=2985 --> at /UANodeSet[1]/comment()[382] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Default XML encoding of DirectionDataType --> at /UANodeSet[1]/comment()[383] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- XML DataTypeDescription for DirectionDataType --> at /UANodeSet[1]/comment()[384] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[231] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Definition of Enumeration EmergencyStopDataType ns=1;i=2207 --> at /UANodeSet[1]/comment()[385] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- EmergencyStopDataType::EnumStrings ns=1;i=2991 --> at /UANodeSet[1]/comment()[386] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Default XML encoding of EmergencyStopDataType --> at /UANodeSet[1]/comment()[387] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- XML DataTypeDescription for EmergencyStopDataType --> at /UANodeSet[1]/comment()[388] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[233] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Definition of Enumeration ExecutionDataType ns=1;i=2262 --> at /UANodeSet[1]/comment()[389] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- ExecutionDataType::EnumStrings ns=1;i=2997 --> at /UANodeSet[1]/comment()[390] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Default XML encoding of ExecutionDataType --> at /UANodeSet[1]/comment()[391] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- XML DataTypeDescription for ExecutionDataType --> at /UANodeSet[1]/comment()[392] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[235] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Definition of Enumeration FunctionalModeDataType ns=1;i=2208 --> at /UANodeSet[1]/comment()[393] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- FunctionalModeDataType::EnumStrings ns=1;i=3003 --> at /UANodeSet[1]/comment()[394] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Default XML encoding of FunctionalModeDataType --> at /UANodeSet[1]/comment()[395] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- XML DataTypeDescription for FunctionalModeDataType --> at /UANodeSet[1]/comment()[396] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[237] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Definition of Enumeration InterfaceStateDataType ns=1;i=2234 --> at /UANodeSet[1]/comment()[397] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- InterfaceStateDataType::EnumStrings ns=1;i=3009 --> at /UANodeSet[1]/comment()[398] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Default XML encoding of InterfaceStateDataType --> at /UANodeSet[1]/comment()[399] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- XML DataTypeDescription for InterfaceStateDataType --> at /UANodeSet[1]/comment()[400] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[239] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Definition of Enumeration InterfaceStatusDataType ns=1;i=2230 --> at /UANodeSet[1]/comment()[401] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- InterfaceStatusDataType::EnumStrings ns=1;i=3015 --> at /UANodeSet[1]/comment()[402] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Default XML encoding of InterfaceStatusDataType --> at /UANodeSet[1]/comment()[403] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- XML DataTypeDescription for InterfaceStatusDataType --> at /UANodeSet[1]/comment()[404] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[241] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Definition of Object MTControlledVocabEventClassType ns=1;i=2144 --> at /UANodeSet[1]/comment()[405] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Definition of Object ActuatorStateClassType ns=1;i=2146 --> at /UANodeSet[1]/comment()[406] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Definition of Object AvailabilityClassType ns=1;i=2149 --> at /UANodeSet[1]/comment()[407] to <NULL>
@@ -2056,32 +2022,26 @@
 ====>Expected child '#comment' but was '' - comparing <!-- OnOffDataType::EnumStrings ns=1;i=3021 --> at /UANodeSet[1]/comment()[440] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Default XML encoding of OnOffDataType --> at /UANodeSet[1]/comment()[441] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- XML DataTypeDescription for OnOffDataType --> at /UANodeSet[1]/comment()[442] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[243] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Definition of Enumeration OpenStateDataType ns=1;i=2201 --> at /UANodeSet[1]/comment()[443] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- OpenStateDataType::EnumStrings ns=1;i=3027 --> at /UANodeSet[1]/comment()[444] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Default XML encoding of OpenStateDataType --> at /UANodeSet[1]/comment()[445] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- XML DataTypeDescription for OpenStateDataType --> at /UANodeSet[1]/comment()[446] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[245] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Definition of Enumeration PathModeDataType ns=1;i=2209 --> at /UANodeSet[1]/comment()[447] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- PathModeDataType::EnumStrings ns=1;i=3033 --> at /UANodeSet[1]/comment()[448] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Default XML encoding of PathModeDataType --> at /UANodeSet[1]/comment()[449] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- XML DataTypeDescription for PathModeDataType --> at /UANodeSet[1]/comment()[450] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[247] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Definition of Enumeration ProgramEditDataType ns=1;i=2210 --> at /UANodeSet[1]/comment()[451] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- ProgramEditDataType::EnumStrings ns=1;i=3039 --> at /UANodeSet[1]/comment()[452] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Default XML encoding of ProgramEditDataType --> at /UANodeSet[1]/comment()[453] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- XML DataTypeDescription for ProgramEditDataType --> at /UANodeSet[1]/comment()[454] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[249] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Definition of Enumeration RotaryModeDataType ns=1;i=2211 --> at /UANodeSet[1]/comment()[455] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- RotaryModeDataType::EnumStrings ns=1;i=3045 --> at /UANodeSet[1]/comment()[456] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Default XML encoding of RotaryModeDataType --> at /UANodeSet[1]/comment()[457] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- XML DataTypeDescription for RotaryModeDataType --> at /UANodeSet[1]/comment()[458] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[251] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Definition of Enumeration YesNoDataType ns=1;i=2206 --> at /UANodeSet[1]/comment()[459] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- YesNoDataType::EnumStrings ns=1;i=3051 --> at /UANodeSet[1]/comment()[460] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Default XML encoding of YesNoDataType --> at /UANodeSet[1]/comment()[461] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- XML DataTypeDescription for YesNoDataType --> at /UANodeSet[1]/comment()[462] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[253] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Definition of Object MTNumericEventClassType ns=1;i=2359 --> at /UANodeSet[1]/comment()[463] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Definition of Object AxisFeedrateOverrideClassType ns=1;i=2347 --> at /UANodeSet[1]/comment()[464] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Definition of Object BlockCountClassType ns=1;i=2349 --> at /UANodeSet[1]/comment()[465] to <NULL>

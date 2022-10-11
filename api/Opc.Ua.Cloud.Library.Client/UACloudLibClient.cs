@@ -31,6 +31,7 @@ namespace Opc.Ua.Cloud.Library.Client
 {
     using System;
     using System.Collections.Generic;
+    using System.Globalization;
     using System.Linq;
     using System.Net;
     using System.Net.Http;
@@ -54,10 +55,12 @@ namespace Opc.Ua.Cloud.Library.Client
         /// <summary>The standard endpoint</summary>
         private static Uri _standardEndpoint = new Uri("https://uacloudlibrary.opcfoundation.org");
 
-        private GraphQLHttpClient _client = null;
-        private RestClient _restClient;
+        private readonly GraphQLHttpClient _client = null;
+        private readonly RestClient _restClient;
         private string _username = "";
         private string _password = "";
+
+        internal bool _forceRestTestHook = false;
 
         private AuthenticationHeaderValue Authentication
         {
@@ -161,14 +164,18 @@ namespace Opc.Ua.Cloud.Library.Client
         /// <exception cref="System.Exception"></exception>
         private async Task<T> SendAndConvertAsync<T>(GraphQLRequest request)
         {
+            if (_forceRestTestHook)
+            {
+                throw new Exception("Failing graphql query to force REST fallback");
+            }
             GraphQLResponse<JObject> response = await _client.SendQueryAsync<JObject>(request).ConfigureAwait(false);
 
-            if (response?.Errors?.Length > 0)
+            if (response.Errors?.Length > 0)
             {
                 throw new Exception(response.Errors[0].Message);
             }
 
-            string dataJson = response?.Data?.First?.First?.ToString();
+            string dataJson = response.Data?.First?.First?.ToString();
 
             return JsonConvert.DeserializeObject<T>(dataJson);
         }
@@ -267,9 +274,30 @@ namespace Opc.Ua.Cloud.Library.Client
 
         /// <summary>Gets the converted metadata.</summary>
         /// <returns>List of NameSpace</returns>
+        [Obsolete("Use GetConvertedMetadataAsync with offset and limit instead.")]
         public async Task<List<UANameSpace>> GetConvertedMetadataAsync()
         {
-            List<UANameSpace> convertedResult = null;
+            var nameSpaceResults = new List<UANameSpace>();
+            int offset = 0;
+            int limit = 100;
+            do
+            {
+                var results = await GetConvertedMetadataAsync(offset, limit).ConfigureAwait(false);
+                nameSpaceResults.AddRange(results);
+                offset += limit;
+            } while (nameSpaceResults.Count == limit);
+            return nameSpaceResults;
+
+        }
+        /// <summary>
+        /// Gets the converted metadata.
+        /// </summary>
+        /// <param name="offset"></param>
+        /// <param name="limit"></param>
+        /// <returns>List of NameSpace</returns>
+        public async Task<List<UANameSpace>> GetConvertedMetadataAsync(int offset, int limit)
+        {
+            List<UANameSpace> convertedResult = new List<UANameSpace>();
 
             IQuery<MetadataResult> metadataQuery = new Query<MetadataResult>("metadata")
                 .AddField(f => f.ID)
@@ -279,15 +307,20 @@ namespace Opc.Ua.Cloud.Library.Client
 
             var request = new GraphQLRequest();
             request.Query = "query{" + metadataQuery.Build() + "}";
-            List<MetadataResult> result = await SendAndConvertAsync<List<MetadataResult>>(request).ConfigureAwait(false);
             try
             {
+                List<MetadataResult> result = await SendAndConvertAsync<List<MetadataResult>>(request).ConfigureAwait(false);
                 convertedResult = MetadataConverter.Convert(result);
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Error: " + ex.Message + " Falling back to REST interface...");
-                List<UANodesetResult> infos = await _restClient.GetBasicNodesetInformationAsync().ConfigureAwait(false);
+                List<UANodesetResult> infos = await _restClient.GetBasicNodesetInformationAsync(offset, limit).ConfigureAwait(false);
+                // Match GraphQL
+                infos.ForEach(i => {
+                    i.RequiredNodesets = null;
+                    i.NameSpaceUri = null;
+                });
                 convertedResult.AddRange(MetadataConverter.Convert(infos));
             }
 
@@ -341,17 +374,39 @@ namespace Opc.Ua.Cloud.Library.Client
                             .AddField(h => h.Description)
                             .AddField(h => h.IconUrl)
                     )
+                .AddField(h => h.CopyrightText)
                 .AddField(h => h.Description)
                 .AddField(h => h.DocumentationUrl)
+                .AddField(h => h.IconUrl)
+                .AddField(h => h.LicenseUrl)
+
                 .AddField(h => h.PurchasingInformationUrl)
                 .AddField(h => h.ReleaseNotesUrl)
+                .AddField(h => h.TestSpecificationUrl)
                 .AddField(h => h.Keywords)
                 .AddField(h => h.SupportedLocales)
+                .AddField(h => h.NumberOfDownloads)
+                .AddField(h => h.ValidationStatus)
                 .AddField(
                     h => h.Nodeset,
                     sq => sq.AddField(h => h.NamespaceUri)
                             .AddField(h => h.PublicationDate)
                             .AddField(h => h.Identifier)
+                            .AddField(h => h.LastModifiedDate)
+                            .AddField(h => h.Version)
+                            .AddField<List<RequiredModelInfo>>(
+                                "requiredModels",
+                                rm => rm
+                                    .AddField("namespaceUri")
+                                    .AddField("publicationDate")
+                                    .AddField("version")
+                            )
+                    )
+                .AddField(
+                    h => h.AdditionalProperties,
+                    sq => sq
+                        .AddField("name")
+                        .AddField("value")
                     )
                 ;
 
@@ -374,8 +429,8 @@ namespace Opc.Ua.Cloud.Library.Client
             catch (Exception ex)
             {
                 Console.WriteLine("Error: " + ex.Message + " Falling back to REST interface...");
-                List<UANodesetResult> infos = await _restClient.GetBasicNodesetInformationAsync(filter?.Select(e => e.Value).ToList()).ConfigureAwait(false);
-                result = MetadataConverter.ConvertWithPaging(infos, limit, offset);
+                List<UANodesetResult> infos = await _restClient.GetBasicNodesetInformationAsync(offset, limit, filter?.Select(e => e.Value).ToList()).ConfigureAwait(false);
+                result = MetadataConverter.Convert(infos);
             }
 
             return result;
@@ -384,6 +439,10 @@ namespace Opc.Ua.Cloud.Library.Client
         /// <summary>
         /// Queries one or more node sets and their dependencies
         /// </summary>
+        /// <param name="identifier"></param>
+        /// <param name="namespaceUri"></param>
+        /// <param name="publicationDate"></param>
+        /// <returns>The metadata for the requested nodesets, as well as the metadata for all required notesets.</returns>
         public async Task<List<Nodeset>> GetNodeSetDependencies(string identifier = null, string namespaceUri = null, DateTime? publicationDate = null)
         {
             var request = new GraphQLRequest();
@@ -439,9 +498,38 @@ query MyQuery ($identifier: String, $namespaceUri: String, $publicationDate: Dat
                 publicationDate = publicationDate,
             };
             GraphQLNodeResponse<GraphQLRequiredNodeSet> result = null;
-            result = await SendAndConvertAsync<GraphQLNodeResponse<GraphQLRequiredNodeSet>>(request).ConfigureAwait(false);
-            var nodeSets = result?.nodes.Select(n => n.ToNodeSet()).ToList();
-            return nodeSets;
+            try
+            {
+                result = await SendAndConvertAsync<GraphQLNodeResponse<GraphQLRequiredNodeSet>>(request).ConfigureAwait(false);
+                var nodeSets = result?.nodes.Select(n => n.ToNodeSet()).ToList();
+                return nodeSets;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error: " + ex.Message + " Falling back to REST interface...");
+                var nodeSetAndDependencies = new List<Nodeset>();
+                List<string> identifiers;
+                if (identifier != null)
+                {
+                    identifiers = new List<string> { identifier };
+                }
+                else
+                {
+                    // TODO Introduce a way to retrieve nodeset by namespace uri and publication date via REST
+#pragma warning disable CS0618 // Type or member is obsolete
+                    var allNamespaces = await _restClient.GetBasicNodesetInformationAsync().ConfigureAwait(false);
+#pragma warning restore CS0618 // Type or member is obsolete
+                    var namespaceResults = allNamespaces.Where(n => n.NameSpaceUri == namespaceUri && (publicationDate == null || n.PublicationDate == publicationDate));
+                    identifiers = namespaceResults.Select(nr => nr.Id.ToString(CultureInfo.InvariantCulture)).ToList();
+                }
+                foreach (var id in identifiers)
+                {
+                    var uaNamespace = await _restClient.DownloadNodesetAsync(id, true).ConfigureAwait(false);
+                    uaNamespace.Nodeset.LastModifiedDate = default; // Match GraphQL
+                    nodeSetAndDependencies.Add(uaNamespace.Nodeset);
+                }
+                return nodeSetAndDependencies;
+            }
         }
 
         /// <summary>
@@ -485,7 +573,12 @@ query MyQuery ($identifier: String, $namespaceUri: String, $publicationDate: Dat
         /// <summary>
         /// Use this method if the CloudLib instance doesn't provide the GraphQL API
         /// </summary>
+        [Obsolete("Use GetBasicNodesetInformationAsync with offset and limit")]
         public async Task<List<UANodesetResult>> GetBasicNodesetInformationAsync(List<string> keywords = null) => await _restClient.GetBasicNodesetInformationAsync(keywords).ConfigureAwait(false);
+        /// <summary>
+        /// Use this method if the CloudLib instance doesn't provide the GraphQL API
+        /// </summary>
+        public async Task<List<UANodesetResult>> GetBasicNodesetInformationAsync(int offset, int limit, List<string> keywords = null) => await _restClient.GetBasicNodesetInformationAsync(offset, limit, keywords).ConfigureAwait(false);
 
         /// <summary>
         /// Gets all available namespaces and the corresponding node set identifier

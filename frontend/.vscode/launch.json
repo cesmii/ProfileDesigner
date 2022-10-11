@@ -20,14 +20,14 @@
       "type": "chrome",
       "request": "launch",
       "name": "localhost (Chrome)",
-      "url": "http://localhost:3000",
+      "url": "http://localhost:3001",
       "webRoot": "${workspaceFolder}"
     },
     {
       "type": "edge",
       "request": "launch",
       "name": "localhost (Edge)",
-      "url": "http://localhost:3000",
+      "url": "http://localhost:3001",
       "webRoot": "${workspaceFolder}"
     }
   ]

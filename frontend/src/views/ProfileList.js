@@ -181,8 +181,9 @@ function ProfileList() {
                     {renderTitleBlock(caption, iconName, iconColor)}
                 </div>
                 <div className="col-sm-5 d-flex align-items-center justify-content-end">
-                    <Button variant="secondary" type="button" className="auto-width mx-2" onClick={onAdd} >Create Profile</Button>
+                    <Button variant="secondary" type="button" className="auto-width mx-2" onClick={onAdd} >Search Base Profile</Button>
                     <ProfileImporter caption="Import" cssClass="mb-0" />
+                    <Button variant="secondary" type="button" className="auto-width mx-2" onClick={onAdd} >Create Profile</Button>
                 </div>
             </div>
         );

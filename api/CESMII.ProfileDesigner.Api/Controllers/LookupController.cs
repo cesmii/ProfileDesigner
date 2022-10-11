@@ -102,7 +102,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             };
 
             //group the result by lookup type
-            var excludeList = new List<int?> { (int)ProfileItemTypeEnum.Class };
+            var excludeList = new List<int?> { /*(int)ProfileItemTypeEnum.Class*/ };
             excludeList = excludeList.Union(ProfileMapperUtil.ExcludedProfileTypes).ToList();
             var allItems = _dal.GetAll(base.DalUserToken).Where(x => !excludeList.Contains(x.ID) &&
                 x.LookupType == LookupTypeEnum.ProfileType);

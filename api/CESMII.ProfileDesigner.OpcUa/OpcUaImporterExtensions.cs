@@ -30,7 +30,8 @@ namespace CESMII.ProfileDesigner.OpcUa
                         .EnableSensitiveDataLogging()
             );
 #endif
-            services.AddCloudLibraryResolver(configuration.GetSection("CloudLibrary"));
+            services.AddCloudLibraryResolver();
+            //services.AddCloudLibraryResolver(configuration.GetSection("CloudLibrary"));
         }
         public static void UseOpcUaImporter(this IApplicationBuilder app)
         {

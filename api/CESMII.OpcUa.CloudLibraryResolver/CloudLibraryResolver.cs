@@ -18,13 +18,6 @@ namespace CESMII.OpcUa.NodeSetImporter
 {
     public class UANodeSetCloudLibraryResolver : IUANodeSetResolverWithProgress
     {
-        public class CloudLibraryOptions
-        {
-            public string EndPoint { get; set; }
-            public string UserName { get; set; }
-            public string Password { get; set; }
-        }
-
         public OnResolveNodeSets OnResolveNodeSets { get; set; }
         public OnNodeSet OnDownloadNodeSet { get; set; }
         public OnNodeSet OnNodeSetFound { get; set; }
@@ -45,7 +38,7 @@ namespace CESMII.OpcUa.NodeSetImporter
                 _client = new UACloudLibClient(strEndPoint, strUserName, strPassword);
             }
         }
-        public UANodeSetCloudLibraryResolver(CloudLibraryOptions options) : this(options.EndPoint, options.UserName, options.Password)
+        public UANodeSetCloudLibraryResolver(UACloudLibClient.Options options) : this(options.EndPoint, options.Username, options.Password)
         {
         }
         public UANodeSetCloudLibraryResolver(UACloudLibClient client)

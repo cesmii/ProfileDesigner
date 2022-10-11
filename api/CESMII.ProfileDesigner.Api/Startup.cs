@@ -35,6 +35,9 @@ using CESMII.ProfileDesigner.DAL.Models;
 using CESMII.ProfileDesigner.Common.Enums;
 using CESMII.ProfileDesigner.OpcUa;
 using CESMII.ProfileDesigner.Api.Shared.Extensions;
+using CESMII.ProfileDesigner.CloudLibClient;
+using Opc.Ua.Cloud.Library.Client;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace CESMII.ProfileDesigner.Api
 {
@@ -62,6 +65,8 @@ namespace CESMII.ProfileDesigner.Api
             //set variables used in nLog.config
             NLog.LogManager.Configuration.Variables["connectionString"] = connectionStringProfileDesigner;
             NLog.LogManager.Configuration.Variables["appName"] = "CESMII-ProfileDesigner";
+
+            services.Configure<UACloudLibClient.Options>(Configuration.GetSection("CloudLibrary"));
 
             //profile and related data
             services.AddScoped<IRepository<ProfileTypeDefinition>, BaseRepo<ProfileTypeDefinition, ProfileDesignerPgContext>>();
@@ -102,6 +107,8 @@ namespace CESMII.ProfileDesigner.Api
             services.AddScoped<IDal<StandardNodeSet, StandardNodeSetModel>, StandardNodeSetDAL>();
             services.AddScoped<IDal<Profile, ProfileModel>, ProfileDAL>();
             services.AddScoped<IDal<NodeSetFile, NodeSetFileModel>, NodeSetFileDAL>();
+            services.AddScoped<ICloudLibDal<CloudLibProfileModel>, CloudLibDAL>();
+            services.AddScoped<ICloudLibWrapper, CloudLibWrapper>();
 
             // Configuration, utils, one off objects
             services.AddSingleton<IConfiguration>(Configuration);
@@ -109,6 +116,7 @@ namespace CESMII.ProfileDesigner.Api
             services.AddSingleton<MailRelayService>();  //helper for emailing
             services.AddScoped<DAL.Utils.ProfileMapperUtil>();  //helper to allow us to modify profile data for front end 
             services.AddOpcUaImporter(Configuration);
+            //services.AddSingleton<UACloudLibClient>(sp => new UACloudLibClient(configuration.GetSection("CloudLibrary")new UACloudLibClient.Options))
 
             //AAD - no longer need this
             // Add token builder.
@@ -176,8 +184,13 @@ namespace CESMII.ProfileDesigner.Api
             //        };
             //    });
             //New - Azure AD approach replaces previous code above
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddMicrosoftIdentityWebApi(Configuration, "AzureAdSettings");
+            services.AddAuthentication("AzureAd") //JwtBearerDefaults.AuthenticationScheme)
+                //options =>
+                //{
+                //    options.DefaultAuthenticateScheme = "AzureAd";
+                //    options.DefaultChallengeScheme = "AzureAd";
+                //})
+                .AddMicrosoftIdentityWebApi(Configuration, "AzureAdSettings", "AzureAd");
 
             //TBD - may not need these at all anymore since AAD implementation
             // Add permission authorization requirements.
@@ -220,7 +233,7 @@ namespace CESMII.ProfileDesigner.Api
                     nameof(PermissionEnum.UserAzureADMapped),
                     policy => policy.Requirements.Add(new PermissionRequirement(PermissionEnum.UserAzureADMapped)));
             });
-
+            IdentityModelEventSource.ShowPII = true;
             services.AddCors(options =>
             {
                 options.AddPolicy(_corsPolicyName,

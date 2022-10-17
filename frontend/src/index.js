@@ -5,7 +5,6 @@ import { PublicClientApplication } from "@azure/msal-browser";
 import { MsalProvider } from "@azure/msal-react";
 
 import App from './App';
-import { AuthContextProvider } from "./components/authentication/AuthContext";
 import { LoadingContextProvider } from "./components/contexts/LoadingContext";
 import reportWebVitals from './reportWebVitals';
 import { AppSettings } from './utils/appsettings';
@@ -28,11 +27,9 @@ export const Msal_Instance = new PublicClientApplication(AppSettings.MsalConfig)
 ReactDOM.render(
     <React.StrictMode>
         <MsalProvider instance={Msal_Instance}>
-            <AuthContextProvider>  {/*When the context within this is null or false, user can't get to private routes. When true, they can*/}
             <LoadingContextProvider>
                 <App />
             </LoadingContextProvider>
-            </AuthContextProvider>
         </MsalProvider>
     </React.StrictMode>,
     document.getElementById('root')

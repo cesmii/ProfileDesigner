@@ -57,7 +57,7 @@ function ErrorPage({ error, resetErrorBoundary }) {
             console.warn(generateLogMessageString(`logError||Error occurred logging to the server.`, CLASS_NAME));
         });
 
-    }, [_logError]);
+    }, [_logError, _isAuthenticated]);
 
     //allow user to log out from error page
     const onLogoutClick = () => {

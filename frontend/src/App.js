@@ -13,6 +13,7 @@ import { AppSettings } from './utils/appsettings'
 import { generateLogMessageString } from './utils/UtilityService'
 import ErrorPage from './components/ErrorPage'
 import { OnLookupLoad } from './components/OnLookupLoad'
+import { useLoginSilent } from "./components/OnLoginHandler";
 
 import './App.scss';
 
@@ -83,6 +84,13 @@ function App() {
             return Promise.reject(err)
         }
     )
+
+    //-------------------------------------------------------------------
+    // Region: hooks
+    // check if user is logged in. If not, attempt silent login
+    // if that fails, then user will have to initiate login.
+    //-------------------------------------------------------------------
+    useLoginSilent();
 
     //-------------------------------------------------------------------
     // Region: hooks - moved into separate component

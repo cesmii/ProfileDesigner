@@ -31,15 +31,18 @@ function WizardRoute({ component: Component, ...rest }) {
     const { instance } = useMsal();
     const _isAuthenticated = useIsAuthenticated();
     const _activeAccount = instance.getActiveAccount();
-    //Check for is authenticated. Check individual permissions - ie can manage marketplace items.
-    var isAuthorized = _isAuthenticated && _activeAccount != null;
+    //Check for is authenticated. Check individual permissions if needed.
+    const _isAuthorized = _isAuthenticated && _activeAccount != null;
+
+    //track a redirect url for post login
+    const redirectUrl = rest.location?.pathname && rest.location?.pathname !== '/' ? `/sso?returnUrl=${rest.location?.pathname}` : '/sso';
 
     return (
         <Route
             {...rest}
-            render={props => isAuthorized ?
+            render={props => _isAuthorized ?
                 (<WizardLayout><Component {...props} /></WizardLayout>) :
-                (<Redirect to="/login" />)
+                (<Redirect to={redirectUrl} />)
             }
         />
     );

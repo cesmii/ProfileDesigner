@@ -1,13 +1,13 @@
 import React from "react";
 import Button from 'react-bootstrap/Button'
 
-import { BrowserAuthError, InteractionRequiredAuthError, InteractionStatus } from "@azure/msal-browser";
-import { useIsAuthenticated, useMsal } from "@azure/msal-react";
+import { useMsal } from "@azure/msal-react";
 
-import axiosInstance from "../services/AxiosService";
+//import axiosInstance from "../services/AxiosService";
 import { generateLogMessageString } from '../utils/UtilityService'
 import { useLoadingContext } from "../components/contexts/LoadingContext";
-import { AppSettings } from "../utils/appsettings";
+//import { AppSettings } from "../utils/appsettings";
+import { doLoginPopup } from "./OnLoginHandler";
 
 const CLASS_NAME = "LoginButton";
 
@@ -17,42 +17,42 @@ function LoginButton() {
     // Region: Initialization
     //-------------------------------------------------------------------
     const { instance, inProgress, accounts } = useMsal();
-    const _isAuthenticated = useIsAuthenticated();
-    const _activeAccount = instance.getActiveAccount();
+    //const _isAuthenticated = useIsAuthenticated();
+    //const _activeAccount = instance.getActiveAccount();
     const { loadingProps, setLoadingProps } = useLoadingContext();
 
     //-------------------------------------------------------------------
     // Region: API call
     //-------------------------------------------------------------------
-    const onAfterAADLogin = () => {
-        console.log(generateLogMessageString('onAfterAADLogin', CLASS_NAME));
+    //const onAfterAADLogin = () => {
+    //    console.log(generateLogMessageString('onAfterAADLogin', CLASS_NAME));
 
-        //perform insert call
-        var url = `auth/onAADLogin`;
-        axiosInstance.post(url)
-            .then(result => {
-                if (result.data.isSuccess) {
-                    console.log(generateLogMessageString(`onAfterAADLogin||${result.data.message}`, CLASS_NAME));
-                    setLoadingProps({ refreshLookupData: true, refreshSearchCriteria: true, refreshFavorites: true });
-                }
-                else {
-                    console.warn(generateLogMessageString(`onAfterAADLogin||Initialize Failed||${result.data.message}`, CLASS_NAME));
-                }
-            })
-            .catch(error => {
-                console.log(generateLogMessageString('handleOnSave||error||' + JSON.stringify(error), CLASS_NAME, 'error'));
-                console.log(error);
-            });
-    };
+    //    //perform insert call
+    //    var url = `auth/onAADLogin`;
+    //    axiosInstance.post(url)
+    //        .then(result => {
+    //            if (result.data.isSuccess) {
+    //                console.log(generateLogMessageString(`onAfterAADLogin||${result.data.message}`, CLASS_NAME));
+    //                setLoadingProps({ refreshLookupData: true, refreshSearchCriteria: true, refreshFavorites: true });
+    //            }
+    //            else {
+    //                console.warn(generateLogMessageString(`onAfterAADLogin||Initialize Failed||${result.data.message}`, CLASS_NAME));
+    //            }
+    //        })
+    //        .catch(error => {
+    //            console.log(generateLogMessageString('handleOnSave||error||' + JSON.stringify(error), CLASS_NAME, 'error'));
+    //            console.log(error);
+    //        });
+    //};
 
     //-------------------------------------------------------------------
     // Region: Event Handling of child component events
     //-------------------------------------------------------------------
     const onLoginClick = (e) => {
         console.log(generateLogMessageString('onLoginClick', CLASS_NAME));
-
+        doLoginPopup(instance, inProgress, accounts, setLoadingProps);
         e.preventDefault(); //prevent form.submit action
-
+/*
         //show a spinner
         setLoadingProps({ isLoading: true, message: null });
 
@@ -104,12 +104,13 @@ function LoginButton() {
                     });
                 });
         }
+*/
     }
 
     //if already logged in, don't show button
-    if (_isAuthenticated && _activeAccount != null) {
-        return null;
-    }
+    //if (_isAuthenticated && _activeAccount != null) {
+    //    return null;
+    //}
 
     return (
         <>

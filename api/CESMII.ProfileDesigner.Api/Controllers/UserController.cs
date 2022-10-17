@@ -72,20 +72,31 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 return BadRequest("User|Search|Invalid model");
             }
 
+            DALResult<UserModel> result;
             if (string.IsNullOrEmpty(model.Query))
             {
-                return Ok(_dal.GetAllPaged(base.DalUserToken, model.Skip, model.Take, true));
+                result = _dal.GetAllPaged(base.DalUserToken, model.Skip, model.Take, true);
+
+            }
+            else
+            {
+                model.Query = model.Query.ToLower();
+                result = _dal.Where(s =>
+                                //string query section
+                                //s.IsActive && 
+                                //(s.UserName.ToLower().Contains(model.Query) ||
+                                //(s.FirstName.ToLower() + s.LastName.ToLower()).Contains(
+                                //    model.Query.Replace(" ", "").Replace("-", ""))),  //in case they search for code and name in one string.
+                                s.DisplayName.ToLower().Contains(model.Query) &&
+                                !string.IsNullOrEmpty(s.ObjectIdAAD),
+                                base.DalUserToken, model.Skip, model.Take, true);
+                //obscure the object id AAD a bit more
             }
 
-            model.Query = model.Query.ToLower();
-            var result = _dal.Where(s =>
-                            //string query section
-                            //s.IsActive && 
-                            //(s.UserName.ToLower().Contains(model.Query) ||
-                            //(s.FirstName.ToLower() + s.LastName.ToLower()).Contains(
-                            //    model.Query.Replace(" ", "").Replace("-", ""))),  //in case they search for code and name in one string.
-                            s.DisplayName.ToLower().Contains(model.Query),
-                            base.DalUserToken, model.Skip, model.Take, true);
+            foreach (var u in result.Data)
+            {
+                u.ObjectIdAAD = String.IsNullOrEmpty(u.ObjectIdAAD) ? u.ObjectIdAAD : u.ObjectIdAAD.Substring(0, 12) + "...";
+            }
             return Ok(result);
         }
 

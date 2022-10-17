@@ -23,6 +23,7 @@ import ProfileList from '../views/ProfileList'
 import AdminUserEntity from '../views/admin/AdminUserEntity'
 import AdminUserList from '../views/admin/AdminUserList'
 import Login from '../views/Login'
+import SingleSignOn from '../views/SingleSignOn'
 
 //const CLASS_NAME = "Routes";
 
@@ -36,6 +37,8 @@ function Routes() {
         <Switch>
             <WizardRoute exact path="/" component={WizardWelcome} />
             <PublicFixedRoute exact path="/login" component={Login} />
+            <PublicFixedRoute exact path="/sso?returnUrl=:returnUrl" component={SingleSignOn} />
+            <PublicFixedRoute exact path="/sso" component={SingleSignOn} />
             <PrivateRoute path="/profiles/library" component={ProfileList} />
             {/*Handles types/all and types/mine in the component*/}
             <PrivateRoute path="/types/library/profile/:profileId" component={ProfileTypeDefinitionList} />

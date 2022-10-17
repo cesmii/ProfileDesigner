@@ -25,6 +25,32 @@ UPDATE public."user"
 SET objectid_aad = '1f25a66e-cb03-467e-a164-14ba265d472a'
 	,display_name = 'Markus Horstmann'
 WHERE username='markush';	
+--
+UPDATE public."user" 
+SET objectid_aad = 'faa49db5-807b-4fa3-bb3c-2e1298712c95'
+	,display_name = 'info@cesmii.org'
+WHERE username='cesmii';	
+UPDATE public."user" 
+SET objectid_aad = '14a8a203-9581-4873-8fda-9569b85af853'
+	,display_name = 'Olivia Morales'
+WHERE username='oliviam';	
+UPDATE public."user" 
+SET objectid_aad = '694b9d2c-7503-4230-8ce9-6f46ec7d97a4'
+	,display_name = 'Jonathan Wise'
+WHERE username='jonathanw';	
+UPDATE public."user" 
+SET objectid_aad = 'ea0b03ea-10fe-4e0a-bddf-457c12bcff6a'
+	,display_name = 'Chris Meunch'
+WHERE username='chrism';	
+UPDATE public."user" 
+SET objectid_aad = 'e0b4e084-2e67-46f4-97d0-769ecd5bba56'
+	,display_name = 'Doug Lawson'
+WHERE username='thinkiq';	
+UPDATE public."user" 
+SET objectid_aad = '76ea8ea9-9006-461d-b982-5dcce82d710e'
+	,display_name = 'Prakashan Korambath'
+WHERE username='korambath';	
+
 
 --set not null for objectIdAAD
 ALTER TABLE public."user"
@@ -39,12 +65,13 @@ DROP INDEX user_username_6821ab7c_like;
 
 ALTER TABLE public."user"
 DROP COlUMN password,
-DROP COlUMN username,
 DROP COlUMN first_name,
 DROP COlUMN last_name,
 DROP COlUMN registration_complete,
 ;
+--DROP COlUMN username,
 
 --drop permissions data
 DROP TABLE public."user_permission";
 DROP TABLE public."permission";
+

@@ -485,7 +485,7 @@ namespace CESMII.ProfileDesigner.Api.Tests
             {
                 testCasesWithExpectedDiff = testCases.Where(t =>
                 {
-                    if (!new [] { nameof(Integration.Import), nameof(Integration.Export), nameof(Integration.ExportAASX) }.Contains(t.TestMethod.Method.Name))
+                    if (!IsImportExportTest(t))
                     {
                         return true;
                     }
@@ -512,7 +512,7 @@ namespace CESMII.ProfileDesigner.Api.Tests
 
             var remainingTestCaseList = testCasesWithExpectedDiff.Except(orderedTestCases).ToList();
 
-            var remainingOrdered = orderedImportRequests.Select(ir => remainingTestCaseList.FirstOrDefault(tc => tc.TestMethodArguments != null && Path.Combine(Integration.strTestNodeSetDirectory, tc.TestMethodArguments[0].ToString()) == ir.FileName)).Where(tc => tc != null).ToList();
+            var remainingOrdered = orderedImportRequests.Select(ir => remainingTestCaseList.FirstOrDefault(tc => IsImportExportTest(tc) && Path.Combine(Integration.strTestNodeSetDirectory, tc.TestMethodArguments[0].ToString()) == ir.FileName)).Where(tc => tc != null).ToList();
             var excludedTestCases = new List<TTestCase>();
             string[] unstableTests = new string[0];
 
@@ -546,6 +546,11 @@ namespace CESMII.ProfileDesigner.Api.Tests
             var remainingUnorderedTests = testCasesWithExpectedDiff.Except(orderedTestCases).Except(excludedTestCases).ToList();
 
             return orderedTestCases.Concat(remainingUnorderedTests).ToList();
+        }
+
+        static bool IsImportExportTest(ITestCase t)
+        {
+            return new[] { nameof(Integration.Import), nameof(Integration.Export), nameof(Integration.ExportAASX) }.Contains(t.TestMethod.Method.Name);
         }
     }
 }

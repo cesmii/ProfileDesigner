@@ -25,9 +25,8 @@ namespace CESMII.ProfileDesigner.Api.Tests
     public partial class Integration
     {
         [Theory]
-        [InlineData(null)]
         [MemberData(nameof(TestKeywords))]
-        public async Task CloudLibrary(string[] keywords)
+        public async Task CloudLibrary(string[] keywords, int expectedCount)
         {
             // Arrange
             var apiClient = _factory.GetApiClientAuthenticated();
@@ -37,6 +36,7 @@ namespace CESMII.ProfileDesigner.Api.Tests
             var allCloudProfiles = await PagedVsNonPagedAsync(apiClient, new CloudLibFilterModel { Keywords = null, Cursor = null, Take = 100, });
 
             var cloud = await PagedVsNonPagedAsync(apiClient, new CloudLibFilterModel { Keywords = keywords, Cursor = null, Take = 100,  });
+            Assert.Equal(expectedCount, cloud.Count);
             var cloudNotLocal = await PagedVsNonPagedAsync(apiClient, new CloudLibFilterModel { Keywords = keywords, Cursor = null, Take = 100, ExcludeLocalLibrary = true, });
 
             var findLocals = cloudNotLocal.Where(c => allLocalProfiles.Any(l => l.Namespace == c.Namespace)).ToList();
@@ -49,20 +49,19 @@ namespace CESMII.ProfileDesigner.Api.Tests
         }
 
         [Theory]
-        [InlineData(null)]
         [MemberData(nameof(TestKeywords))]
-        public async Task CloudLibrarySingle(string[] keywords)
+        public async Task CloudLibrarySingle(string[] keywords, int expectedCount)
         {
             // Arrange
             var apiClient = _factory.GetApiClientAuthenticated();
 
             // ACT
             var cloud = await apiClient.CloudlibraryAsync(new CloudLibFilterModel { Keywords = keywords, Cursor = null, Take = 100, });
+            Assert.Equal(expectedCount, cloud.Count);
         }
         [Theory]
-        [InlineData(null)]
         [MemberData(nameof(TestKeywords))]
-        public async Task CloudLibraryPaged(string[] keywords)
+        public async Task CloudLibraryPaged(string[] keywords, int expectedCount)
         {
             // Arrange
             var apiClient = _factory.GetApiClientAuthenticated();
@@ -72,9 +71,8 @@ namespace CESMII.ProfileDesigner.Api.Tests
         }
 
         [Theory]
-        [InlineData(null)]
         [MemberData(nameof(TestKeywords))]
-        public async Task CloudLibraryPagedNoLocal(string[] keywords)
+        public async Task CloudLibraryPagedNoLocal(string[] keywords, int _)
         {
             // Arrange
             var apiClient = _factory.GetApiClientAuthenticated();
@@ -84,9 +82,8 @@ namespace CESMII.ProfileDesigner.Api.Tests
         }
 
         [Theory]
-        [InlineData(null)]
         [MemberData(nameof(TestKeywords))]
-        public async Task CloudLibraryPagedAddLocal(string[] keywords)
+        public async Task CloudLibraryPagedAddLocal(string[] keywords, int _)
         {
             // Arrange
             var apiClient = _factory.GetApiClientAuthenticated();
@@ -115,7 +112,7 @@ namespace CESMII.ProfileDesigner.Api.Tests
             return cloud;
         }
 
-        private static async Task<List<CloudLibProfileModel>> GetAllPaged(Client apiClient, CloudLibFilterModel pagedFilter)
+        private async Task<List<CloudLibProfileModel>> GetAllPaged(Client apiClient, CloudLibFilterModel pagedFilter)
         {
             bool bComplete = false;
             var paged = new List<CloudLibProfileModel>();
@@ -131,6 +128,7 @@ namespace CESMII.ProfileDesigner.Api.Tests
                 //pagedFilter.Skip += pagedFilter.Take;
                 pagedFilter.Cursor = page.Cursor;
             } while (!bComplete && paged.Count < 100);
+            output.WriteLine($"Filter: {paged.Count}");
             return paged;
         }
 
@@ -138,12 +136,23 @@ namespace CESMII.ProfileDesigner.Api.Tests
         {
             return new List<object[]> 
             {
-                new object[] { new string[] { "Type" } },
-                new object[] { new string[] { "robotics" } },
-                new object[] { new string[] { "di" } },
-                new object[] { new string[] { "robotics", "di" } },
-                new object[] { new string[] { "robotics", "di", "pump", "plastic" } },
-                new object[] { new string[] { "abcdefg", "defghi", "dhjfhsdjfhsdjkfhsdjkf", "dfsjdhfjkshdfjksd" } },
+                new object[ ]{ null, 54 },
+                new object[] { new string[] { "BaseObjectType" },  6 },
+                new object[] { new string[] { "di" }, 54 },
+                new object[] { new string[] { "robotics" }, 1 },
+                new object[] { new string[] { "plastic" }, 15 },
+                new object[] { new string[] { "pump" } , 6},
+                new object[] { new string[] { "robotics", "di" }, 54 },
+                new object[] { new string[] { "robotics", "di", "pump", "plastic" }, 54 },
+                new object[] { new string[] { "robotics", "pump", }, 7 },
+                new object[] { new string[] { "robotics", "plastic" }, 16 },
+                new object[] { new string[] { "robotics", "pump", "plastic" }, 19 },
+                new object[] { new string[] { "abcdefg", "defghi", "dhjfhsdjfhsdjkfhsdjkf", "dfsjdhfjkshdfjksd" } , 0 },
+                new object[] { new string[] { "Interface" }, 24 },
+                new object[] { new string[] { "Event" }, 22 },
+                new object[] { new string[] { "Interface", "BaseObjectType" }, 28 },
+                new object[] { new string[] { "BaseObjectType", "Interface" }, 28 },
+                new object[] { new string[] { "Interface", "BaseObjectType", "Event" }, 39 },
             };
         }
     }

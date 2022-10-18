@@ -25,12 +25,15 @@ export function AdminRoute({ component: Component, ...rest }) {
     //Check for is authenticated. Check individual permissions - ie can manage profile designer.
     let isAuthorized = _isAuthenticated && _activeAccount != null && (rest.roles == null || isInRoles(_activeAccount, rest.roles));
 
+    //track a redirect url for post login
+    const redirectUrl = rest.location?.pathname && rest.location?.pathname !== '/' ? `/sso?returnUrl=${rest.location?.pathname}` : '/sso';
+
     return (
         <Route
             {...rest}
             render={props => isAuthorized ?
                 (<AdminLayout><Component {...props} /></AdminLayout>) :
-                (<Redirect to="/" />)
+                (<Redirect to={redirectUrl} />)
             }
         />
     );

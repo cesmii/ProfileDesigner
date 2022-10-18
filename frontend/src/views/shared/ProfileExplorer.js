@@ -155,7 +155,7 @@ function ProfileExplorer(props) {
         return () => {
             console.log(generateLogMessageString('useEffect||Cleanup', CLASS_NAME));
         };
-    }, [props.currentProfileId, props.currentUserId]);
+    }, [props.currentProfileId]);
 
     //-------------------------------------------------------------------
     // Region: Render helpers
@@ -239,8 +239,8 @@ function ProfileExplorer(props) {
         return (
             <li id={key} key={key} className={cssClass} >
                 <div className="composition-link d-flex pr-3">
-                    {renderTypeIcon(c, props.currentUserId, 18, color.nevada)}
-                    <span className="composition-item text-break">{renderLinkedCompositionName(c, props.currentUserId)}</span>
+                    {renderTypeIcon(c, props.activeAccount, 18, color.nevada)}
+                    <span className="composition-item text-break">{renderLinkedCompositionName(c)}</span>
                     {/* Affordance for "go-to / view" */}
                     <SVGIcon name="chevron-right" fill={color.silver} className="view-affordance-icon float-right" />
                 </div>
@@ -249,7 +249,7 @@ function ProfileExplorer(props) {
     }
 
     //
-    const renderLinkedCompositionName = (item, currentUserId) => {
+    const renderLinkedCompositionName = (item) => {
         if (item == null) return;
         var href = getTypeDefEntityLink(item);
         return (

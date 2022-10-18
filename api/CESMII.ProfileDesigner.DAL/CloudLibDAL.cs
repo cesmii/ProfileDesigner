@@ -68,28 +68,28 @@
             return result;
         }
 
-        public async Task<NodeResult<CloudLibProfileModel>> GetAll() {
+        public async Task<GraphQlResult<CloudLibProfileModel>> GetAll() {
             var result = await this.Where(100, null, null); // TODO implement pagination or just remove?
             return result;
         }
 
-        public async Task<NodeResult<CloudLibProfileModel>> Where(int limit, string cursor, List<string> keywords, List<string> exclude = null)
+        public async Task<GraphQlResult<CloudLibProfileModel>> Where(int limit, string cursor, List<string> keywords, List<string> exclude = null)
         {
             var matches = await _cloudLib.Search(limit, cursor, keywords, exclude);
-            if (matches == null) return new NodeResult<CloudLibProfileModel>();
+            if (matches == null) return new GraphQlResult<CloudLibProfileModel>();
 
             //TBD - exclude some nodesets which are core nodesets - list defined in appSettings
 
-            return new NodeResult<CloudLibProfileModel>(matches)
+            return new GraphQlResult<CloudLibProfileModel>(matches)
             {
                 Edges = MapToModelsNodesetResult(matches.Edges),
             };
         }
     
 
-    protected List<NodeAndCursor<CloudLibProfileModel>> MapToModelsNodesetResult(List<NodeAndCursor<Nodeset>> entities)
+    protected List<GraphQlNodeAndCursor<CloudLibProfileModel>> MapToModelsNodesetResult(List<GraphQlNodeAndCursor<Nodeset>> entities)
     {
-        var result = new List<NodeAndCursor<CloudLibProfileModel>>();
+        var result = new List<GraphQlNodeAndCursor<CloudLibProfileModel>>();
 
         foreach (var item in entities)
         {
@@ -103,13 +103,13 @@
     /// </summary>
     /// <param name="entity"></param>
     /// <returns></returns>
-    protected NodeAndCursor<CloudLibProfileModel> MapToModelNodesetResult(NodeAndCursor<Nodeset> entityAndCursor)
+    protected GraphQlNodeAndCursor<CloudLibProfileModel> MapToModelNodesetResult(GraphQlNodeAndCursor<Nodeset> entityAndCursor)
     {
         if (entityAndCursor != null && entityAndCursor.Node != null)
         {
                 var entity = entityAndCursor.Node;
             //map results to a format that is common with marketplace items
-            return new NodeAndCursor<CloudLibProfileModel>()
+            return new GraphQlNodeAndCursor<CloudLibProfileModel>()
             {
                 Cursor = entityAndCursor.Cursor,
                 Node = new CloudLibProfileModel

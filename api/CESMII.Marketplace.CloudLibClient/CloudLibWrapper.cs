@@ -65,22 +65,26 @@ namespace CESMII.ProfileDesigner.CloudLibClient
             return downloadedNodeSets;
         }
 
-        public async Task<List<UANodesetResult>> Search(int limit, int skip, List<string> keywords, List<string> exclude)
+        public async Task<NodeResult<Nodeset>> Search(int limit, string cursor, List<string> keywords, List<string> exclude)
         {
-            var result = await _client.GetBasicNodesetInformationAsync(skip, limit, keywords).ConfigureAwait(false);
-            //TBD - don't need this. Keep it here for now in case we temporarily need to get more data.
-            //foreach (var nodeset in result)
+            var result = await _client.GetNodeSets(keywords: keywords?.ToArray(), after: cursor, first: limit);
+
+            return result;
+
+            //var result = await _client.GetBasicNodesetInformationAsync(skip, limit, keywords).ConfigureAwait(false);
+            ////TBD - don't need this. Keep it here for now in case we temporarily need to get more data.
+            ////foreach (var nodeset in result)
+            ////{
+            ////    //get more details
+            ////}
+
+            ////if exclude has values, strip out nodesets where exclude value == nodeset uri
+            //if (exclude != null && result != null)
             //{
-            //    //get more details
+            //    result = result.Where(x => !exclude.Any(y => y.ToLower().Equals(x.NameSpaceUri.ToLower()))).ToList();
             //}
 
-            //if exclude has values, strip out nodesets where exclude value == nodeset uri
-            if (exclude != null && result != null)
-            {
-                result = result.Where(x => !exclude.Any(y => y.ToLower().Equals(x.NameSpaceUri.ToLower()))).ToList();
-            }
-
-            return result ?? new List<UANodesetResult>();
+            //return result ?? new List<UANodesetResult>();
         }
 
         public async Task<UANameSpace> GetById(string id)

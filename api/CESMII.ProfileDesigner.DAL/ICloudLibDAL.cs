@@ -6,6 +6,7 @@
     using System.Threading.Tasks;
 
     using CESMII.ProfileDesigner.DAL.Models;
+    using Opc.Ua.Cloud.Library.Client;
 
     public interface ICloudLibDal<TModel> : IDisposable where TModel : AbstractModel
     {
@@ -18,7 +19,7 @@
         /// <returns></returns>
         Task<CloudLibProfileModel> DownloadAsync(string id);
 
-        Task<List<TModel>> GetAll();
+        Task<NodeResult<TModel>> GetAll();
 
         /// <summary>
         /// Query is from a free form input box. - This will be appended to a single keywords list
@@ -33,7 +34,7 @@
         /// <param name="verticals"></param>
         /// <param name="exclude">List of namespace uris to exclude from results</param>
         /// <returns></returns>
-        Task<List<TModel>> Where(int limit, int skip, List<string> keywords, List<string> exclude = null);
+        Task<NodeResult<TModel>> Where(int limit, string cursor, List<string> keywords, List<string> exclude = null);
 
     }
 

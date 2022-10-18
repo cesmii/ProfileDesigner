@@ -19,7 +19,7 @@
         /// <returns></returns>
         Task<CloudLibProfileModel> DownloadAsync(string id);
 
-        Task<NodeResult<TModel>> GetAll();
+        Task<GraphQlResult<TModel>> GetAll();
 
         /// <summary>
         /// Query is from a free form input box. - This will be appended to a single keywords list
@@ -34,7 +34,7 @@
         /// <param name="verticals"></param>
         /// <param name="exclude">List of namespace uris to exclude from results</param>
         /// <returns></returns>
-        Task<NodeResult<TModel>> Where(int limit, string cursor, List<string> keywords, List<string> exclude = null);
+        Task<GraphQlResult<TModel>> Where(int limit, string cursor, List<string> keywords, List<string> exclude = null);
 
     }
 

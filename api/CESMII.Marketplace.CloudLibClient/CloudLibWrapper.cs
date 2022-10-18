@@ -65,7 +65,7 @@ namespace CESMII.ProfileDesigner.CloudLibClient
             return downloadedNodeSets;
         }
 
-        public async Task<NodeResult<Nodeset>> Search(int limit, string cursor, List<string> keywords, List<string> exclude)
+        public async Task<GraphQlResult<Nodeset>> Search(int limit, string cursor, List<string> keywords, List<string> exclude)
         {
             var result = await _client.GetNodeSets(keywords: keywords?.ToArray(), after: cursor, first: limit);
 

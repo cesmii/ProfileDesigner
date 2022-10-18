@@ -164,7 +164,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             bool bFullResultCloud = false;
             bool bFullResultLocal = false;
             List<ProfileModel> allLocalProfiles = null;
-            List<NodeAndCursor<CloudLibProfileModel>> pendingCloudLibProfiles = new();
+            List<GraphQlNodeAndCursor<CloudLibProfileModel>> pendingCloudLibProfiles = new();
             List<ProfileModel> pendingLocalProfiles = null;
             do
             {

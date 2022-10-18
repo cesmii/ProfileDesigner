@@ -20,6 +20,7 @@ using System.Text;
 using System.Threading.Tasks;
 using CESMII.ProfileDesigner.OpcUa.AASX;
 using System.Text.RegularExpressions;
+using Opc.Ua.Cloud.Library.Client;
 
 namespace CESMII.ProfileDesigner.Api.Controllers
 {
@@ -158,28 +159,28 @@ namespace CESMII.ProfileDesigner.Api.Controllers
 
             List<CloudLibProfileModel> result = new();
             var cursors = model.Cursor?.Split(",");
-            string cloudLibCursor = cursors?[0] ?? "0";//model.AddLocalLibrary ? 0 : model.Skip;
+            string cloudLibCursor = cursors?[0] ?? null;//model.AddLocalLibrary ? 0 : model.Skip;
             string localCursor = cursors?[1] ?? "0";
             bool bFullResultCloud = false;
             bool bFullResultLocal = false;
             List<ProfileModel> allLocalProfiles = null;
-            List<CloudLibProfileModel> pendingCloudLibProfiles = new();
+            List<NodeAndCursor<CloudLibProfileModel>> pendingCloudLibProfiles = new();
             List<ProfileModel> pendingLocalProfiles = null;
             do
             {
                 var sw = Stopwatch.StartNew();
-                var cloudResultTask = _cloudLibDal.Where(model.Take, int.Parse(cloudLibCursor), model.Keywords);
+                var cloudResultTask = _cloudLibDal.Where(model.Take, cloudLibCursor, model.Keywords);
                 // Run the next query in parallel
-                //allLocalProfiles = allLocalProfiles ?? _dal.GetAll(base.DalUserToken);
+                allLocalProfiles = allLocalProfiles ?? _dal.GetAll(base.DalUserToken);
                 // Wait for the first query to finish as well
                 var cloudResultPage = await cloudResultTask;
                 _logger.LogWarning($"CloudLib query: {sw.ElapsedMilliseconds} ms");
-                if (cloudResultPage.Count > model.Take)
+                if (cloudResultPage.Edges.Count > model.Take)
                 {
                     _logger.LogWarning($"ProfileController|GetCloudLibrary|Received more profiles than requested: {result.Count}, expected {model.Take}.");
                 }
-                bFullResultCloud = cloudResultPage.Count != model.Take || cloudResultPage.Count == 0;
-                pendingCloudLibProfiles.AddRange(cloudResultPage);
+                bFullResultCloud = !cloudResultPage.PageInfo.HasNextPage; // cloudResultPage.Count != model.Take || cloudResultPage.Count == 0;
+                pendingCloudLibProfiles.AddRange(cloudResultPage.Edges);
 
                 //if (model.AddLocalLibrary && !bFullResult)
                 //{
@@ -199,16 +200,10 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 {
                     foreach (var localProfile in allLocalProfiles)
                     {
-                        var removedItemIndex = pendingCloudLibProfiles.FindLastIndex( p => p != null && p.Namespace == localProfile.Namespace);
+                        var removedItemIndex = pendingCloudLibProfiles.FindLastIndex( p => p?.Node != null && p.Node.Namespace == localProfile.Namespace);
                         if (removedItemIndex >= 0)
                         {
-                            if (removedItemIndex == result.Count - 1)
-                            {
-                                // TODO adjust cursor when using AddLocalLibrary
-                                //lastCloudLibCursor = (int.Parse(lastCloudLibCursor) - 1).ToString();
-                            }
-                            pendingCloudLibProfiles[removedItemIndex] = null;//.RemoveAll(p => p.Namespace == localProfile.Namespace);
-                            //pendingCloudLibProfiles.RemoveAt(removedItemIndex);//.RemoveAll(p => p.Namespace == localProfile.Namespace);
+                            pendingCloudLibProfiles[removedItemIndex].Node = null;//.RemoveAll(p => p.Namespace == localProfile.Namespace);
                         }
                     }
                 }
@@ -219,29 +214,35 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                     {
                         pendingLocalProfiles = new();
                     }
-                    if (model.Keywords != null && !bFullResultLocal)
+                    if (model.Keywords != null)
                     {
-                        // TODO better keyword search to match cloudlib
-                        var newLocalProfiles = _dal.Where(
-                            p => model.Keywords == null || model.Keywords.Any(kw => p.Namespace == kw),
-                            base.DalUserToken, int.Parse(localCursor), null, true).Data;
-                        bFullResultLocal = newLocalProfiles.Count == model.Take || newLocalProfiles.Count == 0;
-                        pendingLocalProfiles.AddRange(newLocalProfiles);
+                        if (!bFullResultLocal)
+                        {
+                            // TODO better keyword search to match cloudlib
+                            var newLocalProfiles = _dal.Where(
+                                p => model.Keywords == null || model.Keywords.Any(kw => p.Namespace == kw),
+                                base.DalUserToken, int.Parse(localCursor), null, true).Data;
+                            bFullResultLocal = newLocalProfiles.Count == model.Take || newLocalProfiles.Count == 0;
+                            pendingLocalProfiles.AddRange(newLocalProfiles);
+                        }
                     }
                     else
                     {
                         bFullResultLocal = true;
+                        pendingLocalProfiles.AddRange(allLocalProfiles.Skip(int.Parse(localCursor)));
                     }
-                    while (pendingLocalProfiles.Any() || (pendingCloudLibProfiles.Any()) 
-                        && (pendingLocalProfiles.Any() || bFullResultLocal) && (pendingCloudLibProfiles.Any() || bFullResultCloud) && result.Count < model.Take)
+                    while (result.Count < model.Take
+                        && (pendingLocalProfiles.Any() || (pendingCloudLibProfiles.Any()))
+                        && ((pendingLocalProfiles.Any() || bFullResultLocal) || (pendingCloudLibProfiles.Any() || bFullResultCloud)))
                     {
-                        if (pendingCloudLibProfiles[0] == null)
+                        var firstPendingCloudLibProfile = pendingCloudLibProfiles.FirstOrDefault();
+                        if (firstPendingCloudLibProfile != null && firstPendingCloudLibProfile.Node == null)
                         {
                             pendingCloudLibProfiles.RemoveAt(0);
-                            cloudLibCursor = (int.Parse(cloudLibCursor) + 1).ToString();
+                            cloudLibCursor = firstPendingCloudLibProfile.Cursor;
                             continue;
                         }
-                        if (pendingLocalProfiles.Any() && String.CompareOrdinal(pendingLocalProfiles?.FirstOrDefault()?.Namespace, pendingCloudLibProfiles?.FirstOrDefault().Namespace) < 0)
+                        if (pendingLocalProfiles.Any() && (firstPendingCloudLibProfile?.Node == null || String.CompareOrdinal(pendingLocalProfiles?.FirstOrDefault()?.Namespace, firstPendingCloudLibProfile.Node.Namespace) < 0))
                         {
                             result.Add(CloudLibProfileModel.MapFromProfile(pendingLocalProfiles[0]));
                             pendingLocalProfiles.RemoveAt(0);
@@ -249,33 +250,20 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                         }
                         else
                         {
-                            result.Add(pendingCloudLibProfiles[0]);
-                            pendingCloudLibProfiles.RemoveAt(0);
-                            cloudLibCursor = (int.Parse(cloudLibCursor) + 1).ToString();
+                            if (firstPendingCloudLibProfile != null)
+                            {
+                                result.Add(firstPendingCloudLibProfile.Node);
+                                cloudLibCursor = firstPendingCloudLibProfile.Cursor;
+                                pendingCloudLibProfiles.RemoveAt(0);
+                            }
                         }
                     }
-                    //var orderedResult = result.OrderBy(p => p.Namespace)/*.Skip(model.Skip)*/.Take(model.Take).ToList();
-                    //var lastCloudLibIndexNotReturned = result.FindIndex(p => !string.IsNullOrEmpty(p.CloudLibId) && orderedResult.Contains(p));
-                    //if (lastCloudLibIndexNotReturned >= 0)
-                    //{
-                    //    cloudLibCursor = (lastCloudLibIndexNotReturned + int.Parse(initialCloudLibCursor) + 1).ToString();
-                    //}
-                    //var lastLocalIndexNotReturned = localProfiles.FindIndex(p => orderedResult.Any(r => r.ID == p.ID));
-                    //if (lastLocalIndexNotReturned >= 0)
-                    //{
-                    //    localCursor = (lastLocalIndexNotReturned + int.Parse(localCursor) + 1).ToString();
-                    //}
-                    //result = orderedResult;
                 }
                 else
                 {
                     bFullResultLocal = true;
                     var toTake = model.Take - result.Count;
-                    int available = pendingCloudLibProfiles.Count(p => p != null);
-                    //if (toTake > available)
-                    //{
-                    //    toTake = available;
-                    //}
+                    int available = pendingCloudLibProfiles.Count(p => p.Node != null);
                     int processed = 0;
                     foreach (var p in pendingCloudLibProfiles)
                     {
@@ -283,72 +271,18 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                         {
                             break;
                         }
-                        if (p != null)
+                        if (p?.Node != null)
                         {
-                            result.Add(p);
+                            result.Add(p.Node);
                             toTake--;
                         }
+                        cloudLibCursor = p.Cursor;
                         processed++;
                     }
                     pendingCloudLibProfiles = pendingCloudLibProfiles.Skip(processed).Where(p => p != null).ToList();
-                    cloudLibCursor = (int.Parse(cloudLibCursor) + processed).ToString();
                 }
 
             } while ((!bFullResultCloud || ! bFullResultLocal) && result.Count < model.Take);
-
-            //if (model.AddLocalLibrary)
-            //{
-            //    if (model.Keywords != null)
-            //    {
-            //        // TODO better keyword search to match cloudlib
-            //        localProfiles = _dal.Where(
-            //            p => model.Keywords == null || model.Keywords.Any(kw => p.Namespace == kw),
-            //            base.DalUserToken, int.Parse(localCursor), null, true).Data;
-            //    }
-            //    foreach (var localProfile in localProfiles)
-            //    {
-            //        if (!result.Any(p => p.Namespace == localProfile.Namespace))
-            //        {
-            //            result.Add(CloudLibProfileModel.MapFromProfile(localProfile));
-            //        }
-            //    }
-            //    var mergedResult = new List<CloudLibProfileModel>();
-            //    while (localProfiles.Any() && resultPage.Any() && result.Count < model.Take)
-            //    {
-            //        if (localProfiles[0].Namespace < resultPage[0].Namespace)
-            //        {
-            //            result.Add(CloudLibProfileModel.MapFromProfile(localProfiles[0]));
-            //            localProfiles.RemoveAt(0);
-            //            cloudLibCursor = (int.Parse(initialCloudLibCursor) + 1).ToString();
-            //        }
-            //        else
-            //        {
-            //            result.Add(resultPage[0]);
-            //            resultPage.RemoveAt(0);
-            //            localCursor= (int.Parse(localCursor) + 1).ToString();
-            //        }
-            //    }
-            //    var orderedResult = result.OrderBy(p => p.Namespace)/*.Skip(model.Skip)*/.Take(model.Take).ToList();
-            //    var lastCloudLibIndexNotReturned = result.FindIndex(p => !string.IsNullOrEmpty(p.CloudLibId) && orderedResult.Contains(p));
-            //    if (lastCloudLibIndexNotReturned >= 0)
-            //    {
-            //        cloudLibCursor = (lastCloudLibIndexNotReturned + int.Parse(initialCloudLibCursor) + 1).ToString();
-            //    }
-            //    var lastLocalIndexNotReturned = localProfiles.FindIndex(p => orderedResult.Any(r => r.ID == p.ID));
-            //    if (lastLocalIndexNotReturned >= 0)
-            //    {
-            //        localCursor = (lastLocalIndexNotReturned + int.Parse(localCursor) + 1).ToString();
-            //    }
-            //    result = orderedResult;
-            //}
-            //else
-            //{
-            //    if (result.Count > model.Take)
-            //    {
-            //        cloudLibCursor = (int.Parse(cloudLibCursor) - (result.Count - model.Take)).ToString();
-            //        result = result.Take(model.Take).ToList();
-            //    }
-            //}
 
             foreach (var localProfile in allLocalProfiles?? new List<ProfileModel>())
             {

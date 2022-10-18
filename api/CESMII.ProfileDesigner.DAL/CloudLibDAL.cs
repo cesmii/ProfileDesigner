@@ -68,23 +68,80 @@
             return result;
         }
 
-        public async Task<List<CloudLibProfileModel>> GetAll() {
-            var result = await this.Where(100, 0, null); // TODO implement pagination or just remove?
+        public async Task<NodeResult<CloudLibProfileModel>> GetAll() {
+            var result = await this.Where(100, null, null); // TODO implement pagination or just remove?
             return result;
         }
 
-        public async Task<List<CloudLibProfileModel>> Where(int limit, int skip, List<string> keywords, List<string> exclude = null)
+        public async Task<NodeResult<CloudLibProfileModel>> Where(int limit, string cursor, List<string> keywords, List<string> exclude = null)
         {
-            var matches = await _cloudLib.Search(limit, skip, keywords, exclude);
-            if (matches ==null || matches.Count == 0) return new List<CloudLibProfileModel>();
+            var matches = await _cloudLib.Search(limit, cursor, keywords, exclude);
+            if (matches == null) return new NodeResult<CloudLibProfileModel>();
 
             //TBD - exclude some nodesets which are core nodesets - list defined in appSettings
 
+            return new NodeResult<CloudLibProfileModel>(matches)
+            {
+                Edges = MapToModelsNodesetResult(matches.Edges),
+            };
+        }
+    
 
-            return MapToModelsNodesetResult(matches);
+    protected List<NodeAndCursor<CloudLibProfileModel>> MapToModelsNodesetResult(List<NodeAndCursor<Nodeset>> entities)
+    {
+        var result = new List<NodeAndCursor<CloudLibProfileModel>>();
+
+        foreach (var item in entities)
+        {
+            result.Add(MapToModelNodesetResult(item));
+        }
+        return result;
+    }
+
+    /// <summary>
+    /// This is called when searching a collection of items. 
+    /// </summary>
+    /// <param name="entity"></param>
+    /// <returns></returns>
+    protected NodeAndCursor<CloudLibProfileModel> MapToModelNodesetResult(NodeAndCursor<Nodeset> entityAndCursor)
+    {
+        if (entityAndCursor != null && entityAndCursor.Node != null)
+        {
+                var entity = entityAndCursor.Node;
+            //map results to a format that is common with marketplace items
+            return new NodeAndCursor<CloudLibProfileModel>()
+            {
+                Cursor = entityAndCursor.Cursor,
+                Node = new CloudLibProfileModel
+                {
+                    ID = null,
+                    CloudLibId = entity.Identifier.ToString(),
+                    Name = entity.Identifier.ToString(),  //in marketplace items, name is used for navigation in friendly url
+                    ExternalAuthor = entity.Metadata?.Contributor?.Name,
+                    Contributor = entity.Metadata?.Contributor?.Name, // TODO reconcile this with MarketPlace PublishedModel?
+                                                                    //TBD
+                                                                    //Description = "Description..." + entity.Title,
+                    DisplayName = entity.Metadata?.Title,
+                    Namespace = entity.NamespaceUri?.ToString(),
+                    PublishDate = entity.PublicationDate,
+                    //Type = _smItemType,
+                    Version = entity.Version,
+                    //IsFeatured = false,
+                    //ImagePortrait = _images.FirstOrDefault(x => x.ID.Equals(_config.DefaultImageIdPortrait)),
+                    ////ImageSquare = _images.FirstOrDefault(x => x.ID.Equals(_config.DefaultImageIdSquare)),
+                    //ImageLandscape = _images.FirstOrDefault(x => x.ID.Equals(_config.DefaultImageIdLandscape))
+                }
+            };
+        }
+        else
+        {
+            return null;
         }
 
-        protected List<CloudLibProfileModel> MapToModelsNodesetResult(List<UANodesetResult> entities)
+    }
+
+
+    protected List<CloudLibProfileModel> MapToModelsNodesetResult(List<UANodesetResult> entities)
         {
             var result = new List<CloudLibProfileModel>();
 

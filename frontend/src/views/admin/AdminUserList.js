@@ -314,7 +314,7 @@ function AdminUserList() {
             </Helmet>
             <div className="row py-2 pb-4">
                 <div className="col-sm-8">
-                    <h1>Admin | Manage Users</h1>
+                    <h1>Admin | View Users</h1>
                 </div>
                 <div className="col-sm-4 d-flex align-items-center justify-content-end" >
                     <HeaderSearch showAdvancedSearch={false} filterVal={_pager.searchVal == null ? null : _pager.searchVal} onSearch={handleOnSearchChange} searchMode="standard" activeAccount={_activeAccount} />

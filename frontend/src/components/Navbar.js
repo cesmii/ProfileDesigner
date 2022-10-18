@@ -32,10 +32,17 @@ function Navbar() {
     //-------------------------------------------------------------------
     // Region: event handlers
     //-------------------------------------------------------------------
-    const onLogoutClick = () => {
-        //MSAL logout
-        instance.logoutPopup();
-        history.push(`/`);
+    const onLogoutClick = (e) => {
+        //MSAL logout - this will go down the flow of logging out from this app and logging out of the server app session in AAD.
+        //instance.logoutPopup();
+        //MSAL logout - local only this will go down the flow of logging out local - clear local cache but NOT log out of the server app session in AAD.
+        instance.logoutRedirect({
+            onRedirectNavigate: (url) => {
+                //return false if you would like to stop after local logout - ie don't logout of server instance
+                history.push(`/login`);
+                return false;
+            }});
+        e.preventDefault();
     }
 
     const renderNav = () => {
@@ -65,12 +72,8 @@ function Navbar() {
                         {_activeAccount?.name}
                     </Dropdown.Toggle>
                     <Dropdown.Menu>
-                        <Dropdown.Item eventKey="1" href="/account">Account Profile</Dropdown.Item>
                         {(isInRole(_activeAccount, 'cesmii.profiledesigner.admin')) &&
-                            <>
-                            <Dropdown.Divider />
-                            <Dropdown.Item eventKey="3" href="/admin/user/list">Manage Users</Dropdown.Item>
-                            </>
+                            <Dropdown.Item eventKey="3" href="/admin/user/list">View Users</Dropdown.Item>
                         }
                         <Dropdown.Divider />
                         {(inProgress !== InteractionStatus.Startup && inProgress !== InteractionStatus.HandleRedirect) &&

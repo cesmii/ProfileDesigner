@@ -1,6 +1,6 @@
 import React from "react";
 import { Route, Redirect } from "react-router-dom";
-import { useIsAuthenticated } from "@azure/msal-react";
+import { useIsAuthenticated, useMsal } from "@azure/msal-react";
 
 import { InlineMessage } from "../InlineMessage";
 import SideMenu from "../SideMenu";
@@ -22,14 +22,21 @@ const PrivateLayout = ({ children }) => (
 
 function PrivateRoute({ component: Component, ...rest }) {
 
+    const { instance } = useMsal();
     const _isAuthenticated = useIsAuthenticated();
+    const _activeAccount = instance.getActiveAccount();
+    //Check for is authenticated. Check individual permissions - ie can manage marketplace items.
+    const _isAuthorized = _isAuthenticated && _activeAccount != null;
+
+    //track a redirect url for post login
+    const redirectUrl = rest.location?.pathname && rest.location?.pathname !== '/' ? `/sso?returnUrl=${rest.location?.pathname}` : '/sso';
 
     return (
         <Route
             {...rest}
-            render={props => _isAuthenticated  ?
+            render={props => _isAuthorized ?
                 (<PrivateLayout><Component {...props} /></PrivateLayout>) :
-                (<Redirect to="/" />)
+                (<Redirect to={redirectUrl} />)
             }
         />
     );

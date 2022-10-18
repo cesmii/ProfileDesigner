@@ -131,7 +131,6 @@ CREATE TABLE public.user
 (
     id SERIAL PRIMARY KEY,
     organization_id integer NULL,
-    --password character varying(128) COLLATE pg_catalog."default" NULL,
     last_login timestamp with time zone,
     username character varying(150) COLLATE pg_catalog."default" NULL,
     objectid_aad character varying(100) COLLATE pg_catalog."default" NULL, 

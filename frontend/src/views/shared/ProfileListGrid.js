@@ -91,10 +91,10 @@ function ProfileListGrid(props) {
             //show a spinner
             setLoadingProps({ isLoading: true, message: null });
 
-            var url = `profile/${props.isMine ? 'mine' : 'library'}`;
+            var url = `profile/${props.isMine ? 'mine' : 'cloudlibrary'}`;
             console.log(generateLogMessageString(`useEffect||fetchData||${url}`, CLASS_NAME));
 
-            var data = { Query: _pager.searchVal, Skip: (_pager.currentPage - 1) * _pager.pageSize, Take: _pager.pageSize };
+            var data = { Query: _pager.searchVal, Skip: (_pager.currentPage - 1) * _pager.pageSize, Take: _pager.pageSize, AddLocalLibrary: true, ExcludeLocalLibrary: true };
             await axiosInstance.post(url, data).then(result => {
                 if (result.status === 200) {
 

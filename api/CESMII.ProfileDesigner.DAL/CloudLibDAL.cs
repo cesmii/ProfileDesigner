@@ -233,7 +233,8 @@
                     //ImageLandscape = entity.IconUrl == null ?
                     //    _images.FirstOrDefault(x => x.ID.Equals(_config.DefaultImageIdLandscape)) :
                     //    new ImageItemModel() { Src = entity.IconUrl.ToString() },
-                    Updated = entity.Nodeset.LastModifiedDate
+                    Updated = entity.Nodeset.LastModifiedDate,
+                    NodesetXml = entity.Nodeset.NodesetXml,
                 };
             }
             else

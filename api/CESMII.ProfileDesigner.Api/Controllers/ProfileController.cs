@@ -21,6 +21,8 @@ using System.Threading.Tasks;
 using CESMII.ProfileDesigner.OpcUa.AASX;
 using System.Text.RegularExpressions;
 using Opc.Ua.Cloud.Library.Client;
+using System.Globalization;
+using System.Linq.Expressions;
 
 namespace CESMII.ProfileDesigner.Api.Controllers
 {
@@ -220,8 +222,15 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                         {
                             // TODO better keyword search to match cloudlib
                             var newLocalProfiles = _dal.Where(
-                                p => model.Keywords == null || model.Keywords.Any(kw => p.Namespace == kw),
-                                base.DalUserToken, int.Parse(localCursor), null, true).Data;
+                                new List<Expression<Func<Profile, bool>>> { p => model.Keywords == null || model.Keywords.Any(kw => p.Namespace == kw) },
+                                base.DalUserToken, int.Parse(localCursor), null, true,
+                                orderByExpressions: 
+                                    new OrderByExpression<Profile>
+                                    {
+                                        Expression = p => !p.AuthorId.HasValue || p.StandardProfileID.HasValue,
+                                        IsDescending = false,
+                                    }
+                                ).Data;
                             bFullResultLocal = newLocalProfiles.Count == model.Take || newLocalProfiles.Count == 0;
                             pendingLocalProfiles.AddRange(newLocalProfiles);
                         }
@@ -229,7 +238,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                     else
                     {
                         bFullResultLocal = true;
-                        pendingLocalProfiles.AddRange(allLocalProfiles.Skip(int.Parse(localCursor)));
+                        pendingLocalProfiles.AddRange(allLocalProfiles.OrderBy(pm => pm.IsReadOnly).Skip(int.Parse(localCursor)));
                     }
                     while (result.Count < model.Take
                         && (pendingLocalProfiles.Any() || (pendingCloudLibProfiles.Any()))
@@ -242,7 +251,9 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                             cloudLibCursor = firstPendingCloudLibProfile.Cursor;
                             continue;
                         }
-                        if (pendingLocalProfiles.Any() && (firstPendingCloudLibProfile?.Node == null || String.CompareOrdinal(pendingLocalProfiles?.FirstOrDefault()?.Namespace, firstPendingCloudLibProfile.Node.Namespace) < 0))
+                        if (pendingLocalProfiles.Any() && 
+                            (model.ExcludeLocalLibrary || // Put local library items first if both add and exclude is specified
+                              (firstPendingCloudLibProfile?.Node == null || String.Compare(pendingLocalProfiles?.FirstOrDefault()?.Namespace, firstPendingCloudLibProfile.Node.Namespace, false, CultureInfo.InvariantCulture) < 0)))
                         {
                             result.Add(CloudLibProfileModel.MapFromProfile(pendingLocalProfiles[0]));
                             pendingLocalProfiles.RemoveAt(0);
@@ -354,10 +365,10 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                     }
                 );
             }
-            var importModel = new ImportOPCModel 
+            var importModel = new ImportOPCModel
             {
-                 Data = profileToImport.NodesetXml,
-                 FileName = profileToImport.Name,
+                Data = profileToImport.NodesetXml,
+                FileName = profileToImport.Namespace,
              };
             return await Import(new List<ImportOPCModel> { importModel });
         }

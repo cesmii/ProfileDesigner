@@ -39,7 +39,22 @@ export const renderProfileIcon = (item, account, size = 20, useMarginRight = tru
 
     const isOwnerBool = isOwner(item, account);
     const iconName = (!isOwnerBool) ? 'folder-profile' : 'folder-shared';
-    const iconColor = (item.isReadOnly || !isOwnerBool) ? color.nevada : color.cornflower;
+    // TODO sort this out properly when isOwner is working etc.
+    var iconColor = color.amber;
+    if (item.id != null) {
+        if (item.isReadOnly) {
+            iconColor = color.coolGray;
+        }
+        else {
+            iconColor = color.apple;
+        }
+    }
+    else if (item.cloudLibId != null) {
+        iconColor = color.blazeOrange;
+    }
+    //(item.isReadOnly || !isOwnerBool) ?
+    //    (item.cloudLibId != null ? color.blazeOrange : color.amber)
+    //    : color.apple;
     const svg = (<SVGIcon name={iconName} size={size} fill={iconColor} alt={iconName} />);
     return (<span className={useMarginRight ? "d-flex align-items-center justify-content-center mr-2" : "d-flex align-items-center justify-content-center "} >{svg}</span>)
 };

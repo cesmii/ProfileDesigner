@@ -24,8 +24,8 @@
         /// <summary>
         /// In the short term, keep the userNameLegacy around so we can know who has cutover. 
         /// </summary>
-        [Column(name: "username")]
-        public string UserNameLegacy { get; set; }
+        //[Column(name: "username")]
+        //public string UserNameLegacy { get; set; }
 
         [Column(name: "date_joined")]
         public DateTime? Created { get; set; }

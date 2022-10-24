@@ -24,7 +24,6 @@ import ProfileList from '../views/ProfileList'
 import AdminUserEntity from '../views/admin/AdminUserEntity'
 import AdminUserList from '../views/admin/AdminUserList'
 import Login from '../views/Login'
-import SingleSignOn from '../views/SingleSignOn'
 import NotAuthorized from '../views/NotAuthorized'
 //import LoginSuccess from '../views/LoginSuccess'
 
@@ -40,9 +39,8 @@ function Routes() {
         <Switch>
             <WizardRoute exact path="/" component={WizardWelcome} roles={['cesmii.profiledesigner.user']} />
             {/*<LoginSuccessRoute exact path="/loginsuccess" component={LoginSuccess} roles={['cesmii.profiledesigner.user']} />*/}
+            <PublicFixedRoute path="/login/returnUrl=:returnUrl" component={Login} />
             <PublicFixedRoute exact path="/login" component={Login} />
-            <PublicFixedRoute exact path="/sso?returnUrl=:returnUrl" component={SingleSignOn} />
-            <PublicFixedRoute exact path="/sso" component={SingleSignOn} />
             <PrivateRoute path="/profiles/library" component={ProfileList} roles={['cesmii.profiledesigner.user']} />
             {/*Handles types/all and types/mine in the component*/}
             <PrivateRoute path="/types/library/profile/:profileId" component={ProfileTypeDefinitionList} roles={['cesmii.profiledesigner.user']} />

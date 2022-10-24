@@ -1,9 +1,8 @@
 import React from 'react'
 import { Helmet } from "react-helmet"
 import { useHistory, useParams } from 'react-router-dom';
-import { useIsAuthenticated, useMsal } from "@azure/msal-react";
 
-import { useLoginSilent } from '../components/OnLoginHandler';
+import { useLoginSilent, useLoginStatus } from '../components/OnLoginHandler';
 import { useLoadingContext } from '../components/contexts/LoadingContext';
 import { AppSettings } from '../utils/appsettings'
 import WelcomeContent from './shared/WelcomeContent';
@@ -18,15 +17,13 @@ function SingleSignOn() {
     const history = useHistory();
     const { returnUrl } = useParams();
     const { loadingProps, setLoadingProps } = useLoadingContext();
-    const { instance } = useMsal();
-    const _isAuthenticated = useIsAuthenticated();
-    const _activeAccount = instance.getActiveAccount();
+    const { isAuthenticated, isAuthorized } = useLoginStatus(null, [AppSettings.AADUserRole]);
 
     //set this for downstream use post successful silent login
     if (returnUrl != null && loadingProps.returnUrl !== returnUrl) setLoadingProps({ returnUrl: returnUrl });
 
     //check for logged in status - redirect to home page if already logged in.
-    if (_isAuthenticated && _activeAccount != null) {
+    if (isAuthenticated && isAuthorized) {
         history.push(returnUrl ? returnUrl : '/');
     }
 

@@ -49,9 +49,9 @@ function WelcomeContent(props) {
                     </div>
                     <div className="col-sm-6 col-md-5 px-0 pl-5" >
                         {props.showLogin &&
-                            <div class="elevated mx-3 card mt-5">
-                            <div class="card-body">
-                            <h2 class="text-center mb-3">Returning Users</h2>
+                            <div className="elevated mx-3 card mt-5">
+                            <div className="card-body">
+                            <h2 className="text-center mb-3">Returning Users</h2>
                             <div className="d-flex mt-auto mx-auto">
                                     <LoginButton />
                             </div>

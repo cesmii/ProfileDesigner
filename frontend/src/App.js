@@ -13,7 +13,7 @@ import { AppSettings } from './utils/appsettings'
 import { generateLogMessageString } from './utils/UtilityService'
 import ErrorPage from './components/ErrorPage'
 import { OnLookupLoad } from './components/OnLookupLoad'
-import { useLoginSilent } from "./components/OnLoginHandler";
+import { useLoginSilent, useOnLoginComplete } from "./components/OnLoginHandler";
 
 import './App.scss';
 
@@ -91,6 +91,12 @@ function App() {
     // if that fails, then user will have to initiate login.
     //-------------------------------------------------------------------
     useLoginSilent();
+
+    //-------------------------------------------------------------------
+    // Region: hooks
+    // once login completes, determine where to navigate based on outcome
+    //-------------------------------------------------------------------
+    useOnLoginComplete();
 
     //-------------------------------------------------------------------
     // Region: hooks - moved into separate component

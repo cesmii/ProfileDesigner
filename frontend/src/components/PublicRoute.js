@@ -13,7 +13,7 @@ const SimpleLayout = ({ children }) => (
     </div>
 );
 
-const SimpleFixedLayout = ({ children }) => (
+export const SimpleFixedLayout = ({ children }) => (
 
     <div id="--routes-wrapper" className="container" >
         <div className="main-panel m-4">

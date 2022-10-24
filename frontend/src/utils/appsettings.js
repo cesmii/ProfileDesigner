@@ -89,15 +89,19 @@ export const AppSettings = {
         auth: {
             clientId: process.env.REACT_APP_MSAL_CLIENT_ID, //Application (client) id in Azure of the registered application
             authority: process.env.REACT_APP_MSAL_AUTHORITY, //MSAL code will append client id, oauth path
-            redirectUri: "/", //must match with the redirect url specified in the Azure App Application. Note Azure will also need https://domainname.com/library
+            redirectUri: "/loginsuccess", //must match with the redirect url specified in the Azure App Application. Note Azure will also need https://domainname.com/library
             postLogoutRedirectUri: "/"
         },
         cache: {
             cacheLocation: "localStorage",
             storeAuthStateInCookie: _isIE || _isEdge || _isFirefox
-        }
+        },
+        system: {
+            iframeHashTimeout: 10000, //avoid monitor time out error on silent login
+        },
     }
     , MsalScopes: [process.env.REACT_APP_MSAL_SCOPE]  //tied to scope defined in app registration / scope, set in Azure AAD
+    , AADUserRole: "cesmii.profiledesigner.user"
 }
 
 export const LookupData = {

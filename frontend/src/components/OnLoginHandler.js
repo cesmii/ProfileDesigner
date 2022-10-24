@@ -33,7 +33,7 @@ export const useLoginStatus = (location = null, roles = null) => {
     let redirectUrl = '/';
     if (!isAuthenticated) {
         redirectUrl = location?.pathname && location?.pathname !== '/' ?
-            `/login?returnUrl=${location?.pathname}` : '/login';
+            `/login/returnUrl=${encodeURIComponent(location?.pathname)}` : '/login';
     }
     else if (!isAuthorized) {
         redirectUrl = '/notpermitted';

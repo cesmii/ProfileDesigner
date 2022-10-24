@@ -21,7 +21,7 @@ function Login() {
 
     //check for logged in status - redirect to home page if already logged in.
     if (isAuthenticated && isAuthorized) {
-        history.push(returnUrl ? returnUrl : '/');
+        history.push(returnUrl ? decodeURIComponent(returnUrl) : '/');
     }
 
     //-------------------------------------------------------------------

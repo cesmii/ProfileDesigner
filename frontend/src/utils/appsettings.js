@@ -89,7 +89,7 @@ export const AppSettings = {
         auth: {
             clientId: process.env.REACT_APP_MSAL_CLIENT_ID, //Application (client) id in Azure of the registered application
             authority: process.env.REACT_APP_MSAL_AUTHORITY, //MSAL code will append client id, oauth path
-            redirectUri: "/loginsuccess", //must match with the redirect url specified in the Azure App Application. Note Azure will also need https://domainname.com/library
+            redirectUri: "/login/success", //must match with the redirect url specified in the Azure App Application. Note Azure will also need https://domainname.com/library
             postLogoutRedirectUri: "/"
         },
         cache: {

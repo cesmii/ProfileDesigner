@@ -187,7 +187,7 @@ export const doLoginPopup = async (instance, inProgress, accounts, setLoadingPro
                         isLoading: false, inlineMessages: 
                             [{ id: new Date().getTime(), severity: "danger", body: 'Your account is not permitted to access Profile Designer. Email us at devops@cesmii.org to get registered or request assistance.', isTimed: false }]
                     });
-                    instance.logoutPopup();
+                    forceLogout(instance);
                     return;
                 }
                 //set the active account
@@ -253,7 +253,7 @@ export const useLoginSilent = () => {
                 //check for basic role membership. You may have an AAD account but may not 
                 //be granted permissions to this app
                 if (!isInRole(response.account, AppSettings.AADUserRole)) {
-                    instance.logoutPopup();
+                    forceLogout(instance);
                     return;
                 }
 
@@ -419,6 +419,20 @@ export const doLogout = (history, instance, redirectUrl = `/login`, silent = tru
     }
 }
 
+//-------------------------------------------------------------------
+// Region: doLogout
+//-------------------------------------------------------------------
+export const forceLogout = (instance) => {
+    instance.logoutPopup()
+        .catch((err) => {
+            if (err.errorCode === "popup_window_error") {
+                instance.logoutRedirect();
+                console.info(generateLogMessageString(`forceLogout||popup_window_error`, CLASS_NAME));
+            }
+            else {
+                console.error(generateLogMessageString(`forceLogout||${err}`, CLASS_NAME));
+                throw err;
+            }
+        });
 
-
-
+}

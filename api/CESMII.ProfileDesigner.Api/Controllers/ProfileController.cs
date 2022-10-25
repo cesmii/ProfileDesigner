@@ -160,23 +160,32 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             }
 
             List<CloudLibProfileModel> result = new();
+
+            // Get both local and cloudlib cursors
             var cursors = model.Cursor?.Split(",");
-            string cloudLibCursor = cursors?[0] ?? null;//model.AddLocalLibrary ? 0 : model.Skip;
+            string cloudLibCursor = cursors?[0] ?? null;
+            if (cloudLibCursor == string.Empty)
+            {
+                cloudLibCursor = null;
+            }
             string localCursor = cursors?[1] ?? "0";
-            bool bFullResultCloud = false;
+
+            bool bFullResultCloud;
             bool bFullResultLocal = false;
             List<ProfileModel> allLocalProfiles = null;
             List<GraphQlNodeAndCursor<CloudLibProfileModel>> pendingCloudLibProfiles = new();
             List<ProfileModel> pendingLocalProfiles = null;
+
             do
             {
-                var sw = Stopwatch.StartNew();
+                // Get first batch of profiles from the cloudlib
                 var cloudResultTask = _cloudLibDal.Where(model.Take, cloudLibCursor, model.Keywords);
-                // Run the next query in parallel
+
+                // Get local profiles in parallel
                 allLocalProfiles = allLocalProfiles ?? _dal.GetAll(base.DalUserToken);
-                // Wait for the first query to finish as well
+
+                // Wait for the cloudlib query to finish
                 var cloudResultPage = await cloudResultTask;
-                _logger.LogWarning($"CloudLib query: {sw.ElapsedMilliseconds} ms");
                 if (cloudResultPage.Edges.Count > model.Take)
                 {
                     _logger.LogWarning($"ProfileController|GetCloudLibrary|Received more profiles than requested: {result.Count}, expected {model.Take}.");
@@ -186,6 +195,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
 
                 if (model.ExcludeLocalLibrary)
                 {
+                    // remove all profiles from the cloudlib result that are available locally: mark them as null for correct cursor handling of skipped profiles
                     foreach (var localProfile in allLocalProfiles)
                     {
                         var removedItemIndex = pendingCloudLibProfiles.FindLastIndex( p => p?.Node != null && p.Node.Namespace == localProfile.Namespace);
@@ -202,11 +212,12 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                     {
                         pendingLocalProfiles = new();
                     }
+
+                    // Query local profiles
                     if (model.Keywords != null)
                     {
                         if (!bFullResultLocal)
                         {
-                            // TODO better keyword search to match cloudlib
                             var orderBy = new List<OrderByExpression<Profile>> {
                                     new OrderByExpression<Profile>
                                     {
@@ -229,8 +240,15 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                                 });
                             }
 
+                            string keywordRegex = $".*({string.Join('|', model.Keywords)}).*";
+
+
                             var newLocalProfiles = _dal.Where(
-                                new List<Expression<Func<Profile, bool>>> { p => model.Keywords == null || model.Keywords.Any(kw => p.Namespace == kw) },
+                                new List<Expression<Func<Profile, bool>>>
+                                {
+                                    p => Regex.IsMatch(p.Namespace, keywordRegex, RegexOptions.IgnoreCase)
+                                    // TODO better keyword search on ProfileTypeDefinitions etc. to match cloudlib's query
+                                },
                                 base.DalUserToken, int.Parse(localCursor), null, true,
                                 orderByExpressions: orderBy.ToArray()).Data;
                             bFullResultLocal = newLocalProfiles.Count == model.Take || newLocalProfiles.Count == 0;
@@ -241,27 +259,35 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                     {
                         bFullResultLocal = true;
                         pendingLocalProfiles.AddRange(
-                            (model.ExcludeLocalLibrary ? 
+                            (model.ExcludeLocalLibrary ?
                                 allLocalProfiles.OrderBy(pm => pm.IsReadOnly).ThenBy(pm => pm.Namespace).ThenBy(pm => pm.PublishDate)// owned profiles first when excluding and adding
                                 : allLocalProfiles.OrderBy(pm => pm.Namespace).ThenBy(pm => pm.PublishDate)
                             )
                             .Skip(int.Parse(localCursor)));
                     }
+                }
+                else
+                {
+                    bFullResultLocal = true;
+                }
+                    // Process from start of local or cloud lists until we have enough results
                     while (result.Count < model.Take
-                        && (pendingLocalProfiles.Any() || (pendingCloudLibProfiles.Any()))
-                        && ((pendingLocalProfiles.Any() || bFullResultLocal) || (pendingCloudLibProfiles.Any() || bFullResultCloud)))
+                        && (pendingLocalProfiles?.Any() == true || (pendingCloudLibProfiles.Any()))
+                        && ((pendingLocalProfiles?.Any() == true || bFullResultLocal) || (pendingCloudLibProfiles.Any() || bFullResultCloud)))
                     {
                         var firstPendingCloudLibProfile = pendingCloudLibProfiles.FirstOrDefault();
                         if (firstPendingCloudLibProfile != null && firstPendingCloudLibProfile.Node == null)
                         {
+                            // Cloud profile was excluded earlier: skip it but remember it's cursor for the next query
                             pendingCloudLibProfiles.RemoveAt(0);
                             cloudLibCursor = firstPendingCloudLibProfile.Cursor;
                             continue;
                         }
-                        var firstPendingLocalprofile = pendingLocalProfiles.FirstOrDefault();
+
+                        var firstPendingLocalprofile = pendingLocalProfiles?.FirstOrDefault();
                         if (firstPendingLocalprofile != null && 
                             (model.ExcludeLocalLibrary || // Put local library items first if both add and exclude is specified
-                              (firstPendingCloudLibProfile?.Node == null || String.Compare(pendingLocalProfiles?.FirstOrDefault()?.Namespace, firstPendingCloudLibProfile.Node.Namespace, false, CultureInfo.InvariantCulture) < 0)))
+                              (firstPendingCloudLibProfile?.Node == null || String.Compare(firstPendingLocalprofile.Namespace, firstPendingCloudLibProfile.Node.Namespace, false, CultureInfo.InvariantCulture) < 0)))
                         {
                             result.Add(CloudLibProfileModel.MapFromProfile(firstPendingLocalprofile));
                             pendingLocalProfiles.RemoveAt(0);
@@ -279,39 +305,16 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                                     firstPendingLocalprofile.Namespace == firstPendingCloudLibProfile.Node.Namespace 
                                     && firstPendingLocalprofile.PublishDate == firstPendingCloudLibProfile.Node.PublishDate )
                                 {
-                                    // Skip matching local profile
+                                    // Skip matching local profile to avoid duplicates
                                     pendingLocalProfiles.RemoveAt(0);
                                     localCursor = (int.Parse(localCursor) + 1).ToString();
                                 }
                             }
                         }
                     }
-                }
-                else
-                {
-                    bFullResultLocal = true;
-                    var toTake = model.Take - result.Count;
-                    int available = pendingCloudLibProfiles.Count(p => p.Node != null);
-                    int processed = 0;
-                    foreach (var p in pendingCloudLibProfiles)
-                    {
-                        if (toTake <= 0)
-                        {
-                            break;
-                        }
-                        if (p?.Node != null)
-                        {
-                            result.Add(p.Node);
-                            toTake--;
-                        }
-                        cloudLibCursor = p.Cursor;
-                        processed++;
-                    }
-                    pendingCloudLibProfiles = pendingCloudLibProfiles.Skip(processed).Where(p => p != null).ToList();
-                }
-
             } while ((!bFullResultCloud || ! bFullResultLocal) && result.Count < model.Take);
 
+            // Fill in any local profile information for cloud library-only results
             foreach (var localProfile in allLocalProfiles?? new List<ProfileModel>())
             {
                 var cloudLibProfile = result.FirstOrDefault(p => p.Namespace == localProfile.Namespace);

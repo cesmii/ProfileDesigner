@@ -183,7 +183,12 @@ namespace Opc.Ua.Cloud.Library.Client
             }
             if (response.Errors?.Length > 0)
             {
-                throw new GraphQlException(response.Errors[0].Message);
+                string message = response.Errors[0].Message;
+                if (response.Errors[0].Extensions?.TryGetValue("message", out var messageObj) == true && messageObj != null)
+                {
+                    message = messageObj?.ToString();
+                }
+                throw new GraphQlException(message);
             }
 
             string dataJson = response.Data?.First?.First?.ToString();
@@ -466,6 +471,7 @@ namespace Opc.Ua.Cloud.Library.Client
             request.Query = @"
 query MyQuery ($identifier: String, $namespaceUri: String, $publicationDate: DateTime, $keywords: [String], $after: String, $first: Int, $before: String, $last:Int) {
   nodeSets(identifier: $identifier, nodeSetUrl: $namespaceUri, publicationDate: $publicationDate, keywords: $keywords, after: $after, first: $first, before: $before, last: $last) {
+    totalCount
     pageInfo {
       endCursor
       hasNextPage

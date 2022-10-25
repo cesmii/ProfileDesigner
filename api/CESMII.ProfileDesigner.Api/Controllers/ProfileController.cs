@@ -181,22 +181,8 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 {
                     _logger.LogWarning($"ProfileController|GetCloudLibrary|Received more profiles than requested: {result.Count}, expected {model.Take}.");
                 }
-                bFullResultCloud = !cloudResultPage.PageInfo.HasNextPage; // cloudResultPage.Count != model.Take || cloudResultPage.Count == 0;
+                bFullResultCloud = !cloudResultPage.PageInfo.HasNextPage;
                 pendingCloudLibProfiles.AddRange(cloudResultPage.Edges);
-
-                //if (model.AddLocalLibrary && !bFullResult)
-                //{
-                //    // Make sure we retrieve all profiles so we can properly page over the merged and sorted list
-                //    do
-                //    {
-                //        var moreCloudLibProfiles = await _cloudLibDal.Where(model.Take, int.Parse(cloudLibCursor), model.Keywords);
-                //        result.AddRange(moreCloudLibProfiles);
-                //        bFullResult = moreCloudLibProfiles.Count < model.Take || moreCloudLibProfiles.Count == 0;
-                //        //offset += moreCloudLibProfiles.Count;
-                //        cloudLibCursor = (int.Parse(cloudLibCursor) + moreCloudLibProfiles.Count).ToString();
-                //        lastCloudLibCursor = cloudLibCursor;
-                //    } while (!bFullResult);
-                //}
 
                 if (model.ExcludeLocalLibrary)
                 {
@@ -205,7 +191,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                         var removedItemIndex = pendingCloudLibProfiles.FindLastIndex( p => p?.Node != null && p.Node.Namespace == localProfile.Namespace);
                         if (removedItemIndex >= 0)
                         {
-                            pendingCloudLibProfiles[removedItemIndex].Node = null;//.RemoveAll(p => p.Namespace == localProfile.Namespace);
+                            pendingCloudLibProfiles[removedItemIndex].Node = null;
                         }
                     }
                 }
@@ -221,16 +207,32 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                         if (!bFullResultLocal)
                         {
                             // TODO better keyword search to match cloudlib
+                            var orderBy = new List<OrderByExpression<Profile>> {
+                                    new OrderByExpression<Profile>
+                                    {
+                                        Expression = p => p.Namespace,
+                                        IsDescending = false,
+                                    },
+                                    new OrderByExpression<Profile>
+                                    {
+                                        Expression = p => p.PublishDate,
+                                        IsDescending = false,
+                                    },
+                            };
+                            if (model.ExcludeLocalLibrary)
+                            {
+                                // owned profiles first when excluding and adding
+                                orderBy.Insert(0, new OrderByExpression<Profile>
+                                {
+                                    Expression = p => !p.AuthorId.HasValue || p.StandardProfileID.HasValue,
+                                    IsDescending = false,
+                                });
+                            }
+
                             var newLocalProfiles = _dal.Where(
                                 new List<Expression<Func<Profile, bool>>> { p => model.Keywords == null || model.Keywords.Any(kw => p.Namespace == kw) },
                                 base.DalUserToken, int.Parse(localCursor), null, true,
-                                orderByExpressions: 
-                                    new OrderByExpression<Profile>
-                                    {
-                                        Expression = p => !p.AuthorId.HasValue || p.StandardProfileID.HasValue,
-                                        IsDescending = false,
-                                    }
-                                ).Data;
+                                orderByExpressions: orderBy.ToArray()).Data;
                             bFullResultLocal = newLocalProfiles.Count == model.Take || newLocalProfiles.Count == 0;
                             pendingLocalProfiles.AddRange(newLocalProfiles);
                         }
@@ -238,7 +240,12 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                     else
                     {
                         bFullResultLocal = true;
-                        pendingLocalProfiles.AddRange(allLocalProfiles.OrderBy(pm => pm.IsReadOnly).Skip(int.Parse(localCursor)));
+                        pendingLocalProfiles.AddRange(
+                            (model.ExcludeLocalLibrary ? 
+                                allLocalProfiles.OrderBy(pm => pm.IsReadOnly).ThenBy(pm => pm.Namespace).ThenBy(pm => pm.PublishDate)// owned profiles first when excluding and adding
+                                : allLocalProfiles.OrderBy(pm => pm.Namespace).ThenBy(pm => pm.PublishDate)
+                            )
+                            .Skip(int.Parse(localCursor)));
                     }
                     while (result.Count < model.Take
                         && (pendingLocalProfiles.Any() || (pendingCloudLibProfiles.Any()))
@@ -251,11 +258,12 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                             cloudLibCursor = firstPendingCloudLibProfile.Cursor;
                             continue;
                         }
-                        if (pendingLocalProfiles.Any() && 
+                        var firstPendingLocalprofile = pendingLocalProfiles.FirstOrDefault();
+                        if (firstPendingLocalprofile != null && 
                             (model.ExcludeLocalLibrary || // Put local library items first if both add and exclude is specified
                               (firstPendingCloudLibProfile?.Node == null || String.Compare(pendingLocalProfiles?.FirstOrDefault()?.Namespace, firstPendingCloudLibProfile.Node.Namespace, false, CultureInfo.InvariantCulture) < 0)))
                         {
-                            result.Add(CloudLibProfileModel.MapFromProfile(pendingLocalProfiles[0]));
+                            result.Add(CloudLibProfileModel.MapFromProfile(firstPendingLocalprofile));
                             pendingLocalProfiles.RemoveAt(0);
                             localCursor = (int.Parse(localCursor) + 1).ToString();
                         }
@@ -266,6 +274,15 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                                 result.Add(firstPendingCloudLibProfile.Node);
                                 cloudLibCursor = firstPendingCloudLibProfile.Cursor;
                                 pendingCloudLibProfiles.RemoveAt(0);
+
+                                if (firstPendingLocalprofile != null && 
+                                    firstPendingLocalprofile.Namespace == firstPendingCloudLibProfile.Node.Namespace 
+                                    && firstPendingLocalprofile.PublishDate == firstPendingCloudLibProfile.Node.PublishDate )
+                                {
+                                    // Skip matching local profile
+                                    pendingLocalProfiles.RemoveAt(0);
+                                    localCursor = (int.Parse(localCursor) + 1).ToString();
+                                }
                             }
                         }
                     }

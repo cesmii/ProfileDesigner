@@ -422,7 +422,7 @@ CREATE TABLE public.standard_nodeset
     namespace character varying(400) COLLATE pg_catalog."default" NOT NULL,
     version character varying(25) COLLATE pg_catalog."default" NOT NULL,
     filename character varying(255) COLLATE pg_catalog."default",
-    publish_date date,
+    publish_date timestamp with time zone,
     is_active boolean NOT NULL
 	
 )
@@ -514,7 +514,7 @@ CREATE TABLE public.nodeset_file
 	filename character varying(400) COLLATE pg_catalog."default" NOT NULL,
     file_cache text COLLATE pg_catalog."default",
     version character varying(25) COLLATE pg_catalog."default",
-    publish_date date,
+    publish_date timestamp with time zone,
     imported_by_id integer NULL,
     CONSTRAINT nodeset_imported_by_id FOREIGN KEY (imported_by_id)
         REFERENCES public.user (id) MATCH SIMPLE
@@ -539,7 +539,7 @@ CREATE TABLE public.profile
     owner_id integer NULL,
     namespace character varying(400) COLLATE pg_catalog."default" NOT NULL,
     version character varying(25) COLLATE pg_catalog."default",
-    publish_date date NULL,
+    publish_date timestamp with time zone NULL,
     ua_standard_profile_id integer NULL,
     author_id integer NULL,
     --file_cache text COLLATE pg_catalog."default", -- This need to go away eventually in favor of the profile_nodeset_file table

@@ -62,7 +62,7 @@ namespace CESMII.OpcUa.NodeSetImporter
                     var nodeSets = await _client.GetNodeSetDependencies(namespaceUri: missingModel.ModelUri).ConfigureAwait(false);
                     foreach (var nodeSet in nodeSets)
                     {
-                        nodesetWithURIAndDate.Add((nodeSet.NamespaceUri.ToString(), nodeSet.PublicationDate, nodeSet.Identifier.ToString(CultureInfo.InvariantCulture), nodeSet.NodesetXml));
+                        nodesetWithURIAndDate.Add((nodeSet.NamespaceUri.OriginalString, nodeSet.PublicationDate, nodeSet.Identifier.ToString(CultureInfo.InvariantCulture), nodeSet.NodesetXml));
                     }
                 }
             }
@@ -78,7 +78,7 @@ namespace CESMII.OpcUa.NodeSetImporter
                         OnDownloadNodeSet?.Invoke(nsid.NamespaceUri, null);
                         var nodeSet = await _client.DownloadNodesetAsync(nsid.Identifier).ConfigureAwait(false);
                         nodesetWithURIAndDate.Add((
-                            nodeSet.Nodeset.NamespaceUri?.ToString() ?? nsid.NamespaceUri, // TODO cloud lib currently doesn't return the namespace uri: report issue/fix
+                            nodeSet.Nodeset.NamespaceUri?.OriginalString ?? nsid.NamespaceUri, // TODO cloud lib currently doesn't return the namespace uri: report issue/fix
                             nodeSet.Nodeset.PublicationDate,
                             (string) null,
                             nodeSet.Nodeset.NodesetXml));

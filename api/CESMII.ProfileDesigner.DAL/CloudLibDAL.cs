@@ -122,7 +122,7 @@
                                                                     //TBD
                                                                     //Description = "Description..." + entity.Title,
                     DisplayName = entity.Metadata?.Title,
-                    Namespace = entity.NamespaceUri?.ToString(),
+                    Namespace = entity.NamespaceUri?.OriginalString,
                     PublishDate = entity.PublicationDate,
                     //Type = _smItemType,
                     Version = entity.Version,
@@ -221,7 +221,7 @@
                         (entity.PurchasingInformationUrl == null ? "" : $"<p><a href='{entity.PurchasingInformationUrl.ToString()}' target='_blank' rel='noreferrer' >Purchasing Information: {entity.PurchasingInformationUrl.ToString()}</a></p>") +
                         (string.IsNullOrEmpty(entity.CopyrightText) ? "" : $"<p>{entity.CopyrightText}</p>"),
                     DisplayName = entity.Title,
-                    Namespace = entity.Nodeset.NamespaceUri?.ToString(),
+                    Namespace = entity.Nodeset.NamespaceUri?.OriginalString,
                     MetaTags = metatags,
                     PublishDate = entity.Nodeset.PublicationDate,
                     //Type = _smItemType,

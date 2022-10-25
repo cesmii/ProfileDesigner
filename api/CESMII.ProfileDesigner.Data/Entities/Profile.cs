@@ -12,7 +12,7 @@
         [Column(name: "version")]
         public string Version { get; set; }
 
-        [Column(name: "publish_date", TypeName = "Date")]
+        [Column(name: "publish_date")]
         public DateTime? PublishDate { get; set; }
 
         [Column(name: "ua_standard_profile_id")]

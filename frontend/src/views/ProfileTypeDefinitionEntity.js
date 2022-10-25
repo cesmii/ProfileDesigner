@@ -820,7 +820,7 @@ function ProfileTypeDefinitionEntity() {
                     <div className="col-md-6">
                         <Form.Group>
                             <Form.Label htmlFor="entity_organization" >Organization</Form.Label>
-                            <Form.Control id="entity_organization" type="" placeholder="Enter your organization's name" value={_item.author?.organization.name} onChange={onChange} readOnly={isReadOnly} disabled='disabled' />
+                            <Form.Control id="entity_organization" type="" placeholder="Enter your organization's name" value={_item.author?.organization?.name} onChange={onChange} readOnly={isReadOnly} disabled='disabled' />
                         </Form.Group>
                     </div>
                 </div>

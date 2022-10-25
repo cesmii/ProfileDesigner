@@ -56,6 +56,26 @@ WHERE username='korambath';
 ALTER TABLE public."user"
 ALTER COLUMN objectid_aad character varying(100) COLLATE pg_catalog."default" NOT NULL
 ;
+--preserve this for now until cutover is successful, however, make it nullable so we can 
+--add new users dynamically w/o passwords. Passwords will live in Azure AD.
+ALTER TABLE public."user"
+ALTER COLUMN password DROP NOT NULL
+;
+ALTER TABLE public."user"
+ALTER COLUMN username DROP NOT NULL
+;
+ALTER TABLE public."user"
+ALTER COLUMN first_name DROP NOT NULL
+;
+ALTER TABLE public."user"
+ALTER COLUMN last_name DROP NOT NULL
+;
+ALTER TABLE public."user"
+ALTER COLUMN email DROP NOT NULL
+;
+ALTER TABLE public."user"
+ALTER COLUMN is_active set default true;
+;
 
 --drop obsolete cols
 ALTER TABLE public."user"
@@ -64,7 +84,7 @@ DROP CONSTRAINT user_username_key;
 DROP INDEX user_username_6821ab7c_like;
 
 ALTER TABLE public."user"
-DROP COlUMN password,
+--DROP COlUMN password,
 DROP COlUMN first_name,
 DROP COlUMN last_name,
 DROP COlUMN registration_complete,

@@ -1,10 +1,9 @@
 import React from "react";
 import { Route, Redirect } from "react-router-dom";
-import { useIsAuthenticated, useMsal } from "@azure/msal-react";
 
-import { isInRoles } from "../../utils/UtilityService";
 import { InlineMessage } from "../InlineMessage";
 import SideMenu from "../SideMenu";
+import { useLoginStatus } from "../OnLoginHandler";
 
 const AdminLayout = ({ children }) => (
 
@@ -19,19 +18,12 @@ const AdminLayout = ({ children }) => (
 
 export function AdminRoute({ component: Component, ...rest }) {
 
-    const { instance } = useMsal();
-    const _isAuthenticated = useIsAuthenticated();
-    const _activeAccount = instance.getActiveAccount();
-    //Check for is authenticated. Check individual permissions - ie can manage profile designer.
-    let isAuthorized = _isAuthenticated && _activeAccount != null && (rest.roles == null || isInRoles(_activeAccount, rest.roles));
-
-    //track a redirect url for post login
-    const redirectUrl = rest.location?.pathname && rest.location?.pathname !== '/' ? `/sso?returnUrl=${rest.location?.pathname}` : '/sso';
+    const { isAuthenticated, isAuthorized, redirectUrl } = useLoginStatus(rest.location, rest.roles);
 
     return (
         <Route
             {...rest}
-            render={props => isAuthorized ?
+            render={props => isAuthenticated && isAuthorized ?
                 (<AdminLayout><Component {...props} /></AdminLayout>) :
                 (<Redirect to={redirectUrl} />)
             }

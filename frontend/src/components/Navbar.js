@@ -1,7 +1,7 @@
 import React from 'react'
 import { useHistory } from "react-router-dom"
 import { InteractionStatus } from "@azure/msal-browser";
-import { useIsAuthenticated, useMsal } from "@azure/msal-react";
+import { useMsal } from "@azure/msal-react";
 
 import Dropdown from 'react-bootstrap/Dropdown'
 
@@ -12,6 +12,7 @@ import Color from './Constants'
 
 import './styles/Navbar.scss'
 import { AppSettings } from '../utils/appsettings';
+import { doLogout, useLoginStatus } from './OnLoginHandler';
 
 //const CLASS_NAME = "Navbar";
 
@@ -22,8 +23,8 @@ function Navbar() {
     //-------------------------------------------------------------------
     const history = useHistory();
     const { instance, inProgress } = useMsal();
-    const _isAuthenticated = useIsAuthenticated();
     const _activeAccount = instance.getActiveAccount();
+    const { isAuthenticated, isAuthorized } = useLoginStatus(null, [AppSettings.AADUserRole]);
 
     //-------------------------------------------------------------------
     // Region: Hooks
@@ -33,15 +34,7 @@ function Navbar() {
     // Region: event handlers
     //-------------------------------------------------------------------
     const onLogoutClick = (e) => {
-        //MSAL logout - this will go down the flow of logging out from this app and logging out of the server app session in AAD.
-        //instance.logoutPopup();
-        //MSAL logout - local only this will go down the flow of logging out local - clear local cache but NOT log out of the server app session in AAD.
-        instance.logoutRedirect({
-            onRedirectNavigate: (url) => {
-                //return false if you would like to stop after local logout - ie don't logout of server instance
-                history.push(`/login`);
-                return false;
-            }});
+        doLogout(history, instance, '/login',true, false);
         e.preventDefault();
     }
 
@@ -63,7 +56,7 @@ function Navbar() {
     };
 
     const renderAdminMenu = () => {
-        if (!_isAuthenticated || _activeAccount == null) return;
+        if (!isAuthenticated && !isAuthorized) return;
         return (
             <li className="nav-item" >
                 <Dropdown>
@@ -73,9 +66,11 @@ function Navbar() {
                     </Dropdown.Toggle>
                     <Dropdown.Menu>
                         {(isInRole(_activeAccount, 'cesmii.profiledesigner.admin')) &&
+                            <>
                             <Dropdown.Item eventKey="3" href="/admin/user/list">View Users</Dropdown.Item>
+                            <Dropdown.Divider />
+                            </>
                         }
-                        <Dropdown.Divider />
                         {(inProgress !== InteractionStatus.Startup && inProgress !== InteractionStatus.HandleRedirect) &&
                             <Dropdown.Item eventKey="10" onClick={onLogoutClick} >Logout</Dropdown.Item>
                         }
@@ -87,7 +82,7 @@ function Navbar() {
 
     return (
         <header>
-            <div className={`container-fluid d-flex h-100 ${_isAuthenticated && _activeAccount != null ? "" : "container-lg"}`} >
+            <div className={`container-fluid d-flex h-100 ${isAuthenticated && _activeAccount != null ? "" : "container-lg"}`} >
                 <div className="col-sm-12 px-0 px-sm-1 d-flex align-content-center" >
                     <div className="d-flex align-items-center">
                         <a className="navbar-brand d-flex align-items-center" href="/">

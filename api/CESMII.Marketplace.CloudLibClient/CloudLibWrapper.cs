@@ -43,7 +43,7 @@ namespace CESMII.ProfileDesigner.CloudLibClient
                 {
                     var nodeSet = await _client.DownloadNodesetAsync(nsid.Item2).ConfigureAwait(false);
                     nodesetWithURIAndDate.Add((
-                        nodeSet.Nodeset.NamespaceUri?.ToString() ?? nsid.Item1, // TODO cloud lib currently doesn't return the namespace uri: report issue/fix
+                        nodeSet.Nodeset.NamespaceUri?.OriginalString ?? nsid.Item1, // TODO cloud lib currently doesn't return the namespace uri: report issue/fix
                         nodeSet.Nodeset.PublicationDate,
                         nodeSet.Nodeset.NodesetXml));
                 }

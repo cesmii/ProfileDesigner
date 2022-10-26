@@ -108,7 +108,7 @@ export const onAADLoginComplete = (instance, history, setLoadingProps, statusCod
         case 403:
             console.error(generateLogMessageString(`onAADLoginComplete||statusCode||${statusCode}`, CLASS_NAME));
             //history.push('/notpermitted');
-            doLogout(history, instance, '/notpermitted', true, false);
+            doLogout(history, instance, '/notpermitted', true, true);
             break;
         case 399:
         case 400:
@@ -173,7 +173,8 @@ export const doLoginPopup = async (instance, inProgress, accounts, setLoadingPro
 
         const loginRequest = {
             scopes: AppSettings.MsalScopes,
-            account: accounts[0]
+            account: accounts[0],
+            prompt: 'select_account'  //always present the account selection - even if already logged in cached.
         };
 
         // redirect anonymous user to login popup
@@ -244,6 +245,7 @@ export const useLoginSilent = () => {
             const loginRequest = {
                 scopes: AppSettings.MsalScopes,
                 account: accounts[0],
+                prompt: 'select_account',  //always present the account selection - even if already logged in cached.
                 redirectUri: `/loginsuccess${loadingProps.returnUrl ? '?returnUrl=' + loadingProps.returnUrl : ''}`
             };
 

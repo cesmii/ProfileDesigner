@@ -425,16 +425,9 @@ export const doLogout = (history, instance, redirectUrl = `/login`, silent = tru
 // Region: doLogout
 //-------------------------------------------------------------------
 export const forceLogout = (instance) => {
-    instance.logoutPopup()
-        .catch((err) => {
-            if (err.errorCode === "popup_window_error") {
-                instance.logoutRedirect();
-                console.info(generateLogMessageString(`forceLogout||popup_window_error`, CLASS_NAME));
-            }
-            else {
-                console.error(generateLogMessageString(`forceLogout||${err}`, CLASS_NAME));
-                throw err;
-            }
-        });
-
+    instance.logoutRedirect({
+        onRedirectNavigate: (url) => {
+            return false;
+        }
+    });
 }

@@ -108,14 +108,14 @@ export const onAADLoginComplete = (instance, history, setLoadingProps, statusCod
         case 403:
             console.error(generateLogMessageString(`onAADLoginComplete||statusCode||${statusCode}`, CLASS_NAME));
             //history.push('/notpermitted');
-            doLogout(history, instance, '/notpermitted', true, false);
+            doLogout(history, instance, '/notpermitted', true, true);
             break;
         case 399:
         case 400:
         case 500:
         default:
             setLoadingProps({
-                isLoading: false, message: null, inlineMessages:
+                isLoading: false, message: null, modalMessages:
                     [{ id: new Date().getTime(), severity: "danger", body: 'An error occurred processing your login request. Please try again.', isTimed: false }]
             });
             history.push('/login');
@@ -155,7 +155,7 @@ export const handleLoginError = (error, setLoadingProps) => {
         msg = 'Contact System Administrator. A system error has occurred unrelated to your account. The login configuration settings are invalid.';
     }
     setLoadingProps({
-        isLoading: false, message: null, inlineMessages: msg == null ? [] :
+        isLoading: false, message: null, modalMessages: msg == null ? [] :
             [{ id: new Date().getTime(), severity: "danger", body: msg, isTimed: false }]
     });
 }
@@ -173,7 +173,8 @@ export const doLoginPopup = async (instance, inProgress, accounts, setLoadingPro
 
         const loginRequest = {
             scopes: AppSettings.MsalScopes,
-            account: accounts[0]
+            account: accounts[0],
+            prompt: 'select_account'  //always present the account selection - even if already logged in cached.
         };
 
         // redirect anonymous user to login popup
@@ -184,7 +185,7 @@ export const doLoginPopup = async (instance, inProgress, accounts, setLoadingPro
                 //be granted permissions to this app
                 if (!isInRole(response.account, AppSettings.AADUserRole)) {
                     setLoadingProps({
-                        isLoading: false, inlineMessages: 
+                        isLoading: false, modalMessages:
                             [{ id: new Date().getTime(), severity: "danger", body: 'Your account is not permitted to access Profile Designer. Email us at devops@cesmii.org to get registered or request assistance.', isTimed: false }]
                     });
                     forceLogout(instance);
@@ -244,6 +245,7 @@ export const useLoginSilent = () => {
             const loginRequest = {
                 scopes: AppSettings.MsalScopes,
                 account: accounts[0],
+                prompt: 'select_account',  //always present the account selection - even if already logged in cached.
                 redirectUri: `/loginsuccess${loadingProps.returnUrl ? '?returnUrl=' + loadingProps.returnUrl : ''}`
             };
 
@@ -342,7 +344,7 @@ export const useOnLoginComplete = () => {
             default:
                 console.error(generateLogMessageString(`onAADLoginComplete||statusCode||${statusCode}`, CLASS_NAME));
                 setLoadingProps({
-                    loginStatusCode: null, isLoading: false, message: null, inlineMessages:
+                    loginStatusCode: null, isLoading: false, message: null, modalMessages:
                         [{ id: new Date().getTime(), severity: "danger", body: 'An error occurred processing your login request. Please try again.', isTimed: false }]
                 });
                 //history.push('/login');
@@ -423,16 +425,9 @@ export const doLogout = (history, instance, redirectUrl = `/login`, silent = tru
 // Region: doLogout
 //-------------------------------------------------------------------
 export const forceLogout = (instance) => {
-    instance.logoutPopup()
-        .catch((err) => {
-            if (err.errorCode === "popup_window_error") {
-                instance.logoutRedirect();
-                console.info(generateLogMessageString(`forceLogout||popup_window_error`, CLASS_NAME));
-            }
-            else {
-                console.error(generateLogMessageString(`forceLogout||${err}`, CLASS_NAME));
-                throw err;
-            }
-        });
-
+    instance.logoutRedirect({
+        onRedirectNavigate: (url) => {
+            return false;
+        }
+    });
 }

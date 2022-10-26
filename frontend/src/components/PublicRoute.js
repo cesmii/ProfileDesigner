@@ -1,6 +1,7 @@
 import React from "react";
 import { Route } from "react-router-dom";
 import { InlineMessage } from "./InlineMessage";
+import ModalMessage from "./ModalMessage";
 
 
 const SimpleLayout = ({ children }) => (
@@ -10,6 +11,7 @@ const SimpleLayout = ({ children }) => (
             <InlineMessage />
             {children}
         </div>
+        <ModalMessage />
     </div>
 );
 
@@ -20,6 +22,7 @@ export const SimpleFixedLayout = ({ children }) => (
             <InlineMessage />
             {children}
         </div>
+        <ModalMessage />
     </div>
 );
 

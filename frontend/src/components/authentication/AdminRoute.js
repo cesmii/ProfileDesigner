@@ -4,6 +4,7 @@ import { Route, Redirect } from "react-router-dom";
 import { InlineMessage } from "../InlineMessage";
 import SideMenu from "../SideMenu";
 import { useLoginStatus } from "../OnLoginHandler";
+import ModalMessage from "../ModalMessage";
 
 const AdminLayout = ({ children }) => (
 
@@ -13,6 +14,7 @@ const AdminLayout = ({ children }) => (
             <InlineMessage />
             {children}
         </div>
+        <ModalMessage />
     </div>
 );
 

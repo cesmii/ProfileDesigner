@@ -115,7 +115,7 @@ export const onAADLoginComplete = (instance, history, setLoadingProps, statusCod
         case 500:
         default:
             setLoadingProps({
-                isLoading: false, message: null, inlineMessages:
+                isLoading: false, message: null, modalMessages:
                     [{ id: new Date().getTime(), severity: "danger", body: 'An error occurred processing your login request. Please try again.', isTimed: false }]
             });
             history.push('/login');
@@ -155,7 +155,7 @@ export const handleLoginError = (error, setLoadingProps) => {
         msg = 'Contact System Administrator. A system error has occurred unrelated to your account. The login configuration settings are invalid.';
     }
     setLoadingProps({
-        isLoading: false, message: null, inlineMessages: msg == null ? [] :
+        isLoading: false, message: null, modalMessages: msg == null ? [] :
             [{ id: new Date().getTime(), severity: "danger", body: msg, isTimed: false }]
     });
 }
@@ -185,7 +185,7 @@ export const doLoginPopup = async (instance, inProgress, accounts, setLoadingPro
                 //be granted permissions to this app
                 if (!isInRole(response.account, AppSettings.AADUserRole)) {
                     setLoadingProps({
-                        isLoading: false, inlineMessages: 
+                        isLoading: false, modalMessages:
                             [{ id: new Date().getTime(), severity: "danger", body: 'Your account is not permitted to access Profile Designer. Email us at devops@cesmii.org to get registered or request assistance.', isTimed: false }]
                     });
                     forceLogout(instance);
@@ -344,7 +344,7 @@ export const useOnLoginComplete = () => {
             default:
                 console.error(generateLogMessageString(`onAADLoginComplete||statusCode||${statusCode}`, CLASS_NAME));
                 setLoadingProps({
-                    loginStatusCode: null, isLoading: false, message: null, inlineMessages:
+                    loginStatusCode: null, isLoading: false, message: null, modalMessages:
                         [{ id: new Date().getTime(), severity: "danger", body: 'An error occurred processing your login request. Please try again.', isTimed: false }]
                 });
                 //history.push('/login');

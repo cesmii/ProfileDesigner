@@ -8,6 +8,7 @@ import DownloadMessage from "../DownloadMessage";
 import { WizardContextProvider } from "../contexts/WizardContext";
 import WizardMaster from "../../views/shared/WizardMaster";
 import { useLoginStatus } from "../OnLoginHandler";
+import ModalMessage from "../ModalMessage";
 
 const WizardLayout = ({ children }) => (
 
@@ -23,6 +24,7 @@ const WizardLayout = ({ children }) => (
                 </WizardMaster>
             </WizardContextProvider>
         </div>
+        <ModalMessage />
     </div>
 );
 

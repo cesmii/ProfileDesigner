@@ -19,6 +19,7 @@ using Xunit.Abstractions;
 using Xunit.Sdk;
 
 [assembly: CollectionBehavior(DisableTestParallelization = true) ]
+[assembly: TestCollectionOrderer("CESMII.ProfileDesigner.Api.Tests.CollectionOrderer", "CESMII.ProfileDesigner.Api.Tests")]
 
 namespace CESMII.ProfileDesigner.Api.Tests
 {
@@ -553,4 +554,20 @@ namespace CESMII.ProfileDesigner.Api.Tests
             return new[] { nameof(Integration.Import), nameof(Integration.Export), nameof(Integration.ExportAASX) }.Contains(t.TestMethod.Method.Name);
         }
     }
+
+    public class CollectionOrderer : ITestCollectionOrderer
+    {
+        public CollectionOrderer(object ignored)
+        {
+        }
+
+        public IEnumerable<ITestCollection> OrderTestCollections(
+            IEnumerable<ITestCollection> testCollections) =>
+            testCollections
+                .OrderByDescending(collection => collection.DisplayName.Contains("Integration"))
+                .ThenBy(collection => collection.DisplayName)
+            ;
+    }
+
+
 }

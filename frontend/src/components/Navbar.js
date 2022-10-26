@@ -34,7 +34,7 @@ function Navbar() {
     // Region: event handlers
     //-------------------------------------------------------------------
     const onLogoutClick = (e) => {
-        doLogout(history, instance, '/login',true, false);
+        doLogout(history, instance, '/login',true, true);
         e.preventDefault();
     }
 

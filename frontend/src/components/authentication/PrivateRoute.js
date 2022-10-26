@@ -6,6 +6,7 @@ import SideMenu from "../SideMenu";
 import { ImportMessage } from "../ImportMessage";
 import DownloadMessage from "../DownloadMessage";
 import { useLoginStatus } from "../OnLoginHandler";
+import ModalMessage from "../ModalMessage";
 
 const PrivateLayout = ({ children }) => (
 
@@ -17,6 +18,7 @@ const PrivateLayout = ({ children }) => (
             <DownloadMessage />
             {children}
         </div>
+        <ModalMessage />
     </div>
 );
 

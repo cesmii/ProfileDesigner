@@ -168,14 +168,14 @@ namespace CESMII.ProfileDesigner.Api.Tests
             return new List<object[]>
             {
                 // string[] keywords, int expectedCount, int expectedNotLocal, int expectedPlusLocal, int expectedNotLocalPlusLocal 
-                new object[ ]{ null, 63, 5, 67, 67, },
+                new object[ ]{ null, 63, 7, 67, 67, },
                 new object[] { new string[] { "BaseObjectType" }, 6, 0, 6, 0, },
-                new object[] { new string[] { "di" }, 61, 3, 61, 11, },
+                new object[] { new string[] { "di" }, 61, 5, 61, 11, },
                 new object[] { new string[] { "robotics" }, 2, 1, 2, 2, },
                 new object[] { new string[] { "plastic" }, 15, 0, 15, 14, },
                 new object[] { new string[] { "pump" } , 6, 0, 6, 2,},
-                new object[] { new string[] { "robotics", "di" }, 61, 3, 61, 12, },
-                new object[] { new string[] { "robotics", "di", "pump", "plastic" }, 61, 3, 61, 26, },
+                new object[] { new string[] { "robotics", "di" }, 61, 5, 61, 12, },
+                new object[] { new string[] { "robotics", "di", "pump", "plastic" }, 61, 5, 61, 26, },
                 new object[] { new string[] { "robotics", "pump", }, 8, 1, 8, 4, },
                 new object[] { new string[] { "robotics", "plastic" }, 17, 1, 17, 16, },
                 new object[] { new string[] { "robotics", "pump", "plastic" }, 20, 1, 20, 17, },

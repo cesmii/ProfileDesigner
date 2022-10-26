@@ -110,7 +110,7 @@ namespace CESMII.ProfileDesigner.Api.Tests
             {
                 return data;
             }
-            return null;
+            throw new Exception($"Request not in mock data: {inputs}");
         }
 
         protected virtual void Dispose(bool disposing)

@@ -149,5 +149,70 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             return Ok(result);
         }
 
+        [HttpGet, Route("profilesearchcriteria")]
+        [Authorize(Roles = "cesmii.profiledesigner.user", Policy = nameof(PermissionEnum.UserAzureADMapped))]
+        [ProducesResponseType(200, Type = typeof(ProfileFilterModel))]
+        [ProducesResponseType(400)]
+        public IActionResult GetProfileSearchCriteria() //[FromBody] LookupGroupByModel model)
+        {
+            //populate specific types
+            var filters = new List<LookupGroupByModel>
+            {
+                // separate section for my profiles - follow the same structure for flexibility but only including one hardcoded type
+                new LookupGroupByModel()
+                {
+                    Name = ProfileSearchCriteriaCategoryEnum.Profile.ToString(),
+                    ID = (int)ProfileSearchCriteriaCategoryEnum.Profile,
+                    Items = new List<LookupItemFilterModel>() 
+                    { 
+                        new LookupItemFilterModel() 
+                        {
+                            ID = LocalUser.ID,
+                            Name = "My Profiles"
+                        }
+                    }
+                },
+                // separate section for base profiles - follow the same structure for flexibility but only including one hardcoded type
+                new LookupGroupByModel()
+                {
+                    Name = ProfileSearchCriteriaCategoryEnum.BaseProfile.ToString(),
+                    ID = (int)ProfileSearchCriteriaCategoryEnum.BaseProfile,
+                    Items = new List<LookupItemFilterModel>()
+                    {
+                        new LookupItemFilterModel() 
+                        {
+                            ID = -1,
+                            Name = "Base Profile",
+                            Visible = true //until we implement a popular calculator, leave this off the display
+                        }
+                     }
+                },
+                // separate section for cloud lib profiles - follow the same structure for flexibility but only including one hardcoded type
+                new LookupGroupByModel()
+                {
+                    Name = ProfileSearchCriteriaCategoryEnum.CloudLib.ToString(),
+                    ID = (int)ProfileSearchCriteriaCategoryEnum.CloudLib,
+                    Items = new List<LookupItemFilterModel>()
+                    {
+                        new LookupItemFilterModel()
+                        {
+                            ID = -1,
+                            Name = "Cloud Library",
+                            Visible = true //until we implement a popular calculator, leave this off the display
+                        }
+                     }
+                }
+            };
+
+            //leave query null, skip, take defaults
+            var result = new ProfileFilterModel()
+            {
+                Filters = filters,
+            };
+
+            return Ok(result);
+        }
+
+
     }
 }

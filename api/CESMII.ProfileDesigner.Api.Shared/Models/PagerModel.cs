@@ -59,6 +59,15 @@
         public SearchCriteriaSortByEnum SortByEnum { get; set; } = SearchCriteriaSortByEnum.Name;
     }
 
+    public class ProfileFilterModel : PagerFilterSimpleModel
+    {
+        public List<LookupGroupByModel> Filters { get; set; }
+
+        public SearchCriteriaSortByEnum SortByEnum { get; set; } = SearchCriteriaSortByEnum.Name;
+    }
+
+
+
     public class LookupGroupByModel : LookupTypeModel
     {
         public List<LookupItemFilterModel> Items { get; set; }

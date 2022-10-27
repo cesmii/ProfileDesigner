@@ -58,6 +58,26 @@
         Name = 3
     }
 
+    /// <summary>
+    /// These are used by the profile definition. 
+    /// These are the parent categories and will be used in the front end and the search endpoint
+    /// </summary>
+    public enum ProfileSearchCriteriaCategoryEnum
+    {
+        /// <summary>
+        /// Profiles owned or editable by the user
+        /// </summary>
+        Profile = 1,
+        /// <summary>
+        /// Read-only profiles available to/imported by the user
+        /// </summary>
+        BaseProfile = 2,
+        /// <summary>
+        /// Cloud Library profiles available for import
+        /// </summary>
+        CloudLib = 3,
+    }
+
 
     public enum PermissionEnum
     {

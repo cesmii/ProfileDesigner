@@ -158,6 +158,11 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 _logger.LogWarning("ProfileController|GetLibrary|Invalid model");
                 return BadRequest("Profile|Library|Invalid model");
             }
+            if (model.Keywords != null && model.Keywords.Any(k => k == null))
+            {
+                _logger.LogWarning("ProfileController|GetLibrary|Invalid model: null keyword");
+                return BadRequest("Profile|Library|Invalid model null keyword");
+            }
 
             List<CloudLibProfileModel> result = new();
 
@@ -328,7 +333,13 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                     cloudLibProfile.AuthorId = localProfile.AuthorId;
                     cloudLibProfile.ImportWarnings = localProfile.ImportWarnings;
                     cloudLibProfile.NodeSetFiles = localProfile.NodeSetFiles;
+                    cloudLibProfile.HasLocalProfile = true;
                 }
+            }
+            foreach(var cloudProfile in result.Where(p => p.ID == null || p.ID == 0))
+            {
+                // Need better solution to avoid conflict with local IDs
+                cloudProfile.ID = (int) long.Parse(cloudProfile.CloudLibId);
             }
 
             var dalResult = new DALResult<CloudLibProfileModel>

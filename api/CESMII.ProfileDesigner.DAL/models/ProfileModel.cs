@@ -63,10 +63,12 @@
                 StandardProfileID = profile.StandardProfileID,
                 StandardProfile = profile.StandardProfile,
                 NodeSetFiles = profile.NodeSetFiles,
+                HasLocalProfile = true,
             };
         }
 
         // TODO Additional CloudLib properties like License, Organisation etc.
+        public bool HasLocalProfile { get; set; }
         public string CloudLibId { get; set; }
         public string NodesetXml { get; set; }
         public string Description { get; internal set; }

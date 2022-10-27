@@ -84,6 +84,16 @@
             result.SummaryData = null;
             return result;
         }
+        public override DALResult<TModel> Where(List<Expression<Func<TEntity, bool>>> predicates, UserToken userToken, int? skip = null, int? take = null, bool returnCount = false, bool verbose = false, params OrderByExpression<TEntity>[] orderByExpressions)
+        {
+            return base.Where(
+                new List<Expression<Func<TEntity, bool>>>
+                {
+                    u => u.OwnerId == null || u.OwnerId == userToken.UserId
+                }
+                .Concat(predicates).ToList(),
+                userToken, skip, take, returnCount, verbose, orderByExpressions);
+        }
 
         public override int Count(Expression<Func<TEntity, bool>> predicate, UserToken userToken)
         {

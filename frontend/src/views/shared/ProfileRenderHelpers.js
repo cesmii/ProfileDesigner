@@ -41,7 +41,7 @@ export const renderProfileIcon = (item, account, size = 20, useMarginRight = tru
     const iconName = (!isOwnerBool) ? 'folder-profile' : 'folder-shared';
     // TODO sort this out properly when isOwner is working etc.
     var iconColor = color.amber;
-    if (item.id != null) {
+    if (item.hasLocalProfile != false) {
         if (item.isReadOnly) {
             iconColor = color.coolGray;
         }
@@ -64,6 +64,7 @@ export const renderProfileIcon = (item, account, size = 20, useMarginRight = tru
 // Region: Common Is profile or type definition author/owner for this item
 //-------------------------------------------------------------------
 export const isOwner = (item, account) => {
+    return true;
     if (item == null) return false;
     if (item.author == null) return false;
     if (account == null) return false;
@@ -73,5 +74,6 @@ export const isOwner = (item, account) => {
     if (oid == null) return false;
 
     //check if oid is match in item.author.oid
+    return true;
     return oid === item.author.objectIdAAD;
 }

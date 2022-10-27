@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Helmet } from "react-helmet"
 import axiosInstance from "../services/AxiosService";
 
@@ -26,12 +26,47 @@ function ProfileList() {
     const caption = 'Profile Library';
     const iconName = 'folder-shared';
     const iconColor = color.shark;
-    const { setLoadingProps } = useLoadingContext();
+    const { loadingProps, setLoadingProps } = useLoadingContext();
     const [_deleteModal, setDeleteModal] = useState({ show: false, items: null });
     //importer
     const [_error, setError] = useState({ show: false, message: null, caption: null });
     //used in popup profile add/edit ui. Default to new version
     const [_profileEntityModal, setProfileEntityModal] = useState({ show: false, item: null});
+    const [_initProfileSearchCriteria, setInitProfileSearchCriteria] = useState(true);
+    const [_profileSearchCriteria, setProfileSearchCriteria] = useState(null);
+    const [_profileSearchCriteriaChanged, setProfileSearchCriteriaChanged] = useState(0);
+
+    //-------------------------------------------------------------------
+    // Region: Pass profile id into component if profileId passed in from url
+    //-------------------------------------------------------------------
+    useEffect(() => {
+
+        if (!_initProfileSearchCriteria) return;
+
+        //check for searchcriteria - trigger fetch of search criteria data - if not already triggered
+        if ((loadingProps.profileSearchCriteria == null || loadingProps.profileSearchCriteria.filters == null) && !loadingProps.refreshProfileSearchCriteria) {
+            setLoadingProps({ refreshProfileSearchCriteria: true });
+        }
+        //start with a blank criteria slate. Handle possible null scenario if criteria hasn't loaded yet. 
+        var criteria = loadingProps.profileSearchCriteria == null ? null : JSON.parse(JSON.stringify(loadingProps.profileSearchCriteria));
+
+        if (criteria != null) {
+            //criteria = clearSearchCriteria(criteria);
+        }
+
+        //update state
+        setInitProfileSearchCriteria(false);
+        if (criteria != null) {
+            setProfileSearchCriteria(criteria);
+            setProfileSearchCriteriaChanged(_profileSearchCriteriaChanged + 1);
+        }
+        setLoadingProps(criteria);
+
+        //this will execute on unmount
+        return () => {
+            //console.log(generateLogMessageString('useEffect||Cleanup', CLASS_NAME));
+        };
+    }, [_initProfileSearchCriteria, loadingProps.profileSearchCriteriaRefreshed]);
 
     //-------------------------------------------------------------------
     // Region: Event Handling of child component events
@@ -171,6 +206,15 @@ function ProfileList() {
             });
     };
 
+    //bubble up search criteria changed so the parent page can control the search criteria
+    const onSearchCriteriaChanged = (criteria) => {
+        console.log(generateLogMessageString(`onSearchCriteriaChanged`, CLASS_NAME));
+        //update state
+        setProfileSearchCriteria(criteria);
+        //trigger api to get data
+        setProfileSearchCriteriaChanged(_profileSearchCriteriaChanged + 1);
+    };
+
     //-------------------------------------------------------------------
     // Region: Render helpers
     //-------------------------------------------------------------------
@@ -222,8 +266,9 @@ function ProfileList() {
             </Helmet>
             {renderHeaderRow()}
             {renderIntroContent()}
-            <ProfileListGrid onGridRowSelect={onGridRowSelect} onEdit={onEdit} onDeleteItemClick={onDeleteItemClick} />
-            {renderProfileEntity()}
+            <ProfileListGrid searchCriteria={_profileSearchCriteria} onGridRowSelect={onGridRowSelect} onEdit={onEdit} onDeleteItemClick={onDeleteItemClick}
+                onSearchCriteriaChanged={onSearchCriteriaChanged} searchCriteriaChanged={_profileSearchCriteriaChanged}/>
+            //{renderProfileEntity()}
             {renderDeleteConfirmation()}
             <ErrorModal modalData={_error} callback={onErrorModalClose} />
         </>

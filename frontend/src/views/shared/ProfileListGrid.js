@@ -5,6 +5,8 @@ import axiosInstance from "../../services/AxiosService";
 import { getProfilePreferences, setProfilePageSize } from '../../services/ProfileService';
 import { generateLogMessageString } from '../../utils/UtilityService'
 import GridPager from '../../components/GridPager'
+import ProfileFilter from './ProfileFilter'
+
 import ProfileItemRow from './ProfileItemRow';
 import { useLoadingContext } from "../../components/contexts/LoadingContext";
 
@@ -34,6 +36,9 @@ function ProfileListGrid(props) {
     const { loadingProps, setLoadingProps } = useLoadingContext();
     //importer
     const [_forceReload, setForceReload] = useState(0);
+
+    const [_profileSearchCriteria, setProfileSearchCriteria] = useState(null);
+    const [_profileSearchCriteriaChanged, setProfileSearchCriteriaChanged] = useState(0);
 
     //-------------------------------------------------------------------
     // Region: Event Handling of child component events
@@ -84,6 +89,24 @@ function ProfileListGrid(props) {
     };
 
     //-------------------------------------------------------------------
+    // Region: Event Handling of child component events
+    //-------------------------------------------------------------------
+    const onGridRowSelect = (item) => {
+        console.log(generateLogMessageString(`onGridRowSelect||Name: ${item.name}||selected: ${item.selected}`, CLASS_NAME));
+        //TBD - handle selection here...
+    };
+
+    //bubble up search criteria changed so the parent page can control the search criteria
+    const onProfileSearchCriteriaChanged = (criteria) => {
+        console.log(generateLogMessageString(`onProfileSearchCriteriaChanged`, CLASS_NAME));
+        //update state
+        setProfileSearchCriteria(criteria);
+        //trigger api to get data
+        setProfileSearchCriteriaChanged(_profileSearchCriteriaChanged + 1);
+        if (props.onSearchCriteriaChanged != null) props.onSearchCriteriaChanged(criteria);
+    };
+
+    //-------------------------------------------------------------------
     // Region: Get data 
     //-------------------------------------------------------------------
     useEffect(() => {
@@ -91,10 +114,19 @@ function ProfileListGrid(props) {
             //show a spinner
             setLoadingProps({ isLoading: true, message: null });
 
-            var url = `profile/${props.isMine ? 'mine' : 'cloudlibrary'}`;
+            var localProfileSelected = _profileSearchCriteria?.filters?.find(x => x.id == 1)?.items[0]?.selected;
+            var baseProfileSelected = _profileSearchCriteria?.filters?.find(x => x.id == 2)?.items[0]?.selected;
+            var cloudLibSelected = _profileSearchCriteria?.filters?.find(x => x.id == 3)?.items[0]?.selected;
+            var url = `profile/${props.isMine || (baseProfileSelected == false && cloudLibSelected == false) ? 'mine' : cloudLibSelected ? 'cloudlibrary' : 'library'}`;
+
             console.log(generateLogMessageString(`useEffect||fetchData||${url}`, CLASS_NAME));
 
-            var data = { Query: _pager.searchVal, Skip: (_pager.currentPage - 1) * _pager.pageSize, Take: _pager.pageSize, AddLocalLibrary: true, ExcludeLocalLibrary: true };
+            var keywords = _profileSearchCriteria?.query == null ? null 
+                : [_profileSearchCriteria?.query?.toString()];
+            var data = {
+                Query: _pager.searchVal, Skip: (_pager.currentPage - 1) * _pager.pageSize, Take: _pager.pageSize, AddLocalLibrary: (baseProfileSelected == true || localProfileSelected == true), ExcludeLocalLibrary: (baseProfileSelected == true || localProfileSelected == true),
+                Keywords: keywords
+            };
             await axiosInstance.post(url, data).then(result => {
                 if (result.status === 200) {
 
@@ -136,7 +168,7 @@ function ProfileListGrid(props) {
         };
     //type passed so that any change to this triggers useEffect to be called again
         //_nodesetPreferences.pageSize - needs to be passed so that useEffects dependency warning is avoided.
-    }, [_pager, _forceReload, props.isMine]);
+    }, [_pager, _forceReload, props.isMine, _profileSearchCriteria]);
 
 
     //-------------------------------------------------------------------
@@ -150,7 +182,7 @@ function ProfileListGrid(props) {
         //if the importing message component has triggered a refresh, handle it here. 
         if (loadingProps.refreshProfileList === true) {
             setForceReload(_forceReload + 1);
-            setLoadingProps({refreshProfileList: null, refreshSearchCriteria: true});
+            setLoadingProps({refreshProfileList: null, refreshProfileSearchCriteria: true});
         }
         
         //this will execute on unmount
@@ -163,6 +195,21 @@ function ProfileListGrid(props) {
     //-------------------------------------------------------------------
     // Region: Render helpers
     //-------------------------------------------------------------------
+    const renderProfileFilters = () => {
+        if (_dataRows.profileFilters == null || _dataRows.profileFilters.length === 0) return;
+
+        const mainBody = _dataRows.profileFilters.map((item) => {
+            return (
+                <ProfileItemRow key={item.id} mode="simple" item={item} activeAccount={_activeAccount}
+                    cssClass={`profile-list-item shaded rounded ${_dataRows.profileFilters.length > 1 ? 'mb-1' : ''} ${props.rowCssClass ?? ''}`} />)
+        });
+
+        return (
+            <div className="mb-2">
+                {mainBody}
+            </div>
+        );
+    };
     const renderNoDataRow = () => {
         return (
             <div className="alert alert-info-custom mt-2 mb-2">
@@ -208,6 +255,11 @@ function ProfileListGrid(props) {
     //-------------------------------------------------------------------
     return (
         <>
+            {renderProfileFilters()}
+            <ProfileFilter onSearchCriteriaChanged={onProfileSearchCriteriaChanged}
+                //displayMode={_displayMode}
+                //toggleDisplayMode={toggleDisplayMode} itemCount={_itemCount}
+                cssClass={props.rowCssClass} searchCriteria={props.searchCriteria} />
             <div className="">
                 <div ref={_scrollToRef} className="row">
                     <div className="col-12">

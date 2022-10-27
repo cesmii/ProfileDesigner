@@ -153,7 +153,7 @@ function ProfileItemRow(props) { //props are item, showActions
 
         if (!showActions) return;
 
-        if (item.id != null) {
+        if (item.hasLocalProfile != false) {
             //if standard ua nodeset, author is null
             return (
                 <div className="col-sm-4 ml-auto d-inline-flex justify-content-end align-items-center" >

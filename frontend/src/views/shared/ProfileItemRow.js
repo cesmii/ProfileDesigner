@@ -42,7 +42,7 @@ function ProfileItemRow(props) { //props are item, showActions
         var url = `profile/cloudlibrary/import`;
         console.log(generateLogMessageString(`importFromCloudLibary||${url}`, CLASS_NAME));
 
-        var data = { id: props.item.cloudLibId };
+        var data = { id: props.item.cloudLibraryId };
 
         //show a processing message at top. One to stay for duration, one to show for timed period.
         //var msgImportProcessingId = new Date().getTime();

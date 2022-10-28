@@ -420,11 +420,14 @@ CREATE TABLE public.standard_nodeset
 (
     id SERIAL PRIMARY KEY,
     namespace character varying(400) COLLATE pg_catalog."default" NOT NULL,
-    version character varying(25) COLLATE pg_catalog."default" NOT NULL,
+    version character varying(25) COLLATE pg_catalog."default" NULL,
     filename character varying(255) COLLATE pg_catalog."default",
     publish_date timestamp with time zone,
-    is_active boolean NOT NULL
-	
+    cloudlibrary_id character varying(25) COLLATE  pg_catalog."default" NOT NULL,
+    is_active boolean NOT NULL,
+
+    CONSTRAINT namespace_publish_date_14a6b632_uniq UNIQUE (namespace, publish_date)
+
 )
 
 TABLESPACE pg_default;
@@ -432,6 +435,7 @@ TABLESPACE pg_default;
 ALTER TABLE public.standard_nodeset
     OWNER to cesmii;
 
+/* These now come from the cloud library
 INSERT INTO public.standard_nodeset (id, namespace, version, filename, publish_date, is_active) VALUES (1, 'http://opcfoundation.org/UA/ADI/', '1.01', NULL, '2013-07-31', true);
 INSERT INTO public.standard_nodeset (id, namespace, version, filename, publish_date, is_active) VALUES (2, 'http://opcfoundation.org/UA/AML/', '1.00', NULL, '2016-02-22', true);
 INSERT INTO public.standard_nodeset (id, namespace, version, filename, publish_date, is_active) VALUES (3, 'http://opcfoundation.org/UA/AMLLibs/', '', NULL, NULL, true);
@@ -492,7 +496,7 @@ INSERT INTO public.standard_nodeset (id, namespace, version, filename, publish_d
 INSERT INTO public.standard_nodeset (id, namespace, version, filename, publish_date, is_active) VALUES (58, 'http://opcfoundation.org/UA/PlasticsRubber/Extrusion/HaulOff/', '1.00', NULL, '2020-06-01', true);
 INSERT INTO public.standard_nodeset (id, namespace, version, filename, publish_date, is_active) VALUES (59, 'http://opcfoundation.org/UA/PlasticsRubber/Extrusion/MeltPump/', '1.00', NULL, '2020-06-01', true);
 INSERT INTO public.standard_nodeset (id, namespace, version, filename, publish_date, is_active) VALUES (60, 'http://opcfoundation.org/UA/PlasticsRubber/Extrusion/Pelletizer/', '1.00', NULL, '2020-06-01', true);
-
+*/
 --manually adjust the identity starting val
 SELECT setval('standard_nodeset_id_seq', 61);
 

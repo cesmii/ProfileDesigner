@@ -168,7 +168,8 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                         new LookupItemFilterModel() 
                         {
                             ID = LocalUser.ID,
-                            Name = "My Profiles"
+                            Name = "My Profiles",
+                            Selected = true,
                         }
                     }
                 },
@@ -182,8 +183,9 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                         new LookupItemFilterModel() 
                         {
                             ID = -1,
-                            Name = "Base Profile",
-                            Visible = true //until we implement a popular calculator, leave this off the display
+                            Name = "Base Profiles",
+                            Selected = true,
+                            Visible = true,
                         }
                      }
                 },
@@ -198,7 +200,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                         {
                             ID = -1,
                             Name = "Cloud Library",
-                            Visible = true //until we implement a popular calculator, leave this off the display
+                            Visible = true,
                         }
                      }
                 }

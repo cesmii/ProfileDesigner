@@ -312,6 +312,9 @@ namespace Opc.Ua.Cloud.Library.Client
         /// </summary>
         public List<RequiredModelInfo> RequiredModels { get; set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public UANameSpace Metadata { get; set; }
 
         /// <summary>

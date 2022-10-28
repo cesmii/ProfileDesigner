@@ -37,16 +37,6 @@ namespace CESMII.ProfileDesigner.Api.Tests
                 recording = true;
             }
         }
-        public Task<UANameSpace> GetById(string id)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public Task<IEnumerable<string>> ResolveNodeSetsAsync(List<ModelNameAndVersion> missingModels)
-        {
-            throw new System.NotImplementedException();
-        }
-
         record SearchInputs
         {
             public string[] Keywords { get; set; }
@@ -88,7 +78,12 @@ namespace CESMII.ProfileDesigner.Api.Tests
         static Dictionary<SearchInputs, GraphQlResult<Nodeset>> _searchData = new Dictionary<SearchInputs, GraphQlResult<Nodeset>>(new SearchInputs.Comparer());
         private bool disposedValue;
 
-        public async Task<GraphQlResult<Nodeset>> Search(int limit, string cursor, List<string> keywords, List<string> exclude)
+        public OnResolveNodeSets OnResolveNodeSets { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public OnNodeSet OnDownloadNodeSet { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public OnNodeSet OnNodeSetFound { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public OnNodeSet OnNodeSetNotFound { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
+        public async Task<GraphQlResult<Nodeset>> SearchAsync(int limit, string cursor, List<string> keywords, List<string> exclude)
         {
             var inputs = new SearchInputs
             {
@@ -98,7 +93,7 @@ namespace CESMII.ProfileDesigner.Api.Tests
             };
             if (_wrapper != null)
             {
-                var result = await _wrapper.Search(limit, cursor, keywords, exclude);
+                var result = await _wrapper.SearchAsync(limit, cursor, keywords, exclude);
 
                 if (!_searchData.ContainsKey(inputs))
                 {
@@ -112,6 +107,24 @@ namespace CESMII.ProfileDesigner.Api.Tests
             }
             throw new Exception($"Request not in mock data: {inputs}");
         }
+
+
+        public Task<UANameSpace> DownloadAsync(string id)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public Task<IEnumerable<string>> ResolveNodeSetsAsync(List<ModelNameAndVersion> missingModels)
+        {
+            throw new System.NotImplementedException();
+        }
+
+
+        public Task<UANameSpace> GetAsync(string modelUri, DateTime? publicationDate, bool exactMatch)
+        {
+            throw new NotImplementedException();
+        }
+
 
         protected virtual void Dispose(bool disposing)
         {

@@ -3334,8 +3334,8 @@ namespace MyNamespace
         [Newtonsoft.Json.JsonProperty("isReadOnly", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool? IsReadOnly { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("cloudLibId", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string CloudLibId { get; set; }
+        [Newtonsoft.Json.JsonProperty("cloudLibraryId", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string CloudLibraryId { get; set; }
 
         [Newtonsoft.Json.JsonProperty("nodesetXml", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string NodesetXml { get; set; }
@@ -3361,7 +3361,7 @@ namespace MyNamespace
         [Newtonsoft.Json.JsonProperty("updated", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.DateTimeOffset? Updated { get; set; }
 
-        public override string ToString() => $"{Namespace} {PublishDate} {Version} {(Id !=null ? "Local" : "")} {(!string.IsNullOrEmpty(CloudLibId) ? "Cloud" : "")}";
+        public override string ToString() => $"{Namespace} {PublishDate} {Version} {(Id !=null ? "Local" : "")} {(!string.IsNullOrEmpty(CloudLibraryId) ? "Cloud" : "")}";
 
     }
 

@@ -124,7 +124,16 @@ function ProfileListGrid(props) {
             var keywords = _profileSearchCriteria?.query == null ? null 
                 : [_profileSearchCriteria?.query?.toString()];
             var data = {
-                Query: _pager.searchVal, Skip: (_pager.currentPage - 1) * _pager.pageSize, Take: _pager.pageSize, AddLocalLibrary: (baseProfileSelected == true || localProfileSelected == true), ExcludeLocalLibrary: (baseProfileSelected == true || localProfileSelected == true),
+                Query: _pager.searchVal,
+                Cursor: _pager.currentPage == 1 ?
+                    null
+                    : _pager.currentPage <= _dataRows?.pageNumber ?
+                        _dataRows?.firstCursor
+                        : _dataRows?.lastCursor,
+                //Skip: (_pager.currentPage - 1) * _pager.pageSize,
+                Take: _pager.pageSize,
+                AddLocalLibrary: (baseProfileSelected == true || localProfileSelected == true),
+                ExcludeLocalLibrary: (baseProfileSelected == true || localProfileSelected == true),
                 Keywords: keywords
             };
             await axiosInstance.post(url, data).then(result => {
@@ -132,7 +141,11 @@ function ProfileListGrid(props) {
 
                     //set state on fetch of data
                     setDataRows({
-                        all: result.data.data, itemCount: result.data.count
+                        all: result.data.data,
+                        itemCount: result.data.count,
+                        firstCursor: data.Cursor,
+                        lastCursor: result.data.cursor,
+                        pageNumber: _pager.currentPage,
                     });
 
                     //hide a spinner

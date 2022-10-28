@@ -62,6 +62,8 @@ namespace CESMII.ProfileDesigner.Api.Tests
             Assert.Equal(expectedNotLocalPlusLocal, cloudNotLocalPlusLocal.Count);
         }
 
+        #pragma warning disable xUnit1026  // Stop warnings related to parameters not used in test cases. 
+
         [Theory]
         [MemberData(nameof(TestKeywords))]
         public async Task CloudLibrarySingle(string[] keywords, int expectedCount, int expectedNotLocal, int expectedPlusLocal, int expectedNotLocalPlusLocal)

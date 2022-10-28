@@ -180,9 +180,9 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             List<ProfileModel> allLocalProfiles = null;
             List<GraphQlNodeAndCursor<CloudLibProfileModel>> pendingCloudLibProfiles = new();
             List<ProfileModel> pendingLocalProfiles = null;
+            int totalCount = 0;
             try
             {
-                int totalCount = 0;
                 do
                 {
                     // Get first batch of profiles from the cloudlib

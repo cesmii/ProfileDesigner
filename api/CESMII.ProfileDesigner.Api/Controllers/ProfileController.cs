@@ -181,143 +181,152 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             List<GraphQlNodeAndCursor<CloudLibProfileModel>> pendingCloudLibProfiles = new();
             List<ProfileModel> pendingLocalProfiles = null;
 
-            do
+            try
             {
-                // Get first batch of profiles from the cloudlib
-                var cloudResultTask = _cloudLibDal.Where(model.Take, cloudLibCursor, model.Keywords);
 
-                // Get local profiles in parallel
-                allLocalProfiles = allLocalProfiles ?? _dal.GetAll(base.DalUserToken);
-
-                // Wait for the cloudlib query to finish
-                var cloudResultPage = await cloudResultTask;
-                if (cloudResultPage.Edges.Count > model.Take)
+                do
                 {
-                    _logger.LogWarning($"ProfileController|GetCloudLibrary|Received more profiles than requested: {result.Count}, expected {model.Take}.");
-                }
-                bFullResultCloud = !cloudResultPage.PageInfo.HasNextPage;
-                pendingCloudLibProfiles.AddRange(cloudResultPage.Edges);
+                    // Get first batch of profiles from the cloudlib
+                    var cloudResultTask = _cloudLibDal.Where(model.Take, cloudLibCursor, model.Keywords);
 
-                if (model.ExcludeLocalLibrary)
-                {
-                    // remove all profiles from the cloudlib result that are available locally: mark them as null for correct cursor handling of skipped profiles
-                    foreach (var localProfile in allLocalProfiles)
+                    // Get local profiles in parallel
+                    allLocalProfiles = allLocalProfiles ?? _dal.GetAll(base.DalUserToken);
+
+                    // Wait for the cloudlib query to finish
+                    var cloudResultPage = await cloudResultTask;
+                    if (cloudResultPage.Edges.Count > model.Take)
                     {
-                        var removedItemIndex = pendingCloudLibProfiles.FindLastIndex( p => p?.Node != null && p.Node.Namespace == localProfile.Namespace);
-                        if (removedItemIndex >= 0)
+                        _logger.LogWarning($"ProfileController|GetCloudLibrary|Received more profiles than requested: {result.Count}, expected {model.Take}.");
+                    }
+                    bFullResultCloud = !cloudResultPage.PageInfo.HasNextPage;
+                    pendingCloudLibProfiles.AddRange(cloudResultPage.Edges);
+
+                    if (model.ExcludeLocalLibrary)
+                    {
+                        // remove all profiles from the cloudlib result that are available locally: mark them as null for correct cursor handling of skipped profiles
+                        foreach (var localProfile in allLocalProfiles)
                         {
-                            pendingCloudLibProfiles[removedItemIndex].Node = null;
+                            var removedItemIndex = pendingCloudLibProfiles.FindLastIndex( p => p?.Node != null && p.Node.Namespace == localProfile.Namespace);
+                            if (removedItemIndex >= 0)
+                            {
+                                pendingCloudLibProfiles[removedItemIndex].Node = null;
+                            }
                         }
                     }
-                }
 
-                if (model.AddLocalLibrary)
-                {
-                    if (pendingLocalProfiles == null)
+                    if (model.AddLocalLibrary)
                     {
-                        pendingLocalProfiles = new();
-                    }
-
-                    // Query local profiles
-                    if (model.Keywords != null)
-                    {
-                        if (!bFullResultLocal)
+                        if (pendingLocalProfiles == null)
                         {
-                            var orderBy = new List<OrderByExpression<Profile>> {
-                                    new OrderByExpression<Profile>
-                                    {
-                                        Expression = p => p.Namespace,
-                                        IsDescending = false,
-                                    },
-                                    new OrderByExpression<Profile>
-                                    {
-                                        Expression = p => p.PublishDate,
-                                        IsDescending = false,
-                                    },
-                            };
-                            if (model.ExcludeLocalLibrary)
+                            pendingLocalProfiles = new();
+                        }
+
+                        // Query local profiles
+                        if (model.Keywords != null)
+                        {
+                            if (!bFullResultLocal)
                             {
-                                // owned profiles first when excluding and adding
-                                orderBy.Insert(0, new OrderByExpression<Profile>
+                                var orderBy = new List<OrderByExpression<Profile>> {
+                                        new OrderByExpression<Profile>
+                                        {
+                                            Expression = p => p.Namespace,
+                                            IsDescending = false,
+                                        },
+                                        new OrderByExpression<Profile>
+                                        {
+                                            Expression = p => p.PublishDate,
+                                            IsDescending = false,
+                                        },
+                                };
+                                if (model.ExcludeLocalLibrary)
                                 {
-                                    Expression = p => !p.AuthorId.HasValue || p.StandardProfileID.HasValue,
-                                    IsDescending = false,
-                                });
+                                    // owned profiles first when excluding and adding
+                                    orderBy.Insert(0, new OrderByExpression<Profile>
+                                    {
+                                        Expression = p => !p.AuthorId.HasValue || p.StandardProfileID.HasValue,
+                                        IsDescending = false,
+                                    });
+                                }
+
+                                string keywordRegex = $".*({string.Join('|', model.Keywords)}).*";
+
+
+                                var newLocalProfiles = _dal.Where(
+                                    new List<Expression<Func<Profile, bool>>>
+                                    {
+                                        p => Regex.IsMatch(p.Namespace, keywordRegex, RegexOptions.IgnoreCase)
+                                        // TODO better keyword search on ProfileTypeDefinitions etc. to match cloudlib's query
+                                    },
+                                    base.DalUserToken, int.Parse(localCursor), null, true,
+                                    orderByExpressions: orderBy.ToArray()).Data;
+                                bFullResultLocal = newLocalProfiles.Count == model.Take || newLocalProfiles.Count == 0;
+                                pendingLocalProfiles.AddRange(newLocalProfiles);
                             }
-
-                            string keywordRegex = $".*({string.Join('|', model.Keywords)}).*";
-
-
-                            var newLocalProfiles = _dal.Where(
-                                new List<Expression<Func<Profile, bool>>>
-                                {
-                                    p => Regex.IsMatch(p.Namespace, keywordRegex, RegexOptions.IgnoreCase)
-                                    // TODO better keyword search on ProfileTypeDefinitions etc. to match cloudlib's query
-                                },
-                                base.DalUserToken, int.Parse(localCursor), null, true,
-                                orderByExpressions: orderBy.ToArray()).Data;
-                            bFullResultLocal = newLocalProfiles.Count == model.Take || newLocalProfiles.Count == 0;
-                            pendingLocalProfiles.AddRange(newLocalProfiles);
+                        }
+                        else
+                        {
+                            bFullResultLocal = true;
+                            pendingLocalProfiles.AddRange(
+                                (model.ExcludeLocalLibrary ?
+                                    allLocalProfiles.OrderBy(pm => pm.IsReadOnly).ThenBy(pm => pm.Namespace).ThenBy(pm => pm.PublishDate)// owned profiles first when excluding and adding
+                                    : allLocalProfiles.OrderBy(pm => pm.Namespace).ThenBy(pm => pm.PublishDate)
+                                )
+                                .Skip(int.Parse(localCursor)));
                         }
                     }
                     else
                     {
                         bFullResultLocal = true;
-                        pendingLocalProfiles.AddRange(
-                            (model.ExcludeLocalLibrary ?
-                                allLocalProfiles.OrderBy(pm => pm.IsReadOnly).ThenBy(pm => pm.Namespace).ThenBy(pm => pm.PublishDate)// owned profiles first when excluding and adding
-                                : allLocalProfiles.OrderBy(pm => pm.Namespace).ThenBy(pm => pm.PublishDate)
-                            )
-                            .Skip(int.Parse(localCursor)));
                     }
-                }
-                else
-                {
-                    bFullResultLocal = true;
-                }
-                    // Process from start of local or cloud lists until we have enough results
-                    while (result.Count < model.Take
-                        && (pendingLocalProfiles?.Any() == true || (pendingCloudLibProfiles.Any()))
-                        && ((pendingLocalProfiles?.Any() == true || bFullResultLocal) || (pendingCloudLibProfiles.Any() || bFullResultCloud)))
-                    {
-                        var firstPendingCloudLibProfile = pendingCloudLibProfiles.FirstOrDefault();
-                        if (firstPendingCloudLibProfile != null && firstPendingCloudLibProfile.Node == null)
+                        // Process from start of local or cloud lists until we have enough results
+                        while (result.Count < model.Take
+                            && (pendingLocalProfiles?.Any() == true || (pendingCloudLibProfiles.Any()))
+                            && ((pendingLocalProfiles?.Any() == true || bFullResultLocal) || (pendingCloudLibProfiles.Any() || bFullResultCloud)))
                         {
-                            // Cloud profile was excluded earlier: skip it but remember it's cursor for the next query
-                            pendingCloudLibProfiles.RemoveAt(0);
-                            cloudLibCursor = firstPendingCloudLibProfile.Cursor;
-                            continue;
-                        }
-
-                        var firstPendingLocalprofile = pendingLocalProfiles?.FirstOrDefault();
-                        if (firstPendingLocalprofile != null && 
-                            (model.ExcludeLocalLibrary || // Put local library items first if both add and exclude is specified
-                              (firstPendingCloudLibProfile?.Node == null || String.Compare(firstPendingLocalprofile.Namespace, firstPendingCloudLibProfile.Node.Namespace, false, CultureInfo.InvariantCulture) < 0)))
-                        {
-                            result.Add(CloudLibProfileModel.MapFromProfile(firstPendingLocalprofile));
-                            pendingLocalProfiles.RemoveAt(0);
-                            localCursor = (int.Parse(localCursor) + 1).ToString();
-                        }
-                        else
-                        {
-                            if (firstPendingCloudLibProfile != null)
+                            var firstPendingCloudLibProfile = pendingCloudLibProfiles.FirstOrDefault();
+                            if (firstPendingCloudLibProfile != null && firstPendingCloudLibProfile.Node == null)
                             {
-                                result.Add(firstPendingCloudLibProfile.Node);
-                                cloudLibCursor = firstPendingCloudLibProfile.Cursor;
+                                // Cloud profile was excluded earlier: skip it but remember it's cursor for the next query
                                 pendingCloudLibProfiles.RemoveAt(0);
+                                cloudLibCursor = firstPendingCloudLibProfile.Cursor;
+                                continue;
+                            }
 
-                                if (firstPendingLocalprofile != null && 
-                                    firstPendingLocalprofile.Namespace == firstPendingCloudLibProfile.Node.Namespace 
-                                    && firstPendingLocalprofile.PublishDate == firstPendingCloudLibProfile.Node.PublishDate )
+                            var firstPendingLocalprofile = pendingLocalProfiles?.FirstOrDefault();
+                            if (firstPendingLocalprofile != null && 
+                                (model.ExcludeLocalLibrary || // Put local library items first if both add and exclude is specified
+                                  (firstPendingCloudLibProfile?.Node == null || String.Compare(firstPendingLocalprofile.Namespace, firstPendingCloudLibProfile.Node.Namespace, false, CultureInfo.InvariantCulture) < 0)))
+                            {
+                                result.Add(CloudLibProfileModel.MapFromProfile(firstPendingLocalprofile));
+                                pendingLocalProfiles.RemoveAt(0);
+                                localCursor = (int.Parse(localCursor) + 1).ToString();
+                            }
+                            else
+                            {
+                                if (firstPendingCloudLibProfile != null)
                                 {
-                                    // Skip matching local profile to avoid duplicates
-                                    pendingLocalProfiles.RemoveAt(0);
-                                    localCursor = (int.Parse(localCursor) + 1).ToString();
+                                    result.Add(firstPendingCloudLibProfile.Node);
+                                    cloudLibCursor = firstPendingCloudLibProfile.Cursor;
+                                    pendingCloudLibProfiles.RemoveAt(0);
+
+                                    if (firstPendingLocalprofile != null && 
+                                        firstPendingLocalprofile.Namespace == firstPendingCloudLibProfile.Node.Namespace 
+                                        && firstPendingLocalprofile.PublishDate == firstPendingCloudLibProfile.Node.PublishDate )
+                                    {
+                                        // Skip matching local profile to avoid duplicates
+                                        pendingLocalProfiles.RemoveAt(0);
+                                        localCursor = (int.Parse(localCursor) + 1).ToString();
+                                    }
                                 }
                             }
                         }
-                    }
-            } while ((!bFullResultCloud || ! bFullResultLocal) && result.Count < model.Take);
+                } while ((!bFullResultCloud || ! bFullResultLocal) && result.Count < model.Take);
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"ProfileController|GetCloudLibrary|Exception: {ex.Message}.");
+            }
 
             // Fill in any local profile information for cloud library-only results
             foreach (var localProfile in allLocalProfiles?? new List<ProfileModel>())

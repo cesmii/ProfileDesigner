@@ -129,7 +129,7 @@ namespace Opc.Ua.Cloud.Library.Client
             if (response.StatusCode == HttpStatusCode.OK)
             {
                 var responseJson = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                resultType = JsonConvert.DeserializeObject<UANameSpace>(responseJson);
+                resultType = JsonConvert.DeserializeObject<UANameSpace>(responseJson, new JsonSerializerSettings {  DateTimeZoneHandling = DateTimeZoneHandling.Utc });
             }
 
             return resultType;

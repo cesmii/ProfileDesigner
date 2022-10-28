@@ -35,6 +35,15 @@
             return entity.ID;
         }
 
+        public override StandardNodeSet CheckForExisting(StandardNodeSetModel model, UserToken userToken, bool cacheOnly = false)
+        {
+            if (model.ID != null && model.ID != 0)
+            {
+                return base.CheckForExisting(model, userToken, cacheOnly);
+            }
+            return FindByCondition(userToken, x => x.Namespace == model.Namespace && x.PublishDate == model.PublishDate).FirstOrDefault();
+        }
+
         public async Task<int?> DeleteAsync(int id, UserToken userToken)
         {
             StandardNodeSet entity = base.FindByCondition(userToken, x => x.ID == id).FirstOrDefault();
@@ -55,7 +64,8 @@
                     Namespace = entity.Namespace,
                     Version = entity.Version,
                     Filename = entity.Filename,
-                    PublishDate=entity.PublishDate
+                    PublishDate=entity.PublishDate,
+                    CloudLibraryId = entity.CloudLibraryId,
                 };
             }
             else
@@ -64,6 +74,10 @@
             }
 
         }
+        public void MapToEntityPublic(ref StandardNodeSet entity, StandardNodeSetModel model, UserToken userToken)
+        {
+            MapToEntity(ref entity, model, userToken);
+        }
 
         protected override void MapToEntity(ref StandardNodeSet entity, StandardNodeSetModel model, UserToken userToken)
         {
@@ -71,6 +85,7 @@
             entity.Version = model.Version;
             entity.Filename = model.Filename;
             entity.PublishDate = model.PublishDate;
+            entity.CloudLibraryId = model.CloudLibraryId;
         }
     }
 }

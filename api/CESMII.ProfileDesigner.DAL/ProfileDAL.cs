@@ -12,12 +12,14 @@
 
     public class ProfileDAL : TenantBaseDAL<Profile, ProfileModel>, IDal<Profile, ProfileModel>
     {
-        public ProfileDAL(IRepository<Profile> repo, IDal<NodeSetFile, NodeSetFileModel> nodeSetFileDAL) : base(repo)
+        public ProfileDAL(IRepository<Profile> repo, IDal<NodeSetFile, NodeSetFileModel> nodeSetFileDAL, IDal<StandardNodeSet, StandardNodeSetModel> standardNodeSetDAL) : base(repo)
         {
+            // TODO clean up the dependencies: expand interface?
             _nodeSetFileDAL = nodeSetFileDAL as NodeSetFileDAL;
+            _standardNodeSetDAL = standardNodeSetDAL as StandardNodeSetDAL;
         }
         private readonly NodeSetFileDAL _nodeSetFileDAL;
-
+        private readonly StandardNodeSetDAL _standardNodeSetDAL;
 
         public override async Task<int?> AddAsync(ProfileModel model, UserToken userToken)
         {
@@ -137,7 +139,8 @@
                             Filename = entity.StandardProfile.Filename,
                             Namespace = entity.StandardProfile.Namespace,
                             PublishDate = entity.StandardProfile.PublishDate,
-                            Version = entity.StandardProfile.Version
+                            Version = entity.StandardProfile.Version,
+                            CloudLibraryId = entity.StandardProfile.CloudLibraryId,
                         },
                     AuthorId = entity.AuthorId,
                     Author = MapToModelSimpleUser(entity.Author),
@@ -175,6 +178,16 @@
         {
             entity.Namespace = model.Namespace;
             entity.StandardProfileID = model.StandardProfileID;
+
+            if (model.StandardProfile != null)
+            {
+                var entityStandardProfile = 
+                    entity.StandardProfile 
+                    ?? _standardNodeSetDAL.CheckForExisting(model.StandardProfile, userToken) 
+                    ?? new StandardNodeSet();
+                _standardNodeSetDAL.MapToEntityPublic(ref entityStandardProfile, model.StandardProfile, userToken);
+                entity.StandardProfile = entityStandardProfile;
+            }
             entity.AuthorId = model.AuthorId;
             entity.Version = model.Version;
             entity.PublishDate = model.PublishDate;

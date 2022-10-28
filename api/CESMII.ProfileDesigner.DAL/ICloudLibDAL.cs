@@ -17,9 +17,13 @@
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        Task<CloudLibProfileModel> DownloadAsync(string id);
-
-        Task<GraphQlResult<TModel>> GetAll();
+        Task<TModel> DownloadAsync(string id);
+        /// <summary>
+        /// Download the nodeset xml portion of the CloudLib profile
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        Task<TModel> GetAsync(string namespaceUri, DateTime? publicationDate, bool exactMatch);
 
         /// <summary>
         /// Query is from a free form input box. - This will be appended to a single keywords list

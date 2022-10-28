@@ -53,29 +53,38 @@
         }
 
         public async Task<CloudLibProfileModel> GetById(string id) {
-            var entity = await _cloudLib.GetById(id);
+            var entity = await _cloudLib.DownloadAsync(id);
             if (entity == null) return null;
             return MapToModelNamespace(entity);
         }
 
         public async Task<CloudLibProfileModel> DownloadAsync(string id)
         {
-            var entity = await _cloudLib.GetById(id);
-            if (entity == null) return null;
+            var entity = await _cloudLib.DownloadAsync(id);
+            if (entity == null)
+            {
+                return null;
+            }
             //return the whole thing because we also email some info to request info and use
             //other data in this entity.
             var result = MapToModelNamespace(entity);
             return result;
         }
 
-        public async Task<GraphQlResult<CloudLibProfileModel>> GetAll() {
-            var result = await this.Where(100, null, null); // TODO implement pagination or just remove?
+        public async Task<CloudLibProfileModel> GetAsync(string namespaceUri, DateTime? publicationDate, bool exactMatch)
+        {
+            var entity = await _cloudLib.GetAsync(namespaceUri, publicationDate, exactMatch);
+            if (entity == null)
+            {
+                return null;
+            }
+            var result = MapToModelNamespace(entity);
             return result;
         }
 
         public async Task<GraphQlResult<CloudLibProfileModel>> Where(int limit, string cursor, List<string> keywords, List<string> exclude = null)
         {
-            var matches = await _cloudLib.Search(limit, cursor, keywords, exclude);
+            var matches = await _cloudLib.SearchAsync(limit, cursor, keywords, exclude);
             if (matches == null) return new GraphQlResult<CloudLibProfileModel>();
 
             //TBD - exclude some nodesets which are core nodesets - list defined in appSettings
@@ -115,7 +124,7 @@
                 Node = new CloudLibProfileModel
                 {
                     ID = null,
-                    CloudLibId = entity.Identifier.ToString(),
+                    CloudLibraryId = entity.Identifier.ToString(),
                     Name = entity.Identifier.ToString(),  //in marketplace items, name is used for navigation in friendly url
                     ExternalAuthor = entity.Metadata?.Contributor?.Name,
                     Contributor = entity.Metadata?.Contributor?.Name, // TODO reconcile this with MarketPlace PublishedModel?
@@ -165,7 +174,7 @@
                 return new CloudLibProfileModel()
                 {
                     ID = null,
-                    CloudLibId = entity.Id.ToString(),
+                    CloudLibraryId = entity.Id.ToString(),
                     Name = entity.Id.ToString(),  //in marketplace items, name is used for navigation in friendly url
                     ExternalAuthor = entity.Contributor,
                     Contributor = entity.Contributor, // TODO reconcile this with MarketPlace PublishedModel?
@@ -235,6 +244,7 @@
                     //    new ImageItemModel() { Src = entity.IconUrl.ToString() },
                     Updated = entity.Nodeset.LastModifiedDate,
                     NodesetXml = entity.Nodeset.NodesetXml,
+                    CloudLibraryId = entity.Nodeset.Identifier.ToString(),
                 };
             }
             else

@@ -49,11 +49,11 @@ export const renderProfileIcon = (item, account, size = 20, useMarginRight = tru
             iconColor = color.apple;
         }
     }
-    else if (item.cloudLibId != null) {
+    else if (item.cloudLibraryId != null) {
         iconColor = color.blazeOrange;
     }
     //(item.isReadOnly || !isOwnerBool) ?
-    //    (item.cloudLibId != null ? color.blazeOrange : color.amber)
+    //    (item.cloudLibraryId != null ? color.blazeOrange : color.amber)
     //    : color.apple;
     const svg = (<SVGIcon name={iconName} size={size} fill={iconColor} alt={iconName} />);
     return (<span className={useMarginRight ? "d-flex align-items-center justify-content-center mr-2" : "d-flex align-items-center justify-content-center "} >{svg}</span>)

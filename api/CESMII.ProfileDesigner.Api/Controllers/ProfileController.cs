@@ -330,6 +330,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             catch (Exception ex)
             {
                 _logger.LogError($"ProfileController|GetCloudLibrary|Exception: {ex.Message}.");
+                return StatusCode(500, "Error processing query.");
             }
 
             // Fill in any local profile information for cloud library-only results

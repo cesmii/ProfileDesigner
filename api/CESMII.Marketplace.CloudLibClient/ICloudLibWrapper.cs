@@ -6,10 +6,10 @@ using CESMII.OpcUa.NodeSetImporter;
 
 namespace CESMII.ProfileDesigner.CloudLibClient
 {
-    public interface ICloudLibWrapper
+    public interface ICloudLibWrapper : IUANodeSetResolverWithProgress
     {
-        Task<IEnumerable<string>> ResolveNodeSetsAsync(List<ModelNameAndVersion> missingModels);
-        Task<GraphQlResult<Nodeset>> Search(int limit, string cursor, List<string> keywords, List<string> exclude);
-        Task<UANameSpace> GetById(string id);
+        Task<GraphQlResult<Nodeset>> SearchAsync(int limit, string cursor, List<string> keywords, List<string> exclude);
+        Task<UANameSpace> DownloadAsync(string id);
+        Task<UANameSpace> GetAsync(string modelUri, DateTime? publicationDate, bool exactMatch);
     }
 }

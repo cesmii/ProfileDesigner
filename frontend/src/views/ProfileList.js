@@ -9,6 +9,7 @@ import { generateLogMessageString, renderTitleBlock, scrollTop } from '../utils/
 import { useLoadingContext } from "../components/contexts/LoadingContext";
 import ConfirmationModal from '../components/ConfirmationModal';
 import ProfileEntityModal from './modals/ProfileEntityModal';
+import ProfileCloudLibImportModal from './modals/ProfileCloudLibImportModal';
 import ProfileListGrid from './shared/ProfileListGrid';
 import ProfileImporter from './shared/ProfileImporter';
 
@@ -32,6 +33,7 @@ function ProfileList() {
     const [_error, setError] = useState({ show: false, message: null, caption: null });
     //used in popup profile add/edit ui. Default to new version
     const [_profileEntityModal, setProfileEntityModal] = useState({ show: false, item: null});
+    const [_profileCloudLibImportModal, setProfileCloudLibImportModal] = useState({ show: false, item: null });
     const [_initProfileSearchCriteria, setInitProfileSearchCriteria] = useState(true);
     const [_profileSearchCriteria, setProfileSearchCriteria] = useState(null);
     const [_profileSearchCriteriaChanged, setProfileSearchCriteriaChanged] = useState(0);
@@ -87,6 +89,14 @@ function ProfileList() {
     const onEdit = (item) => {
         console.log(generateLogMessageString(`onEdit`, CLASS_NAME));
         setProfileEntityModal({ show: true, item: item});
+    };
+    const onImport = (item) => {
+        console.log(generateLogMessageString(`onImport`, CLASS_NAME));
+        setProfileCloudLibImportModal({ show: true, item: item,import: true });
+    };
+    const onImportCancel = () => {
+        console.log(generateLogMessageString(`onImportCancel`, CLASS_NAME));
+        setProfileCloudLibImportModal({ show: false, item: null });
     };
 
     const onSave = (id) => {
@@ -255,6 +265,15 @@ function ProfileList() {
             <ProfileEntityModal item={_profileEntityModal.item} showModal={_profileEntityModal.show} onSave={onSave} onCancel={onSaveCancel} showSavedMessage={true} />
         );
     };
+    //renderProfileCloudLibImport as a modal to force user to say ok.
+    const renderProfileCloudLibImport= () => {
+
+        if (!_profileCloudLibImportModal.show) return;
+
+        return (
+            <ProfileCloudLibImportModal item={_profileCloudLibImportModal.item} showModal={_profileCloudLibImportModal.show} onSave={onSave} onCancel={onImportCancel} showSavedMessage={true} />
+        );
+    };
 
     //-------------------------------------------------------------------
     // Region: Render final output
@@ -267,8 +286,10 @@ function ProfileList() {
             {renderHeaderRow()}
             {renderIntroContent()}
             <ProfileListGrid searchCriteria={_profileSearchCriteria} onGridRowSelect={onGridRowSelect} onEdit={onEdit} onDeleteItemClick={onDeleteItemClick}
+                onImport={onImport}
                 onSearchCriteriaChanged={onSearchCriteriaChanged} searchCriteriaChanged={_profileSearchCriteriaChanged}/>
             //{renderProfileEntity()}
+            //{renderProfileCloudLibImport()}
             {renderDeleteConfirmation()}
             <ErrorModal modalData={_error} callback={onErrorModalClose} />
         </>

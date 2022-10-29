@@ -90,6 +90,22 @@ function ProfileEntity(props) {
         return (
             <>
                 <div className="row">
+                    {!props.item.cloudLibraryId != null &&
+                        <div className="col-md-12">
+                            <Form.Group>
+                                <Form.Label>Title</Form.Label>
+                                <Form.Control id="title" type="" placeholder="" value={props.item.displayName} readOnly="true" />
+                            </Form.Group>
+                            <Form.Group>
+                                <Form.Label>Description</Form.Label>
+                                <Form.Label id="description" type="" placeholder="" value={props.item.description} readOnly="true">{props.item.description}</Form.Label>
+                            </Form.Group>
+                            <Form.Group>
+                                <Form.Label>Contributor</Form.Label>
+                                <Form.Control id="contributor" type="" placeholder="" value={props.item.contributor} readOnly="true" />
+                            </Form.Group>
+                        </div>
+                    }
                     <div className="col-12">
                         <Form.Group className="mb-1">
                             <Form.Label>Namespace*</Form.Label>
@@ -124,13 +140,13 @@ function ProfileEntity(props) {
                     <div className="col-md-12">
                         <Form.Group>
                             <Form.Label>Author name</Form.Label>
-                            <Form.Control id="author" type="" placeholder="" value={props.item.author == null ? '' : props.item.author.name} onChange={onChangeAuthor} />
+                            <Form.Control id="author" type="" placeholder="" value={props.item.author == null ? '' : props.item.author.name} onChange={onChangeAuthor} readOnly={props.item.cloudLibraryId != null} />
                         </Form.Group>
                     </div>
                     <div className="col-md-12">
                         <Form.Group>
                             <Form.Label>Publisher Organization</Form.Label>
-                            <Form.Control id="organization" type="" placeholder="" value={props.item.organization == null ? '' : props.item.organization} onChange={onChange} />
+                            <Form.Control id="organization" type="" placeholder="" value={props.item.organization == null ? '' : props.item.organization} onChange={onChange} readOnly={props.item.cloudLibraryId != null} />
                         </Form.Group>
                     </div>
                 </div>

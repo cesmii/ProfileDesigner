@@ -131,6 +131,12 @@ function ProfileItemRow(props) { //props are item, showActions
         props.onEditCallback(props.item);
     }
 
+    const onImportItem = () => {
+        //format date if present
+        //props.item.publishDate = formatDate(props.item.publishDate);
+        props.onImportCallback(props.item);
+    }
+
     const onRowSelect = () => {
         //only some modes allow selecting row
         if (props.selectMode == null) return;
@@ -179,15 +185,15 @@ function ProfileItemRow(props) { //props are item, showActions
         else {
             return (
                 <div className="col-sm-4 ml-auto d-inline-flex justify-content-end align-items-center" >
-                    <span className="my-0 mr-2" onClick={importItem} ><span className="mr-1" alt="view"><SVGDownloadIcon name="import" /></span>Import profile from Cloud Library</span>
-                    <Dropdown className="action-menu icon-dropdown" onClick={(e) => e.stopPropagation()} >
-                        <Dropdown.Toggle drop="left" title="Actions" >
-                            <SVGIcon name="more-vert" />
-                        </Dropdown.Toggle>
-                        <Dropdown.Menu>
-                            <Dropdown.Item key="moreVert4" onClick={importItem} ><span className="mr-3" alt="arrow-drop-down"><SVGIcon name="visibility" /></span>View profile description</Dropdown.Item>
-                        </Dropdown.Menu>
-                    </Dropdown>
+                    <button className="ml-1 btn btn-link" onClick={onImportItem} ><span className="mr-1" alt="view"><SVGDownloadIcon name="import" /></span>Import from Cloud Library</button>
+                {/*    <Dropdown className="action-menu icon-dropdown" onClick={(e) => e.stopPropagation()} >*/}
+                {/*        <Dropdown.Toggle drop="left" title="Actions" >*/}
+                {/*            <SVGIcon name="more-vert" />*/}
+                {/*        </Dropdown.Toggle>*/}
+                {/*        <Dropdown.Menu>*/}
+                {/*            <Dropdown.Item key="moreVert4" onClick={importItem} ><span className="mr-3" alt="arrow-drop-down"><SVGIcon name="visibility" /></span>View profile description</Dropdown.Item>*/}
+                {/*        </Dropdown.Menu>*/}
+                {/*    </Dropdown>*/}
                 </div>
             );
         }
@@ -264,11 +270,17 @@ function ProfileItemRow(props) { //props are item, showActions
                                     <button className="ml-1 btn btn-link" onClick={onEditItem} >{props.item.namespace}</button>
                                 }
                             </p>
+                            {props.item.displayName != null &&
+                                <p className="my-0 small-size" >Title: {props.item.displayName}</p>
+                            }
                             {props.item.version != null &&
                                 <p className="my-0 small-size" >Version: {props.item.version}</p>
                             }
                             {props.item.publishDate != null &&
                                 <p className="my-0 small-size" >Published: {formatDate(props.item.publishDate)}</p>
+                            }
+                            {props.item.description != null &&
+                                <p className="my-0 small-size" >Description: {props.item.description.substr(0, 80)}</p>
                             }
                         </div>
                     </div>

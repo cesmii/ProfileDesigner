@@ -69,6 +69,11 @@ function ProfileListGrid(props) {
         //bubble up to parent
         if (props.onEdit) props.onEdit(item);
     };
+    const onImport = (item) => {
+        console.log(generateLogMessageString(`onImport`, CLASS_NAME));
+        //bubble up to parent
+        if (props.onImport) props.onImport(item);
+    };
 
     const onRowSelect = (item) => {
         console.log(generateLogMessageString(`onRowSelect`, CLASS_NAME));
@@ -250,6 +255,7 @@ function ProfileListGrid(props) {
             return (<ProfileItemRow key={item.id} item={item} activeAccount={_activeAccount}
                 showActions={true} cssClass={`profile-list-item ${props.rowCssClass ?? ''}`} selectMode={props.selectMode}
                 onEditCallback={onEdit} onDeleteCallback={onDeleteItemClick} onRowSelect={onRowSelect}
+                onImportCallback={onImport}
                 selectedItems={props.selectedItems} 
             />)
         });

@@ -5,7 +5,6 @@
     using System.Linq;
     using System.Threading.Tasks;
 
-    using Microsoft.Extensions.Configuration;
     using NLog;
 
     using CESMII.ProfileDesigner.CloudLibClient;
@@ -117,19 +116,27 @@
         if (entityAndCursor != null && entityAndCursor.Node != null)
         {
                 var entity = entityAndCursor.Node;
-            //map results to a format that is common with marketplace items
-            return new GraphQlNodeAndCursor<CloudLibProfileModel>()
-            {
-                Cursor = entityAndCursor.Cursor,
-                Node = new CloudLibProfileModel
+                //map results to a format that is common with marketplace items
+                return new GraphQlNodeAndCursor<CloudLibProfileModel>()
                 {
-                    ID = null,
-                    CloudLibraryId = entity.Identifier.ToString(),
-                    Name = entity.Identifier.ToString(),  //in marketplace items, name is used for navigation in friendly url
-                    ExternalAuthor = entity.Metadata?.Contributor?.Name,
-                    Contributor = entity.Metadata?.Contributor?.Name, // TODO reconcile this with MarketPlace PublishedModel?
-                                                                    //TBD
-                                                                    //Description = "Description..." + entity.Title,
+                    Cursor = entityAndCursor.Cursor,
+                    Node = new CloudLibProfileModel
+                    {
+                        ID = null,
+                        CloudLibraryId = entity.Identifier.ToString(),
+                        Name = entity.Identifier.ToString(),  //in marketplace items, name is used for navigation in friendly url
+                        ExternalAuthor = entity.Metadata?.Contributor?.Name,
+                        Contributor = entity.Metadata?.Contributor?.Name, // TODO reconcile this with MarketPlace PublishedModel?
+                                                                          //TBD
+                                                                          //Description = "Description..." + entity.Title,
+                        Description = entity.Metadata.Description,
+                        //(string.IsNullOrEmpty(entity.Metadata.Description) ? "" : $"<p>{entity.Metadata.Description}</p>") +
+                        //(entity.Metadata.DocumentationUrl == null ? "" : $"<p><a href='{entity.Metadata.DocumentationUrl.ToString()}' target='_blank' rel='noreferrer' >Documentation: {entity.Metadata.DocumentationUrl.ToString()}</a></p>") +
+                        //(entity.Metadata.ReleaseNotesUrl == null ? "" : $"<p><a href='{entity.Metadata.ReleaseNotesUrl.ToString()}' target='_blank' rel='noreferrer' >Release Notes: {entity.Metadata.ReleaseNotesUrl.ToString()}</a></p>") +
+                        //(entity.Metadata.LicenseUrl == null ? "" : $"<p><a href='{entity.Metadata.LicenseUrl.ToString()}' target='_blank' rel='noreferrer' >License Information: {entity.Metadata.LicenseUrl.ToString()}</a></p>") +
+                        //(entity.Metadata.TestSpecificationUrl == null ? "" : $"<p><a href='{entity.Metadata.TestSpecificationUrl.ToString()}' target='_blank' rel='noreferrer' >Test Specification: {entity.Metadata.TestSpecificationUrl.ToString()}</a></p>") +
+                        //(entity.Metadata.PurchasingInformationUrl == null ? "" : $"<p><a href='{entity.Metadata.PurchasingInformationUrl.ToString()}' target='_blank' rel='noreferrer' >Purchasing Information: {entity.Metadata.PurchasingInformationUrl.ToString()}</a></p>") +
+                        //(string.IsNullOrEmpty(entity.Metadata.CopyrightText) ? "" : $"<p>{entity.Metadata.CopyrightText}</p>"),
                     DisplayName = entity.Metadata?.Title,
                     Namespace = entity.NamespaceUri?.OriginalString,
                     PublishDate = entity.PublicationDate,
@@ -139,6 +146,8 @@
                     //ImagePortrait = _images.FirstOrDefault(x => x.ID.Equals(_config.DefaultImageIdPortrait)),
                     ////ImageSquare = _images.FirstOrDefault(x => x.ID.Equals(_config.DefaultImageIdSquare)),
                     //ImageLandscape = _images.FirstOrDefault(x => x.ID.Equals(_config.DefaultImageIdLandscape))
+
+                    MetaTags = entity.Metadata.Keywords?.ToList(),
                 }
             };
         }

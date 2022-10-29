@@ -98,7 +98,7 @@ function ProfileEntity(props) {
                             </Form.Group>
                             <Form.Group>
                                 <Form.Label>Description</Form.Label>
-                                <Form.Label id="description" type="" placeholder="" value={props.item.description} readOnly="true">{props.item.description}</Form.Label>
+                                <Form.Control as="textarea" rows="8" id="description" type="" placeholder="" value={props.item.description} readOnly="true">{props.item.description}</Form.Control>
                             </Form.Group>
                             <Form.Group>
                                 <Form.Label>Contributor</Form.Label>

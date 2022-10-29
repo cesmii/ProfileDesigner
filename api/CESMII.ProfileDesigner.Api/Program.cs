@@ -10,6 +10,7 @@ namespace CESMII.ProfileDesigner.Api
     {
         public static void Main(string[] args)
         {
+            System.AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);  // Accept Postgres 'only UTC' rule.
             CreateHostBuilder(args).Build().Run();
         }
 

@@ -78,10 +78,10 @@ namespace CESMII.ProfileDesigner.Api.Tests
         static Dictionary<SearchInputs, GraphQlResult<Nodeset>> _searchData = new Dictionary<SearchInputs, GraphQlResult<Nodeset>>(new SearchInputs.Comparer());
         private bool disposedValue;
 
-        public OnResolveNodeSets OnResolveNodeSets { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        public OnNodeSet OnDownloadNodeSet { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        public OnNodeSet OnNodeSetFound { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        public OnNodeSet OnNodeSetNotFound { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public OnResolveNodeSets OnResolveNodeSets { get; set; }
+        public OnNodeSet OnDownloadNodeSet { get; set; }
+        public OnNodeSet OnNodeSetFound { get; set; }
+        public OnNodeSet OnNodeSetNotFound { get; set; }
 
         public async Task<GraphQlResult<Nodeset>> SearchAsync(int limit, string cursor, List<string> keywords, List<string> exclude)
         {
@@ -116,13 +116,13 @@ namespace CESMII.ProfileDesigner.Api.Tests
 
         public Task<IEnumerable<string>> ResolveNodeSetsAsync(List<ModelNameAndVersion> missingModels)
         {
-            throw new System.NotImplementedException();
+            return Task.FromResult(new List<string>().AsEnumerable());
         }
 
 
         public Task<UANameSpace> GetAsync(string modelUri, DateTime? publicationDate, bool exactMatch)
         {
-            throw new NotImplementedException();
+            return Task.FromResult<UANameSpace>(null);
         }
 
 

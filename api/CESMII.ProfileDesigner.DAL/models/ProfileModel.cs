@@ -72,13 +72,13 @@
         public bool HasLocalProfile { get; set; }
         public string CloudLibraryId { get; set; }
         public string NodesetXml { get; set; }
-        public string Description { get; internal set; }
-        public string Contributor { get; internal set; }
-        public string ExternalAuthor { get; internal set; }
-        public string Name { get; internal set; }
-        public string DisplayName { get; internal set; }
-        public List<string> MetaTags { get; internal set; }
-        public DateTime? Updated { get; internal set; }
+        public string Description { get; set; }
+        public string Contributor { get; set; }
+        public string ExternalAuthor { get; set; }
+        public string Name { get; set; }
+        public string DisplayName { get; set; }
+        public List<string> MetaTags { get; set; }
+        public DateTime? Updated { get; set; }
     }
 
 }

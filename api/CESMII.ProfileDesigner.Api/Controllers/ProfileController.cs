@@ -456,6 +456,17 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 _logger.LogWarning($"ProfileController|Add|Invalid model (null)");
                 return BadRequest($"Invalid model (null). Check Publish Date formatting.");
             }
+            if (model.PublishDate != null && model.PublishDate?.Kind != DateTimeKind.Utc)
+            {
+                if (model.PublishDate?.Kind == DateTimeKind.Unspecified)
+                {
+                    model.PublishDate = DateTime.SpecifyKind(model.PublishDate.Value, DateTimeKind.Utc);
+                }
+                else
+                {
+                    model.PublishDate = model.PublishDate?.ToUniversalTime();
+                }
+            }
             //test for unique namespace/owner id/publish date combo
             if (!IsValidModel(model, base.DalUserToken))
             {

@@ -103,9 +103,9 @@
         {
             //find matches in the db regardless of author. Note there could be a scenario where they pass in an id that
             //isn't there anymore which is why we check this way.
-            var matchesCount = base.FindByCondition(userToken, x => ids.Contains(x.ID??0)).Count();
-            var matchesWAuthor = base.FindByCondition(userToken, x => ids.Contains(x.ID??0) && x.AuthorId == userToken.UserId).ToList();
-            
+            var matchesCount = base.FindByCondition(userToken, x => ids.Contains(x.ID ?? 0)).Count();
+            var matchesWAuthor = base.FindByCondition(userToken, x => ids.Contains(x.ID ?? 0) && x.AuthorId == userToken.UserId).ToList();
+
             //then filter on author. If the number of matches > number of matches with author filter, then we 
             //return 0 because they are not permitted to delete a nodeset they don't own.
             if (matchesCount > matchesWAuthor.Count)
@@ -144,9 +144,25 @@
                         },
                     AuthorId = entity.AuthorId,
                     Author = MapToModelSimpleUser(entity.Author),
-                    NodeSetFiles = verbose ? entity.NodeSetFiles.Select(nsf => _nodeSetFileDAL.MapToModelPublic(nsf ,verbose)).ToList() : null, 
+                    NodeSetFiles = verbose ? entity.NodeSetFiles.Select(nsf => _nodeSetFileDAL.MapToModelPublic(nsf, verbose)).ToList() : null,
                     Version = entity.Version,
                     PublishDate = entity.PublishDate,
+                    // Cloud Library meta data
+                    Title = entity.Title,
+                    License = entity.License,
+                    LicenseUrl = entity.LicenseUrl,
+                    CopyrightText = entity.CopyrightText,
+                    ContributorName = entity.ContributorName,
+                    Description = entity.Description,
+                    CategoryName = entity.CategoryName,
+                    DocumentationUrl = entity.DocumentationUrl,
+                    IconUrl = entity.IconUrl,
+                    Keywords = entity.Keywords?.ToList(),
+                    PurchasingInformationUrl = entity.PurchasingInformationUrl,
+                    ReleaseNotesUrl = entity.ReleaseNotesUrl,
+                    TestSpecificationUrl = entity.TestSpecificationUrl,
+                    SupportedLocales = entity.SupportedLocales?.ToList(),
+                    AdditionalProperties = entity.AdditionalProperties?.Select(p => new KeyValuePair<string, string>(p.Name ,p.Value))?.ToList(),
                 };
 
                 if (verbose)
@@ -181,9 +197,9 @@
 
             if (model.StandardProfile != null)
             {
-                var entityStandardProfile = 
-                    entity.StandardProfile 
-                    ?? _standardNodeSetDAL.CheckForExisting(model.StandardProfile, userToken) 
+                var entityStandardProfile =
+                    entity.StandardProfile
+                    ?? _standardNodeSetDAL.CheckForExisting(model.StandardProfile, userToken)
                     ?? new StandardNodeSet();
                 _standardNodeSetDAL.MapToEntityPublic(ref entityStandardProfile, model.StandardProfile, userToken);
                 entity.StandardProfile = entityStandardProfile;
@@ -191,6 +207,24 @@
             entity.AuthorId = model.AuthorId;
             entity.Version = model.Version;
             entity.PublishDate = model.PublishDate;
+
+            // Cloud Library meta data
+            entity.Title = model.Title;
+            entity.License = model.License;
+            entity.LicenseUrl = model.LicenseUrl;
+            entity.CopyrightText = model.CopyrightText;
+            entity.ContributorName = model.ContributorName;
+            entity.Description = model.Description;
+            entity.CategoryName = model.CategoryName;
+            entity.DocumentationUrl = model.DocumentationUrl;
+            entity.IconUrl = model.IconUrl;
+            entity.Keywords = model.Keywords?.ToArray();
+            entity.PurchasingInformationUrl = model.PurchasingInformationUrl;
+            entity.ReleaseNotesUrl = model.ReleaseNotesUrl;
+            entity.TestSpecificationUrl = model.TestSpecificationUrl;
+            entity.SupportedLocales = model.SupportedLocales?.ToArray();
+            entity.AdditionalProperties = model.AdditionalProperties?.Select(p =>  new UAProperty { Name = p.Key, Value = p.Value }).ToList() ?? new List<UAProperty> { new UAProperty { Name = "a", Value = "b" } };
+
             MapToEntityNodeSetFiles(ref entity, model.NodeSetFiles, userToken);
         }
 
@@ -200,7 +234,7 @@
             if (entity.NodeSetFiles == null) entity.NodeSetFiles = new List<NodeSetFile>();
 
             //this shouldn't happen...unless creating from within system. If all items removed, then it should be a collection w/ 0 items.
-            if (files == null) return; 
+            if (files == null) return;
 
             // Remove items no longer used
             // Use counter from end of collection so we can remove and not mess up loop iterator 
@@ -227,7 +261,7 @@
             // Loop over interfaces passed in and only add those not already there
             foreach (var file in files)
             {
-                if ((file.ID??0) == 0 || entity.NodeSetFiles.Find(x => x.ID.Equals(file.ID) || x.FileName == file.FileName) == null)
+                if ((file.ID ?? 0) == 0 || entity.NodeSetFiles.Find(x => x.ID.Equals(file.ID) || x.FileName == file.FileName) == null)
                 {
                     var fileEntity = _nodeSetFileDAL.CheckForExisting(file, userToken);
                     if (fileEntity == null)

@@ -124,11 +124,9 @@
                     {
                         ID = null,
                         CloudLibraryId = entity.Identifier.ToString(),
-                        Name = entity.Identifier.ToString(),  //in marketplace items, name is used for navigation in friendly url
-                        ExternalAuthor = entity.Metadata?.Contributor?.Name,
-                        Contributor = entity.Metadata?.Contributor?.Name, // TODO reconcile this with MarketPlace PublishedModel?
-                                                                          //TBD
-                                                                          //Description = "Description..." + entity.Title,
+                        ContributorName = entity.Metadata?.Contributor?.Name, // TODO reconcile this with MarketPlace PublishedModel?
+                                                                              //TBD
+                                                                              //Description = "Description..." + entity.Title,
                         Description = entity.Metadata.Description,
                         //(string.IsNullOrEmpty(entity.Metadata.Description) ? "" : $"<p>{entity.Metadata.Description}</p>") +
                         //(entity.Metadata.DocumentationUrl == null ? "" : $"<p><a href='{entity.Metadata.DocumentationUrl.ToString()}' target='_blank' rel='noreferrer' >Documentation: {entity.Metadata.DocumentationUrl.ToString()}</a></p>") +
@@ -137,18 +135,29 @@
                         //(entity.Metadata.TestSpecificationUrl == null ? "" : $"<p><a href='{entity.Metadata.TestSpecificationUrl.ToString()}' target='_blank' rel='noreferrer' >Test Specification: {entity.Metadata.TestSpecificationUrl.ToString()}</a></p>") +
                         //(entity.Metadata.PurchasingInformationUrl == null ? "" : $"<p><a href='{entity.Metadata.PurchasingInformationUrl.ToString()}' target='_blank' rel='noreferrer' >Purchasing Information: {entity.Metadata.PurchasingInformationUrl.ToString()}</a></p>") +
                         //(string.IsNullOrEmpty(entity.Metadata.CopyrightText) ? "" : $"<p>{entity.Metadata.CopyrightText}</p>"),
-                    DisplayName = entity.Metadata?.Title,
-                    Namespace = entity.NamespaceUri?.OriginalString,
-                    PublishDate = entity.PublicationDate,
-                    //Type = _smItemType,
-                    Version = entity.Version,
-                    //IsFeatured = false,
-                    //ImagePortrait = _images.FirstOrDefault(x => x.ID.Equals(_config.DefaultImageIdPortrait)),
-                    ////ImageSquare = _images.FirstOrDefault(x => x.ID.Equals(_config.DefaultImageIdSquare)),
-                    //ImageLandscape = _images.FirstOrDefault(x => x.ID.Equals(_config.DefaultImageIdLandscape))
+                        Title = entity.Metadata?.Title,
+                        Namespace = entity.NamespaceUri?.OriginalString,
+                        PublishDate = entity.PublicationDate,
+                        //Type = _smItemType,
+                        Version = entity.Version,
+                        //IsFeatured = false,
+                        //ImagePortrait = _images.FirstOrDefault(x => x.ID.Equals(_config.DefaultImageIdPortrait)),
+                        ////ImageSquare = _images.FirstOrDefault(x => x.ID.Equals(_config.DefaultImageIdSquare)),
+                        //ImageLandscape = _images.FirstOrDefault(x => x.ID.Equals(_config.DefaultImageIdLandscape))
 
-                    MetaTags = entity.Metadata.Keywords?.ToList(),
-                }
+                        Keywords = entity.Metadata.Keywords?.ToList(),
+                        DocumentationUrl = entity.Metadata.DocumentationUrl?.OriginalString,
+                        AdditionalProperties = entity.Metadata.AdditionalProperties?.Select(p => new KeyValuePair<string, string>(p.Name, p.Value))?.ToList(),
+                        CategoryName = entity.Metadata.Category?.Name,
+                        CopyrightText = entity.Metadata.CopyrightText,
+                        IconUrl = entity.Metadata.IconUrl?.OriginalString,
+                        License = entity.Metadata.License.ToString(),
+                        LicenseUrl = entity.Metadata.LicenseUrl?.OriginalString,
+                        PurchasingInformationUrl = entity.Metadata.PurchasingInformationUrl?.OriginalString,
+                        ReleaseNotesUrl = entity.Metadata.ReleaseNotesUrl?.OriginalString,
+                        TestSpecificationUrl = entity.Metadata.TestSpecificationUrl?.OriginalString,
+                        SupportedLocales = entity.Metadata.SupportedLocales?.ToList(),
+                    }
             };
         }
         else
@@ -183,21 +192,33 @@
                 return new CloudLibProfileModel()
                 {
                     ID = null,
-                    CloudLibraryId = entity.Id.ToString(),
-                    Name = entity.Id.ToString(),  //in marketplace items, name is used for navigation in friendly url
-                    ExternalAuthor = entity.Contributor,
-                    Contributor = entity.Contributor, // TODO reconcile this with MarketPlace PublishedModel?
-                    //TBD
-                    //Description = "Description..." + entity.Title,
-                    DisplayName = entity.Title,
-                    Namespace = entity.NameSpaceUri.ToString(),
+                    Namespace = entity.NameSpaceUri,
                     PublishDate = entity.PublicationDate,
                     //Type = _smItemType,
                     Version = entity.Version,
+                    CloudLibraryId = entity.Id.ToString(),
+                    //TBD
+                    //Description = "Description..." + entity.Title,
+                    Title = entity.Title,
+                    License = entity.License,
+                    LicenseUrl = entity.LicenseUrl?.OriginalString,
+                    CopyrightText = entity.CopyrightText,
+                    ContributorName = entity.Contributor, // TODO reconcile this with MarketPlace PublishedModel?
+                    Description = entity.Description,
+                    CategoryName = entity.Category?.Name,
+                    DocumentationUrl = entity.DocumentationUrl?.OriginalString,
+                    IconUrl = entity.IconUrl?.OriginalString,
+                    Keywords = entity.Keywords?.ToList(),
+                    PurchasingInformationUrl = entity.PurchasingInformationUrl?.OriginalString,
+                    ReleaseNotesUrl = entity.ReleaseNotesUrl?.OriginalString,
+                    TestSpecificationUrl = entity.TestSpecificationUrl?.OriginalString,
+                    SupportedLocales = entity.SupportedLocales?.ToList(),
+                    AdditionalProperties = entity.AdditionalProperties?.Select(p => new KeyValuePair<string, string>(p.Name, p.Value))?.ToList(),
+
                     //IsFeatured = false,
                     //ImagePortrait = _images.FirstOrDefault(x => x.ID.Equals(_config.DefaultImageIdPortrait)),
                     ////ImageSquare = _images.FirstOrDefault(x => x.ID.Equals(_config.DefaultImageIdSquare)),
-                    //ImageLandscape = _images.FirstOrDefault(x => x.ID.Equals(_config.DefaultImageIdLandscape))
+                    //ImageLandscape = _images.FirstOrDefault(x => x.ID.Equals(_config.DefaultImageIdLandscape)),
                 };
             }
             else
@@ -217,43 +238,39 @@
         {
             if (entity != null)
             {
-                //metatags
-                var metatags = entity.Keywords.ToList();
-                //if (entity.Category != null) metatags.Add(entity.Category.Name);
-
                 //map results to a format that is common with marketplace items
                 return new CloudLibProfileModel()
                 {
-                    ID = (int) entity.Nodeset.Identifier,//.ToString(),
-                    Name = entity.Nodeset.Identifier.ToString(),  //in marketplace items, name is used for navigation in friendly url
-                    //Abstract = ns.Title,
-                    ExternalAuthor = entity.Contributor.Name,
-                    Contributor = entity.Contributor.Name,
-                    //TBD
-                    Description =
-                        (string.IsNullOrEmpty(entity.Description) ? "" : $"<p>{entity.Description}</p>") +
-                        (entity.DocumentationUrl == null ? "" : $"<p><a href='{entity.DocumentationUrl.ToString()}' target='_blank' rel='noreferrer' >Documentation: {entity.DocumentationUrl.ToString()}</a></p>") +
-                        (entity.ReleaseNotesUrl == null ? "" : $"<p><a href='{entity.ReleaseNotesUrl.ToString()}' target='_blank' rel='noreferrer' >Release Notes: {entity.ReleaseNotesUrl.ToString()}</a></p>") +
-                        (entity.LicenseUrl == null ? "" : $"<p><a href='{entity.LicenseUrl.ToString()}' target='_blank' rel='noreferrer' >License Information: {entity.LicenseUrl.ToString()}</a></p>") +
-                        (entity.TestSpecificationUrl == null ? "" : $"<p><a href='{entity.TestSpecificationUrl.ToString()}' target='_blank' rel='noreferrer' >Test Specification: {entity.TestSpecificationUrl.ToString()}</a></p>") +
-                        (entity.PurchasingInformationUrl == null ? "" : $"<p><a href='{entity.PurchasingInformationUrl.ToString()}' target='_blank' rel='noreferrer' >Purchasing Information: {entity.PurchasingInformationUrl.ToString()}</a></p>") +
-                        (string.IsNullOrEmpty(entity.CopyrightText) ? "" : $"<p>{entity.CopyrightText}</p>"),
-                    DisplayName = entity.Title,
+                    ID = null,
                     Namespace = entity.Nodeset.NamespaceUri?.OriginalString,
-                    MetaTags = metatags,
                     PublishDate = entity.Nodeset.PublicationDate,
                     //Type = _smItemType,
                     Version = entity.Nodeset.Version,
-                    //ImagePortrait = entity.IconUrl == null ? 
-                    //    _images.FirstOrDefault(x => x.ID.Equals(_config.DefaultImageIdPortrait)) :
-                    //    new ImageItemModel() { Src= entity.IconUrl.ToString()},
-                    ////ImageSquare = _images.FirstOrDefault(x => x.ID.Equals(_config.DefaultImageIdSquare)),
-                    //ImageLandscape = entity.IconUrl == null ?
-                    //    _images.FirstOrDefault(x => x.ID.Equals(_config.DefaultImageIdLandscape)) :
-                    //    new ImageItemModel() { Src = entity.IconUrl.ToString() },
-                    Updated = entity.Nodeset.LastModifiedDate,
-                    NodesetXml = entity.Nodeset.NodesetXml,
                     CloudLibraryId = entity.Nodeset.Identifier.ToString(),
+                    //TBD
+                    //Description = "Description..." + entity.Title,
+                    Title = entity.Title,
+                    License = entity.License.ToString(),
+                    LicenseUrl = entity.LicenseUrl?.OriginalString,
+                    CopyrightText = entity.CopyrightText,
+                    ContributorName = entity.Contributor?.Name, // TODO reconcile this with MarketPlace PublishedModel?
+                    Description = entity.Description,
+                    CategoryName = entity.Category?.Name,
+                    DocumentationUrl = entity.DocumentationUrl?.OriginalString,
+                    IconUrl = entity.IconUrl?.OriginalString,
+                    Keywords = entity.Keywords?.ToList(),
+                    PurchasingInformationUrl = entity.PurchasingInformationUrl?.OriginalString,
+                    ReleaseNotesUrl = entity.ReleaseNotesUrl?.OriginalString,
+                    TestSpecificationUrl = entity.TestSpecificationUrl?.OriginalString,
+                    SupportedLocales = entity.SupportedLocales?.ToList(),
+                    AdditionalProperties = entity.AdditionalProperties?.Select(p => new KeyValuePair<string, string>(p.Name, p.Value))?.ToList(),
+
+                    //IsFeatured = false,
+                    //ImagePortrait = _images.FirstOrDefault(x => x.ID.Equals(_config.DefaultImageIdPortrait)),
+                    ////ImageSquare = _images.FirstOrDefault(x => x.ID.Equals(_config.DefaultImageIdSquare)),
+                    //ImageLandscape = _images.FirstOrDefault(x => x.ID.Equals(_config.DefaultImageIdLandscape)),
+
+                    NodesetXml = entity.Nodeset.NodesetXml,
                 };
             }
             else

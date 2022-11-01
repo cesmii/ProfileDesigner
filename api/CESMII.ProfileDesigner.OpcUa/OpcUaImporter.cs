@@ -301,9 +301,10 @@ namespace CESMII.ProfileDesigner.OpcUa
             if (profile == null)
             {
                 StandardNodeSetModel standardNodeSet = null;
+                CloudLibProfileModel cloudLibNodeSet = null;
                 if ((tModel.NameVersion.UAStandardModelID??0) == 0)
                 {
-                    var cloudLibNodeSet = _cloudLibDal.GetAsync(tModel.NameVersion.ModelUri, tModel.NameVersion.PublicationDate, true).Result;
+                    cloudLibNodeSet = _cloudLibDal.GetAsync(tModel.NameVersion.ModelUri, tModel.NameVersion.PublicationDate, true).Result;
                     if (cloudLibNodeSet != null)
                     {
                         standardNodeSet = cloudLibNodeSet.ToStandardNodeSet();
@@ -340,15 +341,21 @@ namespace CESMII.ProfileDesigner.OpcUa
                     }
                 }
 
-                profile = new ProfileModel
+                if (cloudLibNodeSet != null)
                 {
-                    Namespace = tModel.NameVersion.ModelUri,
-                    PublishDate = tModel.NameVersion.PublicationDate,
-                    Version = tModel.NameVersion.ModelVersion,
-                    AuthorId = nsModel.AuthorId,
-                    StandardProfileID = tModel.NameVersion.UAStandardModelID,
-                    StandardProfile = standardNodeSet,
-                };
+                    // Use cloud library meta data even if not exact match
+                    profile = cloudLibNodeSet;
+                }
+                else
+                {
+                    profile = new ProfileModel();
+                }
+                profile.Namespace = tModel.NameVersion.ModelUri;
+                profile.PublishDate = tModel.NameVersion.PublicationDate;
+                profile.Version = tModel.NameVersion.ModelVersion;
+                profile.AuthorId = nsModel.AuthorId;
+                profile.StandardProfileID = tModel.NameVersion.UAStandardModelID;
+                profile.StandardProfile = standardNodeSet;
             }
 
             if (profile.NodeSetFiles == null)
@@ -396,7 +403,7 @@ namespace CESMII.ProfileDesigner.OpcUa
             if (
                 firstModel.ModelUri != profile.Namespace
                 || firstModel.Version != profile.Version
-                || firstModel.PublicationDate.Date != profile.PublishDate?.Date
+                || firstModel.PublicationDate.ToUniversalTime() != profile.PublishDate?.ToUniversalTime()
                 )
             {
                 throw new Exception($"Mismatching primary model meta data and meta data from cache");

@@ -61,6 +61,7 @@ DROP TABLE IF EXISTS public.engineering_unit;
 DROP TABLE IF EXISTS public.profile_nodeset_file;
 DROP TABLE IF EXISTS public.profile_type_definition;
 DROP TABLE IF EXISTS public.import_log_warning;
+DROP TABLE IF EXISTS public.profile_additional_properties;
 DROP TABLE IF EXISTS public.profile;
 DROP TABLE IF EXISTS public.import_log_message;
 DROP TABLE IF EXISTS public.import_log;
@@ -546,7 +547,24 @@ CREATE TABLE public.profile
     publish_date timestamp with time zone NULL,
     ua_standard_profile_id integer NULL,
     author_id integer NULL,
-    --file_cache text COLLATE pg_catalog."default", -- This need to go away eventually in favor of the profile_nodeset_file table
+	
+	-- Cloud Library meta data
+	title text NULL,
+	license text NULL,
+	copyright_text text NULL,
+	contributor_name text NULL,
+	description text NULL,
+	category_name text NULL,
+	documentation_url text NULL,
+	icon_url text NULL,
+	license_url text NULL,
+	keywords text[] NULL,
+    purchasing_information_url text NULL,
+	release_notes_url text NULL,
+	test_specification_url text NULL,
+	supported_locales text[] NULL,
+	-- End Cloud Library meta data
+	
     CONSTRAINT profile_standard_profile_id FOREIGN KEY (ua_standard_profile_id)
         REFERENCES public.standard_nodeset (id) MATCH SIMPLE
         ON UPDATE NO ACTION
@@ -563,6 +581,20 @@ CREATE TABLE public.profile
 TABLESPACE pg_default;
 
 ALTER TABLE public.profile
+    OWNER to cesmii;
+
+CREATE TABLE public.profile_additional_properties
+(
+    id SERIAL PRIMARY KEY,
+    profile_id integer NOT NULL,
+	name text NOT NULL,
+	value text NULL,
+	CONSTRAINT profile_id_fk FOREIGN KEY (profile_id)
+		REFERENCES public.profile (id) MATCH SIMPLE
+)
+TABLESPACE pg_default;
+
+ALTER TABLE public.profile_additional_properties
     OWNER to cesmii;
 
 ---------------------------------------------------------------------
@@ -1316,6 +1348,11 @@ begin
 		SELECT id FROM public.profile p
 		WHERE p.id IN (select cast(unnest(string_to_array(_idList, ',')) as int))
 	);
+
+	delete from public.profile_additional_properties
+	--SELECT * FROM public.profile
+	WHERE profile_id IN (select cast(unnest(string_to_array(_idList, ',')) as int))
+	;
 
 	delete from public.profile
 	--SELECT * FROM public.profile

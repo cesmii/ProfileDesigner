@@ -6,6 +6,8 @@
     using System.Runtime.InteropServices;
     using System.Runtime.Serialization;
     using CESMII.ProfileDesigner.Common.Enums;
+    using Newtonsoft.Json;
+    using Opc.Ua.Cloud.Library.Client;
 
     public class ProfileModel : AbstractModel
     {
@@ -27,6 +29,70 @@
 
         public UserSimpleModel Author { get; set; }
 
+        #region Cloud Library meta data
+        /// <summary>Gets or sets the title.</summary>
+        /// <value>The title.</value>
+        public string Title { get; set; }
+
+        /// <summary>Gets or sets the license.</summary>
+        /// <value>The license.</value>
+        public string License { get; set; }
+
+        /// <summary>Gets or sets the license URL.</summary>
+        /// <value>The license URL.</value>
+        public string LicenseUrl { get; set; }
+
+        /// <summary>Gets or sets the copyright text.</summary>
+        /// <value>The copyright text.</value>
+        public string CopyrightText { get; set; }
+
+        /// <summary>Gets or sets the contributor.</summary>
+        /// <value>The contributor name.</value>
+        public string ContributorName { get; set; }
+
+        /// <summary>Gets or sets the description.</summary>
+        /// <value>The description.</value>
+        public string Description { get; set; }
+
+        /// <summary>Gets or sets the category.</summary>
+        /// <value>The category name.</value>
+        public string CategoryName { get; set; }
+
+        /// <summary>
+        /// Link to additional documentation, specifications, GitHub, etc.
+        /// For example, If the address space is based on a standard or official UA Information Model, this links to the standard or the OPC specification URL.
+        /// </summary>
+        public string DocumentationUrl { get; set; }
+
+        /// <summary>Gets or sets the icon URL.</summary>
+        /// <value>The icon URL.</value>
+        public string IconUrl { get; set; }
+
+        /// <summary>Gets or sets the key words.</summary>
+        /// <value>The key words.</value>
+        public List<string> Keywords { get; set; }
+
+        /// <summary>Gets or sets the purchasing information URL.</summary>
+        /// <value>The purchasing information URL.</value>
+        public string PurchasingInformationUrl { get; set; }
+
+        /// <summary>Gets or sets the release notes URL.</summary>
+        /// <value>The release notes URL.</value>
+        public string ReleaseNotesUrl { get; set; }
+
+        /// <summary>Gets or sets the release notes URL.</summary>
+        /// <value>The release notes URL.</value>
+        public string TestSpecificationUrl { get; set; }
+
+        /// <summary>
+        /// Supported ISO language codes
+        /// </summary>
+        public List<string> SupportedLocales { get; set; }
+
+        /// <summary>Gets or sets the additional properties.</summary>
+        /// <value>The additional properties.</value>
+        public List<KeyValuePair<string, string>> AdditionalProperties { get; set; }
+        #endregion // Cloud Library meta data
         public bool IsReadOnly
         {
             get
@@ -72,13 +138,6 @@
         public bool HasLocalProfile { get; set; }
         public string CloudLibraryId { get; set; }
         public string NodesetXml { get; set; }
-        public string Description { get; set; }
-        public string Contributor { get; set; }
-        public string ExternalAuthor { get; set; }
-        public string Name { get; set; }
-        public string DisplayName { get; set; }
-        public List<string> MetaTags { get; set; }
-        public DateTime? Updated { get; set; }
     }
 
 }

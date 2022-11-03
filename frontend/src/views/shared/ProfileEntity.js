@@ -162,36 +162,36 @@ function ProfileEntity(props) {
                             <Form.Control id="categoryName" type="" placeholder="" value={props.item.categoryName == null ? '' : props.item.categoryName} onChange={onChange} readOnly={isReadOnly} />
                         </Form.Group>
                     </div>
-                    <div className="col-md-12">
-                        <Form.Group>
-                            <Form.Label>Documentation URL</Form.Label>
-                            <Form.Control id="documentationUrl" type="" placeholder="" value={props.item.documentationUrl == null ? '' : props.item.documentationUrl} onChange={onChange} readOnly={isReadOnly} />
-                        </Form.Group>
-                    </div>
-                    <div className="col-md-12">
-                        <Form.Group>
-                            <Form.Label>Icon URL</Form.Label>
-                            <Form.Control id="iconUrl " type="" placeholder="" value={props.item.iconUrl == null ? '' : props.item.iconUrl} onChange={onChange} readOnly={isReadOnly} />
-                        </Form.Group>
-                    </div>
-                    <div className="col-md-12">
-                        <Form.Group>
-                            <Form.Label>Purchasing Information URL</Form.Label>
-                            <Form.Control id="purchasingInformationUrl " type="" placeholder="" value={props.item.purchasingInformationUrl == null ? '' : props.item.purchasingInformationUrl} onChange={onChange} readOnly={isReadOnly} />
-                        </Form.Group>
-                    </div>
-                    <div className="col-md-12">
-                        <Form.Group>
-                            <Form.Label>Release notes URL</Form.Label>
-                            <Form.Control id="releaseNotesUrl" type="" placeholder="" value={props.item.releaseNotesUrl == null ? '' : props.item.releaseNotesUrl} onChange={onChange} readOnly={isReadOnly} />
-                        </Form.Group>
-                    </div>
-                    <div className="col-md-12">
-                        <Form.Group>
-                            <Form.Label>Test Specification URL</Form.Label>
-                            <Form.Control id="testSpecificationUrl" type="" placeholder="" value={props.item.testSpecificationUrl == null ? '' : props.item.testSpecificationUrl} onChange={onChange} readOnly={isReadOnly} />
-                        </Form.Group>
-                    </div>
+                    {/*<div className="col-md-12">*/}
+                    {/*    <Form.Group>*/}
+                    {/*        <Form.Label>Documentation URL</Form.Label>*/}
+                    {/*        <Form.Control id="documentationUrl" type="" placeholder="" value={props.item.documentationUrl == null ? '' : props.item.documentationUrl} onChange={onChange} readOnly={isReadOnly} />*/}
+                    {/*    </Form.Group>*/}
+                    {/*</div>*/}
+                    {/*<div className="col-md-12">*/}
+                    {/*    <Form.Group>*/}
+                    {/*        <Form.Label>Icon URL</Form.Label>*/}
+                    {/*        <Form.Control id="iconUrl " type="" placeholder="" value={props.item.iconUrl == null ? '' : props.item.iconUrl} onChange={onChange} readOnly={isReadOnly} />*/}
+                    {/*    </Form.Group>*/}
+                    {/*</div>*/}
+                    {/*<div className="col-md-12">*/}
+                    {/*    <Form.Group>*/}
+                    {/*        <Form.Label>Purchasing Information URL</Form.Label>*/}
+                    {/*        <Form.Control id="purchasingInformationUrl " type="" placeholder="" value={props.item.purchasingInformationUrl == null ? '' : props.item.purchasingInformationUrl} onChange={onChange} readOnly={isReadOnly} />*/}
+                    {/*    </Form.Group>*/}
+                    {/*</div>*/}
+                    {/*<div className="col-md-12">*/}
+                    {/*    <Form.Group>*/}
+                    {/*        <Form.Label>Release notes URL</Form.Label>*/}
+                    {/*        <Form.Control id="releaseNotesUrl" type="" placeholder="" value={props.item.releaseNotesUrl == null ? '' : props.item.releaseNotesUrl} onChange={onChange} readOnly={isReadOnly} />*/}
+                    {/*    </Form.Group>*/}
+                    {/*</div>*/}
+                    {/*<div className="col-md-12">*/}
+                    {/*    <Form.Group>*/}
+                    {/*        <Form.Label>Test Specification URL</Form.Label>*/}
+                    {/*        <Form.Control id="testSpecificationUrl" type="" placeholder="" value={props.item.testSpecificationUrl == null ? '' : props.item.testSpecificationUrl} onChange={onChange} readOnly={isReadOnly} />*/}
+                    {/*    </Form.Group>*/}
+                    {/*</div>*/}
                     <div className="col-md-12">
                         <Form.Group>
                             <Form.Label>Additional Properties</Form.Label>

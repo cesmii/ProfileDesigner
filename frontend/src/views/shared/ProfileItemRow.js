@@ -148,7 +148,7 @@ function ProfileItemRow(props) { //props are item, showActions
 
     const IsRowSelected = (item) => {
         if (props.selectedItems == null) return;
-        var x = props.selectedItems.findIndex(p => { return p.toString() === item.id.toString(); });
+        var x = item.hasLocalProfile ||  props.selectedItems.findIndex(p => { return p.toString() === item.id.toString(); }); // TODO make the local profile selection configurable
         return x >= 0;
     }
 
@@ -252,7 +252,7 @@ function ProfileItemRow(props) { //props are item, showActions
         var cssClass = `row py-1 align-items-center ${props.cssClass == null ? '' : props.cssClass} ${isSelected} ${props.selectMode != null ? "selectable" : ""}`;
 
         return (
-            <div className={cssClass} onClick={onRowSelect} >
+            <div className={cssClass} onClick={props.item.hasLocalProfile ? null : onRowSelect}> {/*TODO Make the local profile selection configurable */}
                 <div className="col-sm-8 d-flex" >
                     {props.selectMode != null &&
                         renderSelectColumn(props.item)
@@ -270,8 +270,8 @@ function ProfileItemRow(props) { //props are item, showActions
                                     <button className="ml-1 btn btn-link" onClick={onEditItem} >{props.item.namespace}</button>
                                 }
                             </p>
-                            {props.item.displayName != null &&
-                                <p className="my-0 small-size" >Title: {props.item.displayName}</p>
+                            {props.item.title != null &&
+                                <p className="my-0 small-size" >Title: {props.item.title}</p>
                             }
                             {props.item.version != null &&
                                 <p className="my-0 small-size" >Version: {props.item.version}</p>

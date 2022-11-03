@@ -37,7 +37,7 @@ function ProfileListGrid(props) {
     //importer
     const [_forceReload, setForceReload] = useState(0);
 
-    const [_profileSearchCriteria, setProfileSearchCriteria] = useState(null);
+    const [_profileSearchCriteria, setProfileSearchCriteria] = useState(props.searchCriteria);
     const [_profileSearchCriteriaChanged, setProfileSearchCriteriaChanged] = useState(0);
 
     //-------------------------------------------------------------------
@@ -119,16 +119,16 @@ function ProfileListGrid(props) {
             //show a spinner
             setLoadingProps({ isLoading: true, message: null });
 
-            var localProfileSelected = _profileSearchCriteria?.filters?.find(x => x.id == 1)?.items[0]?.selected;
-            var baseProfileSelected = _profileSearchCriteria?.filters?.find(x => x.id == 2)?.items[0]?.selected;
-            var cloudLibSelected = _profileSearchCriteria?.filters?.find(x => x.id == 3)?.items[0]?.selected;
-            var url = `profile/${props.isMine || (baseProfileSelected == false && cloudLibSelected == false) ? 'mine' : cloudLibSelected ? 'cloudlibrary' : 'library'}`;
+            const localProfileSelected = _profileSearchCriteria?.filters?.find(x => x.id == 1)?.items[0]?.selected;
+            const baseProfileSelected = _profileSearchCriteria?.filters?.find(x => x.id == 2)?.items[0]?.selected;
+            const cloudLibSelected = _profileSearchCriteria?.filters?.find(x => x.id == 3)?.items[0]?.selected;
+            const url = `profile/${props.isMine || (baseProfileSelected == false && cloudLibSelected == false) ? 'mine' : cloudLibSelected ? 'cloudlibrary' : 'library'}`;
 
             console.log(generateLogMessageString(`useEffect||fetchData||${url}`, CLASS_NAME));
 
-            var keywords = _profileSearchCriteria?.query == null ? null 
+            const keywords = _profileSearchCriteria?.query == null ? null 
                 : [_profileSearchCriteria?.query?.toString()];
-            var data = {
+            const data = {
                 Query: _pager.searchVal,
                 Cursor: _pager.currentPage == 1 ?
                     null
@@ -137,8 +137,8 @@ function ProfileListGrid(props) {
                         : _dataRows?.lastCursor,
                 //Skip: (_pager.currentPage - 1) * _pager.pageSize,
                 Take: _pager.pageSize,
-                AddLocalLibrary: (baseProfileSelected == true || localProfileSelected == true),
-                ExcludeLocalLibrary: (baseProfileSelected == true || localProfileSelected == true),
+                AddLocalLibrary: (localProfileSelected == true),
+                ExcludeLocalLibrary: (baseProfileSelected == false && localProfileSelected == false),
                 Keywords: keywords
             };
             await axiosInstance.post(url, data).then(result => {

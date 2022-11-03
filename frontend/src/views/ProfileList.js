@@ -13,6 +13,8 @@ import ProfileCloudLibImportModal from './modals/ProfileCloudLibImportModal';
 import ProfileListGrid from './shared/ProfileListGrid';
 import ProfileImporter from './shared/ProfileImporter';
 
+import Dropdown from 'react-bootstrap/Dropdown'
+
 import color from '../components/Constants'
 import './styles/ProfileList.scss';
 import { ErrorModal } from '../services/CommonUtil';
@@ -235,8 +237,16 @@ function ProfileList() {
                     {renderTitleBlock(caption, iconName, iconColor)}
                 </div>
                 <div className="col-sm-5 d-flex align-items-center justify-content-end">
-                    <Button variant="secondary" type="button" className="auto-width mx-2" onClick={onAdd} >Search Base Profile</Button>
-                    <ProfileImporter caption="Import" cssClass="mb-0" />
+                    <Dropdown className="import-menu icon-dropdown auto-width mx-2" onClick={(e) => e.stopPropagation()} >
+                        <Dropdown.Toggle>
+                            <Button variant="secondary" type="button" className="auto-width mx-2">Import...</Button>                        
+                        </Dropdown.Toggle>
+                        <Dropdown.Menu>
+                            <Dropdown.Item href="/cloudlibrary/search">Import from Cloud Library</Dropdown.Item>
+                            <Dropdown.Item>Import NodeSet file</Dropdown.Item>
+                        </Dropdown.Menu>
+                    </Dropdown>     
+                    {/*{<ProfileImporter caption="Import" cssClass="mb-0" />}*/}
                     <Button variant="secondary" type="button" className="auto-width mx-2" onClick={onAdd} >Create Profile</Button>
                 </div>
             </div>

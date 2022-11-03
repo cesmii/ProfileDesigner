@@ -103,7 +103,7 @@ function ProfileCloudLibImportModal(props) {
         var url = `profile/cloudlibrary/import`;
         console.log(generateLogMessageString(`importFromCloudLibary||${url}`, CLASS_NAME));
 
-        var data = { id: props.item.cloudLibraryId };
+        var data = [ { id: props.item.cloudLibraryId } ];
 
         //show a processing message at top. One to stay for duration, one to show for timed period.
         //var msgImportProcessingId = new Date().getTime();
@@ -286,7 +286,7 @@ function ProfileCloudLibImportModal(props) {
     return (
         <>
             {/* Add animation=false to prevent React warning findDomNode is deprecated in StrictMode*/}
-            <Modal animation={false} show={showModal} onHide={onCancel} centered>
+            <Modal size="lg" animation={false} show={showModal} onHide={onCancel} centered>
                 <Modal.Header className="py-0 align-items-center" closeButton>
                     <Modal.Title>
                         {renderHeader()}

@@ -15,6 +15,7 @@
 
 namespace MyNamespace
 {
+    using System.Collections.Generic;
     using System = global::System;
 
     [System.CodeDom.Compiler.GeneratedCode("NSwag", "13.17.0.0 (NJsonSchema v10.8.0.0 (Newtonsoft.Json v13.0.0.0))")]
@@ -841,7 +842,7 @@ namespace MyNamespace
 
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<ResultMessageWithDataModel> ImportAsync(IdStringModel body)
+        public virtual System.Threading.Tasks.Task<ResultMessageWithDataModel> ImportAsync(List<IdStringModel> body)
         {
             return ImportAsync(body, System.Threading.CancellationToken.None);
         }
@@ -849,7 +850,7 @@ namespace MyNamespace
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ResultMessageWithDataModel> ImportAsync(IdStringModel body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<ResultMessageWithDataModel> ImportAsync(List<IdStringModel> body, System.Threading.CancellationToken cancellationToken)
         {
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/api/Profile/cloudlibrary/import");

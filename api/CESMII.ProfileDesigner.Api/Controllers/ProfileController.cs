@@ -380,7 +380,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         [HttpPost, Route("cloudlibrary/import")]
         [Authorize(Roles = "cesmii.profiledesigner.user")]
         [ProducesResponseType(200, Type = typeof(ResultMessageWithDataModel))]
-        public async Task<IActionResult> ImportFromCloudLibrary([FromBody] IdStringModel model)
+        public async Task<IActionResult> ImportFromCloudLibrary([FromBody] List<IdStringModel> model)
         {
             if (model == null)
             {
@@ -388,40 +388,44 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 return BadRequest("Profile|CloudLibrary||Import|Invalid model");
             }
 
-            CloudLibProfileModel nodeSetToImport;
-            try
+            List<ImportOPCModel> importModels = new();
+            foreach (var modelId in model)
             {
-                nodeSetToImport = await _cloudLibDal.DownloadAsync(model.ID);
-                if (nodeSetToImport == null)
+                try
                 {
-                    _logger.LogWarning($"ProfileController|ImportFromCloudLibrary|Did not find nodeset in Cloud Library: {model.ID}.");
+                    var nodeSetToImport = await _cloudLibDal.DownloadAsync(modelId.ID);
+                    if (nodeSetToImport == null)
+                    {
+                        _logger.LogWarning($"ProfileController|ImportFromCloudLibrary|Did not find nodeset in Cloud Library: {modelId.ID}.");
+                        return Ok(
+                            new ResultMessageWithDataModel()
+                            {
+                                IsSuccess = false,
+                                Message = "NodeSet not found in Cloud Library."
+                            }
+                        );
+                    }
+                    var importModel = new ImportOPCModel
+                    {
+                        Data = nodeSetToImport.NodesetXml,
+                        FileName = nodeSetToImport.Namespace,
+                    };
+                    importModels.Add(importModel);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError($"ProfileController|ImportFromCloudLibrary|Failed to download from Cloud Library: {modelId.ID} {ex.Message}.");
                     return Ok(
                         new ResultMessageWithDataModel()
                         {
                             IsSuccess = false,
-                            Message = "NodeSet not found in Cloud Library."
+                            Message = "Error downloading NodeSet from Cloud Library."
                         }
                     );
                 }
             }
-            catch (Exception ex)
-            {
-                _logger.LogError($"ProfileController|ImportFromCloudLibrary|Failed to download from Cloud Library: {model.ID} {ex.Message}.");
-                return Ok(
-                    new ResultMessageWithDataModel()
-                    {
-                        IsSuccess = false,
-                        Message = "Error downloading NodeSet from Cloud Library."
-                    }
-                );
-            }
 
-            var importModel = new ImportOPCModel
-            {
-                Data = nodeSetToImport.NodesetXml,
-                FileName = nodeSetToImport.Namespace,
-            };
-            return await Import(new List<ImportOPCModel> { importModel });
+            return await Import(importModels);
         }
 
 

@@ -96,10 +96,6 @@ function ProfileListGrid(props) {
     //-------------------------------------------------------------------
     // Region: Event Handling of child component events
     //-------------------------------------------------------------------
-    const onGridRowSelect = (item) => {
-        console.log(generateLogMessageString(`onGridRowSelect||Name: ${item.name}||selected: ${item.selected}`, CLASS_NAME));
-        //TBD - handle selection here...
-    };
 
     //bubble up search criteria changed so the parent page can control the search criteria
     const onProfileSearchCriteriaChanged = (criteria) => {
@@ -128,11 +124,12 @@ function ProfileListGrid(props) {
 
             const keywords = _profileSearchCriteria?.query == null ? null 
                 : [_profileSearchCriteria?.query?.toString()];
+
             const data = {
                 Query: _pager.searchVal,
                 Cursor: _pager.currentPage == 1 ?
                     null
-                    : _pager.currentPage <= _dataRows?.pageNumber ?
+                    : _pager.currentPage <= _dataRows?.pageNumber ? // TODO Make back paging work correctly
                         _dataRows?.firstCursor
                         : _dataRows?.lastCursor,
                 //Skip: (_pager.currentPage - 1) * _pager.pageSize,
@@ -141,6 +138,7 @@ function ProfileListGrid(props) {
                 ExcludeLocalLibrary: (baseProfileSelected == false && localProfileSelected == false),
                 Keywords: keywords
             };
+
             await axiosInstance.post(url, data).then(result => {
                 if (result.status === 200) {
 
@@ -275,7 +273,7 @@ function ProfileListGrid(props) {
     return (
         <>
             {renderProfileFilters()}
-            <ProfileFilter onSearchCriteriaChanged={onProfileSearchCriteriaChanged}
+            <ProfileFilter onSearchCriteriaChanged={onProfileSearchCriteriaChanged} noSortOptions="true"
                 //displayMode={_displayMode}
                 //toggleDisplayMode={toggleDisplayMode} itemCount={_itemCount}
                 cssClass={props.rowCssClass} searchCriteria={props.searchCriteria} />

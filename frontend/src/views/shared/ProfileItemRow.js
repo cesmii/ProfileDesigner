@@ -125,7 +125,8 @@ function ProfileItemRow(props) { //props are item, showActions
         props.onDeleteCallback(props.item);
     }
 
-    const onEditItem = () => {
+    const onEditItem = (e) => {
+        e.stopPropagation();
         //format date if present
         //props.item.publishDate = formatDate(props.item.publishDate);
         props.onEditCallback(props.item);
@@ -251,6 +252,18 @@ function ProfileItemRow(props) { //props are item, showActions
         var isSelected = props.item != null && IsRowSelected(props.item) ? "selected" : "";
         var cssClass = `row py-1 align-items-center ${props.cssClass == null ? '' : props.cssClass} ${isSelected} ${props.selectMode != null ? "selectable" : ""}`;
 
+
+        let profileCaption = null;
+        let profileValue = null;
+        if (props.item.title == null) {
+            profileCaption = props.profileCaption == null ? "Namespace: " : `${props.profileCaption}: `;
+            profileValue = props.item.namespace;
+        }
+        else {
+            profileCaption = props.profileCaption == null ? "Title: " : `${props.profileCaption}: `;
+            profileValue = props.item.title;
+
+        }
         return (
             <div className={cssClass} onClick={props.item.hasLocalProfile ? null : onRowSelect}> {/*TODO Make the local profile selection configurable */}
                 <div className="col-sm-8 d-flex" >
@@ -263,15 +276,15 @@ function ProfileItemRow(props) { //props are item, showActions
                     <div className="col-sm-11 d-flex align-items-center" >
                         <div className="d-block" >
                             <p className="my-0">
-                                {props.profileCaption == null ? "Namespace: " : `${props.profileCaption}: `}
-                                {!props.showActions || props.selectMode != null ?
-                                    <span className="ml-2" >{props.item.namespace}</span>
+                                {profileCaption}
+                                {!props.showActions /*|| props.selectMode != null*/ ?
+                                    <span className="ml-2" >{profileValue}</span>
                                     :
-                                    <button className="ml-1 btn btn-link" onClick={onEditItem} >{props.item.namespace}</button>
+                                    <button className="ml-1 btn btn-link" onClick={onEditItem} >{profileValue}</button>
                                 }
                             </p>
                             {props.item.title != null &&
-                                <p className="my-0 small-size" >Title: {props.item.title}</p>
+                                <p className="my-0 small-size" >Namespace: {props.item.namespace}</p>
                             }
                             {props.item.version != null &&
                                 <p className="my-0 small-size" >Version: {props.item.version}</p>

@@ -6,6 +6,8 @@ import { generateLogMessageString, validate_namespaceFormat, validate_Required }
 import '../styles/ProfileEntity.scss';
 import { isOwner } from './ProfileRenderHelpers';
 
+import { AppSettings } from '../../utils/appsettings'
+
 const CLASS_NAME = "ProfileEntity";
 
 function ProfileEntity(props) {
@@ -83,30 +85,44 @@ function ProfileEntity(props) {
         console.log(generateLogMessageString(`prepDateVal||inbound:${val}||outbound:${result}`, CLASS_NAME));
         return result;
     }
+
+    const onChangeKeywords = (e) => {
+        //console.log(generateLogMessageString(`onChangeKeywords||e:${e.target}`, CLASS_NAME));
+        //note you must update the state value for the input to be read only. It is not enough to simply have the onChange handler.
+
+        props.item.keywords = e.target.value.split(",").map(x => x.trim(' '));
+
+        //pass a copy of the updated object to parent to update state
+        if (props.onChange) props.onChange(JSON.parse(JSON.stringify(props.item)));
+    }
+    const onChangeLicense = (e) => {
+        //console.log(generateLogMessageString(`onChangeLicense||e:${e.target}`, CLASS_NAME));
+        //note you must update the state value for the input to be read only. It is not enough to simply have the onChange handler.
+        const license = parseInt(e.target.value);
+        props.item.license = isNaN(license) ? null : license;
+
+        //pass a copy of the updated object to parent to update state
+        if (props.onChange) props.onChange(JSON.parse(JSON.stringify(props.item)));
+    }
+
     //-------------------------------------------------------------------
     // Region: Render Helpers
     //-------------------------------------------------------------------
     const renderForm = () => {
         var isReadOnly = mode === "view";
+        const licenseOptions = () => Object.keys(AppSettings.ProfileLicenseEnum).map((key) => {
+            return (<option key={key} value={key} >{AppSettings.ProfileLicenseEnum[key]}</option>)
+        });
+
         return (
             <>
                 <div className="row">
-                    {/*{!props.item.cloudLibraryId != null &&*/}
-                        <div className="col-md-12">
-                            <Form.Group>
-                                <Form.Label>Title</Form.Label>
-                                <Form.Control id="title" type="" placeholder="" value={props.item.title} readOnly={isReadOnly} />
-                            </Form.Group>
-                            <Form.Group>
-                                <Form.Label>Description</Form.Label>
-                                <Form.Control as="textarea" rows="8" id="description" type="" placeholder="" value={props.item.description} readOnly={isReadOnly}>{props.item.description}</Form.Control>
-                            </Form.Group>
-                            <Form.Group>
-                                <Form.Label>Contributor</Form.Label>
-                                <Form.Control id="contributor" type="" placeholder="" value={props.item.contributorname} readOnly={isReadOnly} />
-                            </Form.Group>
-                        </div>
-                    {/*}*/}
+                    <div className="col-md-12">
+                        <Form.Group>
+                            <Form.Label>Title</Form.Label>
+                            <Form.Control id="title" type="" placeholder="" value={props.item.title} onChange={onChange} readOnly={isReadOnly} />
+                        </Form.Group>
+                    </div>
                     <div className="col-12">
                         <Form.Group className="mb-1">
                             <Form.Label>Namespace*</Form.Label>
@@ -140,22 +156,49 @@ function ProfileEntity(props) {
                 <div className="row mt-2">
                     <div className="col-md-12">
                         <Form.Group>
+                            <Form.Label>Description</Form.Label>
+                            <Form.Control as="textarea" id="description" type="" placeholder="" value={props.item.description} onChange={onChange} readOnly={isReadOnly}>{props.item.description}</Form.Control>
+                        </Form.Group>
+                    </div>
+                    <div className="col-md-12">
+                        <Form.Group>
+                            <Form.Label>Contributor</Form.Label>
+                            <Form.Control id="contributorName" type="" placeholder="" value={props.item.contributorName} onChange={onChange} readOnly={isReadOnly} />
+                        </Form.Group>
+                    </div>
+                    <div className="col-md-12">
+                        <Form.Group>
                             <Form.Label>Keywords</Form.Label>
-                            <Form.Control id="keywords" type="" placeholder="" value={props.item.keywords == null ? '' : props.item.keywords} onChange={onChange} readOnly={isReadOnly} />
+                            <Form.Control id="keywordsConcatenated" type="" placeholder="" value={props.item.keywords == null ? '' : props.item.keywords?.join(', ')} onChange={onChangeKeywords} readOnly={isReadOnly} />
                         </Form.Group>
                     </div>
                     <div className="col-md-12">
                         <Form.Group>
                             <Form.Label>Copyright</Form.Label>
-                            <Form.Control id="copyright" type="" placeholder="" value={props.item.copyrightText == null ? '' : props.item.copyrightText} onChange={onChange}  readOnly={isReadOnly} />
+                            <Form.Control id="copyrightText" type="" placeholder="" value={props.item.copyrightText == null ? '' : props.item.copyrightText} onChange={onChange} readOnly={isReadOnly} />
                         </Form.Group>
                     </div>
                     <div className="col-md-12">
                         <Form.Group>
-                            <Form.Label>Contributor Organization</Form.Label>
-                            <Form.Control id="contributorName" type="" placeholder="" value={props.item.contributorName == null ? '' : props.item.contributorName} onChange={onChange} readOnly={isReadOnly} />
+                            <Form.Label>License</Form.Label>
+                            <Form.Control id="license" type="" as="select" placeholder="" value={props.item.license == null ? '' : props.item.license} onChange={onChangeLicense} readOnly={isReadOnly}>
+                                <option value="">not specified</option>
+                                {licenseOptions()}
+                            </Form.Control>
                         </Form.Group>
                     </div>
+                    <div className="col-md-12">
+                        <Form.Group>
+                            <Form.Label>License URL</Form.Label>
+                            <Form.Control id="licenseUrl" type="" placeholder="" value={props.item.licenseUrl == null ? '' : props.item.licenseUrl} onChange={onChange} readOnly={isReadOnly} />
+                        </Form.Group>
+                    </div>
+                    {/*<div className="col-md-12">*/}
+                    {/*    <Form.Group>*/}
+                    {/*        <Form.Label>Contributor Organization</Form.Label>*/}
+                    {/*        <Form.Control id="contributorName" type="" placeholder="" value={props.item.contributorName == null ? '' : props.item.contributorName} onChange={onChange} readOnly={isReadOnly} />*/}
+                    {/*    </Form.Group>*/}
+                    {/*</div>*/}
                     <div className="col-md-12">
                         <Form.Group>
                             <Form.Label>Category</Form.Label>
@@ -192,26 +235,26 @@ function ProfileEntity(props) {
                     {/*        <Form.Control id="testSpecificationUrl" type="" placeholder="" value={props.item.testSpecificationUrl == null ? '' : props.item.testSpecificationUrl} onChange={onChange} readOnly={isReadOnly} />*/}
                     {/*    </Form.Group>*/}
                     {/*</div>*/}
-                    <div className="col-md-12">
-                        <Form.Group>
-                            <Form.Label>Additional Properties</Form.Label>
-                            <Form.Control id="additionalProperties" type="" placeholder="" value={props.item.additionalProperties == null ? '' : props.item.additionalProperties} onChange={onChange} readOnly={isReadOnly} />
-                        </Form.Group>
-                    </div>
+                    {/*    <div className="col-md-12">*/}
+                    {/*        <Form.Group>*/}
+                    {/*            <Form.Label>Additional Properties</Form.Label>*/}
+                    {/*            <Form.Control id="additionalProperties" type="" placeholder="" value={props.item.additionalProperties == null ? '' : props.item.additionalProperties} onChange={onChange} readOnly={isReadOnly} />*/}
+                    {/*        </Form.Group>*/}
+                    {/*    </div>*/}
                 </div>
                 <div className="row mt-2">
-                    <div className="col-md-12">
-                        <Form.Group>
-                            <Form.Label>Author name</Form.Label>
-                            <Form.Control id="author" type="" placeholder="" value={props.item.author == null ? '' : props.item.author?.name} onChange={onChangeAuthor} readOnly={isReadOnly} />
-                        </Form.Group>
-                    </div>
-                {/*    <div className="col-md-12">*/}
-                {/*        <Form.Group>*/}
-                {/*            <Form.Label>Publisher Organization</Form.Label>*/}
-                {/*            <Form.Control id="organization" type="" placeholder="" value={props.item.organization == null ? '' : props.item.organization} onChange={onChange} readOnly={isReadOnly} />*/}
-                {/*        </Form.Group>*/}
-                {/*    </div>*/}
+                    {/*    <div className="col-md-12">*/}
+                    {/*        <Form.Group>*/}
+                    {/*            <Form.Label>Author name</Form.Label>*/}
+                    {/*            <Form.Control id="author" type="" placeholder="" value={props.item.author == null ? '' : props.item.author?.name} onChange={onChangeAuthor} readOnly={isReadOnly} />*/}
+                    {/*        </Form.Group>*/}
+                    {/*    </div>*/}
+                    {/*        <div className="col-md-12">*/}
+                    {/*            <Form.Group>*/}
+                    {/*                <Form.Label>Publisher Organization</Form.Label>*/}
+                    {/*                <Form.Control id="organization" type="" placeholder="" value={props.item.organization == null ? '' : props.item.organization} onChange={onChange} readOnly={isReadOnly} />*/}
+                    {/*            </Form.Group>*/}
+                    {/*        </div>*/}
                 </div>
             </>
         );
@@ -229,7 +272,7 @@ function ProfileEntity(props) {
     //return final ui
     return (
         <>
-            {renderForm() }
+            {renderForm()}
         </>
     )
 }

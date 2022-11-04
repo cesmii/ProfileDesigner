@@ -84,6 +84,11 @@ export const AppSettings = {
         XML: 'Xml',
         AASX: 'AASX'
     }
+    , ProfileLicenseEnum: {
+        0: 'MIT',
+        1: 'Apache 2.0',
+        2: 'Custom (see License URL)'
+    }
     //MSAL (Authentication) Config
     , MsalConfig: {
         auth: {

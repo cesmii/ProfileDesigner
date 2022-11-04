@@ -200,7 +200,7 @@ function ProfileFilter(props) {
     }
 
     const renderSortBy = () => {
-        if (props.searchCriteria == null || props.searchCriteria.filters == null) {
+        if (props.searchCriteria == null || props.searchCriteria.filters == null || props.noSortOptions != null) {
             return;
         }
         const options = _sortByOptions.map((item) => {
@@ -221,14 +221,16 @@ function ProfileFilter(props) {
     }
 
     const renderDisplayMode = () => {
-        return (
-            <>
-                <Button variant="icon-solo" onClick={onListViewToggle} className={props.displayMode !== "list" ? "mr-2" : "mr-2 inactive"} ><i className="material-icons"><span className="material-icons">
-                    view_headline
-                </span></i></Button>
-                <Button variant="icon-solo" onClick={onTileViewToggle} className={props.displayMode !== "tile" ? "mr-2" : "mr-2 inactive"}  ><i className="material-icons">grid_view</i></Button>
-            </>
-        );
+        return;
+        // No tile view for profiles yet
+        //(
+        //    <>
+        //        <Button variant="icon-solo" onClick={onListViewToggle} className={props.displayMode !== "list" ? "mr-2" : "mr-2 inactive"} ><i className="material-icons"><span className="material-icons">
+        //            view_headline
+        //        </span></i></Button>
+        //        <Button variant="icon-solo" onClick={onTileViewToggle} className={props.displayMode !== "tile" ? "mr-2" : "mr-2 inactive"}  ><i className="material-icons">grid_view</i></Button>
+        //    </>
+        //);
     }
 
     //-------------------------------------------------------------------
@@ -245,9 +247,9 @@ function ProfileFilter(props) {
                     <div className="d-block d-lg-inline mb-2 mb-lg-0" >
                         {renderSections()}
                     </div>
-                    <div className="ml-auto justify-content-end text-nowrap d-flex align-items-center" >
-                        <button onClick={onClearAll} className="ml-2 px-2 btn-auto btn btn-text-solo d-flex align-items-center" >Clear All<i className="pl-1 material-icons">update</i></button>
-                    </div>
+                {/*    <div className="ml-auto justify-content-end text-nowrap d-flex align-items-center" >*/}
+                {/*        <button onClick={onClearAll} className="ml-2 px-2 btn-auto btn btn-text-solo d-flex align-items-center" >Clear All<i className="pl-1 material-icons">update</i></button>*/}
+                {/*    </div>*/}
                 </div>
             </div>
             <div className={`row d-flex ${props.cssClass ?? ''}`} >

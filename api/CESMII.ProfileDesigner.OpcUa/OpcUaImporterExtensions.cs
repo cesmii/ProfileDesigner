@@ -32,7 +32,6 @@ namespace CESMII.ProfileDesigner.OpcUa
             );
 #endif
             services.AddCloudLibraryResolver();
-            //services.AddCloudLibraryResolver(configuration.GetSection("CloudLibrary"));
             services.AddScoped<UANodeSetDBCache>();
         }
         public static void UseOpcUaImporter(this IApplicationBuilder app)

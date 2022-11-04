@@ -184,12 +184,7 @@ namespace CESMII.ProfileDesigner.Api
             //        };
             //    });
             //New - Azure AD approach replaces previous code above
-            services.AddAuthentication("AzureAd") //JwtBearerDefaults.AuthenticationScheme)
-                //options =>
-                //{
-                //    options.DefaultAuthenticateScheme = "AzureAd";
-                //    options.DefaultChallengeScheme = "AzureAd";
-                //})
+            services.AddAuthentication("AzureAd")
                 .AddMicrosoftIdentityWebApi(Configuration, "AzureAdSettings", "AzureAd");
 
             //TBD - may not need these at all anymore since AAD implementation
@@ -233,7 +228,9 @@ namespace CESMII.ProfileDesigner.Api
                     nameof(PermissionEnum.UserAzureADMapped),
                     policy => policy.Requirements.Add(new PermissionRequirement(PermissionEnum.UserAzureADMapped)));
             });
+#if DEBUG
             IdentityModelEventSource.ShowPII = true;
+#endif
             services.AddCors(options =>
             {
                 options.AddPolicy(_corsPolicyName,

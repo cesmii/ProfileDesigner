@@ -162,7 +162,7 @@ function ProfileImporter(props) {
     // Region: Render final output
     //-------------------------------------------------------------------
     let buttonCss = `${props.cssClass} ${props.disabled ? "disabled" : ""}`;
-    if (props.useCssClassOnly != "true") {
+    if (!props.useCssClassOnly) {
         buttonCss = `btn btn-secondary auto-width ${buttonCss}`;
     }
     var caption = props.caption == null ? "Import" : props.caption;

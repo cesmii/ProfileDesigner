@@ -299,7 +299,7 @@ function ProfileList() {
             {renderIntroContent()}
             <ProfileListGrid searchCriteria={_profileSearchCriteria} onGridRowSelect={onGridRowSelect} onEdit={onEdit} onDeleteItemClick={onDeleteItemClick}
                 onImport={onImport}
-                onSearchCriteriaChanged={onSearchCriteriaChanged} searchCriteriaChanged={_profileSearchCriteriaChanged}/>
+                onSearchCriteriaChanged={onSearchCriteriaChanged} searchCriteriaChanged={_profileSearchCriteriaChanged} noSearch="true" />
             //{renderProfileEntity()}
             //{renderProfileCloudLibImport()}
             {renderDeleteConfirmation()}

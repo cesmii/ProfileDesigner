@@ -41,6 +41,7 @@ namespace CESMII.ProfileDesigner.Api.Tests
         {
             public string[] Keywords { get; set; }
             public string Cursor { get; set; }
+            public bool BeforeCursor { get; set; }
             public int Limit { get; set; }
 
             internal class Comparer : IEqualityComparer<SearchInputs>
@@ -83,17 +84,18 @@ namespace CESMII.ProfileDesigner.Api.Tests
         public OnNodeSet OnNodeSetFound { get; set; }
         public OnNodeSet OnNodeSetNotFound { get; set; }
 
-        public async Task<GraphQlResult<Nodeset>> SearchAsync(int limit, string cursor, List<string> keywords, List<string> exclude)
+        public async Task<GraphQlResult<Nodeset>> SearchAsync(int limit, string cursor, bool beforeCursor, List<string> keywords, List<string> exclude)
         {
             var inputs = new SearchInputs
             {
                 Keywords = keywords?.ToArray(),
                 Cursor = cursor,
+                BeforeCursor = beforeCursor,
                 Limit = limit,
             };
             if (_wrapper != null)
             {
-                var result = await _wrapper.SearchAsync(limit, cursor, keywords, exclude);
+                var result = await _wrapper.SearchAsync(limit, cursor, beforeCursor, keywords, exclude);
 
                 if (!_searchData.ContainsKey(inputs))
                 {
@@ -132,11 +134,11 @@ namespace CESMII.ProfileDesigner.Api.Tests
             {
                 if (disposing)
                 {
-                    // TODO: dispose managed state (managed objects)
+                    // dispose managed state (managed objects)
                 }
 
-                // TODO: free unmanaged resources (unmanaged objects) and override finalizer
-                // TODO: set large fields to null
+                // free unmanaged resources (unmanaged objects) and override finalizer
+                // set large fields to null
                 if (recording && _searchData.Any())
                 {
                     try

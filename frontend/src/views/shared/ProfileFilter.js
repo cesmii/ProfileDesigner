@@ -1,4 +1,4 @@
-import React, { useEffect, useState }from 'react'
+import React, { useEffect, useState } from 'react'
 
 import { useLoadingContext } from '../../components/contexts/LoadingContext'
 import { generateLogMessageString } from '../../utils/UtilityService';
@@ -125,7 +125,7 @@ function ProfileFilter(props) {
     //    var selected = props.searchCriteria.filters.filter(parent => {
     //        return parent.items.filter(x => { return x.selected; }).length > 0;
     //    });
-        
+
     //    //if we get here, nothing selected 
     //    return selected.length > 0;
     //}
@@ -175,10 +175,10 @@ function ProfileFilter(props) {
     //}
 
     const renderSections = () => {
-        if (props.searchCriteria == null || props.searchCriteria.filters == null ) {
+        if (props.searchCriteria == null || props.searchCriteria.filters == null) {
             return;
         }
-        
+
         const choices = props.searchCriteria.filters.map((section) => {
             //return renderSection(section);
             return section.items.map((item) => {
@@ -241,15 +241,19 @@ function ProfileFilter(props) {
         <>
             <div className={`row selected-panel px-3 py-1 mb-1 rounded d-flex ${props.cssClass ?? ''}`} >
                 <div className="col-sm-12 px-0 align-items-start d-block d-lg-flex align-items-center" >
-                    <div className="d-flex mr-lg-3 mb-2 mb-lg-0" >
-                        {renderSearchUI()}
-                    </div>
+                    {props.noSearch !== "true" &&
+                        <div className="d-flex mr-lg-3 mb-2 mb-lg-0" >
+                            {renderSearchUI()}
+                        </div>
+                    }
                     <div className="d-block d-lg-inline mb-2 mb-lg-0" >
                         {renderSections()}
                     </div>
-                {/*    <div className="ml-auto justify-content-end text-nowrap d-flex align-items-center" >*/}
-                {/*        <button onClick={onClearAll} className="ml-2 px-2 btn-auto btn btn-text-solo d-flex align-items-center" >Clear All<i className="pl-1 material-icons">update</i></button>*/}
-                {/*    </div>*/}
+                    {props.noClearAll !== "true" &&
+                        <div className="ml-auto justify-content-end text-nowrap d-flex align-items-center" >
+                            <button onClick={onClearAll} className="ml-2 px-2 btn-auto btn btn-text-solo d-flex align-items-center" >Clear All<i className="pl-1 material-icons">update</i></button>
+                        </div>
+                    }
                 </div>
             </div>
             <div className={`row d-flex ${props.cssClass ?? ''}`} >

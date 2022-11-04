@@ -14,10 +14,6 @@ import ProfileEntityModal from './modals/ProfileEntityModal';
 import ProfileCloudLibImportModal from './modals/ProfileCloudLibImportModal';
 import ProfileListGrid from './shared/ProfileListGrid';
 
-import { toggleSearchFilterSelected } from '../services/ProfileService';
-
-import Dropdown from 'react-bootstrap/Dropdown'
-
 import color from '../components/Constants'
 import './styles/ProfileList.scss';
 import '../components/styles/InfoPanel.scss';
@@ -31,11 +27,9 @@ function CloudLibList() {
     //-------------------------------------------------------------------
     // Region: Initialization
     //-------------------------------------------------------------------
-    const caption = 'Cloud Library Search';
+    const caption = 'Import from Cloud Library';
     const iconName = 'folder-shared';
     const iconColor = color.shark;
-    const { instance } = useMsal();
-    const _activeAccount = instance.getActiveAccount();
     const { loadingProps, setLoadingProps } = useLoadingContext();
     const [_importConfirmModal, setImportConfirmModal] = useState({ show: false, items: null });
     //importer
@@ -177,10 +171,14 @@ function CloudLibList() {
     const renderImportConfirmation = () => {
 
         if (!_importConfirmModal.show) return;
+        if (_importConfirmModal.items.length == 0) {
+            setImportConfirmModal({ show: false, item: null });
+            return;
+        }
 
         const message = _importConfirmModal.items.length === 1 ?
             `You are about to import profile '${_importConfirmModal.items[0].title}' and its dependent profiles. Are you sure?` :
-            `You are about to import the following ${_importConfirmModal.items.length} profiles and their dependent profiles: ${_importConfirmModal.items.map(i => i.title)}. Are you sure?`;
+            `You are about to import the following ${_importConfirmModal.items.length} profiles and their dependent profiles: '${_importConfirmModal.items.map(i => i.title).join("', '")}'. Are you sure?`;
         var caption = `Import Profile${_importConfirmModal.items.length === 1 ? "" : "s"}`;
 
         return (
@@ -297,6 +295,15 @@ function CloudLibList() {
         setSearchCriteriaChanged(_searchCriteriaChanged + 1);
     };
 
+    const onView = (item) => {
+        console.log(generateLogMessageString(`onEdit`, CLASS_NAME));
+        setProfileEntityModal({ show: true, item: item });
+    };
+    const onViewClose = () => {
+        console.log(generateLogMessageString(`onViewClose`, CLASS_NAME));
+        setProfileEntityModal({ show: false, item: null });
+    };
+
     //-------------------------------------------------------------------
     // Region: Render helpers
     //-------------------------------------------------------------------
@@ -306,9 +313,6 @@ function CloudLibList() {
                 <div className="col-sm-7 mr-auto d-flex">
                     {renderTitleBlock(caption, iconName, iconColor)}
                 </div>
-                <div className="col-sm-5 d-flex align-items-center justify-content-end">
-                    <Button variant="secondary" type="button" className="auto-width mx-2" onClick={onImportSelectedClick} >Import selected...</Button>
-                </div>
             </div>
         );
     };
@@ -317,10 +321,10 @@ function CloudLibList() {
         return (
             <div className="header-actions-row mb-3 pr-0">
                 <p className="mb-2" >
-                    Search the CESMII Cloud Library for Profiles and import them into the Profile Library.
+                    Search the CESMII Cloud Library for Profiles and import Profiles into the Profile Library.
                 </p>
                 <p className="mb-2" >
-                    Type definitions within these Profiles can be viewed or extended to make new Type definitions, which can become part of one of your SM Profiles.
+                    Type definitions within these Profiles can then be viewed or extended to make new Type definitions, which can become part of one of your SM Profiles.
                 </p>
             </div>
         );
@@ -332,7 +336,7 @@ function CloudLibList() {
         if (!_profileEntityModal.show) return;
 
         return (
-            <ProfileEntityModal item={_profileEntityModal.item} showModal={_profileEntityModal.show} /*onSave={onSave} onCancel={onSaveCancel}*/ showSavedMessage={true} />
+            <ProfileEntityModal item={_profileEntityModal.item} showModal={_profileEntityModal.show} onCancel={onViewClose} showSavedMessage={true} />
         );
     };
     //renderProfileCloudLibImport as a modal to force user to say ok.
@@ -345,10 +349,6 @@ function CloudLibList() {
     };
 
     const renderSelectedItems = () => {
-        if (_selectedCloudProfiles == null || _selectedCloudProfiles.length == 0) {
-            return;
-        }
-
         const profiles = _selectedCloudProfiles.map((profile) => {
             return (
                 <li id={`${profile.cloudLibraryId}`} key={`${profile.cloudLibraryId}`} className="m-1 d-inline-block"
@@ -358,10 +358,15 @@ function CloudLibList() {
             )
         });
 
+        const buttonStyle = "auto-width mx-2" + (_selectedCloudProfiles.length > 0 ? "" : " disabled");
+
         return (
-            <ul className="m-0 p-0 d-inline" >
-                {profiles}
-            </ul>
+            <div className="d-block d-lg-inline mb-2 mb-lg-0" >
+                <Button variant="secondary" type="button" className={buttonStyle} onClick={onImportSelectedClick} >Import selected...</Button>
+                <ul className="m-0 p-0 d-inline" >
+                    {profiles}
+                </ul>
+            </div>
         );
     }
 
@@ -383,9 +388,8 @@ function CloudLibList() {
                 </div>
             </div>
             {(_searchCriteria != null) &&
-                <ProfileListGrid searchCriteria={_searchCriteria} onGridRowSelect={onGridRowSelect}
-                    selectMode="multiple"
-                    selectedItems={_selectedCloudProfileIds}
+                <ProfileListGrid searchCriteria={_searchCriteria} noSortOptions="true"
+                    onGridRowSelect={onGridRowSelect} onEdit={onView} selectMode="multiple" selectedItems={_selectedCloudProfileIds}
                     onImport={onImport}
                     onSearchCriteriaChanged={onSearchCriteriaChanged} searchCriteriaChanged={_searchCriteriaChanged} />
             }

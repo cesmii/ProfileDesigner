@@ -36,7 +36,7 @@
 
         /// <summary>Gets or sets the license.</summary>
         /// <value>The license.</value>
-        public string License { get; set; }
+        public ProfileLicenseEnum? License { get; set; }
 
         /// <summary>Gets or sets the license URL.</summary>
         /// <value>The license URL.</value>

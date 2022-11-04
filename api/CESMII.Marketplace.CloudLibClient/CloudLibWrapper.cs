@@ -54,43 +54,35 @@ namespace CESMII.ProfileDesigner.CloudLibClient
             return _cloudLibResolver.ResolveNodeSetsAsync(missingModels);
         }
 
-        public async Task<GraphQlResult<Nodeset>> SearchAsync(int limit, string cursor, List<string> keywords, List<string> exclude)
+        public async Task<GraphQlResult<Nodeset>> SearchAsync(int limit, string cursor, bool beforeCursor, List<string> keywords, List<string> exclude)
         {
-            var result = await _client.GetNodeSets(keywords: keywords?.ToArray(), after: cursor, first: limit);
-
+            GraphQlResult<Nodeset> result;
+            if (!beforeCursor)
+            {
+                result = await _client.GetNodeSets(keywords: keywords?.ToArray(), after: cursor, first: limit);
+            }
+            else
+            {
+                result = await _client.GetNodeSets(keywords: keywords?.ToArray(), before: cursor, last: limit);
+            }
             return result;
-
-            //var result = await _client.GetBasicNodesetInformationAsync(skip, limit, keywords).ConfigureAwait(false);
-            ////TBD - don't need this. Keep it here for now in case we temporarily need to get more data.
-            ////foreach (var nodeset in result)
-            ////{
-            ////    //get more details
-            ////}
-
-            ////if exclude has values, strip out nodesets where exclude value == nodeset uri
-            //if (exclude != null && result != null)
-            //{
-            //    result = result.Where(x => !exclude.Any(y => y.ToLower().Equals(x.NameSpaceUri.ToLower()))).ToList();
-            //}
-
-            //return result ?? new List<UANodesetResult>();
         }
 
-        public async Task<UANameSpace> DownloadAsync(string id)
+        public async Task<UANameSpace?> DownloadAsync(string id)
         {
             var result = await _client.DownloadNodesetAsync(id).ConfigureAwait(false);
             return result;
         }
 
-        public async Task<UANameSpace?> GetAsync(string namespaceUri, DateTime? publicationDate, bool exactMatch)
+        public async Task<UANameSpace?> GetAsync(string modelUri, DateTime? publicationDate, bool exactMatch)
         {
             uint? id;
-            var nodeSetResult = await _client.GetNodeSets(namespaceUri: namespaceUri, publicationDate: publicationDate);
+            var nodeSetResult = await _client.GetNodeSets(namespaceUri: modelUri, publicationDate: publicationDate);
             id = nodeSetResult.Edges?.FirstOrDefault()?.Node?.Identifier;
 
             if (id == null && !exactMatch)
             {
-                nodeSetResult = await _client.GetNodeSets(namespaceUri: namespaceUri);
+                nodeSetResult = await _client.GetNodeSets(namespaceUri: modelUri);
                 id = nodeSetResult.Edges?.OrderByDescending(n => n.Node.PublicationDate).FirstOrDefault(n => n.Node.PublicationDate >= publicationDate)?.Node?.Identifier;
             }
             if (id == null)

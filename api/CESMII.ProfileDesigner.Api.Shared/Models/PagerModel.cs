@@ -28,17 +28,23 @@
     public class CloudLibFilterModel
     {
         /// <summary>
-        /// This is the start index
-        /// </summary>
-        public int Take { get; set; }
-
-        /// <summary>
         /// This is the number of items to include in the page
         /// </summary>
+        public int Take { get; set; }
+        /// <summary>
+        /// This is the cursor of the item after which to query (usually last item of the previous page)
+        /// </summary>
         public string Cursor { get; set; }
+        /// <summary>
+        /// if true, indicates backwards paging (cursor is usually the first item of the current page)
+        /// </summary>
+        public bool BeforeCursor { get; set; }
+        /// <summary>
+        /// Keywords to query for
+        /// </summary>
         public List<string> Keywords { get; set; }
         /// <summary>
-        /// Adds any profiles in the user's library to the returned list if they are not already in the cloud library result
+        /// Adds any profiles in the user's library to the returned list if they are not already in the cloud library result. Useful for a "global keyword search".
         /// </summary>
         public bool AddLocalLibrary { get; set; }
         /// <summary>

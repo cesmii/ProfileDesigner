@@ -115,27 +115,59 @@ function ProfileListGrid(props) {
             //show a spinner
             setLoadingProps({ isLoading: true, message: null });
 
-            const localProfileSelected = _profileSearchCriteria?.filters?.find(x => x.id == 1)?.items[0]?.selected;
-            const baseProfileSelected = _profileSearchCriteria?.filters?.find(x => x.id == 2)?.items[0]?.selected;
-            const cloudLibSelected = _profileSearchCriteria?.filters?.find(x => x.id == 3)?.items[0]?.selected;
-            const url = `profile/${props.isMine || (baseProfileSelected == false && cloudLibSelected == false) ? 'mine' : cloudLibSelected ? 'cloudlibrary' : 'library'}`;
+            const localProfileSelected = _profileSearchCriteria?.filters?.find(x => x.id === 1)?.items[0]?.selected;
+            const baseProfileSelected = _profileSearchCriteria?.filters?.find(x => x.id === 2)?.items[0]?.selected;
+            const cloudLibSelected = _profileSearchCriteria?.filters?.find(x => x.id === 3)?.items[0]?.selected;
+
+            let url;
+            if (props.isMine || (!baseProfileSelected && !cloudLibSelected)) {
+                url = 'profile/mine';
+            }
+            else if (!cloudLibSelected) {
+                url = 'profile/library';
+            }
+            else {
+                url = 'profile/cloudlibrary';
+            }
 
             console.log(generateLogMessageString(`useEffect||fetchData||${url}`, CLASS_NAME));
 
             const keywords = _profileSearchCriteria?.query == null ? null 
                 : [_profileSearchCriteria?.query?.toString()];
 
+            // Cursor pagination can only move one page at a time
+            // TODO Adjust the pager UI?
+            let cursor = null;
+            let beforeCursor = false;
+            if (_pager.currentPage === 1) {
+                cursor = null;
+            }
+            else if (_dataRows?.pageNumber > _pager.currentPage + 1 &&  _pager.currentPage === Math.ceil(_dataRows.itemCount / _pager.pageSize))
+            {
+                cursor = null;
+                beforeCursor = true;
+            }
+            else if (_pager.currentPage > _dataRows?.pageNumber) {
+                cursor = _dataRows?.lastCursor;
+            }
+            else if (_pager.currentPage < _dataRows?.pageNumber) {
+                cursor = _dataRows?.firstCursor;
+                beforeCursor = true;
+            }
             const data = {
                 Query: _pager.searchVal,
-                Cursor: _pager.currentPage == 1 ?
-                    null
-                    : _pager.currentPage <= _dataRows?.pageNumber ? // TODO Make back paging work correctly
-                        _dataRows?.firstCursor
-                        : _dataRows?.lastCursor,
-                //Skip: (_pager.currentPage - 1) * _pager.pageSize,
+
+                // Offset pagination for local profiles
+                Skip: (_pager.currentPage - 1) * _pager.pageSize,
                 Take: _pager.pageSize,
-                AddLocalLibrary: (localProfileSelected == true),
-                ExcludeLocalLibrary: (baseProfileSelected == false && localProfileSelected == false),
+
+                // Cursor pagination for CloudLib
+                Cursor: cursor,
+                BeforeCursor: beforeCursor,
+
+                // CloudLib filters
+                AddLocalLibrary: (localProfileSelected),
+                ExcludeLocalLibrary: (!baseProfileSelected && !localProfileSelected),
                 Keywords: keywords
             };
 
@@ -146,8 +178,8 @@ function ProfileListGrid(props) {
                     setDataRows({
                         all: result.data.data,
                         itemCount: result.data.count,
-                        firstCursor: data.Cursor,
-                        lastCursor: result.data.cursor,
+                        firstCursor: result.data.firstCursor,
+                        lastCursor: result.data.lastCursor,
                         pageNumber: _pager.currentPage,
                     });
 
@@ -276,7 +308,7 @@ function ProfileListGrid(props) {
             <ProfileFilter onSearchCriteriaChanged={onProfileSearchCriteriaChanged} noSortOptions="true"
                 //displayMode={_displayMode}
                 //toggleDisplayMode={toggleDisplayMode} itemCount={_itemCount}
-                cssClass={props.rowCssClass} searchCriteria={props.searchCriteria} />
+                cssClass={props.rowCssClass} searchCriteria={props.searchCriteria} noSearch={props.noSearch} noClearAll="true" />
             <div className="">
                 <div ref={_scrollToRef} className="row">
                     <div className="col-12">

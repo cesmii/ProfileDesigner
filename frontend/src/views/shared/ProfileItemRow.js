@@ -37,82 +37,6 @@ function ProfileItemRow(props) { //props are item, showActions
         msgs.push({ profileId: props.item.id, fileName: cleanFileName(props.item.namespace), immediateDownload: true });
         setLoadingProps({ downloadItems: JSON.parse(JSON.stringify(msgs)) });
     }
-    const importItem = async () => {
-        console.log(generateLogMessageString(`importItem||start`, CLASS_NAME));
-        var url = `profile/cloudlibrary/import`;
-        console.log(generateLogMessageString(`importFromCloudLibary||${url}`, CLASS_NAME));
-
-        var data = { id: props.item.cloudLibraryId };
-
-        //show a processing message at top. One to stay for duration, one to show for timed period.
-        //var msgImportProcessingId = new Date().getTime();
-        setLoadingProps({
-            isLoading: true, message: `Importing from Cloud Library...This may take a few minutes.`
-        });
-
-        await axiosInstance.post(url, data).then(result => {
-            if (result.status === 200) {
-                //check for success message OR check if some validation failed
-                //remove processing message, show a result message
-                //inline for isSuccess, pop-up for error
-                var revisedMessages = null;
-                if (result.data.isSuccess) {
-
-                    //synch flow would wait, now we do async so we have to check import log on timer basis. 
-                    //    revisedMessages = [{
-                    //        id: new Date().getTime(),
-                    //        severity: result.data.isSuccess ? "success" : "danger",
-                    //        body: `Profiles were imported successfully.`,
-                    //        isTimed: result.data.isSuccess
-                    //    }];
-                }
-                else {
-                    setError({ show: true, caption: 'Import Error', message: `An error occurred processing the import file(s): ${result.data.message}` });
-                }
-
-                //asynch flow - trigger the component we use to show import messages, importing items changing is the trigger
-                //update spinner, messages
-                var importingLogs = loadingProps.importingLogs == null || loadingProps.importingLogs.length === 0 ? [] :
-                    JSON.parse(JSON.stringify(loadingProps.importingLogs));
-                importingLogs.push({ id: result.data.data, status: AppSettings.ImportLogStatus.InProgress, message: null });
-                setLoadingProps({
-                    isLoading: false, message: null, inlineMessages: revisedMessages,
-                    importingLogs: importingLogs,
-                    activateImportLog: true,
-                    isImporting: false
-                });
-
-                //bubble up to parent to let them know the import log id associated with this import. 
-                //then they can track how this specific import is doing in terms of completed or not
-                if (props.onImportStarted) props.onImportStarted(result.data.data);
-
-            } else {
-                //hide a spinner, show a message
-                setLoadingProps({
-                    isLoading: false, message: null, isImporting: false
-                    //, inlineMessages: [{ id: new Date().getTime(), severity: "danger", body: `An error occurred processing the import file(s).`, isTimed: false, isImporting: false }]
-                });
-                setError({ show: true, caption: 'Import Error', message: `An error occurred processing the import file(s)` });
-            }
-        }).catch(e => {
-            if (e.response && e.response.status === 401) {
-                setLoadingProps({ isLoading: false, message: null, isImporting: false });
-            }
-            else {
-                //hide a spinner, show a message
-                setLoadingProps({
-                    isLoading: false, message: null, isImporting: false
-                    //,inlineMessages: [{ id: new Date().getTime(), severity: "danger", body: e.response.data ? e.response.data : `An error occurred saving the imported profile.`, isTimed: false, isImporting: false }]
-                });
-                setError({ show: true, caption: 'Import Error', message: e.response && e.response.data ? e.response.data : `A system error has occurred during the profile import. Please contact your system administrator.` });
-                console.log(generateLogMessageString('handleOnSave||saveFile||' + JSON.stringify(e), CLASS_NAME, 'error'));
-                console.log(e);
-            }
-        });
-    }
-
-
-
     const downloadItemAsAASX = async () => {
         console.log(generateLogMessageString(`downloadItem||start`, CLASS_NAME));
         //add a row to download messages and this will kick off download
@@ -160,7 +84,7 @@ function ProfileItemRow(props) { //props are item, showActions
 
         if (!showActions) return;
 
-        if (item.hasLocalProfile != false) {
+        if (item.hasLocalProfile) {
             //if standard ua nodeset, author is null
             return (
                 <div className="col-sm-4 ml-auto d-inline-flex justify-content-end align-items-center" >

@@ -56,19 +56,18 @@ function CloudLibList() {
             setLoadingProps({ refreshProfileSearchCriteria: true });
         }
         //start with a blank criteria slate. Handle possible null scenario if criteria hasn't loaded yet. 
-        var criteria = loadingProps.profileSearchCriteria == null ? null : JSON.parse(JSON.stringify(loadingProps.profileSearchCriteria));
+        const criteria = loadingProps.profileSearchCriteria == null ? null : JSON.parse(JSON.stringify(loadingProps.profileSearchCriteria));
 
         if (criteria != null) {
             criteria.filters[0].items[0].visible = false;
             criteria.filters[0].items[0].selected = false;
 
             criteria.filters[1].items[0].name = "Show imported profiles";
-            //criteria.filters[1].items[0].visible = false;
+            criteria.filters[1].items[0].visible = true;
             criteria.filters[1].items[0].selected = false;
 
             criteria.filters[2].items[0].visible = false;
             criteria.filters[2].items[0].selected = true;
-            // TODO set local profile criteria to invisible
             //criteria = clearSearchCriteria(criteria);
         }
 

@@ -243,7 +243,9 @@ function ProfileList() {
                         </Dropdown.Toggle>
                         <Dropdown.Menu>
                             <Dropdown.Item href="/cloudlibrary/search">Import from Cloud Library</Dropdown.Item>
-                            <Dropdown.Item>Import NodeSet file</Dropdown.Item>
+                            <Dropdown.Item as="button" >
+                                {<ProfileImporter caption="Import NodeSet file" cssClass="" useCssClassOnly="true" />}
+                            </Dropdown.Item>
                         </Dropdown.Menu>
                     </Dropdown>     
                     {/*{<ProfileImporter caption="Import" cssClass="mb-0" />}*/}

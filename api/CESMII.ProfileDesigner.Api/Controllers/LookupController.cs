@@ -170,6 +170,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                             ID = LocalUser.ID,
                             Name = "My Profiles",
                             Selected = true,
+                            Visible = false,
                         }
                     }
                 },
@@ -200,7 +201,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                         {
                             ID = -1,
                             Name = "Cloud Library",
-                            Visible = true,
+                            Visible = false,
                         }
                      }
                 }

@@ -164,8 +164,6 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 return BadRequest("Profile|Library|Invalid model null keyword");
             }
 
-            List<CloudLibProfileModel> result = new();
-
             // Get both local and cloudlib cursors
             var cursors = model.Cursor?.Split(",");
             string cloudLibCursor = cursors?[0] ?? null;
@@ -173,20 +171,40 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             {
                 cloudLibCursor = null;
             }
-            string localCursor = cursors?[1] ?? "0";
+            int localCursor;
+            if (cursors?[1] != null)
+            {
+                localCursor= int.Parse(cursors[1]);
+                if (model.BeforeCursor)
+                {
+                    localCursor -= model.Take;
+                    if (localCursor < 0)
+                    {
+                        localCursor = 0;
+                    }
+                }
+            }
+            else
+            {
+                localCursor = 0;
+            }
 
             bool bFullResultCloud;
             bool bFullResultLocal = false;
             List<ProfileModel> allLocalProfiles = null;
             List<GraphQlNodeAndCursor<CloudLibProfileModel>> pendingCloudLibProfiles = new();
             List<ProfileModel> pendingLocalProfiles = null;
+
             int totalCount = 0;
+            List<CloudLibProfileModel> result = new();
+            string firstCursor = null;
+
             try
             {
                 do
                 {
                     // Get first batch of profiles from the cloudlib
-                    var cloudResultTask = _cloudLibDal.Where(model.Take, cloudLibCursor, model.Keywords);
+                    var cloudResultTask = _cloudLibDal.Where(model.Take, cloudLibCursor, model.BeforeCursor, model.Keywords);
 
                     // Get local profiles in parallel
                     allLocalProfiles = allLocalProfiles ?? _dal.GetAll(base.DalUserToken);
@@ -197,7 +215,14 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                     {
                         _logger.LogWarning($"ProfileController|GetCloudLibrary|Received more profiles than requested: {result.Count}, expected {model.Take}.");
                     }
-                    bFullResultCloud = !cloudResultPage.PageInfo.HasNextPage;
+                    if (!model.BeforeCursor)
+                    {
+                        bFullResultCloud = !cloudResultPage.PageInfo.HasNextPage;
+                    }
+                    else
+                    {
+                        bFullResultCloud = !cloudResultPage.PageInfo.HasPreviousPage;
+                    }
                     totalCount = cloudResultPage.TotalCount;
                     pendingCloudLibProfiles.AddRange(cloudResultPage.Edges);
 
@@ -258,7 +283,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                                     p => Regex.IsMatch(p.Namespace, keywordRegex, RegexOptions.IgnoreCase)
                                     // TODO better keyword search on ProfileTypeDefinitions etc. to match cloudlib's query
                                     },
-                                    base.DalUserToken, int.Parse(localCursor), null, true,
+                                    base.DalUserToken, localCursor, null, true,
                                     orderByExpressions: orderBy.ToArray());
                                 var newLocalProfiles = newLocalProfilesResult.Data;
                                 bFullResultLocal = newLocalProfiles.Count == model.Take || newLocalProfiles.Count == 0;
@@ -274,7 +299,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                                     allLocalProfiles.OrderBy(pm => pm.IsReadOnly).ThenBy(pm => pm.Namespace).ThenBy(pm => pm.PublishDate)// owned profiles first when excluding and adding
                                     : allLocalProfiles.OrderBy(pm => pm.Namespace).ThenBy(pm => pm.PublishDate)
                                 )
-                                .Skip(int.Parse(localCursor)));
+                                .Skip(localCursor));
                             totalCount += allLocalProfiles.Count(p => string.IsNullOrEmpty(p.StandardProfile?.CloudLibraryId));
                         }
                     }
@@ -287,39 +312,79 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                         && (pendingLocalProfiles?.Any() == true || (pendingCloudLibProfiles.Any()))
                         && ((pendingLocalProfiles?.Any() == true || bFullResultLocal) || (pendingCloudLibProfiles.Any() || bFullResultCloud)))
                     {
-                        var firstPendingCloudLibProfile = pendingCloudLibProfiles.FirstOrDefault();
+                        var firstPendingCloudLibProfile = !model.BeforeCursor ? pendingCloudLibProfiles.FirstOrDefault() : pendingCloudLibProfiles.LastOrDefault();
                         if (firstPendingCloudLibProfile != null && firstPendingCloudLibProfile.Node == null)
                         {
                             // Cloud profile was excluded earlier: skip it but remember it's cursor for the next query
-                            pendingCloudLibProfiles.RemoveAt(0);
+                            if (!model.BeforeCursor)
+                            {
+                                pendingCloudLibProfiles.RemoveAt(0);
+                            }
+                            else
+                            {
+                                pendingCloudLibProfiles.RemoveAt(pendingCloudLibProfiles.Count -1);
+                            }
                             cloudLibCursor = firstPendingCloudLibProfile.Cursor;
                             continue;
                         }
 
-                        var firstPendingLocalprofile = pendingLocalProfiles?.FirstOrDefault();
+                        var firstPendingLocalprofile = !model.BeforeCursor ? pendingLocalProfiles?.FirstOrDefault() : pendingLocalProfiles?.LastOrDefault();
                         if (firstPendingLocalprofile != null &&
                             (model.ExcludeLocalLibrary || // Put local library items first if both add and exclude is specified
                               (firstPendingCloudLibProfile?.Node == null || String.Compare(firstPendingLocalprofile.Namespace, firstPendingCloudLibProfile.Node.Namespace, false, CultureInfo.InvariantCulture) < 0)))
                         {
-                            result.Add(CloudLibProfileModel.MapFromProfile(firstPendingLocalprofile));
-                            pendingLocalProfiles.RemoveAt(0);
-                            localCursor = (int.Parse(localCursor) + 1).ToString();
+                            if (!result.Any())
+                            {
+                                firstCursor = $"{cloudLibCursor},{localCursor}";
+                            }
+                            if (!model.BeforeCursor)
+                            {
+                                result.Add(CloudLibProfileModel.MapFromProfile(firstPendingLocalprofile));
+                                pendingLocalProfiles.RemoveAt(0);
+                                localCursor++;
+                            }
+                            else
+                            {
+                                result.Insert(0, CloudLibProfileModel.MapFromProfile(firstPendingLocalprofile));
+                                pendingLocalProfiles.RemoveAt(pendingLocalProfiles.Count - 1);
+                                localCursor--;
+                            }
                         }
                         else
                         {
                             if (firstPendingCloudLibProfile != null)
                             {
-                                result.Add(firstPendingCloudLibProfile.Node);
                                 cloudLibCursor = firstPendingCloudLibProfile.Cursor;
-                                pendingCloudLibProfiles.RemoveAt(0);
+                                if (!result.Any())
+                                {
+                                    firstCursor = $"{cloudLibCursor},{localCursor}";
+                                }
+                                if (!model.BeforeCursor)
+                                {
+                                    result.Add(firstPendingCloudLibProfile.Node);
+                                    pendingCloudLibProfiles.RemoveAt(0);
+                                }
+                                else
+                                {
+                                    result.Insert(0, firstPendingCloudLibProfile.Node);
+                                    pendingCloudLibProfiles.RemoveAt(pendingCloudLibProfiles.Count - 1);
+                                }
 
                                 if (firstPendingLocalprofile != null &&
                                     firstPendingLocalprofile.Namespace == firstPendingCloudLibProfile.Node.Namespace
                                     && firstPendingLocalprofile.PublishDate == firstPendingCloudLibProfile.Node.PublishDate)
                                 {
                                     // Skip matching local profile to avoid duplicates
-                                    pendingLocalProfiles.RemoveAt(0);
-                                    localCursor = (int.Parse(localCursor) + 1).ToString();
+                                    if (!model.BeforeCursor)
+                                    {
+                                        pendingLocalProfiles.RemoveAt(0);
+                                        localCursor++;
+                                    }
+                                    else
+                                    {
+                                        pendingLocalProfiles.RemoveAt(pendingLocalProfiles.Count - 1);
+                                        localCursor--;
+                                    }
                                 }
                             }
                         }
@@ -365,7 +430,8 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             {
                 Count = totalCount,
                 Data = result,
-                Cursor = lastCursor,
+                FirstCursor = !model.BeforeCursor ? firstCursor : lastCursor,
+                LastCursor = !model.BeforeCursor ? lastCursor : firstCursor,
             };
             return Ok(dalResult);
         }

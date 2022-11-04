@@ -8,8 +8,8 @@ namespace CESMII.ProfileDesigner.CloudLibClient
 {
     public interface ICloudLibWrapper : IUANodeSetResolverWithProgress
     {
-        Task<GraphQlResult<Nodeset>> SearchAsync(int limit, string cursor, List<string> keywords, List<string> exclude);
-        Task<UANameSpace> DownloadAsync(string id);
-        Task<UANameSpace> GetAsync(string modelUri, DateTime? publicationDate, bool exactMatch);
+        Task<GraphQlResult<Nodeset>> SearchAsync(int limit, string cursor, bool beforeCursor, List<string> keywords, List<string> exclude);
+        Task<UANameSpace?> DownloadAsync(string id);
+        Task<UANameSpace?> GetAsync(string modelUri, DateTime? publicationDate, bool exactMatch);
     }
 }

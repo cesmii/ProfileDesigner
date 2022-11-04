@@ -39,19 +39,21 @@ export const renderProfileIcon = (item, account, size = 20, useMarginRight = tru
 
     const isOwnerBool = isOwner(item, account);
     const iconName = (!isOwnerBool) ? 'folder-profile' : 'folder-shared';
+    const iconColor = (item.isReadOnly || !isOwnerBool) ? color.nevada : color.cornflower;
+
     // TODO sort this out properly when isOwner is working etc.
-    var iconColor = color.amber;
-    if (item.hasLocalProfile != false) {
-        if (item.isReadOnly) {
-            iconColor = color.coolGray;
-        }
-        else {
-            iconColor = color.apple;
-        }
-    }
-    else if (item.cloudLibraryId != null) {
-        iconColor = color.blazeOrange;
-    }
+    //var iconColor = color.amber;
+    //if (item.hasLocalProfile != false) {
+    //    if (item.isReadOnly) {
+    //        iconColor = color.coolGray;
+    //    }
+    //    else {
+    //        iconColor = color.apple;
+    //    }
+    //}
+    //else if (item.cloudLibraryId != null) {
+    //    iconColor = color.blazeOrange;
+    //}
     //(item.isReadOnly || !isOwnerBool) ?
     //    (item.cloudLibraryId != null ? color.blazeOrange : color.amber)
     //    : color.apple;

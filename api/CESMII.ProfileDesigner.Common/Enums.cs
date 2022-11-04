@@ -103,4 +103,15 @@
         [Description("UserAzureADMapped")]
         UserAzureADMapped = 130
     }
+
+    // Keep in sync with:
+    // - frontend: AppSettings
+    // - CloudLib SDK: Opc.Ua.Cloud.Library.Client.License
+    public enum ProfileLicenseEnum 
+    {
+        MIT,
+        ApacheLicense20,
+        Custom
+    }
+
 }

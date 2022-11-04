@@ -5,7 +5,7 @@
     using System.Linq;
     using System.Linq.Expressions;
     using System.Threading.Tasks;
-
+    using CESMII.ProfileDesigner.Common.Enums;
     using CESMII.ProfileDesigner.DAL.Models;
     using CESMII.ProfileDesigner.Data.Entities;
     using CESMII.ProfileDesigner.Data.Repositories;
@@ -126,6 +126,11 @@
         {
             if (entity != null)
             {
+                ProfileLicenseEnum? profileLicense = null;
+                if (Enum.TryParse<ProfileLicenseEnum>(entity.License, true, out var parsed))
+                {
+                    profileLicense = parsed;
+                }
                 var result = new ProfileModel()
                 {
                     ID = entity.ID,
@@ -149,7 +154,7 @@
                     PublishDate = entity.PublishDate,
                     // Cloud Library meta data
                     Title = entity.Title,
-                    License = entity.License,
+                    License = profileLicense,
                     LicenseUrl = entity.LicenseUrl,
                     CopyrightText = entity.CopyrightText,
                     ContributorName = entity.ContributorName,
@@ -210,7 +215,7 @@
 
             // Cloud Library meta data
             entity.Title = model.Title;
-            entity.License = model.License;
+            entity.License = model.License?.ToString();
             entity.LicenseUrl = model.LicenseUrl;
             entity.CopyrightText = model.CopyrightText;
             entity.ContributorName = model.ContributorName;
@@ -223,8 +228,22 @@
             entity.ReleaseNotesUrl = model.ReleaseNotesUrl;
             entity.TestSpecificationUrl = model.TestSpecificationUrl;
             entity.SupportedLocales = model.SupportedLocales?.ToArray();
-            entity.AdditionalProperties = model.AdditionalProperties?.Select(p =>  new UAProperty { Name = p.Key, Value = p.Value }).ToList() ?? new List<UAProperty> { new UAProperty { Name = "a", Value = "b" } };
-
+            var profile = entity;
+            entity.AdditionalProperties?.RemoveAll(eProp => model.AdditionalProperties?.Any(mProp => mProp.Key == eProp.Name) != true);
+            if (model.AdditionalProperties != null)
+            {
+                foreach (var prop in model.AdditionalProperties)
+                {
+                    var eProp = entity.AdditionalProperties.FirstOrDefault(p => p.Name == prop.Key);
+                    if (eProp == null)
+                    {
+                        eProp = new UAProperty { Profile = profile, ProfileId = profile.ID };
+                        entity.AdditionalProperties.Add(eProp);
+                    }
+                    eProp.Name = prop.Key;
+                    eProp.Value = prop.Value;
+                }
+            }
             MapToEntityNodeSetFiles(ref entity, model.NodeSetFiles, userToken);
         }
 

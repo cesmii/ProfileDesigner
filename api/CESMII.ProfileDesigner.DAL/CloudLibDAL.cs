@@ -11,6 +11,7 @@
 
     using Opc.Ua.Cloud.Library.Client;
     using CESMII.ProfileDesigner.DAL.Models;
+    using CESMII.ProfileDesigner.Common.Enums;
 
     /// <summary>
     /// Most lookup data is contained in this single entity and differntiated by a lookup type. 
@@ -151,7 +152,7 @@
                         CategoryName = entity.Metadata.Category?.Name,
                         CopyrightText = entity.Metadata.CopyrightText,
                         IconUrl = entity.Metadata.IconUrl?.OriginalString,
-                        License = entity.Metadata.License.ToString(),
+                        License = (ProfileLicenseEnum) entity.Metadata.License,
                         LicenseUrl = entity.Metadata.LicenseUrl?.OriginalString,
                         PurchasingInformationUrl = entity.Metadata.PurchasingInformationUrl?.OriginalString,
                         ReleaseNotesUrl = entity.Metadata.ReleaseNotesUrl?.OriginalString,
@@ -188,6 +189,11 @@
         {
             if (entity != null)
             {
+                ProfileLicenseEnum? profileLicense = null;
+                if (Enum.TryParse<ProfileLicenseEnum>(entity.License, out var parsed))
+                {
+                    profileLicense = parsed;
+                }
                 //map results to a format that is common with marketplace items
                 return new CloudLibProfileModel()
                 {
@@ -200,7 +206,7 @@
                     //TBD
                     //Description = "Description..." + entity.Title,
                     Title = entity.Title,
-                    License = entity.License,
+                    License = profileLicense,
                     LicenseUrl = entity.LicenseUrl?.OriginalString,
                     CopyrightText = entity.CopyrightText,
                     ContributorName = entity.Contributor, // TODO reconcile this with MarketPlace PublishedModel?
@@ -250,7 +256,7 @@
                     //TBD
                     //Description = "Description..." + entity.Title,
                     Title = entity.Title,
-                    License = entity.License.ToString(),
+                    License = (ProfileLicenseEnum) entity.License,
                     LicenseUrl = entity.LicenseUrl?.OriginalString,
                     CopyrightText = entity.CopyrightText,
                     ContributorName = entity.Contributor?.Name, // TODO reconcile this with MarketPlace PublishedModel?

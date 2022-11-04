@@ -42,11 +42,6 @@ namespace CESMII.ProfileDesigner.Api.Tests
                         {
                             { "ConnectionStrings:ProfileDesignerDB", "Server=localhost;Username=cesmii;Database=profile_designer_local_test;Port=5432;Password=cesmii;SSLMode=Prefer;Include Error Detail=true" },
                         }))
-                .ConfigureServices(services =>
-                {
-                })
-                ;
-
             ;
         }
         protected override void ConfigureWebHost(IWebHostBuilder builder)

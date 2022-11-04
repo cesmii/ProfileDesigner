@@ -2,13 +2,8 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.ComponentModel.DataAnnotations;
-    using System.Runtime.InteropServices;
-    using System.Runtime.Serialization;
     using CESMII.ProfileDesigner.Common.Enums;
-    using Newtonsoft.Json;
-    using Opc.Ua.Cloud.Library.Client;
-
+    
     public class ProfileModel : AbstractModel
     {
         public string Namespace { get; set; }
@@ -134,7 +129,6 @@
             };
         }
 
-        // TODO Additional CloudLib properties like License, Organisation etc.
         public bool HasLocalProfile { get; set; }
         public string CloudLibraryId { get; set; }
         public string NodesetXml { get; set; }

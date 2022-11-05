@@ -38,7 +38,7 @@
         /// <summary>
         /// if true, indicates backwards paging (cursor is usually the first item of the current page)
         /// </summary>
-        public bool BeforeCursor { get; set; }
+        public bool PageBackwards { get; set; }
         /// <summary>
         /// Keywords to query for
         /// </summary>

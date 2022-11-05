@@ -297,9 +297,11 @@ function ProfileList() {
             </Helmet>
             {renderHeaderRow()}
             {renderIntroContent()}
+            {(_profileSearchCriteria != null) &&
             <ProfileListGrid searchCriteria={_profileSearchCriteria} onGridRowSelect={onGridRowSelect} onEdit={onEdit} onDeleteItemClick={onDeleteItemClick}
                 onImport={onImport}
                 onSearchCriteriaChanged={onSearchCriteriaChanged} searchCriteriaChanged={_profileSearchCriteriaChanged} noSearch="true" />
+            }
             //{renderProfileEntity()}
             //{renderProfileCloudLibImport()}
             {renderDeleteConfirmation()}

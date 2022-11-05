@@ -112,9 +112,6 @@ function ProfileListGrid(props) {
     //-------------------------------------------------------------------
     useEffect(() => {
         async function fetchData() {
-            //show a spinner
-            setLoadingProps({ isLoading: true, message: null });
-
             const localProfileSelected = _profileSearchCriteria?.filters?.find(x => x.id === 1)?.items[0]?.selected;
             const baseProfileSelected = _profileSearchCriteria?.filters?.find(x => x.id === 2)?.items[0]?.selected;
             const cloudLibSelected = _profileSearchCriteria?.filters?.find(x => x.id === 3)?.items[0]?.selected;
@@ -132,27 +129,33 @@ function ProfileListGrid(props) {
 
             console.log(generateLogMessageString(`useEffect||fetchData||${url}`, CLASS_NAME));
 
-            const keywords = _profileSearchCriteria?.query == null ? null 
+            const keywords = _profileSearchCriteria?.query == null
+                ? null 
                 : [_profileSearchCriteria?.query?.toString()];
 
             // Cursor pagination can only move one page at a time
-            // TODO Adjust the pager UI?
-            let cursor = null;
-            let beforeCursor = false;
+            let cursor;
+            let pageBackwards = false;
             if (_pager.currentPage === 1) {
                 cursor = null;
             }
-            else if (_dataRows?.pageNumber > _pager.currentPage + 1 &&  _pager.currentPage === Math.ceil(_dataRows.itemCount / _pager.pageSize))
+            else if (_pager.currentPage === _dataRows?.pageNumber) {
+                return;
+            }
+            else if (_pager.currentPage > _dataRows?.pageNumber + 1 &&  _pager.currentPage === Math.ceil(_dataRows.itemCount / _pager.pageSize))
             {
+                // Jump to last page
                 cursor = null;
-                beforeCursor = true;
+                pageBackwards = true;
             }
             else if (_pager.currentPage > _dataRows?.pageNumber) {
-                cursor = _dataRows?.lastCursor;
+                cursor = _dataRows?.endCursor;
+                _pager.currentPage = _dataRows?.pageNumber + 1;
             }
             else if (_pager.currentPage < _dataRows?.pageNumber) {
-                cursor = _dataRows?.firstCursor;
-                beforeCursor = true;
+                cursor = _dataRows?.startCursor;
+                pageBackwards = true;
+                _pager.currentPage = _dataRows?.pageNumber - 1;
             }
             const data = {
                 Query: _pager.searchVal,
@@ -163,7 +166,7 @@ function ProfileListGrid(props) {
 
                 // Cursor pagination for CloudLib
                 Cursor: cursor,
-                BeforeCursor: beforeCursor,
+                PageBackwards: pageBackwards,
 
                 // CloudLib filters
                 AddLocalLibrary: (localProfileSelected),
@@ -171,15 +174,29 @@ function ProfileListGrid(props) {
                 Keywords: keywords
             };
 
+            //show a spinner
+            setLoadingProps({ isLoading: true, message: null });
+
             await axiosInstance.post(url, data).then(result => {
                 if (result.status === 200) {
 
+                    let itemCount = result.data.count;
+                    if (result.data.hasNextPage != null && !result.data.hasNextPage
+                        && !(data.PageBackwards && data.Cursor != null)
+                        && _pager.currentPage < Math.ceil(itemCount / _pager.pageSize)) {
+                        // There were more items reported than actually available (backend filtering or other bug): adjust total items
+                        itemCount = _pager.pageSize * (_pager.currentPage - 1) + result.data.data.length;
+                    }
+                    if (result.data.hasPreviousPage != null && !result.data.hasPreviousPage && data.PageBackwards && _pager.currentPage !== 1) {
+                        // We are at the first page but the pager is out of sync - there were more items reported than actually available (backend filtering or other bug): adjust total items
+                        _pager.currentPage = 1;
+                    }
                     //set state on fetch of data
                     setDataRows({
                         all: result.data.data,
-                        itemCount: result.data.count,
-                        firstCursor: result.data.firstCursor,
-                        lastCursor: result.data.lastCursor,
+                        itemCount: itemCount,
+                        startCursor: result.data.startCursor,
+                        endCursor: result.data.endCursor,
                         pageNumber: _pager.currentPage,
                     });
 

@@ -175,7 +175,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             if (cursors?[1] != null)
             {
                 localCursor= int.Parse(cursors[1]);
-                if (model.BeforeCursor)
+                if (model.PageBackwards)
                 {
                     localCursor -= model.Take;
                     if (localCursor < 0)
@@ -204,7 +204,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 do
                 {
                     // Get first batch of profiles from the cloudlib
-                    var cloudResultTask = _cloudLibDal.Where(model.Take, cloudLibCursor, model.BeforeCursor, model.Keywords);
+                    var cloudResultTask = _cloudLibDal.Where(model.Take, cloudLibCursor, model.PageBackwards, model.Keywords);
 
                     // Get local profiles in parallel
                     allLocalProfiles = allLocalProfiles ?? _dal.GetAll(base.DalUserToken);
@@ -215,7 +215,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                     {
                         _logger.LogWarning($"ProfileController|GetCloudLibrary|Received more profiles than requested: {result.Count}, expected {model.Take}.");
                     }
-                    if (!model.BeforeCursor)
+                    if (!model.PageBackwards || model.Cursor == null)
                     {
                         bFullResultCloud = !cloudResultPage.PageInfo.HasNextPage;
                     }
@@ -312,11 +312,11 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                         && (pendingLocalProfiles?.Any() == true || (pendingCloudLibProfiles.Any()))
                         && ((pendingLocalProfiles?.Any() == true || bFullResultLocal) || (pendingCloudLibProfiles.Any() || bFullResultCloud)))
                     {
-                        var firstPendingCloudLibProfile = !model.BeforeCursor ? pendingCloudLibProfiles.FirstOrDefault() : pendingCloudLibProfiles.LastOrDefault();
+                        var firstPendingCloudLibProfile = !model.PageBackwards ? pendingCloudLibProfiles.FirstOrDefault() : pendingCloudLibProfiles.LastOrDefault();
                         if (firstPendingCloudLibProfile != null && firstPendingCloudLibProfile.Node == null)
                         {
                             // Cloud profile was excluded earlier: skip it but remember it's cursor for the next query
-                            if (!model.BeforeCursor)
+                            if (!model.PageBackwards)
                             {
                                 pendingCloudLibProfiles.RemoveAt(0);
                             }
@@ -328,7 +328,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                             continue;
                         }
 
-                        var firstPendingLocalprofile = !model.BeforeCursor ? pendingLocalProfiles?.FirstOrDefault() : pendingLocalProfiles?.LastOrDefault();
+                        var firstPendingLocalprofile = !model.PageBackwards ? pendingLocalProfiles?.FirstOrDefault() : pendingLocalProfiles?.LastOrDefault();
                         if (firstPendingLocalprofile != null &&
                             (model.ExcludeLocalLibrary || // Put local library items first if both add and exclude is specified
                               (firstPendingCloudLibProfile?.Node == null || String.Compare(firstPendingLocalprofile.Namespace, firstPendingCloudLibProfile.Node.Namespace, false, CultureInfo.InvariantCulture) < 0)))
@@ -337,7 +337,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                             {
                                 firstCursor = $"{cloudLibCursor},{localCursor}";
                             }
-                            if (!model.BeforeCursor)
+                            if (!model.PageBackwards)
                             {
                                 result.Add(CloudLibProfileModel.MapFromProfile(firstPendingLocalprofile));
                                 pendingLocalProfiles.RemoveAt(0);
@@ -359,7 +359,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                                 {
                                     firstCursor = $"{cloudLibCursor},{localCursor}";
                                 }
-                                if (!model.BeforeCursor)
+                                if (!model.PageBackwards)
                                 {
                                     result.Add(firstPendingCloudLibProfile.Node);
                                     pendingCloudLibProfiles.RemoveAt(0);
@@ -375,7 +375,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                                     && firstPendingLocalprofile.PublishDate == firstPendingCloudLibProfile.Node.PublishDate)
                                 {
                                     // Skip matching local profile to avoid duplicates
-                                    if (!model.BeforeCursor)
+                                    if (!model.PageBackwards)
                                     {
                                         pendingLocalProfiles.RemoveAt(0);
                                         localCursor++;
@@ -426,12 +426,17 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             }
 
             var lastCursor = $"{cloudLibCursor},{localCursor}";
+            bool hasMoreData = !(
+                bFullResultCloud && pendingCloudLibProfiles?.Any() != true 
+                && bFullResultLocal && pendingLocalProfiles?.Any() != true);
             var dalResult = new DALResult<CloudLibProfileModel>
             {
                 Count = totalCount,
                 Data = result,
-                FirstCursor = !model.BeforeCursor ? firstCursor : lastCursor,
-                LastCursor = !model.BeforeCursor ? lastCursor : firstCursor,
+                StartCursor = !model.PageBackwards ? firstCursor : lastCursor,
+                EndCursor = !model.PageBackwards ? lastCursor : firstCursor,
+                HasNextPage = (model.PageBackwards && model.Cursor != null) || hasMoreData,
+                HasPreviousPage = !(model.PageBackwards && model.Cursor != null) || hasMoreData,
             };
             return Ok(dalResult);
         }

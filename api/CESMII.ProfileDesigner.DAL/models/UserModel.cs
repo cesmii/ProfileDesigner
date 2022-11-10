@@ -16,7 +16,7 @@
         public string ObjectIdAAD { get; set; }
 
         /// <summary>
-        /// Not stored in the marketplace db. 
+        /// Not stored in the db. 
         /// Assume this could change so don't use as a mapping key.
         /// </summary>
         public string UserName { get; set; }

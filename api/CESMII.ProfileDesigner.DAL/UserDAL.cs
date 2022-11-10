@@ -347,7 +347,7 @@
                 {
                     ID = entity.ID,
                     ObjectIdAAD = entity.ObjectIdAAD,
-                    DisplayName = string.IsNullOrEmpty(entity.DisplayName) ? entity.UserNameLegacy + " (legacy username)" : entity.DisplayName,
+                    DisplayName = entity.DisplayName,
                     //AAD - no longer stored in db
                     //Email = entity.Email,
                     //UserName = entity.UserName,

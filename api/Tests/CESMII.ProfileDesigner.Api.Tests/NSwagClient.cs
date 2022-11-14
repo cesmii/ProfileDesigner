@@ -3362,7 +3362,7 @@ namespace MyNamespace
         [Newtonsoft.Json.JsonProperty("updated", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.DateTimeOffset? Updated { get; set; }
 
-        public override string ToString() => $"{Namespace} {PublishDate} {Version} {(Id !=null ? "Local" : "")} {(!string.IsNullOrEmpty(CloudLibraryId) ? "Cloud" : "")}";
+        public override string ToString() => $"{Namespace} {PublishDate} {Version} {(Id != null ? "Local" : "")} {(!string.IsNullOrEmpty(CloudLibraryId) ? "Cloud" : "")}";
 
     }
 

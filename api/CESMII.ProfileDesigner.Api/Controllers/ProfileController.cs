@@ -163,7 +163,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 return BadRequest($"Invalid model (null). Check Publish Date formatting.");
             }
             //test for unique namespace/owner id/publish date combo
-            if (!IsValidModel(model, base.DalUserToken))
+            if (!IsValidModel(model))
             {
                 return Ok(new ResultMessageWithDataModel()
                 {
@@ -221,7 +221,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             }
 
             //test for unique namespace/owner id/publish date combo
-            if (!IsValidModel(model, base.DalUserToken))
+            if (!IsValidModel(model))
             {
                 return Ok(new ResultMessageWithDataModel()
                 {
@@ -240,7 +240,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             });
         }
 
-        private bool IsValidModel(ProfileModel model, UserToken userToken)
+        private bool IsValidModel(ProfileModel model)
         {
             //test for unique namespace/owner id/publish date combo, 0 count means all good
             return _dal.Count(x => x.Namespace.ToLower().Equals(model.Namespace.ToLower()) &&

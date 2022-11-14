@@ -40,7 +40,7 @@
             {
                 if (_user == null)
                 {
-                    _user = User.GetUserAAD(); // InitLocalUser();
+                    _user = User.GetUserAAD(); 
                 }
                 return _user;
             }

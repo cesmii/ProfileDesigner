@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react'
+import { useMsal } from "@azure/msal-react";
 import axiosInstance from "../../services/AxiosService";
 
 import { getProfilePreferences, setProfilePageSize } from '../../services/ProfileService';
 import { generateLogMessageString } from '../../utils/UtilityService'
 import GridPager from '../../components/GridPager'
 import ProfileItemRow from './ProfileItemRow';
-import { useAuthState } from "../../components/authentication/AuthContext";
 import { useLoadingContext } from "../../components/contexts/LoadingContext";
 
 import '../styles/ProfileList.scss';
@@ -23,7 +23,8 @@ function ProfileListGrid(props) {
     //-------------------------------------------------------------------
     // Region: Initialization
     //-------------------------------------------------------------------
-    const authTicket = useAuthState();
+    const { instance } = useMsal();
+    const _activeAccount = instance.getActiveAccount();
     const _profilePreferences = getProfilePreferences();
     const _scrollToRef = useRef(null);
     const [_dataRows, setDataRows] = useState({
@@ -186,7 +187,7 @@ function ProfileListGrid(props) {
             )
         }
         const mainBody = _dataRows.all.map((item) => {
-            return (<ProfileItemRow key={item.id} item={item} currentUserId={authTicket.user.id}
+            return (<ProfileItemRow key={item.id} item={item} activeAccount={_activeAccount}
                 showActions={true} cssClass={`profile-list-item ${props.rowCssClass ?? ''}`} selectMode={props.selectMode}
                 onEditCallback={onEdit} onDeleteCallback={onDeleteItemClick} onRowSelect={onRowSelect}
                 selectedItems={props.selectedItems} 

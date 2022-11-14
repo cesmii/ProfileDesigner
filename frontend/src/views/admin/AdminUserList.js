@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { Helmet } from "react-helmet"
-import axiosInstance from "../../services/AxiosService";
+import { axiosInstance } from "../../services/AxiosService";
+import { useMsal } from "@azure/msal-react";
 
 import { AppSettings } from '../../utils/appsettings'
 import { generateLogMessageString } from '../../utils/UtilityService'
 import GridPager from '../../components/GridPager'
-import { useAuthState } from "../../components/authentication/AuthContext";
 import { useLoadingContext } from "../../components/contexts/LoadingContext";
 
 import HeaderSearch from '../../components/HeaderSearch';
@@ -21,7 +21,8 @@ function AdminUserList() {
     //-------------------------------------------------------------------
     // Region: Initialization
     //-------------------------------------------------------------------
-    const authTicket = useAuthState();
+    const { instance } = useMsal();
+    const _activeAccount = instance.getActiveAccount();
     const _scrollToRef = useRef(null);
     const [_dataRows, setDataRows] = useState({
         all: [], itemCount: 0, listView: true
@@ -313,10 +314,10 @@ function AdminUserList() {
             </Helmet>
             <div className="row py-2 pb-4">
                 <div className="col-sm-8">
-                    <h1>Admin | Manage Users</h1>
+                    <h1>Admin | View Users</h1>
                 </div>
                 <div className="col-sm-4 d-flex align-items-center justify-content-end" >
-                    <HeaderSearch showAdvancedSearch={false} filterVal={_pager.searchVal == null ? null : _pager.searchVal} onSearch={handleOnSearchChange} searchMode="standard" currentUserId={authTicket.user == null ? null : authTicket.user.id} />
+                    <HeaderSearch showAdvancedSearch={false} filterVal={_pager.searchVal == null ? null : _pager.searchVal} onSearch={handleOnSearchChange} searchMode="standard" activeAccount={_activeAccount} />
                 </div>
             </div>
 

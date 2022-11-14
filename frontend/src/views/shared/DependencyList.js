@@ -4,7 +4,6 @@ import { getDependencyPreferences, setDependencyPageSize } from '../../services/
 import { generateLogMessageString, pageDataRows } from '../../utils/UtilityService'
 import GridPager from '../../components/GridPager'
 import DependencyItemRow from './DependencyItemRow';
-import { useAuthState } from "../../components/authentication/AuthContext";
 
 const CLASS_NAME = "DependencyList";
 
@@ -13,7 +12,6 @@ function DependencyList(props) {
     //-------------------------------------------------------------------
     // Region: Initialization
     //-------------------------------------------------------------------
-    const authTicket = useAuthState();
     const _dependencyPreferences = getDependencyPreferences();
     const [_dataRows, setDataRows] = useState({
         all: [], filtered: [], paged: [],
@@ -58,13 +56,13 @@ function DependencyList(props) {
         return () => {
             console.log(generateLogMessageString('useEffect||Cleanup', CLASS_NAME));
         };
-    }, [props.typeDefinition.id, _dependencyPreferences.pageSize, authTicket]);
+    }, [props.typeDefinition.id, _dependencyPreferences.pageSize]);
 
     //-------------------------------------------------------------------
     // Region: Render helpers
     //-------------------------------------------------------------------
     const renderHeaderRow = () => {
-        return (<DependencyItemRow key="header" isHeader="true" item={null} currentUserId={authTicket.user.id} cssClass="attribute-list-header pb-2" />)
+        return (<DependencyItemRow key="header" isHeader="true" item={null} activeAccount={props.activeAccount} cssClass="attribute-list-header pb-2" />)
     }
     //render pagination ui
     const renderPagination = () => {
@@ -82,7 +80,7 @@ function DependencyList(props) {
             )
         }
         const mainBody = _dataRows.paged.map((item) => {
-            return (<DependencyItemRow key={item.id} item={item} currentUserId={authTicket.user.id} cssClass="attribute-list-item" />)
+            return (<DependencyItemRow key={item.id} item={item} activeAccount={props.activeAccount} cssClass="attribute-list-item" />)
         });
 
         return (

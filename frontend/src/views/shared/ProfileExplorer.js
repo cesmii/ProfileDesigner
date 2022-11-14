@@ -6,7 +6,6 @@ import Button from 'react-bootstrap/Button'
 import axiosInstance from "../../services/AxiosService";
 
 import { generateLogMessageString } from '../../utils/UtilityService'
-//import { useAuthContext } from "../../components/authentication/AuthContext";
 import { filterProfiles, getTypeDefEntityLink } from '../../services/ProfileService';
 import { renderTypeIcon, renderLinkedName } from './ProfileRenderHelpers';
 
@@ -29,7 +28,6 @@ function ProfileExplorer(props) {
     //-------------------------------------------------------------------
     // Region: Initialization
     //-------------------------------------------------------------------
-    //const { authTicket } = useAuthState();
     const [_items, setItems] = useState({
         item: {},
         all: { inheritanceTree: [], compositions: [], dependencies: [], interfaces: [] },
@@ -157,7 +155,7 @@ function ProfileExplorer(props) {
         return () => {
             console.log(generateLogMessageString('useEffect||Cleanup', CLASS_NAME));
         };
-    }, [props.currentProfileId, props.currentUserId]);
+    }, [props.currentProfileId]);
 
     //-------------------------------------------------------------------
     // Region: Render helpers
@@ -218,7 +216,7 @@ function ProfileExplorer(props) {
         return (
             <li id={key} key={key} className={cssClass} >
                 <div style={{ paddingLeft: padding }} className="hierarchy-link d-flex pr-3">
-                    {renderTypeIcon(p, props.currentUserId, 18)}
+                    {renderTypeIcon(p, props.activeAccount, 18)}
                     <span className="hierarchy-item text-break">{renderLinkedName(p)}</span>
                     {/* Affordance for "go-to / view" */}
                     <SVGIcon name="chevron-right" fill={color.silver} className="view-affordance-icon float-right" />
@@ -241,8 +239,8 @@ function ProfileExplorer(props) {
         return (
             <li id={key} key={key} className={cssClass} >
                 <div className="composition-link d-flex pr-3">
-                    {renderTypeIcon(c, props.currentUserId, 18, color.nevada)}
-                    <span className="composition-item text-break">{renderLinkedCompositionName(c, props.currentUserId)}</span>
+                    {renderTypeIcon(c, props.activeAccount, 18, color.nevada)}
+                    <span className="composition-item text-break">{renderLinkedCompositionName(c)}</span>
                     {/* Affordance for "go-to / view" */}
                     <SVGIcon name="chevron-right" fill={color.silver} className="view-affordance-icon float-right" />
                 </div>
@@ -251,7 +249,7 @@ function ProfileExplorer(props) {
     }
 
     //
-    const renderLinkedCompositionName = (item, currentUserId) => {
+    const renderLinkedCompositionName = (item) => {
         if (item == null) return;
         var href = getTypeDefEntityLink(item);
         return (

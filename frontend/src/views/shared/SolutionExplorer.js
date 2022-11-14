@@ -7,12 +7,10 @@ import axios from 'axios'
 
 import { AppSettings } from '../../utils/appsettings'
 import { generateLogMessageString } from '../../utils/UtilityService'
-//import { useAuthContext } from "../../components/authentication/AuthContext";
 import { filterSolutionExplorer, filterProfiles } from '../../services/ProfileService';
 import { renderTypeIcon, renderLinkedName } from './ProfileRenderHelpers';
 
 import { SVGIcon } from '../../components/SVGicon'
-import color from '../../components/Constants'
 import '../styles/ProfileExplorer.scss';
 
 const CLASS_NAME = "SolutionExplorer";
@@ -22,7 +20,6 @@ function SolutionExplorer(props) {
     //-------------------------------------------------------------------
     // Region: Initialization
     //-------------------------------------------------------------------
-    //const authTicket = useAuthState();
     const [_items, setItems] = useState({all:[], filtered:[], explorer:[]});
     const [_filterVal, setFilterVal] = useState('');
 
@@ -44,7 +41,7 @@ function SolutionExplorer(props) {
     useEffect(() => {
         async function fetchData() {
 
-            var url = `${AppSettings.BASE_API_URL}/profile`;
+            const url = `${AppSettings.BASE_API_URL}/profile`;
             console.log(generateLogMessageString(`useEffect||fetchData||${url}`, CLASS_NAME));
             const result = await axios(url);
 
@@ -57,7 +54,7 @@ function SolutionExplorer(props) {
         return () => {
             console.log(generateLogMessageString('useEffect||Cleanup', CLASS_NAME));
         };
-    }, [props.profile, props.currentUserId]);
+    }, [props.profile]);
 
     //-------------------------------------------------------------------
     // Region: Render helpers
@@ -88,7 +85,7 @@ function SolutionExplorer(props) {
             <>
                 <li id={key} key={key} className={cssClass} >
                     <div style={{ paddingLeft: padding}}>
-                        {renderTypeIcon(p, props.currentUserId)}
+                        {renderTypeIcon(p, props.activeAccount)}
                         {renderLinkedName(p)}
                     </div>
                     {/*recursively build out children*/}

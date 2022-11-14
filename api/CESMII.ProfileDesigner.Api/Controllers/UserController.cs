@@ -19,7 +19,7 @@ using CESMII.ProfileDesigner.Api.Shared.Extensions;
 
 namespace CESMII.ProfileDesigner.Api.Controllers
 {
-    
+
     [Route("api/[controller]")]
     [Authorize]
     public class UserController : BaseController<UserController>
@@ -28,20 +28,19 @@ namespace CESMII.ProfileDesigner.Api.Controllers
 
         public UserController(UserDAL dal,
             ConfigUtil config, ILogger<UserController> logger)
-            : base(config, logger)
+            : base(config, logger, dal)
         {
             _dal = dal;
         }
 
 
         [HttpGet, Route("All")]
-        [Authorize(Policy = nameof(PermissionEnum.CanManageUsers))]
+        [Authorize(Roles = "cesmii.profiledesigner.admin")]
         [ProducesResponseType(200, Type = typeof(List<UserModel>))]
         [ProducesResponseType(400)]
         public IActionResult GetAll()
         {
-            var userToken = UserExtension.DalUserToken(User);
-            var result = _dal.GetAll(userToken);
+            var result = _dal.GetAll(base.DalUserToken);
             if (result == null)
             {
                 return BadRequest($"No records found.");
@@ -50,13 +49,12 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         }
 
         [HttpPost, Route("GetByID")]
-        [Authorize(Policy = nameof(PermissionEnum.CanManageUsers))]
+        [Authorize(Roles = "cesmii.profiledesigner.admin")]
         [ProducesResponseType(200, Type = typeof(UserModel))]
         [ProducesResponseType(400)]
         public IActionResult GetByID([FromBody] IdIntModel model)
         {
-            var userToken = UserExtension.DalUserToken(User);
-            var result = _dal.GetById(model.ID, userToken);
+            var result = _dal.GetById(model.ID, base.DalUserToken);
             if (result == null)
             {
                 return BadRequest($"No records found matching this ID: {model.ID}");
@@ -65,7 +63,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         }
 
         [HttpPost, Route("Search")]
-        [Authorize(Policy = nameof(PermissionEnum.CanManageUsers))]
+        [Authorize(Roles = "cesmii.profiledesigner.admin")]
         [ProducesResponseType(200, Type = typeof(DALResult<UserModel>))]
         public IActionResult Search([FromBody] PagerFilterSimpleModel model)
         {
@@ -74,24 +72,35 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 return BadRequest("User|Search|Invalid model");
             }
 
-            var userToken = UserExtension.DalUserToken(User);
-
+            DALResult<UserModel> result;
             if (string.IsNullOrEmpty(model.Query))
             {
-                return Ok(_dal.GetAllPaged(userToken, model.Skip, model.Take, true));
+                result = _dal.GetAllPaged(base.DalUserToken, model.Skip, model.Take, true);
+
+            }
+            else
+            {
+                model.Query = model.Query.ToLower();
+                result = _dal.Where(s =>
+                                //string query section
+                                //s.IsActive && 
+                                //(s.UserName.ToLower().Contains(model.Query) ||
+                                //(s.FirstName.ToLower() + s.LastName.ToLower()).Contains(
+                                //    model.Query.Replace(" ", "").Replace("-", ""))),  //in case they search for code and name in one string.
+                                s.DisplayName.ToLower().Contains(model.Query) &&
+                                !string.IsNullOrEmpty(s.ObjectIdAAD),
+                                base.DalUserToken, model.Skip, model.Take, true);
+                //obscure the object id AAD a bit more
             }
 
-            model.Query = model.Query.ToLower();
-            var result = _dal.Where(s =>
-                            //string query section
-                            //s.IsActive && 
-                            (s.UserName.ToLower().Contains(model.Query) ||
-                            (s.FirstName.ToLower() + s.LastName.ToLower()).Contains(
-                                model.Query.Replace(" ", "").Replace("-", ""))),  //in case they search for code and name in one string.
-                            userToken, model.Skip, model.Take, true);
+            foreach (var u in result.Data)
+            {
+                u.ObjectIdAAD = String.IsNullOrEmpty(u.ObjectIdAAD) ? u.ObjectIdAAD : u.ObjectIdAAD.Substring(0, 12) + "...";
+            }
             return Ok(result);
         }
 
+        /*
         /// <summary>
         /// Create a blank user model for an add scenario
         /// </summary>
@@ -129,9 +138,9 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                     Message = ExtractModelStateErrors().ToString()
                 });
             }
-            var userToken = UserExtension.DalUserToken(User);
+            var userToken = UserExtension.DalUserToken(User, LocalUser.ID);
 
-            var result = await _dal.AddAsync(model, userToken);
+            var result = await _dal.AddAsync(model, base.DalUserToken);
             model.ID = result;
             if (result == 0)
             {
@@ -162,8 +171,8 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         [ProducesResponseType(200, Type = typeof(ResultMessageModel))]
         public async Task<IActionResult> AddOneStep([FromBody] UserAddModel model)
         {
-            var userToken = UserExtension.DalUserToken(User);
-            ValidateCopyModel(model, userToken);
+            var userToken = UserExtension.DalUserToken(User, LocalUser.ID);
+            ValidateCopyModel(model, base.DalUserToken);
 
             if (!ModelState.IsValid)
             {
@@ -175,7 +184,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             }
 
 
-            var result = await _dal.AddOneStep(model, userToken, model.Password);
+            var result = await _dal.AddOneStep(model, base.DalUserToken, model.Password);
             model.ID = result;
             if (result == 0)
             {
@@ -203,11 +212,11 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         [ProducesResponseType(200, Type = typeof(UserModel))]
         public IActionResult CopyUser([FromBody] IdIntModel model)
         {
-            var userToken = UserExtension.DalUserToken(User);
+            var userToken = UserExtension.DalUserToken(User, LocalUser.ID);
 
             //get existing user, wipe out certain pieces of info, add new user
             //update new user's password, 
-            var result = _dal.GetById(model.ID, userToken);
+            var result = _dal.GetById(model.ID, base.DalUserToken);
             if (result == null)
             {
                 return BadRequest("Original user not found.");
@@ -232,8 +241,8 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         [ProducesResponseType(200, Type = typeof(ResultMessageModel))]
         public async Task<IActionResult> Update([FromBody] UserModel model)
         {
-            var userToken = UserExtension.DalUserToken(User);
-            ValidateModel(model, userToken);
+            var userToken = UserExtension.DalUserToken(User, LocalUser.ID);
+            ValidateModel(model, base.DalUserToken);
 
             if (!ModelState.IsValid)
             {
@@ -244,7 +253,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 });
             }
 
-            var result = await _dal.UpdateAsync(model, userToken);
+            var result = await _dal.UpdateAsync(model, base.DalUserToken);
             if (result < 0)
             {
                 _logger.LogWarning($"Could not update user. Invalid id:{model.ID}.");
@@ -265,8 +274,8 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         [ProducesResponseType(200, Type = typeof(List<UserModel>))]
         public async Task<IActionResult> Delete([FromBody] IdIntModel model)
         {
-            var userToken = UserExtension.DalUserToken(User);
-            var result = await _dal.DeleteAsync(model.ID, userToken);
+            var userToken = UserExtension.DalUserToken(User, LocalUser.ID);
+            var result = await _dal.DeleteAsync(model.ID, base.DalUserToken);
             if (result < 0)
             {
                 _logger.LogWarning($"Could not delete user. Invalid id:{model.ID}.");
@@ -283,7 +292,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         /// Perform server side validation prior to saving
         /// </summary>
         /// <param name="model"></param>
-        private void ValidateModel(UserModel model, UserToken token)
+        private void ValidateModel(UserModel model, base.DalUserToken token)
         {
             //check for dup user name
             if (_dal.Count(x => x.UserName.ToLower().Equals(model.UserName.ToLower()) 
@@ -305,6 +314,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 ModelState.AddModelError("User Name", "Duplicate user name. Please enter a different user name.");
             }
         }
+        */
     }
 
 }

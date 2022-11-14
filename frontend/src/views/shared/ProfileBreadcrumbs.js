@@ -24,7 +24,6 @@ function ProfileBreadcrumbs(props) {
         }
         bindData();
 
-
         //this will execute on unmount
         return () => {
             console.log(generateLogMessageString('useEffect||Cleanup', CLASS_NAME));

@@ -6,6 +6,7 @@
 
     using CESMII.ProfileDesigner.Common.Enums;
     using CESMII.ProfileDesigner.Common.Utils;
+    using CESMII.ProfileDesigner.DAL.Models;
 
     public static class UserExtension
     {
@@ -14,6 +15,7 @@
             return user.HasClaim(ClaimTypes.Role, EnumUtils.GetEnumDescription(permission));
         }
 
+        /*
         /// <summary>
         /// If the user has any permission considered an admin permission, then return true.
         /// </summary>
@@ -48,8 +50,47 @@
             // Otherwise return 0.
             return 0;
         }
+		*/
 
-        public static int GetUserID(this ClaimsPrincipal user)
+        public static UserModel GetUserAAD(this ClaimsPrincipal user)
+        {
+            var result = new UserModel()
+            {
+                ObjectIdAAD = user.FindFirst(x => x.Type.Contains("objectidentifier")).Value,
+                UserName = user.FindFirst(x => x.Type.Equals("preferred_username"))?.Value,
+                LastName = user.FindFirst(ClaimTypes.Surname)?.Value,
+                FirstName = user.FindFirst(ClaimTypes.GivenName)?.Value,
+                DisplayName = user.FindFirst(x => x.Type.Equals("name"))?.Value,
+                Email = GetUserAADEmail(user),
+                TenantId = user.FindFirst(x => x.Type.Contains("tenantid"))?.Value,
+                Roles = string.Join(", ", user.FindAll(x => x.Type.Contains("role")).Select(x => x.Value).ToArray()),
+                Scope = user.FindFirst(x => x.Type.Contains("scope"))?.Value
+            };
+            //apply id - should be present after onlogin handler, it gets set by middleware when request is inbound
+            var permission = EnumUtils.GetEnumDescription(PermissionEnum.UserAzureADMapped);
+            if (int.TryParse(user.FindFirst(x => x.Type.ToLower().Equals(permission.ToLower()))?.Value, out int oId))
+            { 
+                result.ID = oId;
+            }
+
+            return result;
+        }
+
+        private static string GetUserAADEmail(ClaimsPrincipal user)
+        {
+            if (user.FindFirst(ClaimTypes.Email) != null) return user.FindFirst(ClaimTypes.Email).Value;
+            if (user.FindFirst(ClaimTypes.Upn) != null) return user.FindFirst(ClaimTypes.Upn).Value;
+            return user.FindFirst(x => x.Type.Equals("preferred_username"))?.Value;
+        }
+
+        public static string GetUserIdAAD(this ClaimsPrincipal user)
+        {
+            return user.FindFirst(x => x.Type.Contains("objectidentifier")).Value;
+        }
+
+        /*
+        [System.Obsolete("GetUserID is obsolete", true)]
+        public static string GetUserID(this ClaimsPrincipal user)
         {
             if (user.IsImpersonating())
             {
@@ -61,7 +102,9 @@
             //return int.Parse(user.Identity.Name);
             return int.Parse(user.FindFirst(ClaimTypes.Sid).Value);
         }
+		*/
 
+        /*
         /// <summary>
         /// This method allows for a simple access to the real user's ID regardless of impersonation.
         /// </summary>
@@ -87,10 +130,11 @@
             return string.IsNullOrEmpty(idList) ? new List<int>() :
                    idList.Split(',').Select<string, int>(int.Parse).ToList();
         }
+		*/
 
-        public static DAL.UserToken DalUserToken(this ClaimsPrincipal user)
+        public static DAL.UserToken GetDalUserToken(this ClaimsPrincipal user, int userId)
         {
-            return new DAL.UserToken { UserId = user.GetUserID(), };
+            return new DAL.UserToken { UserId = userId };
         }
     }
 }

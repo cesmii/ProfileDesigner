@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react'
 import { useHistory } from 'react-router-dom'
 import { Helmet } from "react-helmet"
+import { useMsal } from "@azure/msal-react";
 
-import { useAuthState } from '../components/authentication/AuthContext';
 import ProfileListGrid from './shared/ProfileListGrid';
 import { AppSettings } from '../utils/appsettings'
 import { generateLogMessageString } from '../utils/UtilityService'
 import { useWizardContext } from '../components/contexts/WizardContext'
 import { getWizardNavInfo, renderWizardBreadcrumbs, renderWizardButtonRow, renderWizardHeader, renderWizardIntroContent, WizardSettings } from '../services/WizardUtil'
 import { ErrorModal } from '../services/CommonUtil'
+import { isOwner } from './shared/ProfileRenderHelpers';
 
 const CLASS_NAME = "WizardSelectProfile";
 
@@ -22,7 +23,9 @@ function WizardSelectProfile() {
     // Region: Initialization
     //-------------------------------------------------------------------
     const history = useHistory();
-    const authTicket = useAuthState();
+    const { instance } = useMsal();
+    const _activeAccount = instance.getActiveAccount();
+
     const _pageId = history.location.pathname.indexOf('/select-existing-profile') > -1 ? 'SelectExistingProfile' : 'SelectProfile';
     const { wizardProps, setWizardProps } = useWizardContext();
     //if we come into this page in the continue work flow, we need to update mode value for downstream
@@ -94,7 +97,7 @@ function WizardSelectProfile() {
         }
 
         //validation. Check if profile ownership is same as logged in user
-        if (wizardProps.profile.isReadOnly || wizardProps.profile.authorId == null || wizardProps.profile.authorId !== authTicket.user.id ) {
+        if (wizardProps.profile.isReadOnly || !isOwner(wizardProps.profile, _activeAccount)) {
             setError({ show: true, caption: _currentPage.caption, message: 'Invalid selection. The base profile must be a profile you have authored or created.' });
             console.error(generateLogMessageString(`onNextStep||ownership validation error`, CLASS_NAME));
             return false;

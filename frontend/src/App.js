@@ -2,9 +2,8 @@ import { BrowserRouter as Router } from "react-router-dom"
 import { Helmet } from "react-helmet"
 import { ErrorBoundary } from 'react-error-boundary'
 import axios from "axios"
-import axiosInstance from './services/AxiosService'
+import axiosInstance from "./services/AxiosService";
 
-import { useAuthDispatch } from "./components/authentication/AuthContext";
 import { useLoadingContext } from "./components/contexts/LoadingContext";
 import Navbar from './components/Navbar'
 import { LoadingOverlay } from "./components/LoadingOverlay"
@@ -12,9 +11,9 @@ import MainContent from './components/MainContent'
 import Footer from './components/Footer'
 import { AppSettings } from './utils/appsettings'
 import { generateLogMessageString } from './utils/UtilityService'
-import { logout } from './components/authentication/AuthActions'
 import ErrorPage from './components/ErrorPage'
 import { OnLookupLoad } from './components/OnLookupLoad'
+import { useLoginSilent, useOnLoginComplete } from "./components/OnLoginHandler";
 
 import './App.scss';
 
@@ -27,28 +26,30 @@ function App() {
     //-------------------------------------------------------------------
     // Region: Initialization
     //-------------------------------------------------------------------
-    const dispatch = useAuthDispatch() //get the dispatch method from the useDispatch custom hook
     const { setLoadingProps } = useLoadingContext();
 
     //-------------------------------------------------------------------
     //  TBD - is this the best place for this? 
     //  If a network error occurs (ie API not there), catch it here and handle gracefully.  
     //-------------------------------------------------------------------
-    const OnApiResponseError = (error) => {
-        //session expired - go to login
-        if (error.response && error.response.status === 401) {
-            console.log(generateLogMessageString(`axiosInstance.interceptors.response||error||${error.response.status}||${error.config.baseURL}${error.config.url}`, CLASS_NAME));
-            setLoadingProps({ isLoading: false, message: null, isImporting: false });
-            //updates state and removes user auth ticket from local storage
-            let logoutAction = logout(dispatch);
-            if (!logoutAction) {
-                console.error(generateLogMessageString(`axiosInstance.interceptors.response||An error occurred setting the logout state.`, CLASS_NAME));
-            }
+    const OnApiResponseError = (err) => {
+        //401 - unauthorized - session expired - due to token expiration or unauthorized attempt
+        if (err.response && err.response.status === 401) {
+            console.log(generateLogMessageString(`axiosInstance.interceptors.response||error||${err.response.status}||${err.config.baseURL}${err.config.url}`, CLASS_NAME));
+            setLoadingProps({ isLoading: false, message: null });
+        }
+        //403 error - user may be allowed to log in but not permitted to perform the API call they are attempting
+        else if (err.response && err.response.status === 403) {
+            console.log(generateLogMessageString(`axiosInstance.interceptors.response||error||${err.response.status}||${err.config.baseURL}${err.config.url}`, CLASS_NAME));
+            setLoadingProps({
+                isLoading: false, message: null, inlineMessages: [
+                    { id: new Date().getTime(), severity: "danger", body: 'You are not permitted to access this area. Please contact your system administrator.', isTimed: true }]
+            });
         }
         //no status is our only indicator the API is not up and running
-        else if (!error.status) {
-            console.log(generateLogMessageString(`axiosInstance.interceptors.response||error||${error.config.baseURL}${error.config.url}||${error}`, CLASS_NAME));
-            if (error.message && error.message.toLowercase().indexOf('request aborted') > -1) {
+        else if (!err.status) {
+            console.log(generateLogMessageString(`axiosInstance.interceptors.response||error||${err.config.baseURL}${err.config.url}||${err}`, CLASS_NAME));
+            if (err.message != null && err.message.toLowercase().indexOf('request aborted') > -1) {
                 //do nothing...
             }
             else {
@@ -57,15 +58,9 @@ function App() {
                     isLoading: false, message: null, isImporting: false, inlineMessages: [
                         { id: new Date().getTime(), severity: "danger", body: 'A system error has occurred. Please contact your system administrator.', isTimed: true }]
                 });
-            //for now, don't log user out because it creates more confusion
-            //updates state and removes user auth ticket from local storage
-            //let logoutAction = logout(dispatch);
-            //if (!logoutAction) {
-            //    console.error(generateLogMessageString(`axiosInstance.interceptors.response||An error occurred setting the logout state.`, CLASS_NAME));
-            //}
-
             }
         }
+
     };
 
     //Catch exceptions in the flow when we use our axiosInstance
@@ -73,9 +68,9 @@ function App() {
         response => {
             return response
         },
-        error => {
-            OnApiResponseError(error);
-            return Promise.reject(error)
+        err => {
+            OnApiResponseError(err);
+            return Promise.reject(err)
         }
     )
 
@@ -84,11 +79,24 @@ function App() {
         response => {
             return response
         },
-        error => {
-            OnApiResponseError(error);
-            return Promise.reject(error)
+        err => {
+            OnApiResponseError(err);
+            return Promise.reject(err)
         }
     )
+
+    //-------------------------------------------------------------------
+    // Region: hooks
+    // check if user is logged in. If not, attempt silent login
+    // if that fails, then user will have to initiate login.
+    //-------------------------------------------------------------------
+    useLoginSilent();
+
+    //-------------------------------------------------------------------
+    // Region: hooks
+    // once login completes, determine where to navigate based on outcome
+    //-------------------------------------------------------------------
+    useOnLoginComplete();
 
     //-------------------------------------------------------------------
     // Region: hooks - moved into separate component
@@ -101,14 +109,14 @@ function App() {
     //-------------------------------------------------------------------
     return (
 
-    <div>
-        <Helmet>
-            <title>{AppSettings.Titles.Main}</title>
-            <link href="https://fonts.googleapis.com/css2?family=Material+Icons" rel="stylesheet"></link>
-        </Helmet>
-        <Router>
-            <Navbar />
-            <LoadingOverlay />
+        <div>
+            <Helmet>
+                <title>{AppSettings.Titles.Main}</title>
+                <link href="https://fonts.googleapis.com/css2?family=Material+Icons" rel="stylesheet"></link>
+            </Helmet>
+            <Router>
+                <Navbar />
+                <LoadingOverlay />
                 <ErrorBoundary
                     FallbackComponent={ErrorPage}
                     onReset={() => {
@@ -119,11 +127,11 @@ function App() {
                         <MainContent />
                     </div>
                 </ErrorBoundary>
-            <Footer />
-        </Router>
-    </div>
-    
-  );
+                <Footer />
+            </Router>
+        </div>
+
+    );
 }
 
 export default App;

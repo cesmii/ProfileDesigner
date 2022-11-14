@@ -1,8 +1,8 @@
 import React from 'react'
 import { useHistory } from 'react-router-dom'
+import { useMsal } from "@azure/msal-react";
 
 import SideMenuItem from './SideMenuItem'
-import { useAuthState } from "./authentication/AuthContext";
 import { useLoadingContext } from './contexts/LoadingContext'
 import color from './Constants'
 import ProfileExplorer from '../views/shared/ProfileExplorer';
@@ -17,8 +17,9 @@ function SideMenu() {
     // Region: Initialization
     //-------------------------------------------------------------------
     const history = useHistory();
-    const authTicket = useAuthState();
     const { loadingProps } = useLoadingContext();
+    const { instance } = useMsal();
+    const _activeAccount = instance.getActiveAccount();
 
     //-------------------------------------------------------------------
     // Load Profile Counts if some part of the app indicates the need to do so.
@@ -103,11 +104,11 @@ function SideMenu() {
     const renderProfileExplorer = () => {
         //parse relative url. If pattern matches profile edit/add pattern, then extract the id
         var path = history.location.pathname.split("/");
-        
-        if (path == null || path.length < 2 || history.location.pathname.toLowerCase().indexOf('/type/') === -1) return;        
+
+        if (path == null || path.length < 2 || history.location.pathname.toLowerCase().indexOf('/type/') === -1) return;
         //TBD - handle extend and new scenario better
-        if (history.location.pathname.toLowerCase().indexOf('/type/extend') > -1) return;        
-        if (history.location.pathname.toLowerCase().indexOf('/type/new') > -1) return;        
+        if (history.location.pathname.toLowerCase().indexOf('/type/extend') > -1) return;
+        if (history.location.pathname.toLowerCase().indexOf('/type/new') > -1) return;
 
         //if we get here, the is an edit/view profile
         var id = parseInt(path[2]);
@@ -117,7 +118,7 @@ function SideMenu() {
         //    var id = parseInt(history.location.state.id);
 
         return (
-            <ProfileExplorer currentUserId={authTicket.user.id} currentProfileId={id} />
+            <ProfileExplorer activeAccount={_activeAccount} currentProfileId={id} />
         );
     };
 
@@ -156,10 +157,10 @@ function SideMenu() {
                 <SideMenuItem caption="Profile Library" bgColor={color.shark} iconName="folder-profile" navUrl="/profiles/library" />
             </ul>
             {(loadingProps.favoritesList != null && loadingProps.favoritesList.length > 0) &&
-                <SideMenuLinkList caption='Favorites' bgColor={color.citron} iconName='favorite' items={loadingProps.favoritesList} currentUserId={authTicket.user.id} ></SideMenuLinkList>
+                <SideMenuLinkList caption='Favorites' bgColor={color.citron} iconName='favorite' items={loadingProps.favoritesList} activeAccount={_activeAccount} ></SideMenuLinkList>
             }
             {(loadingProps.recentFileList != null && loadingProps.recentFileList.length > 0) &&
-                <SideMenuLinkList caption='Recent / Open Items' bgColor={color.shark} iconName='access-time' items={loadingProps.recentFileList} currentUserId={authTicket.user.id} ></SideMenuLinkList>
+                <SideMenuLinkList caption='Recent / Open Items' bgColor={color.shark} iconName='access-time' items={loadingProps.recentFileList} activeAccount={_activeAccount} ></SideMenuLinkList>
             }
             {renderProfileExplorer()}
         </div>

@@ -1,13 +1,14 @@
 import React from "react";
 import { Route, Redirect } from "react-router-dom";
 
-import { useAuthState } from "./AuthContext";
 import { InlineMessage } from "../InlineMessage";
 import SideMenu from "../SideMenu";
 import { ImportMessage } from "../ImportMessage";
 import DownloadMessage from "../DownloadMessage";
 import { WizardContextProvider } from "../contexts/WizardContext";
 import WizardMaster from "../../views/shared/WizardMaster";
+import { useLoginStatus } from "../OnLoginHandler";
+import ModalMessage from "../ModalMessage";
 
 const WizardLayout = ({ children }) => (
 
@@ -23,20 +24,20 @@ const WizardLayout = ({ children }) => (
                 </WizardMaster>
             </WizardContextProvider>
         </div>
+        <ModalMessage />
     </div>
 );
 
 function WizardRoute({ component: Component, ...rest }) {
 
-    const authTicket = useAuthState();
+    const { isAuthenticated, isAuthorized, redirectUrl } = useLoginStatus(rest.location, rest.roles);
 
-    //TBD - this would become more elaborate. Do more than just check for the existence of this value. Check for a token expiry, etc.
     return (
         <Route
             {...rest}
-            render={props => (authTicket != null && authTicket.token != null) ?
+            render={props => isAuthenticated && isAuthorized ?
                 (<WizardLayout><Component {...props} /></WizardLayout>) :
-                (<Redirect to="/login" />)
+                (<Redirect to={redirectUrl} />)
             }
         />
     );

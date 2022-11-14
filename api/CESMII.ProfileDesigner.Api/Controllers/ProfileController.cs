@@ -29,11 +29,11 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         private readonly Utils.ImportService _svcImport;
         private readonly OpcUaImporter _exporter;
 
-        public ProfileController(IDal<Profile, ProfileModel> dal,
+        public ProfileController(IDal<Profile, ProfileModel> dal, UserDAL dalUser,
             Utils.ImportService svcImport,
             OpcUaImporter exporter,
             ConfigUtil config, ILogger<ProfileController> logger)
-            : base(config, logger)
+            : base(config, logger, dalUser)
         {
             _dal = dal;
             _svcImport = svcImport;
@@ -41,7 +41,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         }
 
         [HttpPost, Route("GetByID")]
-        [Authorize(Policy = nameof(PermissionEnum.CanManageProfile))]
+        [Authorize(Roles = "cesmii.profiledesigner.user")]
         //[ProducesResponseType(200, Type = typeof(NodeSetModel))]
         [ProducesResponseType(200, Type = typeof(ProfileTypeDefinitionModel))]
         [ProducesResponseType(400)]
@@ -52,9 +52,8 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 _logger.LogWarning($"ProfileController|GetByID|Invalid model (null)");
                 return BadRequest($"Invalid model (null)");
             }
-            var userToken = UserExtension.DalUserToken(User);
 
-            var result = _dal.GetById(model.ID, userToken);
+            var result = _dal.GetById(model.ID, base.DalUserToken);
             if (result == null)
             {
                 _logger.LogWarning($"ProfileController|GetById|No records found matching this ID: {model.ID}");
@@ -72,7 +71,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost, Route("Mine")]
-        [Authorize(Policy = nameof(PermissionEnum.CanViewProfile))]
+        [Authorize(Roles = "cesmii.profiledesigner.user")]
         [ProducesResponseType(200, Type = typeof(DALResult<ProfileModel>))]
         public IActionResult GetMine([FromBody] PagerFilterSimpleModel model)
         {
@@ -82,11 +81,10 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 return BadRequest("Profile|GetMine|Invalid model");
             }
 
-            var userId = new UserToken { UserId = User.GetUserID() };
             if (string.IsNullOrEmpty(model.Query))
             {
                 return Ok(_dal.Where(s => !s.StandardProfileID.HasValue /*&& s.AuthorId.HasValue && s.AuthorId.Value.Equals(userId)*/,
-                                userId, model.Skip, model.Take, true));
+                                base.DalUserToken, model.Skip, model.Take, true));
             }
 
             model.Query = model.Query.ToLower();
@@ -97,7 +95,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                             //|| (s.Author != null && (s.Author.FirstName.ToLower() + s.Author.LastName.ToLower()).Contains(
                             //    model.Query.Replace(" ", "").Replace("-", ""))) ||  //in case they search for code and name in one string.
                             ),
-                            userId, model.Skip, model.Take, true);
+                            base.DalUserToken, model.Skip, model.Take, true);
             return Ok(result);
         }
 
@@ -109,7 +107,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost, Route("library")]
-        [Authorize(Policy = nameof(PermissionEnum.CanViewProfile))]
+        [Authorize(Roles = "cesmii.profiledesigner.user")]
         [ProducesResponseType(200, Type = typeof(DALResult<ProfileModel>))]
         public IActionResult GetLibrary([FromBody] PagerFilterSimpleModel model)
         {
@@ -120,10 +118,9 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             }
 
             //NEW - return all items. The list is small so return both standard, referenced and mine in one list.
-            var userId = new UserToken { UserId = User.GetUserID() };
             if (string.IsNullOrEmpty(model.Query))
             {
-                return Ok(_dal.GetAllPaged(userId, model.Skip, model.Take, true));
+                return Ok(_dal.GetAllPaged(base.DalUserToken, model.Skip, model.Take, true));
             }
 
             //search on some pre-determined fields
@@ -131,7 +128,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             var result = _dal.Where(s =>
                             //string query section
                             s.Namespace.ToLower().Contains(model.Query),
-                            userId, model.Skip, model.Take, true);
+                            base.DalUserToken, model.Skip, model.Take, true);
             return Ok(result);
         }
 
@@ -140,14 +137,13 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet, Route("Count")]
-        [Authorize(Policy = nameof(PermissionEnum.CanViewProfile))]
+        [Authorize(Roles = "cesmii.profiledesigner.user")]
         [ProducesResponseType(200, Type = typeof(ProfileCountModel))]
         [ProducesResponseType(400)]
         public IActionResult GetCounts()
         {
-            var userToken = UserExtension.DalUserToken(User);
-            var all = _dal.Count(s => s.StandardProfileID.HasValue, userToken);
-            var mine = _dal.Count(s => !s.StandardProfileID.HasValue && s.AuthorId.HasValue && s.AuthorId.Value.Equals(userToken.UserId), userToken);
+            var all = _dal.Count(s => s.StandardProfileID.HasValue, base.DalUserToken);
+            var mine = _dal.Count(s => !s.StandardProfileID.HasValue && s.AuthorId.HasValue && s.AuthorId.Value.Equals(DalUserToken.UserId), base.DalUserToken);
             return Ok(new ProfileCountModel() { All = all, Mine = mine });
         }
 
@@ -157,7 +153,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost, Route("Add")]
-        [Authorize(Policy = nameof(PermissionEnum.CanManageProfile))]
+        [Authorize(Roles = "cesmii.profiledesigner.user")]
         [ProducesResponseType(200, Type = typeof(ResultMessageWithDataModel))]
         public async Task<IActionResult> Add([FromBody] ProfileModel model)
         {
@@ -166,10 +162,8 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 _logger.LogWarning($"ProfileController|Add|Invalid model (null)");
                 return BadRequest($"Invalid model (null). Check Publish Date formatting.");
             }
-            var userToken = UserExtension.DalUserToken(User);
-
             //test for unique namespace/owner id/publish date combo
-            if (!IsValidModel(model, userToken))
+            if (!IsValidModel(model))
             {
                 return Ok(new ResultMessageWithDataModel()
                 {
@@ -180,7 +174,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             }
 
             //set some values server side 
-            model.AuthorId = userToken.UserId;
+            model.AuthorId = base.DalUserToken.UserId;
             model.NodeSetFiles = null;
             model.StandardProfileID = null;
 
@@ -194,7 +188,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 return BadRequest("The profile record is invalid. Please correct the following: " + errors.ToString());
             }
 
-            var id = await _dal.AddAsync(model, userToken);
+            var id = await _dal.AddAsync(model, base.DalUserToken);
             if (id < 0)
             {
                 _logger.LogWarning($"ProfileController|Add|Could not add profile item.");
@@ -216,7 +210,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost, Route("validate")]
-        [Authorize(Policy = nameof(PermissionEnum.CanManageProfile))]
+        [Authorize(Roles = "cesmii.profiledesigner.user")]
         [ProducesResponseType(200, Type = typeof(ResultMessageWithDataModel))]
         public IActionResult ValidateModel([FromBody] ProfileModel model)
         {
@@ -225,10 +219,9 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 _logger.LogWarning($"ProfileController|ValidateModel|Invalid model (null)");
                 return BadRequest($"Invalid model (null). Check Publish Date formatting.");
             }
-            var userToken = UserExtension.DalUserToken(User);
 
             //test for unique namespace/owner id/publish date combo
-            if (!IsValidModel(model, userToken))
+            if (!IsValidModel(model))
             {
                 return Ok(new ResultMessageWithDataModel()
                 {
@@ -247,13 +240,13 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             });
         }
 
-        private bool IsValidModel(ProfileModel model, UserToken userToken)
+        private bool IsValidModel(ProfileModel model)
         {
             //test for unique namespace/owner id/publish date combo, 0 count means all good
             return _dal.Count(x => x.Namespace.ToLower().Equals(model.Namespace.ToLower()) &&
-                             x.OwnerId.HasValue && x.OwnerId.Value.Equals(User.GetUserID()) &&
+                             x.OwnerId.HasValue && x.OwnerId.Value.Equals(LocalUser.ID) &&
                              (x.PublishDate == model.PublishDate)
-                            , userToken) == 0;
+                            , base.DalUserToken) == 0;
         }
 
         /// <summary>
@@ -262,7 +255,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost, Route("Update")]
-        [Authorize(Policy = nameof(PermissionEnum.CanManageProfile))]
+        [Authorize(Roles = "cesmii.profiledesigner.user")]
         [ProducesResponseType(200, Type = typeof(ResultMessageWithDataModel))]
         public async Task<IActionResult> Update([FromBody] ProfileModel model)
         {
@@ -271,15 +264,14 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 _logger.LogWarning($"ProfileController|Add|Invalid model (null)");
                 return BadRequest($"Invalid model (null). Check Publish Date formatting.");
             }
-            var userToken = UserExtension.DalUserToken(User);
 
             //test for unique namespace/owner id/publish date combo
             if (_dal.Count(x => !x.ID.Equals(model.ID) && x.Namespace.ToLower().Equals(model.Namespace.ToLower()) &&
-                             x.OwnerId.HasValue && x.OwnerId.Value.Equals(User.GetUserID()) 
+                             x.OwnerId.HasValue && x.OwnerId.Value.Equals(LocalUser.ID) 
                              && ((!model.PublishDate.HasValue && !x.PublishDate.HasValue)
                                     || (model.PublishDate.HasValue && x.PublishDate.HasValue && model.PublishDate.Value.Equals(x.PublishDate.Value)))
                             //&& (!x.PublishDate.HasValue ? new DateTime(0) : x.PublishDate.Value.Date).Equals(!model.PublishDate.HasValue ? new DateTime(0) : model.PublishDate.Value.Date)
-                            , userToken) > 0)
+                            , base.DalUserToken) > 0)
             {
                 return Ok(new ResultMessageWithDataModel()
                 {
@@ -289,11 +281,11 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 });
             }
 
-            var item = _dal.GetById(model.ID.Value, userToken);
+            var item = _dal.GetById(model.ID.Value, base.DalUserToken);
             //can't update an item that is not yours
-            if (!item.AuthorId.Equals(User.GetUserID()))
+            if (!item.AuthorId.Equals(LocalUser.ID))
             {
-                _logger.LogWarning($"ProfileController|Update|AuthorId {model.AuthorId} of item {model.ID} is different than User Id {User.GetUserID()} making update.");
+                _logger.LogWarning($"ProfileController|Update|AuthorId {model.AuthorId} of item {model.ID} is different than User Id {LocalUser.ID} making update.");
                 return BadRequest("Invalid operation. You cannot update a profile that you did not author");
             }
 
@@ -307,7 +299,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 return BadRequest("The profile record is invalid. Please correct the following: " + errors.ToString());
             }
 
-            var result = await _dal.UpdateAsync(model, userToken);
+            var result = await _dal.UpdateAsync(model, base.DalUserToken);
             if (result < 0)
             {
                 _logger.LogWarning($"ProfileController|Update|Could not update profile item. Invalid id:{model.ID}.");
@@ -334,17 +326,15 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost, Route("Delete")]
-        [Authorize(Policy = nameof(PermissionEnum.CanDeleteProfile))]
+        [Authorize(Roles = "cesmii.profiledesigner.user")]
         [ProducesResponseType(200, Type = typeof(ResultMessageModel))]
         public async Task<IActionResult> Delete([FromBody] IdIntModel model)
         {
-            var userToken = UserExtension.DalUserToken(User);
-
             //This also deletes all associated type defs, attributes, custom data types, compositions, interfaces 
             //associated with this profile
             try
             {
-                var result = await _dal.DeleteAsync(model.ID, userToken);
+                var result = await _dal.DeleteAsync(model.ID, base.DalUserToken);
                 if (result <= 0)
                 {
                     _logger.LogWarning($"ProfileController|Delete|Could not delete item. Invalid id:{model.ID}.");
@@ -387,12 +377,10 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost, Route("DeleteMany")]
-        [Authorize(Policy = nameof(PermissionEnum.CanDeleteProfile))]
+        [Authorize(Roles = "cesmii.profiledesigner.user")]
         [ProducesResponseType(200, Type = typeof(ResultMessageModel))]
         public async Task<IActionResult> DeleteMany([FromBody] List<IdIntModel> model)
         {
-            var userToken = UserExtension.DalUserToken(User);
-
             //check that this user is author of all the items they are trying to delete
             var ids = model.Select(x => x.ID).ToList();
 
@@ -400,7 +388,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             //associated with this nodeset and its profiles
             try
             {
-                var result = await _dal.DeleteManyAsync(model.Select(x => x.ID).ToList(), userToken);
+                var result = await _dal.DeleteManyAsync(model.Select(x => x.ID).ToList(), base.DalUserToken);
                 if (result < 0)
                 {
                     _logger.LogWarning($"ProfileController|DeleteMany|Could not delete item(s). Invalid model:{string.Join(", ", ids)}.");
@@ -427,7 +415,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         /// <returns></returns>
         [Obsolete("Is this needed anymore?")]
         [HttpPost, Route("UAFlushCache")]
-        [Authorize(Policy = nameof(PermissionEnum.CanManageProfile))]
+        [Authorize(Roles = "cesmii.profiledesigner.user")]
         [ProducesResponseType(200, Type = typeof(List<ProfileTypeDefinitionModel>))]
         public Task<IActionResult> UAFlushCache()
         {
@@ -448,14 +436,14 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         /// <param name="nodeSetXmlList"></param>
         /// <returns>Return result model with an isSuccess indicator.</returns>
         [HttpPost, Route("Import")]
-        [Authorize(Policy = nameof(PermissionEnum.CanManageProfile))]
+        [Authorize(Roles = "cesmii.profiledesigner.user")]
         [ProducesResponseType(200, Type = typeof(ResultMessageWithDataModel))]
         public async Task<IActionResult> Import([FromBody] List<ImportOPCModel> model /*, [FromServices] OpcUaImporter importer*/)
         {
             if (!ModelState.IsValid)
             {
                 var errors = ExtractModelStateErrors();
-                _logger.LogCritical($"ProfileController|Import|User Id:{User.GetUserID()}, Errors: {errors}");
+                _logger.LogCritical($"ProfileController|Import|User Id:{LocalUser.ID}, Errors: {errors}");
                 return Ok(
                     new ResultMessageWithDataModel()
                     {
@@ -467,7 +455,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
 
             if (model == null || model.Count == 0)
             {
-                _logger.LogWarning($"ProfileController|Import|No nodeset files to import. User Id:{User.GetUserID()}.");
+                _logger.LogWarning($"ProfileController|Import|No nodeset files to import. User Id:{LocalUser.ID}.");
                 return Ok(
                     new ResultMessageWithDataModel()
                     {
@@ -477,13 +465,11 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 );
             }
 
-            _logger.LogInformation($"ProfileController|ImportMyOpcUaProfile|Importing {model.Count} nodeset files. User Id:{User.GetUserID()}.");
+            _logger.LogInformation($"ProfileController|ImportMyOpcUaProfile|Importing {model.Count} nodeset files. User Id:{LocalUser.ID}.");
 
             //pass in the author id as current user
-            var userToken = UserExtension.DalUserToken(User);
-
             //kick off background process, logid is returned immediately so front end can track progress...
-            var logId = await _svcImport.ImportOpcUaNodeSet(model, userToken);
+            var logId = await _svcImport.ImportOpcUaNodeSet(model, base.DalUserToken);
 
             return Ok(
                 new ResultMessageWithDataModel()
@@ -502,16 +488,16 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         /// <param name="model"></param>
         /// <returns>Returns the OPC UA models in XML format</returns>
         [HttpPost, Route("Export")]
-        [Authorize(Policy = nameof(PermissionEnum.CanManageProfile))]
+        [Authorize(Roles = "cesmii.profiledesigner.user")]
         [ProducesResponseType(200, Type = typeof(ResultMessageExportModel))]
         public Task<IActionResult> Export([FromBody] ExportRequestModel model)
         {
-            var userToken = UserExtension.DalUserToken(User);
+            var userToken = DalUserToken;
 
             //get profile to export
             var sw = Stopwatch.StartNew();
             _logger.LogTrace("Starting export");
-            var item = _dal.GetById(model.ID, userToken);
+            var item = _dal.GetById(model.ID, base.DalUserToken);
             if (item == null)
             {
                 //return Task.FromResult(new ResultMessageWithDataModel()
@@ -530,7 +516,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 
                 _logger.LogTrace($"Timestamp||Export||Starting: {sw.Elapsed}");
                 bool bIncludeRequiredModels = model.Format?.ToUpper() == "AASX";
-                var exportedNodeSets = _exporter.ExportNodeSet(item, userToken, null, bIncludeRequiredModels, model.ForceReexport);
+                var exportedNodeSets = _exporter.ExportNodeSet(item, base.DalUserToken, null, bIncludeRequiredModels, model.ForceReexport);
                 if (exportedNodeSets != null)
                 {
                     if (model.Format?.ToUpper() == "AASX")

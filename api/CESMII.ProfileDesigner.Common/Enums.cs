@@ -61,6 +61,7 @@
 
     public enum PermissionEnum
     {
+        /*
         [Description("CanViewProfile")]
         CanViewProfile = 20,
 
@@ -77,6 +78,9 @@
         CanManageSystemSettings = 110,
 
         [Description("CanImpersonateUsers")]
-        CanImpersonateUsers = 120
+        CanImpersonateUsers = 120,
+        */
+        [Description("UserAzureADMapped")]
+        UserAzureADMapped = 130
     }
 }

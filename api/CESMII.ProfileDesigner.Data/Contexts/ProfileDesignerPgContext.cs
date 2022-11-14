@@ -159,6 +159,8 @@
                     pf => pf.HasOne(r => r.Profile).WithMany().HasForeignKey(r => r.ProfileId),
                     pf => pf.HasOne(r => r.NodeSetFile).WithMany().HasForeignKey(r => r.NodeSetFileId))
             ;
+            modelBuilder.Entity<Profile>()
+                .HasOne(p => p.Author).WithMany().HasForeignKey(v => v.AuthorId);
 
             //------------------------------------------------
             //Import log data

@@ -389,7 +389,7 @@ namespace CESMII.ProfileDesigner.Api.Tests
 
                     if (string.Equals(Path.GetFileName(nodeSetFile), nodeSetFileName, StringComparison.InvariantCultureIgnoreCase))
                     {
-                        var exportResult = await apiClient.ExportAsync(new ExportModel { Id = profile.Id ?? 0, ForceReexport = true, Format = exportAASX ? "AASX" : null } );
+                        var exportResult = await apiClient.ExportAsync(new ExportRequestModel { Id = profile.Id ?? 0, ForceReexport = true, Format = exportAASX ? "AASX" : null } );
                         Assert.True(exportResult.IsSuccess, $"Failed to export {profile.Namespace}: {exportResult.Message}");
 
                         string exportedNodeSet;

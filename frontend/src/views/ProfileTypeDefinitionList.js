@@ -110,7 +110,7 @@ function ProfileTypeDefinitionList() {
                     {renderTitleBlock(caption, iconName, iconColor)}
                 </div>
                 <div className="col-lg-6 d-flex align-items-center justify-content-end">
-                    {/*    <HeaderSearch itemCount={_itemCount} searchValue={_searchVal} onSearch={handleOnSearchChange} searchMode="standard" currentUserId={authTicket.user.id} /> */}
+                    {/*    <HeaderSearch itemCount={_itemCount} searchValue={_searchVal} onSearch={handleOnSearchChange} searchMode="standard" activeAccount={_activeAccount} /> */}
                     {/*    {(type == null || type.toLowerCase() === 'mine') &&*/}
                     {/*        <Button variant="secondary" type="button" className="auto-width ml-2" onClick={onAdd} >Add</Button>*/}
                     {/*    }*/}

@@ -1,10 +1,11 @@
-import React, { useState, Fragment } from 'react'
+import React, { useState } from 'react'
 import Button from 'react-bootstrap/Button'
 
 import { SVGIcon } from './SVGIcon'
 import color from './Constants'
 import './styles/SideMenuLinkList.scss';
 import Fab from './Fab';
+import { isOwner } from '../views/shared/ProfileRenderHelpers';
 
 //import { generateLogMessageString } from '../utils/UtilityService'
 
@@ -28,8 +29,8 @@ function SideMenuLinkList(props) { //props are subMenuItems, bgColor, iconName, 
     // Region: Render helpers
     //-------------------------------------------------------------------
     const renderSectionHeader = (caption, toggleState, itemCount) => {
-        var toggleCss = toggleState ? "expanded d-flex align-items-center action-menu" : "d-flex align-items-center action-menu";
-        var toggleIcon = toggleState ? "expand-less" : "expand-more";
+        const toggleCss = toggleState ? "expanded d-flex align-items-center action-menu" : "d-flex align-items-center action-menu";
+        const toggleIcon = toggleState ? "expand-less" : "expand-more";
         // sectionKey = caption;
         return (
             <div className={toggleCss} onClick={toggleChildren} >
@@ -52,8 +53,9 @@ function SideMenuLinkList(props) { //props are subMenuItems, bgColor, iconName, 
 
 
     const renderListItem = (link, index) => {
-        var iconColor = (link.authorId == null || props.currentUserId == null || props.currentUserId !== link.authorId) ? color.gris : color.cornflower;
-        var key = `li_${index.toString()}`;
+
+        const iconColor = !isOwner({ author: { objectIdAAD: link?.authorId} }, props.activeAccount) ? color.gris : color.cornflower;
+        const key = `li_${index.toString()}`;
         return (
             <li id={key} key={key} className="body-size">
                 <a href={link.url} >

@@ -265,7 +265,7 @@
                         new LookupItemModel { ID = entity.ProfileType.ID, Name = entity.ProfileType.Name, TypeId = entity.ProfileType.ID }
                         : null,
                     AuthorId = entity.AuthorId ?? null,
-                    Author = MapToModelAuthor(entity),
+                    Author = MapToModelSimpleUser(entity.Author),
                     ExternalAuthor = entity.ExternalAuthor,
                     DocumentUrl = entity.DocumentUrl,
                     IsAbstract = entity.IsAbstract,
@@ -294,8 +294,8 @@
                     result.Attributes = MapToModelAttributes(entity);
                     result.Interfaces = MapToModelInterfaces(entity.Interfaces);
                     result.Compositions = MapToModelCompositions(entity.Compositions, result);
-                    result.UpdatedBy = entity.UpdatedBy == null ? null : new UserSimpleModel { ID = entity.UpdatedBy.ID, FirstName = entity.UpdatedBy.FirstName, LastName = entity.UpdatedBy.LastName };
-                    result.CreatedBy = entity.CreatedBy == null ? null : new UserSimpleModel { ID = entity.CreatedBy.ID, FirstName = entity.CreatedBy.FirstName, LastName = entity.CreatedBy.LastName };
+                    result.UpdatedBy = MapToModelSimpleUser(entity.UpdatedBy);
+                    result.CreatedBy = MapToModelSimpleUser(entity.CreatedBy);
                 }
                 return result;
             }
@@ -337,7 +337,8 @@
                     StandardProfileID = entity.StandardProfileID,
                     Version = entity.Version,
                     PublishDate = entity.PublishDate,
-                    AuthorId = entity.AuthorId
+                    AuthorId = entity.AuthorId,
+                    Author = MapToModelSimpleUser(entity.Author)
                     //for space saving, performance, don't populate these values in this scenario
                     //FileCache = entity.NodeSetId,  
                 };
@@ -368,7 +369,7 @@
                     Type = entity.ProfileType != null ?
                         new LookupItemModel { ID = entity.ProfileType.ID, Name = entity.ProfileType.Name, TypeId = (int)LookupTypeEnum.ProfileType }
                         : new LookupItemModel { ID = entity.ProfileTypeId }, // CODE REVIEW: ist the Name required anywhere? Should we do a lookup here?
-                    Author = MapToModelAuthor(entity)
+                    Author = MapToModelSimpleUser(entity.Author)
                 };
             }
             else
@@ -376,19 +377,6 @@
                 return null;
             }
 
-        }
-
-        private static UserSimpleModel MapToModelAuthor(ProfileTypeDefinition entity)
-        {
-            if (entity.Author == null) return null;
-            return new UserSimpleModel
-            {
-                ID = entity.Author.ID,
-                FirstName = entity.Author.FirstName,
-                LastName = entity.Author.LastName,
-                Organization = entity.Author.Organization == null ? null :
-                    new OrganizationModel() { ID = entity.Author.Organization.ID, Name = entity.Author.Organization.Name },
-            };
         }
 
         private List<ProfileAttributeModel> MapToModelAttributes(ProfileTypeDefinition entity)
@@ -417,9 +405,9 @@
                 Description = item.Description,
                 DisplayName = item.DisplayName,
                 Created = item.Created,
-                CreatedBy = item.CreatedBy == null ? null : new UserSimpleModel { ID = item.CreatedBy.ID, FirstName = item.CreatedBy.FirstName, LastName = item.CreatedBy.LastName },
+                CreatedBy = item.CreatedBy == null ? null : new UserSimpleModel { ID = item.CreatedBy.ID, ObjectIdAAD = item.CreatedBy.ObjectIdAAD, DisplayName = item.CreatedBy.DisplayName },
                 Updated = item.Updated,
-                UpdatedBy = item.UpdatedBy == null ? null : new UserSimpleModel { ID = item.UpdatedBy.ID, FirstName = item.UpdatedBy.FirstName, LastName = item.UpdatedBy.LastName },
+                UpdatedBy = item.UpdatedBy == null ? null : new UserSimpleModel { ID = item.UpdatedBy.ID, ObjectIdAAD = item.UpdatedBy.ObjectIdAAD, DisplayName = item.UpdatedBy.DisplayName },
                 VariableTypeDefinitionId = item.VariableTypeDefinitionId,
                 VariableTypeDefinition = MapToModel(item.VariableTypeDefinition, false),
                 TypeDefinitionId = typeDefinitionId,

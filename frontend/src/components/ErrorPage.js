@@ -1,14 +1,13 @@
-import React, { useState , useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { Button, Card } from "react-bootstrap";
 import { Helmet } from "react-helmet";
+import { useIsAuthenticated, useMsal } from "@azure/msal-react";
 
 import axiosInstance from "../services/AxiosService";
-import { useAuthDispatch, useAuthState } from "./authentication/AuthContext";
 import { useLoadingContext } from "./contexts/LoadingContext";
 import { AppSettings } from "../utils/appsettings";
 import { generateLogMessageString } from "../utils/UtilityService";
-import { logout } from "./authentication/AuthActions";
 
 const CLASS_NAME = "ErrorPage";
 function ErrorPage({ error, resetErrorBoundary }) {
@@ -17,17 +16,18 @@ function ErrorPage({ error, resetErrorBoundary }) {
     // Region: Initialization
     //-------------------------------------------------------------------
     const history = useHistory();
-    const authTicket = useAuthState();
+    const { instance } = useMsal();
+    const _isAuthenticated = useIsAuthenticated();
+    const _activeAccount = instance.getActiveAccount();
     const { loadingProps, setLoadingProps } = useLoadingContext();
     const [_logError, setLogError] = useState(true);
-    const dispatch = useAuthDispatch() //get the dispatch method from the useDispatch custom hook
 
     //-------------------------------------------------------------------
     // Region: hooks, events
     //-------------------------------------------------------------------
     //always turn off is processing indicator if error occurs
     useEffect(() => {
-        
+
         if (loadingProps.isLoading) {
             setLoadingProps({ isLoading: false });
         }
@@ -44,10 +44,9 @@ function ErrorPage({ error, resetErrorBoundary }) {
 
         console.log(JSON.stringify(error));
 
-        //Call API to perform check
-        //If login successful, set global state with user data and isAuthenticated
+        //Call API to log message
         var data = { message: error.message, url: history.location.pathname };
-        var url = `system/log/${(authTicket == null || authTicket.user == null ? "public" : "private")}`;
+        var url = `system/log/${(!_isAuthenticated ? "public" : "private")}`;
         axiosInstance.post(url, data).then(result => {
             if (result.status === 200) {
                 console.log(generateLogMessageString(`logError||Error was logged to the server.`, CLASS_NAME));
@@ -58,18 +57,13 @@ function ErrorPage({ error, resetErrorBoundary }) {
             console.warn(generateLogMessageString(`logError||Error occurred logging to the server.`, CLASS_NAME));
         });
 
-    }, [_logError]);
+    }, [_logError, _isAuthenticated]);
 
     //allow user to log out from error page
     const onLogoutClick = () => {
-        //updates state and removes user auth ticket from local storage
-        let logoutAction = logout(dispatch);
-        if (!logoutAction) {
-            console.error(generateLogMessageString(`onLogoutClick||logoutAction||An error occurred setting the logout state.`, CLASS_NAME));
-        }
-        else {
-            history.push(`/`);
-        }
+        //MSAL logout
+        instance.logoutPopup();
+        history.push(`/`);
     }
 
     //-------------------------------------------------------------------
@@ -82,39 +76,39 @@ function ErrorPage({ error, resetErrorBoundary }) {
     return (
         <>
             <Helmet>
-                <title>{AppSettings.Titles.Main + " | Error" }</title>
+                <title>{AppSettings.Titles.Main + " | Error"}</title>
             </Helmet>
             <div className="row mt-4 no-gutters vh-100">
-            <div className="col-sm-6 mx-auto">
-                <h1>
-                    An error has occurred
-                </h1>
-                <Card body className="elevated my-2">
-                    <div className="justify-content-center alert alert-danger">
-                        <p className="text-center">
-                            Please contact your system administrator or try again.
-                        </p>
-                        <p>
-                            <span className="font-weight-bold d-block" >Error Details:</span>
-                            {error.message}
-                        </p>
-                    </div>
-                    <div className="d-flex justify-content-center">
+                <div className="col-sm-6 mx-auto">
+                    <h1>
+                        An error has occurred
+                    </h1>
+                    <Card body className="elevated my-2">
+                        <div className="justify-content-center alert alert-danger">
+                            <p className="text-center">
+                                Please contact your system administrator or try again.
+                            </p>
+                            <p>
+                                <span className="font-weight-bold d-block" >Error Details:</span>
+                                {error.message}
+                            </p>
+                        </div>
+                        <div className="d-flex justify-content-center">
                             <Button variant="secondary" href='/' >
-                            Home
-                        </Button>
-                        {resetErrorBoundary &&
+                                Home
+                            </Button>
+                            {resetErrorBoundary &&
                                 <Button variant="secondary" className="ml-2" onClick={resetErrorBoundary} >
-                                Try Again
-                            </Button>
-                        }
-                        {(authTicket != null && authTicket.user != null) &&
-                            <Button variant="primary" className="ml-2" onClick={onLogoutClick} >
-                                Logout
-                            </Button>
-                        }
-                    </div>
-                </Card>
+                                    Try Again
+                                </Button>
+                            }
+                            {(_isAuthenticated && _activeAccount != null) &&
+                                <Button variant="primary" className="ml-2" onClick={onLogoutClick} >
+                                    Logout
+                                </Button>
+                            }
+                        </div>
+                    </Card>
                 </div>
             </div>
         </>

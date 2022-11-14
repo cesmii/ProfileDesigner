@@ -25,6 +25,11 @@
         [Column(name: "author_id")]
         public int? AuthorId { get; set; }
 
+        /// <summary>
+        /// TBD - this may not be a user in the system
+        /// </summary>
+        public virtual User Author { get; set; }
+
         // Many-to-many relationship: EF managed
         virtual public List<NodeSetFile> NodeSetFiles { get; set; }
 

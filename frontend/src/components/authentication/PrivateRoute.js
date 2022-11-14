@@ -1,11 +1,12 @@
 import React from "react";
 import { Route, Redirect } from "react-router-dom";
 
-import { useAuthState } from "./AuthContext";
 import { InlineMessage } from "../InlineMessage";
 import SideMenu from "../SideMenu";
 import { ImportMessage } from "../ImportMessage";
 import DownloadMessage from "../DownloadMessage";
+import { useLoginStatus } from "../OnLoginHandler";
+import ModalMessage from "../ModalMessage";
 
 const PrivateLayout = ({ children }) => (
 
@@ -17,20 +18,20 @@ const PrivateLayout = ({ children }) => (
             <DownloadMessage />
             {children}
         </div>
+        <ModalMessage />
     </div>
 );
 
 function PrivateRoute({ component: Component, ...rest }) {
 
-    const authTicket = useAuthState();
+    const { isAuthenticated, isAuthorized, redirectUrl } = useLoginStatus(rest.location, rest.roles);
 
-    //TBD - this would become more elaborate. Do more than just check for the existence of this value. Check for a token expiry, etc.
     return (
         <Route
             {...rest}
-            render={props => (authTicket != null && authTicket.token != null)  ?
+            render={props => isAuthenticated && isAuthorized ?
                 (<PrivateLayout><Component {...props} /></PrivateLayout>) :
-                (<Redirect to="/login" />)
+                (<Redirect to={redirectUrl} />)
             }
         />
     );

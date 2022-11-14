@@ -1,24 +1,36 @@
 import React, { useEffect }  from 'react'
 import { Helmet } from "react-helmet"
+import { useIsAuthenticated, useMsal } from "@azure/msal-react";
 
 import { Button } from 'react-bootstrap'
 
 import { useLoadingContext } from '../components/contexts/LoadingContext';
 import { useWizardContext } from '../components/contexts/WizardContext';
 import { AppSettings } from '../utils/appsettings'
-import { generateLogMessageString } from '../utils/UtilityService';
+//import { generateLogMessageString } from '../utils/UtilityService';
 import { renderWizardHeader, renderWizardIntroContent, WizardSettings } from '../services/WizardUtil';
+import LoginButton from '../components/LoginButton';
 
-const CLASS_NAME = "WizardWelcome";
+//const CLASS_NAME = "WizardWelcome";
 
 function WizardWelcome() {
 
     //-------------------------------------------------------------------
     // Region: Initialization
     //-------------------------------------------------------------------
+    const { instance } = useMsal();
+    const _isAuthenticated = useIsAuthenticated();
+    const _activeAccount = instance.getActiveAccount();
+
     const { loadingProps } = useLoadingContext();
     const { wizardProps, setWizardProps } = useWizardContext();
     const _currentPage = WizardSettings.panels.find(p => { return p.id === 'Welcome'; });
+
+    //check for logged in status on this welcome page, redirect to public facing login if no active account
+    if (_isAuthenticated && _activeAccount == null) {
+        //MSAL logout
+        instance.logout();
+    }
 
     //-------------------------------------------------------------------
     // Region: hooks
@@ -52,24 +64,19 @@ function WizardWelcome() {
             mode: null, profile: null, profileId: null, parentId: null
         });
 
-        //this will execute on unmount
-        return () => {
-            console.log(generateLogMessageString('useEffect||wizardProps||Cleanup', CLASS_NAME));
-            //setFilterValOnChild('');
-        };
     }, [wizardProps.currentPage, loadingProps.searchCriteriaRefreshed]);
 
     //-------------------------------------------------------------------
     // Region: Render helpers
     //-------------------------------------------------------------------
-    const renderTileButton = (pg, welcomeContent, href) => {
+    const renderTileButton = (pg, content, href) => {
         return (
             <div className="col-sm-6 d-flex" >
                 <div className={`card d-flex flex-column h-100`} >
                     <div className={`card-body p-4 pt-3 d-flex flex-column h-100`} >
                         <div className="">
                             <h2 className="font-weight-bold">{pg.caption}</h2>
-                            {welcomeContent}
+                            {content}
                         </div>
                         <div className="mt-auto mx-auto">
                             <Button variant="secondary" type="button" className="m-auto auto-width" href={href} >{pg.caption}</Button>
@@ -127,9 +134,9 @@ function WizardWelcome() {
     };
 
     const renderMainContent = () => {
-        var pgCreate = WizardSettings.panels.find(p => { return p.id === 'CreateProfile'; });
-        var pgImport = WizardSettings.panels.find(p => { return p.id === 'ImportProfile'; });
-        var pgSelect = WizardSettings.panels.find(p => { return p.id === 'SelectExistingProfile'; });
+        //var pgCreate = WizardSettings.panels.find(p => { return p.id === 'CreateProfile'; });
+        let pgImport = WizardSettings.panels.find(p => { return p.id === 'ImportProfile'; });
+        let pgSelect = WizardSettings.panels.find(p => { return p.id === 'SelectExistingProfile'; });
 
         return (
             <>
@@ -144,6 +151,7 @@ function WizardWelcome() {
             </>
         );
     };
+
 
     const renderTileWideButton = (caption, content, href, captionLink, variant = 'secondary') => {
         return (
@@ -164,7 +172,7 @@ function WizardWelcome() {
     };
 
     const renderAboutTypeLibrary = () => {
-        var content = (
+        let content = (
             <p className="mb-0">
                 The <strong>Type Library</strong> stores all the Type definitions associated with the SM Profiles available in your workspace.<br/>
                 From here, you can quickly search for, view and extend any Type definition. You can <em>edit</em> Type definitions that belong to one of your Profiles, but you cannot edit Type definitions that were created by someone else -- to customize those, you must <em>extend</em> the Type.<br/>
@@ -175,7 +183,7 @@ function WizardWelcome() {
     };
 
     const renderAboutProfileLibrary = () => {
-        var content = (
+        let content = (
             <p className="mb-0">
                 The <strong>Profile Library</strong> stores all SM Profiles available in your workspace. You can add to your workspace by importing or creating SM Profiles.<br/>
                 Each SM Profile contains a collection of Type definitions -- you can find them in the Type Library.<br/>
@@ -187,10 +195,10 @@ function WizardWelcome() {
         return renderTileWideButton("About Profile Library", content, '/profiles/library', "Go to Profile Library", "primary");
     };
 
-
     const renderAboutProfileDesigner = () => {
         return null;
 
+    /*
         return (
             <div className="row mb-3">
                 <div className="col-sm-12">
@@ -207,6 +215,7 @@ function WizardWelcome() {
                 </div>
             </div>
         );
+    */
     };
 
     //-------------------------------------------------------------------

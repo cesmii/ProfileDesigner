@@ -139,8 +139,8 @@
                             PublishDate = entity.StandardProfile.PublishDate,
                             Version = entity.StandardProfile.Version
                         },
-                    //TBD - add support for pulling verbose author info
                     AuthorId = entity.AuthorId,
+                    Author = MapToModelSimpleUser(entity.Author),
                     NodeSetFiles = verbose ? entity.NodeSetFiles.Select(nsf => _nodeSetFileDAL.MapToModelPublic(nsf ,verbose)).ToList() : null, 
                     Version = entity.Version,
                     PublishDate = entity.PublishDate,

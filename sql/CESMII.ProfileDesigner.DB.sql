@@ -4,7 +4,7 @@
 --
 --	Details:
 --	Create DB, create login, assign ownership
---	Create users, permissions, user-permissions
+--	Create users
 --
 --	Create lookup data
 --	Create profiles, profile attributes
@@ -133,12 +133,9 @@ CREATE TABLE public.user
     id SERIAL PRIMARY KEY,
     organization_id integer NULL,
     last_login timestamp with time zone,
-    username character varying(150) COLLATE pg_catalog."default" NULL,
+    --username character varying(150) COLLATE pg_catalog."default" NULL,
     objectid_aad character varying(100) COLLATE pg_catalog."default" NULL, 
     display_name character varying(250) COLLATE pg_catalog."default" NULL,
-    --first_name character varying(30) COLLATE pg_catalog."default" NOT NULL,
-    --last_name character varying(30) COLLATE pg_catalog."default" NOT NULL,
-    --email character varying(254) COLLATE pg_catalog."default" NOT NULL,
     --is_active boolean NOT NULL,
     date_joined timestamp with time zone NOT NULL,
     --registration_complete timestamp with time zone,
@@ -163,126 +160,8 @@ ALTER TABLE public.user
     (username COLLATE pg_catalog."default" varchar_pattern_ops ASC NULLS LAST)
     TABLESPACE pg_default;
 */	
----------------------------------------------------------------------
---	Insert users
----------------------------------------------------------------------
-/*
-with _organization (_id) as (select id FROM public.organization WHERE name = 'CESMII')
-INSERT INTO public.user(id, organization_id, username, first_name, last_name, email, is_active, date_joined, registration_complete, password)
-SELECT 1, _id, 'cesmii', 'CESMII', 'User', 'cesmii@cesmii.org', true,  CURRENT_TIMESTAMP, CURRENT_TIMESTAMP  FROM _organization
-UNION SELECT 2, _id, 'seanc', 'Sean', 'C', 'seanc@cesmii.org', true,  CURRENT_TIMESTAMP, CURRENT_TIMESTAMP  FROM _organization
-UNION SELECT 3, _id, 'jimw', 'Jim', 'W', 'jimw@cesmii.org', true,  CURRENT_TIMESTAMP, CURRENT_TIMESTAMP  FROM _organization
-UNION SELECT 4, _id, 'jonathanw', 'Jonathan', 'W', 'jonathanw@cesmii.org', true,  CURRENT_TIMESTAMP, CURRENT_TIMESTAMP  FROM _organization
-UNION SELECT 5, _id, 'chrism', 'Chris', 'M', 'chrism@cesmii.org', true,  CURRENT_TIMESTAMP, CURRENT_TIMESTAMP  FROM _organization
-UNION SELECT 6, _id, 'markush', 'Markus', 'H', 'markush@cesmii.org', true,  CURRENT_TIMESTAMP, CURRENT_TIMESTAMP  FROM _organization
-UNION SELECT 7, _id, 'davidw', 'David', 'W', 'davidw@cesmii.org', true,  CURRENT_TIMESTAMP, CURRENT_TIMESTAMP  FROM _organization
-;
-*/
---manually adjust the identity starting val
-SELECT setval('user_id_seq', 7);
 	
 
----------------------------------------------------------------------
---	TABLES - Permissions, User Permissions - create a permissions table and user_permissions join table.
----------------------------------------------------------------------
----------------------------------------------------------------------
---	Create permissions table
----------------------------------------------------------------------
-CREATE TABLE public.permission
-(
-    id SERIAL PRIMARY KEY,
-    name character varying(50) COLLATE pg_catalog."default" NOT NULL,
-    description character varying(255) COLLATE pg_catalog."default" NOT NULL,
-    codename integer NOT NULL,
-    CONSTRAINT perm_content_type_id_01ab375a_uniq UNIQUE (codename)
-)
-
-TABLESPACE pg_default;
-
-ALTER TABLE public.permission
-    OWNER to cesmii;
-
----------------------------------------------------------------------
---	Create user permissions join table
----------------------------------------------------------------------
-CREATE TABLE public.user_permission
-(
-    id SERIAL PRIMARY KEY,
-    user_id integer NOT NULL,
-    permission_id integer NOT NULL,
-    CONSTRAINT user_perm_user_id_14a6b632_uniq UNIQUE (user_id, permission_id),
-    CONSTRAINT user_per_perm_id_fk_perm_id FOREIGN KEY (permission_id)
-        REFERENCES public.permission (id) MATCH SIMPLE
-        ON UPDATE NO ACTION
-        ON DELETE NO ACTION
-        DEFERRABLE INITIALLY DEFERRED,
-    CONSTRAINT user_perm_user_id_fk_user_id FOREIGN KEY (user_id)
-        REFERENCES public.user (id) MATCH SIMPLE
-        ON UPDATE NO ACTION
-        ON DELETE NO ACTION
-        DEFERRABLE INITIALLY DEFERRED
-)
-
-TABLESPACE pg_default;
-
-ALTER TABLE public.user_permission
-    OWNER to cesmii;
--- Index: user_permissions_8373b171
-
--- DROP INDEX public.user_permissions_8373b171;
-
-CREATE INDEX user_permission_8373b171
-    ON public.user_permission USING btree
-    (permission_id ASC NULLS LAST)
-    TABLESPACE pg_default;
--- Index: user_permissions_e8701ad4
-
--- DROP INDEX public.user_permissions_e8701ad4;
-
-CREATE INDEX user_permission_e8701ad4
-    ON public.user_permission USING btree
-    (user_id ASC NULLS LAST)
-    TABLESPACE pg_default;
-
----------------------------------------------------------------------
---	Insert Permissions
----------------------------------------------------------------------
-INSERT INTO public.permission(name, codename, description)
-	  SELECT 'CanViewProfile', 20, 'Can View profile'
-UNION SELECT 'CanManageProfile', 21, 'Can Manage profile'
-UNION SELECT 'CanDeleteProfile', 22, 'Can Delete profile'
-UNION SELECT 'CanManageUsers', 100, 'Can Manage Users'
-UNION SELECT 'CanManageSystemSettings', 110, 'Can Manage System Settings'
-UNION SELECT 'CanImpersonateUsers', 120, 'Can Impersonate Users'
-;
-
----------------------------------------------------------------------
---	Insert user Permissions
----------------------------------------------------------------------
-with _permission (_id) as (select id FROM public.permission WHERE name = 'CanViewProfile')
-INSERT INTO public.user_permission (user_id, permission_id)
-SELECT id, _id FROM public.user, _permission;
-
-with _permission (_id) as (select id FROM public.permission WHERE name = 'CanManageProfile')
-INSERT INTO public.user_permission (user_id, permission_id)
-SELECT id, _id FROM public.user, _permission;
-
-with _permission (_id) as (select id FROM public.permission WHERE name = 'CanDeleteProfile')
-INSERT INTO public.user_permission (user_id, permission_id)
-SELECT id, _id FROM public.user, _permission;
-/*
-with _permission (_id) as (select id FROM public.permission WHERE name = 'CanManageUsers')
-INSERT INTO public.user_permission (user_id, permission_id)
-SELECT id, _id FROM public.user, _permission WHERE username <> 'cesmii';
-
-with _permission (_id) as (select id FROM public.permission WHERE name = 'CanManageSystemSettings')
-INSERT INTO public.user_permission (user_id, permission_id)
-SELECT id, _id FROM public.user, _permission WHERE username <> 'cesmii';
-
-with _permission (_id) as (select id FROM public.permission WHERE name = 'CanImpersonateUsers')
-INSERT INTO public.user_permission (user_id, permission_id)
-SELECT id, _id FROM public.user, _permission WHERE username <> 'cesmii';
-*/
 ---------------------------------------------------------------------
 --	TABLE LOOKUP TYPE
 ---------------------------------------------------------------------
@@ -366,9 +245,9 @@ UNION SELECT  16, 'Failed', 'Failed', 4, true, id FROM public.lookup_type WHERE 
 UNION SELECT  17, 'Cancelled', 'Cancelled', 5, true, id FROM public.lookup_type WHERE name = 'TaskStatus' 
 ;
 
-
 --manually adjust the identity starting val
 SELECT setval('lookup_id_seq', 21);
+
 /*
 INSERT INTO public.lookup(code, name, display_order, is_active, type_id )
 SELECT  'hour', 'Duration (hr)', 9999, true, id FROM public.lookup_type WHERE name = 'EngUnit'

@@ -118,11 +118,6 @@ namespace CESMII.ProfileDesigner.Api
             services.AddOpcUaImporter(Configuration);
             //services.AddSingleton<UACloudLibClient>(sp => new UACloudLibClient(configuration.GetSection("CloudLibrary")new UACloudLibClient.Options))
 
-            //AAD - no longer need this
-            // Add token builder.
-            //var configUtil = new ConfigUtil(Configuration);
-            //services.AddTransient(provider => new TokenUtils(configUtil));
-
             services.AddControllers();
 
             services.AddSwaggerGen(c =>
@@ -151,78 +146,14 @@ namespace CESMII.ProfileDesigner.Api
                 });
             });
 
-            // https://stackoverflow.com/questions/46112258/how-do-i-get-current-user-in-net-core-web-api-from-jwt-token
-            //services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            //    .AddJwtBearer(options =>
-            //    {
-            //        options.TokenValidationParameters = new TokenValidationParameters
-            //        {
-            //            ValidateIssuer = true,
-            //            ValidateLifetime = true,
-            //            ValidateAudience = false,
-            //            ValidateIssuerSigningKey = true,
-            //            ValidIssuer = configUtil.JWTSettings.Issuer,
-            //            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configUtil.JWTSettings.Key)),
-            //            // set clockskew to zero so tokens expire exactly at token expiration time (instead of 5 minutes later)
-            //            ClockSkew = TimeSpan.Zero
-            //        };
-
-            //        options.Events = new JwtBearerEvents
-            //        {
-            //            OnTokenValidated = context => {
-            //                return Task.CompletedTask;
-            //            },
-            //            OnAuthenticationFailed = context =>
-            //            {
-            //                //Code Smell: string tokenVal = context.Request.Headers["Authorization"];
-            //                if (context.Exception.GetType() == typeof(SecurityTokenExpiredException))
-            //                {
-            //                    context.Response.Headers.Add("Token-Expired", "true");
-            //                }
-            //                return Task.CompletedTask;
-            //            }
-            //        };
-            //    });
             //New - Azure AD approach replaces previous code above
             services.AddAuthentication("AzureAd")
                 .AddMicrosoftIdentityWebApi(Configuration, "AzureAdSettings", "AzureAd");
 
-            //TBD - may not need these at all anymore since AAD implementation
-            // Add permission authorization requirements.
+            //Revised since AAD implementation
+            //Add permission authorization requirements.
             services.AddAuthorization(options =>
             {
-                /*
-                // Ability to...
-                options.AddPolicy(
-                    nameof(PermissionEnum.CanViewProfile),
-                    policy => policy.Requirements.Add(new PermissionRequirement(PermissionEnum.CanViewProfile)));
-
-                // Ability to...
-                options.AddPolicy(
-                    nameof(PermissionEnum.CanManageProfile),
-                    policy => policy.Requirements.Add(new PermissionRequirement(PermissionEnum.CanManageProfile)));
-
-                // Ability to...
-                options.AddPolicy(
-                    nameof(PermissionEnum.CanDeleteProfile),
-                    policy => policy.Requirements.Add(new PermissionRequirement(PermissionEnum.CanDeleteProfile)));
-
-                // Ability to...
-                options.AddPolicy(
-                    nameof(PermissionEnum.CanManageSystemSettings),
-                    policy => policy.Requirements.Add(new PermissionRequirement(PermissionEnum.CanManageSystemSettings)));
-
-                // Ability to...
-                options.AddPolicy(
-                    nameof(PermissionEnum.CanManageUsers),
-                    policy => policy.Requirements.Add(new PermissionRequirement(PermissionEnum.CanManageUsers)));
-
-                // Ability to...
-                options.AddPolicy(
-                    nameof(PermissionEnum.CanImpersonateUsers),
-                    policy => policy.Requirements.Add(new PermissionRequirement(PermissionEnum.CanImpersonateUsers)));
-                */
-
                 // this "permission" is set once AD user has a mapping to a user record in the Profile Designer DB
                 options.AddPolicy(
                     nameof(PermissionEnum.UserAzureADMapped),

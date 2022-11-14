@@ -30,8 +30,9 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             IDal<LookupDataTypeRanked, LookupDataTypeRankedModel> dalDataType,
             IDal<EngineeringUnitRanked, EngineeringUnitRankedModel> dalEngineeringUnit,
             IDal<Profile, ProfileModel> dalProfile,
+            UserDAL dalUser,
             ConfigUtil config, ILogger<LookupController> logger)
-            : base(config, logger)
+            : base(config, logger, dalUser)
         {
             _dal = dal;
             _dalDataType = dalDataType;
@@ -41,22 +42,21 @@ namespace CESMII.ProfileDesigner.Api.Controllers
 
 
         [HttpGet, Route("All")]
+        [Authorize(Roles = "cesmii.profiledesigner.user", Policy = nameof(PermissionEnum.UserAzureADMapped))]
         [ProducesResponseType(200, Type = typeof(AppLookupModel))]
         [ProducesResponseType(400)]
         public IActionResult GetAll()
         {
-            var userToken = UserExtension.DalUserToken(User);
-
             //profile types, attr types in here
-            var data = _dal.GetAll(userToken);
+            var data = _dal.GetAll(base.DalUserToken);
 
             //get entire list and then split out into sub-lists
-            var dataTypes = _dalDataType.Where(x => !x.Code.ToLower().Equals("composition"), userToken).Data.ToList();
+            var dataTypes = _dalDataType.Where(x => !x.Code.ToLower().Equals("composition"), base.DalUserToken).Data.ToList();
 
             var result = new AppLookupModel()
             {
                 ProfileTypes = data.Where(x => x.LookupType == LookupTypeEnum.ProfileType).ToList(),
-                EngUnits = _dalEngineeringUnit.Where(x => x.IsActive, userToken).Data.ToList(),
+                EngUnits = _dalEngineeringUnit.Where(x => x.IsActive, base.DalUserToken).Data.ToList(),
                 AttributeTypes = data.Where(x => x.LookupType == LookupTypeEnum.AttributeType).ToList(),
                 //DataTypes = dataTypes.Where(x => x.CustomType == null || !x.CustomType.TypeId.Equals((int)ProfileItemTypeEnum.Structure)).ToList(),
                 //Structures = dataTypes.Where(x => x.CustomType != null && x.CustomType.TypeId.Equals((int)ProfileItemTypeEnum.Structure)).ToList()
@@ -70,12 +70,12 @@ namespace CESMII.ProfileDesigner.Api.Controllers
 
 
         [HttpGet, Route("searchcriteria")]
+        [Authorize(Roles = "cesmii.profiledesigner.user", Policy = nameof(PermissionEnum.UserAzureADMapped))]
         [ProducesResponseType(200, Type = typeof(ProfileTypeDefFilterModel))]
         [ProducesResponseType(400)]
         public IActionResult GetSearchCriteria() //[FromBody] LookupGroupByModel model)
         {
             //populate specific types
-            var userToken = UserExtension.DalUserToken(User);
             var filters = new List<LookupGroupByModel>
             {
                 // separate section for my type - follow the same structure for flexibility but only including one hardcoded type
@@ -84,7 +84,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                     Name = SearchCriteriaCategoryEnum.Author.ToString(),
                     ID = (int)SearchCriteriaCategoryEnum.Author,
                     Items = new List<LookupItemFilterModel>() { new LookupItemFilterModel() {
-                    ID = User.GetUserID(),
+                    ID = LocalUser.ID,
                     Name = "My Types"
                 }}
                 },
@@ -104,7 +104,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             //group the result by lookup type
             var excludeList = new List<int?> { (int)ProfileItemTypeEnum.Class };
             excludeList = excludeList.Union(ProfileMapperUtil.ExcludedProfileTypes).ToList();
-            var allItems = _dal.GetAll(userToken).Where(x => !excludeList.Contains(x.ID) &&
+            var allItems = _dal.GetAll(base.DalUserToken).Where(x => !excludeList.Contains(x.ID) &&
                 x.LookupType == LookupTypeEnum.ProfileType);
             var grpItems = allItems.GroupBy(x => new { EnumValue = x.LookupType, Name = x.LookupType.ToString() });
             foreach (var item in grpItems)
@@ -124,7 +124,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             }
 
             // separate section for profile - follow the same structure for flexibility
-            var profiles = _dalProfile.GetAll(userToken);
+            var profiles = _dalProfile.GetAll(base.DalUserToken);
             filters.Add(new LookupGroupByModel()
             {
                 Name = SearchCriteriaCategoryEnum.Profile.ToString(),

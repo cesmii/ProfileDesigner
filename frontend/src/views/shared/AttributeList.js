@@ -18,6 +18,7 @@ import AttributeSlideOut from './AttributeSlideOut';
 import GridPager from '../../components/GridPager'
 import { AppSettings } from '../../utils/appsettings';
 import { useLoadingContext } from '../../components/contexts/LoadingContext'
+import { isOwner } from './ProfileRenderHelpers'
 
 const CLASS_NAME = "AttributeList";
 
@@ -746,8 +747,7 @@ function AttributeList(props) {
             )
         }
 
-        var isTypeDefReadOnly = props.typeDefinition.isReadOnly || props.typeDefinition.authorId == null ||
-            props.typeDefinition.authorId !== props.currentUserId;
+        var isTypeDefReadOnly = props.typeDefinition.isReadOnly || !isOwner(props.typeDefinition, props.activeAccount);
 
         const mainBody = _dataRows.paged.map((row) => {
             if (row.isDeleted) return null;  //if user deletes row client side, hide that row from view.
@@ -1099,7 +1099,7 @@ function AttributeList(props) {
             <AttributeSlideOut isOpen={_slideOut.isOpen} item={_slideOut.item} onClosePanel={toggleSlideOutCustomType} readOnly={_slideOut.readOnly}
                 showDetail={_slideOut.showDetail} lookupDataTypes={_lookupDataTypes} lookupAttributeTypes={_lookupAttributeTypes}
                 allAttributes={_allAttributes.all} lookupCompositions={_lookupCompositions} lookupInterfaces={_lookupInterfaces}
-                lookupEngUnits={_lookupEngUnits} onUpdate={onAttributeUpdate} currentUserId={props.currentUserId}
+                lookupEngUnits={_lookupEngUnits} onUpdate={onAttributeUpdate} activeAccount={props.activeAccount}
             />
         </>
     )

@@ -1,11 +1,10 @@
 import React from 'react'
-
 import Form from 'react-bootstrap/Form'
+import { useMsal } from "@azure/msal-react";
 
 import { generateLogMessageString, validate_namespaceFormat, validate_Required } from '../../utils/UtilityService'
-import { useAuthState } from "../../components/authentication/AuthContext";
-
 import '../styles/ProfileEntity.scss';
+import { isOwner } from './ProfileRenderHelpers';
 
 const CLASS_NAME = "ProfileEntity";
 
@@ -14,7 +13,8 @@ function ProfileEntity(props) {
     //-------------------------------------------------------------------
     // Region: Initialization
     //-------------------------------------------------------------------
-    const authTicket = useAuthState();
+    const { instance } = useMsal();
+    const _activeAccount = instance.getActiveAccount();
 
     //-------------------------------------------------------------------
     // Region: Validation
@@ -144,8 +144,8 @@ function ProfileEntity(props) {
     if (props.item == null) return;
 
     var mode = "view";
-    if (!props.item.isReadOnly && props.item.authorId === authTicket.user.id && props.item.id > 0) mode = "edit";
     if (props.item.id === null || props.item.id === 0) mode = "new";
+    else if (!props.item.isReadOnly && isOwner(props.item, _activeAccount) && props.item.id > 0) mode = "edit";
 
     //return final ui
     return (

@@ -9,7 +9,8 @@
         protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, PermissionRequirement requirement)
         {
             var permission = EnumUtils.GetEnumDescription(requirement.Permission);
-            if (context.User.HasClaim(ClaimTypes.Role, permission))
+
+            if (context.User.HasClaim(x => x.Type.ToLower().Equals(permission.ToLower())))
             {
                 context.Succeed(requirement);
             }

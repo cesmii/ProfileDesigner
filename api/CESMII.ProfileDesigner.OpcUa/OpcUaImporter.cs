@@ -556,10 +556,30 @@ namespace CESMII.ProfileDesigner.OpcUa
 
             foreach (var uaVariable in nodesetModel.DataVariables)
             {
-                if (uaVariable.Parent != null && uaVariable.Parent.Namespace != uaVariable.Namespace)
+                if (dalContext.profileItemsByNodeId.TryGetValue(uaVariable.NodeId, out _))
                 {
                     continue;
                 }
+                {
+                    // Ignore type system information
+                    bool bIsTypeSystem = false;
+                    var dvParent = uaVariable.Parent;
+                    while (dvParent != null)
+                    {
+                        if (dvParent?.NodeId == $"nsu=http://opcfoundation.org/UA/;{ObjectIds.XmlSchema_TypeSystem}" || dvParent?.NodeId == $"nsu=http://opcfoundation.org/UA/;{ObjectIds.OPCBinarySchema_TypeSystem}")
+                        {
+                            dalContext.Logger.LogInformation($"UAVariable {uaVariable} ({uaVariable.GetDisplayNamePath()}) ignored because it is part of the global OPC UA type system node and makes little sense in a nodeset.");
+                            bIsTypeSystem = true;
+                            break;
+                        }
+                        dvParent = (dvParent as InstanceModelBase)?.Parent;
+                    };
+                    if (bIsTypeSystem)
+                    {
+                        continue;
+                    }
+                }
+
                 if (uaVariable.Parent is DataVariableModel)
                 {
                     var variableModel = uaVariable;
@@ -604,6 +624,7 @@ namespace CESMII.ProfileDesigner.OpcUa
                         }
                     }
                 }
+                bool bFound = false;
                 foreach(var referencingNode in uaVariable.OtherReferencingNodes)
                 {
                     if (dalContext.profileItemsByNodeId.TryGetValue(referencingNode.Node.NodeId, out var referencingProfileType))
@@ -611,11 +632,22 @@ namespace CESMII.ProfileDesigner.OpcUa
                         var nodeIdParts = uaVariable.NodeId.Split(';');
                         if (referencingProfileType.Attributes?.FirstOrDefault(a => a.OpcNodeId == nodeIdParts[1] && nodeIdParts[0].EndsWith(a.Namespace)) != null)
                         {
-                            continue;
+                            bFound = true;
+                            break;
                         }
                     }
-
                 }
+                if (bFound)
+                {
+                    continue;
+                }
+
+                if (uaVariable.Parent != null && uaVariable.Parent.Namespace != uaVariable.Namespace)
+                {
+                    dalContext.Logger.LogWarning($"UAVariable {uaVariable} ({uaVariable.GetDisplayNamePath()}) is parented in {uaVariable.Parent} in a different namespace and may be ignored.");
+                    continue;
+                }
+
                 dalContext.Logger.LogWarning($"UAVariable {uaVariable} ({uaVariable.GetDisplayNamePath()}) ignored.");
             }
 

@@ -90,7 +90,7 @@ function HeaderSearch(props) { //(caption, iconName, showSearch, searchValue, on
                                     </Button>
                                 ) : ""}
                                 {props.searchMode === "predictive" ? (
-                                    <ProfilePredictiveSearch filterVal={_filterVal} currentUserId={props.currentUserId} />
+                                    <ProfilePredictiveSearch filterVal={_filterVal} activeAccount={props.activeAccount} />
                                 ) : ""}
                             </InputGroup.Append>
                         </InputGroup>

@@ -42,7 +42,7 @@ function ConfirmationModal(props) { //props are item, showActions
     return (
         <>
             {/* Add animation=false to prevent React warning findDomNode is deprecated in StrictMode*/}
-            <Modal animation={false} show={showModal} onHide={onHide} centered>
+            <Modal key={props.msgId | new Date().getTime()} animation={false} show={showModal} onHide={onHide} data-id={props.msgId} centered>
                 <Modal.Header closeButton>
                     <Modal.Title>
                         {props.icon != null &&
@@ -61,7 +61,7 @@ function ConfirmationModal(props) { //props are item, showActions
                 <Modal.Footer>
                     {props.cancel != null &&
                     <Button variant={props.cancel == null || props.cancel.buttonVariant == null ? "text-solo" : props.cancel.buttonVariant}
-                        onClick={onHide}>
+                        onClick={onHide} data-id={props.msgId} >
                         {(props.cancel == null || props.cancel.caption == null || props.cancel.caption === '') ?
                             "Cancel" : props.cancel.caption
                         }
@@ -69,7 +69,7 @@ function ConfirmationModal(props) { //props are item, showActions
                     }
                     {props.confirm != null &&
                         <Button variant={props.confirm == null || props.confirm.buttonVariant == null ? "" : props.confirm.buttonVariant}
-                            style={{ minWidth: '128px' }} onClick={onConfirm} >
+                        style={{ minWidth: '128px' }} onClick={onConfirm} data-id={props.msgId} >
                             {(props.confirm == null || props.confirm.caption == null || props.confirm.caption === '') ?
                                 "OK" : props.confirm.caption
                             }

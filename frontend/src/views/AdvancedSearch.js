@@ -4,7 +4,6 @@ import { Button } from 'react-bootstrap'
 import axiosInstance from "../services/AxiosService";
 
 import { useLoadingContext } from "../components/contexts/LoadingContext";
-import { useAuthState } from "../components/authentication/AuthContext";
 import { generateLogMessageString, pageDataRows, renderTitleBlock } from '../utils/UtilityService';
 import { getTypeDefPreferences, setProfileTypePageSize } from '../services/ProfileService';
 import AdvancedSearchRow from './shared/AdvancedSearchRow'
@@ -22,7 +21,6 @@ function AdvancedSearch() {
     //-------------------------------------------------------------------
     const history = useHistory();
 
-    const authTicket = useAuthState();
     const _profilePreferences = getTypeDefPreferences();
     const _scrollToRef = useRef(null);
     const searchRowNew = {
@@ -312,7 +310,7 @@ function AdvancedSearch() {
             )
         }
         const mainBody = _dataRows.paged.map((item) => {
-            return (<ProfileTypeDefinitionRow key={item.id} item={item} currentUserId={authTicket.user.id} showActions={true} cssClass="profile-list-item" />)
+            return (<ProfileTypeDefinitionRow key={item.id} item={item} activeAccount={_activeAccount} showActions={true} cssClass="profile-list-item" />)
         });
 
         return (

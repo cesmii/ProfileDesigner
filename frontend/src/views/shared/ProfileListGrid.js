@@ -117,7 +117,7 @@ function ProfileListGrid(props) {
             const cloudLibSelected = _profileSearchCriteria?.filters?.find(x => x.id === 3)?.items[0]?.selected;
 
             let url;
-            if (props.isMine || (!baseProfileSelected && !cloudLibSelected)) {
+            if (props.isMine|| (baseProfileSelected != null && !baseProfileSelected && cloudLibSelected != null && !cloudLibSelected)) {
                 url = 'profile/mine';
             }
             else if (!cloudLibSelected) {

@@ -9,7 +9,10 @@ import { generateLogMessageString, renderTitleBlock, scrollTop } from '../utils/
 import { useLoadingContext } from "../components/contexts/LoadingContext";
 import ConfirmationModal from '../components/ConfirmationModal';
 import ProfileEntityModal from './modals/ProfileEntityModal';
-import ProfileCloudLibImportModal from './modals/ProfileCloudLibImportModal';
+import CloudLibraryImporterModal from './modals/CloudLibraryImporterModal';
+import CloudLibraryImporter from './shared/CloudLibraryImporter';
+import CloudLibList from './CloudLibList';
+
 import ProfileListGrid from './shared/ProfileListGrid';
 import ProfileImporter from './shared/ProfileImporter';
 
@@ -35,7 +38,7 @@ function ProfileList() {
     const [_error, setError] = useState({ show: false, message: null, caption: null });
     //used in popup profile add/edit ui. Default to new version
     const [_profileEntityModal, setProfileEntityModal] = useState({ show: false, item: null});
-    const [_profileCloudLibImportModal, setProfileCloudLibImportModal] = useState({ show: false, item: null });
+    const [_cloudLibImporterModal, setCloudLibImporterModal] = useState({ show: false });
     const [_initProfileSearchCriteria, setInitProfileSearchCriteria] = useState(true);
     const [_profileSearchCriteria, setProfileSearchCriteria] = useState(null);
     const [_profileSearchCriteriaChanged, setProfileSearchCriteriaChanged] = useState(0);
@@ -83,6 +86,22 @@ function ProfileList() {
     //-------------------------------------------------------------------
     // Region: Add/Update event handlers
     //-------------------------------------------------------------------
+
+    const onCloudLibImportClick = () => {
+        console.log(generateLogMessageString(`onCloudLibImportClick`, CLASS_NAME));
+        setCloudLibImporterModal({ show: true });
+    };
+
+    const onCloudLibImportCancel = () => {
+        console.log(generateLogMessageString(`onCloudLibImportCancel`, CLASS_NAME));
+        setCloudLibImporterModal({ show: false });
+    };
+
+    const onCloudLibImportStarted = (id) => {
+        setCloudLibImporterModal({ show: false });
+    }
+
+
     const onAdd = () => {
         console.log(generateLogMessageString(`onAdd`, CLASS_NAME));
         setProfileEntityModal({ show: true, item: null});
@@ -92,15 +111,7 @@ function ProfileList() {
         console.log(generateLogMessageString(`onEdit`, CLASS_NAME));
         setProfileEntityModal({ show: true, item: item});
     };
-    const onImport = (item) => {
-        console.log(generateLogMessageString(`onImport`, CLASS_NAME));
-        setProfileCloudLibImportModal({ show: true, item: item,import: true });
-    };
-    const onImportCancel = () => {
-        console.log(generateLogMessageString(`onImportCancel`, CLASS_NAME));
-        setProfileCloudLibImportModal({ show: false, item: null });
-    };
-
+    
     const onSave = (id) => {
         console.log(generateLogMessageString(`onSave`, CLASS_NAME));
         setProfileEntityModal({ show: false, item: null });
@@ -242,7 +253,7 @@ function ProfileList() {
                             <Button variant="secondary" type="button" className="auto-width mx-2">Import...</Button>                        
                         </Dropdown.Toggle>
                         <Dropdown.Menu>
-                            <Dropdown.Item href="/cloudlibrary/search">Import from Cloud Library</Dropdown.Item>
+                            <Dropdown.Item onClick={onCloudLibImportClick}>Import from Cloud Library</Dropdown.Item>
                             <Dropdown.Item as="button" >
                                 {<ProfileImporter caption="Import NodeSet file" cssClass="" useCssClassOnly="true" />}
                             </Dropdown.Item>
@@ -280,10 +291,12 @@ function ProfileList() {
     //renderProfileCloudLibImport as a modal to force user to say ok.
     const renderProfileCloudLibImport= () => {
 
-        if (!_profileCloudLibImportModal.show) return;
+        if (!_cloudLibImporterModal.show) return;
 
         return (
-            <ProfileCloudLibImportModal item={_profileCloudLibImportModal.item} showModal={_profileCloudLibImportModal.show} onSave={onSave} onCancel={onImportCancel} showSavedMessage={true} />
+            <CloudLibraryImporterModal showModal={_cloudLibImporterModal.show} onImportCanceled={onCloudLibImportCancel} onImportStarted={onCloudLibImportStarted} />
+            //<CloudLibList/>
+            //<CloudLibraryImporter onImportStarted={onCloudLibImportStarted} />
         );
     };
 
@@ -299,11 +312,10 @@ function ProfileList() {
             {renderIntroContent()}
             {(_profileSearchCriteria != null) &&
             <ProfileListGrid searchCriteria={_profileSearchCriteria} onGridRowSelect={onGridRowSelect} onEdit={onEdit} onDeleteItemClick={onDeleteItemClick}
-                onImport={onImport}
                 onSearchCriteriaChanged={onSearchCriteriaChanged} searchCriteriaChanged={_profileSearchCriteriaChanged} noSearch="true" />
             }
-            //{renderProfileEntity()}
-            //{renderProfileCloudLibImport()}
+            {renderProfileEntity()}
+            {renderProfileCloudLibImport()}
             {renderDeleteConfirmation()}
             <ErrorModal modalData={_error} callback={onErrorModalClose} />
         </>

@@ -1,21 +1,15 @@
 import React, { useState, useEffect } from 'react'
-import { Helmet } from "react-helmet"
-
-import { useLocation, useHistory } from 'react-router-dom' 
-
-import { useMsal } from "@azure/msal-react";
 import axiosInstance from "../../services/AxiosService";
 
 import { Button } from 'react-bootstrap'
 
 import { AppSettings } from '../../utils/appsettings'
-import { generateLogMessageString, renderTitleBlock, scrollTop } from '../../utils/UtilityService'
+import { generateLogMessageString } from '../../utils/UtilityService'
 import { useLoadingContext } from "../../components/contexts/LoadingContext";
 import ConfirmationModal from '../../components/ConfirmationModal';
 import ProfileEntityModal from '../modals/ProfileEntityModal';
 import ProfileListGrid from './ProfileListGrid';
 
-import color from '../../components/Constants'
 import '../styles/ProfileList.scss';
 import '../../components/styles/InfoPanel.scss';
 
@@ -31,11 +25,9 @@ function CloudLibraryImporter(props) {
     const { loadingProps, setLoadingProps } = useLoadingContext();
     const [_importConfirmModal, setImportConfirmModal] = useState({ show: false, items: null });
     //importer
-    const [_errorMsg, setErrorMessage] = useState(null);
     const [_error, setError] = useState({ show: false, message: null, caption: null });
     //used in popup profile add/edit ui. Default to new version
     const [_profileEntityModal, setProfileEntityModal] = useState({ show: false, item: null });
-    const [_profileCloudLibImportModal, setProfileCloudLibImportModal] = useState({ show: false, item: null });
     const [_initSearchCriteria, setInitSearchCriteria] = useState(true);
     const [_searchCriteria, setSearchCriteria] = useState(null);
     const [_searchCriteriaChanged, setSearchCriteriaChanged] = useState(0);
@@ -136,14 +128,8 @@ function CloudLibraryImporter(props) {
     //-------------------------------------------------------------------
     // Region: Add/Update event handlers
     //-------------------------------------------------------------------
-    const onRowImport = (item) => {
-        console.log(generateLogMessageString(`onImport`, CLASS_NAME));
-        setProfileCloudLibImportModal({ show: true, item: item, import: true });
-    };
     const onImportCancel = () => {
         console.log(generateLogMessageString(`onImportCancel`, CLASS_NAME));
-        setProfileCloudLibImportModal({ show: false, item: null });
-        //redirectAfter(null);
         if (props.onImportCancel) props.onImportCancel();
     };
 
@@ -354,7 +340,6 @@ function CloudLibraryImporter(props) {
             {(_searchCriteria != null) &&
                 <ProfileListGrid searchCriteria={_searchCriteria} noSortOptions="true"
                     onGridRowSelect={onGridRowSelect} onEdit={onView} selectMode="multiple" selectedItems={_selectedCloudProfileIds}
-                    onImport={onRowImport}
                     onSearchCriteriaChanged={onSearchCriteriaChanged} searchCriteriaChanged={_searchCriteriaChanged} />
             }
             {renderProfileEntity()}

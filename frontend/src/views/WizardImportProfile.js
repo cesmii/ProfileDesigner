@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react'
-import Modal from 'react-bootstrap/Modal'
 import { Button } from 'react-bootstrap'
 import { useHistory } from 'react-router-dom'
 import { Helmet } from "react-helmet"
@@ -10,7 +9,7 @@ import { useLoadingContext } from "../components/contexts/LoadingContext";
 import { useWizardContext } from '../components/contexts/WizardContext';
 import { getWizardNavInfo, renderWizardBreadcrumbs, renderWizardHeader, renderWizardIntroContent, WizardSettings } from '../services/WizardUtil';
 import ProfileImporter from './shared/ProfileImporter';
-import CloudLibraryImporter from './shared/CloudLibraryImporter';
+import CloudLibraryImporterModal from './modals/CloudLibraryImporterModal';
 import { ErrorModal } from '../services/CommonUtil'
 
 const CLASS_NAME = "WizardImportProfile";
@@ -29,7 +28,7 @@ function WizardImportProfile() {
     const _navInfo = getWizardNavInfo(_mode, _pageId);
     const [_error, setError] = useState({ show: false, message: null, caption: null });
     //track the import kicked off by child importer button
-    const [_importStatus, setImportStatus] = useState({ isComplete: null, isStarted: null });
+    const [_importStatus, setImportStatus] = useState({ isComplete: null, isStarted: null, importSource: null });
     const [_importLogId, setImportLogId] = useState(null);
     const [_cloudLibImport, setCloudLibImport] = useState({ show: false });
 
@@ -80,7 +79,7 @@ function WizardImportProfile() {
     //is ready to evaluate. 
     useEffect(() => {
 
-        if (_importLogId == null/* || _importStatus.isStarted == null || !_importStatus.isStarted*/) return;
+        if (_importLogId == null /*|| _importStatus.isStarted == null || !_importStatus.isStarted*/) return;
 
         //we get here if the import is started and the importLogs state is up to date
         //and we have an import log id to check against in the centralized logs list 
@@ -143,7 +142,7 @@ function WizardImportProfile() {
 
         //init the tracking of the import log by capturing the id associated with this import
         //this will trigger a useEffects area to check and only advance once the import is completed. 
-        setImportStatus({ id: id, isComplete: false, isStarted: null });
+        setImportStatus({ ..._importStatus, id: id, isComplete: false, importSource: AppSettings.ImportSourceEnum.NodeSetXML });
         setImportLogId(id);
     };
 
@@ -161,23 +160,44 @@ function WizardImportProfile() {
     }
     const onCloudLibImportStarted = (id) => {
         setCloudLibImport({ show: false });
-        onImportStarted(id);
+        setImportStatus({ id: id, isComplete: false, isStarted: null, importSource: AppSettings.ImportSourceEnum.CloudLib });
+        setImportLogId(id);
     }
 
     //-------------------------------------------------------------------
     // Region: Render helpers
     //-------------------------------------------------------------------
     const renderButtonRow = () => {
+        const processing = _importLogId != null;
+        const sourceCloudLib = _importStatus.importSource == AppSettings.ImportSourceEnum.CloudLib;
+        const sourceNodeSetXml = _importStatus.importSource == AppSettings.ImportSourceEnum.NodeSetXML || _importStatus.importSource == null;
         return (
             <div className="row pb-3">
                 <div className="col-12 d-flex" >
-                    <a className="mb-2 btn btn-secondary d-flex align-items-center" href={_navInfo.prev.href} ><i className="material-icons mr-1">{_navInfo.prev.icon == null ? "arrow_left" : _navInfo.prev.icon}</i>{_navInfo.prev.caption}</a>
-                    <ProfileImporter caption={_importLogId == null ? "Select & Import from Node Set file(s)" : "Processing..."} cssClass="ml-auto" disabled={_importLogId != null} onImportStarted={onImportStarted} />
-                    <label className="mb-2 btn btn-secondary auto-width ml-auto" onClick={onCloudLibImportClicked} >
-                        {_importLogId == null ? "Import from Cloud Library" : "Processing..."}
-                    </label>
+                    <div>
+                        <a className="mb-2 btn btn-secondary d-flex align-items-center" href={_navInfo.prev.href} ><i className="material-icons mr-1">{_navInfo.prev.icon == null ? "arrow_left" : _navInfo.prev.icon}</i>{_navInfo.prev.caption}</a>
+                    </div>
+                    <div className="ml-auto">
+                        <p>
+                            <ProfileImporter caption={!processing || !sourceNodeSetXml ? "Import from Node Set file(s)" : "Processing NodeSet file import..."} cssClass="ml-auto" disabled={_importLogId != null} onImportStarted={onImportStarted} />
+                        </p>
+                        <p>
+                            <label className={"mb-2 btn btn-secondary auto-width ml-auto" + (_importLogId != null ? " disabled" : "")} onClick={onCloudLibImportClicked}>
+                                {!processing || !sourceCloudLib ? "Import from Cloud Library" : "Processing Cloud Library Import..."}
+                            </label>
+                        </p>
+                    </div>
                 </div>
             </div>
+        );
+    };
+
+    const renderProfileCloudLibImport = () => {
+
+        if (!_cloudLibImport.show) return;
+
+        return (
+            <CloudLibraryImporterModal showModal={_cloudLibImport.show} onImportCanceled={onCloudLibImportCanceled} onImportStarted={onCloudLibImportStarted} />
         );
     };
 
@@ -192,19 +212,7 @@ function WizardImportProfile() {
                             Depending on the size of the nodeset files and number of files being imported, the import may take a few minutes.
                         </p>
                     </div>
-                    <Modal animation={false} show={_cloudLibImport.show} onHide={onCloudLibImportCanceled} size="lg" centered >
-                        <Modal.Header className="py-0 align-items-center" closeButton>
-                            <Modal.Title>
-                                <div>Import from Cloud Library</div>
-                            </Modal.Title>
-                        </Modal.Header>
-                        <Modal.Body className="my-1 pt-0 pb-2">
-                            <CloudLibraryImporter onImportStarted={onCloudLibImportStarted} />
-                        </Modal.Body>
-                        <Modal.Footer>
-                            <Button variant="secondary" className="mx-1" onClick={onCloudLibImportCanceled} >Close</Button>
-                        </Modal.Footer>
-                    </Modal>
+                    {renderProfileCloudLibImport()}
                 </div>
                 <div className="row mb-3">
                     <div className="col-sm-12">

@@ -154,12 +154,8 @@ namespace CESMII.ProfileDesigner.Api.Tests
                 var page = await apiClient.CloudlibraryAsync(pagedFilter);
                 Assert.True(page.Data.Count <= pagedFilter.Take, "CloudLibAsync returned more profiles than requested");
                 paged.AddRange(page.Data);
-                if (page.Data.Count < pagedFilter.Take || page.Data.Count == 0)
-                {
-                    bComplete = true;
-                }
-                //pagedFilter.Skip += pagedFilter.Take;
-                pagedFilter.Cursor = page.Cursor;
+                bComplete = page.HasNextPage != true;
+                pagedFilter.Cursor = page.EndCursor;
             } while (!bComplete && paged.Count < 100);
             output.WriteLine($"Filter: {paged.Count}");
             return paged;

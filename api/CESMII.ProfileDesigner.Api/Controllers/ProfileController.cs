@@ -23,6 +23,7 @@ using System.Text.RegularExpressions;
 using Opc.Ua.Cloud.Library.Client;
 using System.Globalization;
 using System.Linq.Expressions;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace CESMII.ProfileDesigner.Api.Controllers
 {
@@ -280,8 +281,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                                 var newLocalProfilesResult = _dal.Where(
                                     new List<Expression<Func<Profile, bool>>>
                                     {
-                                    p => Regex.IsMatch(p.Namespace, keywordRegex, RegexOptions.IgnoreCase)
-                                    // TODO better keyword search on ProfileTypeDefinitions etc. to match cloudlib's query
+                                        p => Regex.IsMatch(p.Namespace, keywordRegex, RegexOptions.IgnoreCase)
                                     },
                                     base.DalUserToken, localCursor, null, true,
                                     orderByExpressions: orderBy.ToArray());
@@ -460,14 +460,14 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             }
 
             List<ImportOPCModel> importModels = new();
-            foreach (var modelId in model)
+            foreach (var modelId in model.Select(m => m.ID))
             {
                 try
                 {
-                    var nodeSetToImport = await _cloudLibDal.DownloadAsync(modelId.ID);
+                    var nodeSetToImport = await _cloudLibDal.DownloadAsync(modelId);
                     if (nodeSetToImport == null)
                     {
-                        _logger.LogWarning($"ProfileController|ImportFromCloudLibrary|Did not find nodeset in Cloud Library: {modelId.ID}.");
+                        _logger.LogWarning($"ProfileController|ImportFromCloudLibrary|Did not find nodeset in Cloud Library: {modelId}.");
                         return Ok(
                             new ResultMessageWithDataModel()
                             {
@@ -485,7 +485,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError($"ProfileController|ImportFromCloudLibrary|Failed to download from Cloud Library: {modelId.ID} {ex.Message}.");
+                    _logger.LogError($"ProfileController|ImportFromCloudLibrary|Failed to download from Cloud Library: {modelId} {ex.Message}.");
                     return Ok(
                         new ResultMessageWithDataModel()
                         {
@@ -872,8 +872,6 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         [ProducesResponseType(200, Type = typeof(ResultMessageExportModel))]
         public Task<IActionResult> Export([FromBody] ExportRequestModel model)
         {
-            var userToken = DalUserToken;
-
             //get profile to export
             var sw = Stopwatch.StartNew();
             _logger.LogTrace("Starting export");
@@ -916,7 +914,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                     else
                     {
                         _logger.LogTrace($"Timestamp||Export||Nodeset Stream generated: {sw.Elapsed}");
-                        result = (string)exportedNodeSets.FirstOrDefault().xml;
+                        result = exportedNodeSets.FirstOrDefault().xml;
                         _logger.LogTrace($"Timestamp||Export||Data Converted to Response: {sw.Elapsed}");
                         //TBD - read and include the required models in a ZIP file, optionally?
                         //TBD - get the warnings that were logged on import and publish them here. 

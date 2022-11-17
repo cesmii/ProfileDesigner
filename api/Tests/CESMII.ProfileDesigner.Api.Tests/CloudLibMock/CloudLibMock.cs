@@ -147,7 +147,7 @@ namespace CESMII.ProfileDesigner.Api.Tests
                     {
                         var toSave = _searchData.ToList();
                         File.WriteAllText(strSearchDataFile, JsonConvert.SerializeObject(toSave));
-                        _lastSavedCount = toSave.Count();
+                        _lastSavedCount = toSave.Count;
                     }
                     catch (Exception)
                     {

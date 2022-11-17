@@ -29,6 +29,7 @@ namespace CESMII.ProfileDesigner.Api.Tests
                     var sd = JsonConvert.DeserializeObject<List<KeyValuePair<SearchInputs, GraphQlResult<Nodeset>>>>(searchDataJson);
                     var comparer = new SearchInputs.Comparer();
                     _searchData = sd.ToDictionary(kv => kv.Key, kv => kv.Value, comparer);
+                    _lastSavedCount = _searchData.Count;
                 }
             }
             else
@@ -77,6 +78,7 @@ namespace CESMII.ProfileDesigner.Api.Tests
             }
         }
         static Dictionary<SearchInputs, GraphQlResult<Nodeset>> _searchData = new Dictionary<SearchInputs, GraphQlResult<Nodeset>>(new SearchInputs.Comparer());
+        static int _lastSavedCount = 0;
         private bool disposedValue;
 
         public OnResolveNodeSets OnResolveNodeSets { get; set; }
@@ -139,11 +141,13 @@ namespace CESMII.ProfileDesigner.Api.Tests
 
                 // free unmanaged resources (unmanaged objects) and override finalizer
                 // set large fields to null
-                if (recording && _searchData.Any())
+                if (recording && _searchData.Any() && _searchData.Count != _lastSavedCount)
                 {
                     try
                     {
-                        File.WriteAllText(strSearchDataFile, JsonConvert.SerializeObject(_searchData.ToList()));
+                        var toSave = _searchData.ToList();
+                        File.WriteAllText(strSearchDataFile, JsonConvert.SerializeObject(toSave));
+                        _lastSavedCount = toSave.Count();
                     }
                     catch (Exception)
                     {

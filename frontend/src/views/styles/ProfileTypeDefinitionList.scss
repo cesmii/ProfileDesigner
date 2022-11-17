@@ -62,6 +62,17 @@
         cursor: pointer;
     }
 
+    &.select-readonly {
+        @include background-opacity(color("silver"), .5);
+        background-color: color("silver");
+
+        &:hover {
+            @include background-opacity(color("silver"), .5);
+            background-color: color("silver");
+            border: 1px solid color("white");
+        }
+    }
+
     .item-text-block {
         display: flex;
         flex-direction: column;

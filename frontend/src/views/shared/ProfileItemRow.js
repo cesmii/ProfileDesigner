@@ -174,7 +174,7 @@ function ProfileItemRow(props) { //props are item, showActions
     const renderRow = () => {
 
         var isSelected = props.item != null && IsRowSelected(props.item) ? "selected" : "";
-        var cssClass = `row py-1 align-items-center ${props.cssClass == null ? '' : props.cssClass} ${isSelected} ${props.selectMode != null ? "selectable" : ""}`;
+        var cssClass = `row py-1 align-items-center ${props.cssClass == null ? '' : props.cssClass} ${isSelected} ${props.selectMode != null ? "selectable" : ""} ${props.item.hasLocalProfile ? "select-readonly" : ""}`;
 
 
         let profileCaption = null;

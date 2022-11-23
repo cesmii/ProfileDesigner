@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Helmet } from "react-helmet"
 import { useHistory, useParams } from 'react-router-dom';
 import { useLoadingContext } from '../components/contexts/LoadingContext';
@@ -19,14 +19,20 @@ function Login() {
     //set this for downstream use post successful silent login
     if (returnUrl != null && loadingProps.returnUrl !== returnUrl) setLoadingProps({ returnUrl: returnUrl });
 
-    //check for logged in status - redirect to home page if already logged in.
-    if (isAuthenticated && isAuthorized) {
-        history.push(returnUrl ? decodeURIComponent(returnUrl) : '/');
-    }
+    //-------------------------------------------------------------------
+    // Region: hooks
+    //-------------------------------------------------------------------
+    useEffect(() => {
+
+        //check for logged in status - redirect to home page if already logged in.
+        if (isAuthenticated && isAuthorized) {
+            history.push(returnUrl ? decodeURIComponent(returnUrl) : '/');
+        }
+
+    }, [isAuthenticated, isAuthorized]);
 
     //-------------------------------------------------------------------
     // Region: hooks
-    //  trigger from some other component to kick off an import log refresh and start tracking import status
     //-------------------------------------------------------------------
     useLoginSilent();
 

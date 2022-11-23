@@ -55,7 +55,8 @@ jobs:
         run: |
           ls -l ./sql
           head -5 ./sql/CESMII.ProfileDesigner.DB.sql
-          sudo -u postgres psql -d profile_designer_local_test --file ./sql/CESMII.ProfileDesigner.DB.sql
+          sudo -u postgres psql -d profile_designer_local_test < ./sql/CESMII.ProfileDesigner.DB.sql
+          #sudo -u postgres psql -d profile_designer_local_test --file ./sql/CESMII.ProfileDesigner.DB.sql
       - name: List existing databases
         run: |
           sudo -u postgres psql -l

@@ -68,7 +68,7 @@ function ProfileList() {
             setProfileSearchCriteria(criteria);
             setProfileSearchCriteriaChanged(_profileSearchCriteriaChanged + 1);
         }
-        setLoadingProps(criteria);
+        setLoadingProps({ ...loadingProps, profileSearchCriteria: criteria });
 
         //this will execute on unmount
         return () => {

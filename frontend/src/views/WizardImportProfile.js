@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react'
-import { Button } from 'react-bootstrap'
 import { useHistory } from 'react-router-dom'
 import { Helmet } from "react-helmet"
 
@@ -9,7 +8,8 @@ import { useLoadingContext } from "../components/contexts/LoadingContext";
 import { useWizardContext } from '../components/contexts/WizardContext';
 import { getWizardNavInfo, renderWizardBreadcrumbs, renderWizardHeader, renderWizardIntroContent, WizardSettings } from '../services/WizardUtil';
 import ProfileImporter from './shared/ProfileImporter';
-import CloudLibraryImporterModal from './modals/CloudLibraryImporterModal';
+import CloudLibSlideOut from './shared/CloudLibSlideOut.js'
+//import CloudLibraryImporterModal from './modals/CloudLibraryImporterModal';
 import { ErrorModal } from '../services/CommonUtil'
 
 const CLASS_NAME = "WizardImportProfile";
@@ -30,7 +30,8 @@ function WizardImportProfile() {
     //track the import kicked off by child importer button
     const [_importStatus, setImportStatus] = useState({ isComplete: null, isStarted: null, importSource: null });
     const [_importLogId, setImportLogId] = useState(null);
-    const [_cloudLibImport, setCloudLibImport] = useState({ show: false });
+    //const [_cloudLibImport, setCloudLibImport] = useState({ show: false });
+    const [_cloudLibSlideOut, setCloudLibSlideOut] = useState({ isOpen: false });
 
     //-------------------------------------------------------------------
     // Region: hooks
@@ -152,14 +153,17 @@ function WizardImportProfile() {
     }
 
     const onCloudLibImportClicked = () => {
-        setCloudLibImport({ show: true });
+        setCloudLibSlideOut({ isOpen: true });
+        //setCloudLibImport({ show: true });
     }
 
     const onCloudLibImportCanceled = () => {
-        setCloudLibImport({ show: false });
+        setCloudLibSlideOut({ isOpen: false });
+        //setCloudLibImport({ show: false });
     }
     const onCloudLibImportStarted = (id) => {
-        setCloudLibImport({ show: false });
+        setCloudLibSlideOut({ isOpen: false });
+        //setCloudLibImport({ show: false });
         setImportStatus({ id: id, isComplete: false, isStarted: null, importSource: AppSettings.ImportSourceEnum.CloudLib });
         setImportLogId(id);
     }
@@ -192,14 +196,14 @@ function WizardImportProfile() {
         );
     };
 
-    const renderProfileCloudLibImport = () => {
+    //const renderProfileCloudLibImport = () => {
 
-        if (!_cloudLibImport.show) return;
+    //    if (!_cloudLibImport.show) return;
 
-        return (
-            <CloudLibraryImporterModal showModal={_cloudLibImport.show} onImportCanceled={onCloudLibImportCanceled} onImportStarted={onCloudLibImportStarted} />
-        );
-    };
+    //    return (
+    //        <CloudLibraryImporterModal showModal={_cloudLibImport.show} onImportCanceled={onCloudLibImportCanceled} onImportStarted={onCloudLibImportStarted} />
+    //    );
+    //};
 
     const renderMainContent = () => {
         return (
@@ -212,13 +216,14 @@ function WizardImportProfile() {
                             Depending on the size of the nodeset files and number of files being imported, the import may take a few minutes.
                         </p>
                     </div>
-                    {renderProfileCloudLibImport()}
+                    {/*renderProfileCloudLibImport()*/}
                 </div>
                 <div className="row mb-3">
                     <div className="col-sm-12">
                         {renderButtonRow()}
                     </div>
                 </div>
+                <CloudLibSlideOut isOpen={_cloudLibSlideOut.isOpen} onClosePanel={onCloudLibImportCanceled} onImportStarted={onCloudLibImportStarted} />
             </>
         );
     };

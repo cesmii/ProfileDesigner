@@ -99,7 +99,7 @@ CREATE TABLE public.app_log
 TABLESPACE pg_default;
 
 ALTER TABLE public.app_log
-    OWNER to cesmii;
+    OWNER to profiledesigner;
 
 ---------------------------------------------------------------------
 --	Org TABLE
@@ -115,7 +115,7 @@ CREATE TABLE public.organization
 TABLESPACE pg_default;
 
 ALTER TABLE public.organization
-    OWNER to cesmii;
+    OWNER to profiledesigner;
 
 ---------------------------------------------------------------------
 --	Insert orgs
@@ -149,7 +149,7 @@ CREATE TABLE public.user
 TABLESPACE pg_default;
 
 ALTER TABLE public.user
-    OWNER to cesmii;
+    OWNER to profiledesigner;
 -- Index: user_username_6821ab7c_like
 
 -- DROP INDEX public.user_username_6821ab7c_like;
@@ -178,7 +178,7 @@ CREATE TABLE public.lookup_type
 TABLESPACE pg_default;
 
 ALTER TABLE public.lookup_type
-    OWNER to cesmii;
+    OWNER to profiledesigner;
 
 ----------------------------------------------------------
 -- DROP TABLE public.lookup;
@@ -201,7 +201,7 @@ CREATE TABLE public.lookup
 TABLESPACE pg_default;
 
 ALTER TABLE public.lookup
-    OWNER to cesmii;
+    OWNER to profiledesigner;
 
 ---------------------------------------------------------------------
 --	Insert lookup types
@@ -289,7 +289,7 @@ CREATE TABLE public.engineering_unit
 TABLESPACE pg_default;
 
 ALTER TABLE public.engineering_unit
-    OWNER to cesmii;
+    OWNER to profiledesigner;
 
 ---------------------------------------------------------------------
 --	Create NodeSet Lookup Table
@@ -309,7 +309,7 @@ CREATE TABLE public.standard_nodeset
 TABLESPACE pg_default;
 
 ALTER TABLE public.standard_nodeset
-    OWNER to cesmii;
+    OWNER to profiledesigner;
 
 INSERT INTO public.standard_nodeset (id, namespace, version, filename, publish_date, is_active) VALUES (1, 'http://opcfoundation.org/UA/ADI/', '1.01', NULL, '2013-07-31', true);
 INSERT INTO public.standard_nodeset (id, namespace, version, filename, publish_date, is_active) VALUES (2, 'http://opcfoundation.org/UA/AML/', '1.00', NULL, '2016-02-22', true);
@@ -405,7 +405,7 @@ CREATE TABLE public.nodeset_file
 TABLESPACE pg_default;
 
 ALTER TABLE public.nodeset_file
-    OWNER to cesmii;
+    OWNER to profiledesigner;
 	
 ---------------------------------------------------------------------
 --	profile Table (aka Model in OPC nomenclature - formerly a part of nodeset table)
@@ -438,7 +438,7 @@ CREATE TABLE public.profile
 TABLESPACE pg_default;
 
 ALTER TABLE public.profile
-    OWNER to cesmii;
+    OWNER to profiledesigner;
 
 ---------------------------------------------------------------------
 --	Create profile to nodeset_file join table
@@ -468,7 +468,7 @@ CREATE TABLE public.profile_nodeset_file
 TABLESPACE pg_default;
 
 ALTER TABLE public.profile_nodeset_file
-    OWNER to cesmii;
+    OWNER to profiledesigner;
 
 ---------------------------------------------------------------------
 --	Profile Table
@@ -550,7 +550,7 @@ CREATE TABLE public.profile_type_definition
 TABLESPACE pg_default;
 
 ALTER TABLE public.profile_type_definition
-    OWNER to cesmii;
+    OWNER to profiledesigner;
 /*profile-profiletype-rename-refactor - END*/
 
 ---------------------------------------------------------------------
@@ -578,7 +578,7 @@ CREATE TABLE public.profile_interface
 TABLESPACE pg_default;
 
 ALTER TABLE public.profile_interface
-    OWNER to cesmii;
+    OWNER to profiledesigner;
 -- Index: profile_interfaces_8373b171
 
 -- DROP INDEX public.profile_interfaces_8373b171;
@@ -648,7 +648,7 @@ CREATE TABLE public.profile_composition
 TABLESPACE pg_default;
 
 ALTER TABLE public.profile_composition
-    OWNER to cesmii;
+    OWNER to profiledesigner;
 -- Index: profile_compositions_8373b171
 
 -- DROP INDEX public.profile_compositions_8373b171;
@@ -699,7 +699,7 @@ CREATE TABLE public.profile_type_definition_user_favorite
 TABLESPACE pg_default;
 
 ALTER TABLE public.profile_type_definition_user_favorite
-    OWNER to cesmii;
+    OWNER to profiledesigner;
 
 
 ---------------------------------------------------------------------
@@ -723,7 +723,7 @@ CREATE TABLE public.profile_type_definition_user_analytics
 TABLESPACE pg_default;
 
 ALTER TABLE public.profile_type_definition_user_analytics
-    OWNER to cesmii;
+    OWNER to profiledesigner;
 
 
 ---------------------------------------------------------------------
@@ -758,7 +758,7 @@ CREATE TABLE public.data_type
 TABLESPACE pg_default;
 
 ALTER TABLE public.data_type
-    OWNER to cesmii;
+    OWNER to profiledesigner;
 
 ---------------------------------------------------------------------
 --	TABLE Data TYPE
@@ -866,7 +866,7 @@ CREATE TABLE public.profile_attribute
 TABLESPACE pg_default;
 
 ALTER TABLE public.profile_attribute
-    OWNER to cesmii;
+    OWNER to profiledesigner;
 
 CREATE INDEX profile_attribute_3f2f3687
     ON public.profile_attribute USING btree
@@ -918,7 +918,7 @@ CREATE TABLE public.data_type_rank
 TABLESPACE pg_default;
 
 ALTER TABLE public.data_type_rank
-    OWNER to cesmii;
+    OWNER to profiledesigner;
 
 
 ---------------------------------------------------------------------
@@ -959,7 +959,7 @@ left outer join (
 ;
 
 ALTER VIEW public.v_data_type_rank
-    OWNER to cesmii;
+    OWNER to profiledesigner;
 
 	
 ---------------------------------------------------------------------
@@ -981,7 +981,7 @@ CREATE TABLE public.engineering_unit_rank
 TABLESPACE pg_default;
 
 ALTER TABLE public.engineering_unit_rank
-    OWNER to cesmii;
+    OWNER to profiledesigner;
 
 
 ---------------------------------------------------------------------
@@ -1015,7 +1015,7 @@ left outer join (
 ;
 
 ALTER VIEW public.v_engineering_unit_rank
-    OWNER to cesmii;
+    OWNER to profiledesigner;
 	
 ---------------------------------------------------------------------
 --	Import Log Table
@@ -1046,7 +1046,7 @@ CREATE TABLE public.import_log
 TABLESPACE pg_default;
 
 ALTER TABLE public.import_log
-    OWNER to cesmii;
+    OWNER to profiledesigner;
 
 	
 -- DROP TABLE public.import_log_message;
@@ -1066,7 +1066,7 @@ CREATE TABLE public.import_log_message
 TABLESPACE pg_default;
 
 ALTER TABLE public.import_log_message
-    OWNER to cesmii;
+    OWNER to profiledesigner;
 
 ---------------------------------------------------------------------
 --	Import log profile warning message
@@ -1094,7 +1094,7 @@ CREATE TABLE public.import_log_warning
 TABLESPACE pg_default;
 
 ALTER TABLE public.import_log_warning
-    OWNER to cesmii;
+    OWNER to profiledesigner;
 
 ---------------------------------------------------------------------
 --	Delete a nodeset and all of its children

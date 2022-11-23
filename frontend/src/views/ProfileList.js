@@ -42,7 +42,7 @@ function ProfileList() {
     const [_initProfileSearchCriteria, setInitProfileSearchCriteria] = useState(true);
     const [_profileSearchCriteria, setProfileSearchCriteria] = useState(null);
     const [_profileSearchCriteriaChanged, setProfileSearchCriteriaChanged] = useState(0);
-    const [_cloudLibslideOut, setCloudLibSlideOut] = useState({ isOpen: false });
+    const [_cloudLibSlideOut, setCloudLibSlideOut] = useState({ isOpen: false });
 
     //-------------------------------------------------------------------
     // Region: Pass profile id into component if profileId passed in from url
@@ -246,6 +246,21 @@ function ProfileList() {
     };
 
     //-------------------------------------------------------------------
+    // Region: hooks
+    //-------------------------------------------------------------------
+    useEffect(() => {
+        document.body.className = _cloudLibSlideOut.isOpen ?
+            //remove (if present) and re-append
+            document.body.className.replace('slideout-open-no-scroll', '') + 'slideout-open-no-scroll'
+            //remove (if present)
+            : document.body.className.replace('slideout-open-no-scroll', '');
+        //on unmount
+        return () => {
+            document.body.className = document.body.className.replace('slideout-open-no-scroll', '');
+        }
+    }, [_cloudLibSlideOut]);
+
+    //-------------------------------------------------------------------
     // Region: Render helpers
     //-------------------------------------------------------------------
     const renderHeaderRow = () => {
@@ -324,7 +339,7 @@ function ProfileList() {
             {renderProfileEntity()}
             {renderDeleteConfirmation()}
             <ErrorModal modalData={_error} callback={onErrorModalClose} />
-            <CloudLibSlideOut isOpen={_cloudLibslideOut.isOpen} onClosePanel={onCloseSlideOut} onImportStarted={onCloseSlideOut} />
+            <CloudLibSlideOut isOpen={_cloudLibSlideOut.isOpen} onClosePanel={onCloseSlideOut} onImportStarted={onCloseSlideOut} />
         </>
     )
 }

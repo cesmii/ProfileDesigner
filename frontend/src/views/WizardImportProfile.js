@@ -126,6 +126,19 @@ function WizardImportProfile() {
         };
     }, [_importStatus.isStarted, _importLogId, loadingProps.importingLogs]);
 
+    useEffect(() => {
+        document.body.className = _cloudLibSlideOut.isOpen ?
+            //remove (if present) and re-append
+            document.body.className.replace('slideout-open-no-scroll', '') + 'slideout-open-no-scroll'
+            //remove (if present)
+            : document.body.className.replace('slideout-open-no-scroll', '');
+        //on unmount
+        return () => {
+            document.body.className = document.body.className.replace('slideout-open-no-scroll', '');
+        }
+    }, [_cloudLibSlideOut]);
+
+
     //-------------------------------------------------------------------
     // Region: Event handling
     //-------------------------------------------------------------------

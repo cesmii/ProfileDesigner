@@ -40,6 +40,10 @@ $rightPanelWidth: 500px;
     }
 }
 
+.slideout-open-no-scroll {
+    overflow-y: hidden;
+}
+
 .slide-in-panel.open {
     margin-right: 0;
 }

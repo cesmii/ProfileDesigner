@@ -44,13 +44,13 @@ jobs:
           pg_isready
       - name: Create additional user
         run: |
-          sudo -u postgres psql --command="CREATE USER cesmii SUPERUSER PASSWORD 'cesmii'" --command="\du"
+          sudo -u postgres psql --command="CREATE USER profiledesigner SUPERUSER PASSWORD 'cesmii'" --command="\du"
       - name: List existing databases
         run: |
           sudo -u postgres psql -l
       - name: Create database
         run: |
-          sudo -u postgres psql --command="CREATE DATABASE profile_designer_local_test WITH OWNER = cesmii TABLESPACE = pg_default CONNECTION LIMIT = -1;"
+          sudo -u postgres psql --command="CREATE DATABASE profile_designer_local_test WITH OWNER = profiledesigner TABLESPACE = pg_default CONNECTION LIMIT = -1;"
       - name: Create schema
         run: |
           sudo -u postgres psql -d profile_designer_local_test --file sql/CESMII.ProfileDesigner.DB.sql

@@ -47,7 +47,9 @@ function CloudLibraryImporter(props) {
         }
         //start with a blank criteria slate. Handle possible null scenario if criteria hasn't loaded yet. 
         const criteria = loadingProps.profileSearchCriteria == null ? null : JSON.parse(JSON.stringify(loadingProps.profileSearchCriteria));
-
+        if (criteria == null) {
+            return;
+        }
         if (criteria != null) {
             criteria.filters[0].items[0].visible = false;
             criteria.filters[0].items[0].selected = false;
@@ -67,7 +69,7 @@ function CloudLibraryImporter(props) {
             setSearchCriteria(criteria);
             setSearchCriteriaChanged(_searchCriteriaChanged + 1);
         }
-        setLoadingProps(criteria);
+        setLoadingProps({ ...loadingProps, profileSearchCriteria: criteria });
 
         //this will execute on unmount
         return () => {

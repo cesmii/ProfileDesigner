@@ -40,7 +40,7 @@ namespace CESMII.ProfileDesigner.Api.Tests
                         .AddEnvironmentVariables("ASPNETCORE")
                         .AddInMemoryCollection(new Dictionary<string, string>
                         {
-                            { "ConnectionStrings:ProfileDesignerDB", "Server=localhost;Username=cesmii;Database=profile_designer_local_test;Port=5432;Password=cesmii;SSLMode=Prefer;Include Error Detail=true" },
+                            { "ConnectionStrings:ProfileDesignerDB", "Server=localhost;Username=profiledesigner;Database=profile_designer_local_test;Port=5432;Password=cesmii;SSLMode=Prefer;Include Error Detail=true" },
                         }))
             ;
         }

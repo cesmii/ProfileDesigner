@@ -39,6 +39,7 @@ function Routes() {
     return(
         <Switch>
             <WizardRoute exact path="/" component={WizardWelcome} roles={['cesmii.profiledesigner.user']} />
+            <PublicFixedRoute exact path="/login/success" component={Login} roles={['cesmii.profiledesigner.user']} />
             {/*<LoginSuccessRoute exact path="/loginsuccess" component={LoginSuccess} roles={['cesmii.profiledesigner.user']} />*/}
             <PublicFixedRoute path="/login/returnUrl=:returnUrl" component={Login} />
             <PublicFixedRoute exact path="/login" component={Login} />

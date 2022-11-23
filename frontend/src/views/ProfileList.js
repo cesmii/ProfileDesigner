@@ -9,10 +9,10 @@ import { generateLogMessageString, renderTitleBlock, scrollTop } from '../utils/
 import { useLoadingContext } from "../components/contexts/LoadingContext";
 import ConfirmationModal from '../components/ConfirmationModal';
 import ProfileEntityModal from './modals/ProfileEntityModal';
-import CloudLibraryImporterModal from './modals/CloudLibraryImporterModal';
-import CloudLibraryImporter from './shared/CloudLibraryImporter';
-import CloudLibList from './CloudLibList';
-
+//import CloudLibraryImporterModal from './modals/CloudLibraryImporterModal';
+//import CloudLibraryImporter from './shared/CloudLibraryImporter';
+//import CloudLibList from './CloudLibList';
+import CloudLibSlideOut from './shared/CloudLibSlideOut.js'
 import ProfileListGrid from './shared/ProfileListGrid';
 import ProfileImporter from './shared/ProfileImporter';
 
@@ -38,10 +38,11 @@ function ProfileList() {
     const [_error, setError] = useState({ show: false, message: null, caption: null });
     //used in popup profile add/edit ui. Default to new version
     const [_profileEntityModal, setProfileEntityModal] = useState({ show: false, item: null});
-    const [_cloudLibImporterModal, setCloudLibImporterModal] = useState({ show: false });
+    //const [_cloudLibImporterModal, setCloudLibImporterModal] = useState({ show: false });
     const [_initProfileSearchCriteria, setInitProfileSearchCriteria] = useState(true);
     const [_profileSearchCriteria, setProfileSearchCriteria] = useState(null);
     const [_profileSearchCriteriaChanged, setProfileSearchCriteriaChanged] = useState(0);
+    const [_cloudLibslideOut, setCloudLibSlideOut] = useState({ isOpen: false });
 
     //-------------------------------------------------------------------
     // Region: Pass profile id into component if profileId passed in from url
@@ -57,8 +58,8 @@ function ProfileList() {
         //start with a blank criteria slate. Handle possible null scenario if criteria hasn't loaded yet. 
         var criteria = loadingProps.profileSearchCriteria == null ? null : JSON.parse(JSON.stringify(loadingProps.profileSearchCriteria));
 
-        if (criteria != null) {
-            //criteria = clearSearchCriteria(criteria);
+        if (criteria == null) {
+            return; //criteria = clearSearchCriteria(criteria);
         }
 
         //update state
@@ -89,34 +90,40 @@ function ProfileList() {
 
     const onCloudLibImportClick = () => {
         console.log(generateLogMessageString(`onCloudLibImportClick`, CLASS_NAME));
-        setCloudLibImporterModal({ show: true });
+        //setCloudLibImporterModal({ show: true });
+        setCloudLibSlideOut({ isOpen: true });
     };
+
+    const onCloseSlideOut = () => {
+        console.log(generateLogMessageString(`onCloseSlideOut`, CLASS_NAME));
+        setCloudLibSlideOut({ isOpen: false });
+    }
 
     const onCloudLibImportCancel = () => {
         console.log(generateLogMessageString(`onCloudLibImportCancel`, CLASS_NAME));
-        setCloudLibImporterModal({ show: false });
+        //setCloudLibImporterModal({ show: false });
     };
 
     const onCloudLibImportStarted = (id) => {
-        setCloudLibImporterModal({ show: false });
+        //setCloudLibImporterModal({ show: false });
     }
 
 
     const onAdd = () => {
         console.log(generateLogMessageString(`onAdd`, CLASS_NAME));
-        setProfileEntityModal({ show: true, item: null});
+        setProfileEntityModal({ show: true, item: null });
     };
 
     const onEdit = (item) => {
         console.log(generateLogMessageString(`onEdit`, CLASS_NAME));
-        setProfileEntityModal({ show: true, item: item});
+        setProfileEntityModal({ show: true, item: item });
     };
-    
+
     const onSave = (id) => {
         console.log(generateLogMessageString(`onSave`, CLASS_NAME));
         setProfileEntityModal({ show: false, item: null });
         //force re-load to show the newly added, edited items
-        setLoadingProps({ refreshProfileList:true});
+        setLoadingProps({ refreshProfileList: true });
     };
 
     const onSaveCancel = () => {
@@ -250,7 +257,7 @@ function ProfileList() {
                 <div className="col-sm-5 d-flex align-items-center justify-content-end">
                     <Dropdown className="import-menu icon-dropdown auto-width mx-2" onClick={(e) => e.stopPropagation()} >
                         <Dropdown.Toggle>
-                            <Button variant="secondary" type="button" className="auto-width mx-2">Import...</Button>                        
+                            <Button variant="secondary" type="button" className="auto-width mx-2">Import...</Button>
                         </Dropdown.Toggle>
                         <Dropdown.Menu>
                             <Dropdown.Item onClick={onCloudLibImportClick}>Import from Cloud Library</Dropdown.Item>
@@ -258,8 +265,7 @@ function ProfileList() {
                                 {<ProfileImporter caption="Import NodeSet file" cssClass="" useCssClassOnly="true" />}
                             </Dropdown.Item>
                         </Dropdown.Menu>
-                    </Dropdown>     
-                    {/*{<ProfileImporter caption="Import" cssClass="mb-0" />}*/}
+                    </Dropdown>
                     <Button variant="secondary" type="button" className="auto-width mx-2" onClick={onAdd} >Create Profile</Button>
                 </div>
             </div>
@@ -273,7 +279,7 @@ function ProfileList() {
                     If you are the SM Profile author, import your profiles (including any dependent profiles) using the 'Import' button. The import will tag you as the author for your profiles and permit you to edit them. The import will also check to ensure referenced type models are valid OPC UA type models.
                 </p>
                 <p className="mb-2" >
-                Any dependent profiles (OPC UA type models) that are imported will become read-only and added to the Profile Library. Type definitions within these dependent profiles can be viewed or extended to make new Type definitions, which can become part of one of your SM Profiles.
+                    Any dependent profiles (OPC UA type models) that are imported will become read-only and added to the Profile Library. Type definitions within these dependent profiles can be viewed or extended to make new Type definitions, which can become part of one of your SM Profiles.
                 </p>
             </div>
         );
@@ -288,17 +294,18 @@ function ProfileList() {
             <ProfileEntityModal item={_profileEntityModal.item} showModal={_profileEntityModal.show} onSave={onSave} onCancel={onSaveCancel} showSavedMessage={true} />
         );
     };
-    //renderProfileCloudLibImport as a modal to force user to say ok.
-    const renderProfileCloudLibImport= () => {
+    //const renderProfileCloudLibImport = () => {
 
-        if (!_cloudLibImporterModal.show) return;
+    //    if (!_cloudLibImporterModal.show) return;
 
-        return (
-            <CloudLibraryImporterModal showModal={_cloudLibImporterModal.show} onImportCanceled={onCloudLibImportCancel} onImportStarted={onCloudLibImportStarted} />
-            //<CloudLibList/>
-            //<CloudLibraryImporter onImportStarted={onCloudLibImportStarted} />
-        );
-    };
+    //    //<CloudLibraryImporterModal showModal={_cloudLibImporterModal.show} onImportCanceled={onCloudLibImportCancel} onImportStarted={onCloudLibImportStarted} />
+    //    //<CloudLibList/>
+    //    //<CloudLibraryImporter onImportStarted={onCloudLibImportStarted} />
+
+    //    return (
+    //        <CloudLibraryImporter onImportStarted={onCloudLibImportStarted} />
+    //    );
+    //};
 
     //-------------------------------------------------------------------
     // Region: Render final output
@@ -311,13 +318,13 @@ function ProfileList() {
             {renderHeaderRow()}
             {renderIntroContent()}
             {(_profileSearchCriteria != null) &&
-            <ProfileListGrid searchCriteria={_profileSearchCriteria} onGridRowSelect={onGridRowSelect} onEdit={onEdit} onDeleteItemClick={onDeleteItemClick}
-                onSearchCriteriaChanged={onSearchCriteriaChanged} searchCriteriaChanged={_profileSearchCriteriaChanged} noSearch="true" />
+                <ProfileListGrid searchCriteria={_profileSearchCriteria} onGridRowSelect={onGridRowSelect} onEdit={onEdit} onDeleteItemClick={onDeleteItemClick}
+                    onSearchCriteriaChanged={onSearchCriteriaChanged} searchCriteriaChanged={_profileSearchCriteriaChanged} noSearch="true" />
             }
             {renderProfileEntity()}
-            {renderProfileCloudLibImport()}
             {renderDeleteConfirmation()}
             <ErrorModal modalData={_error} callback={onErrorModalClose} />
+            <CloudLibSlideOut isOpen={_cloudLibslideOut.isOpen} onClosePanel={onCloseSlideOut} onImportStarted={onCloseSlideOut} />
         </>
     )
 }

@@ -124,12 +124,11 @@ namespace CESMII.ProfileDesigner.OpcUa.AASX
                 }
                 return aasxPackage;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // TODO figure out error reporting
                 throw;
             }
-            return null;
         }
         
         private static string GetFileNameFromModelUri(string modelUri)

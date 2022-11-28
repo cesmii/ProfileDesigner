@@ -19,7 +19,7 @@ export const AppSettings = {
     BASE_API_URL: process.env.REACT_APP_BASE_API_URL  //api server url - environment specific
     , Titles: { Anonymous: 'CESMII | SM Profile Designer', Main: 'CESMII | SM Profile Designer', Caption: 'SM Profile™ Designer' }
     , PageSize: 25
-    , PageSizeOptions: [10, 25, 50, 100]
+    , PageSizeOptions: [5, 10, 25, 50, 100]
     , DateSettings: {
         DateFormat: 'M/d/yyyy'
         , DateFormat_Grid: 'MM/dd/yyyy'
@@ -83,6 +83,15 @@ export const AppSettings = {
     , ExportFormatEnum : {
         XML: 'Xml',
         AASX: 'AASX'
+    }
+    , ImportSourceEnum: {
+        NodeSetXML: 'NodeSet Xml',
+        CloudLib: 'Cloud Library'
+    }
+    , ProfileLicenseEnum: {
+        0: 'MIT',
+        1: 'Apache 2.0',
+        2: 'Custom (see License URL)'
     }
     //MSAL (Authentication) Config
     , MsalConfig: {

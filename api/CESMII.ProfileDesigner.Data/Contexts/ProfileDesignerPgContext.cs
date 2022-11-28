@@ -162,6 +162,10 @@
             modelBuilder.Entity<Profile>()
                 .HasOne(p => p.Author).WithMany().HasForeignKey(v => v.AuthorId);
 
+            modelBuilder.Entity<UAProperty>().ToTable("profile_additional_properties", "public")
+                .HasOne(prop => prop.Profile).WithMany(p => p.AdditionalProperties)
+            ;
+
             //------------------------------------------------
             //Import log data
             //------------------------------------------------

@@ -22,6 +22,36 @@
     {
         public string Query { get; set; }
     }
+    public class PagerKeywordsFilterModel : PagerModel
+    {
+    }
+    public class CloudLibFilterModel
+    {
+        /// <summary>
+        /// This is the number of items to include in the page
+        /// </summary>
+        public int Take { get; set; }
+        /// <summary>
+        /// This is the cursor of the item after which to query (usually last item of the previous page)
+        /// </summary>
+        public string Cursor { get; set; }
+        /// <summary>
+        /// if true, indicates backwards paging (cursor is usually the first item of the current page)
+        /// </summary>
+        public bool PageBackwards { get; set; }
+        /// <summary>
+        /// Keywords to query for
+        /// </summary>
+        public List<string> Keywords { get; set; }
+        /// <summary>
+        /// Adds any profiles in the user's library to the returned list if they are not already in the cloud library result. Useful for a "global keyword search".
+        /// </summary>
+        public bool AddLocalLibrary { get; set; }
+        /// <summary>
+        /// Removes any profiles that are already in the user's library from the returned list
+        /// </summary>
+        public bool ExcludeLocalLibrary { get; set; }
+    }
 
     public class PagerFilterLookupModel : PagerFilterSimpleModel
     {
@@ -34,6 +64,15 @@
 
         public SearchCriteriaSortByEnum SortByEnum { get; set; } = SearchCriteriaSortByEnum.Name;
     }
+
+    public class ProfileFilterModel : PagerFilterSimpleModel
+    {
+        public List<LookupGroupByModel> Filters { get; set; }
+
+        public SearchCriteriaSortByEnum SortByEnum { get; set; } = SearchCriteriaSortByEnum.Name;
+    }
+
+
 
     public class LookupGroupByModel : LookupTypeModel
     {

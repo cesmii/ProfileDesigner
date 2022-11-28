@@ -97,7 +97,7 @@ export const onAADLogin = (setLoadingProps) => {
 export const onAADLoginComplete = (instance, history, setLoadingProps, statusCode) => {
     switch (statusCode) {
         case 200:
-            setLoadingProps({ refreshLookupData: true, refreshSearchCriteria: true, refreshFavorites: true });
+            setLoadingProps({ refreshLookupData: true, refreshSearchCriteria: true, refreshProfileSearchCriteria: true, refreshFavorites: true });
             history.push('/');
             break;
         case 401:
@@ -323,7 +323,7 @@ export const useOnLoginComplete = () => {
 
         switch (statusCode) {
             case 200:
-                setLoadingProps({ loginStatusCode: null, refreshLookupData: true, refreshSearchCriteria: true, refreshFavorites: true });
+                setLoadingProps({ loginStatusCode: null, refreshLookupData: true, refreshSearchCriteria: true, refreshProfileSearchCriteria: true, refreshFavorites: true });
                 //history.push('/');
                 break;
             case 401:

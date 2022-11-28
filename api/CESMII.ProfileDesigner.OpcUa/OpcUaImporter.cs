@@ -7,7 +7,6 @@ namespace CESMII.ProfileDesigner.OpcUa
     using CESMII.ProfileDesigner.DAL.Utils;
     using CESMII.ProfileDesigner.Data.Entities;
     using CESMII.OpcUa.NodeSetModel;
-    using CESMII.OpcUa.NodeSetModel.Export.Opc;
     using CESMII.OpcUa.NodeSetModel.Factory.Opc;
     using CESMII.OpcUa.NodeSetModel.Opc.Extensions;
     using CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile;
@@ -32,7 +31,7 @@ namespace CESMII.ProfileDesigner.OpcUa
     using CESMII.ProfileDesigner.Api.Shared.Models;
     using CESMII.ProfileDesigner.Opc.Ua.NodeSetDBCache;
     using CESMII.OpcUa.NodeSetImporter;
-    using Microsoft.Extensions.DependencyInjection;
+    using CESMII.ProfileDesigner.CloudLibClient;
 
     public class OpcUaImporter
     {
@@ -45,10 +44,12 @@ namespace CESMII.ProfileDesigner.OpcUa
             IDal<ProfileTypeDefinition, ProfileTypeDefinitionModel> dal,
             IDal<LookupDataType, LookupDataTypeModel> dtDal,
             IDal<Profile, ProfileModel> profileDal,
+            IDal<StandardNodeSet, StandardNodeSetModel> dalStandardNodeSet, 
+            ICloudLibDal<CloudLibProfileModel> cloudLibDal,
+            ICloudLibWrapper cloudLibWrapper,
             IDal<NodeSetFile, NodeSetFileModel> nodeSetFileDal,
-            IDal<StandardNodeSet, StandardNodeSetModel> dalStandardNodeSet,
+            UANodeSetDBCache nodeSetCache,
             IDal<EngineeringUnit, EngineeringUnitModel> euDal,
-            IUANodeSetResolverWithProgress cloudLibResolver,
             ProfileMapperUtil profileUtils,
             ILogger<OpcUaImporter> logger
 #if NODESETDBTEST
@@ -65,10 +66,12 @@ namespace CESMII.ProfileDesigner.OpcUa
             this.nsDBContext = nsDBContext;
 #endif
             _profileDal = profileDal;
-            this._nodeSetFileDal = nodeSetFileDal;
-            this._dalStandardNodeSet = dalStandardNodeSet;
+            _dalStandardNodeSet = dalStandardNodeSet;
+            _cloudLibDal = cloudLibDal;
+            _cloudLibWrapper = cloudLibWrapper;
+            _nodeSetFileDal = nodeSetFileDal;
+            _nodeSetCache = nodeSetCache;
             _profileUtils = profileUtils;
-            _nodeSetResolver = cloudLibResolver;
         }
 
         public readonly IDal<ProfileTypeDefinition, ProfileTypeDefinitionModel> _dal;
@@ -77,13 +80,15 @@ namespace CESMII.ProfileDesigner.OpcUa
         public readonly ProfileMapperUtil _profileUtils;
         public readonly LoggerCapture Logger;
         public readonly ILogger _logger;
-        private readonly IUANodeSetResolverWithProgress _nodeSetResolver;
 #if NODESETDBTEST
         private readonly NodeSetModelContext nsDBContext;
 #endif
         internal readonly IDal<Data.Entities.Profile, DAL.Models.ProfileModel> _profileDal;
-        private readonly IDal<NodeSetFile, NodeSetFileModel> _nodeSetFileDal;
         private readonly IDal<StandardNodeSet, StandardNodeSetModel> _dalStandardNodeSet;
+        private readonly ICloudLibDal<CloudLibProfileModel> _cloudLibDal;
+        private readonly ICloudLibWrapper _cloudLibWrapper;
+        private readonly IDal<NodeSetFile, NodeSetFileModel> _nodeSetFileDal;
+        private readonly UANodeSetDBCache _nodeSetCache;
         readonly Dictionary<string, string> Aliases = new();
 
 
@@ -92,7 +97,7 @@ namespace CESMII.ProfileDesigner.OpcUa
             var sw = Stopwatch.StartNew();
             _logger.LogTrace("Starting import");
             var fileNames = string.Join(", ", nodeSetXmlList.Select(f => f.FileName).ToArray<string>());
-            var filesImportedMsg = $"Importing File{(nodeSetXmlList.Count.Equals(1) ? "" : "s")}: {fileNames}";
+            var filesImportedMsg = $"Importing Nodeset{(nodeSetXmlList.Count.Equals(1) ? "" : "s")}: {fileNames}";
 
             _logger.LogInformation($"ImportService|ImportOpcUaProfile|{filesImportedMsg}. User Id:{userToken}.");
 
@@ -101,7 +106,7 @@ namespace CESMII.ProfileDesigner.OpcUa
                 await logToImportLog($"Importing engineering units...<br/>{filesImportedMsg}", TaskStatusEnum.InProgress);
                 await ImportEngineeringUnitsAsync(UserToken.GetGlobalUser(userToken));
             }
-            await logToImportLog($"Validating nodeset files and dependencies...<br/>{filesImportedMsg}", TaskStatusEnum.InProgress);
+            await logToImportLog($"Validating nodesets and dependencies...<br/>{filesImportedMsg}", TaskStatusEnum.InProgress);
 
             //init the warnings object outside the try/catch so that saving warnings happens after conclusion of import.
             //We don't want an execption saving warnings to DB to cause a "failed" import message
@@ -116,14 +121,13 @@ namespace CESMII.ProfileDesigner.OpcUa
             {
                 #region CM new code for importing all NodeSet in correct order and with Dependency Resolution
 
-                var myNodeSetCache = new UANodeSetDBCache(_nodeSetFileDal, _dalStandardNodeSet, userToken); // DB CACHE
-
+                _nodeSetCache.SetUser(userToken);
                 _profileDal.StartTransaction();
-                _logger.LogTrace($"Timestamp||ImportId:{logId}||Importing node set files: {sw.Elapsed}");
+                _logger.LogTrace($"Timestamp||ImportId:{logId}||Importing node sets: {sw.Elapsed}");
 
                 var nodeSetXmlStringList = nodeSetXmlList.Select(nodeSetXml => nodeSetXml.Data).ToList();
-                UANodeSetImportResult importedNodeSetFiles = ImportAndDownloadNodeSetFiles(myNodeSetCache, userToken, nodeSetXmlStringList, logToImportLog);
-                _logger.LogTrace($"Timestamp||ImportId:{logId}||Imported node set files: {sw.Elapsed}");
+                UANodeSetImportResult importedNodeSetFiles = ImportAndDownloadNodeSetFiles(_nodeSetCache, userToken, nodeSetXmlStringList, logToImportLog);
+                _logger.LogTrace($"Timestamp||ImportId:{logId}||Imported node sets: {sw.Elapsed}");
                 if (!string.IsNullOrEmpty(importedNodeSetFiles.ErrorMessage))
                 {
                     //The UA Importer encountered a crash/error
@@ -148,7 +152,7 @@ namespace CESMII.ProfileDesigner.OpcUa
                 //This area will be put in an interface that can be used by the Importer (after Friday Presentation)
                 try
                 {
-                    //_logger.LogTrace($"Timestamp||ImportId:{logId}||Getting standard nodesets files: {sw.Elapsed}");
+                    //_logger.LogTrace($"Timestamp||ImportId:{logId}||Getting standard nodesets: {sw.Elapsed}");
                     //var standardNodeSets = _dalStandardNodeSet.GetAll(userToken);
 
                     //_logger.LogTrace($"Timestamp||ImportId:{logId}||Verifying standard nodeset: {sw.Elapsed}");
@@ -172,11 +176,11 @@ namespace CESMII.ProfileDesigner.OpcUa
 
                         }
                     }
-                    await logToImportLog($"Nodeset files validated.<br/>{filesImportedMsg}", TaskStatusEnum.InProgress);
+                    await logToImportLog($"Nodesets validated.<br/>{filesImportedMsg}", TaskStatusEnum.InProgress);
                 }
                 catch (Exception e)
                 {
-                    myNodeSetCache.DeleteNewlyAddedNodeSetsFromCache(importedNodeSetFiles);
+                    _nodeSetCache.DeleteNewlyAddedNodeSetsFromCache(importedNodeSetFiles);
                     //log complete message to logger and abbreviated message to user. 
                     _logger.LogCritical(e, $"ImportId:{logId}||ImportService|ImportOpcUaProfile|{e.Message}");
                     //failed complete message
@@ -211,7 +215,7 @@ namespace CESMII.ProfileDesigner.OpcUa
                         //only show message for the items which are newly imported...
                         if (profileAndNodeSet.NodeSetModel.NewInThisImport)
                         {
-                            await logToImportLog($"Processing nodeset file: {profileAndNodeSet.NodeSetModel.NameVersion}...", TaskStatusEnum.InProgress);
+                            await logToImportLog($"Processing nodeset: {profileAndNodeSet.NodeSetModel.NameVersion}...", TaskStatusEnum.InProgress);
                         }
                         var logList = new List<string>();
                         (Logger as LoggerCapture).LogList = logList;
@@ -252,10 +256,10 @@ namespace CESMII.ProfileDesigner.OpcUa
                     sw.Stop();
                     var elapsed = sw.Elapsed;
                     var elapsedMsg = $"{elapsed.Minutes}:{elapsed.Seconds} (min:sec)";
-                    _logger.LogTrace($"Timestamp||ImportId:{logId}||Import time: {elapsedMsg}, Files: {fileNames} "); //use warning so it shows in app log in db
+                    _logger.LogTrace($"Timestamp||ImportId:{logId}||Import time: {elapsedMsg}, Nodesets: {fileNames} "); //use warning so it shows in app log in db
 
                     //return success message object
-                    filesImportedMsg = $"Imported File{(nodeSetXmlList.Count.Equals(1) ? "" : "s")}: {fileNames}";
+                    filesImportedMsg = $"Imported Nodeset{(nodeSetXmlList.Count.Equals(1) ? "" : "s")}: {fileNames}";
                     await logToImportLog($"{filesImportedMsg}", TaskStatusEnum.Completed);
                 }
                 catch (Exception e)
@@ -286,24 +290,72 @@ namespace CESMII.ProfileDesigner.OpcUa
             return nodesetWarnings;
         }
 
-        private ProfileModel FindOrCreateProfileForNodeSet(ModelValue tmodel, IDal<Profile, ProfileModel> dalProfile, UserToken userToken, int logId, Stopwatch sw)
+        private ProfileModel FindOrCreateProfileForNodeSet(ModelValue tModel, IDal<Profile, ProfileModel> dalProfile, UserToken userToken, int logId, Stopwatch sw)
         {
-            var nsModel = tmodel.NameVersion.CCacheId as NodeSetFileModel;
-            _logger.LogTrace($"Timestamp||ImportId:{logId}||Loading nodeset {tmodel.NameVersion.ModelUri}: {sw.Elapsed}");
-            var profile = dalProfile.Where(p => p.Namespace == tmodel.NameVersion.ModelUri /*&& p.PublicationDate == tmodel.NameVersion.PublicationDate*/ /*&& (p.AuthorId == null || p.AuthorId == userToken)*/,
+            var nsModel = tModel.NameVersion.CCacheId as NodeSetFileModel;
+            _logger.LogTrace($"Timestamp||ImportId:{logId}||Loading nodeset {tModel.NameVersion.ModelUri}: {sw.Elapsed}");
+            var profile = dalProfile.Where(p => p.Namespace == tModel.NameVersion.ModelUri /*&& p.PublicationDate == tmodel.NameVersion.PublicationDate*/ /*&& (p.AuthorId == null || p.AuthorId == userToken)*/,
                     userToken, verbose: false)?.Data?.OrderByDescending(p => p.Version)?.FirstOrDefault();
-            _logger.LogTrace($"Timestamp||ImportId:{logId}||Loaded nodeset {tmodel.NameVersion.ModelUri}: {sw.Elapsed}");
+            _logger.LogTrace($"Timestamp||ImportId:{logId}||Loaded nodeset {tModel.NameVersion.ModelUri}: {sw.Elapsed}");
 
             if (profile == null)
             {
-                profile = new ProfileModel
+                StandardNodeSetModel standardNodeSet = null;
+                CloudLibProfileModel cloudLibNodeSet = null;
+                if ((tModel.NameVersion.UAStandardModelID??0) == 0)
                 {
-                    Namespace = tmodel.NameVersion.ModelUri,
-                    PublishDate = tmodel.NameVersion.PublicationDate,
-                    Version = tmodel.NameVersion.ModelVersion,
-                    AuthorId = nsModel.AuthorId,
-                    StandardProfileID = tmodel.NameVersion.UAStandardModelID,
-                };
+                    cloudLibNodeSet = _cloudLibDal.GetAsync(tModel.NameVersion.ModelUri, tModel.NameVersion.PublicationDate, true).Result;
+                    if (cloudLibNodeSet != null)
+                    {
+                        standardNodeSet = cloudLibNodeSet.ToStandardNodeSet();
+                        _dalStandardNodeSet.AddAsync(standardNodeSet, userToken).Wait();
+                    }
+                    else
+                    {
+                        // No exact match: use a newer one to prevent editing of older nodesets
+                        standardNodeSet = _dalStandardNodeSet
+                            .Where(
+                                sns => sns.Namespace == tModel.NameVersion.ModelUri && sns.PublishDate > tModel.NameVersion.PublicationDate,
+                                userToken)
+                            .Data
+                                ?.OrderByDescending(sns => sns.PublishDate).FirstOrDefault();
+                        if (standardNodeSet != null)
+                        {
+                            _logger.LogWarning($"Did not find exact match for {tModel.NameVersion}. Using standard nodeset with publication date {standardNodeSet.PublishDate} instead.");
+                            tModel.NameVersion.UAStandardModelID = standardNodeSet.ID;
+                        }
+                        else
+                        {
+                            cloudLibNodeSet = _cloudLibDal.GetAsync(tModel.NameVersion.ModelUri, tModel.NameVersion.PublicationDate, false).Result;
+                            if (cloudLibNodeSet != null)
+                            {
+                                _logger.LogWarning($"Did not find exact match for {tModel.NameVersion}. Using standard nodeset with publication date {standardNodeSet.PublishDate} instead.");
+                                standardNodeSet = cloudLibNodeSet.ToStandardNodeSet();
+                                _dalStandardNodeSet.AddAsync(standardNodeSet, userToken).Wait();
+                            }
+                            else
+                            {
+                                _logger.LogWarning($"Did not find newer version for {tModel.NameVersion}. Not treating as standard node set to allow editing of future versions.");
+                            }
+                        }
+                    }
+                }
+
+                if (cloudLibNodeSet != null)
+                {
+                    // Use cloud library meta data even if not exact match
+                    profile = cloudLibNodeSet;
+                }
+                else
+                {
+                    profile = new ProfileModel();
+                }
+                profile.Namespace = tModel.NameVersion.ModelUri;
+                profile.PublishDate = tModel.NameVersion.PublicationDate;
+                profile.Version = tModel.NameVersion.ModelVersion;
+                profile.AuthorId = nsModel.AuthorId;
+                profile.StandardProfileID = tModel.NameVersion.UAStandardModelID;
+                profile.StandardProfile = standardNodeSet;
             }
 
             if (profile.NodeSetFiles == null)
@@ -326,12 +378,12 @@ namespace CESMII.ProfileDesigner.OpcUa
             UANodeSetImportResult resultSet;
             try
             {
-                _nodeSetResolver.OnDownloadNodeSet += callback;
-                resultSet = UANodeSetImporter.ImportNodeSets(myNodeSetCache, null, nodeSetXmlStringList, false, userToken, _nodeSetResolver);
+                _cloudLibWrapper.OnDownloadNodeSet += callback;
+                resultSet = UANodeSetImporter.ImportNodeSets(myNodeSetCache, null, nodeSetXmlStringList, false, userToken, _cloudLibWrapper);
             }
             finally
             {
-                _nodeSetResolver.OnDownloadNodeSet -= callback;
+                _cloudLibWrapper.OnDownloadNodeSet -= callback;
             }
 
             return resultSet;
@@ -351,7 +403,7 @@ namespace CESMII.ProfileDesigner.OpcUa
             if (
                 firstModel.ModelUri != profile.Namespace
                 || firstModel.Version != profile.Version
-                || firstModel.PublicationDate.Date != profile.PublishDate?.Date
+                || firstModel.PublicationDate.ToUniversalTime() != profile.PublishDate?.ToUniversalTime()
                 )
             {
                 throw new Exception($"Mismatching primary model meta data and meta data from cache");

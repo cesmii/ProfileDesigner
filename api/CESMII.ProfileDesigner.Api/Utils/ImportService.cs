@@ -29,11 +29,9 @@ namespace CESMII.ProfileDesigner.Api.Utils
         private readonly IServiceScopeFactory _serviceScopeFactory;
         private readonly IDal<ImportLog, ImportLogModel> _dalImportLog;
         private readonly IConfiguration _configuration;
-        private readonly IUANodeSetResolverWithProgress _nodeSetResolver;
 
         public ImportService(IServiceScopeFactory serviceScopeFactory,
             IDal<ImportLog, ImportLogModel> dalImportLog,
-            IUANodeSetResolverWithProgress cloudLibResolver,
             ILogger<ImportService> logger,
             IConfiguration configuration)
 
@@ -42,7 +40,6 @@ namespace CESMII.ProfileDesigner.Api.Utils
             _serviceScopeFactory = serviceScopeFactory;
             _dalImportLog = dalImportLog;
             _configuration = configuration;
-            _nodeSetResolver = cloudLibResolver;
         }
 
         public async Task<int> ImportOpcUaNodeSet(List<ImportOPCModel> nodeSetXmlList, UserToken userToken)

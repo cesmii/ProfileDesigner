@@ -5,6 +5,8 @@ import axiosInstance from "../../services/AxiosService";
 import { getProfilePreferences, setProfilePageSize } from '../../services/ProfileService';
 import { generateLogMessageString } from '../../utils/UtilityService'
 import GridPager from '../../components/GridPager'
+import ProfileFilter from './ProfileFilter'
+
 import ProfileItemRow from './ProfileItemRow';
 import { useLoadingContext } from "../../components/contexts/LoadingContext";
 
@@ -35,6 +37,9 @@ function ProfileListGrid(props) {
     //importer
     const [_forceReload, setForceReload] = useState(0);
 
+    const [_profileSearchCriteria, setProfileSearchCriteria] = useState(props.searchCriteria);
+    const [_profileSearchCriteriaChanged, setProfileSearchCriteriaChanged] = useState(0);
+
     //-------------------------------------------------------------------
     // Region: Event Handling of child component events
     //-------------------------------------------------------------------
@@ -64,6 +69,11 @@ function ProfileListGrid(props) {
         //bubble up to parent
         if (props.onEdit) props.onEdit(item);
     };
+    const onImport = (item) => {
+        console.log(generateLogMessageString(`onImport`, CLASS_NAME));
+        //bubble up to parent
+        if (props.onImport) props.onImport(item);
+    };
 
     const onRowSelect = (item) => {
         console.log(generateLogMessageString(`onRowSelect`, CLASS_NAME));
@@ -84,23 +94,110 @@ function ProfileListGrid(props) {
     };
 
     //-------------------------------------------------------------------
+    // Region: Event Handling of child component events
+    //-------------------------------------------------------------------
+
+    //bubble up search criteria changed so the parent page can control the search criteria
+    const onProfileSearchCriteriaChanged = (criteria) => {
+        console.log(generateLogMessageString(`onProfileSearchCriteriaChanged`, CLASS_NAME));
+        //update state
+        setProfileSearchCriteria(criteria);
+        //trigger api to get data
+        setProfileSearchCriteriaChanged(_profileSearchCriteriaChanged + 1);
+        if (props.onSearchCriteriaChanged != null) props.onSearchCriteriaChanged(criteria);
+    };
+
+    //-------------------------------------------------------------------
     // Region: Get data 
     //-------------------------------------------------------------------
     useEffect(() => {
         async function fetchData() {
+            const localProfileSelected = _profileSearchCriteria?.filters?.find(x => x.id === 1)?.items[0]?.selected;
+            const baseProfileSelected = _profileSearchCriteria?.filters?.find(x => x.id === 2)?.items[0]?.selected;
+            const cloudLibSelected = _profileSearchCriteria?.filters?.find(x => x.id === 3)?.items[0]?.selected;
+
+            let url;
+            if (props.isMine|| (baseProfileSelected != null && !baseProfileSelected && cloudLibSelected != null && !cloudLibSelected)) {
+                url = 'profile/mine';
+            }
+            else if (!cloudLibSelected) {
+                url = 'profile/library';
+            }
+            else {
+                url = 'profile/cloudlibrary';
+            }
+
+            console.log(generateLogMessageString(`useEffect||fetchData||${url}`, CLASS_NAME));
+
+            const keywords = _profileSearchCriteria?.query == null
+                ? null 
+                : [_profileSearchCriteria?.query?.toString()];
+
+            // Cursor pagination can only move one page at a time
+            let cursor;
+            let pageBackwards = false;
+            if (_pager.currentPage === 1) {
+                cursor = null;
+            }
+            else if (_pager.currentPage === _dataRows?.pageNumber) {
+                return;
+            }
+            else if (_pager.currentPage > _dataRows?.pageNumber + 1 &&  _pager.currentPage === Math.ceil(_dataRows.itemCount / _pager.pageSize))
+            {
+                // Jump to last page
+                cursor = null;
+                pageBackwards = true;
+            }
+            else if (_pager.currentPage > _dataRows?.pageNumber) {
+                cursor = _dataRows?.endCursor;
+                _pager.currentPage = _dataRows?.pageNumber + 1;
+            }
+            else if (_pager.currentPage < _dataRows?.pageNumber) {
+                cursor = _dataRows?.startCursor;
+                pageBackwards = true;
+                _pager.currentPage = _dataRows?.pageNumber - 1;
+            }
+            const data = {
+                Query: _pager.searchVal,
+
+                // Offset pagination for local profiles
+                Skip: (_pager.currentPage - 1) * _pager.pageSize,
+                Take: _pager.pageSize,
+
+                // Cursor pagination for CloudLib
+                Cursor: cursor,
+                PageBackwards: pageBackwards,
+
+                // CloudLib filters
+                AddLocalLibrary: (localProfileSelected),
+                ExcludeLocalLibrary: (!baseProfileSelected && !localProfileSelected),
+                Keywords: keywords
+            };
+
             //show a spinner
             setLoadingProps({ isLoading: true, message: null });
 
-            var url = `profile/${props.isMine ? 'mine' : 'library'}`;
-            console.log(generateLogMessageString(`useEffect||fetchData||${url}`, CLASS_NAME));
-
-            var data = { Query: _pager.searchVal, Skip: (_pager.currentPage - 1) * _pager.pageSize, Take: _pager.pageSize };
             await axiosInstance.post(url, data).then(result => {
                 if (result.status === 200) {
 
+                    let itemCount = result.data.count;
+                    if (result.data.hasNextPage != null && !result.data.hasNextPage
+                        && !(data.PageBackwards && data.Cursor != null)
+                        && _pager.currentPage < Math.ceil(itemCount / _pager.pageSize)) {
+                        // There were more items reported than actually available (backend filtering or other bug): adjust total items
+                        itemCount = _pager.pageSize * (_pager.currentPage - 1) + result.data.data.length;
+                    }
+                    if (result.data.hasPreviousPage != null && !result.data.hasPreviousPage && data.PageBackwards && _pager.currentPage !== 1) {
+                        // We are at the first page but the pager is out of sync - there were more items reported than actually available (backend filtering or other bug): adjust total items
+                        _pager.currentPage = 1;
+                    }
                     //set state on fetch of data
                     setDataRows({
-                        all: result.data.data, itemCount: result.data.count
+                        all: result.data.data,
+                        itemCount: itemCount,
+                        startCursor: result.data.startCursor,
+                        endCursor: result.data.endCursor,
+                        pageNumber: _pager.currentPage,
                     });
 
                     //hide a spinner
@@ -136,7 +233,7 @@ function ProfileListGrid(props) {
         };
     //type passed so that any change to this triggers useEffect to be called again
         //_nodesetPreferences.pageSize - needs to be passed so that useEffects dependency warning is avoided.
-    }, [_pager, _forceReload, props.isMine]);
+    }, [_pager, _forceReload, props.isMine, _profileSearchCriteria]);
 
 
     //-------------------------------------------------------------------
@@ -150,7 +247,7 @@ function ProfileListGrid(props) {
         //if the importing message component has triggered a refresh, handle it here. 
         if (loadingProps.refreshProfileList === true) {
             setForceReload(_forceReload + 1);
-            setLoadingProps({refreshProfileList: null, refreshSearchCriteria: true});
+            setLoadingProps({refreshProfileList: null, refreshProfileSearchCriteria: true});
         }
         
         //this will execute on unmount
@@ -163,6 +260,21 @@ function ProfileListGrid(props) {
     //-------------------------------------------------------------------
     // Region: Render helpers
     //-------------------------------------------------------------------
+    const renderProfileFilters = () => {
+        if (_dataRows.profileFilters == null || _dataRows.profileFilters.length === 0) return;
+
+        const mainBody = _dataRows.profileFilters.map((item) => {
+            return (
+                <ProfileItemRow key={item.id} mode="simple" item={item} activeAccount={_activeAccount}
+                    cssClass={`profile-list-item shaded rounded ${_dataRows.profileFilters.length > 1 ? 'mb-1' : ''} ${props.rowCssClass ?? ''}`} />)
+        });
+
+        return (
+            <div className="mb-2">
+                {mainBody}
+            </div>
+        );
+    };
     const renderNoDataRow = () => {
         return (
             <div className="alert alert-info-custom mt-2 mb-2">
@@ -190,6 +302,7 @@ function ProfileListGrid(props) {
             return (<ProfileItemRow key={item.id} item={item} activeAccount={_activeAccount}
                 showActions={true} cssClass={`profile-list-item ${props.rowCssClass ?? ''}`} selectMode={props.selectMode}
                 onEditCallback={onEdit} onDeleteCallback={onDeleteItemClick} onRowSelect={onRowSelect}
+                onImportCallback={onImport}
                 selectedItems={props.selectedItems} 
             />)
         });
@@ -208,6 +321,11 @@ function ProfileListGrid(props) {
     //-------------------------------------------------------------------
     return (
         <>
+            {renderProfileFilters()}
+            <ProfileFilter onSearchCriteriaChanged={onProfileSearchCriteriaChanged} noSortOptions="true"
+                //displayMode={_displayMode}
+                //toggleDisplayMode={toggleDisplayMode} itemCount={_itemCount}
+                cssClass={props.rowCssClass} searchCriteria={props.searchCriteria} noSearch={props.noSearch} noClearAll="true" />
             <div className="">
                 <div ref={_scrollToRef} className="row">
                     <div className="col-12">

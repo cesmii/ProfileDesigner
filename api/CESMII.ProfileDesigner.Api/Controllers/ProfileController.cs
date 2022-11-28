@@ -19,6 +19,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using CESMII.ProfileDesigner.OpcUa.AASX;
+using System.Text.RegularExpressions;
+using Opc.Ua.Cloud.Library.Client;
+using System.Globalization;
+using System.Linq.Expressions;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace CESMII.ProfileDesigner.Api.Controllers
 {
@@ -26,16 +31,21 @@ namespace CESMII.ProfileDesigner.Api.Controllers
     public class ProfileController : BaseController<ProfileController>
     {
         private readonly IDal<Profile, ProfileModel> _dal;
+        private readonly ICloudLibDal<CloudLibProfileModel> _cloudLibDal;
+
         private readonly Utils.ImportService _svcImport;
         private readonly OpcUaImporter _exporter;
 
-        public ProfileController(IDal<Profile, ProfileModel> dal, UserDAL dalUser,
+        public ProfileController(IDal<Profile, ProfileModel> dal,
+            ICloudLibDal<CloudLibProfileModel> cloudLibDal,
+            UserDAL dalUser,
             Utils.ImportService svcImport,
             OpcUaImporter exporter,
             ConfigUtil config, ILogger<ProfileController> logger)
             : base(config, logger, dalUser)
         {
             _dal = dal;
+            _cloudLibDal = cloudLibDal;
             _svcImport = svcImport;
             _exporter = exporter;
         }
@@ -133,6 +143,365 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         }
 
         /// <summary>
+        /// Search profiles library for profiles matching criteria passed in. This is a simple search field and 
+        /// this will check against several profile fields and return results. 
+        /// </summary>
+        /// <remarks>Items in profiles library will not have an author id</remarks>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [HttpPost, Route("cloudlibrary")]
+        [Authorize(Roles = "cesmii.profiledesigner.user")]
+        [ProducesResponseType(200, Type = typeof(DALResult<CloudLibProfileModel>))]
+        public async Task<IActionResult> GetCloudLibrary([FromBody] CloudLibFilterModel model)
+        {
+            if (model == null)
+            {
+                _logger.LogWarning("ProfileController|GetLibrary|Invalid model");
+                return BadRequest("Profile|Library|Invalid model");
+            }
+            if (model.Keywords != null && model.Keywords.Any(k => k == null))
+            {
+                _logger.LogWarning("ProfileController|GetLibrary|Invalid model: null keyword");
+                return BadRequest("Profile|Library|Invalid model null keyword");
+            }
+
+            // Get both local and cloudlib cursors
+            var cursors = model.Cursor?.Split(",");
+            string cloudLibCursor = cursors?[0] ?? null;
+            if (cloudLibCursor == string.Empty)
+            {
+                cloudLibCursor = null;
+            }
+            int localCursor;
+            if (cursors?[1] != null)
+            {
+                localCursor= int.Parse(cursors[1]);
+                if (model.PageBackwards)
+                {
+                    localCursor -= model.Take;
+                    if (localCursor < 0)
+                    {
+                        localCursor = 0;
+                    }
+                }
+            }
+            else
+            {
+                localCursor = 0;
+            }
+
+            bool bFullResultCloud;
+            bool bFullResultLocal = false;
+            List<ProfileModel> allLocalProfiles = null;
+            List<GraphQlNodeAndCursor<CloudLibProfileModel>> pendingCloudLibProfiles = new();
+            List<ProfileModel> pendingLocalProfiles = null;
+
+            int totalCount = 0;
+            List<CloudLibProfileModel> result = new();
+            string firstCursor = null;
+
+            try
+            {
+                do
+                {
+                    // Get first batch of profiles from the cloudlib
+                    var cloudResultTask = _cloudLibDal.Where(model.Take, cloudLibCursor, model.PageBackwards, model.Keywords);
+
+                    // Get local profiles in parallel
+                    allLocalProfiles = allLocalProfiles ?? _dal.GetAll(base.DalUserToken);
+
+                    // Wait for the cloudlib query to finish
+                    var cloudResultPage = await cloudResultTask;
+                    if (cloudResultPage.Edges.Count > model.Take)
+                    {
+                        _logger.LogWarning($"ProfileController|GetCloudLibrary|Received more profiles than requested: {result.Count}, expected {model.Take}.");
+                    }
+                    if (!model.PageBackwards || model.Cursor == null)
+                    {
+                        bFullResultCloud = !cloudResultPage.PageInfo.HasNextPage;
+                    }
+                    else
+                    {
+                        bFullResultCloud = !cloudResultPage.PageInfo.HasPreviousPage;
+                    }
+                    totalCount = cloudResultPage.TotalCount;
+                    pendingCloudLibProfiles.AddRange(cloudResultPage.Edges);
+
+                    if (model.ExcludeLocalLibrary)
+                    {
+                        // remove all profiles from the cloudlib result that are available locally: mark them as null for correct cursor handling of skipped profiles
+                        foreach (var localProfile in allLocalProfiles)
+                        {
+                            var removedItemIndex = pendingCloudLibProfiles.FindLastIndex(p => p?.Node != null && p.Node.Namespace == localProfile.Namespace);
+                            if (removedItemIndex >= 0)
+                            {
+                                pendingCloudLibProfiles[removedItemIndex].Node = null;
+                                totalCount--;
+                            }
+                        }
+                    }
+
+                    if (model.AddLocalLibrary)
+                    {
+                        if (pendingLocalProfiles == null)
+                        {
+                            pendingLocalProfiles = new();
+                        }
+
+                        // Query local profiles
+                        if (model.Keywords != null)
+                        {
+                            if (!bFullResultLocal)
+                            {
+                                var orderBy = new List<OrderByExpression<Profile>> {
+                                        new OrderByExpression<Profile>
+                                        {
+                                            Expression = p => p.Namespace,
+                                            IsDescending = false,
+                                        },
+                                        new OrderByExpression<Profile>
+                                        {
+                                            Expression = p => p.PublishDate,
+                                            IsDescending = false,
+                                        },
+                                };
+                                if (model.ExcludeLocalLibrary)
+                                {
+                                    // owned profiles first when excluding and adding
+                                    orderBy.Insert(0, new OrderByExpression<Profile>
+                                    {
+                                        Expression = p => !p.AuthorId.HasValue || p.StandardProfileID.HasValue,
+                                        IsDescending = false,
+                                    });
+                                }
+
+                                string keywordRegex = $".*({string.Join('|', model.Keywords)}).*";
+
+
+                                var newLocalProfilesResult = _dal.Where(
+                                    new List<Expression<Func<Profile, bool>>>
+                                    {
+                                        p => Regex.IsMatch(p.Namespace, keywordRegex, RegexOptions.IgnoreCase)
+                                    },
+                                    base.DalUserToken, localCursor, null, true,
+                                    orderByExpressions: orderBy.ToArray());
+                                var newLocalProfiles = newLocalProfilesResult.Data;
+                                bFullResultLocal = newLocalProfiles.Count == model.Take || newLocalProfiles.Count == 0;
+                                pendingLocalProfiles.AddRange(newLocalProfiles);
+                                totalCount += newLocalProfilesResult.Count; // TODO this is not correct in all scenarios (local profiles that are also in the cloudlib)
+                            }
+                        }
+                        else
+                        {
+                            bFullResultLocal = true;
+                            pendingLocalProfiles.AddRange(
+                                (model.ExcludeLocalLibrary ?
+                                    allLocalProfiles.OrderBy(pm => pm.IsReadOnly).ThenBy(pm => pm.Namespace).ThenBy(pm => pm.PublishDate)// owned profiles first when excluding and adding
+                                    : allLocalProfiles.OrderBy(pm => pm.Namespace).ThenBy(pm => pm.PublishDate)
+                                )
+                                .Skip(localCursor));
+                            totalCount += allLocalProfiles.Count(p => string.IsNullOrEmpty(p.StandardProfile?.CloudLibraryId));
+                        }
+                    }
+                    else
+                    {
+                        bFullResultLocal = true;
+                    }
+                    // Process from start of local or cloud lists until we have enough results
+                    while (result.Count < model.Take
+                        && (pendingLocalProfiles?.Any() == true || (pendingCloudLibProfiles.Any()))
+                        && ((pendingLocalProfiles?.Any() == true || bFullResultLocal) || (pendingCloudLibProfiles.Any() || bFullResultCloud)))
+                    {
+                        var firstPendingCloudLibProfile = !model.PageBackwards ? pendingCloudLibProfiles.FirstOrDefault() : pendingCloudLibProfiles.LastOrDefault();
+                        if (firstPendingCloudLibProfile != null && firstPendingCloudLibProfile.Node == null)
+                        {
+                            // Cloud profile was excluded earlier: skip it but remember it's cursor for the next query
+                            if (!model.PageBackwards)
+                            {
+                                pendingCloudLibProfiles.RemoveAt(0);
+                            }
+                            else
+                            {
+                                pendingCloudLibProfiles.RemoveAt(pendingCloudLibProfiles.Count -1);
+                            }
+                            cloudLibCursor = firstPendingCloudLibProfile.Cursor;
+                            continue;
+                        }
+
+                        var firstPendingLocalprofile = !model.PageBackwards ? pendingLocalProfiles?.FirstOrDefault() : pendingLocalProfiles?.LastOrDefault();
+                        if (firstPendingLocalprofile != null &&
+                            (model.ExcludeLocalLibrary || // Put local library items first if both add and exclude is specified
+                              (firstPendingCloudLibProfile?.Node == null || String.Compare(firstPendingLocalprofile.Namespace, firstPendingCloudLibProfile.Node.Namespace, false, CultureInfo.InvariantCulture) < 0)))
+                        {
+                            if (!result.Any())
+                            {
+                                firstCursor = $"{cloudLibCursor},{localCursor}";
+                            }
+                            if (!model.PageBackwards)
+                            {
+                                result.Add(CloudLibProfileModel.MapFromProfile(firstPendingLocalprofile));
+                                pendingLocalProfiles.RemoveAt(0);
+                                localCursor++;
+                            }
+                            else
+                            {
+                                result.Insert(0, CloudLibProfileModel.MapFromProfile(firstPendingLocalprofile));
+                                pendingLocalProfiles.RemoveAt(pendingLocalProfiles.Count - 1);
+                                localCursor--;
+                            }
+                        }
+                        else
+                        {
+                            if (firstPendingCloudLibProfile != null)
+                            {
+                                cloudLibCursor = firstPendingCloudLibProfile.Cursor;
+                                if (!result.Any())
+                                {
+                                    firstCursor = $"{cloudLibCursor},{localCursor}";
+                                }
+                                if (!model.PageBackwards)
+                                {
+                                    result.Add(firstPendingCloudLibProfile.Node);
+                                    pendingCloudLibProfiles.RemoveAt(0);
+                                }
+                                else
+                                {
+                                    result.Insert(0, firstPendingCloudLibProfile.Node);
+                                    pendingCloudLibProfiles.RemoveAt(pendingCloudLibProfiles.Count - 1);
+                                }
+
+                                if (firstPendingLocalprofile != null &&
+                                    firstPendingLocalprofile.Namespace == firstPendingCloudLibProfile.Node.Namespace
+                                    && firstPendingLocalprofile.PublishDate == firstPendingCloudLibProfile.Node.PublishDate)
+                                {
+                                    // Skip matching local profile to avoid duplicates
+                                    if (!model.PageBackwards)
+                                    {
+                                        pendingLocalProfiles.RemoveAt(0);
+                                        localCursor++;
+                                    }
+                                    else
+                                    {
+                                        pendingLocalProfiles.RemoveAt(pendingLocalProfiles.Count - 1);
+                                        localCursor--;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } while ((!bFullResultCloud || !bFullResultLocal) && result.Count < model.Take);
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"ProfileController|GetCloudLibrary|Exception: {ex.Message}.");
+                return StatusCode(500, "Error processing query.");
+            }
+
+            // Fill in any local profile information for cloud library-only results
+            foreach (var localProfile in allLocalProfiles ?? new List<ProfileModel>())
+            {
+                var cloudLibProfile = result.FirstOrDefault(p => p.Namespace == localProfile.Namespace);
+                if (cloudLibProfile != null && cloudLibProfile.ID == null)
+                {
+                    // Add in local profile information
+                    // TODO handle different publication dates between cloudlib and local library
+                    cloudLibProfile.ID = localProfile.ID;
+                    if (cloudLibProfile.StandardProfileID != localProfile.StandardProfileID)
+                    {
+                        // TODO: inconsistency in DB?
+                    }
+                    cloudLibProfile.StandardProfile = localProfile.StandardProfile;
+                    cloudLibProfile.StandardProfileID = localProfile.StandardProfileID;
+                    cloudLibProfile.AuthorId = localProfile.AuthorId;
+                    cloudLibProfile.ImportWarnings = localProfile.ImportWarnings;
+                    cloudLibProfile.NodeSetFiles = localProfile.NodeSetFiles;
+                    cloudLibProfile.HasLocalProfile = true;
+                }
+            }
+            foreach (var cloudProfile in result.Where(p => p.ID == null || p.ID == 0))
+            {
+                // Need better solution to avoid conflict with local IDs
+                cloudProfile.ID = (int)long.Parse(cloudProfile.CloudLibraryId);
+            }
+
+            var lastCursor = $"{cloudLibCursor},{localCursor}";
+            bool hasMoreData = !(
+                bFullResultCloud && pendingCloudLibProfiles?.Any() != true 
+                && bFullResultLocal && pendingLocalProfiles?.Any() != true);
+            var dalResult = new DALResult<CloudLibProfileModel>
+            {
+                Count = totalCount,
+                Data = result,
+                StartCursor = !model.PageBackwards ? firstCursor : lastCursor,
+                EndCursor = !model.PageBackwards ? lastCursor : firstCursor,
+                HasNextPage = (model.PageBackwards && model.Cursor != null) || hasMoreData,
+                HasPreviousPage = !(model.PageBackwards && model.Cursor != null) || hasMoreData,
+            };
+            return Ok(dalResult);
+        }
+
+        /// <summary>
+        /// Search profiles library for profiles matching criteria passed in. This is a simple search field and 
+        /// this will check against several profile fields and return results. 
+        /// </summary>
+        /// <remarks>Items in profiles library will not have an author id</remarks>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [HttpPost, Route("cloudlibrary/import")]
+        [Authorize(Roles = "cesmii.profiledesigner.user")]
+        [ProducesResponseType(200, Type = typeof(ResultMessageWithDataModel))]
+        public async Task<IActionResult> ImportFromCloudLibrary([FromBody] List<IdStringModel> model)
+        {
+            if (model == null)
+            {
+                _logger.LogWarning("ProfileController|ImportFromCloudLibrary|Invalid model");
+                return BadRequest("Profile|CloudLibrary||Import|Invalid model");
+            }
+
+            List<ImportOPCModel> importModels = new();
+            foreach (var modelId in model.Select(m => m.ID))
+            {
+                try
+                {
+                    var nodeSetToImport = await _cloudLibDal.DownloadAsync(modelId);
+                    if (nodeSetToImport == null)
+                    {
+                        _logger.LogWarning($"ProfileController|ImportFromCloudLibrary|Did not find nodeset in Cloud Library: {modelId}.");
+                        return Ok(
+                            new ResultMessageWithDataModel()
+                            {
+                                IsSuccess = false,
+                                Message = "NodeSet not found in Cloud Library."
+                            }
+                        );
+                    }
+                    var importModel = new ImportOPCModel
+                    {
+                        Data = nodeSetToImport.NodesetXml,
+                        FileName = nodeSetToImport.Namespace,
+                    };
+                    importModels.Add(importModel);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError($"ProfileController|ImportFromCloudLibrary|Failed to download from Cloud Library: {modelId} {ex.Message}.");
+                    return Ok(
+                        new ResultMessageWithDataModel()
+                        {
+                            IsSuccess = false,
+                            Message = "Error downloading NodeSet from Cloud Library."
+                        }
+                    );
+                }
+            }
+
+            return await Import(importModels);
+        }
+
+
+
+        /// <summary>
         /// Get an all profile count and a count of my profiles. 
         /// </summary>
         /// <returns></returns>
@@ -161,6 +530,17 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             {
                 _logger.LogWarning($"ProfileController|Add|Invalid model (null)");
                 return BadRequest($"Invalid model (null). Check Publish Date formatting.");
+            }
+            if (model.PublishDate != null && model.PublishDate?.Kind != DateTimeKind.Utc)
+            {
+                if (model.PublishDate?.Kind == DateTimeKind.Unspecified)
+                {
+                    model.PublishDate = DateTime.SpecifyKind(model.PublishDate.Value, DateTimeKind.Utc);
+                }
+                else
+                {
+                    model.PublishDate = model.PublishDate?.ToUniversalTime();
+                }
             }
             //test for unique namespace/owner id/publish date combo
             if (!IsValidModel(model))
@@ -267,7 +647,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
 
             //test for unique namespace/owner id/publish date combo
             if (_dal.Count(x => !x.ID.Equals(model.ID) && x.Namespace.ToLower().Equals(model.Namespace.ToLower()) &&
-                             x.OwnerId.HasValue && x.OwnerId.Value.Equals(LocalUser.ID) 
+                             x.OwnerId.HasValue && x.OwnerId.Value.Equals(LocalUser.ID)
                              && ((!model.PublishDate.HasValue && !x.PublishDate.HasValue)
                                     || (model.PublishDate.HasValue && x.PublishDate.HasValue && model.PublishDate.Value.Equals(x.PublishDate.Value)))
                             //&& (!x.PublishDate.HasValue ? new DateTime(0) : x.PublishDate.Value.Date).Equals(!model.PublishDate.HasValue ? new DateTime(0) : model.PublishDate.Value.Date)
@@ -460,7 +840,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                     new ResultMessageWithDataModel()
                     {
                         IsSuccess = false,
-                        Message = "No nodeset files to import."
+                        Message = "No nodesets to import."
                     }
                 );
             }
@@ -492,8 +872,6 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         [ProducesResponseType(200, Type = typeof(ResultMessageExportModel))]
         public Task<IActionResult> Export([FromBody] ExportRequestModel model)
         {
-            var userToken = DalUserToken;
-
             //get profile to export
             var sw = Stopwatch.StartNew();
             _logger.LogTrace("Starting export");
@@ -502,10 +880,10 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             {
                 //return Task.FromResult(new ResultMessageWithDataModel()
                 return Task.FromResult<IActionResult>(Ok(new ResultMessageExportModel()
-                    {
-                        IsSuccess = false,
-                        Message = "Profile not found."
-                    }
+                {
+                    IsSuccess = false,
+                    Message = "Profile not found."
+                }
                 ));
             }
 
@@ -513,7 +891,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             try
             {
                 string result = null;
-                
+
                 _logger.LogTrace($"Timestamp||Export||Starting: {sw.Elapsed}");
                 bool bIncludeRequiredModels = model.Format?.ToUpper() == "AASX";
                 var exportedNodeSets = _exporter.ExportNodeSet(item, base.DalUserToken, null, bIncludeRequiredModels, model.ForceReexport);
@@ -536,7 +914,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                     else
                     {
                         _logger.LogTrace($"Timestamp||Export||Nodeset Stream generated: {sw.Elapsed}");
-                        result = (string) exportedNodeSets.FirstOrDefault().xml;
+                        result = exportedNodeSets.FirstOrDefault().xml;
                         _logger.LogTrace($"Timestamp||Export||Data Converted to Response: {sw.Elapsed}");
                         //TBD - read and include the required models in a ZIP file, optionally?
                         //TBD - get the warnings that were logged on import and publish them here. 
@@ -550,7 +928,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                         Message = "An error occurred downloading the profile."
                     }));
                 }
-                
+
                 return Task.FromResult<IActionResult>(Ok(new ResultMessageExportModel()
                 {
                     IsSuccess = true,

@@ -474,7 +474,7 @@ CREATE TABLE public.profile_additional_properties
 TABLESPACE pg_default;
 
 ALTER TABLE public.profile_additional_properties
-    OWNER to cesmii;
+    OWNER to profiledesigner;
 
 ---------------------------------------------------------------------
 --	Create profile to nodeset_file join table

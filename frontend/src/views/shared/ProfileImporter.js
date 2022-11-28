@@ -161,12 +161,15 @@ function ProfileImporter(props) {
     //-------------------------------------------------------------------
     // Region: Render final output
     //-------------------------------------------------------------------
-    var buttonCss = `btn btn-secondary auto-width ${props.cssClass} ${props.disabled ? "disabled" : ""}`;
+    let buttonCss = `${props.cssClass} ${props.disabled ? "disabled" : ""}`;
+    if (!props.useCssClassOnly) {
+        buttonCss = `btn btn-secondary auto-width ${buttonCss}`;
+    }
     var caption = props.caption == null ? "Import" : props.caption;
-
+    
     return (
         <>
-            <label className={buttonCss} >
+            <label className={buttonCss}>
                 {caption}
                 <input type="file" value={_fileSelection} multiple onClick={resetFileSelection} disabled={props.disabled ? "disabled" : ""} onChange={onImportClick} style={{ display: "none" }} />
             </label>

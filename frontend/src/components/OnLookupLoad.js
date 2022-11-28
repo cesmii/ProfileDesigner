@@ -4,7 +4,7 @@ import { useIsAuthenticated, useMsal } from "@azure/msal-react";
 import axiosInstance from '../services/AxiosService'
 import { useLoadingContext } from "./contexts/LoadingContext";
 import { generateLogMessageString, getTypeDefIconName } from '../utils/UtilityService';
-import { getTypeDefPreferences } from '../services/ProfileService';
+import { getTypeDefPreferences, getProfilePreferences } from '../services/ProfileService';
 
 const CLASS_NAME = "OnLookupLoad";
 
@@ -92,10 +92,10 @@ export const OnLookupLoad = () => {
                     });
 
                 } else {
-                    setLoadingProps({
-                        isLoading: false, message: null, inlineMessages: [
-                            { id: new Date().getTime(), severity: "danger", body: 'An error occurred retrieving the type definition filters.', isTimed: true }]
-                    });
+                //    setLoadingProps({
+                //        isLoading: false, message: null, inlineMessages: [
+                //            { id: new Date().getTime(), severity: "danger", body: 'An error occurred retrieving the type definition filters.', isTimed: true }]
+                //    });
                 }
 
             }).catch(e => {
@@ -104,10 +104,10 @@ export const OnLookupLoad = () => {
                     //do nothing, this is handled in routes.js using common interceptor
                 }
                 else {
-                    setLoadingProps({
-                        isLoading: false, message: null, inlineMessages: [
-                            { id: new Date().getTime(), severity: "danger", body: 'An error occurred retrieving the type definition filters.', isTimed: true }]
-                    });
+                //    setLoadingProps({
+                //        isLoading: false, message: null, inlineMessages: [
+                //            { id: new Date().getTime(), severity: "danger", body: 'An error occurred retrieving the type definition filters.', isTimed: true }]
+                //    });
                 }
             });
         }
@@ -122,6 +122,62 @@ export const OnLookupLoad = () => {
         }
 
     }, [loadingProps.searchCriteria, loadingProps.refreshSearchCriteria, _isAuthenticated]);
+
+    //-------------------------------------------------------------------
+    // Region: hooks
+    // useEffect - load & cache profile search criteria under certain conditions
+    //-------------------------------------------------------------------
+    useEffect(() => {
+        async function fetchData() {
+
+            const url = `lookup/profilesearchcriteria`;
+            console.log(generateLogMessageString(`useEffect||fetchData||${url}`, CLASS_NAME));
+
+            await axiosInstance.get(url).then(result => {
+                if (result.status === 200) {
+
+                    //init the page size value
+                    result.data.take = getProfilePreferences().pageSize;
+
+                    //set the data in local storage
+                    setLoadingProps({
+                        profileSearchCriteria: result.data,
+                        refreshProfileSearchCriteria: false,
+                        profileSearchCriteriaRefreshed: loadingProps.profileSearchCriteriaRefreshed + 1
+                    });
+
+                } else {
+                    setLoadingProps({
+                        isLoading: false, message: null, inlineMessages: [
+                            { id: new Date().getTime(), severity: "danger", body: 'An error occurred retrieving the profile filters.', isTimed: true }]
+                    });
+                }
+
+            }).catch(e => {
+                setLoadingProps({ refreshProfileSearchCriteria: false });
+                if ((e.response && e.response.status === 401) || e.toString().indexOf('Network Error') > -1) {
+                    //do nothing, this is handled in routes.js using common interceptor
+                }
+                else {
+                    setLoadingProps({
+                        isLoading: false, message: null, inlineMessages: [
+                            { id: new Date().getTime(), severity: "danger", body: 'An error occurred retrieving the profile filters.', isTimed: true }]
+                    });
+                }
+            });
+        }
+
+        //if not logged in yet, return
+        if (!_isAuthenticated || !loadingProps.refreshProfileSearchCriteria) return;
+
+        //trigger retrieval of lookup data - if necessary
+        if (loadingProps == null || loadingProps.profileSearchCriteria == null || loadingProps.profileSearchCriteria.filters == null
+            || loadingProps.refreshProfileSearchCriteria) {
+            fetchData();
+        }
+
+    }, [loadingProps.profileSearchCriteria, loadingProps.refreshProfileSearchCriteria, _isAuthenticated]);
+
 
     //-------------------------------------------------------------------
     // Region: hooks

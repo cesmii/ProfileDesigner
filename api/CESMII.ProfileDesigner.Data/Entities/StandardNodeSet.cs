@@ -19,6 +19,12 @@
         [Column(name: "publish_date")]
         public DateTime? PublishDate { get; set; }
 
+        [Column(name: "cloudlibrary_id")]
+        public string CloudLibraryId{ get; set; }
+
+        [Column(name: "is_active")]
+        public bool IsActive { get; set; } = true;
+
         //public virtual List<NodeSet> Nodesets { get; set; } 
     }
 }

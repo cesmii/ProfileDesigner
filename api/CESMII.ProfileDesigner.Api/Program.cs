@@ -10,6 +10,11 @@ namespace CESMII.ProfileDesigner.Api
     {
         public static void Main(string[] args)
         {
+            // WARNING: DO NOT SET THIS FLAG!
+            // With this flag, Npqsql will interpret DateTime.Kind Utc as local time, resulting in nasty publicationdate mismatches. This is one of the reasons this behavior was deprecated in Npgsql.
+            // If you encounter an error writing a DateTime that is not Utc to the dataase, adjust to Utc before writing.
+            //System.AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);  // Accept Postgres 'only UTC' rule.
+            // END WARNING
             CreateHostBuilder(args).Build().Run();
         }
 

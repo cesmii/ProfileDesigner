@@ -1,6 +1,5 @@
 ###2#By Design#LastModified and PublicationDate change on export
 ====>Expected attribute name '/UANodeSet[1]' - comparing <UANodeSet...> at /UANodeSet[1] to <UANodeSet...> at /UANodeSet[1]/@LastModified
-====>Expected attribute value '2017-06-19T16:01:03Z' but was '2017-06-19T00:00:00Z' - comparing <Model PublicationDate="2017-06-19T16:01:03Z"...> at /UANodeSet[1]/Models[1]/Model[1]/@PublicationDate to <Model PublicationDate="2017-06-19T00:00:00Z"...> at /UANodeSet[1]/Models[1]/Model[1]/@PublicationDate
 ###2#Feature#Export: Allow specifying versions of dependent profiles that are lower than the imported one#C2-193
 ====>Expected attribute value '1.03' but was '1.04.7' - comparing <RequiredModel Version="1.03"...> at /UANodeSet[1]/Models[1]/Model[1]/RequiredModel[1]/@Version to <RequiredModel Version="1.04.7"...> at /UANodeSet[1]/Models[1]/Model[1]/RequiredModel[1]/@Version
 ====>Expected attribute value '2016-04-15T00:00:00Z' but was '2020-07-15T00:00:00Z' - comparing <RequiredModel PublicationDate="2016-04-15T00:00:00Z"...> at /UANodeSet[1]/Models[1]/Model[1]/RequiredModel[1]/@PublicationDate to <RequiredModel PublicationDate="2020-07-15T00:00:00Z"...> at /UANodeSet[1]/Models[1]/Model[1]/RequiredModel[1]/@PublicationDate

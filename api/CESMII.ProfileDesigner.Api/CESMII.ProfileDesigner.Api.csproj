@@ -8,6 +8,13 @@
     <UserSecretsId>53da4e1f-9af1-413e-98ae-6761c427ca3c</UserSecretsId>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Compile Remove="Migrations - Copy\**" />
+    <Content Remove="Migrations - Copy\**" />
+    <EmbeddedResource Remove="Migrations - Copy\**" />
+    <None Remove="Migrations - Copy\**" />
+  </ItemGroup>
+
 	<ItemGroup>
 		<InternalsVisibleTo Include="CESMII.ProfileDesigner.Api.Tests" />
 	</ItemGroup>
@@ -15,13 +22,13 @@
 	<ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.4" />
 
-	<!--<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="5.0.7" />
-	<PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.3" />
-	<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="6.0.3" />
-	<PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="6.0.3" />
-	<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.3" />
-	<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.3" />
-	<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.3" />-->
+	<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.5" />
+	<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.5" />
+	<!--<PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.5" />
+	<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="6.0.5" />
+	<PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="6.0.5" />
+	<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.5" />
+	<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.5" />-->
 
 	<!--<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.7" />-->
     <!--<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="5.0.11" />
@@ -43,6 +50,7 @@
     <ProjectReference Include="..\CESMII.ProfileDesigner.Common\CESMII.ProfileDesigner.Common.csproj" />
     <ProjectReference Include="..\CESMII.ProfileDesigner.DAL\CESMII.ProfileDesigner.DAL.csproj" />
     <ProjectReference Include="..\CESMII.ProfileDesigner.Data\CESMII.ProfileDesigner.Data.csproj" />
+    <ProjectReference Include="..\Opc.Ua.Cloud.Library.Client\Opc.Ua.Cloud.Library.Client.csproj" />
   </ItemGroup>
 
   <ItemGroup>

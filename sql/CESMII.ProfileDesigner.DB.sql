@@ -61,6 +61,7 @@ DROP TABLE IF EXISTS public.engineering_unit;
 DROP TABLE IF EXISTS public.profile_nodeset_file;
 DROP TABLE IF EXISTS public.profile_type_definition;
 DROP TABLE IF EXISTS public.import_log_warning;
+DROP TABLE IF EXISTS public.profile_additional_properties;
 DROP TABLE IF EXISTS public.profile;
 DROP TABLE IF EXISTS public.import_log_message;
 DROP TABLE IF EXISTS public.import_log;
@@ -299,11 +300,14 @@ CREATE TABLE public.standard_nodeset
 (
     id SERIAL PRIMARY KEY,
     namespace character varying(400) COLLATE pg_catalog."default" NOT NULL,
-    version character varying(25) COLLATE pg_catalog."default" NOT NULL,
+    version character varying(25) COLLATE pg_catalog."default" NULL,
     filename character varying(255) COLLATE pg_catalog."default",
-    publish_date date,
-    is_active boolean NOT NULL
-	
+    publish_date timestamp with time zone,
+    cloudlibrary_id character varying(25) COLLATE  pg_catalog."default" NOT NULL,
+    is_active boolean NOT NULL,
+
+    CONSTRAINT namespace_publish_date_14a6b632_uniq UNIQUE (namespace, publish_date)
+
 )
 
 TABLESPACE pg_default;
@@ -311,6 +315,7 @@ TABLESPACE pg_default;
 ALTER TABLE public.standard_nodeset
     OWNER to profiledesigner;
 
+/* These now come from the cloud library
 INSERT INTO public.standard_nodeset (id, namespace, version, filename, publish_date, is_active) VALUES (1, 'http://opcfoundation.org/UA/ADI/', '1.01', NULL, '2013-07-31', true);
 INSERT INTO public.standard_nodeset (id, namespace, version, filename, publish_date, is_active) VALUES (2, 'http://opcfoundation.org/UA/AML/', '1.00', NULL, '2016-02-22', true);
 INSERT INTO public.standard_nodeset (id, namespace, version, filename, publish_date, is_active) VALUES (3, 'http://opcfoundation.org/UA/AMLLibs/', '', NULL, NULL, true);
@@ -371,7 +376,7 @@ INSERT INTO public.standard_nodeset (id, namespace, version, filename, publish_d
 INSERT INTO public.standard_nodeset (id, namespace, version, filename, publish_date, is_active) VALUES (58, 'http://opcfoundation.org/UA/PlasticsRubber/Extrusion/HaulOff/', '1.00', NULL, '2020-06-01', true);
 INSERT INTO public.standard_nodeset (id, namespace, version, filename, publish_date, is_active) VALUES (59, 'http://opcfoundation.org/UA/PlasticsRubber/Extrusion/MeltPump/', '1.00', NULL, '2020-06-01', true);
 INSERT INTO public.standard_nodeset (id, namespace, version, filename, publish_date, is_active) VALUES (60, 'http://opcfoundation.org/UA/PlasticsRubber/Extrusion/Pelletizer/', '1.00', NULL, '2020-06-01', true);
-
+*/
 --manually adjust the identity starting val
 SELECT setval('standard_nodeset_id_seq', 61);
 
@@ -393,7 +398,7 @@ CREATE TABLE public.nodeset_file
 	filename character varying(400) COLLATE pg_catalog."default" NOT NULL,
     file_cache text COLLATE pg_catalog."default",
     version character varying(25) COLLATE pg_catalog."default",
-    publish_date date,
+    publish_date timestamp with time zone,
     imported_by_id integer NULL,
     CONSTRAINT nodeset_imported_by_id FOREIGN KEY (imported_by_id)
         REFERENCES public.user (id) MATCH SIMPLE
@@ -418,10 +423,27 @@ CREATE TABLE public.profile
     owner_id integer NULL,
     namespace character varying(400) COLLATE pg_catalog."default" NOT NULL,
     version character varying(25) COLLATE pg_catalog."default",
-    publish_date date NULL,
+    publish_date timestamp with time zone NULL,
     ua_standard_profile_id integer NULL,
     author_id integer NULL,
-    --file_cache text COLLATE pg_catalog."default", -- This need to go away eventually in favor of the profile_nodeset_file table
+	
+	-- Cloud Library meta data
+	title text NULL,
+	license text NULL,
+	copyright_text text NULL,
+	contributor_name text NULL,
+	description text NULL,
+	category_name text NULL,
+	documentation_url text NULL,
+	icon_url text NULL,
+	license_url text NULL,
+	keywords text[] NULL,
+    purchasing_information_url text NULL,
+	release_notes_url text NULL,
+	test_specification_url text NULL,
+	supported_locales text[] NULL,
+	-- End Cloud Library meta data
+	
     CONSTRAINT profile_standard_profile_id FOREIGN KEY (ua_standard_profile_id)
         REFERENCES public.standard_nodeset (id) MATCH SIMPLE
         ON UPDATE NO ACTION
@@ -439,6 +461,20 @@ TABLESPACE pg_default;
 
 ALTER TABLE public.profile
     OWNER to profiledesigner;
+
+CREATE TABLE public.profile_additional_properties
+(
+    id SERIAL PRIMARY KEY,
+    profile_id integer NOT NULL,
+	name text NOT NULL,
+	value text NULL,
+	CONSTRAINT profile_id_fk FOREIGN KEY (profile_id)
+		REFERENCES public.profile (id) MATCH SIMPLE
+)
+TABLESPACE pg_default;
+
+ALTER TABLE public.profile_additional_properties
+    OWNER to cesmii;
 
 ---------------------------------------------------------------------
 --	Create profile to nodeset_file join table
@@ -1191,6 +1227,11 @@ begin
 		SELECT id FROM public.profile p
 		WHERE p.id IN (select cast(unnest(string_to_array(_idList, ',')) as int))
 	);
+
+	delete from public.profile_additional_properties
+	--SELECT * FROM public.profile
+	WHERE profile_id IN (select cast(unnest(string_to_array(_idList, ',')) as int))
+	;
 
 	delete from public.profile
 	--SELECT * FROM public.profile

@@ -313,6 +313,11 @@ namespace Opc.Ua.Cloud.Library.Client
         public List<RequiredModelInfo> RequiredModels { get; set; }
 
         /// <summary>
+        /// Cloud Library-only metadata about the nodeset
+        /// </summary>
+        public UANameSpace Metadata { get; set; }
+
+        /// <summary>
         /// String representation for logging and debugging
         /// </summary>
         /// <returns></returns>

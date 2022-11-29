@@ -207,6 +207,10 @@ a {
     &.sizeText {
         font-size: .9rem !important;
     }
+
+    &.disabled {
+        color: color("disabled");
+    }
 }
 
 .lh-intro {

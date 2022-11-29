@@ -37,7 +37,7 @@ $rightPanelWidth: 500px;
         box-shadow: 0px 0px 20px 15px rgb(0 0 0 / 15%);
         transition: all 750ms ease-out;
         width: 75%;
-        max-width: 1000px;
+        max-width: 1200px;
         margin-right: -75%;
         padding: 0px;
         overflow-y: auto;
@@ -52,11 +52,26 @@ $rightPanelWidth: 500px;
             color: white;
             background-color: color("cornflower");
             border-bottom: 1px solid color("blue-8");
-            height: 80px; //same size as main header
+            height: auto;
 
             button.btn.btn-icon-solo:hover {
                 @include background-opacity(color("info"), 0.6);
             }
+
+            @media (min-width: 768px) {
+                height: $navbarHeight; //same size as main header
+            }
+        }
+
+        @media (max-width: 992px) {
+            width: 80%;
+            max-width: 800px;
+            margin-right: -80%;
+        }
+
+        @media (max-width: 768px) {
+            width: 90%;
+            margin-right: -90%;
         }
     }
 }

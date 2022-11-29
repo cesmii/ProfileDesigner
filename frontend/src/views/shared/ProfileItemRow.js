@@ -1,8 +1,6 @@
 import React, { useState } from 'react'
 import { Dropdown } from 'react-bootstrap'
 
-import axiosInstance from "../../services/AxiosService";
-
 import { useLoadingContext } from "../../components/contexts/LoadingContext";
 import { SVGIcon, SVGDownloadIcon } from '../../components/SVGIcon'
 import { isOwner, renderProfileIcon } from './ProfileRenderHelpers';
@@ -124,15 +122,16 @@ function ProfileItemRow(props) { //props are item, showActions
         }
     }
 
-    const renderSelectColumn = (item) => {
+    const renderSelectColumn = (item, isReadOnly) => {
 
-        var iconSelected = props.selectMode === "single" ? "task_alt" : "check_box";
-        var iconUnselected = props.selectMode === "single" ? "radio_button_unchecked" : "check_box_outline_blank";
+        const iconSelected = props.selectMode === "single" ? "task_alt" : "check_box";
+        const iconUnselected = props.selectMode === "single" ? "radio_button_unchecked" : "check_box_outline_blank";
 
         return (
             <div className="mr-3 d-flex align-items-center" >
                 {IsRowSelected(item) ?
-                    <i className="material-icons mr-1" title="Check to de-select" >{iconSelected}</i>
+                    <i className={`material-icons mr-1 ${isReadOnly ? "disabled" : ""} `}
+                        title={isReadOnly ? "" : "Check to de-select"} >{iconSelected}</i>
                     :
                     <i className="material-icons mr-1" title="Check to select" >{iconUnselected}</i>
                 }
@@ -173,8 +172,9 @@ function ProfileItemRow(props) { //props are item, showActions
     //render typical row that is shown in a list/grid
     const renderRow = () => {
 
-        var isSelected = props.item != null && IsRowSelected(props.item) ? "selected" : "";
-        var cssClass = `row py-1 align-items-center ${props.cssClass == null ? '' : props.cssClass} ${isSelected} ${props.selectMode != null ? "selectable" : ""} ${props.item.hasLocalProfile ? "select-readonly" : ""}`;
+        const isSelected = props.item != null && IsRowSelected(props.item) ? "selected" : "";
+        const isReadonly = props.item?.hasLocalProfile;
+        const cssClass = `row py-1 align-items-center ${props.cssClass == null ? '' : props.cssClass} ${isSelected} ${props.selectMode != null ? "selectable" : ""} ${isReadonly ? "select-readonly" : ""}`;
 
 
         let profileCaption = null;
@@ -192,7 +192,7 @@ function ProfileItemRow(props) { //props are item, showActions
             <div className={cssClass} onClick={props.item.hasLocalProfile ? null : onRowSelect}> {/*TODO Make the local profile selection configurable */}
                 <div className="col-sm-8 d-flex" >
                     {props.selectMode != null &&
-                        renderSelectColumn(props.item)
+                        renderSelectColumn(props.item, isReadonly)
                     }
                     <div className={`col-avatar mt-1 mr-2 rounded-circle avatar-${!isOwner(props.item, props.activeAccount) ? "locked" : "unlocked"} elevated`} >
                         {renderProfileIcon(props.item, props.activeAccount, 24, false)}

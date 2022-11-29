@@ -331,7 +331,7 @@ function CloudLibraryImporter(props) {
     // Region: Render final output
     //-------------------------------------------------------------------
     return (
-        <div className="row mx-0">
+        <div className="row mx-3 mb-2">
             <div className="col-sm-12">
             <div className={`row selected-panel px-3 py-1 mb-1 rounded d-flex `} > {/*${props.cssClass ?? ''}*/}
                 <div className="col-sm-12 px-0 align-items-start d-block d-lg-flex align-items-center" >
@@ -341,7 +341,7 @@ function CloudLibraryImporter(props) {
                 </div>
             </div>
             {(_searchCriteria != null) &&
-                <ProfileListGrid searchCriteria={_searchCriteria} noSortOptions="true"
+                    <ProfileListGrid searchCriteria={_searchCriteria} noSortOptions="true" 
                     onGridRowSelect={onGridRowSelect} onEdit={onView} selectMode="multiple" selectedItems={_selectedCloudProfileIds}
                     onSearchCriteriaChanged={onSearchCriteriaChanged} searchCriteriaChanged={_searchCriteriaChanged} />
             }

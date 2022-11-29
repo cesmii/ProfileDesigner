@@ -43,7 +43,8 @@ const color = {
     hlTan: "#fdf7e5",
     coolGray: "444444",
     gris: "#394347",
-    transparent: "#FDFDFD00"
+    transparent: "#FDFDFD00",
+    disabled: "#787878"
 };
 
 export default color;

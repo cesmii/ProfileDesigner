@@ -1,3 +1,5 @@
+@import "constants";
+
 .import-menu {
     .dropdown-item {
         display: flex;
@@ -15,35 +17,25 @@
         }
 
         &:hover, &:active {
-            background-color: color("alabaster");
-            // color: color("cornflower");
+            background-color: color("silver");
         }
     }
 
-    .dropdown-toggle {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
+    .dropdown-toggle.btn-secondary {
+        font-family: $font-family-headings !important;
+        font-weight: 700;
 
-    .dropdown-toggle,
-    .dropdown-toggle:hover,
-    .dropdown-toggle:active,
-    .dropdown-toggle:visited,
-    .btn-primary:not(:disabled):not(.disabled):active,
-    .btn-primary:not(:disabled):not(.disabled).active,
-    .show > .btn-primary.dropdown-toggle,
-    .btn-primary:focus,
-    .btn-primary.focus,
-    .btn-primary:active {
-        //width: 36px;
-        //height: 36px;
-        margin: 0;
-        padding: 0;
-        color: color("shark");
-        background-color: transparent;
-        border: none;
-        min-width: unset;
+        &:hover, &:focus {
+            color: color("white");
+            background-color: color("shark");
+            border-color: #0b0a09;
+        }
+
+        &:focus {
+            color: color("white");
+            background-color: color("textPrimary");
+            border-color: #0b0a09;
+        }
 
         &::after {
             content: none;
@@ -51,9 +43,4 @@
         }
     }
 
-    .dropdown-toggle:hover,
-    .dropdown-toggle:active {
-        background-color: color("cararra");
-        color: color("almost-white")
-    }
 }

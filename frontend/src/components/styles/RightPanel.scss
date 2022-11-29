@@ -19,14 +19,8 @@ $rightPanelWidth: 500px;
     overflow-y: auto;
     padding-bottom: 80px;
 
-    &.cloud-lib-list {
-        width: 1000px;
-        max-width: 75%;
-        margin-right: -1000px;
-        padding-left: 10px;
-        overflow-y: auto;
-        overflow-x: hidden;
-        border-left: 5px solid color("silver");
+    &.slide-in-panel.open {
+        margin-right: 0;
     }
 
     .right-panel-header {
@@ -38,12 +32,36 @@ $rightPanelWidth: 500px;
             @include background-opacity(color("info"), 0.6);
         }
     }
+    //settings specific to import cloud lib
+    &.cloud-lib-list {
+        box-shadow: 0px 0px 20px 15px rgb(0 0 0 / 15%);
+        transition: all 750ms ease-out;
+        width: 75%;
+        max-width: 1000px;
+        margin-right: -75%;
+        padding: 0px;
+        overflow-y: auto;
+        overflow-x: hidden;
+        border-left: 1px solid color("silver");
+
+        &.slide-in-panel.open {
+            margin-right: 0;
+        }
+
+        .right-panel-header {
+            color: white;
+            background-color: color("cornflower");
+            border-bottom: 1px solid color("blue-8");
+            height: 80px; //same size as main header
+
+            button.btn.btn-icon-solo:hover {
+                @include background-opacity(color("info"), 0.6);
+            }
+        }
+    }
 }
 
 .slideout-open-no-scroll {
     overflow-y: hidden;
 }
 
-.slide-in-panel.open {
-    margin-right: 0;
-}

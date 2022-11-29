@@ -110,7 +110,7 @@ function ProfileTypeDefinitionRow(props) { //props are item, showActions
     const renderSelectColumn = (item) => {
 
         return (
-            <div className="mr-3 d-flex align-items-center" >
+            <div className="col-select mr-3 d-flex" >
                 {renderSelectIcon(item)}
             </div>
         );

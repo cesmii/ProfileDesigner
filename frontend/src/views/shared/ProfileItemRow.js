@@ -128,7 +128,7 @@ function ProfileItemRow(props) { //props are item, showActions
         const iconUnselected = props.selectMode === "single" ? "radio_button_unchecked" : "check_box_outline_blank";
 
         return (
-            <div className="mr-3 d-flex align-items-center" >
+            <div className="col-select mr-3 d-flex" >
                 {IsRowSelected(item) ?
                     <i className={`material-icons mr-1 ${isReadOnly ? "disabled" : ""} `}
                         title={isReadOnly ? "" : "Check to de-select"} >{iconSelected}</i>

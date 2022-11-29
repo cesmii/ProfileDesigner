@@ -271,13 +271,13 @@ function ProfileList() {
                 </div>
                 <div className="col-sm-5 d-flex align-items-center justify-content-end">
                     <Dropdown className="import-menu icon-dropdown auto-width mx-2" onClick={(e) => e.stopPropagation()} >
-                        <Dropdown.Toggle>
-                            <Button variant="secondary" type="button" className="auto-width mx-2">Import...</Button>
+                        <Dropdown.Toggle variant="secondary" className="auto-width mx-2">
+                            Import...
                         </Dropdown.Toggle>
-                        <Dropdown.Menu>
-                            <Dropdown.Item onClick={onCloudLibImportClick}>Import from Cloud Library</Dropdown.Item>
-                            <Dropdown.Item as="button" >
-                                {<ProfileImporter caption="Import NodeSet file" cssClass="" useCssClassOnly="true" />}
+                        <Dropdown.Menu className="py-0" >
+                            <Dropdown.Item className="py-2" onClick={onCloudLibImportClick}>Import from Cloud Library</Dropdown.Item>
+                            <Dropdown.Item className="py-2" as="button" >
+                                {<ProfileImporter caption="Import NodeSet file" cssClass="mb-0" useCssClassOnly="true" />}
                             </Dropdown.Item>
                         </Dropdown.Menu>
                     </Dropdown>

@@ -7,6 +7,7 @@ import CloudLibraryImporter from "../shared/CloudLibraryImporter";
 
 import { SVGIcon } from '../../components/SVGIcon'
 import '../../components/styles/RightPanel.scss';
+import color from '../../components/Constants';
 
 const CLASS_NAME = "CloudLibSlideOut";
 
@@ -47,16 +48,16 @@ function CloudLibSlideOut(props) { //props are item, showActions
         <>
             <div className={cssClass} >
                 <div className="header-title-block m-0 mb-3 p-3 pb-2 d-flex right-panel-header row">
-                    {renderTitleBlock("Import from Cloud Library", "search", null)}
+                    {renderTitleBlock("Import from Cloud Library", "search", color.white)}
                     <div className="d-flex align-items-center ml-auto" >
                         <Button variant="icon-solo" onClick={closePanel} className="align-items-center" >
                             <span>
-                                <SVGIcon name="close" />
+                                <SVGIcon name="close" fill={color.white} />
                             </span>
                         </Button>
                     </div>
                 </div>
-                <div className="header-actions-row mb-3 pr-0">
+                <div className="header-actions-row mx-3 mb-3 pr-0">
                     <p className="mb-2" >
                         Search the CESMII Cloud Library for Profiles and import Profiles into the Profile Library.
                     </p>

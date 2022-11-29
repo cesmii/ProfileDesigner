@@ -331,7 +331,8 @@ function CloudLibraryImporter(props) {
     // Region: Render final output
     //-------------------------------------------------------------------
     return (
-        <>
+        <div className="row mx-0">
+            <div className="col-sm-12">
             <div className={`row selected-panel px-3 py-1 mb-1 rounded d-flex `} > {/*${props.cssClass ?? ''}*/}
                 <div className="col-sm-12 px-0 align-items-start d-block d-lg-flex align-items-center" >
                     <div className="d-block d-lg-inline mb-2 mb-lg-0" >
@@ -347,7 +348,8 @@ function CloudLibraryImporter(props) {
             {renderProfileEntity()}
             {renderImportConfirmation()}
             <ErrorModal modalData={_error} callback={onErrorModalClose} />
-        </>
+            </div>
+        </div>
     )
 }
 

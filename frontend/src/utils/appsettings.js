@@ -93,6 +93,10 @@ export const AppSettings = {
         1: 'Apache 2.0',
         2: 'Custom (see License URL)'
     }
+    , ProfileListMode: {
+        Profile: 1,
+        CloudLib: 2
+    }
     //MSAL (Authentication) Config
     , MsalConfig: {
         auth: {

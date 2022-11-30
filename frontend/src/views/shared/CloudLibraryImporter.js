@@ -35,32 +35,22 @@ function CloudLibraryImporter(props) {
     const [_selectedCloudProfileIds, setSelectedCloudProfileIds] = useState([]);
 
     //-------------------------------------------------------------------
-    // Region: Pass profile id into component if profileId passed in from url
+    // Region: Hooks - init search criteria
     //-------------------------------------------------------------------
     useEffect(() => {
 
         if (!_initSearchCriteria) return;
 
         //check for searchcriteria - trigger fetch of search criteria data - if not already triggered
-        if ((loadingProps.profileSearchCriteria == null || loadingProps.profileSearchCriteria.filters == null) && !loadingProps.refreshProfileSearchCriteria) {
-            setLoadingProps({ refreshProfileSearchCriteria: true });
-        }
-        //start with a blank criteria slate. Handle possible null scenario if criteria hasn't loaded yet. 
-        const criteria = loadingProps.profileSearchCriteria == null ? null : JSON.parse(JSON.stringify(loadingProps.profileSearchCriteria));
-        if (criteria == null) {
+        if ((loadingProps.cloudLibImporterSearchCriteria == null || loadingProps.cloudLibImporterSearchCriteria.filters == null) && !loadingProps.refreshCloudLibImporterSearchCriteria) {
+            setLoadingProps({ refreshCloudLibImporterSearchCriteria: true });
             return;
         }
-        if (criteria != null) {
-            criteria.filters[0].items[0].visible = false;
-            criteria.filters[0].items[0].selected = false;
+        //start with a blank criteria slate. Handle possible null scenario if criteria hasn't loaded yet. 
+        const criteria = loadingProps.cloudLibImporterSearchCriteria == null ? null : JSON.parse(JSON.stringify(loadingProps.cloudLibImporterSearchCriteria));
 
-            criteria.filters[1].items[0].name = "Show imported profiles";
-            criteria.filters[1].items[0].visible = true;
-            criteria.filters[1].items[0].selected = false;
-
-            criteria.filters[2].items[0].visible = false;
-            criteria.filters[2].items[0].selected = true;
-            //criteria = clearSearchCriteria(criteria);
+        if (criteria == null) {
+            return; //criteria = clearSearchCriteria(criteria);
         }
 
         //update state
@@ -69,13 +59,21 @@ function CloudLibraryImporter(props) {
             setSearchCriteria(criteria);
             setSearchCriteriaChanged(_searchCriteriaChanged + 1);
         }
-        setLoadingProps({ ...loadingProps, profileSearchCriteria: criteria });
+        setLoadingProps({ ...loadingProps, cloudLibImporterSearchCriteria: criteria });
 
         //this will execute on unmount
         return () => {
             //console.log(generateLogMessageString('useEffect||Cleanup', CLASS_NAME));
         };
-    }, [_initSearchCriteria, loadingProps.profileSearchCriteriaRefreshed]);
+    }, [_initSearchCriteria, loadingProps.cloudLibImporterSearchCriteriaRefreshed]);
+
+    //-------------------------------------------------------------------
+    // Region: Hooks
+    //-------------------------------------------------------------------
+    useEffect(() => {
+        var selectedIds = _selectedCloudProfiles.map(p => p.id);
+        setSelectedCloudProfileIds(selectedIds);
+    }, [_selectedCloudProfiles]);
 
     //-------------------------------------------------------------------
     // Region: Event Handling of child component events
@@ -120,12 +118,6 @@ function CloudLibraryImporter(props) {
             return selectedCloudProfiles;
         });
     };
-
-
-    useEffect(() => {
-        var selectedIds = _selectedCloudProfiles.map(p => p.id);
-        setSelectedCloudProfileIds(selectedIds);
-    }, [_selectedCloudProfiles]);
 
     //-------------------------------------------------------------------
     // Region: Add/Update event handlers
@@ -339,11 +331,12 @@ function CloudLibraryImporter(props) {
                         {renderSelectedItems()}
                     </div>
                 </div>
-            </div>
-            {(_searchCriteria != null) &&
-                    <ProfileListGrid searchCriteria={_searchCriteria} noSortOptions="true" 
-                    onGridRowSelect={onGridRowSelect} onEdit={onView} selectMode="multiple" selectedItems={_selectedCloudProfileIds}
-                    onSearchCriteriaChanged={onSearchCriteriaChanged} searchCriteriaChanged={_searchCriteriaChanged} />
+                </div>
+                {(_searchCriteria != null && props.isOpen) &&
+                    <ProfileListGrid searchCriteria={_searchCriteria} noSortOptions="true" mode={AppSettings.ProfileListMode.CloudLib}
+                        onGridRowSelect={onGridRowSelect} onEdit={onView} selectMode="multiple" selectedItems={_selectedCloudProfileIds}
+                        onSearchCriteriaChanged={onSearchCriteriaChanged} searchCriteriaChanged={_searchCriteriaChanged}
+                />
             }
             {renderProfileEntity()}
             {renderImportConfirmation()}

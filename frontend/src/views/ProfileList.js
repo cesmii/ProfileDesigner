@@ -39,9 +39,9 @@ function ProfileList() {
     //used in popup profile add/edit ui. Default to new version
     const [_profileEntityModal, setProfileEntityModal] = useState({ show: false, item: null});
     //const [_cloudLibImporterModal, setCloudLibImporterModal] = useState({ show: false });
-    const [_initProfileSearchCriteria, setInitProfileSearchCriteria] = useState(true);
-    const [_profileSearchCriteria, setProfileSearchCriteria] = useState(null);
-    const [_profileSearchCriteriaChanged, setProfileSearchCriteriaChanged] = useState(0);
+    const [_initSearchCriteria, setInitSearchCriteria] = useState(true);
+    const [_searchCriteria, setSearchCriteria] = useState(null);
+    const [_searchCriteriaChanged, setSearchCriteriaChanged] = useState(0);
     const [_cloudLibSlideOut, setCloudLibSlideOut] = useState({ isOpen: false });
 
     //-------------------------------------------------------------------
@@ -49,24 +49,24 @@ function ProfileList() {
     //-------------------------------------------------------------------
     useEffect(() => {
 
-        if (!_initProfileSearchCriteria) return;
+        if (!_initSearchCriteria) return;
 
         //check for searchcriteria - trigger fetch of search criteria data - if not already triggered
         if ((loadingProps.profileSearchCriteria == null || loadingProps.profileSearchCriteria.filters == null) && !loadingProps.refreshProfileSearchCriteria) {
             setLoadingProps({ refreshProfileSearchCriteria: true });
         }
         //start with a blank criteria slate. Handle possible null scenario if criteria hasn't loaded yet. 
-        var criteria = loadingProps.profileSearchCriteria == null ? null : JSON.parse(JSON.stringify(loadingProps.profileSearchCriteria));
+        const criteria = loadingProps.profileSearchCriteria == null ? null : JSON.parse(JSON.stringify(loadingProps.profileSearchCriteria));
 
         if (criteria == null) {
             return; //criteria = clearSearchCriteria(criteria);
         }
 
         //update state
-        setInitProfileSearchCriteria(false);
+        setInitSearchCriteria(false);
         if (criteria != null) {
-            setProfileSearchCriteria(criteria);
-            setProfileSearchCriteriaChanged(_profileSearchCriteriaChanged + 1);
+            setSearchCriteria(criteria);
+            setSearchCriteriaChanged(_searchCriteriaChanged + 1);
         }
         setLoadingProps({ ...loadingProps, profileSearchCriteria: criteria });
 
@@ -74,7 +74,22 @@ function ProfileList() {
         return () => {
             //console.log(generateLogMessageString('useEffect||Cleanup', CLASS_NAME));
         };
-    }, [_initProfileSearchCriteria, loadingProps.profileSearchCriteriaRefreshed]);
+    }, [_initSearchCriteria, loadingProps.profileSearchCriteriaRefreshed]);
+
+    //-------------------------------------------------------------------
+    // Region: hooks - show or hide panel - update body tag
+    //-------------------------------------------------------------------
+    useEffect(() => {
+        document.body.className = _cloudLibSlideOut.isOpen ?
+            //remove (if present) and re-append
+            document.body.className.replace('slideout-open-no-scroll', '') + 'slideout-open-no-scroll'
+            //remove (if present)
+            : document.body.className.replace('slideout-open-no-scroll', '');
+        //on unmount
+        return () => {
+            document.body.className = document.body.className.replace('slideout-open-no-scroll', '');
+        }
+    }, [_cloudLibSlideOut]);
 
     //-------------------------------------------------------------------
     // Region: Event Handling of child component events
@@ -240,25 +255,10 @@ function ProfileList() {
     const onSearchCriteriaChanged = (criteria) => {
         console.log(generateLogMessageString(`onSearchCriteriaChanged`, CLASS_NAME));
         //update state
-        setProfileSearchCriteria(criteria);
+        setSearchCriteria(criteria);
         //trigger api to get data
-        setProfileSearchCriteriaChanged(_profileSearchCriteriaChanged + 1);
+        setSearchCriteriaChanged(_searchCriteriaChanged + 1);
     };
-
-    //-------------------------------------------------------------------
-    // Region: hooks
-    //-------------------------------------------------------------------
-    useEffect(() => {
-        document.body.className = _cloudLibSlideOut.isOpen ?
-            //remove (if present) and re-append
-            document.body.className.replace('slideout-open-no-scroll', '') + 'slideout-open-no-scroll'
-            //remove (if present)
-            : document.body.className.replace('slideout-open-no-scroll', '');
-        //on unmount
-        return () => {
-            document.body.className = document.body.className.replace('slideout-open-no-scroll', '');
-        }
-    }, [_cloudLibSlideOut]);
 
     //-------------------------------------------------------------------
     // Region: Render helpers
@@ -332,9 +332,10 @@ function ProfileList() {
             </Helmet>
             {renderHeaderRow()}
             {renderIntroContent()}
-            {(_profileSearchCriteria != null) &&
-                <ProfileListGrid searchCriteria={_profileSearchCriteria} onGridRowSelect={onGridRowSelect} onEdit={onEdit} onDeleteItemClick={onDeleteItemClick}
-                    onSearchCriteriaChanged={onSearchCriteriaChanged} searchCriteriaChanged={_profileSearchCriteriaChanged} noSearch="true" />
+            {(_searchCriteria != null) &&
+                <ProfileListGrid searchCriteria={_searchCriteria} mode={AppSettings.ProfileListMode.Profile}
+                    onGridRowSelect={onGridRowSelect} onEdit={onEdit} onDeleteItemClick={onDeleteItemClick}
+                    onSearchCriteriaChanged={onSearchCriteriaChanged} searchCriteriaChanged={_searchCriteriaChanged} noSearch="false" />
             }
             {renderProfileEntity()}
             {renderDeleteConfirmation()}

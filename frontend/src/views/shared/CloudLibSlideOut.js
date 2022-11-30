@@ -75,7 +75,7 @@ function CloudLibSlideOut(props) { //props are item, showActions
                     </p>
                 </div>
 
-                <CloudLibraryImporter onImportStarted={onImportStarted} />
+                <CloudLibraryImporter onImportStarted={onImportStarted} isOpen={props.isOpen} />
             </div>
         </>
     );

@@ -1,16 +1,5 @@
-﻿using CESMII.ProfileDesigner.Api.Shared.Controllers;
-using CESMII.ProfileDesigner.Api.Shared.Extensions;
-using CESMII.ProfileDesigner.Api.Shared.Models;
-using CESMII.ProfileDesigner.Common;
-using CESMII.ProfileDesigner.Common.Enums;
-using CESMII.ProfileDesigner.DAL;
-using CESMII.ProfileDesigner.DAL.Models;
-using CESMII.ProfileDesigner.Data.Entities;
-using CESMII.ProfileDesigner.OpcUa;
-using CESMII.OpcUa.NodeSetImporter;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -18,12 +7,25 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using CESMII.ProfileDesigner.OpcUa.AASX;
 using System.Text.RegularExpressions;
-using Opc.Ua.Cloud.Library.Client;
 using System.Globalization;
 using System.Linq.Expressions;
+
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
+using Opc.Ua.Cloud.Library.Client;
+
+using CESMII.ProfileDesigner.OpcUa.AASX;
+using CESMII.ProfileDesigner.Api.Shared.Controllers;
+using CESMII.ProfileDesigner.Api.Shared.Models;
+using CESMII.ProfileDesigner.Common;
+using CESMII.ProfileDesigner.Common.Enums;
+using CESMII.ProfileDesigner.DAL;
+using CESMII.ProfileDesigner.DAL.Models;
+using CESMII.ProfileDesigner.Data.Entities;
+using CESMII.ProfileDesigner.Data.Extensions;
+using CESMII.ProfileDesigner.OpcUa;
+using CESMII.OpcUa.NodeSetImporter;
 
 namespace CESMII.ProfileDesigner.Api.Controllers
 {
@@ -119,7 +121,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         [HttpPost, Route("library")]
         [Authorize(Roles = "cesmii.profiledesigner.user")]
         [ProducesResponseType(200, Type = typeof(DALResult<ProfileModel>))]
-        public IActionResult GetLibrary([FromBody] PagerFilterSimpleModel model)
+        public IActionResult GetLibrary([FromBody] ProfileTypeDefFilterModel model)
         {
             if (model == null)
             {
@@ -127,20 +129,100 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 return BadRequest("Profile|Library|Invalid model");
             }
 
-            //NEW - return all items. The list is small so return both standard, referenced and mine in one list.
-            if (string.IsNullOrEmpty(model.Query))
+            return Ok(SearchProfiles(model));
+        }
+
+        #region Search Helper Functions
+        /// <summary>
+        /// Common search code for searching profiles when given some set of search criteria
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        private DALResult<ProfileModel> SearchProfiles([FromBody] ProfileTypeDefFilterModel model)
+        {
+            //search on some pre-determined fields
+            var orderByExprs = BuildSearchOrderByExpressions(LocalUser.ID.Value, model.SortByEnum);
+            var result = _dal.Where(BuildPredicate(model, base.DalUserToken), base.DalUserToken, model.Skip, model.Take, true, false, orderByExprs.ToArray());
+
+            return new DALResult<ProfileModel>()
             {
-                return Ok(_dal.GetAllPaged(base.DalUserToken, model.Skip, model.Take, true));
+                Count = result.Count,
+                Data = result.Data,
+                SummaryData = result.SummaryData
+            };
+        }
+
+        private List<OrderByExpression<Profile>> BuildSearchOrderByExpressions(int userId, SearchCriteriaSortByEnum val = SearchCriteriaSortByEnum.Name)
+        {
+            //build list of order bys based on user selection of an enum, default is sort by name. 
+            var result = new List<OrderByExpression<Profile>>();
+            switch (val)
+            {
+                case SearchCriteriaSortByEnum.Author:
+                    result.Add(new OrderByExpression<Profile>()
+                    {
+                        Expression = x => !x.StandardProfileID.HasValue &&
+                            x.AuthorId.HasValue && x.AuthorId.Equals(userId) ? 1 : 0,
+                        IsDescending = true
+                    });
+                    result.Add(new OrderByExpression<Profile>() { Expression = x => x.Namespace });
+                    result.Add(new OrderByExpression<Profile>() { Expression = x => x.PublishDate, IsDescending = true });
+                    break;
+                //case SearchCriteriaSortByEnum.Popular:
+                //case SearchCriteriaSortByEnum.Name:
+                default:
+                    result.Add(new OrderByExpression<Profile>() { Expression = x => x.Namespace });
+                    result.Add(new OrderByExpression<Profile>() { Expression = x => x.PublishDate, IsDescending= true });
+                    break;
             }
 
-            //search on some pre-determined fields
-            model.Query = model.Query.ToLower();
-            var result = _dal.Where(s =>
-                            //string query section
-                            s.Namespace.ToLower().Contains(model.Query),
-                            base.DalUserToken, model.Skip, model.Take, true);
-            return Ok(result);
+            return result;
         }
+
+        private List<Expression<Func<Profile, bool>>> BuildPredicate(ProfileTypeDefFilterModel model, UserToken userToken)
+        {
+            model.Query = string.IsNullOrEmpty(model.Query) ? null : model.Query.ToLower();
+
+            //init 
+            var result = new List<Expression<Func<Profile, bool>>>();
+
+            //Part 0 - string contains
+            if (!string.IsNullOrEmpty(model.Query))
+            {
+                result.Add(x => x.Namespace.ToLower().Contains(model.Query) ||
+                         (x.Author != null && x.Author.DisplayName.ToLower().Contains(model.Query)));
+            }
+
+            //Part 1 - Mine OR Base profiles - This will be an OR clause within this portion
+            var filterProfileSource = model.Filters?.Find(c => 
+                c.ID.Value == (int)ProfileSearchCriteriaCategoryEnum.Source)
+                .Items.Where(x => x.Selected).ToList();
+            if (filterProfileSource != null && filterProfileSource.Any())
+            {
+                Expression<Func<Profile, bool>> predSource = null;
+                foreach (var f in filterProfileSource)
+                {
+                    if (f.ID == (int)ProfileSearchCriteriaSourceEnum.Mine)
+                    {
+                        Expression<Func<Profile, bool>> fnMine = x => !x.StandardProfileID.HasValue
+                            && x.AuthorId.Value.Equals(f.ID.Value);
+                        predSource = predSource == null ? fnMine : predSource.OrExtension(fnMine);
+                    }
+                    else if (f.ID == (int)ProfileSearchCriteriaSourceEnum.BaseProfile)
+                    {
+                        Expression<Func<Profile, bool>> fnMine = x => x.StandardProfileID.HasValue;
+                        predSource = predSource == null ? fnMine : predSource.OrExtension(fnMine);
+                    }
+                }
+                //append to predicate list
+                result.Add(predSource);
+            }
+
+            //Future filter scenarios can go here....
+
+            return result;
+        }
+        #endregion
 
         /// <summary>
         /// Search profiles library for profiles matching criteria passed in. This is a simple search field and 
@@ -159,11 +241,15 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 _logger.LogWarning("ProfileController|GetLibrary|Invalid model");
                 return BadRequest("Profile|Library|Invalid model");
             }
-            if (model.Keywords != null && model.Keywords.Any(k => k == null))
-            {
-                _logger.LogWarning("ProfileController|GetLibrary|Invalid model: null keyword");
-                return BadRequest("Profile|Library|Invalid model null keyword");
-            }
+
+            //convert query to list<string> needed by CloudLib
+            var keywords = string.IsNullOrEmpty(model.Query) ? new List<string>() : new List<string>() { model.Query.ToLower() };
+
+            //get the include/exclude local filter - it is in Source group and it is defined by matching its id up to this enum
+            //see lookupController where it is defined for the front end.
+            bool filterIncludeLocal = model.Filters != null && model.Filters.Find(c =>
+                c.ID.Value == (int)ProfileSearchCriteriaCategoryEnum.Source)
+                .Items.Any(x => x.ID == (int)ProfileSearchCriteriaSourceEnum.BaseProfile && x.Selected);
 
             // Get both local and cloudlib cursors
             var cursors = model.Cursor?.Split(",");
@@ -205,7 +291,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 do
                 {
                     // Get first batch of profiles from the cloudlib
-                    var cloudResultTask = _cloudLibDal.Where(model.Take, cloudLibCursor, model.PageBackwards, model.Keywords);
+                    var cloudResultTask = _cloudLibDal.Where(model.Take, cloudLibCursor, model.PageBackwards, keywords);
 
                     // Get local profiles in parallel
                     allLocalProfiles = allLocalProfiles ?? _dal.GetAll(base.DalUserToken);
@@ -227,7 +313,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                     totalCount = cloudResultPage.TotalCount;
                     pendingCloudLibProfiles.AddRange(cloudResultPage.Edges);
 
-                    if (model.ExcludeLocalLibrary)
+                    if (!filterIncludeLocal)
                     {
                         // remove all profiles from the cloudlib result that are available locally: mark them as null for correct cursor handling of skipped profiles
                         foreach (var localProfile in allLocalProfiles)
@@ -241,7 +327,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                         }
                     }
 
-                    if (model.AddLocalLibrary)
+                    if (filterIncludeLocal)
                     {
                         if (pendingLocalProfiles == null)
                         {
@@ -249,7 +335,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                         }
 
                         // Query local profiles
-                        if (model.Keywords != null)
+                        if (keywords != null && keywords.Count > 0)
                         {
                             if (!bFullResultLocal)
                             {
@@ -265,7 +351,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                                             IsDescending = false,
                                         },
                                 };
-                                if (model.ExcludeLocalLibrary)
+                                if (!filterIncludeLocal)
                                 {
                                     // owned profiles first when excluding and adding
                                     orderBy.Insert(0, new OrderByExpression<Profile>
@@ -275,13 +361,12 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                                     });
                                 }
 
-                                string keywordRegex = $".*({string.Join('|', model.Keywords)}).*";
-
+                                string keywordRegex = ".*(" + string.Join(" | ", keywords) + ").*";
 
                                 var newLocalProfilesResult = _dal.Where(
                                     new List<Expression<Func<Profile, bool>>>
                                     {
-                                        p => Regex.IsMatch(p.Namespace, keywordRegex, RegexOptions.IgnoreCase)
+                                        p => Regex.IsMatch(String.IsNullOrEmpty(p.Namespace) ? "" : p.Namespace, keywordRegex, RegexOptions.IgnoreCase)
                                     },
                                     base.DalUserToken, localCursor, null, true,
                                     orderByExpressions: orderBy.ToArray());
@@ -295,7 +380,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                         {
                             bFullResultLocal = true;
                             pendingLocalProfiles.AddRange(
-                                (model.ExcludeLocalLibrary ?
+                                (!filterIncludeLocal ?
                                     allLocalProfiles.OrderBy(pm => pm.IsReadOnly).ThenBy(pm => pm.Namespace).ThenBy(pm => pm.PublishDate)// owned profiles first when excluding and adding
                                     : allLocalProfiles.OrderBy(pm => pm.Namespace).ThenBy(pm => pm.PublishDate)
                                 )
@@ -330,7 +415,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
 
                         var firstPendingLocalprofile = !model.PageBackwards ? pendingLocalProfiles?.FirstOrDefault() : pendingLocalProfiles?.LastOrDefault();
                         if (firstPendingLocalprofile != null &&
-                            (model.ExcludeLocalLibrary || // Put local library items first if both add and exclude is specified
+                            (!filterIncludeLocal || // Put local library items first if both add and exclude is specified
                               (firstPendingCloudLibProfile?.Node == null || String.Compare(firstPendingLocalprofile.Namespace, firstPendingCloudLibProfile.Node.Namespace, false, CultureInfo.InvariantCulture) < 0)))
                         {
                             if (!result.Any())

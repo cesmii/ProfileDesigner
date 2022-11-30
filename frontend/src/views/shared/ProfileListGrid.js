@@ -11,6 +11,7 @@ import ProfileItemRow from './ProfileItemRow';
 import { useLoadingContext } from "../../components/contexts/LoadingContext";
 
 import '../styles/ProfileList.scss';
+import { AppSettings } from '../../utils/appsettings';
 
 const CLASS_NAME = "ProfileListGrid";
 const entityInfo = {
@@ -37,8 +38,8 @@ function ProfileListGrid(props) {
     //importer
     const [_forceReload, setForceReload] = useState(0);
 
-    const [_profileSearchCriteria, setProfileSearchCriteria] = useState(props.searchCriteria);
-    const [_profileSearchCriteriaChanged, setProfileSearchCriteriaChanged] = useState(0);
+    const [_searchCriteria, setSearchCriteria] = useState(props.searchCriteria);
+    const [_searchCriteriaChanged, setSearchCriteriaChanged] = useState(0);
 
     //-------------------------------------------------------------------
     // Region: Event Handling of child component events
@@ -101,9 +102,9 @@ function ProfileListGrid(props) {
     const onProfileSearchCriteriaChanged = (criteria) => {
         console.log(generateLogMessageString(`onProfileSearchCriteriaChanged`, CLASS_NAME));
         //update state
-        setProfileSearchCriteria(criteria);
+        setSearchCriteria(criteria);
         //trigger api to get data
-        setProfileSearchCriteriaChanged(_profileSearchCriteriaChanged + 1);
+        setSearchCriteriaChanged(_searchCriteriaChanged + 1);
         if (props.onSearchCriteriaChanged != null) props.onSearchCriteriaChanged(criteria);
     };
 
@@ -111,27 +112,62 @@ function ProfileListGrid(props) {
     // Region: Get data 
     //-------------------------------------------------------------------
     useEffect(() => {
-        async function fetchData() {
-            const localProfileSelected = _profileSearchCriteria?.filters?.find(x => x.id === 1)?.items[0]?.selected;
-            const baseProfileSelected = _profileSearchCriteria?.filters?.find(x => x.id === 2)?.items[0]?.selected;
-            const cloudLibSelected = _profileSearchCriteria?.filters?.find(x => x.id === 3)?.items[0]?.selected;
+        async function fetchDataProfile() {
+            //show a spinner
+            setLoadingProps({ isLoading: true, message: null });
 
-            let url;
-            if (props.isMine|| (baseProfileSelected != null && !baseProfileSelected && cloudLibSelected != null && !cloudLibSelected)) {
-                url = 'profile/mine';
-            }
-            else if (!cloudLibSelected) {
-                url = 'profile/library';
-            }
-            else {
-                url = 'profile/cloudlibrary';
-            }
+            const url = `profile/library`;
+            console.log(generateLogMessageString(`useEffect||fetchDataProfile||${url}`, CLASS_NAME));
 
-            console.log(generateLogMessageString(`useEffect||fetchData||${url}`, CLASS_NAME));
+            //apply the page size info from this page
+            props.searchCriteria.skip = (_pager.currentPage - 1) * _pager.pageSize;
+            props.searchCriteria.take = _pager.pageSize;
+            //call search
+            await axiosInstance.post(url, props.searchCriteria).then(result => {
+                if (result.status === 200) {
 
-            const keywords = _profileSearchCriteria?.query == null
-                ? null 
-                : [_profileSearchCriteria?.query?.toString()];
+                    //set state on fetch of data
+                    //if profile id filter was passed in, then grab the profile info from the 1st returned item for display
+                    setDataRows({
+                        all: result.data.data, itemCount: result.data.count
+                    });
+
+                    //hide a spinner
+                    setLoadingProps({ isLoading: false, message: null });
+
+                    //preserve and display item count  
+                    //setItemCount(result.data.count);
+
+                } else {
+                    setLoadingProps({
+                        isLoading: false, message: null, inlineMessages: [
+                            { id: new Date().getTime(), severity: "danger", body: 'An error occurred retrieving these types.', isTimed: true }]
+                    });
+                    //setItemCount(null);
+                }
+                //hide a spinner
+                setLoadingProps({ isLoading: false, message: null });
+
+            }).catch(e => {
+                if ((e.response && e.response.status === 401) || e.toString().indexOf('Network Error') > -1) {
+                    //do nothing, this is handled in routes.js using common interceptor
+                    //setAuthTicket(null); //the call of this will clear the current user and the token
+                }
+                else {
+                    setLoadingProps({
+                        isLoading: false, message: null, inlineMessages: [
+                            { id: new Date().getTime(), severity: "danger", body: 'An error occurred retrieving these profiles.', isTimed: true }]
+                    });
+                    //setItemCount(null);
+                }
+            });
+        }
+
+        async function fetchDataCloudLib() {
+
+            const url = 'profile/cloudlibrary';
+            
+            console.log(generateLogMessageString(`useEffect||fetchDataCloudLib||${url}`, CLASS_NAME));
 
             // Cursor pagination can only move one page at a time
             let cursor;
@@ -142,8 +178,7 @@ function ProfileListGrid(props) {
             else if (_pager.currentPage === _dataRows?.pageNumber) {
                 return;
             }
-            else if (_pager.currentPage > _dataRows?.pageNumber + 1 &&  _pager.currentPage === Math.ceil(_dataRows.itemCount / _pager.pageSize))
-            {
+            else if (_pager.currentPage > _dataRows?.pageNumber + 1 && _pager.currentPage === Math.ceil(_dataRows.itemCount / _pager.pageSize)) {
                 // Jump to last page
                 cursor = null;
                 pageBackwards = true;
@@ -157,37 +192,30 @@ function ProfileListGrid(props) {
                 pageBackwards = true;
                 _pager.currentPage = _dataRows?.pageNumber - 1;
             }
-            const data = {
-                Query: _pager.searchVal,
 
-                // Offset pagination for local profiles
-                Skip: (_pager.currentPage - 1) * _pager.pageSize,
-                Take: _pager.pageSize,
-
-                // Cursor pagination for CloudLib
-                Cursor: cursor,
-                PageBackwards: pageBackwards,
-
-                // CloudLib filters
-                AddLocalLibrary: (localProfileSelected),
-                ExcludeLocalLibrary: (!baseProfileSelected && !localProfileSelected),
-                Keywords: keywords
-            };
+            //apply the page size info from this page
+            props.searchCriteria.skip = (_pager.currentPage - 1) * _pager.pageSize;
+            props.searchCriteria.take = _pager.pageSize;
+            
+            //dynamically append CloudLib specific params to common filtering model
+            // Cursor pagination for CloudLib
+            props.searchCriteria.cursor= cursor;
+            props.searchCriteria.pageBackwards = pageBackwards;
 
             //show a spinner
             setLoadingProps({ isLoading: true, message: null });
 
-            await axiosInstance.post(url, data).then(result => {
+            await axiosInstance.post(url, props.searchCriteria).then(result => {
                 if (result.status === 200) {
 
                     let itemCount = result.data.count;
                     if (result.data.hasNextPage != null && !result.data.hasNextPage
-                        && !(data.PageBackwards && data.Cursor != null)
+                        && !(props.searchCriteria.pageBackwards && props.searchCriteria.cursor != null)
                         && _pager.currentPage < Math.ceil(itemCount / _pager.pageSize)) {
                         // There were more items reported than actually available (backend filtering or other bug): adjust total items
                         itemCount = _pager.pageSize * (_pager.currentPage - 1) + result.data.data.length;
                     }
-                    if (result.data.hasPreviousPage != null && !result.data.hasPreviousPage && data.PageBackwards && _pager.currentPage !== 1) {
+                    if (result.data.hasPreviousPage != null && !result.data.hasPreviousPage && props.searchCriteria.pageBackwards && _pager.currentPage !== 1) {
                         // We are at the first page but the pager is out of sync - there were more items reported than actually available (backend filtering or other bug): adjust total items
                         _pager.currentPage = 1;
                     }
@@ -225,16 +253,15 @@ function ProfileListGrid(props) {
                 }
             });
         }
-        fetchData();
-        //this will execute on unmount
-        return () => {
-            console.log(generateLogMessageString('useEffect||Cleanup', CLASS_NAME));
-            //setFilterValOnChild('');
-        };
-    //type passed so that any change to this triggers useEffect to be called again
-        //_nodesetPreferences.pageSize - needs to be passed so that useEffects dependency warning is avoided.
-    }, [_pager, _forceReload, props.isMine, _profileSearchCriteria]);
 
+        //this component is shared by profile list and cloud lib importer. Get the proper data based
+        //on component mode
+        if (!props.mode || props.mode === AppSettings.ProfileListMode.Profile) fetchDataProfile();
+        else if (props.mode === AppSettings.ProfileListMode.CloudLib) fetchDataCloudLib();
+
+        //type passed so that any change to this triggers useEffect to be called again
+        //_nodesetPreferences.pageSize - needs to be passed so that useEffects dependency warning is avoided.
+    }, [_pager, _forceReload, props.mode, _searchCriteria]);
 
     //-------------------------------------------------------------------
     // useEffect - Importing items
@@ -247,13 +274,8 @@ function ProfileListGrid(props) {
         //if the importing message component has triggered a refresh, handle it here. 
         if (loadingProps.refreshProfileList === true) {
             setForceReload(_forceReload + 1);
-            setLoadingProps({refreshProfileList: null, refreshProfileSearchCriteria: true});
+            setLoadingProps({ refreshProfileList: null, refreshProfileSearchCriteria: true, refreshCloudLibImporterSearchCriteria: true});
         }
-        
-        //this will execute on unmount
-        return () => {
-            console.log(generateLogMessageString('useEffect||importingItemsChange||Cleanup', CLASS_NAME));
-        };
     }, [loadingProps.refreshProfileList]);
 
 

@@ -11,6 +11,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using CESMII.ProfileDesigner.Api.Controllers;
+using CESMII.ProfileDesigner.Common.Enums;
 using Microsoft.Extensions.DependencyInjection;
 using MyNamespace;
 using NLog.Filters;
@@ -29,6 +30,37 @@ namespace CESMII.ProfileDesigner.Api.Tests
         private readonly CustomWebApplicationFactory<CESMII.ProfileDesigner.Api.Startup> _factory;
         private readonly ITestOutputHelper output;
 
+        //shared filter used to represent an inclusion of local profiles 
+        private List<LookupGroupByModel> FilterIncludeLocalItems
+        {
+            get
+            {
+                return new List<LookupGroupByModel>{
+                    new LookupGroupByModel() {
+                        Name = "Source", Id = (int)ProfileSearchCriteriaCategoryEnum.Source,
+                        Items = new List<LookupItemFilterModel>() {
+                            new LookupItemFilterModel() { Id = (int)ProfileSearchCriteriaSourceEnum.BaseProfile, Selected = true }
+                        }
+                    }
+                };
+            }
+        }
+
+        //shared filter used to represent an exclusion of local profiles 
+        private List<LookupGroupByModel> FilterExcludeLocalItems
+        {
+            get {
+                return new List<LookupGroupByModel>{
+                    new LookupGroupByModel() {
+                        Name = "Source", Id = (int)ProfileSearchCriteriaCategoryEnum.Source,
+                        Items = new List<LookupItemFilterModel>() {
+                            new LookupItemFilterModel() { Id = (int)ProfileSearchCriteriaSourceEnum.BaseProfile, Selected = false }
+                        }
+                    }
+                };
+            }
+        }
+
         public CloudLib(CustomWebApplicationFactory<CESMII.ProfileDesigner.Api.Startup> factory, ITestOutputHelper output)
         {
             _factory = factory;
@@ -37,91 +69,89 @@ namespace CESMII.ProfileDesigner.Api.Tests
     
         [Theory]
         [MemberData(nameof(TestKeywords))]
-        public async Task CloudLibrary(string[] keywords, int expectedCount, int expectedNotLocal, int expectedPlusLocal, int expectedNotLocalPlusLocal)
+        public async Task CloudLibrary(string query, int expectedCount, int expectedNotLocal, int expectedPlusLocal, int expectedNotLocalPlusLocal)
         {
             // Arrange
             var apiClient = _factory.GetApiClientAuthenticated();
 
             // ACT
             var allLocalProfiles = (await apiClient.LibraryAsync(new PagerFilterSimpleModel { Query = null, Skip = 0, Take = 100 })).Data;
-            var allCloudProfiles = await PagedVsNonPagedAsync(apiClient, new CloudLibFilterModel { Keywords = null, Cursor = null, Take = 100, });
+            var allCloudProfiles = await PagedVsNonPagedAsync(apiClient, new CloudLibFilterModel { Query = null, Cursor = null, Take = 100 });
 
-            var cloud = await PagedVsNonPagedAsync(apiClient, new CloudLibFilterModel { Keywords = keywords, Cursor = null, Take = 100, });
+            var cloud = await PagedVsNonPagedAsync(apiClient, new CloudLibFilterModel { Query = query, Cursor = null, Take = 100, });
             Assert.Equal(expectedCount, cloud.Count);
 
-            var cloudNotLocal = await PagedVsNonPagedAsync(apiClient, new CloudLibFilterModel { Keywords = keywords, Cursor = null, Take = 100, ExcludeLocalLibrary = true, });
+            var cloudNotLocal = await PagedVsNonPagedAsync(apiClient, new CloudLibFilterModel { Query = query, Cursor = null, Take = 100, Filters = FilterExcludeLocalItems });
             Assert.Equal(expectedNotLocal, cloudNotLocal.Count);
 
             var findLocals = cloudNotLocal.Where(c => allLocalProfiles.Any(l => l.Namespace == c.Namespace)).ToList();
             Assert.Empty(findLocals);
 
-            var cloudPlusLocal = await PagedVsNonPagedAsync(apiClient, new CloudLibFilterModel { Keywords = keywords, Cursor = null, Take = 100, AddLocalLibrary = true, });
+            var cloudPlusLocal = await PagedVsNonPagedAsync(apiClient, new CloudLibFilterModel { Query = query, Cursor = null, Take = 100, Filters = FilterIncludeLocalItems });
             Assert.Equal(expectedPlusLocal, cloudPlusLocal.Count);
-
-            var cloudNotLocalPlusLocal = await PagedVsNonPagedAsync(apiClient, new CloudLibFilterModel { Keywords = keywords, Cursor = null, Take = 100, ExcludeLocalLibrary = true, AddLocalLibrary = true });
-            Assert.Equal(expectedNotLocalPlusLocal, cloudNotLocalPlusLocal.Count);
         }
 
         #pragma warning disable xUnit1026  // Stop warnings related to parameters not used in test cases. 
 
         [Theory]
         [MemberData(nameof(TestKeywords))]
-        public async Task CloudLibrarySingle(string[] keywords, int expectedCount, int expectedNotLocal, int expectedPlusLocal, int expectedNotLocalPlusLocal)
+        public async Task CloudLibrarySingle(string query, int expectedCount, int expectedNotLocal, int expectedPlusLocal, int expectedNotLocalPlusLocal)
         {
             // Arrange
             var apiClient = _factory.GetApiClientAuthenticated();
 
             // ACT
-            var cloud = await apiClient.CloudlibraryAsync(new CloudLibFilterModel { Keywords = keywords, Cursor = null, Take = 100, });
+            var cloud = await apiClient.CloudlibraryAsync(new CloudLibFilterModel { Query = query, Cursor = null, Take = 100, });
             Assert.Equal(expectedCount, cloud.Count);
         }
         [Theory]
         [MemberData(nameof(TestKeywords))]
-        public async Task CloudLibraryPaged(string[] keywords, int expectedCount, int expectedNotLocal, int expectedPlusLocal, int expectedNotLocalPlusLocal)
+        public async Task CloudLibraryPaged(string query, int expectedCount, int expectedNotLocal, int expectedPlusLocal, int expectedNotLocalPlusLocal)
         {
             // Arrange
             var apiClient = _factory.GetApiClientAuthenticated();
 
             // ACT
-            var cloudPaged = await GetAllPaged(apiClient, new CloudLibFilterModel { Keywords = keywords, Cursor = null, Take = 5, });
+            var cloudPaged = await GetAllPaged(apiClient, new CloudLibFilterModel { Query = query, Cursor = null, Take = 5, });
             Assert.Equal(expectedCount, cloudPaged.Count);
         }
 
         [Theory]
         [MemberData(nameof(TestKeywords))]
-        public async Task CloudLibraryPagedNoLocal(string[] keywords, int expectedCount, int expectedNotLocal, int expectedPlusLocal, int expectedNotLocalPlusLocal)
+        public async Task CloudLibraryPagedNoLocal(string query, int expectedCount, int expectedNotLocal, int expectedPlusLocal, int expectedNotLocalPlusLocal)
         {
             // Arrange
             var apiClient = _factory.GetApiClientAuthenticated();
 
             // ACT
-            var cloudPaged = await GetAllPaged(apiClient, new CloudLibFilterModel { Keywords = keywords, Cursor = null, Take = 5, ExcludeLocalLibrary = true });
+            var cloudPaged = await GetAllPaged(apiClient, new CloudLibFilterModel { Query = query, Cursor = null, Take = 5, Filters = FilterExcludeLocalItems });
             Assert.Equal(expectedNotLocal, cloudPaged.Count);
         }
+        //TBD - Ask Markus on scenario of includelocal, exclude local scenario
+        //[Theory]
+        //[MemberData(nameof(TestKeywords))]
+        //public async Task CloudLibraryPagedNoLocalPlusLocal(string query, int expectedCount, int expectedNotLocal, int expectedPlusLocal, int expectedNotLocalPlusLocal)
+        //{
+        //    // Note: the current results seem incomplete because local profile keyword search only matches the namespace, not the displaynames of hte profile type definitions etc.
+        //    // Once CloudLib and local keyword search are identical, this should return the same counts as expectedPlusLocal
+
+        //    // Arrange
+        //    var apiClient = _factory.GetApiClientAuthenticated();
+
+        //    // ACT
+        //    var cloudPaged = await GetAllPaged(apiClient, new CloudLibFilterModel { Query = query, Cursor = null, Take = 5, AddLocalLibrary = true, ExcludeLocalLibrary = true });
+        //    Assert.Equal(expectedNotLocalPlusLocal, cloudPaged.Count);
+        //}
+
         [Theory]
         [MemberData(nameof(TestKeywords))]
-        public async Task CloudLibraryPagedNoLocalPlusLocal(string[] keywords, int expectedCount, int expectedNotLocal, int expectedPlusLocal, int expectedNotLocalPlusLocal)
+        public async Task CloudLibraryPagedAddLocal(string query, int expectedCount, int expectedNotLocal, int expectedPlusLocal, int expectedNotLocalPlusLocal)
         {
-            // Note: the current results seem incomplete because local profile keyword search only matches the namespace, not the displaynames of hte profile type definitions etc.
-            // Once CloudLib and local keyword search are identical, this should return the same counts as expectedPlusLocal
-
             // Arrange
             var apiClient = _factory.GetApiClientAuthenticated();
 
             // ACT
-            var cloudPaged = await GetAllPaged(apiClient, new CloudLibFilterModel { Keywords = keywords, Cursor = null, Take = 5, AddLocalLibrary = true, ExcludeLocalLibrary = true });
-            Assert.Equal(expectedNotLocalPlusLocal, cloudPaged.Count);
-        }
-
-        [Theory]
-        [MemberData(nameof(TestKeywords))]
-        public async Task CloudLibraryPagedAddLocal(string[] keywords, int expectedCount, int expectedNotLocal, int expectedPlusLocal, int expectedNotLocalPlusLocal)
-        {
-            // Arrange
-            var apiClient = _factory.GetApiClientAuthenticated();
-
-            // ACT
-            var cloudPaged = await GetAllPaged(apiClient, new CloudLibFilterModel { Keywords = keywords, Cursor = null, Take = 5, AddLocalLibrary = true });
+            var cloudPaged = await GetAllPaged(apiClient, new CloudLibFilterModel { Query = query, Cursor = null, Take = 5, Filters = FilterIncludeLocalItems });
             Assert.Equal(expectedPlusLocal, cloudPaged.Count);
         }
 
@@ -131,9 +161,8 @@ namespace CESMII.ProfileDesigner.Api.Tests
 
             var pagedFilter = new CloudLibFilterModel
             {
-                Keywords = filter.Keywords,
-                ExcludeLocalLibrary = filter.ExcludeLocalLibrary,
-                AddLocalLibrary = filter.AddLocalLibrary,
+                Query = filter.Query,
+                Filters = filter.Filters,
                 Cursor = null,
                 Take = 5,
             };
@@ -165,7 +194,18 @@ namespace CESMII.ProfileDesigner.Api.Tests
         {
             return new List<object[]>
             {
-                // string[] keywords, int expectedCount, int expectedNotLocal, int expectedPlusLocal, int expectedNotLocalPlusLocal 
+                // string query, int expectedCount, int expectedNotLocal, int expectedPlusLocal, int expectedNotLocalPlusLocal 
+                new object[ ]{ null, 63, 7, 67, 67, },
+                new object[] { "BaseObjectType", 6, 0, 6, 0, },
+                new object[] { "di", 61, 5, 61, 11, },
+                new object[] { "robotics", 2, 1, 2, 2, },
+                new object[] { "plastic", 15, 0, 15, 14, },
+                new object[] { "pump", 6, 0, 6, 2,},
+                new object[] { "abcdefg", 0, 0, 0, 0, },
+                new object[] { "Interface", 24, 0, 24, 0, },
+                new object[] { "Event", 23, 1, 23, 1, },
+                new object[] { "BaseObjectType", 28, 0, 28, 0, },
+/*
                 new object[ ]{ null, 63, 7, 67, 67, },
                 new object[] { new string[] { "BaseObjectType" }, 6, 0, 6, 0, },
                 new object[] { new string[] { "di" }, 61, 5, 61, 11, },
@@ -183,6 +223,7 @@ namespace CESMII.ProfileDesigner.Api.Tests
                 new object[] { new string[] { "Interface", "BaseObjectType" }, 28, 0, 28, 0, },
                 new object[] { new string[] { "BaseObjectType", "Interface" }, 28, 0, 28, 0, },
                 new object[] { new string[] { "Interface", "BaseObjectType", "Event" }, 40, 1, 40, 1, },
+*/
             };
         }
     }

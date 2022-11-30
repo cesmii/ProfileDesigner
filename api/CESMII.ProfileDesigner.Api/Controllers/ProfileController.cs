@@ -243,7 +243,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             }
 
             //convert query to list<string> needed by CloudLib
-            var keywords = string.IsNullOrEmpty(model.Query) ? new List<string>() : new List<string>() { model.Query.ToLower() };
+            var keywords = string.IsNullOrEmpty(model.Query) ? null : new List<string>() { model.Query.ToLower() };
 
             //get the include/exclude local filter - it is in Source group and it is defined by matching its id up to this enum
             //see lookupController where it is defined for the front end.

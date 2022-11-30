@@ -130,7 +130,7 @@ export const OnLookupLoad = () => {
     useEffect(() => {
         async function fetchData() {
 
-            const url = `lookup/profilesearchcriteria`;
+            const url = `lookup/searchcriteria/profile`;
             console.log(generateLogMessageString(`useEffect||fetchData||${url}`, CLASS_NAME));
 
             await axiosInstance.get(url).then(result => {
@@ -178,6 +178,60 @@ export const OnLookupLoad = () => {
 
     }, [loadingProps.profileSearchCriteria, loadingProps.refreshProfileSearchCriteria, _isAuthenticated]);
 
+    //-------------------------------------------------------------------
+    // Region: hooks
+    // useEffect - load & cache cloudLibImporter search criteria under certain conditions
+    //-------------------------------------------------------------------
+    useEffect(() => {
+        async function fetchData() {
+
+            const url = `lookup/searchcriteria/cloublibimporter`;
+            console.log(generateLogMessageString(`useEffect||fetchData||${url}`, CLASS_NAME));
+
+            await axiosInstance.get(url).then(result => {
+                if (result.status === 200) {
+
+                    //init the page size value
+                    result.data.take = getProfilePreferences().pageSize;
+
+                    //set the data in local storage
+                    setLoadingProps({
+                        cloudLibImporterSearchCriteria: result.data,
+                        refreshCloudLibImporterSearchCriteria: false,
+                        cloudLibImporterSearchCriteriaRefreshed: loadingProps.cloudLibImporterSearchCriteriaRefreshed + 1
+                    });
+
+                } else {
+                    setLoadingProps({
+                        isLoading: false, message: null, inlineMessages: [
+                            { id: new Date().getTime(), severity: "danger", body: 'An error occurred retrieving the cloudLibImporter filters.', isTimed: true }]
+                    });
+                }
+
+            }).catch(e => {
+                setLoadingProps({ refreshCloudLibImporterSearchCriteria: false });
+                if ((e.response && e.response.status === 401) || e.toString().indexOf('Network Error') > -1) {
+                    //do nothing, this is handled in routes.js using common interceptor
+                }
+                else {
+                    setLoadingProps({
+                        isLoading: false, message: null, inlineMessages: [
+                            { id: new Date().getTime(), severity: "danger", body: 'An error occurred retrieving the cloudLibImporter filters.', isTimed: true }]
+                    });
+                }
+            });
+        }
+
+        //if not logged in yet, return
+        if (!_isAuthenticated || !loadingProps.refreshCloudLibImporterSearchCriteria) return;
+
+        //trigger retrieval of lookup data - if necessary
+        if (loadingProps == null || loadingProps.cloudLibImporterSearchCriteria == null || loadingProps.cloudLibImporterSearchCriteria.filters == null
+            || loadingProps.refreshCloudLibImporterSearchCriteria) {
+            fetchData();
+        }
+
+    }, [loadingProps.cloudLibImporterSearchCriteria, loadingProps.refreshCloudLibImporterSearchCriteria, _isAuthenticated]);
 
     //-------------------------------------------------------------------
     // Region: hooks

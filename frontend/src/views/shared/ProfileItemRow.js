@@ -199,7 +199,7 @@ function ProfileItemRow(props) { //props are item, showActions
                     </div>
                     <div className="col-sm-11 d-flex align-items-center" >
                         <div className="d-block" >
-                            <p className="my-0">
+                            <p className="my-0 d-flex align-content-center">
                                 {profileCaption}
                                 {!props.showActions /*|| props.selectMode != null*/ ?
                                     <span className="ml-2" >{profileValue}</span>

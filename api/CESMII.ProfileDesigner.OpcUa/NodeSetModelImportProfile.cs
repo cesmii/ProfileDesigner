@@ -641,7 +641,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
                     profileItem.Attributes.Add(attribute);
                 }
             }
-            if (_model.EnumFields?.Any() == true)
+            if (_model.EnumFields?.Any() == true || _model.HasBaseType("nsu=http://opcfoundation.org/UA/;i=29"))
             {
                 profileItem.TypeId = (int) ProfileItemTypeEnum.Enumeration;
                 if (profileItem.Attributes == null)

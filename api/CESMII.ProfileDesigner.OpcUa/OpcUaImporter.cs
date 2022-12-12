@@ -403,7 +403,7 @@ namespace CESMII.ProfileDesigner.OpcUa
             if (
                 firstModel.ModelUri != profile.Namespace
                 || firstModel.Version != profile.Version
-                || firstModel.PublicationDate.ToUniversalTime() != profile.PublishDate?.ToUniversalTime()
+                || ((firstModel.PublicationDateSpecified ? firstModel.PublicationDate.ToUniversalTime() : null) != profile.PublishDate?.ToUniversalTime())
                 )
             {
                 throw new Exception($"Mismatching primary model meta data and meta data from cache");

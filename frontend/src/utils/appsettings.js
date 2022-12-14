@@ -82,7 +82,8 @@ export const AppSettings = {
     }
     , ExportFormatEnum : {
         XML: 'Xml',
-        AASX: 'AASX'
+        AASX: 'AASX',
+        ThinkIQ: 'ThinkIQ'
     }
     , ImportSourceEnum: {
         NodeSetXML: 'NodeSet Xml',

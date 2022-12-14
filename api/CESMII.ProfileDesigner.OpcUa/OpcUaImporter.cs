@@ -31,7 +31,7 @@ namespace CESMII.ProfileDesigner.OpcUa
     using CESMII.ProfileDesigner.Api.Shared.Models;
     using CESMII.ProfileDesigner.Opc.Ua.NodeSetDBCache;
     using CESMII.OpcUa.NodeSetImporter;
-    using CESMII.ProfileDesigner.CloudLibClient;
+    using CESMII.Common.CloudLibClient;
 
     public class OpcUaImporter
     {

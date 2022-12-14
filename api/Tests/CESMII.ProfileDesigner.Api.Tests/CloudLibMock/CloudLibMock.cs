@@ -1,5 +1,5 @@
 ﻿using CESMII.OpcUa.NodeSetImporter;
-using CESMII.ProfileDesigner.CloudLibClient;
+using CESMII.Common.CloudLibClient;
 using Newtonsoft.Json;
 using Opc.Ua.Cloud.Library.Client;
 using System;
@@ -43,7 +43,7 @@ namespace CESMII.ProfileDesigner.Api.Tests
             public string[] Keywords { get; set; }
             public string Cursor { get; set; }
             public bool PageBackwards { get; set; }
-            public int Limit { get; set; }
+            public int? Limit { get; set; }
 
             internal class Comparer : IEqualityComparer<SearchInputs>
             {
@@ -86,7 +86,7 @@ namespace CESMII.ProfileDesigner.Api.Tests
         public OnNodeSet OnNodeSetFound { get; set; }
         public OnNodeSet OnNodeSetNotFound { get; set; }
 
-        public async Task<GraphQlResult<Nodeset>> SearchAsync(int limit, string cursor, bool pageBackwards, List<string> keywords, List<string> exclude)
+        public async Task<GraphQlResult<Nodeset>> SearchAsync(int? limit, string cursor, bool pageBackwards, List<string> keywords, List<string> exclude)
         {
             var inputs = new SearchInputs
             {

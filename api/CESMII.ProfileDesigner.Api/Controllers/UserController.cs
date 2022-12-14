@@ -84,7 +84,8 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             //obscure the object id AAD a bit more
             foreach (var u in result.Data)
             {
-                u.ObjectIdAAD = String.IsNullOrEmpty(u.ObjectIdAAD) ? u.ObjectIdAAD : u.ObjectIdAAD.Substring(0, 12) + "...";
+                u.ObjectIdAAD = String.IsNullOrEmpty(u.ObjectIdAAD) || u.ObjectIdAAD.Length < 12 ? u.ObjectIdAAD 
+                    : u.ObjectIdAAD.Substring(0, 12) + "...";
             }
             return Ok(result);
         }

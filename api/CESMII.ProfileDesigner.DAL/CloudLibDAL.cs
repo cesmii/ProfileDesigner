@@ -7,7 +7,7 @@
 
     using NLog;
 
-    using CESMII.ProfileDesigner.CloudLibClient;
+    using CESMII.Common.CloudLibClient;
 
     using Opc.Ua.Cloud.Library.Client;
     using CESMII.ProfileDesigner.DAL.Models;

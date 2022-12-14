@@ -34,7 +34,10 @@ function DownloadMessage() {
                     //update item
                     var extension = "xml";
                     if (item.downloadFormat === "AASX") {
-                        extension = "aasx"
+                        extension = "aasx";
+                    }
+                    else if (item.downloadFormat === "ThinkIQ") {
+                        extension = "json";
                     }
                     item = {...item, 
                         show: true,
@@ -153,6 +156,10 @@ function DownloadMessage() {
             blobType = 'application/octet-stream';
             blobData = Buffer.from(msg.data, "base64");
         }
+        else if (msg.downloadFormat === "ThinkIQ") {
+            blobType = 'application/json';
+        }
+
         const blob = new Blob([blobData], { type: blobType });
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);

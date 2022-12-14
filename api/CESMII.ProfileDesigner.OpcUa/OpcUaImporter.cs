@@ -403,7 +403,7 @@ namespace CESMII.ProfileDesigner.OpcUa
             if (
                 firstModel.ModelUri != profile.Namespace
                 || firstModel.Version != profile.Version
-                || firstModel.PublicationDate.ToUniversalTime() != profile.PublishDate?.ToUniversalTime()
+                || ((firstModel.PublicationDateSpecified ? firstModel.PublicationDate.ToUniversalTime() : null) != profile.PublishDate?.ToUniversalTime())
                 )
             {
                 throw new Exception($"Mismatching primary model meta data and meta data from cache");
@@ -464,9 +464,9 @@ namespace CESMII.ProfileDesigner.OpcUa
             return profileItemsByNodeId;
         }
 
-        public List<(UANodeSet nodeSet, string xml)> ExportNodeSet(CESMII.ProfileDesigner.DAL.Models.ProfileModel nodeSetModel, UserToken userToken, UserToken authorId, bool includeRequiredModels, bool bForceReexport)
+        public List<(UANodeSet nodeSet, string xml, NodeSetModel model, Dictionary<string, NodeSetModel> requiredModels)> ExportNodeSet(CESMII.ProfileDesigner.DAL.Models.ProfileModel nodeSetModel, UserToken userToken, UserToken authorId, bool includeRequiredModels, bool bForceReexport)
         {
-            List<(UANodeSet nodeSet, string xml)> exportedNodeSets = new();
+            List<(UANodeSet nodeSet, string xml, NodeSetModel model, Dictionary<string, NodeSetModel> requiredModels)> exportedNodeSets = new();
             var exportedNodeSet = ExportInternal(nodeSetModel, userToken, authorId, bForceReexport);
             exportedNodeSets.Add(exportedNodeSet);
             if (includeRequiredModels)
@@ -482,7 +482,7 @@ namespace CESMII.ProfileDesigner.OpcUa
             return exportedNodeSets;
         }
 
-        public (UANodeSet nodeSet, string xml) ExportInternal(ProfileModel profileModel, UserToken userToken, UserToken authorId, bool bForceReexport)
+        public (UANodeSet nodeSet, string xml, NodeSetModel model, Dictionary<string, NodeSetModel> requiredModels) ExportInternal(ProfileModel profileModel, UserToken userToken, UserToken authorId, bool bForceReexport)
         {
             if (profileModel.StandardProfile != null && !bForceReexport)
             {
@@ -491,7 +491,7 @@ namespace CESMII.ProfileDesigner.OpcUa
                 using (MemoryStream ms = new(Encoding.UTF8.GetBytes(nodeSetXml)))
                 {
                     var nodeSet = UANodeSet.Read(ms);
-                    return (nodeSet, nodeSetXml);
+                    return (nodeSet, nodeSetXml, null, null);
                 }
             }
             Dictionary<string, NodeSetModel> nodeSetModels = new();
@@ -533,9 +533,14 @@ namespace CESMII.ProfileDesigner.OpcUa
 
             // Export the nodesets
             UANodeSet exportedNodeSet = null;
-            foreach (var model in nodeSetModels.Values.Where(model =>
+            var modelsToExport = nodeSetModels.Values.Where(model =>
                 ((ProfileModel)model.CustomState).Namespace == profileModel.Namespace
-                && ((ProfileModel)model.CustomState).PublishDate == profileModel.PublishDate).ToList())
+                && ((ProfileModel)model.CustomState).PublishDate == profileModel.PublishDate).ToList();
+            if (modelsToExport.Count != 1)
+            {
+                this.Logger.LogWarning($"Not exactly one model to export: {string.Join(", ", modelsToExport.Select(m => m.ToString()))}");
+            }
+            foreach (var model in modelsToExport)
             {
 #if NODESETDBTEST
                 model.AllNodesByNodeId.Clear();
@@ -572,7 +577,7 @@ namespace CESMII.ProfileDesigner.OpcUa
                 }
                 exportedNodeSetXml = Encoding.UTF8.GetString(ms.ToArray());
             }
-            return (exportedNodeSet, exportedNodeSetXml);
+            return (exportedNodeSet, exportedNodeSetXml, modelsToExport.FirstOrDefault(), nodeSetModels);
         }
 
         /// <summary>

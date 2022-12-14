@@ -26,6 +26,7 @@ import AdminUserEntity from '../views/admin/AdminUserEntity'
 import AdminUserList from '../views/admin/AdminUserList'
 import Login from '../views/Login'
 import NotAuthorized from '../views/NotAuthorized'
+import LoginSuccess from '../views/LoginSuccess'
 //import LoginSuccess from '../views/LoginSuccess'
 
 //const CLASS_NAME = "Routes";
@@ -39,8 +40,7 @@ function Routes() {
     return(
         <Switch>
             <WizardRoute exact path="/" component={WizardWelcome} roles={['cesmii.profiledesigner.user']} />
-            <PublicFixedRoute exact path="/login/success" component={Login} roles={['cesmii.profiledesigner.user']} />
-            {/*<LoginSuccessRoute exact path="/loginsuccess" component={LoginSuccess} roles={['cesmii.profiledesigner.user']} />*/}
+            <PublicFixedRoute exact path="/login/success" component={LoginSuccess} />
             <PublicFixedRoute path="/login/returnUrl=:returnUrl" component={Login} />
             <PublicFixedRoute exact path="/login" component={Login} />
             <PrivateRoute path="/profiles/library" component={ProfileList} roles={['cesmii.profiledesigner.user']} />

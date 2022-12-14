@@ -26,6 +26,10 @@ using CESMII.ProfileDesigner.Data.Entities;
 using CESMII.ProfileDesigner.Data.Extensions;
 using CESMII.ProfileDesigner.OpcUa;
 using CESMII.OpcUa.NodeSetImporter;
+using Opc.Ua.Export;
+using CESMII.OpcUa.NodeSetModel;
+using CESMII.OpcUa.NodeSetModel.Factory.ThinkIQ;
+using Newtonsoft.Json;
 
 namespace CESMII.ProfileDesigner.Api.Controllers
 {
@@ -979,12 +983,15 @@ namespace CESMII.ProfileDesigner.Api.Controllers
 
                 _logger.LogTrace($"Timestamp||Export||Starting: {sw.Elapsed}");
                 bool bIncludeRequiredModels = model.Format?.ToUpper() == "AASX";
-                var exportedNodeSets = _exporter.ExportNodeSet(item, base.DalUserToken, null, bIncludeRequiredModels, model.ForceReexport);
+
+                bool forceReexport = model.ForceReexport || model.Format?.ToUpper() == "THINKIQ";
+
+                var exportedNodeSets = _exporter.ExportNodeSet(item, base.DalUserToken, null, bIncludeRequiredModels, forceReexport);
                 if (exportedNodeSets != null)
                 {
                     if (model.Format?.ToUpper() == "AASX")
                     {
-                        var aasxPackage = AASXGenerator.GenerateAAS(exportedNodeSets);
+                        var aasxPackage = AASXGenerator.GenerateAAS(exportedNodeSets.Select(n => (n.nodeSet, n.xml)).ToList());
                         if (aasxPackage != null)
                         {
                             return Task.FromResult<IActionResult>(Ok(new ResultMessageExportModel()
@@ -995,6 +1002,11 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                                 Warnings = item.ImportWarnings.Select(x => x.Message).ToList()
                             }));
                         }
+                    }
+                    else if (model.Format?.ToUpper() == "THINKIQ")
+                    {
+                        var thinkIqLibrary = NodeModelExportOpc.ExportToThinkIQ(exportedNodeSets);
+                        result = JsonConvert.SerializeObject(thinkIqLibrary, Formatting.Indented);
                     }
                     else
                     {
@@ -1033,5 +1045,6 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 }));
             }
         }
+
     }
 }

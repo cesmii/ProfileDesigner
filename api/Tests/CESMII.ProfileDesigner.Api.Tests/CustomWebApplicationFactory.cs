@@ -8,7 +8,7 @@ using System.Reflection;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using CESMII.ProfileDesigner.Api.Controllers;
-using CESMII.ProfileDesigner.CloudLibClient;
+using CESMII.Common.CloudLibClient;
 using CESMII.ProfileDesigner.Data.Entities;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;

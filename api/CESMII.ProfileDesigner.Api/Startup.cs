@@ -35,7 +35,7 @@ using CESMII.ProfileDesigner.DAL.Models;
 using CESMII.ProfileDesigner.Common.Enums;
 using CESMII.ProfileDesigner.OpcUa;
 using CESMII.ProfileDesigner.Api.Shared.Extensions;
-using CESMII.ProfileDesigner.CloudLibClient;
+using CESMII.Common.CloudLibClient;
 using Opc.Ua.Cloud.Library.Client;
 using System.IdentityModel.Tokens.Jwt;
 

@@ -11,7 +11,7 @@ using Opc.Ua.Cloud.Library.Client;
 using CESMII.OpcUa.NodeSetImporter;
 using Microsoft.Extensions.Options;
 
-namespace CESMII.ProfileDesigner.CloudLibClient
+namespace CESMII.Common.CloudLibClient
 {
     public class CloudLibWrapper : ICloudLibWrapper
     {
@@ -54,7 +54,7 @@ namespace CESMII.ProfileDesigner.CloudLibClient
             return _cloudLibResolver.ResolveNodeSetsAsync(missingModels);
         }
 
-        public async Task<GraphQlResult<Nodeset>> SearchAsync(int limit, string cursor, bool pageBackwards, List<string> keywords, List<string> exclude)
+        public async Task<GraphQlResult<Nodeset>> SearchAsync(int? limit, string cursor, bool pageBackwards, List<string> keywords, List<string> exclude)
         {
             GraphQlResult<Nodeset> result;
             if (!pageBackwards)

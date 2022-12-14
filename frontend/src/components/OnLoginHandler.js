@@ -1,12 +1,13 @@
 import { useEffect } from "react";
 import { Redirect } from "react-router-dom";
 import { useIsAuthenticated, useMsal } from "@azure/msal-react";
-import { BrowserAuthError, InteractionRequiredAuthError, InteractionStatus } from "@azure/msal-browser";
+import { BrowserAuthError, EventType, InteractionRequiredAuthError, InteractionStatus, InteractionType } from "@azure/msal-browser";
 
 import axiosInstance from "../services/AxiosService";
 import { generateLogMessageString, isInRole, isInRoles } from '../utils/UtilityService'
 import { useLoadingContext } from "../components/contexts/LoadingContext";
 import { AppSettings } from "../utils/appsettings";
+import { Msal_Instance } from "..";
 
 const CLASS_NAME = "OnLoginHandler";
 
@@ -48,6 +49,31 @@ export const useLoginStatus = (location = null, roles = null) => {
     return result;
 }
 
+//-------------------------------------------------------------------
+// hook: register only one callback function to handle post login, post create
+//      actions w/ MSAL.js
+//-------------------------------------------------------------------
+export const useRegisterMsalEventCallback = (setLoadingProps) => {
+
+    //-------------------------------------------------------------------
+    // Region: Hooks
+    //-------------------------------------------------------------------
+    useEffect(() => {
+        // This will be run on component mount
+        const callbackId = Msal_Instance.addEventCallback((message) => {
+            handleMSALEvent(message, setLoadingProps);
+        });
+
+        return () => {
+            // This will be run on component unmount
+            if (callbackId) {
+                Msal_Instance.removeEventCallback(callbackId);
+            }
+        }
+    }, []);
+
+    return null;
+}
 
 //-------------------------------------------------------------------
 // onAfterAADLogin: after login, let API know and wire up some stuff for downstream
@@ -169,7 +195,7 @@ export const handleLoginError = (error, setLoadingProps) => {
 // Region: MSAL Login Actions - login popup
 //-------------------------------------------------------------------
 //Login w/ popup - component
-export const doLoginPopup = async (instance, inProgress, accounts, setLoadingProps) => {
+export const doLoginPopup = async (instance, inProgress, setLoadingProps) => {
 
     //show a spinner
     setLoadingProps({ isLoading: true, message: null });
@@ -178,7 +204,7 @@ export const doLoginPopup = async (instance, inProgress, accounts, setLoadingPro
 
         const loginRequest = {
             scopes: AppSettings.MsalScopes,
-            account: accounts[0],
+            account: instance.getAllAccounts()[0],
             prompt: 'select_account'  //always present the account selection - even if already logged in cached.
         };
 
@@ -217,6 +243,107 @@ export const doLoginPopup = async (instance, inProgress, accounts, setLoadingPro
 }
 
 //-------------------------------------------------------------------
+// Region: MSAL Login Actions - login - redirect to an inline page
+//-------------------------------------------------------------------
+export const doLoginRedirect = async (instance, inProgress) => {
+
+    if (inProgress === InteractionStatus.None || inProgress === InteractionStatus.Startup) {
+
+        const loginRequest = {
+            scopes: AppSettings.MsalScopes,
+            account: instance.getAllAccounts()[0],
+            prompt: 'select_account'  //always present the account selection - even if already logged in cached.
+        };
+
+        instance.loginRedirect(loginRequest);
+    }
+}
+
+//-------------------------------------------------------------------
+// Region: MSAL Login Actions - go right to create account flow
+//-------------------------------------------------------------------
+export const doCreateAccount = async (instance, inProgress) => {
+
+    if (inProgress === InteractionStatus.None || inProgress === InteractionStatus.Startup) {
+
+        const loginRequest = {
+            scopes: AppSettings.MsalScopes,
+            account: instance.getAllAccounts()[0],
+            prompt: 'create'  
+        };
+
+        instance.loginRedirect(loginRequest);
+    }
+}
+
+const handleLoginSuccess = (instance, payload, setLoadingProps) => {
+    //console.info(generateLogMessageString(`handleLoginResponse||${JSON.stringify(payload)}`, CLASS_NAME));
+    //check for basic role membership. You may have an AAD account but may not 
+    //be granted permissions to this app
+    if (!isInRole(payload.account, AppSettings.AADUserRole)) {
+        setLoadingProps({
+            isLoading: false, modalMessages:
+                [{ id: new Date().getTime(), severity: "danger", body: 'Your account is not permitted to access Profile Designer. Email us at devops@cesmii.org to get registered or request assistance.', isTimed: false }]
+        });
+        forceLogout(instance);
+        return;
+    }
+
+    //set the active account, should already be done by loginRedirect call
+    if (instance.getActiveAccount() == null) {
+        instance.setActiveAccount(payload.account);
+    }
+
+    onAADLogin(setLoadingProps);
+};
+
+export const handleMSALEvent = (message, setLoadingProps) => {
+    console.info(generateLogMessageString(`handleMSALEvent||${message.eventType}`, CLASS_NAME));
+
+    const instance = Msal_Instance;
+    const accounts = instance.getAllAccounts();
+
+    switch (message.eventType) {
+        case EventType.LOGIN_FAILURE:
+            //if error, then handle it...if InteractionRequiredAuthError, then acquire the token
+            if (message.error instanceof InteractionRequiredAuthError) {
+                const loginRequest = {
+                    scopes: AppSettings.MsalScopes,
+                    account: accounts[0],
+                    prompt: 'select_account'  //always present the account selection - even if already logged in cached.
+                };
+
+                Msal_Instance.acquireTokenRedirect(loginRequest);
+                console.error(generateLogMessageString(`handleMSALEvent||loginPopup||${message.error}`, CLASS_NAME));
+            }
+            else {
+                handleLoginError(message.error, setLoadingProps);
+            }
+            break;
+        case EventType.ACQUIRE_TOKEN_SUCCESS:
+        case EventType.LOGIN_SUCCESS:
+            console.info(generateLogMessageString(`handleMSALEvent||${message.eventType}`, CLASS_NAME));
+            if (message.interactionType === InteractionType.Redirect && instance.getActiveAccount() == null) {
+                handleLoginSuccess(instance, message.payload, setLoadingProps);
+            }
+            break;
+        case EventType.ACCOUNT_ADDED:
+            console.info(generateLogMessageString(`handleMSALEvent||${message.eventType}`, CLASS_NAME));
+            //check if user has permissions. If they do not, tell them account was created but a CESMII admin must approve. 
+            const account = message.payload.account;
+            if (!isInRole(account, AppSettings.AADUserRole)) {
+                console.info(generateLogMessageString(`handleMSALEvent||${message.eventType}||New user must be granted permission to access this area.`, CLASS_NAME));
+                forceLogout(instance);
+            }
+
+            break;
+        default:
+            //do nothing
+            break;
+    }
+};
+
+//-------------------------------------------------------------------
 // UseLoginSilent - attempt a silent login
 //-------------------------------------------------------------------
 export const useLoginSilent = () => {
@@ -251,7 +378,7 @@ export const useLoginSilent = () => {
                 scopes: AppSettings.MsalScopes,
                 account: accounts[0],
                 prompt: 'select_account',  //always present the account selection - even if already logged in cached.
-                redirectUri: `/loginsuccess${loadingProps.returnUrl ? '?returnUrl=' + loadingProps.returnUrl : ''}`
+                redirectUri: `/login/success${loadingProps.returnUrl ? '?returnUrl=' + loadingProps.returnUrl : ''}`
             };
 
             try {

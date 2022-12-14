@@ -30,7 +30,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SMIP-JsonIO-Model\Model\Model.csproj" />
+    <ProjectReference Include="..\SMIP_JsonIO-ModelLocal\Model\Model.csproj" />
   </ItemGroup>
 
 </Project>

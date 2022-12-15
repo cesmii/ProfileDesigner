@@ -12,10 +12,10 @@ using System.Threading.Tasks;
 using Opc.Ua.Export;
 using System.Reflection.Emit;
 
-namespace CESMII.OpcUa.NodeSetModel.Factory.ThinkIQ
+namespace CESMII.OpcUa.NodeSetModel.Factory.Smip
 {
 
-    public class NodeModelFactoryThinkIQ : NodeModelFactoryThinkIQ<NodeModel>
+    public class NodeModelFactorySmip: NodeModelFactoryThinkIQ<NodeModel>
     {
         public static Task<List<NodeSetModel>> LoadNodeSetAsync(IOpcUaContext opcContext, UANodeSet nodeSet, Object customState, Dictionary<string, string> Aliases, bool doNotReimport = false)
         {

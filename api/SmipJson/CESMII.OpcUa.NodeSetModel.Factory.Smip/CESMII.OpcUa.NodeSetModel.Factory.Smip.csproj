@@ -11,13 +11,13 @@
 	<Company>CESMII</Company>
 	<Product></Product>
 	<NeutralLanguage>en</NeutralLanguage>
-	<Description>OPC UA Node Set Model factory: creates a ThinkIQ library file from a Node Set Model.</Description>
+	<Description>OPC UA Node Set Model factory: creates a SMIP Json library file from a Node Set Model.</Description>
 	<Copyright>Copyright © 2022 CESMII</Copyright>
 	<PackageLicenseExpression>BSD-3-Clause</PackageLicenseExpression>
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="NodesetModelFactoryThinkIQ.cs" />
+    <Compile Remove="NodesetModelFactorySmip.cs" />
   </ItemGroup>
 
 	<ItemGroup>
@@ -27,10 +27,6 @@
   <ItemGroup>
 	  <PackageReference Include="CESMII.OpcUa.NodeSetModel" Version="1.0.0-beta.12" />
 	  <!--<ProjectReference Include="..\CESMII.OpcUa.NodeSetModel\CESMII.OpcUa.NodeSetModel.csproj" />-->
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\SMIP_JsonIO-ModelLocal\Model\Model.csproj" />
   </ItemGroup>
 
 </Project>

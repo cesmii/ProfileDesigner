@@ -83,7 +83,7 @@ export const AppSettings = {
     , ExportFormatEnum : {
         XML: 'Xml',
         AASX: 'AASX',
-        ThinkIQ: 'ThinkIQ'
+        SmipJson: 'SmipJson'
     }
     , ImportSourceEnum: {
         NodeSetXML: 'NodeSet Xml',

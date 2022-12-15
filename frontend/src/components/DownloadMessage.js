@@ -36,7 +36,7 @@ function DownloadMessage() {
                     if (item.downloadFormat === "AASX") {
                         extension = "aasx";
                     }
-                    else if (item.downloadFormat === "ThinkIQ") {
+                    else if (item.downloadFormat === "SmipJson") {
                         extension = "json";
                     }
                     item = {...item, 
@@ -156,7 +156,7 @@ function DownloadMessage() {
             blobType = 'application/octet-stream';
             blobData = Buffer.from(msg.data, "base64");
         }
-        else if (msg.downloadFormat === "ThinkIQ") {
+        else if (msg.downloadFormat === "SmipJson") {
             blobType = 'application/json';
         }
 

@@ -28,7 +28,7 @@ using CESMII.ProfileDesigner.OpcUa;
 using CESMII.OpcUa.NodeSetImporter;
 using Opc.Ua.Export;
 using CESMII.OpcUa.NodeSetModel;
-using CESMII.OpcUa.NodeSetModel.Factory.ThinkIQ;
+using CESMII.OpcUa.NodeSetModel.Factory.Smip;
 using Newtonsoft.Json;
 
 namespace CESMII.ProfileDesigner.Api.Controllers
@@ -984,7 +984,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 _logger.LogTrace($"Timestamp||Export||Starting: {sw.Elapsed}");
                 bool bIncludeRequiredModels = model.Format?.ToUpper() == "AASX";
 
-                bool forceReexport = model.ForceReexport || model.Format?.ToUpper() == "THINKIQ";
+                bool forceReexport = model.ForceReexport || model.Format?.ToUpper() == "SMIPJSON";
 
                 var exportedNodeSets = _exporter.ExportNodeSet(item, base.DalUserToken, null, bIncludeRequiredModels, forceReexport);
                 if (exportedNodeSets != null)
@@ -1003,10 +1003,10 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                             }));
                         }
                     }
-                    else if (model.Format?.ToUpper() == "THINKIQ")
+                    else if (model.Format?.ToUpper() == "SMIPJSON")
                     {
-                        var thinkIqLibrary = NodeModelExportOpc.ExportToThinkIQ(exportedNodeSets);
-                        result = JsonConvert.SerializeObject(thinkIqLibrary, Formatting.Indented);
+                        var smipJson = NodeModelExportToSmip.ExportToSmip(exportedNodeSets);
+                        result = JsonConvert.SerializeObject(smipJson, Formatting.Indented);
                     }
                     else
                     {

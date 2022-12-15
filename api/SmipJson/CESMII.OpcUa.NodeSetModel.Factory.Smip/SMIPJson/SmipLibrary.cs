@@ -9,10 +9,11 @@ namespace SMIP.JsonIO.Model
 {
     public class SmipLibrary : SmipNode
     {
-        public SmipLibrary()
-        {
-        }
         [JsonProperty("version")]
         public string Version { get; set; }
+        public SmipLibrary()
+        {
+
+        }
     }
 }

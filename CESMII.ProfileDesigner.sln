@@ -47,11 +47,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{B6529603
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CESMII.Common.CloudLibClient", "api\CESMII.Marketplace.CloudLibClient\CESMII.Common.CloudLibClient.csproj", "{B25AC5CD-A337-4302-ACEA-5C7FF320B649}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CESMII.OpcUa.NodeSetModel.Factory.ThinkIQ", "api\ThinkIQ\CESMII.OpcUa.NodeSetModel.Factory.ThinkIQ\CESMII.OpcUa.NodeSetModel.Factory.ThinkIQ.csproj", "{9912DF0C-A034-400A-8A78-1D925402AA34}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CESMII.OpcUa.NodeSetModel.Factory.Smip", "api\SmipJson\CESMII.OpcUa.NodeSetModel.Factory.Smip\CESMII.OpcUa.NodeSetModel.Factory.Smip.csproj", "{9912DF0C-A034-400A-8A78-1D925402AA34}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ThinkIQ", "ThinkIQ", "{32887CE8-03AE-45A1-BF45-00AFC71637A0}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Model", "api\ThinkIQ\SMIP_JsonIO-ModelLocal\Model\Model.csproj", "{C4D182D4-E546-4417-877D-B689E06716A8}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SmipJson", "SmipJson", "{32887CE8-03AE-45A1-BF45-00AFC71637A0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -137,12 +135,6 @@ Global
 		{9912DF0C-A034-400A-8A78-1D925402AA34}.Release|Any CPU.Build.0 = Release|Any CPU
 		{9912DF0C-A034-400A-8A78-1D925402AA34}.Staging|Any CPU.ActiveCfg = Staging|Any CPU
 		{9912DF0C-A034-400A-8A78-1D925402AA34}.Staging|Any CPU.Build.0 = Staging|Any CPU
-		{C4D182D4-E546-4417-877D-B689E06716A8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C4D182D4-E546-4417-877D-B689E06716A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C4D182D4-E546-4417-877D-B689E06716A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C4D182D4-E546-4417-877D-B689E06716A8}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C4D182D4-E546-4417-877D-B689E06716A8}.Staging|Any CPU.ActiveCfg = Debug|Any CPU
-		{C4D182D4-E546-4417-877D-B689E06716A8}.Staging|Any CPU.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -150,7 +142,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{6BEE6B16-6160-457C-83A5-EF6C834E2BC2} = {D9B30B71-CBEE-4F9E-A78F-763624DF697F}
 		{9912DF0C-A034-400A-8A78-1D925402AA34} = {32887CE8-03AE-45A1-BF45-00AFC71637A0}
-		{C4D182D4-E546-4417-877D-B689E06716A8} = {32887CE8-03AE-45A1-BF45-00AFC71637A0}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {EF0E4430-01EF-4B7E-B557-44810661C81A}

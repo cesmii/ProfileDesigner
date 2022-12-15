@@ -21,7 +21,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace CESMII.ProfileDesigner.Api.Controllers
 {
-    [Authorize, Route("api/[controller]")]
+    [Authorize(Policy = nameof(PermissionEnum.UserAzureADMapped)), Route("api/[controller]")]
     public class ImportLogController : BaseController<ImportLogController>
     {
         private readonly IDal<ImportLog, ImportLogModel> _dal;
@@ -34,7 +34,6 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         }
 
         [HttpPost, Route("GetByID")]
-        [Authorize(Roles = "cesmii.profiledesigner.user")]
         //[ProducesResponseType(200, Type = typeof(NodeSetModel))]
         [ProducesResponseType(200, Type = typeof(ImportLogModel))]
         [ProducesResponseType(400)]
@@ -61,7 +60,6 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost, Route("Mine")]
-        [Authorize(Roles = "cesmii.profiledesigner.user")]
         [ProducesResponseType(200, Type = typeof(DALResult<ProfileModel>))]
         public IActionResult GetMine([FromBody] PagerFilterSimpleModel model)
         {
@@ -90,7 +88,6 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost, Route("Delete")]
-        [Authorize(Roles = "cesmii.profiledesigner.user")]
         [ProducesResponseType(200, Type = typeof(ResultMessageModel))]
         public async Task<IActionResult> Delete([FromBody] IdIntModel model)
         {

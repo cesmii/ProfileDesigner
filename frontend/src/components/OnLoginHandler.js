@@ -4,7 +4,7 @@ import { useIsAuthenticated, useMsal } from "@azure/msal-react";
 import { BrowserAuthError, EventType, InteractionRequiredAuthError, InteractionStatus, InteractionType } from "@azure/msal-browser";
 
 import axiosInstance from "../services/AxiosService";
-import { generateLogMessageString, isInRole, isInRoles } from '../utils/UtilityService'
+import { generateLogMessageString, isInRoles } from '../utils/UtilityService'
 import { useLoadingContext } from "../components/contexts/LoadingContext";
 import { AppSettings } from "../utils/appsettings";
 import { Msal_Instance } from "..";
@@ -212,7 +212,8 @@ export const doLoginPopup = async (instance, inProgress, setLoadingProps) => {
         instance.loginPopup(loginRequest)
             //.acquireTokenSilent(loginRequest)
             .then((response) => {
-                //check for basic role membership. You may have an AAD account but may not 
+                /*not restricting by role assignment, if in AAD, good to go
+                //check for basic role membership. You may have an AAD account but may not
                 //be granted permissions to this app
                 if (!isInRole(response.account, AppSettings.AADUserRole)) {
                     setLoadingProps({
@@ -222,6 +223,7 @@ export const doLoginPopup = async (instance, inProgress, setLoadingProps) => {
                     forceLogout(instance);
                     return;
                 }
+                */
                 //set the active account
                 instance.setActiveAccount(response.account);
 
@@ -278,7 +280,8 @@ export const doCreateAccount = async (instance, inProgress) => {
 
 const handleLoginSuccess = (instance, payload, setLoadingProps) => {
     //console.info(generateLogMessageString(`handleLoginResponse||${JSON.stringify(payload)}`, CLASS_NAME));
-    //check for basic role membership. You may have an AAD account but may not 
+    /*not restricting by role assignment, if in AAD, good to go
+    //check for basic role membership. You may have an AAD account but may not
     //be granted permissions to this app
     if (!isInRole(payload.account, AppSettings.AADUserRole)) {
         setLoadingProps({
@@ -288,6 +291,7 @@ const handleLoginSuccess = (instance, payload, setLoadingProps) => {
         forceLogout(instance);
         return;
     }
+    */
 
     //set the active account, should already be done by loginRedirect call
     if (instance.getActiveAccount() == null) {
@@ -322,20 +326,21 @@ export const handleMSALEvent = (message, setLoadingProps) => {
             break;
         case EventType.ACQUIRE_TOKEN_SUCCESS:
         case EventType.LOGIN_SUCCESS:
-            console.info(generateLogMessageString(`handleMSALEvent||${message.eventType}`, CLASS_NAME));
+            //console.info(generateLogMessageString(`handleMSALEvent||${message.eventType}`, CLASS_NAME));
             if (message.interactionType === InteractionType.Redirect && instance.getActiveAccount() == null) {
                 handleLoginSuccess(instance, message.payload, setLoadingProps);
             }
             break;
         case EventType.ACCOUNT_ADDED:
-            console.info(generateLogMessageString(`handleMSALEvent||${message.eventType}`, CLASS_NAME));
-            //check if user has permissions. If they do not, tell them account was created but a CESMII admin must approve. 
+            //console.info(generateLogMessageString(`handleMSALEvent||${message.eventType}`, CLASS_NAME));
+            /*not restricting by role assignment, if in AAD, good to go
+            //check if user has permissions. If they do not, tell them account was created but a CESMII admin must approve.
             const account = message.payload.account;
             if (!isInRole(account, AppSettings.AADUserRole)) {
                 console.info(generateLogMessageString(`handleMSALEvent||${message.eventType}||New user must be granted permission to access this area.`, CLASS_NAME));
                 forceLogout(instance);
             }
-
+            */
             break;
         default:
             //do nothing
@@ -384,12 +389,14 @@ export const useLoginSilent = () => {
             try {
                 const response = await instance.ssoSilent(loginRequest);
 
-                //check for basic role membership. You may have an AAD account but may not 
+                /*not restricting by role assignment, if in AAD, good to go
+                //check for basic role membership. You may have an AAD account but may not
                 //be granted permissions to this app
                 if (!isInRole(response.account, AppSettings.AADUserRole)) {
                     forceLogout(instance);
                     return;
                 }
+                */
 
                 //set the active account
                 instance.setActiveAccount(response.account);
@@ -437,7 +444,7 @@ export const useOnLoginComplete = () => {
     // Region: Initialization
     //-------------------------------------------------------------------
     const { loadingProps, setLoadingProps } = useLoadingContext();
-    const { isAuthenticated, isAuthorized } = useLoginStatus(null, [AppSettings.AADUserRole]);
+    const { isAuthenticated, isAuthorized } = useLoginStatus(null, null /*[AppSettings.AADUserRole]*/);
 
     //-------------------------------------------------------------------
     // Region: Hooks - if logged in, determine result code and then navigate appropriately

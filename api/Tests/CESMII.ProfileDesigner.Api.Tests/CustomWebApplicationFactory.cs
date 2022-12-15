@@ -125,7 +125,7 @@ namespace CESMII.ProfileDesigner.Api.Tests
                     new Claim("ClaimTypes.Surname", "cesmiitest"),
                     new Claim("ClaimTypes.GivenName", "cesmiitest"),
                     new Claim("name", "cesmiitest"),
-                    new Claim("role", "cesmii.profiledesigner.user"),
+                    //new Claim("role", "cesmii.profiledesigner.user"),
                 }));
             var tokenInfo = new JwtSecurityToken(issuer: "testissuer", claims: testUser.Claims);
 

@@ -13,8 +13,7 @@ import { AppSettings } from './utils/appsettings'
 import { generateLogMessageString } from './utils/UtilityService'
 import ErrorPage from './components/ErrorPage'
 import { OnLookupLoad } from './components/OnLookupLoad'
-import { handleMSALEvent, useLoginSilent, useOnLoginComplete, useRegisterMsalEventCallback } from "./components/OnLoginHandler";
-import { Msal_Instance } from ".";
+import { useLoginSilent, useRegisterMsalEventCallback } from "./components/OnLoginHandler";
 
 import './App.scss';
 

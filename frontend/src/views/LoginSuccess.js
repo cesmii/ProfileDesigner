@@ -14,7 +14,7 @@ function LoginSuccess() {
     const history = useHistory();
     const { returnUrl } = useParams();
     //const { loadingProps, setLoadingProps } = useLoadingContext();
-    const { isAuthenticated, isAuthorized } = useLoginStatus(null, [AppSettings.AADUserRole]);
+    const { isAuthenticated, isAuthorized } = useLoginStatus(null, null /*[AppSettings.AADUserRole]*/);
 
     //-------------------------------------------------------------------
     // Region: hooks

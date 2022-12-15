@@ -125,14 +125,15 @@ export const AppSettings = {
                         case LogLevel.Error:
                             console.error(message);
                             return;
-                        case LogLevel.Info:
-                            console.info(message);
-                            return;
                         case LogLevel.Verbose:
                             console.debug(message);
                             return;
                         case LogLevel.Warning:
                             console.warn(message);
+                            return;
+                        case LogLevel.Info:
+                        default:
+                            console.info(message);
                             return;
                     }
                 },
@@ -141,7 +142,7 @@ export const AppSettings = {
         },
     }
     , MsalScopes: [process.env.REACT_APP_MSAL_SCOPE]  //tied to scope defined in app registration / scope, set in Azure AAD
-    , AADUserRole: "cesmii.profiledesigner.user"
+    //, AADUserRole: "cesmii.profiledesigner.user"
 }
 
 export const LookupData = {

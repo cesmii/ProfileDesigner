@@ -140,19 +140,9 @@ namespace CESMII.OpcUa.NodeSetModel.Export.Smip
 
         public static string GetRelativeName(NodeModel model)
         {
-            var browseName = model.BrowseName ?? $"{model.Namespace}:{model.DisplayName?.FirstOrDefault()?.Text}";
-            //var browseName = $"{model.GetBrowseName()}";
-            var parts = browseName.Split(";", 2);
-            if (parts.Length >= 2)
-            {
-                return EscapeSpecialCharacters(parts[1].ToLowerInvariant());
-            }
-            var semicolonParts = browseName.Split(":");
-            if (semicolonParts.Length >= 2)
-            {
-                return EscapeSpecialCharacters(semicolonParts.LastOrDefault()?.ToLowerInvariant());
-            }
-            return EscapeSpecialCharacters(parts[0]);
+            //Add the nodeid to make it unique, as different types seem to use the same browsename/displayname
+            var browseName = $"{model.DisplayName?.FirstOrDefault()?.Text}_{model.NodeId}";
+            return EscapeSpecialCharacters(browseName);
         }
 
         public static string EscapeSpecialCharacters(string name)
@@ -573,7 +563,7 @@ namespace CESMII.OpcUa.NodeSetModel.Export.Smip
                 //    };
                 //    equipmentType.ChildEquipmentTypes.Add(childEquipmentType2);
                 //}
-                else 
+                else
                 {
                     throw new Exception($"Unexpected variable type {variableTypeInfo.tiqModel.GetType().Name} returned for {variableTypeInfo.tiqModel?.RelativeName}");
                 }

@@ -66,7 +66,7 @@ namespace CESMII.ProfileDesigner.Opc.Ua.NodeSetDBCache
             if (tns != null)
             {
                 UANodeSetImportResult res = new UANodeSetImportResult();
-                AddNodeSet(res, tns.FileCache, _userToken);
+                AddNodeSet(res, tns.FileCache, _userToken, false);
                 if (res?.Models?.Count > 0)
                     return res.Models[0];
             }
@@ -148,7 +148,7 @@ namespace CESMII.ProfileDesigner.Opc.Ua.NodeSetDBCache
             return myModel;
         }
 
-        public bool AddNodeSet(UANodeSetImportResult results, string nodeSetXml, object authorId)
+        public bool AddNodeSet(UANodeSetImportResult results, string nodeSetXml, object authorId, bool requested)
         {
             bool WasNewSet = false;
             #region Comment Processing
@@ -190,23 +190,12 @@ namespace CESMII.ProfileDesigner.Opc.Ua.NodeSetDBCache
                     authorToken = null;
                 }
                 NodeSetFileModel myModel = GetProfileModel(
-                    new ModelNameAndVersion
-                    {
-                        ModelUri = ns.ModelUri,
-                        ModelVersion = ns.Version,
-                        PublicationDate = ns.PublicationDate,
-                    },
+                    new ModelNameAndVersion(ns),
                     userToken);
                 if (myModel == null)
                 {
-
-                    myModel = results.Models.FirstOrDefault(m => m.NameVersion.IsNewerOrSame(new ModelNameAndVersion
-                    {
-                        ModelUri = ns.ModelUri,
-                        ModelVersion = ns.Version,
-                        PublicationDate = ns.PublicationDate,
-                    }
-                     ))?.NameVersion?.CCacheId as NodeSetFileModel;
+                    myModel = results.Models.FirstOrDefault(m => m.NameVersion.IsNewerOrSame(new ModelNameAndVersion(ns)))
+                        ?.NameVersion?.CCacheId as NodeSetFileModel;
                 }
                 bool CacheNewerVersion = true;
                 if (myModel != null)
@@ -245,7 +234,9 @@ namespace CESMII.ProfileDesigner.Opc.Ua.NodeSetDBCache
                     // Defer the updates to the import transaction
                     WasNewSet = true;
                 }
-                var tModel = results.AddModelAndDependencies(nodeSet, ns, null, WasNewSet);
+                var addModelResult = results.AddModelAndDependencies(nodeSet, ns, null, WasNewSet);
+                var tModel = addModelResult.Model;
+                tModel.RequestedForThisImport = requested;
                 if (tModel?.NameVersion != null && myModel != null)
                 {
                     tModel.NameVersion.CCacheId = myModel;

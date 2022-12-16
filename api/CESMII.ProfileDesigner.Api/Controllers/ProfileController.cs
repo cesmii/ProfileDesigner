@@ -176,7 +176,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 //case SearchCriteriaSortByEnum.Name:
                 default:
                     result.Add(new OrderByExpression<Profile>() { Expression = x => x.Namespace });
-                    result.Add(new OrderByExpression<Profile>() { Expression = x => x.PublishDate, IsDescending= true });
+                    result.Add(new OrderByExpression<Profile>() { Expression = x => x.PublishDate, IsDescending = true });
                     break;
             }
 
@@ -198,7 +198,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             }
 
             //Part 1 - Mine OR Base profiles - This will be an OR clause within this portion
-            var filterProfileSource = model.Filters?.Find(c => 
+            var filterProfileSource = model.Filters?.Find(c =>
                 c.ID.Value == (int)ProfileSearchCriteriaCategoryEnum.Source)
                 .Items.Where(x => x.Selected).ToList();
             if (filterProfileSource != null && filterProfileSource.Any())
@@ -251,9 +251,25 @@ namespace CESMII.ProfileDesigner.Api.Controllers
 
             //get the include/exclude local filter - it is in Source group and it is defined by matching its id up to this enum
             //see lookupController where it is defined for the front end.
-            bool filterIncludeLocal = model.Filters != null && model.Filters.Find(c =>
+            bool localProfilesSelected = (model.Filters != null && model.Filters.Find(c =>
                 c.ID.Value == (int)ProfileSearchCriteriaCategoryEnum.Source)
-                .Items.Any(x => x.ID == (int)ProfileSearchCriteriaSourceEnum.BaseProfile && x.Selected);
+                .Items.Any(x => x.ID == (int)ProfileSearchCriteriaSourceEnum.BaseProfile && x.Selected));
+
+            // Test hook, not usef in front end at this point
+            bool myProfilesSelected = (model.Filters != null && model.Filters
+                .Find(c =>
+                    c.ID.Value == (int)ProfileSearchCriteriaCategoryEnum.Source)
+                .Items.Any(
+                    x => x.ID == 999 && x.Selected));
+
+
+            // indicates if any local profiles should be removed from the profiles found in the cloud library
+            // Use case: find new profiles that I don't already have
+            bool excludeLocalLibrary = !localProfilesSelected;
+
+            // indicates if any local profiles that are not also in the cloudlibrary should be added
+            // Use case: browse around in all profiles that I have access to, local and cloud
+            bool addLocalLibrary = myProfilesSelected;
 
             // Get both local and cloudlib cursors
             var cursors = model.Cursor?.Split(",");
@@ -265,7 +281,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             int localCursor;
             if (cursors?[1] != null)
             {
-                localCursor= int.Parse(cursors[1]);
+                localCursor = int.Parse(cursors[1]);
                 if (model.PageBackwards)
                 {
                     localCursor -= model.Take;
@@ -317,7 +333,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                     totalCount = cloudResultPage.TotalCount;
                     pendingCloudLibProfiles.AddRange(cloudResultPage.Edges);
 
-                    if (!filterIncludeLocal)
+                    if (excludeLocalLibrary)
                     {
                         // remove all profiles from the cloudlib result that are available locally: mark them as null for correct cursor handling of skipped profiles
                         foreach (var localProfile in allLocalProfiles)
@@ -331,7 +347,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                         }
                     }
 
-                    if (filterIncludeLocal)
+                    if (addLocalLibrary)
                     {
                         if (pendingLocalProfiles == null)
                         {
@@ -355,7 +371,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                                             IsDescending = false,
                                         },
                                 };
-                                if (!filterIncludeLocal)
+                                if (excludeLocalLibrary)
                                 {
                                     // owned profiles first when excluding and adding
                                     orderBy.Insert(0, new OrderByExpression<Profile>
@@ -384,7 +400,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                         {
                             bFullResultLocal = true;
                             pendingLocalProfiles.AddRange(
-                                (!filterIncludeLocal ?
+                                (excludeLocalLibrary ?
                                     allLocalProfiles.OrderBy(pm => pm.IsReadOnly).ThenBy(pm => pm.Namespace).ThenBy(pm => pm.PublishDate)// owned profiles first when excluding and adding
                                     : allLocalProfiles.OrderBy(pm => pm.Namespace).ThenBy(pm => pm.PublishDate)
                                 )
@@ -411,7 +427,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                             }
                             else
                             {
-                                pendingCloudLibProfiles.RemoveAt(pendingCloudLibProfiles.Count -1);
+                                pendingCloudLibProfiles.RemoveAt(pendingCloudLibProfiles.Count - 1);
                             }
                             cloudLibCursor = firstPendingCloudLibProfile.Cursor;
                             continue;
@@ -419,7 +435,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
 
                         var firstPendingLocalprofile = !model.PageBackwards ? pendingLocalProfiles?.FirstOrDefault() : pendingLocalProfiles?.LastOrDefault();
                         if (firstPendingLocalprofile != null &&
-                            (!filterIncludeLocal || // Put local library items first if both add and exclude is specified
+                            (excludeLocalLibrary || // Put local library items first if both add and exclude is specified
                               (firstPendingCloudLibProfile?.Node == null || String.Compare(firstPendingLocalprofile.Namespace, firstPendingCloudLibProfile.Node.Namespace, false, CultureInfo.InvariantCulture) < 0)))
                         {
                             if (!result.Any())
@@ -516,7 +532,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
 
             var lastCursor = $"{cloudLibCursor},{localCursor}";
             bool hasMoreData = !(
-                bFullResultCloud && pendingCloudLibProfiles?.Any() != true 
+                bFullResultCloud && pendingCloudLibProfiles?.Any() != true
                 && bFullResultLocal && pendingLocalProfiles?.Any() != true);
             var dalResult = new DALResult<CloudLibProfileModel>
             {

@@ -1,5 +1,4 @@
 ====>Expected attribute name '/UANodeSet[1]' - comparing <UANodeSet...> at /UANodeSet[1] to <UANodeSet...> at /UANodeSet[1]/@LastModified
-====>Expected attribute name '/UANodeSet[1]/Models[1]/Model[1]' - comparing <Model...> at /UANodeSet[1]/Models[1]/Model[1] to <Model...> at /UANodeSet[1]/Models[1]/Model[1]/@PublicationDate
 ====>Expected attribute name '/UANodeSet[1]/Models[1]/Model[1]/RequiredModel[1]' - comparing <RequiredModel...> at /UANodeSet[1]/Models[1]/Model[1]/RequiredModel[1] to <RequiredModel...> at /UANodeSet[1]/Models[1]/Model[1]/RequiredModel[2]/@Version
 ====>Expected attribute name '/UANodeSet[1]/Models[1]/Model[1]/RequiredModel[1]' - comparing <RequiredModel...> at /UANodeSet[1]/Models[1]/Model[1]/RequiredModel[1] to <RequiredModel...> at /UANodeSet[1]/Models[1]/Model[1]/RequiredModel[2]/@PublicationDate
 ====>Expected attribute value '1.04' but was '1.04.7' - comparing <RequiredModel Version="1.04"...> at /UANodeSet[1]/Models[1]/Model[1]/RequiredModel[2]/@Version to <RequiredModel Version="1.04.7"...> at /UANodeSet[1]/Models[1]/Model[1]/RequiredModel[1]/@Version

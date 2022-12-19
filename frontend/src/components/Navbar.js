@@ -24,7 +24,7 @@ function Navbar() {
     const history = useHistory();
     const { instance, inProgress } = useMsal();
     const _activeAccount = instance.getActiveAccount();
-    const { isAuthenticated, isAuthorized } = useLoginStatus(null, [AppSettings.AADUserRole]);
+    const { isAuthenticated, isAuthorized } = useLoginStatus(null, null /*[AppSettings.AADUserRole]*/);
 
     //-------------------------------------------------------------------
     // Region: Hooks

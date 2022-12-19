@@ -33,7 +33,7 @@ using Newtonsoft.Json;
 
 namespace CESMII.ProfileDesigner.Api.Controllers
 {
-    [Authorize, Route("api/[controller]")]
+    [Authorize(Policy = nameof(PermissionEnum.UserAzureADMapped)), Route("api/[controller]")]
     public class ProfileController : BaseController<ProfileController>
     {
         private readonly IDal<Profile, ProfileModel> _dal;
@@ -57,7 +57,6 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         }
 
         [HttpPost, Route("GetByID")]
-        [Authorize(Roles = "cesmii.profiledesigner.user")]
         //[ProducesResponseType(200, Type = typeof(NodeSetModel))]
         [ProducesResponseType(200, Type = typeof(ProfileTypeDefinitionModel))]
         [ProducesResponseType(400)]
@@ -87,7 +86,6 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost, Route("Mine")]
-        [Authorize(Roles = "cesmii.profiledesigner.user")]
         [ProducesResponseType(200, Type = typeof(DALResult<ProfileModel>))]
         public IActionResult GetMine([FromBody] PagerFilterSimpleModel model)
         {
@@ -123,7 +121,6 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost, Route("library")]
-        [Authorize(Roles = "cesmii.profiledesigner.user")]
         [ProducesResponseType(200, Type = typeof(DALResult<ProfileModel>))]
         public IActionResult GetLibrary([FromBody] ProfileTypeDefFilterModel model)
         {
@@ -236,7 +233,6 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost, Route("cloudlibrary")]
-        [Authorize(Roles = "cesmii.profiledesigner.user")]
         [ProducesResponseType(200, Type = typeof(DALResult<CloudLibProfileModel>))]
         public async Task<IActionResult> GetCloudLibrary([FromBody] CloudLibFilterModel model)
         {
@@ -554,7 +550,6 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost, Route("cloudlibrary/import")]
-        [Authorize(Roles = "cesmii.profiledesigner.user")]
         [ProducesResponseType(200, Type = typeof(ResultMessageWithDataModel))]
         public async Task<IActionResult> ImportFromCloudLibrary([FromBody] List<IdStringModel> model)
         {
@@ -611,7 +606,6 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet, Route("Count")]
-        [Authorize(Roles = "cesmii.profiledesigner.user")]
         [ProducesResponseType(200, Type = typeof(ProfileCountModel))]
         [ProducesResponseType(400)]
         public IActionResult GetCounts()
@@ -627,7 +621,6 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost, Route("Add")]
-        [Authorize(Roles = "cesmii.profiledesigner.user")]
         [ProducesResponseType(200, Type = typeof(ResultMessageWithDataModel))]
         public async Task<IActionResult> Add([FromBody] ProfileModel model)
         {
@@ -695,7 +688,6 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost, Route("validate")]
-        [Authorize(Roles = "cesmii.profiledesigner.user")]
         [ProducesResponseType(200, Type = typeof(ResultMessageWithDataModel))]
         public IActionResult ValidateModel([FromBody] ProfileModel model)
         {
@@ -740,7 +732,6 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost, Route("Update")]
-        [Authorize(Roles = "cesmii.profiledesigner.user")]
         [ProducesResponseType(200, Type = typeof(ResultMessageWithDataModel))]
         public async Task<IActionResult> Update([FromBody] ProfileModel model)
         {
@@ -811,7 +802,6 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost, Route("Delete")]
-        [Authorize(Roles = "cesmii.profiledesigner.user")]
         [ProducesResponseType(200, Type = typeof(ResultMessageModel))]
         public async Task<IActionResult> Delete([FromBody] IdIntModel model)
         {
@@ -862,7 +852,6 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost, Route("DeleteMany")]
-        [Authorize(Roles = "cesmii.profiledesigner.user")]
         [ProducesResponseType(200, Type = typeof(ResultMessageModel))]
         public async Task<IActionResult> DeleteMany([FromBody] List<IdIntModel> model)
         {
@@ -900,7 +889,6 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         /// <returns></returns>
         [Obsolete("Is this needed anymore?")]
         [HttpPost, Route("UAFlushCache")]
-        [Authorize(Roles = "cesmii.profiledesigner.user")]
         [ProducesResponseType(200, Type = typeof(List<ProfileTypeDefinitionModel>))]
         public Task<IActionResult> UAFlushCache()
         {
@@ -921,7 +909,6 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         /// <param name="nodeSetXmlList"></param>
         /// <returns>Return result model with an isSuccess indicator.</returns>
         [HttpPost, Route("Import")]
-        [Authorize(Roles = "cesmii.profiledesigner.user")]
         [ProducesResponseType(200, Type = typeof(ResultMessageWithDataModel))]
         public async Task<IActionResult> Import([FromBody] List<ImportOPCModel> model /*, [FromServices] OpcUaImporter importer*/)
         {
@@ -973,7 +960,6 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         /// <param name="model"></param>
         /// <returns>Returns the OPC UA models in XML format</returns>
         [HttpPost, Route("Export")]
-        [Authorize(Roles = "cesmii.profiledesigner.user")]
         [ProducesResponseType(200, Type = typeof(ResultMessageExportModel))]
         public Task<IActionResult> Export([FromBody] ExportRequestModel model)
         {

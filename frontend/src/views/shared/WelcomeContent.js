@@ -49,19 +49,7 @@ function WelcomeContent(props) {
                     </div>
                     <div className="col-sm-6 col-md-5 px-0 pl-5" >
                         {props.showLogin &&
-                            <div className="elevated mx-3 card mt-5">
-                            <div className="card-body">
-                            <h2 className="text-center mb-3">Returning Users</h2>
-                            <div className="d-flex mt-auto mx-auto">
-                                    <LoginButton />
-                            </div>
-                            <p className="mt-3 mb-2 text-center" >
-                                <span className="font-weight-bold mr-1" >Don't have an account?</span>
-                                Email us at <a href="mailto:devops@cesmii.org" >devops@cesmii.org</a> to get registered.
-                                Please provide your project name or SOPO number with your request.
-                            </p>
-                            </div>
-                            </div>
+                            <LoginButton />
                         }
                         <p className="p-0 py-1 mb-2 lh-intro" style={{ display: "none" }} >
                             SM Profiles are an innovative way of representing data in structured information models that provide

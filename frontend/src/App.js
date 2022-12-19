@@ -13,7 +13,7 @@ import { AppSettings } from './utils/appsettings'
 import { generateLogMessageString } from './utils/UtilityService'
 import ErrorPage from './components/ErrorPage'
 import { OnLookupLoad } from './components/OnLookupLoad'
-import { useLoginSilent, useOnLoginComplete } from "./components/OnLoginHandler";
+import { useLoginSilent, useRegisterMsalEventCallback } from "./components/OnLoginHandler";
 
 import './App.scss';
 
@@ -96,13 +96,19 @@ function App() {
     // Region: hooks
     // once login completes, determine where to navigate based on outcome
     //-------------------------------------------------------------------
-    useOnLoginComplete();
+    //useOnLoginComplete();
 
     //-------------------------------------------------------------------
     // Region: hooks - moved into separate component
     // useEffect - get various lookup data - onlookupLoad component houses the useEffect checks
     //-------------------------------------------------------------------
     OnLookupLoad();
+
+    //-------------------------------------------------------------------
+    // Region: add an event callback handler to capture loginredirect message responses
+    //              only add the callback once.
+    //-------------------------------------------------------------------
+    useRegisterMsalEventCallback(setLoadingProps);
 
     //-------------------------------------------------------------------
     // Region: Render

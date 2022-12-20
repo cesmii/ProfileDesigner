@@ -15,6 +15,7 @@
 	<ProjectReference Include="..\CESMII.ProfileDesigner.Api.Shared\CESMII.ProfileDesigner.Api.Shared.csproj" />
 	<ProjectReference Include="..\CESMII.ProfileDesigner.Common\CESMII.ProfileDesigner.Common.csproj" />
     <ProjectReference Include="..\CESMII.ProfileDesigner.DAL\CESMII.ProfileDesigner.DAL.csproj" />
+	<ProjectReference Include="..\..\common\CESMII.Common.CloudLibClient\CESMII.Common.CloudLibClient.csproj" />
 	<PackageReference Include="CESMII.OpcUa.NodeSetModel" Version="1.0.4" />
 	<PackageReference Include="CESMII.OpcUa.NodeSetModel.Factory.Opc" Version="1.0.4" />
 	<PackageReference Include="CESMII.OpcUa.NodeSetImporter" Version="1.0.4" />

@@ -490,8 +490,9 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
 
         private static DataVariableNodeIdMap GetDataVariableNodeIds(VariableModel dataVariableContainer, VariableTypeModel dataVariableContainerType)
         {
-            var dataVariables = (dataVariableContainer.DataVariables.Concat(dataVariableContainer.Properties)).ToList();
-            var typeDataVariables = dataVariableContainerType.DataVariables.Concat(dataVariableContainerType.Properties).ToList();
+            //TBD - SC to confirm w/ MH. fix - add support to protect if dataVariableContainer or dataVariableContainerType is null
+            var dataVariables = (dataVariableContainer?.DataVariables.Concat(dataVariableContainer?.Properties)).ToList();
+            var typeDataVariables = dataVariableContainerType?.DataVariables.Concat(dataVariableContainerType?.Properties).ToList();
 
             if (dataVariables?.Any() != true || typeDataVariables?.Any() != true)
                 return null;

@@ -232,6 +232,12 @@
             entity.AdditionalProperties?.RemoveAll(eProp => model.AdditionalProperties?.Any(mProp => mProp.Key == eProp.Name) != true);
             if (model.AdditionalProperties != null)
             {
+                //correct value cannot be null error occurring on import of nodeset where
+                //we try to add additional props but entity.additionalprops collection is null
+                if (entity.AdditionalProperties == null)
+                {
+                    entity.AdditionalProperties = new List<UAProperty>();
+                }
                 foreach (var prop in model.AdditionalProperties)
                 {
                     var eProp = entity.AdditionalProperties.FirstOrDefault(p => p.Name == prop.Key);

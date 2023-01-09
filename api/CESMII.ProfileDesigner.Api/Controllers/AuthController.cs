@@ -52,6 +52,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             {
                 case 1:
                     result = matches[0];
+                    result.Email = userAAD.Email;
                     result.LastLogin = DateTime.UtcNow;
                     result.DisplayName = userAAD.DisplayName;
                     _dalUser.UpdateAsync(matches[0], new UserToken() { UserId = result.ID.Value }).Wait();
@@ -60,6 +61,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                     result = new UserModel()
                     {
                         ObjectIdAAD = userAAD.ObjectIdAAD,
+                        Email = userAAD.Email,
                         DisplayName = userAAD.DisplayName,
                         LastLogin = DateTime.UtcNow
                     };

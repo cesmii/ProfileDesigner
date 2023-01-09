@@ -136,6 +136,7 @@ CREATE TABLE public.user
     --username character varying(150) COLLATE pg_catalog."default" NULL,
     objectid_aad character varying(100) COLLATE pg_catalog."default" NULL, 
     display_name character varying(250) COLLATE pg_catalog."default" NULL,
+    email_address character varying(320) COLLATE pg_catalog."default" NULL,
     --is_active boolean NOT NULL,
     date_joined timestamp with time zone NOT NULL,
     --registration_complete timestamp with time zone,

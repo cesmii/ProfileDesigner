@@ -434,6 +434,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 ID = user.ID,
                 ObjectIdAAD = LocalUser.ObjectIdAAD,
                 DisplayName = user.DisplayName,
+                Email = user.Email,
                 Organization = user.Organization
             };
             result.CreatedBy = result.Author;

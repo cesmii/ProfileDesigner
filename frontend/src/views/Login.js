@@ -24,9 +24,6 @@ function Login() {
     //default to true so we don't show and then immediately hide content, better to hide and then immediately show
     const [_inProgress, setInProgress] = useState(true);
 
-    //set this for downstream use post successful silent login
-    if (returnUrl != null && loadingProps.returnUrl !== returnUrl) setLoadingProps({ returnUrl: returnUrl });
-
     //-------------------------------------------------------------------
     // Region: hooks
     //-------------------------------------------------------------------
@@ -39,7 +36,17 @@ function Login() {
 
     }, [isAuthenticated, isAuthorized]);
 
-    
+    //-------------------------------------------------------------------
+    // Region: hooks
+    //-------------------------------------------------------------------
+    useEffect(() => {
+
+        //set this for downstream use post successful silent login
+        if (returnUrl != null && loadingProps.returnUrl !== returnUrl) setLoadingProps({ returnUrl: returnUrl });
+
+    }, [returnUrl, loadingProps.returnUrl]);
+
+
     //-------------------------------------------------------------------
     // Region: show or hide processing indicator when MSAL is processing login
     //-------------------------------------------------------------------

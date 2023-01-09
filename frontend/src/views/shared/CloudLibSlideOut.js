@@ -66,15 +66,6 @@ function CloudLibSlideOut(props) { //props are item, showActions
         <>
             <div className={cssClass} >
                 {renderHeading()}
-                <div className="header-actions-row mx-3 mb-3 pr-0">
-                    <p className="mb-2" >
-                        Search the CESMII Cloud Library for Profiles and import Profiles into the Profile Library.
-                    </p>
-                    <p className="mb-2" >
-                        Type definitions within these Profiles can then be viewed or extended to make new Type definitions, which can become part of one of your SM Profiles.
-                    </p>
-                </div>
-
                 <CloudLibraryImporter onImportStarted={onImportStarted} isOpen={props.isOpen} />
             </div>
         </>

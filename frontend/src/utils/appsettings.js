@@ -86,7 +86,7 @@ export const AppSettings = {
     , ExportFormatEnum: {
         XML: 'Xml',
         AASX: 'AASX',
-        ThinkIQ: 'ThinkIQ'
+        SmipJson: 'SmipJson'
     }
     , ImportSourceEnum: {
         NodeSetXML: 'NodeSet Xml',
@@ -116,7 +116,7 @@ export const AppSettings = {
         system: {
             iframeHashTimeout: 10000, //avoid monitor time out error on silent login
             loggerOptions: {
-                logLevel: LogLevel.Verbose,
+                logLevel: LogLevel.Info,
                 loggerCallback: (level, message, containsPii) => {
                     if (containsPii) {
                         return;

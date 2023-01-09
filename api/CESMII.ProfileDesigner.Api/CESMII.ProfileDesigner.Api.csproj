@@ -51,7 +51,7 @@
     <ProjectReference Include="..\CESMII.ProfileDesigner.DAL\CESMII.ProfileDesigner.DAL.csproj" />
     <ProjectReference Include="..\CESMII.ProfileDesigner.Data\CESMII.ProfileDesigner.Data.csproj" />
     <ProjectReference Include="..\Opc.Ua.Cloud.Library.Client\Opc.Ua.Cloud.Library.Client.csproj" />
-    <ProjectReference Include="..\ThinkIQ\CESMII.OpcUa.NodeSetModel.Factory.ThinkIQ\CESMII.OpcUa.NodeSetModel.Factory.ThinkIQ.csproj" />
+    <ProjectReference Include="..\SmipJson\CESMII.OpcUa.NodeSetModel.Factory.Smip\CESMII.OpcUa.NodeSetModel.Factory.Smip.csproj" />
   </ItemGroup>
 
   <ItemGroup>

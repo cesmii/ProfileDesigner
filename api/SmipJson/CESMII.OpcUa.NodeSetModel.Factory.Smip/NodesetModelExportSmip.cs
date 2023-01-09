@@ -7,66 +7,66 @@ using System.Collections.Generic;
 using System.Linq;
 
 using Opc.Ua.Export;
-using CESMII.OpcUa.NodeSetModel.Factory.ThinkIQ;
+using CESMII.OpcUa.NodeSetModel.Factory.Smip;
 using SMIP.JsonIO.Model;
 using System.Globalization;
 using System.Threading;
 using Microsoft.Extensions.Logging;
 
-namespace CESMII.OpcUa.NodeSetModel.Export.ThinkIQ
+namespace CESMII.OpcUa.NodeSetModel.Export.Smip
 {
-    //public class NodeModelExportThinkIQ : NodeModelExportThinkIQ<NodeModel>
+    //public class NodeModelExportSmip : NodeModelExportSmip<NodeModel>
     //{
 
     //}
-    public class NodeModelExportThinkIQ<TTiqBase, TNodeModel>
+    public class NodeModelExportSmip<TTiqBase, TNodeModel>
         where TTiqBase : SmipNode, new()
         where TNodeModel : NodeModel, new()
     {
 
         public TNodeModel _model;
-        //public static ThinkIQNodeInfo ExportNode(NodeModel model, ThinkIQLibrary library)
+        //public static SmipNodeInfo ExportNode(NodeModel model, SmipLibrary library)
         //{
         //    if (model is InterfaceModel uaInterface)
         //    {
-        //        return new InterfaceModelExportThinkIQ { _model = uaInterface }.ExportNode(library);
+        //        return new InterfaceModelExportSmip { _model = uaInterface }.ExportNode(library);
         //    }
         //    else if (model is ObjectTypeModel objectType)
         //    {
-        //        return new ObjectTypeModelExportThinkIQ { _model = objectType, }.ExportNode(library);
+        //        return new ObjectTypeModelExportSmip { _model = objectType, }.ExportNode(library);
         //    }
         //    else if (model is VariableTypeModel variableType)
         //    {
-        //        return new VariableTypeModelExportThinkIQ { _model = variableType, }.ExportNode(library);
+        //        return new VariableTypeModelExportSmip { _model = variableType, }.ExportNode(library);
         //    }
         //    else if (model is DataTypeModel dataType)
         //    {
-        //        return new DataTypeModelExportThinkIQ { _model = dataType, }.ExportNode(library);
+        //        return new DataTypeModelExportSmip { _model = dataType, }.ExportNode(library);
         //    }
         //    else if (model is DataVariableModel dataVariable)
         //    {
-        //        return new DataVariableModelExportThinkIQ { _model = dataVariable, }.ExportNode(library);
+        //        return new DataVariableModelExportSmip { _model = dataVariable, }.ExportNode(library);
         //    }
         //    else if (model is PropertyModel property)
         //    {
-        //        return new PropertyModelExportThinkIQ { _model = property, }.ExportNode(library);
+        //        return new PropertyModelExportSmip { _model = property, }.ExportNode(library);
         //    }
         //    else if (model is ObjectModel uaObject)
         //    {
-        //        return new ObjectModelExportThinkIQ { _model = uaObject, }.ExportNode(library);
+        //        return new ObjectModelExportSmip { _model = uaObject, }.ExportNode(library);
         //    }
         //    else if (model is MethodModel uaMethod)
         //    {
-        //        return new MethodModelExportThinkIQ { _model = uaMethod, }.ExportNode(library);
+        //        return new MethodModelExportSmip { _model = uaMethod, }.ExportNode(library);
         //    }
         //    else if (model is ReferenceTypeModel referenceType)
         //    {
-        //        return new ReferenceTypeModelExportThinkIQ { _model = referenceType, }.ExportNode(library);
+        //        return new ReferenceTypeModelExportSmip { _model = referenceType, }.ExportNode(library);
         //    }
         //    throw new Exception($"Unexpected node model {model.GetType()}");
         //}
 
-        public virtual ThinkIQNodeInfo<TTiqBase> ExportNode(SmipTypeSystem library)
+        public virtual SmipNodeInfo<TTiqBase> ExportNode(SmipTypeSystem library)
         {
             var relativeName = GetRelativeName(_model);
             var fqn = new List<string> { _model.Namespace?.ToLowerInvariant(), relativeName };
@@ -78,7 +78,7 @@ namespace CESMII.OpcUa.NodeSetModel.Export.ThinkIQ
                 {
                     throw new Exception($"Duplicate FQN for different types? {fqn} found in EquipmentTypes for type {typeof(TTiqBase)}");
                 }
-                return new ThinkIQNodeInfo<TTiqBase>
+                return new SmipNodeInfo<TTiqBase>
                 {
                     tiqModel = et as TTiqBase,
                     Found = true,
@@ -91,7 +91,7 @@ namespace CESMII.OpcUa.NodeSetModel.Export.ThinkIQ
             //    {
             //        throw new Exception($"Duplicate FQN for different types? {fqn} found in AttributeTypes for type {typeof(TTiqBase)}");
             //    }
-            //    return new ThinkIQNodeInfo<TTiqBase>
+            //    return new SmipNodeInfo<TTiqBase>
             //    {
             //        tiqModel = at as TTiqBase,
             //        Found = true,
@@ -104,7 +104,7 @@ namespace CESMII.OpcUa.NodeSetModel.Export.ThinkIQ
                 {
                     throw new Exception($"Duplicate FQN for different types? {fqn} found in EnumerationTypes for type {typeof(TTiqBase)}");
                 }
-                return new ThinkIQNodeInfo<TTiqBase>
+                return new SmipNodeInfo<TTiqBase>
                 {
                     tiqModel = enumType as TTiqBase,
                     Found = true,
@@ -132,7 +132,7 @@ namespace CESMII.OpcUa.NodeSetModel.Export.ThinkIQ
                 library.Libraries.Add(libMeta);
             }
 
-            return new ThinkIQNodeInfo<TTiqBase>
+            return new SmipNodeInfo<TTiqBase>
             {
                 tiqModel = tiqBase
             };
@@ -140,19 +140,9 @@ namespace CESMII.OpcUa.NodeSetModel.Export.ThinkIQ
 
         public static string GetRelativeName(NodeModel model)
         {
-            var browseName = model.BrowseName ?? $"{model.Namespace}:{model.DisplayName?.FirstOrDefault()?.Text}";
-            //var browseName = $"{model.GetBrowseName()}";
-            var parts = browseName.Split(";", 2);
-            if (parts.Length >= 2)
-            {
-                return EscapeSpecialCharacters(parts[1].ToLowerInvariant());
-            }
-            var semicolonParts = browseName.Split(":");
-            if (semicolonParts.Length >= 2)
-            {
-                return EscapeSpecialCharacters(semicolonParts.LastOrDefault()?.ToLowerInvariant());
-            }
-            return EscapeSpecialCharacters(parts[0]);
+            //Add the nodeid to make it unique, as different types seem to use the same browsename/displayname
+            var browseName = $"{model.DisplayName?.FirstOrDefault()?.Text}_{model.NodeId}";
+            return EscapeSpecialCharacters(browseName);
         }
 
         public static string EscapeSpecialCharacters(string name)
@@ -231,15 +221,15 @@ namespace CESMII.OpcUa.NodeSetModel.Export.ThinkIQ
             return qualifiedNameForExport;
         }
 
-        protected static List<string> GetThinkIQMeasurementUnit(VariableModel.EngineeringUnitInfo engineeringUnit)
+        protected static List<string> GetSmipMeasurementUnit(VariableModel.EngineeringUnitInfo engineeringUnit)
         {
             // TODO implement measurement unit mapping
             return null;
         }
 
-        protected static List<string> GetThinkIQAttributeType(VariableTypeModel typeDefinition)
+        protected static List<string> GetSmipAttributeType(VariableTypeModel typeDefinition)
         {
-            // TODO Generate thinkiq model for variable type 
+            // TODO Generate Smip model for variable type 
             return new List<string> { typeDefinition.Namespace?.ToLowerInvariant(), typeDefinition.BrowseName?.ToLowerInvariant() };
 
         }
@@ -257,14 +247,14 @@ namespace CESMII.OpcUa.NodeSetModel.Export.ThinkIQ
         }
     }
 
-    public class ThinkIQNodeInfo<TTiqBase> where TTiqBase : SmipNode
+    public class SmipNodeInfo<TTiqBase> where TTiqBase : SmipNode
     {
         public TTiqBase tiqModel { get; set; }
         public string DataTypeName { get; set; }
         public bool Found { get; set; }
     }
 
-    public abstract class InstanceModelExportThinkIQ<TTiqBase, TInstanceModel, TBaseTypeModel> : NodeModelExportThinkIQ<TTiqBase, TInstanceModel>
+    public abstract class InstanceModelExportSmip<TTiqBase, TInstanceModel, TBaseTypeModel> : NodeModelExportSmip<TTiqBase, TInstanceModel>
         where TTiqBase : SmipNode, new()
         where TInstanceModel : InstanceModel<TBaseTypeModel>, new()
         where TBaseTypeModel : NodeModel, new()
@@ -397,16 +387,16 @@ namespace CESMII.OpcUa.NodeSetModel.Export.ThinkIQ
 
     }
 
-    public class ObjectModelExportThinkIQ : InstanceModelExportThinkIQ<SmipTypeComposition, ObjectModel, ObjectTypeModel>
+    public class ObjectModelExportSmip : InstanceModelExportSmip<SmipTypeComposition, ObjectModel, ObjectTypeModel>
     {
-        public override ThinkIQNodeInfo<SmipTypeComposition> ExportNode(SmipTypeSystem library)
+        public override SmipNodeInfo<SmipTypeComposition> ExportNode(SmipTypeSystem library)
         {
             var childEquipmentTypeInfo = base.ExportNode(library);
             if (childEquipmentTypeInfo.Found)
             {
                 return childEquipmentTypeInfo;
             }
-            var childTypeDefinitionInfo = new ObjectTypeModelExportThinkIQ { _model = _model.TypeDefinition }.ExportNode(library);
+            var childTypeDefinitionInfo = new ObjectTypeModelExportSmip { _model = _model.TypeDefinition }.ExportNode(library);
             childEquipmentTypeInfo.tiqModel.ChildTypeFqn = childTypeDefinitionInfo.tiqModel?.Fqn.ToArray();
             childEquipmentTypeInfo.tiqModel.IsRequired = IsRequired(_model.ModelingRule);
             // document
@@ -439,7 +429,7 @@ namespace CESMII.OpcUa.NodeSetModel.Export.ThinkIQ
         }
     }
 
-    public class BaseTypeModelExportThinkIQ<TTiqBase, TBaseTypeModel> : NodeModelExportThinkIQ<TTiqBase, TBaseTypeModel>
+    public class BaseTypeModelExportSmip<TTiqBase, TBaseTypeModel> : NodeModelExportSmip<TTiqBase, TBaseTypeModel>
         where TTiqBase : SmipNode, new()
         where TBaseTypeModel : BaseTypeModel, new()
     {
@@ -483,9 +473,9 @@ namespace CESMII.OpcUa.NodeSetModel.Export.ThinkIQ
         //}
     }
 
-    public class ObjectTypeModelExportThinkIQ<TTypeModel> : BaseTypeModelExportThinkIQ<SmipType, TTypeModel> where TTypeModel : BaseTypeModel, new()
+    public class ObjectTypeModelExportSmip<TTypeModel> : BaseTypeModelExportSmip<SmipType, TTypeModel> where TTypeModel : BaseTypeModel, new()
     {
-        public override ThinkIQNodeInfo<SmipType> ExportNode(SmipTypeSystem library)
+        public override SmipNodeInfo<SmipType> ExportNode(SmipTypeSystem library)
         {
             if (library.Types == null)
             {
@@ -498,10 +488,10 @@ namespace CESMII.OpcUa.NodeSetModel.Export.ThinkIQ
 
             if (_model == null || _model.Namespace?.ToLowerInvariant() != library.Meta.ExportLibraryFqn?.FirstOrDefault())
             {
-                // TODO short circuit more types to built-in ThinkIQ types
+                // TODO short circuit more types to built-in Smip types
                 if (_model == null || _model.NodeId == "nsu=http://opcfoundation.org/UA/;i=58") // BaseObjectType
                 {
-                    var baseTypeEquipmentTypeInfo = new ThinkIQNodeInfo<SmipType>
+                    var baseTypeEquipmentTypeInfo = new SmipNodeInfo<SmipType>
                     {
                         tiqModel = new SmipType
                         {
@@ -528,7 +518,7 @@ namespace CESMII.OpcUa.NodeSetModel.Export.ThinkIQ
             }
             library.Types.Add(equipmentType);
 
-            var superTypeInfo = new ObjectTypeModelExportThinkIQ<TTypeModel> { _model = _model.SuperType as TTypeModel }.ExportNode(library);
+            var superTypeInfo = new ObjectTypeModelExportSmip<TTypeModel> { _model = _model.SuperType as TTypeModel }.ExportNode(library);
             if (superTypeInfo != null && superTypeInfo.tiqModel != null)
             {
                 equipmentType.SubTypeOfFqn = superTypeInfo.tiqModel.Fqn.ToList();
@@ -540,7 +530,7 @@ namespace CESMII.OpcUa.NodeSetModel.Export.ThinkIQ
 
             foreach (var childObject in _model.Objects)
             {
-                var childEquipmentTypeInfo = new ObjectModelExportThinkIQ { _model = childObject }.ExportNode(library);
+                var childEquipmentTypeInfo = new ObjectModelExportSmip { _model = childObject }.ExportNode(library);
                 if (childEquipmentTypeInfo.tiqModel == null)
                 {
                     throw new NotImplementedException();
@@ -548,9 +538,9 @@ namespace CESMII.OpcUa.NodeSetModel.Export.ThinkIQ
                 equipmentType.ChildEquipment.Add(childEquipmentTypeInfo.tiqModel);
             }
 
-            var dataVariableTypeInfos = _model.DataVariables.Select(dv => new DataVariableModelExportThinkIQ { _model = dv }.ExportNode(library)).ToList();
+            var dataVariableTypeInfos = _model.DataVariables.Select(dv => new DataVariableModelExportSmip { _model = dv }.ExportNode(library)).ToList();
 
-            var propertyTypeInfos = _model.Properties.Select(prop => new PropertyModelExportThinkIQ { _model = prop as PropertyModel }.ExportNode(library)).ToList();
+            var propertyTypeInfos = _model.Properties.Select(prop => new PropertyModelExportSmip { _model = prop as PropertyModel }.ExportNode(library)).ToList();
             var variableTypeInfos = dataVariableTypeInfos.Concat(propertyTypeInfos).ToList();
 
             foreach (var variableTypeInfo in variableTypeInfos)
@@ -573,7 +563,7 @@ namespace CESMII.OpcUa.NodeSetModel.Export.ThinkIQ
                 //    };
                 //    equipmentType.ChildEquipmentTypes.Add(childEquipmentType2);
                 //}
-                else 
+                else
                 {
                     throw new Exception($"Unexpected variable type {variableTypeInfo.tiqModel.GetType().Name} returned for {variableTypeInfo.tiqModel?.RelativeName}");
                 }
@@ -583,19 +573,19 @@ namespace CESMII.OpcUa.NodeSetModel.Export.ThinkIQ
         }
     }
 
-    public class ObjectTypeModelExportThinkIQ : ObjectTypeModelExportThinkIQ<ObjectTypeModel>
+    public class ObjectTypeModelExportSmip : ObjectTypeModelExportSmip<ObjectTypeModel>
     {
     }
 
-    public class InterfaceModelExportThinkIQ : ObjectTypeModelExportThinkIQ<InterfaceModel>
+    public class InterfaceModelExportSmip : ObjectTypeModelExportSmip<InterfaceModel>
     {
     }
 
-    public abstract class VariableModelExportThinkIQ<TVariableModel> : InstanceModelExportThinkIQ<SmipNode, TVariableModel, VariableTypeModel>
+    public abstract class VariableModelExportSmip<TVariableModel> : InstanceModelExportSmip<SmipNode, TVariableModel, VariableTypeModel>
         where TVariableModel : VariableModel, new()
     {
 
-        public override ThinkIQNodeInfo<SmipNode> ExportNode(SmipTypeSystem library)
+        public override SmipNodeInfo<SmipNode> ExportNode(SmipTypeSystem library)
         {
             var variableInfo = base.ExportNode(library);
             if (variableInfo.Found)
@@ -603,7 +593,7 @@ namespace CESMII.OpcUa.NodeSetModel.Export.ThinkIQ
                 return variableInfo;
             }
             // TODO Should dataVariable.DataType have been of type DataTypeModel?
-            var dataTypeInfo = new DataTypeModelExportThinkIQ { _model = (DataTypeModel)_model.DataType }.ExportNode(library);
+            var dataTypeInfo = new DataTypeModelExportSmip { _model = (DataTypeModel)_model.DataType }.ExportNode(library);
 
             if (dataTypeInfo.tiqModel is SmipType structTypeInfo)
             {
@@ -635,9 +625,9 @@ namespace CESMII.OpcUa.NodeSetModel.Export.ThinkIQ
 
                 DataType = dataTypeInfo.DataTypeName,
                 IsRequired = IsRequired(_model.ModelingRule),
-                // TODO AttributeTypeFqn = GetThinkIQAttributeType(dataVariable.TypeDefinition),
+                // TODO AttributeTypeFqn = GetSmipAttributeType(dataVariable.TypeDefinition),
                 //DefaultEnumerationValues =,
-                MeasurementUnitFqn = GetThinkIQMeasurementUnit(_model.EngineeringUnit),
+                MeasurementUnitFqn = GetSmipMeasurementUnit(_model.EngineeringUnit),
                 //SourceCategory = ,
                 //state_type_fqn
                 DefaultValue = _model.Value,
@@ -646,7 +636,7 @@ namespace CESMII.OpcUa.NodeSetModel.Export.ThinkIQ
                 // default_state_values
                 // interpolation_method
                 // unlink_relative_name
-                // TODO Is there a distinction between properties and variables in ThinkIQ?
+                // TODO Is there a distinction between properties and variables in Smip?
                 //SourceCategory = "dynamic", // TODO properties: config?
             };
             if (dataTypeInfo.tiqModel is SmipEnumerationType)
@@ -869,7 +859,7 @@ namespace CESMII.OpcUa.NodeSetModel.Export.ThinkIQ
         }
     }
 
-    public class DataVariableModelExportThinkIQ : VariableModelExportThinkIQ<DataVariableModel>
+    public class DataVariableModelExportSmip : VariableModelExportSmip<DataVariableModel>
     {
         //public override (T ExportedNode, List<UANode> AdditionalNodes) GetUANode<T>(NamespaceTable namespaces, Dictionary<string, string> aliases)
         //{
@@ -887,7 +877,7 @@ namespace CESMII.OpcUa.NodeSetModel.Export.ThinkIQ
         }
     }
 
-    public class PropertyModelExportThinkIQ : VariableModelExportThinkIQ<PropertyModel>
+    public class PropertyModelExportSmip : VariableModelExportSmip<PropertyModel>
     {
         //public override (T ExportedNode, List<UANode> AdditionalNodes) GetUANode<T>(NamespaceTable namespaces, Dictionary<string, string> aliases)
         //{
@@ -908,7 +898,7 @@ namespace CESMII.OpcUa.NodeSetModel.Export.ThinkIQ
         }
     }
 
-    public class MethodModelExportThinkIQ : InstanceModelExportThinkIQ<SmipNode, MethodModel, MethodModel>
+    public class MethodModelExportSmip : InstanceModelExportSmip<SmipNode, MethodModel, MethodModel>
     {
         //public override (T ExportedNode, List<UANode> AdditionalNodes) GetUANode<T>(NamespaceTable namespaces, Dictionary<string, string> aliases)
         //{
@@ -930,7 +920,7 @@ namespace CESMII.OpcUa.NodeSetModel.Export.ThinkIQ
         }
     }
 
-    public class VariableTypeModelExportThinkIQ : BaseTypeModelExportThinkIQ<SmipType, VariableTypeModel>
+    public class VariableTypeModelExportSmip : BaseTypeModelExportSmip<SmipType, VariableTypeModel>
     {
         //public override (T ExportedNode, List<UANode> AdditionalNodes) GetUANode<T>(NamespaceTable namespaces, Dictionary<string, string> aliases)
         //{
@@ -951,21 +941,21 @@ namespace CESMII.OpcUa.NodeSetModel.Export.ThinkIQ
         //        using (var decoder = new JsonDecoder(_model.Value, ServiceMessageContext.GlobalContext))
         //        {
         //            var value = decoder.ReadVariant("Value");
-        //            var xml = VariableModelExportThinkIQ<VariableModel>.GetVariantAsXML(value);
+        //            var xml = VariableModelExportSmip<VariableModel>.GetVariantAsXML(value);
         //            variableType.Value = xml;
         //        }
         //    }
         //    return (variableType as T, result.AdditionalNodes);
         //}
     }
-    public class DataTypeModelExportThinkIQ : BaseTypeModelExportThinkIQ<SmipNode, DataTypeModel>
+    public class DataTypeModelExportSmip : BaseTypeModelExportSmip<SmipNode, DataTypeModel>
     {
         /// <summary>
         /// Returns EquipmentType for Structures, TiqEnumerationType for Enumerations, TiqBase + DataTypeName name for other data types
         /// </summary>
         /// <param name="library"></param>
         /// <returns></returns>
-        public override ThinkIQNodeInfo<SmipNode> ExportNode(SmipTypeSystem library)
+        public override SmipNodeInfo<SmipNode> ExportNode(SmipTypeSystem library)
         {
             var tiqNodeInfo = base.ExportNode(library);
             if (tiqNodeInfo.Found)
@@ -975,9 +965,9 @@ namespace CESMII.OpcUa.NodeSetModel.Export.ThinkIQ
             var dataType = _model;
 
             var dataTypeText = dataType.DisplayName?.FirstOrDefault()?.Text;
-            if (thinkIQDataTypes.TryGetValue(dataTypeText?.ToLowerInvariant(), out var thinkIqDataType))
+            if (SmipDataTypes.TryGetValue(dataTypeText?.ToLowerInvariant(), out var SmipDataType))
             {
-                tiqNodeInfo.DataTypeName = thinkIqDataType;
+                tiqNodeInfo.DataTypeName = SmipDataType;
             }
             else
             {
@@ -985,7 +975,7 @@ namespace CESMII.OpcUa.NodeSetModel.Export.ThinkIQ
                 {
                     var attributeTypes = dataType.StructureFields.Select(f =>
                     {
-                        var fieldDataTypeInfo = new DataTypeModelExportThinkIQ { _model = (DataTypeModel)f.DataType }.ExportNode(library);
+                        var fieldDataTypeInfo = new DataTypeModelExportSmip { _model = (DataTypeModel)f.DataType }.ExportNode(library);
                         // TODO handle arrays (ValueRank, ArrayDimensions)
                         var attributeType = new SmipTypeAttribute
                         {
@@ -1032,7 +1022,7 @@ namespace CESMII.OpcUa.NodeSetModel.Export.ThinkIQ
                     library.EnumerationTypes.Add(enumerationType);
                     tiqNodeInfo.tiqModel = enumerationType;
                     tiqNodeInfo.DataTypeName = "enumeration";
-                    //tiqNodeInfo.DataTypeName = "string"; // For ThinkIQ instances that don't support enumeration types
+                    //tiqNodeInfo.DataTypeName = "string"; // For Smip instances that don't support enumeration types
                 }
                 else
                 {
@@ -1110,7 +1100,7 @@ namespace CESMII.OpcUa.NodeSetModel.Export.ThinkIQ
         //    return (dataType as T, result.AdditionalNodes);
         //}
 
-        static Dictionary<string, string> thinkIQDataTypes = new Dictionary<string, string>
+        static Dictionary<string, string> SmipDataTypes = new Dictionary<string, string>
         {
             { "string", "string" },
             { "basedatatype", "string" },
@@ -1130,7 +1120,7 @@ namespace CESMII.OpcUa.NodeSetModel.Export.ThinkIQ
 
     }
 
-    public class ReferenceTypeModelExportThinkIQ : BaseTypeModelExportThinkIQ<SmipNode, ReferenceTypeModel>
+    public class ReferenceTypeModelExportSmip : BaseTypeModelExportSmip<SmipNode, ReferenceTypeModel>
     {
         //public override (T ExportedNode, List<UANode> AdditionalNodes) GetUANode<T>(NamespaceTable namespaces, Dictionary<string, string> aliases)
         //{

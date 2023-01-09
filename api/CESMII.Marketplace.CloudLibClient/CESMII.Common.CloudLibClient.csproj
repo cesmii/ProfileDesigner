@@ -7,7 +7,7 @@
   </PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="CESMII.OpcUa.NodeSetImporter" Version="1.0.0-beta.12" />
+		<PackageReference Include="CESMII.OpcUa.NodeSetImporter" Version="1.0.4" />
 		<PackageReference Include="GraphQL.Client" Version="4.0.2" />
 		<PackageReference Include="GraphQL.Client.Serializer.Newtonsoft" Version="4.0.2" />
 		<PackageReference Include="NLog" Version="4.7.10" />

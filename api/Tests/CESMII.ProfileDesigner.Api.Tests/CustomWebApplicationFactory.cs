@@ -86,7 +86,7 @@ namespace CESMII.ProfileDesigner.Api.Tests
                         };
                     })
                 ;
-                // Inject Cloud Library Mock - uncomment to test against live cloud lib
+                // Inject Cloud Library Mock - comment out to test against live cloud lib
                 // Delete mock data files to record reponses from a live cloud lib
                 services.RemoveAll<ICloudLibWrapper>();
                 services.AddScoped<CloudLibWrapper>();

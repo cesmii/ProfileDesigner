@@ -158,7 +158,7 @@ export const onAADLoginComplete = (instance, history, setLoadingProps, statusCod
 // handleLoginError: based on type of error, handle login error
 //-------------------------------------------------------------------
 export const handleLoginError = (error, setLoadingProps) => {
-    var msg = 'An error occurred attempting to launch the login window. Please contact the system administrator.';
+    var msg = 'An error occurred during login. Please contact the system administrator.';
     if (error instanceof InteractionRequiredAuthError) {
         console.error(generateLogMessageString(`handleLoginError||${error.errorCode}||${error}`, CLASS_NAME));
     }
@@ -184,6 +184,9 @@ export const handleLoginError = (error, setLoadingProps) => {
     else if (error.errorCode === "invalid_client") {
         console.error(generateLogMessageString(`handleLoginError||${error.errorCode}||${error}`, CLASS_NAME));
         msg = 'Contact System Administrator. A system error has occurred unrelated to your account. The login configuration settings are invalid.';
+    }
+    else {
+        console.error(generateLogMessageString(`handleLoginError||${error.errorCode}||${error}`, CLASS_NAME));
     }
     setLoadingProps({
         isLoading: false, message: null, modalMessages: msg == null ? [] :
@@ -382,7 +385,7 @@ export const useLoginSilent = () => {
             const loginRequest = {
                 scopes: AppSettings.MsalScopes,
                 account: accounts[0],
-                prompt: 'select_account',  //always present the account selection - even if already logged in cached.
+                prompt: 'none',  //always present the account selection - even if already logged in cached.
                 redirectUri: `/login/success${loadingProps.returnUrl ? '?returnUrl=' + loadingProps.returnUrl : ''}`
             };
 

@@ -164,7 +164,7 @@ function CloudLibraryImporter(props) {
             <>
                 <ConfirmationModal showModal={_importConfirmModal.show} caption={caption} message={message}
                     /*icon={{ name: "warning", color: color.trinidad }}*/
-                    confirm={{ caption: "Import", callback: onImportConfirm, buttonVariant: null }}
+                    confirm={{ caption: "Import", callback: onImportConfirm, buttonVariant: "primary" }}
                     cancel={{
                         caption: "Cancel",
                         callback: () => {
@@ -298,6 +298,8 @@ function CloudLibraryImporter(props) {
     };
 
     const renderSelectedItems = () => {
+        if (_selectedCloudProfiles == null || _selectedCloudProfiles.length === 0) return;
+
         const profiles = _selectedCloudProfiles.map((profile) => {
             return (
                 <li id={`${profile.cloudLibraryId}`} key={`${profile.cloudLibraryId}`} className="m-1 d-inline-block"
@@ -307,42 +309,62 @@ function CloudLibraryImporter(props) {
             )
         });
 
-        const buttonStyle = "auto-width mx-2" + (_selectedCloudProfiles.length > 0 ? "" : " disabled");
-
         return (
-            <div className="d-block d-lg-inline mb-2 mb-lg-0" >
-                <Button variant="secondary" type="button" className={buttonStyle} onClick={onImportSelectedClick} >Import selected...</Button>
-                <ul className="m-0 p-0 d-inline" >
-                    {profiles}
-                </ul>
+            <div className={`row selected-panel px-3 py-1 mb-1 rounded d-flex `} > {/*${props.cssClass ?? ''}*/}
+                <div className="col-sm-12 px-0 align-items-start d-block d-lg-flex align-items-center" >
+                    <div className="d-block d-lg-inline mb-2 mb-lg-0" >
+                        <ul className="m-0 p-0 d-inline" >
+                            {profiles}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        );
+
+    }
+
+    const renderActionRow = () => {
+        return (
+            <div className="row mx-3 mb-3 pr-0">
+                <div className="col-md-7 col-lg-9">
+                    <p className="mb-2" >
+                        Search the CESMII Cloud Library for Profiles and import Profiles into the Profile Library. Select one or many profiles to import.
+                    </p>
+                    <p className="mb-0" >
+                        Type definitions within these Profiles can then be viewed or extended to make new Type definitions, which can become part of one of your SM Profiles.
+                    </p>
+                </div>
+                <div className="col-md-5 col-lg-3 text-right">
+                    <Button variant="secondary" type="button"
+                        disabled={_selectedCloudProfiles.length === 0}
+                        className="auto-width" onClick={onImportSelectedClick} >Import selected...</Button>
+                </div>
             </div>
         );
     }
+
 
     //-------------------------------------------------------------------
     // Region: Render final output
     //-------------------------------------------------------------------
     return (
-        <div className="row mx-3 mb-2">
-            <div className="col-sm-12">
-            <div className={`row selected-panel px-3 py-1 mb-1 rounded d-flex `} > {/*${props.cssClass ?? ''}*/}
-                <div className="col-sm-12 px-0 align-items-start d-block d-lg-flex align-items-center" >
-                    <div className="d-block d-lg-inline mb-2 mb-lg-0" >
-                        {renderSelectedItems()}
-                    </div>
+        <>
+            {renderActionRow()}
+            <div className="row mx-3 mb-2">
+                <div className="col-sm-12">
+                    {renderSelectedItems()}
+                    {(_searchCriteria != null && props.isOpen) &&
+                        <ProfileListGrid searchCriteria={_searchCriteria} noSortOptions="true" mode={AppSettings.ProfileListMode.CloudLib}
+                            onGridRowSelect={onGridRowSelect} onEdit={onView} selectMode="multiple" selectedItems={_selectedCloudProfileIds}
+                            onSearchCriteriaChanged={onSearchCriteriaChanged} searchCriteriaChanged={_searchCriteriaChanged}
+                        />
+                    }
+                    {renderProfileEntity()}
+                    {renderImportConfirmation()}
+                    <ErrorModal modalData={_error} callback={onErrorModalClose} />
                 </div>
-                </div>
-                {(_searchCriteria != null && props.isOpen) &&
-                    <ProfileListGrid searchCriteria={_searchCriteria} noSortOptions="true" mode={AppSettings.ProfileListMode.CloudLib}
-                        onGridRowSelect={onGridRowSelect} onEdit={onView} selectMode="multiple" selectedItems={_selectedCloudProfileIds}
-                        onSearchCriteriaChanged={onSearchCriteriaChanged} searchCriteriaChanged={_searchCriteriaChanged}
-                />
-            }
-            {renderProfileEntity()}
-            {renderImportConfirmation()}
-            <ErrorModal modalData={_error} callback={onErrorModalClose} />
             </div>
-        </div>
+        </>
     )
 }
 

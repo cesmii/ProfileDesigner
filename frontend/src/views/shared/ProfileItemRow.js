@@ -42,11 +42,11 @@ function ProfileItemRow(props) { //props are item, showActions
         msgs.push({ profileId: props.item.id, fileName: cleanFileName(props.item.namespace), immediateDownload: true, downloadFormat: AppSettings.ExportFormatEnum.AASX });
         setLoadingProps({ downloadItems: JSON.parse(JSON.stringify(msgs)) });
     }
-    const downloadItemAsThinkIQ = async () => {
-        console.log(generateLogMessageString(`downloadItemAsThinkIQ||start`, CLASS_NAME));
+    const downloadItemAsSmipJson = async () => {
+        console.log(generateLogMessageString(`downloadItemAsSmipJson||start`, CLASS_NAME));
         //add a row to download messages and this will kick off download
         var msgs = loadingProps.downloadItems || [];
-        msgs.push({ profileId: props.item.id, fileName: cleanFileName(props.item.namespace), immediateDownload: true, downloadFormat: AppSettings.ExportFormatEnum.ThinkIQ});
+        msgs.push({ profileId: props.item.id, fileName: cleanFileName(props.item.namespace), immediateDownload: true, downloadFormat: AppSettings.ExportFormatEnum.SmipJson});
         setLoadingProps({ downloadItems: JSON.parse(JSON.stringify(msgs)) });
     }
 
@@ -107,7 +107,7 @@ function ProfileItemRow(props) { //props are item, showActions
                             }
                             <Dropdown.Item key="moreVert4" onClick={downloadItem} ><span className="mr-3" alt="arrow-drop-down"><SVGDownloadIcon name="download" /></span>Download Profile</Dropdown.Item>
                             <Dropdown.Item key="moreVert5" onClick={downloadItemAsAASX} ><span className="mr-3" alt="arrow-drop-down"><SVGDownloadIcon name="downloadAASX" /></span>Download Profile as AASX</Dropdown.Item>
-                            <Dropdown.Item key="moreVert5" onClick={downloadItemAsThinkIQ} ><span className="mr-3" alt="arrow-drop-down"><SVGDownloadIcon name="downloadThinkIQ" /></span>Download Profile for SMIP import (experimental)</Dropdown.Item>
+                            <Dropdown.Item key="moreVert5" onClick={downloadItemAsSmipJson} ><span className="mr-3" alt="arrow-drop-down"><SVGDownloadIcon name="downloadSmipJson" /></span>Download Profile for SMIP import (experimental)</Dropdown.Item>
                         </Dropdown.Menu>
                     </Dropdown>
                 </div>

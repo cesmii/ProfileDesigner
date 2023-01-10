@@ -5,16 +5,15 @@
 	<LangVersion>latest</LangVersion>
     <Configurations>Debug;Release;Staging</Configurations>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-
-	  <PackageIcon>cesmii.png</PackageIcon>
-	  <Version>0.1</Version>
-	  <Authors>Markus Horstmann</Authors>
-	  <Company>CESMII</Company>
-	  <Product></Product>
-	  <NeutralLanguage>en</NeutralLanguage>
-	  <Description>OPC UA Cloud Library Resolver: Extensions for using the resolver with DI.</Description>
-	  <Copyright>Copyright © 2022 CESMII</Copyright>
-	  <PackageLicenseExpression>BSD-3-Clause</PackageLicenseExpression>
+	<PackageIcon>cesmii.png</PackageIcon>
+	<Version>0.2-beta</Version>
+	<Authors>Markus Horstmann</Authors>
+	<Company>CESMII</Company>
+	<Product></Product>
+	<NeutralLanguage>en</NeutralLanguage>
+	<Description>OPC UA Cloud Library Resolver: Extensions for using the resolver with DI.</Description>
+	<Copyright>Copyright © 2022 CESMII</Copyright>
+	<PackageLicenseExpression>BSD-3-Clause</PackageLicenseExpression>
   </PropertyGroup>
 
   <ItemGroup>
@@ -26,7 +25,7 @@
 		<PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="6.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="6.0.0" />
-		
+		<PackageReference Include="CESMII.OpcUa.NodeSetImporter" Version="1.0.0-beta.12" />
 	</ItemGroup>
 
 	<ItemGroup>

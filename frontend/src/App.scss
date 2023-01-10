@@ -209,6 +209,10 @@ a {
     }
 }
 
+.lh-intro {
+    line-height: 1.5rem;
+}
+
 @keyframes spinzilla {
     0%, 50% {
         opacity: 0.3;
@@ -691,6 +695,26 @@ select.minimal:focus {
 // Alerts
 .alert-info-custom {
     background-color: color("hlBlue");
+}
+
+//bg image treatment
+.image-bg {
+    width: 100%;
+    height: 100%;
+
+    .overlay-icon {
+        background: url('./components/img/icon-smprofile-portrait.svg') no-repeat center;
+        width: 100%;
+        height: 100%;
+
+        &.cover {
+            background-size: cover;
+        }
+
+        &.contain {
+            background-size: contain;
+        }
+    }
 }
 
 /// IMPORT PARTIALS

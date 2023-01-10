@@ -1,3 +1,17 @@
+//#region MSAL Helper Settings
+// Browser check variables
+// If you support IE, our recommendation is that you sign-in using Redirect APIs
+// If you as a developer are testing using Edge InPrivate mode, please add "isEdge" to the if check
+const _ua = window.navigator.userAgent;
+const _msie = _ua.indexOf("MSIE ");
+const _msie11 = _ua.indexOf("Trident/");
+const _msedge = _ua.indexOf("Edge/");
+const _firefox = _ua.indexOf("Firefox");
+const _isIE = _msie > 0 || _msie11 > 0;
+const _isEdge = _msedge > 0;
+const _isFirefox = _firefox > 0; // Only needed if you need to support the redirect flow in Firefox incognito
+//#region MSAL Helper Settings
+
 ///--------------------------------------------------------------------------
 /// Global constants - purely static settings that remain unchanged during the lifecycle
 ///--------------------------------------------------------------------------
@@ -66,6 +80,28 @@ export const AppSettings = {
         Failed: 16,
         Cancelled: 17
     }
+    , ExportFormatEnum : {
+        XML: 'Xml',
+        AASX: 'AASX'
+    }
+    //MSAL (Authentication) Config
+    , MsalConfig: {
+        auth: {
+            clientId: process.env.REACT_APP_MSAL_CLIENT_ID, //Application (client) id in Azure of the registered application
+            authority: process.env.REACT_APP_MSAL_AUTHORITY, //MSAL code will append client id, oauth path
+            redirectUri: "/login/success", //must match with the redirect url specified in the Azure App Application. Note Azure will also need https://domainname.com/library
+            postLogoutRedirectUri: "/"
+        },
+        cache: {
+            cacheLocation: "localStorage",
+            storeAuthStateInCookie: _isIE || _isEdge || _isFirefox
+        },
+        system: {
+            iframeHashTimeout: 10000, //avoid monitor time out error on silent login
+        },
+    }
+    , MsalScopes: [process.env.REACT_APP_MSAL_SCOPE]  //tied to scope defined in app registration / scope, set in Azure AAD
+    , AADUserRole: "cesmii.profiledesigner.user"
 }
 
 export const LookupData = {

@@ -48,6 +48,7 @@
         {
             var entity = base.FindByCondition(userToken, x => x.ID == id)
                 .Include(p => p.ProfileType)
+                .Include(p => p.Attributes)
                 .FirstOrDefault();
 
             return MapToModel(entity, true);
@@ -91,6 +92,7 @@
             return base.Where(predicate, user, skip, take, returnCount, verbose, q => q
                 .OrderBy(p => p.Name)
                 .Include(p => p.ProfileType)
+                .Include(p => p.Attributes)
             );
         }
 
@@ -263,7 +265,7 @@
                         new LookupItemModel { ID = entity.ProfileType.ID, Name = entity.ProfileType.Name, TypeId = entity.ProfileType.ID }
                         : null,
                     AuthorId = entity.AuthorId ?? null,
-                    Author = MapToModelAuthor(entity),
+                    Author = MapToModelSimpleUser(entity.Author),
                     ExternalAuthor = entity.ExternalAuthor,
                     DocumentUrl = entity.DocumentUrl,
                     IsAbstract = entity.IsAbstract,
@@ -292,8 +294,8 @@
                     result.Attributes = MapToModelAttributes(entity);
                     result.Interfaces = MapToModelInterfaces(entity.Interfaces);
                     result.Compositions = MapToModelCompositions(entity.Compositions, result);
-                    result.UpdatedBy = entity.UpdatedBy == null ? null : new UserSimpleModel { ID = entity.UpdatedBy.ID, FirstName = entity.UpdatedBy.FirstName, LastName = entity.UpdatedBy.LastName };
-                    result.CreatedBy = entity.CreatedBy == null ? null : new UserSimpleModel { ID = entity.CreatedBy.ID, FirstName = entity.CreatedBy.FirstName, LastName = entity.CreatedBy.LastName };
+                    result.UpdatedBy = MapToModelSimpleUser(entity.UpdatedBy);
+                    result.CreatedBy = MapToModelSimpleUser(entity.CreatedBy);
                 }
                 return result;
             }
@@ -335,7 +337,8 @@
                     StandardProfileID = entity.StandardProfileID,
                     Version = entity.Version,
                     PublishDate = entity.PublishDate,
-                    AuthorId = entity.AuthorId
+                    AuthorId = entity.AuthorId,
+                    Author = MapToModelSimpleUser(entity.Author)
                     //for space saving, performance, don't populate these values in this scenario
                     //FileCache = entity.NodeSetId,  
                 };
@@ -366,7 +369,7 @@
                     Type = entity.ProfileType != null ?
                         new LookupItemModel { ID = entity.ProfileType.ID, Name = entity.ProfileType.Name, TypeId = (int)LookupTypeEnum.ProfileType }
                         : new LookupItemModel { ID = entity.ProfileTypeId }, // CODE REVIEW: ist the Name required anywhere? Should we do a lookup here?
-                    Author = MapToModelAuthor(entity)
+                    Author = MapToModelSimpleUser(entity.Author)
                 };
             }
             else
@@ -374,19 +377,6 @@
                 return null;
             }
 
-        }
-
-        private static UserSimpleModel MapToModelAuthor(ProfileTypeDefinition entity)
-        {
-            if (entity.Author == null) return null;
-            return new UserSimpleModel
-            {
-                ID = entity.Author.ID,
-                FirstName = entity.Author.FirstName,
-                LastName = entity.Author.LastName,
-                Organization = entity.Author.Organization == null ? null :
-                    new OrganizationModel() { ID = entity.Author.Organization.ID, Name = entity.Author.Organization.Name },
-            };
         }
 
         private List<ProfileAttributeModel> MapToModelAttributes(ProfileTypeDefinition entity)
@@ -415,9 +405,9 @@
                 Description = item.Description,
                 DisplayName = item.DisplayName,
                 Created = item.Created,
-                CreatedBy = item.CreatedBy == null ? null : new UserSimpleModel { ID = item.CreatedBy.ID, FirstName = item.CreatedBy.FirstName, LastName = item.CreatedBy.LastName },
+                CreatedBy = item.CreatedBy == null ? null : new UserSimpleModel { ID = item.CreatedBy.ID, ObjectIdAAD = item.CreatedBy.ObjectIdAAD, DisplayName = item.CreatedBy.DisplayName },
                 Updated = item.Updated,
-                UpdatedBy = item.UpdatedBy == null ? null : new UserSimpleModel { ID = item.UpdatedBy.ID, FirstName = item.UpdatedBy.FirstName, LastName = item.UpdatedBy.LastName },
+                UpdatedBy = item.UpdatedBy == null ? null : new UserSimpleModel { ID = item.UpdatedBy.ID, ObjectIdAAD = item.UpdatedBy.ObjectIdAAD, DisplayName = item.UpdatedBy.DisplayName },
                 VariableTypeDefinitionId = item.VariableTypeDefinitionId,
                 VariableTypeDefinition = MapToModel(item.VariableTypeDefinition, false),
                 TypeDefinitionId = typeDefinitionId,
@@ -429,8 +419,11 @@
                 EngUnit = !item.EngUnitId.HasValue ? null : _euDAL.MapToModelPublic(item.EngUnit, true),
                 EngUnitOpcNodeId = item.EngUnitOpcNodeId,
                 EngUnitModelingRule = item.EngUnitModelingRule,
+                EngUnitAccessLevel = item.EngUnitAccessLevel,
                 EURangeOpcNodeId = item.EURangeOpcNodeId,
                 EURangeModelingRule = item.EURangeModelingRule,
+                EURangeAccessLevel = item.EURangeAccessLevel,
+                MinimumSamplingInterval = item.MinimumSamplingInterval,
                 MinValue = item.MinValue,
                 MaxValue = item.MaxValue,
                 InstrumentMinValue = item.InstrumentMinValue,
@@ -447,7 +440,7 @@
                 //AdditionalData = !string.IsNullOrEmpty(item.AdditionalData) ? new JRaw(item.AdditionalData) : null,
 
                 AccessLevel = item.AccessLevel,
-                UserAccessLevel = item.UserAccessLevel,
+                // deprecated: UserAccessLevel = item.UserAccessLevel,
                 AccessRestrictions = item.AccessRestrictions,
                 WriteMask = item.WriteMask,
                 UserWriteMask = item.WriteMask,
@@ -630,7 +623,7 @@
                     parentProfileEntity = CheckForExisting(model.Parent.ProfileTypeDefinition, userToken);
                     if (parentProfileEntity == null)
                     {
-                        this._diLogger.LogWarning($"Creating parent profile type {model.Parent.ProfileTypeDefinition} as side effect of creating {model}");
+                        this._diLogger.LogTrace($"Creating parent profile type {model.Parent.ProfileTypeDefinition} as side effect of creating {model}");
                         this.AddAsync(model.Parent.ProfileTypeDefinition, userToken).Wait();
                         parentProfileEntity = CheckForExisting(model.Parent.ProfileTypeDefinition, userToken);
                     }
@@ -745,8 +738,11 @@
                         current.EngUnitId = source.EngUnit?.ID != 0 ? source.EngUnit?.ID : null;
                         current.EngUnitOpcNodeId = source.EngUnitOpcNodeId;
                         current.EngUnitModelingRule = source.EngUnitModelingRule;
+                        current.EngUnitAccessLevel = source.EngUnitAccessLevel;
                         current.EURangeOpcNodeId = source.EURangeOpcNodeId;
                         current.EURangeModelingRule = source.EURangeModelingRule;
+                        current.EURangeAccessLevel = source.EURangeAccessLevel;
+                        current.MinimumSamplingInterval = source.MinimumSamplingInterval;
                         current.MinValue = source.MinValue;
                         current.MaxValue = source.MaxValue;
                         current.DataTypeId = source.DataType?.ID != 0 ? source.DataType.ID : null;
@@ -792,13 +788,12 @@
                         current.ArrayDimensions = source.ArrayDimensions;
                         current.MaxStringLength = source.MaxStringLength;
                         current.AccessLevel = source.AccessLevel;
-                        current.UserAccessLevel = source.UserAccessLevel;
+                        // deprecated: current.UserAccessLevel = source.UserAccessLevel;
                         current.AccessRestrictions = source.AccessRestrictions;
                         current.WriteMask = source.WriteMask;
                         current.UserWriteMask = source.UserWriteMask;
 
                         current.AdditionalData = source.AdditionalData;
-
                     }
                 }
             }
@@ -824,7 +819,7 @@
                             variableType = CheckForExisting(attr.VariableTypeDefinition, userToken);
                             if (variableType == null)
                             {
-                                this._diLogger.LogWarning($"Creating variable type {attr.VariableTypeDefinition} as side effect of creating {attr}");
+                                this._diLogger.LogTrace($"Creating variable type {attr.VariableTypeDefinition} as side effect of creating {attr}");
                                 this.AddAsync(attr.VariableTypeDefinition, userToken).Wait();
                                 variableType = CheckForExisting(attr.VariableTypeDefinition, userToken);
                             }
@@ -873,18 +868,21 @@
                             EngUnit = engUnit,
                             EngUnitOpcNodeId = attr.EngUnitOpcNodeId,
                             EngUnitModelingRule = attr.EngUnitModelingRule,
+                            EngUnitAccessLevel = attr.EngUnitAccessLevel,
                             EURangeOpcNodeId = attr.EURangeOpcNodeId,
                             EURangeModelingRule = attr.EURangeModelingRule,
+                            EURangeAccessLevel = attr.EURangeAccessLevel,
+                            MinimumSamplingInterval = attr.MinimumSamplingInterval,
 
                             AccessLevel = attr.AccessLevel,
-                            UserAccessLevel = attr.UserAccessLevel,
+                            // deprecated: UserAccessLevel = attr.UserAccessLevel,
                             AccessRestrictions = attr.AccessRestrictions,
                             WriteMask = attr.WriteMask,
                             UserWriteMask = attr.UserWriteMask,
 
                             AdditionalData = attr.AdditionalData,
-                            IsActive = true
-                        });
+                            IsActive = true,
+                    });
                     }
                 }
             }

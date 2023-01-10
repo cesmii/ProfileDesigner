@@ -21,10 +21,10 @@ function DownloadMessage() {
     //-------------------------------------------------------------------
     useEffect(() => {
         async function downloadProfile(item) {
-            var url = `profile/export`;
+            const url = `profile/export`;
             console.log(generateLogMessageString(`downloadProfile||${url}`));
 
-            var data = { id: item.profileId};
+            const data = { id: item.profileId, format: item.downloadFormat };
             await axiosInstance.post(url, data).then(async result => {
                 console.log(generateLogMessageString(`downloadProfile||${result.data.isSuccess ? 'success' : 'fail'}`));
                 if (result.status === 200 && result.data.isSuccess) {
@@ -32,13 +32,17 @@ function DownloadMessage() {
 
                     //if success show w/ link for download
                     //update item
+                    var extension = "xml";
+                    if (item.downloadFormat === "AASX") {
+                        extension = "aasx"
+                    }
                     item = {...item, 
                         show: true,
                         statusName: result.data.warnings == null || result.data.warnings.length === 0 ? 'completed' : "warning",
                         message: result.data.message,
                         data: result.data.data,
-                        download: `${item.fileName}.xml`,
-                        caption: `${item.fileName}.xml`,
+                        download: `${item.fileName}.${extension}`,
+                        caption: `${item.fileName}.${extension}`,
                         warnings: result.data.warnings
                     };
 
@@ -95,7 +99,7 @@ function DownloadMessage() {
         //-------------------------------------------------------------------------------
         if (loadingProps.downloadItems != null && loadingProps.downloadItems.length > 0) {
 
-            var itemsNotStarted = loadingProps.downloadItems.filter((x) => { return x.statusName == null; });
+            const itemsNotStarted = loadingProps.downloadItems.filter((x) => { return x.statusName == null; });
 
             //only export the new ones
             if (itemsNotStarted.length > 0) {
@@ -137,13 +141,19 @@ function DownloadMessage() {
 
     const onDismiss = (e) => {
         console.log(generateLogMessageString('onDismiss||', CLASS_NAME));
-        var id = e.currentTarget.getAttribute("data-id");
+        const id = e.currentTarget.getAttribute("data-id");
         dismissMessage(id);
     }
 
     const openFile = (msg) => {
         console.log(generateLogMessageString(`openFile`, CLASS_NAME));
-        const blob = new Blob([msg.data], { type: 'application/xml' });
+        var blobType = 'application/xml';
+        var blobData = msg.data;
+        if (msg.downloadFormat === "AASX") {
+            blobType = 'application/octet-stream';
+            blobData = Buffer.from(msg.data, "base64");
+        }
+        const blob = new Blob([blobData], { type: blobType });
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
         link.download = msg.download;

@@ -4,7 +4,7 @@
 --
 --	Details:
 --	Create DB, create login, assign ownership
---	Create users, permissions, user-permissions
+--	Create users
 --
 --	Create lookup data
 --	Create profiles, profile attributes
@@ -99,7 +99,7 @@ CREATE TABLE public.app_log
 TABLESPACE pg_default;
 
 ALTER TABLE public.app_log
-    OWNER to cesmii;
+    OWNER to profiledesigner;
 
 ---------------------------------------------------------------------
 --	Org TABLE
@@ -115,7 +115,7 @@ CREATE TABLE public.organization
 TABLESPACE pg_default;
 
 ALTER TABLE public.organization
-    OWNER to cesmii;
+    OWNER to profiledesigner;
 
 ---------------------------------------------------------------------
 --	Insert orgs
@@ -131,16 +131,14 @@ CREATE TABLE public.user
 (
     id SERIAL PRIMARY KEY,
     organization_id integer NULL,
-    
     last_login timestamp with time zone,
-    username character varying(150) COLLATE pg_catalog."default" NOT NULL,
-    first_name character varying(30) COLLATE pg_catalog."default" NOT NULL,
-    last_name character varying(30) COLLATE pg_catalog."default" NOT NULL,
-    email character varying(254) COLLATE pg_catalog."default" NOT NULL,
-    is_active boolean NOT NULL,
+    --username character varying(150) COLLATE pg_catalog."default" NULL,
+    objectid_aad character varying(100) COLLATE pg_catalog."default" NULL, 
+    display_name character varying(250) COLLATE pg_catalog."default" NULL,
+    --is_active boolean NOT NULL,
     date_joined timestamp with time zone NOT NULL,
-    registration_complete timestamp with time zone,
-    CONSTRAINT user_username_key UNIQUE (username),
+    --registration_complete timestamp with time zone,
+    --CONSTRAINT user_username_key UNIQUE (username),
     CONSTRAINT user_id_fk_org_id FOREIGN KEY (organization_id)
         REFERENCES public.organization (id) MATCH SIMPLE
         ON UPDATE NO ACTION
@@ -151,133 +149,17 @@ CREATE TABLE public.user
 TABLESPACE pg_default;
 
 ALTER TABLE public.user
-    OWNER to cesmii;
+    OWNER to profiledesigner;
 -- Index: user_username_6821ab7c_like
 
 -- DROP INDEX public.user_username_6821ab7c_like;
 
-CREATE INDEX user_username_6821ab7c_like
+/*CREATE INDEX user_username_6821ab7c_like
     ON public.user USING btree
     (username COLLATE pg_catalog."default" varchar_pattern_ops ASC NULLS LAST)
     TABLESPACE pg_default;
+*/	
 	
----------------------------------------------------------------------
---	Insert users
----------------------------------------------------------------------
-with _organization (_id) as (select id FROM public.organization WHERE name = 'CESMII')
-INSERT INTO public.user(id, organization_id, username, first_name, last_name, email, is_active, date_joined, registration_complete, password)
-SELECT 1, _id, 'cesmii', 'CESMII', 'User', 'cesmii@cesmii.org', true,  CURRENT_TIMESTAMP, CURRENT_TIMESTAMP  FROM _organization
-UNION SELECT 2, _id, 'seanc', 'Sean', 'C', 'seanc@cesmii.org', true,  CURRENT_TIMESTAMP, CURRENT_TIMESTAMP  FROM _organization
-UNION SELECT 3, _id, 'jimw', 'Jim', 'W', 'jimw@cesmii.org', true,  CURRENT_TIMESTAMP, CURRENT_TIMESTAMP  FROM _organization
-UNION SELECT 4, _id, 'jonathanw', 'Jonathan', 'W', 'jonathanw@cesmii.org', true,  CURRENT_TIMESTAMP, CURRENT_TIMESTAMP  FROM _organization
-UNION SELECT 5, _id, 'chrism', 'Chris', 'M', 'chrism@cesmii.org', true,  CURRENT_TIMESTAMP, CURRENT_TIMESTAMP  FROM _organization
-UNION SELECT 6, _id, 'markush', 'Markus', 'H', 'markush@cesmii.org', true,  CURRENT_TIMESTAMP, CURRENT_TIMESTAMP  FROM _organization
-UNION SELECT 7, _id, 'davidw', 'David', 'W', 'davidw@cesmii.org', true,  CURRENT_TIMESTAMP, CURRENT_TIMESTAMP  FROM _organization
-;
---manually adjust the identity starting val
-SELECT setval('user_id_seq', 7);
-	
-
----------------------------------------------------------------------
---	TABLES - Permissions, User Permissions - create a permissions table and user_permissions join table.
----------------------------------------------------------------------
----------------------------------------------------------------------
---	Create permissions table
----------------------------------------------------------------------
-CREATE TABLE public.permission
-(
-    id SERIAL PRIMARY KEY,
-    name character varying(50) COLLATE pg_catalog."default" NOT NULL,
-    description character varying(255) COLLATE pg_catalog."default" NOT NULL,
-    codename integer NOT NULL,
-    CONSTRAINT perm_content_type_id_01ab375a_uniq UNIQUE (codename)
-)
-
-TABLESPACE pg_default;
-
-ALTER TABLE public.permission
-    OWNER to cesmii;
-
----------------------------------------------------------------------
---	Create user permissions join table
----------------------------------------------------------------------
-CREATE TABLE public.user_permission
-(
-    id SERIAL PRIMARY KEY,
-    user_id integer NOT NULL,
-    permission_id integer NOT NULL,
-    CONSTRAINT user_perm_user_id_14a6b632_uniq UNIQUE (user_id, permission_id),
-    CONSTRAINT user_per_perm_id_fk_perm_id FOREIGN KEY (permission_id)
-        REFERENCES public.permission (id) MATCH SIMPLE
-        ON UPDATE NO ACTION
-        ON DELETE NO ACTION
-        DEFERRABLE INITIALLY DEFERRED,
-    CONSTRAINT user_perm_user_id_fk_user_id FOREIGN KEY (user_id)
-        REFERENCES public.user (id) MATCH SIMPLE
-        ON UPDATE NO ACTION
-        ON DELETE NO ACTION
-        DEFERRABLE INITIALLY DEFERRED
-)
-
-TABLESPACE pg_default;
-
-ALTER TABLE public.user_permission
-    OWNER to cesmii;
--- Index: user_permissions_8373b171
-
--- DROP INDEX public.user_permissions_8373b171;
-
-CREATE INDEX user_permission_8373b171
-    ON public.user_permission USING btree
-    (permission_id ASC NULLS LAST)
-    TABLESPACE pg_default;
--- Index: user_permissions_e8701ad4
-
--- DROP INDEX public.user_permissions_e8701ad4;
-
-CREATE INDEX user_permission_e8701ad4
-    ON public.user_permission USING btree
-    (user_id ASC NULLS LAST)
-    TABLESPACE pg_default;
-
----------------------------------------------------------------------
---	Insert Permissions
----------------------------------------------------------------------
-INSERT INTO public.permission(name, codename, description)
-	  SELECT 'CanViewProfile', 20, 'Can View profile'
-UNION SELECT 'CanManageProfile', 21, 'Can Manage profile'
-UNION SELECT 'CanDeleteProfile', 22, 'Can Delete profile'
-UNION SELECT 'CanManageUsers', 100, 'Can Manage Users'
-UNION SELECT 'CanManageSystemSettings', 110, 'Can Manage System Settings'
-UNION SELECT 'CanImpersonateUsers', 120, 'Can Impersonate Users'
-;
-
----------------------------------------------------------------------
---	Insert user Permissions
----------------------------------------------------------------------
-with _permission (_id) as (select id FROM public.permission WHERE name = 'CanViewProfile')
-INSERT INTO public.user_permission (user_id, permission_id)
-SELECT id, _id FROM public.user, _permission;
-
-with _permission (_id) as (select id FROM public.permission WHERE name = 'CanManageProfile')
-INSERT INTO public.user_permission (user_id, permission_id)
-SELECT id, _id FROM public.user, _permission;
-
-with _permission (_id) as (select id FROM public.permission WHERE name = 'CanDeleteProfile')
-INSERT INTO public.user_permission (user_id, permission_id)
-SELECT id, _id FROM public.user, _permission;
-
-with _permission (_id) as (select id FROM public.permission WHERE name = 'CanManageUsers')
-INSERT INTO public.user_permission (user_id, permission_id)
-SELECT id, _id FROM public.user, _permission WHERE username <> 'cesmii';
-
-with _permission (_id) as (select id FROM public.permission WHERE name = 'CanManageSystemSettings')
-INSERT INTO public.user_permission (user_id, permission_id)
-SELECT id, _id FROM public.user, _permission WHERE username <> 'cesmii';
-
-with _permission (_id) as (select id FROM public.permission WHERE name = 'CanImpersonateUsers')
-INSERT INTO public.user_permission (user_id, permission_id)
-SELECT id, _id FROM public.user, _permission WHERE username <> 'cesmii';
 
 ---------------------------------------------------------------------
 --	TABLE LOOKUP TYPE
@@ -296,7 +178,7 @@ CREATE TABLE public.lookup_type
 TABLESPACE pg_default;
 
 ALTER TABLE public.lookup_type
-    OWNER to cesmii;
+    OWNER to profiledesigner;
 
 ----------------------------------------------------------
 -- DROP TABLE public.lookup;
@@ -319,7 +201,7 @@ CREATE TABLE public.lookup
 TABLESPACE pg_default;
 
 ALTER TABLE public.lookup
-    OWNER to cesmii;
+    OWNER to profiledesigner;
 
 ---------------------------------------------------------------------
 --	Insert lookup types
@@ -362,9 +244,9 @@ UNION SELECT  16, 'Failed', 'Failed', 4, true, id FROM public.lookup_type WHERE 
 UNION SELECT  17, 'Cancelled', 'Cancelled', 5, true, id FROM public.lookup_type WHERE name = 'TaskStatus' 
 ;
 
-
 --manually adjust the identity starting val
 SELECT setval('lookup_id_seq', 21);
+
 /*
 INSERT INTO public.lookup(code, name, display_order, is_active, type_id )
 SELECT  'hour', 'Duration (hr)', 9999, true, id FROM public.lookup_type WHERE name = 'EngUnit'
@@ -407,7 +289,7 @@ CREATE TABLE public.engineering_unit
 TABLESPACE pg_default;
 
 ALTER TABLE public.engineering_unit
-    OWNER to cesmii;
+    OWNER to profiledesigner;
 
 ---------------------------------------------------------------------
 --	Create NodeSet Lookup Table
@@ -427,7 +309,7 @@ CREATE TABLE public.standard_nodeset
 TABLESPACE pg_default;
 
 ALTER TABLE public.standard_nodeset
-    OWNER to cesmii;
+    OWNER to profiledesigner;
 
 INSERT INTO public.standard_nodeset (id, namespace, version, filename, publish_date, is_active) VALUES (1, 'http://opcfoundation.org/UA/ADI/', '1.01', NULL, '2013-07-31', true);
 INSERT INTO public.standard_nodeset (id, namespace, version, filename, publish_date, is_active) VALUES (2, 'http://opcfoundation.org/UA/AML/', '1.00', NULL, '2016-02-22', true);
@@ -523,7 +405,7 @@ CREATE TABLE public.nodeset_file
 TABLESPACE pg_default;
 
 ALTER TABLE public.nodeset_file
-    OWNER to cesmii;
+    OWNER to profiledesigner;
 	
 ---------------------------------------------------------------------
 --	profile Table (aka Model in OPC nomenclature - formerly a part of nodeset table)
@@ -556,7 +438,7 @@ CREATE TABLE public.profile
 TABLESPACE pg_default;
 
 ALTER TABLE public.profile
-    OWNER to cesmii;
+    OWNER to profiledesigner;
 
 ---------------------------------------------------------------------
 --	Create profile to nodeset_file join table
@@ -586,7 +468,7 @@ CREATE TABLE public.profile_nodeset_file
 TABLESPACE pg_default;
 
 ALTER TABLE public.profile_nodeset_file
-    OWNER to cesmii;
+    OWNER to profiledesigner;
 
 ---------------------------------------------------------------------
 --	Profile Table
@@ -668,7 +550,7 @@ CREATE TABLE public.profile_type_definition
 TABLESPACE pg_default;
 
 ALTER TABLE public.profile_type_definition
-    OWNER to cesmii;
+    OWNER to profiledesigner;
 /*profile-profiletype-rename-refactor - END*/
 
 ---------------------------------------------------------------------
@@ -696,7 +578,7 @@ CREATE TABLE public.profile_interface
 TABLESPACE pg_default;
 
 ALTER TABLE public.profile_interface
-    OWNER to cesmii;
+    OWNER to profiledesigner;
 -- Index: profile_interfaces_8373b171
 
 -- DROP INDEX public.profile_interfaces_8373b171;
@@ -766,7 +648,7 @@ CREATE TABLE public.profile_composition
 TABLESPACE pg_default;
 
 ALTER TABLE public.profile_composition
-    OWNER to cesmii;
+    OWNER to profiledesigner;
 -- Index: profile_compositions_8373b171
 
 -- DROP INDEX public.profile_compositions_8373b171;
@@ -817,7 +699,7 @@ CREATE TABLE public.profile_type_definition_user_favorite
 TABLESPACE pg_default;
 
 ALTER TABLE public.profile_type_definition_user_favorite
-    OWNER to cesmii;
+    OWNER to profiledesigner;
 
 
 ---------------------------------------------------------------------
@@ -841,7 +723,7 @@ CREATE TABLE public.profile_type_definition_user_analytics
 TABLESPACE pg_default;
 
 ALTER TABLE public.profile_type_definition_user_analytics
-    OWNER to cesmii;
+    OWNER to profiledesigner;
 
 
 ---------------------------------------------------------------------
@@ -876,7 +758,7 @@ CREATE TABLE public.data_type
 TABLESPACE pg_default;
 
 ALTER TABLE public.data_type
-    OWNER to cesmii;
+    OWNER to profiledesigner;
 
 ---------------------------------------------------------------------
 --	TABLE Data TYPE
@@ -921,8 +803,11 @@ CREATE TABLE public.profile_attribute
 	eng_unit_id integer NULL,
 	eng_unit_nodeid character varying(256) NULL,
 	eng_unit_modeling_rule character varying(256) NULL,
+	eng_unit_access_level integer NULL,
 	eu_range_nodeid character varying(256) NULL,
 	eu_range_modeling_rule character varying(256) NULL,
+	eu_range_access_level integer NULL,
+	minimum_sampling_interval numeric NULL,
     is_array boolean NOT NULL default(false),
 	value_rank integer NULL,
 	array_dimensions character varying(256) NULL,
@@ -932,7 +817,6 @@ CREATE TABLE public.profile_attribute
     enum_value bigint NULL,
 
 	access_level integer NULL,
-    user_access_level integer NULL,
 	access_restrictions integer NULL,
 	write_mask integer NULL,
 	user_write_mask integer NULL,
@@ -982,7 +866,7 @@ CREATE TABLE public.profile_attribute
 TABLESPACE pg_default;
 
 ALTER TABLE public.profile_attribute
-    OWNER to cesmii;
+    OWNER to profiledesigner;
 
 CREATE INDEX profile_attribute_3f2f3687
     ON public.profile_attribute USING btree
@@ -1034,7 +918,7 @@ CREATE TABLE public.data_type_rank
 TABLESPACE pg_default;
 
 ALTER TABLE public.data_type_rank
-    OWNER to cesmii;
+    OWNER to profiledesigner;
 
 
 ---------------------------------------------------------------------
@@ -1075,7 +959,7 @@ left outer join (
 ;
 
 ALTER VIEW public.v_data_type_rank
-    OWNER to cesmii;
+    OWNER to profiledesigner;
 
 	
 ---------------------------------------------------------------------
@@ -1097,7 +981,7 @@ CREATE TABLE public.engineering_unit_rank
 TABLESPACE pg_default;
 
 ALTER TABLE public.engineering_unit_rank
-    OWNER to cesmii;
+    OWNER to profiledesigner;
 
 
 ---------------------------------------------------------------------
@@ -1131,7 +1015,7 @@ left outer join (
 ;
 
 ALTER VIEW public.v_engineering_unit_rank
-    OWNER to cesmii;
+    OWNER to profiledesigner;
 	
 ---------------------------------------------------------------------
 --	Import Log Table
@@ -1162,7 +1046,7 @@ CREATE TABLE public.import_log
 TABLESPACE pg_default;
 
 ALTER TABLE public.import_log
-    OWNER to cesmii;
+    OWNER to profiledesigner;
 
 	
 -- DROP TABLE public.import_log_message;
@@ -1182,7 +1066,7 @@ CREATE TABLE public.import_log_message
 TABLESPACE pg_default;
 
 ALTER TABLE public.import_log_message
-    OWNER to cesmii;
+    OWNER to profiledesigner;
 
 ---------------------------------------------------------------------
 --	Import log profile warning message
@@ -1210,7 +1094,7 @@ CREATE TABLE public.import_log_warning
 TABLESPACE pg_default;
 
 ALTER TABLE public.import_log_warning
-    OWNER to cesmii;
+    OWNER to profiledesigner;
 
 ---------------------------------------------------------------------
 --	Delete a nodeset and all of its children

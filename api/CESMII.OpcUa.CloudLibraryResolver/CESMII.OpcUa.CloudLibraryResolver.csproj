@@ -6,7 +6,7 @@
     <Configurations>Debug;Release;Staging</Configurations>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 	<PackageIcon>cesmii.png</PackageIcon>
-	<Version>0.1</Version>
+	<Version>0.2-beta</Version>
 	<Authors>Markus Horstmann</Authors>
 	<Company>CESMII</Company>
 	<Product></Product>
@@ -26,7 +26,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="CESMII.OpcUa.NodeSetImporter" Version="1.0.0-beta.6" />
+	  <PackageReference Include="CESMII.OpcUa.NodeSetImporter" Version="1.0.0-beta.12" />
 	  <ProjectReference Include="..\Opc.Ua.Cloud.Library.Client\Opc.Ua.Cloud.Library.Client.csproj" />
 	</ItemGroup>
 

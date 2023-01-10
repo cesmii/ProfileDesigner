@@ -17,7 +17,7 @@ on:
 
 env:
   # set this to the path to your solution file, defaults to the repository root (this is the folder in the git repo)
-  SOLUTION_DIRECTORY: './api'      
+  SOLUTION_DIRECTORY: './'      
   # set this to the path to your web app project, defaults to the repository root (this is the folder in the git repo)
   PROJECT_DIRECTORY: './api/CESMII.ProfileDesigner.Api'      
   # Solution file to use
@@ -44,13 +44,13 @@ jobs:
           pg_isready
       - name: Create additional user
         run: |
-          sudo -u postgres psql --command="CREATE USER cesmii SUPERUSER PASSWORD 'cesmii'" --command="\du"
+          sudo -u postgres psql --command="CREATE USER profiledesigner SUPERUSER PASSWORD 'cesmii'" --command="\du"
       - name: List existing databases
         run: |
           sudo -u postgres psql -l
       - name: Create database
         run: |
-          sudo -u postgres psql --command="CREATE DATABASE profile_designer_local_test WITH OWNER = cesmii TABLESPACE = pg_default CONNECTION LIMIT = -1;"
+          sudo -u postgres psql --command="CREATE DATABASE profile_designer_local_test WITH OWNER = profiledesigner TABLESPACE = pg_default CONNECTION LIMIT = -1;"
       - name: Create schema
         run: |
           sudo -u postgres psql -d profile_designer_local_test --file sql/CESMII.ProfileDesigner.DB.sql
@@ -61,7 +61,7 @@ jobs:
       - name: Restore dependencies (${{env.SOLUTION_FILE}})
         run: dotnet restore ${{env.SOLUTION_FILE}}
         working-directory: ${{env.SOLUTION_DIRECTORY}}
-      - name: Build (${{env.PROJECT_DIRECTORY}})
+      - name: Build (${{env.SOLUTION_FILE}})
         run: dotnet build ${{env.SOLUTION_FILE}} --configuration Staging --no-restore
         working-directory: ${{env.SOLUTION_DIRECTORY}}
       - name: Test (${{env.SOLUTION_FILE}})

@@ -2,7 +2,6 @@
 {
     using System;
     using System.ComponentModel.DataAnnotations;
-    using Newtonsoft.Json.Linq;
 
     public class ProfileAttributeModel : AbstractProfileDesignerModel
     {
@@ -35,8 +34,10 @@
         public virtual EngineeringUnitModel EngUnit { get; set; }
         public string EngUnitOpcNodeId { get; set; }
         public string EngUnitModelingRule { get; set; }
+        public uint? EngUnitAccessLevel { get; set; }
         public string EURangeOpcNodeId { get; set; }
         public string EURangeModelingRule { get; set; }
+        public uint? EURangeAccessLevel { get; set; }
 
         /// <summary>
         /// Profile can have many properties (attributes) or data variables. Attribute type allows us to indicate which type of attribute this is. 
@@ -49,12 +50,15 @@
         /// </remarks>
         public LookupItemModel AttributeType { get; set; }
 
+        /// <summary>
+        ///  The profile type to which this attribute belongs
+        /// </summary>
         public int? TypeDefinitionId { get; set; }
 
         public virtual ProfileTypeDefinitionModel TypeDefinition { get; set; }
 
         /// <summary>
-        /// The VariableType for the attribute
+        /// The VariableType for the attribute: indicates Property vs Datavariable (or derived)
         /// </summary>
         public int? VariableTypeDefinitionId { get; set; }
 
@@ -112,9 +116,9 @@
         public uint? MaxStringLength { get; set; }
         public bool? IsRequired { get; set; }
         public string ModelingRule { get; set; }
+        public double? MinimumSamplingInterval { get; set; }
 
         public uint? AccessLevel { get; set; }
-        public uint? UserAccessLevel { get; set; }
         public ushort? AccessRestrictions { get; set; }
         public uint? WriteMask { get; set; }
         public uint? UserWriteMask { get; set; }

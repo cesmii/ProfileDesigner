@@ -1,5 +1,6 @@
 ﻿namespace CESMII.ProfileDesigner.Api.Shared.Controllers
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using Microsoft.AspNetCore.Mvc;
@@ -11,6 +12,8 @@
     using CESMII.ProfileDesigner.Common.Models;
     using CESMII.ProfileDesigner.Common;
     using CESMII.ProfileDesigner.Api.Shared.Models;
+    using CESMII.ProfileDesigner.DAL.Models;
+    using CESMII.ProfileDesigner.DAL;
 
     public class BaseController<TController> : Controller where TController : Controller
     {
@@ -22,17 +25,44 @@
         /// Simply use the new keyword to override.
         /// </summary>
         protected readonly ILogger<TController> _logger;
-
-        protected long UserID => User.GetUserID();
-
         protected readonly ConfigUtil _configUtil;
         protected readonly MailConfig _mailConfig;
+        protected readonly UserDAL _dalUser;
 
-        public BaseController(ConfigUtil configUtil, ILogger<TController> logger)
+        protected int UserID => LocalUser.ID.Value;
+
+        private UserModel _user;
+        private UserToken _dalUserToken;
+
+        protected UserModel LocalUser
+        {
+            get
+            {
+                if (_user == null)
+                {
+                    _user = User.GetUserAAD(); 
+                }
+                return _user;
+            }
+        }
+
+        protected UserToken DalUserToken
+        {
+            get
+            {
+                if (_dalUserToken != null) return _dalUserToken;
+
+                _dalUserToken = User.GetDalUserToken(LocalUser.ID.Value);
+                return _dalUserToken;
+            }
+        }
+
+        public BaseController(ConfigUtil configUtil, ILogger<TController> logger, UserDAL dalUser)
         {
             _configUtil = configUtil;
             _mailConfig = configUtil.MailSettings;
             _logger = logger;
+            _dalUser = dalUser;
         }
 
         protected System.Text.StringBuilder ExtractModelStateErrors(bool logErrors = false, string delimiter = ", ")
@@ -56,7 +86,7 @@
             errs = errs.OrderBy(e => e.FieldName).ThenBy(e => e.Message).ToList();
 
             //optional logging
-            System.Text.StringBuilder sb = new System.Text.StringBuilder();
+            var sb = new System.Text.StringBuilder();
             foreach (var e in errs)
             {
                 if (sb.Length > 0) { sb.Append(delimiter); }

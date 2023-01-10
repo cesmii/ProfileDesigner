@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
+import { useMsal } from "@azure/msal-react";
 import axiosInstance from "../../services/AxiosService";
 
 import { getTypeDefPreferences, setProfileTypeDisplayMode, setProfileTypePageSize } from '../../services/ProfileService';
@@ -9,7 +10,6 @@ import ProfileTypeDefinitionRow from './ProfileTypeDefinitionRow';
 import ProfileItemRow from './ProfileItemRow';
 import GridPager from '../../components/GridPager'
 import ConfirmationModal from '../../components/ConfirmationModal';
-import { useAuthState } from "../../components/authentication/AuthContext";
 import { useLoadingContext } from "../../components/contexts/LoadingContext";
 
 import color from '../../components/Constants'
@@ -27,7 +27,8 @@ function ProfileTypeDefinitionListGrid(props) {
     //-------------------------------------------------------------------
     // Region: Initialization
     //-------------------------------------------------------------------
-    const authTicket = useAuthState();
+    const { instance } = useMsal();
+    const _activeAccount = instance.getActiveAccount();
     const { loadingProps, setLoadingProps } = useLoadingContext();
     const _profileTypeDefPreferences = getTypeDefPreferences();
     const _scrollToRef = useRef(null);
@@ -269,7 +270,7 @@ function ProfileTypeDefinitionListGrid(props) {
 
         const mainBody = _dataRows.profileFilters.map((item) => {
             return (
-                <ProfileItemRow key={item.id} mode="simple" item={item} currentUserId={authTicket.user.id}
+                <ProfileItemRow key={item.id} mode="simple" item={item} activeAccount={_activeAccount}
                     cssClass={`profile-list-item shaded rounded ${_dataRows.profileFilters.length > 1 ? 'mb-1' : ''} ${props.rowCssClass ?? ''}`} />)
             });
 
@@ -305,7 +306,7 @@ function ProfileTypeDefinitionListGrid(props) {
             )
         }
         const mainBody = _dataRows.all.map((item) => {
-            return (<ProfileTypeDefinitionRow key={item.id} item={item} currentUserId={authTicket.user.id} showActions={true}
+            return (<ProfileTypeDefinitionRow key={item.id} item={item} activeAccount={_activeAccount} showActions={true}
                 cssClass={`profile-list-item ${props.rowCssClass ?? ''}`} onDeleteCallback={onDeleteItemClick} displayMode={_displayMode}
                 selectMode={props.selectMode} onRowSelect={onRowSelect} selectedItems={props.selectedItems} />)
         });

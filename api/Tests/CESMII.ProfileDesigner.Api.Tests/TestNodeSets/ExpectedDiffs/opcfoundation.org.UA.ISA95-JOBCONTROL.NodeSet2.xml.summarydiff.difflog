@@ -1,11 +1,4 @@
 ====>Expected attribute name '/UANodeSet[1]' - comparing <UANodeSet...> at /UANodeSet[1] to <UANodeSet...> at /UANodeSet[1]/@LastModified
-====>Expected attribute name '/UANodeSet[1]/UAVariable[26]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[26] to <UAVariable...> at /UANodeSet[1]/UAVariable[15]/@UserAccessLevel
-====>Expected attribute name '/UANodeSet[1]/UAVariable[27]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[27] to <UAVariable...> at /UANodeSet[1]/UAVariable[11]/@UserAccessLevel
-====>Expected attribute name '/UANodeSet[1]/UAVariable[28]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[28] to <UAVariable...> at /UANodeSet[1]/UAVariable[13]/@UserAccessLevel
-====>Expected attribute name '/UANodeSet[1]/UAVariable[29]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[29] to <UAVariable...> at /UANodeSet[1]/UAVariable[14]/@UserAccessLevel
-====>Expected attribute name '/UANodeSet[1]/UAVariable[30]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[30] to <UAVariable...> at /UANodeSet[1]/UAVariable[17]/@UserAccessLevel
-====>Expected attribute name '/UANodeSet[1]/UAVariable[31]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[31] to <UAVariable...> at /UANodeSet[1]/UAVariable[16]/@UserAccessLevel
-====>Expected attribute name '/UANodeSet[1]/UAVariable[34]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[34] to <UAVariable...> at /UANodeSet[1]/UAVariable[12]/@UserAccessLevel
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[2]/References[1]/Reference[3] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[3]/References[1]/Reference[3] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[5]/References[1]/Reference[3] to <NULL>
@@ -25,28 +18,6 @@
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[26]/References[1]/Reference[3] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[27]/References[1]/Reference[3] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Extensions' but was '' - comparing <Extensions...> at /UANodeSet[1]/Extensions[1] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[4] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[5] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[6] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[7] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[8] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[9] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[10] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[11] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[12] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[13] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[14] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[15] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[16] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[17] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[18] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[19] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[20] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[21] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[22] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[23] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[24] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[25] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!--
  * Copyright (c) 2005-2021 The OPC Foundation, Inc. All rights reserved.
  *

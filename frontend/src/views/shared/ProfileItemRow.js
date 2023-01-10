@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Dropdown } from 'react-bootstrap'
 
 import { useLoadingContext } from "../../components/contexts/LoadingContext";
@@ -13,6 +13,7 @@ const CLASS_NAME = "ProfileItemRow";
 function ProfileItemRow(props) { //props are item, showActions
 
     const { loadingProps, setLoadingProps } = useLoadingContext();
+    const [_error, setError] = useState({ show: false, message: null, caption: null });
 
     //-------------------------------------------------------------------
     // Region: Event Handling of child component events
@@ -35,10 +36,17 @@ function ProfileItemRow(props) { //props are item, showActions
         setLoadingProps({ downloadItems: JSON.parse(JSON.stringify(msgs)) });
     }
     const downloadItemAsAASX = async () => {
-        console.log(generateLogMessageString(`downloadItem||start`, CLASS_NAME));
+        console.log(generateLogMessageString(`downloadItemAsAASX||start`, CLASS_NAME));
         //add a row to download messages and this will kick off download
         var msgs = loadingProps.downloadItems || [];
         msgs.push({ profileId: props.item.id, fileName: cleanFileName(props.item.namespace), immediateDownload: true, downloadFormat: AppSettings.ExportFormatEnum.AASX });
+        setLoadingProps({ downloadItems: JSON.parse(JSON.stringify(msgs)) });
+    }
+    const downloadItemAsSmipJson = async () => {
+        console.log(generateLogMessageString(`downloadItemAsSmipJson||start`, CLASS_NAME));
+        //add a row to download messages and this will kick off download
+        var msgs = loadingProps.downloadItems || [];
+        msgs.push({ profileId: props.item.id, fileName: cleanFileName(props.item.namespace), immediateDownload: true, downloadFormat: AppSettings.ExportFormatEnum.SmipJson});
         setLoadingProps({ downloadItems: JSON.parse(JSON.stringify(msgs)) });
     }
 
@@ -46,10 +54,17 @@ function ProfileItemRow(props) { //props are item, showActions
         props.onDeleteCallback(props.item);
     }
 
-    const onEditItem = () => {
+    const onEditItem = (e) => {
+        e.stopPropagation();
         //format date if present
         //props.item.publishDate = formatDate(props.item.publishDate);
         props.onEditCallback(props.item);
+    }
+
+    const onImportItem = () => {
+        //format date if present
+        //props.item.publishDate = formatDate(props.item.publishDate);
+        props.onImportCallback(props.item);
     }
 
     const onRowSelect = () => {
@@ -63,7 +78,7 @@ function ProfileItemRow(props) { //props are item, showActions
 
     const IsRowSelected = (item) => {
         if (props.selectedItems == null) return;
-        var x = props.selectedItems.findIndex(p => { return p.toString() === item.id.toString(); });
+        var x = item.hasLocalProfile ||  props.selectedItems.findIndex(p => { return p.toString() === item.id.toString(); }); // TODO make the local profile selection configurable
         return x >= 0;
     }
 
@@ -74,38 +89,57 @@ function ProfileItemRow(props) { //props are item, showActions
 
         if (!showActions) return;
 
-        //if standard ua nodeset, author is null
-        return (
-            <div className="col-sm-4 ml-auto d-inline-flex justify-content-end align-items-center" >
-                <span className="my-0 mr-2"><a href={`/types/library/profile/${props.item.id}`} ><span className="mr-1" alt="view"><SVGIcon name="visibility" /></span>View Type Definitions</a></span>
-                <Dropdown className="action-menu icon-dropdown" onClick={(e) => e.stopPropagation()} >
-                    <Dropdown.Toggle drop="left" title="Actions" >
-                        <SVGIcon name="more-vert" />
-                    </Dropdown.Toggle>
-                    <Dropdown.Menu>
-                        {/*{(props.currentUserId != null && props.currentUserId === item.authorId) &&*/}
-                        {/*    <Dropdown.Item key="moreVert2" href={getTypeDefinitionNewUrl()} ><span className="mr-3" alt="extend"><SVGIcon name="extend" /></span>New Type Definition</Dropdown.Item>*/}
-                        {/*}*/}
-                        {isOwner(props.item, props.activeAccount) &&
-                            <Dropdown.Item key="moreVert3" onClick={onDeleteItem} ><span className="mr-3" alt="delete"><SVGIcon name="delete" /></span>Delete Profile</Dropdown.Item>
-                        }
-                        <Dropdown.Item key="moreVert4" onClick={downloadItem} ><span className="mr-3" alt="arrow-drop-down"><SVGDownloadIcon name="download" /></span>Download Profile</Dropdown.Item>
-                        <Dropdown.Item key="moreVert5" onClick={downloadItemAsAASX} ><span className="mr-3" alt="arrow-drop-down"><SVGDownloadIcon name="downloadAASX" /></span>Download Profile as AASX</Dropdown.Item>
-                    </Dropdown.Menu>
-                </Dropdown>
-            </div>
-        );
+        if (item.hasLocalProfile == null || item.hasLocalProfile) {
+            //if standard ua nodeset, author is null
+            return (
+                <div className="col-sm-4 ml-auto d-inline-flex justify-content-end align-items-center" >
+                    <span className="my-0 mr-2"><a href={`/types/library/profile/${props.item.id}`} ><span className="mr-1" alt="view"><SVGIcon name="visibility" /></span>View Type Definitions</a></span>
+                    <Dropdown className="action-menu icon-dropdown" onClick={(e) => e.stopPropagation()} >
+                        <Dropdown.Toggle drop="left" title="Actions" >
+                            <SVGIcon name="more-vert" />
+                        </Dropdown.Toggle>
+                        <Dropdown.Menu>
+                            {/*{(props.currentUserId != null && props.currentUserId === item.authorId) &&*/}
+                            {/*    <Dropdown.Item key="moreVert2" href={getTypeDefinitionNewUrl()} ><span className="mr-3" alt="extend"><SVGIcon name="extend" /></span>New Type Definition</Dropdown.Item>*/}
+                            {/*}*/}
+                            {isOwner(props.item, props.activeAccount) &&
+                                <Dropdown.Item key="moreVert3" onClick={onDeleteItem} ><span className="mr-3" alt="delete"><SVGIcon name="delete" /></span>Delete Profile</Dropdown.Item>
+                            }
+                            <Dropdown.Item key="moreVert4" onClick={downloadItem} ><span className="mr-3" alt="arrow-drop-down"><SVGDownloadIcon name="download" /></span>Download Profile</Dropdown.Item>
+                            <Dropdown.Item key="moreVert5" onClick={downloadItemAsAASX} ><span className="mr-3" alt="arrow-drop-down"><SVGDownloadIcon name="downloadAASX" /></span>Download Profile as AASX</Dropdown.Item>
+                            <Dropdown.Item key="moreVert5" onClick={downloadItemAsSmipJson} ><span className="mr-3" alt="arrow-drop-down"><SVGDownloadIcon name="downloadSmipJson" /></span>Download Profile for SMIP import (experimental)</Dropdown.Item>
+                        </Dropdown.Menu>
+                    </Dropdown>
+                </div>
+            );
+        }
+        else {
+            return (
+                <div className="col-sm-4 ml-auto d-inline-flex justify-content-end align-items-center" >
+                    <button className="ml-1 btn btn-link" onClick={onImportItem} ><span className="mr-1" alt="view"><SVGDownloadIcon name="import" /></span>Import from Cloud Library</button>
+                {/*    <Dropdown className="action-menu icon-dropdown" onClick={(e) => e.stopPropagation()} >*/}
+                {/*        <Dropdown.Toggle drop="left" title="Actions" >*/}
+                {/*            <SVGIcon name="more-vert" />*/}
+                {/*        </Dropdown.Toggle>*/}
+                {/*        <Dropdown.Menu>*/}
+                {/*            <Dropdown.Item key="moreVert4" onClick={importItem} ><span className="mr-3" alt="arrow-drop-down"><SVGIcon name="visibility" /></span>View profile description</Dropdown.Item>*/}
+                {/*        </Dropdown.Menu>*/}
+                {/*    </Dropdown>*/}
+                </div>
+            );
+        }
     }
 
-    const renderSelectColumn = (item) => {
+    const renderSelectColumn = (item, isReadOnly) => {
 
-        var iconSelected = props.selectMode === "single" ? "task_alt" : "check_box";
-        var iconUnselected = props.selectMode === "single" ? "radio_button_unchecked" : "check_box_outline_blank";
+        const iconSelected = props.selectMode === "single" ? "task_alt" : "check_box";
+        const iconUnselected = props.selectMode === "single" ? "radio_button_unchecked" : "check_box_outline_blank";
 
         return (
-            <div className="mr-3 d-flex align-items-center" >
-                {IsRowSelected(item) ? 
-                    <i className="material-icons mr-1" title="Check to de-select" >{iconSelected}</i>
+            <div className="col-select mr-3 d-flex" >
+                {IsRowSelected(item) ?
+                    <i className={`material-icons mr-1 ${isReadOnly ? "disabled" : ""} `}
+                        title={isReadOnly ? "" : "Check to de-select"} >{iconSelected}</i>
                     :
                     <i className="material-icons mr-1" title="Check to select" >{iconUnselected}</i>
                 }
@@ -130,13 +164,13 @@ function ProfileItemRow(props) { //props are item, showActions
                 <div className="col-sm-12 d-flex align-items-center" >
                     <div className={avatarCss} >{profileIcon}</div>
                     <div className="col-sm-11" >
-                    <span className="font-weight-bold mr-2" >{props.profileCaption == null ? "Profile: " : `${props.profileCaption}: `}</span>
-                    {caption}
-                    {(props.actionUI != null) &&
-                        <div className="ml-2 d-inline-flex" >
-                            {props.actionUI}
-                        </div>
-                    }
+                        <span className="font-weight-bold mr-2" >{props.profileCaption == null ? "Profile: " : `${props.profileCaption}: `}</span>
+                        {caption}
+                        {(props.actionUI != null) &&
+                            <div className="ml-2 d-inline-flex" >
+                                {props.actionUI}
+                            </div>
+                        }
                     </div>
                 </div>
             </div>
@@ -146,34 +180,53 @@ function ProfileItemRow(props) { //props are item, showActions
     //render typical row that is shown in a list/grid
     const renderRow = () => {
 
-        var isSelected = props.item != null && IsRowSelected(props.item) ? "selected" : "";
-        var cssClass = `row py-1 align-items-center ${props.cssClass == null ? '' : props.cssClass} ${isSelected} ${props.selectMode != null ? "selectable" : ""}`;
+        const isSelected = props.item != null && IsRowSelected(props.item) ? "selected" : "";
+        const isReadonly = props.item?.hasLocalProfile;
+        const cssClass = `row py-1 align-items-center ${props.cssClass == null ? '' : props.cssClass} ${isSelected} ${props.selectMode != null ? "selectable" : ""} ${isReadonly ? "select-readonly" : ""}`;
 
+
+        let profileCaption = null;
+        let profileValue = null;
+        if (props.item.title == null) {
+            profileCaption = props.profileCaption == null ? "Namespace: " : `${props.profileCaption}: `;
+            profileValue = props.item.namespace;
+        }
+        else {
+            profileCaption = props.profileCaption == null ? "Title: " : `${props.profileCaption}: `;
+            profileValue = props.item.title;
+
+        }
         return (
-            <div className={cssClass} onClick={onRowSelect} >
+            <div className={cssClass} onClick={props.item.hasLocalProfile ? null : onRowSelect}> {/*TODO Make the local profile selection configurable */}
                 <div className="col-sm-8 d-flex" >
                     {props.selectMode != null &&
-                        renderSelectColumn(props.item)
+                        renderSelectColumn(props.item, isReadonly)
                     }
                     <div className={`col-avatar mt-1 mr-2 rounded-circle avatar-${!isOwner(props.item, props.activeAccount) ? "locked" : "unlocked"} elevated`} >
                         {renderProfileIcon(props.item, props.activeAccount, 24, false)}
                     </div>
                     <div className="col-sm-11 d-flex align-items-center" >
                         <div className="d-block" >
-                            <p className="my-0">
-                            {props.profileCaption == null ? "Namespace: " : `${props.profileCaption}: `}
-                            {!props.showActions || props.selectMode != null ?
-                                <span className="ml-2" >{props.item.namespace}</span>
-                                :
-                                <button className="ml-1 btn btn-link" onClick={onEditItem} >{props.item.namespace}</button>
+                            <p className="my-0 d-flex align-content-center">
+                                {profileCaption}
+                                {!props.showActions /*|| props.selectMode != null*/ ?
+                                    <span className="ml-2" >{profileValue}</span>
+                                    :
+                                    <button className="ml-1 btn btn-link" onClick={onEditItem} >{profileValue}</button>
+                                }
+                            </p>
+                            {props.item.title != null &&
+                                <p className="my-0 small-size" >Namespace: {props.item.namespace}</p>
                             }
-                        </p>
-                        {props.item.version != null &&
+                            {props.item.version != null &&
                                 <p className="my-0 small-size" >Version: {props.item.version}</p>
-                        }
-                        {props.item.publishDate != null &&
+                            }
+                            {props.item.publishDate != null &&
                                 <p className="my-0 small-size" >Published: {formatDate(props.item.publishDate)}</p>
-                        }
+                            }
+                            {props.item.description != null &&
+                                <p className="my-0 small-size" >Description: {props.item.description.substr(0, 80)}</p>
+                            }
                         </div>
                     </div>
                 </div>

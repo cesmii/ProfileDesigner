@@ -1,0 +1,46 @@
+@import "constants";
+
+.import-menu {
+    .dropdown-item {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+
+        .list-icon {
+            height: 20px;
+            width: 20px;
+            margin-right: 16px;
+        }
+
+        &.current {
+            background-color: color("silver");
+        }
+
+        &:hover, &:active {
+            background-color: color("silver");
+        }
+    }
+
+    .dropdown-toggle.btn-secondary {
+        font-family: $font-family-headings !important;
+        font-weight: 700;
+
+        &:hover, &:focus {
+            color: color("white");
+            background-color: color("shark");
+            border-color: #0b0a09;
+        }
+
+        &:focus {
+            color: color("white");
+            background-color: color("textPrimary");
+            border-color: #0b0a09;
+        }
+
+        &::after {
+            content: none;
+            border: none;
+        }
+    }
+
+}

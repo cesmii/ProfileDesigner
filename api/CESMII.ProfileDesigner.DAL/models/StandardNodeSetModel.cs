@@ -13,6 +13,22 @@
         public string Filename { get; set; }
 
         public DateTime? PublishDate { get; set; }
+        public string CloudLibraryId { get; set; }
+    }
+
+    public static class StandardNodeSetExtensions
+    {
+        public static StandardNodeSetModel ToStandardNodeSet(this CloudLibProfileModel profileToImport)
+        {
+            return new StandardNodeSetModel 
+            { 
+                Namespace = profileToImport.Namespace,
+                Version = profileToImport.Version,
+                PublishDate = profileToImport.PublishDate,
+                CloudLibraryId = profileToImport.CloudLibraryId,
+                // TODO Filename = ,
+            };
+        }
     }
 
 }

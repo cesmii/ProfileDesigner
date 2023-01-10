@@ -98,7 +98,7 @@ function WizardFilterProfile() {
             <div className="card row mb-3">
                     <div className="card-body">
                         <ProfileListGrid onGridRowSelect={onRowClicked} selectMode="multiple"
-                            selectedItems={selItems} rowCssClass="mx-0" />
+                            selectedItems={selItems} rowCssClass="mx-0" noSearch="true" />
                 </div>
             </div>
             </>

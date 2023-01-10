@@ -269,6 +269,7 @@
                     ID = usr.ID, 
                     ObjectIdAAD = usr.ObjectIdAAD, 
                     DisplayName = usr.DisplayName,
+                    Email = usr.EmailAddress,
                     Organization = usr.Organization == null ? null :
                     new OrganizationModel() { 
                         ID = usr.Organization.ID, 

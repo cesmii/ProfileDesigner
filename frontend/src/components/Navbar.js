@@ -24,7 +24,7 @@ function Navbar() {
     const history = useHistory();
     const { instance, inProgress } = useMsal();
     const _activeAccount = instance.getActiveAccount();
-    const { isAuthenticated, isAuthorized } = useLoginStatus(null, [AppSettings.AADUserRole]);
+    const { isAuthenticated, isAuthorized } = useLoginStatus(null, null /*[AppSettings.AADUserRole]*/);
 
     //-------------------------------------------------------------------
     // Region: Hooks
@@ -60,7 +60,7 @@ function Navbar() {
         return (
             <li className="nav-item" >
                 <Dropdown>
-                    <Dropdown.Toggle className="ml-0 ml-md-2 px-1 dropdown-custom-components d-flex align-items-center">
+                    <Dropdown.Toggle className="ml-0 ml-md-2 px-1 dropdown-custom-components d-flex align-items-center" title={_activeAccount?.username}>
                         <SVGIcon name="account-circle" size="32" fill={Color.white} className="mr-2" />
                         {_activeAccount?.name}
                     </Dropdown.Toggle>

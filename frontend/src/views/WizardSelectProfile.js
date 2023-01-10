@@ -118,7 +118,7 @@ function WizardSelectProfile() {
             <div className="card row mb-3">
                     <div className="card-body col-sm-12">
                         <ProfileListGrid isMine={true} onGridRowSelect={onRowClicked} selectMode="single"
-                            selectedItems={selItems} rowCssClass="mx-0" />
+                            selectedItems={selItems} rowCssClass="mx-0" noSearch="true" />
                 </div>
             </div>
             </>

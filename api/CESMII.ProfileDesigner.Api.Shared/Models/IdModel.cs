@@ -4,6 +4,10 @@
     {
         public int ID { get; set; }
     }
+    public class IdStringModel
+    {
+        public string ID { get; set; }
+    }
 
     public class IdLongModel
     {

@@ -19,6 +19,10 @@ $rightPanelWidth: 500px;
     overflow-y: auto;
     padding-bottom: 80px;
 
+    &.slide-in-panel.open {
+        margin-right: 0;
+    }
+
     .right-panel-header {
         // @include background-opacity(color("silver"), .3);
         background-color: color("hlBlue");
@@ -28,8 +32,51 @@ $rightPanelWidth: 500px;
             @include background-opacity(color("info"), 0.6);
         }
     }
+    //settings specific to import cloud lib
+    &.cloud-lib-list {
+        box-shadow: 0px 0px 20px 15px rgb(0 0 0 / 15%);
+        transition: all 750ms ease-out;
+        width: 75%;
+        max-width: 1200px;
+        margin-right: -75%;
+        padding: 0px;
+        overflow-y: auto;
+        overflow-x: hidden;
+        border-left: 1px solid color("silver");
+
+        &.slide-in-panel.open {
+            margin-right: 0;
+        }
+
+        .right-panel-header {
+            color: white;
+            background-color: color("cornflower");
+            border-bottom: 1px solid color("blue-8");
+            height: auto;
+
+            button.btn.btn-icon-solo:hover {
+                @include background-opacity(color("info"), 0.6);
+            }
+
+            @media (min-width: 768px) {
+                height: $navbarHeight; //same size as main header
+            }
+        }
+
+        @media (max-width: 992px) {
+            width: 80%;
+            max-width: 800px;
+            margin-right: -80%;
+        }
+
+        @media (max-width: 768px) {
+            width: 90%;
+            margin-right: -90%;
+        }
+    }
 }
 
-.slide-in-panel.open {
-    margin-right: 0;
+.slideout-open-no-scroll {
+    overflow-y: hidden;
 }
+

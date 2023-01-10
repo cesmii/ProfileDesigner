@@ -120,10 +120,10 @@ function ProfileListGrid(props) {
             console.log(generateLogMessageString(`useEffect||fetchDataProfile||${url}`, CLASS_NAME));
 
             //apply the page size info from this page
-            props.searchCriteria.skip = (_pager.currentPage - 1) * _pager.pageSize;
-            props.searchCriteria.take = _pager.pageSize;
+            _searchCriteria.skip = (_pager.currentPage - 1) * _pager.pageSize;
+            _searchCriteria.take = _pager.pageSize;
             //call search
-            await axiosInstance.post(url, props.searchCriteria).then(result => {
+            await axiosInstance.post(url, _searchCriteria).then(result => {
                 if (result.status === 200) {
 
                     //set state on fetch of data
@@ -194,28 +194,28 @@ function ProfileListGrid(props) {
             }
 
             //apply the page size info from this page
-            props.searchCriteria.skip = (_pager.currentPage - 1) * _pager.pageSize;
-            props.searchCriteria.take = _pager.pageSize;
+            _searchCriteria.skip = (_pager.currentPage - 1) * _pager.pageSize;
+            _searchCriteria.take = _pager.pageSize;
             
             //dynamically append CloudLib specific params to common filtering model
             // Cursor pagination for CloudLib
-            props.searchCriteria.cursor= cursor;
-            props.searchCriteria.pageBackwards = pageBackwards;
+            _searchCriteria.cursor= cursor;
+            _searchCriteria.pageBackwards = pageBackwards;
 
             //show a spinner
             setLoadingProps({ isLoading: true, message: null });
 
-            await axiosInstance.post(url, props.searchCriteria).then(result => {
+            await axiosInstance.post(url, _searchCriteria).then(result => {
                 if (result.status === 200) {
 
                     let itemCount = result.data.count;
                     if (result.data.hasNextPage != null && !result.data.hasNextPage
-                        && !(props.searchCriteria.pageBackwards && props.searchCriteria.cursor != null)
+                        && !(_searchCriteria.pageBackwards && _searchCriteria.cursor != null)
                         && _pager.currentPage < Math.ceil(itemCount / _pager.pageSize)) {
                         // There were more items reported than actually available (backend filtering or other bug): adjust total items
                         itemCount = _pager.pageSize * (_pager.currentPage - 1) + result.data.data.length;
                     }
-                    if (result.data.hasPreviousPage != null && !result.data.hasPreviousPage && props.searchCriteria.pageBackwards && _pager.currentPage !== 1) {
+                    if (result.data.hasPreviousPage != null && !result.data.hasPreviousPage && _searchCriteria.pageBackwards && _pager.currentPage !== 1) {
                         // We are at the first page but the pager is out of sync - there were more items reported than actually available (backend filtering or other bug): adjust total items
                         _pager.currentPage = 1;
                     }
@@ -262,6 +262,11 @@ function ProfileListGrid(props) {
         //type passed so that any change to this triggers useEffect to be called again
         //_nodesetPreferences.pageSize - needs to be passed so that useEffects dependency warning is avoided.
     }, [_pager, _forceReload, props.mode, _searchCriteria]);
+
+
+    useEffect(() => {
+        setSearchCriteria(JSON.parse(JSON.stringify(props.searchCriteria)));
+    }, [props.searchCriteria]);
 
     //-------------------------------------------------------------------
     // useEffect - Importing items
@@ -347,7 +352,7 @@ function ProfileListGrid(props) {
             <ProfileFilter onSearchCriteriaChanged={onProfileSearchCriteriaChanged} noSortOptions="true"
                 //displayMode={_displayMode}
                 //toggleDisplayMode={toggleDisplayMode} itemCount={_itemCount}
-                cssClass={props.rowCssClass} searchCriteria={props.searchCriteria} noSearch={props.noSearch} noClearAll="true" />
+                cssClass={props.rowCssClass} searchCriteria={_searchCriteria} noSearch={props.noSearch} noClearAll="true" />
             <div className="">
                 <div ref={_scrollToRef} className="row">
                     <div className="col-12">

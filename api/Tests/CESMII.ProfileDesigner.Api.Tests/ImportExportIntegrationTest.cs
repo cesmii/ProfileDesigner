@@ -12,13 +12,14 @@ using CESMII.ProfileDesigner.Api.Controllers;
 using Microsoft.Extensions.DependencyInjection;
 using MyNamespace;
 using NodeSetDiff;
+using Opc.Ua;
 using Opc.Ua.Export;
 using Org.XmlUnit.Diff;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 
-[assembly: CollectionBehavior(DisableTestParallelization = true) ]
+[assembly: CollectionBehavior(DisableTestParallelization = true)]
 [assembly: TestCollectionOrderer("CESMII.ProfileDesigner.Api.Tests.CollectionOrderer", "CESMII.ProfileDesigner.Api.Tests")]
 
 namespace CESMII.ProfileDesigner.Api.Tests
@@ -220,7 +221,7 @@ namespace CESMII.ProfileDesigner.Api.Tests
         private List<ImportOPCModel> CheckAndDeleteExistingProfiles(bool deleteProfiles, Client apiClient, string[] nodeSetFiles)
         {
             var profilesResultBefore = apiClient.LibraryAsync(new PagerFilterSimpleModel { Query = "", Skip = 0, Take = 999 }).Result;
-            var nodeSetFilesBefore = profilesResultBefore.Data.Select(p => GetFileNameFromNamespace(p.Namespace)).ToList();
+            var nodeSetFilesBefore = profilesResultBefore.Data.Select(p => GetFileNameFromNamespace(p.Namespace, p.Version, p.PublishDate)).ToList();
 
             var importRequest = new List<MyNamespace.ImportOPCModel>();
 
@@ -238,7 +239,7 @@ namespace CESMII.ProfileDesigner.Api.Tests
                     output.WriteLine($"NodeSet {file} was already imported.");
                     if (deleteProfiles)
                     {
-                        var profile = profilesResultBefore.Data.FirstOrDefault(p => GetFileNameFromNamespace(p.Namespace) == fileName);
+                        var profile = profilesResultBefore.Data.FirstOrDefault(p => GetFileNameFromNamespace(p.Namespace, p.Version, p.PublishDate) == fileName);
                         if (profile != null)
                         {
                             profilesToDelete.Add(profile);
@@ -386,11 +387,11 @@ namespace CESMII.ProfileDesigner.Api.Tests
                 bool bExportFound = false;
                 foreach (var profile in nodeSetResult.Data)
                 {
-                    var nodeSetFileName = GetFileNameFromNamespace(profile.Namespace);
+                    var nodeSetFileName = GetFileNameFromNamespace(profile.Namespace, profile.Version, profile.PublishDate);
 
                     if (string.Equals(Path.GetFileName(nodeSetFile), nodeSetFileName, StringComparison.InvariantCultureIgnoreCase))
                     {
-                        var exportResult = await apiClient.ExportAsync(new ExportRequestModel { Id = profile.Id ?? 0, ForceReexport = true, Format = exportAASX ? "AASX" : null } );
+                        var exportResult = await apiClient.ExportAsync(new ExportRequestModel { Id = profile.Id ?? 0, ForceReexport = true, Format = exportAASX ? "AASX" : null });
                         Assert.True(exportResult.IsSuccess, $"Failed to export {profile.Namespace}: {exportResult.Message}");
 
                         string exportedNodeSet;
@@ -430,14 +431,51 @@ namespace CESMII.ProfileDesigner.Api.Tests
         }
 
 
-        static private string GetFileNameFromNamespace(string namespaceUri)
+        static private string GetFileNameFromNamespace(string namespaceUri, string version, DateTime? publicationDate)
         {
             var fileName = namespaceUri.Replace("http://", "").Replace("/", ".");
             if (!fileName.EndsWith("."))
             {
                 fileName += ".";
             }
+            //var legacyFileName = fileName + "NodeSet2.xml";
+            if (namespaceUri == Namespaces.OpcUa)
+            {
+                // special versioning rules: must consider version family
+                var versionParts = version.Split(".");
+                if (versionParts.Length >= 2)
+                {
+                    var versionFamily = $"{versionParts[0]}.{versionParts[1]}";
+                    fileName = $"{fileName}{versionFamily}.";
+                }
+                else
+                {
+                    throw new Exception($"Unexpeced version number for OPC core nodeset: must have at least a two-part version number");
+                }
+            }
+            var legacyFileName = fileName;
+            if (publicationDate != null && publicationDate.Value != default)
+            {
+                legacyFileName = $"{fileName}{publicationDate:yyyyMMdd}.";
+                fileName = $"{fileName}{publicationDate:yyyy-MM-dd}.";
+            }
             fileName += "NodeSet2.xml";
+            legacyFileName += "NodeSet2.xml";
+            if (fileName != legacyFileName)
+            {
+                var legacyPath = Path.Combine(strTestNodeSetDirectory, legacyFileName);
+                var path = Path.Combine(strTestNodeSetDirectory, fileName);
+                if (File.Exists(legacyPath) && !File.Exists(path))
+                {
+                    File.Move(legacyPath, path);
+                }
+                var legacyPath2 = Path.Combine(strTestNodeSetDirectory, "ExpectedDiffs", legacyFileName + ".summarydiff.difflog");
+                var path2 = Path.Combine(strTestNodeSetDirectory, "ExpectedDiffs", fileName + ".summarydiff.difflog");
+                if (File.Exists(legacyPath2) && !File.Exists(path2))
+                {
+                    File.Move(legacyPath2, path2);
+                }
+            }
             return fileName;
         }
 
@@ -480,7 +518,7 @@ namespace CESMII.ProfileDesigner.Api.Tests
         }
         public IEnumerable<TTestCase> OrderTestCases<TTestCase>(IEnumerable<TTestCase> testCases) where TTestCase : ITestCase
         {
-            bool ignoreTestsWithoutExpectedOutcome = true;
+            bool ignoreTestsWithoutExpectedOutcome = false;
             var testCasesWithExpectedDiff = testCases.ToList();
             if (ignoreTestsWithoutExpectedOutcome)
             {

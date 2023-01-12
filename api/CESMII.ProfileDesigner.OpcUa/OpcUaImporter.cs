@@ -198,13 +198,20 @@ namespace CESMII.ProfileDesigner.OpcUa
                 {
                     // Performance: Load the profiles and data types into the EF cache, in a singe database query
                     var startEFCache = sw.Elapsed;
-                    var profileIds = profilesAndNodeSets.Select(pn => pn.Profile.ID).Where(i => (i ?? 0) != 0);
-                    _logger.LogTrace($"Timestamp||ImportId:{logId}||Loading EF cache: {sw.Elapsed}");
-                    await _dal.LoadIntoCacheAsync(pt => profileIds.Contains(pt.ProfileId));
-                    await _dtDal.LoadIntoCacheAsync(dt => profileIds.Contains(dt.CustomType.ProfileId));
-                    var endEFCache = sw.Elapsed;
-                    _logger.LogTrace($"Timestamp||ImportId:{logId}||Finished loading EF cache: {endEFCache - startEFCache}");
-
+                    var profileIds = profilesAndNodeSets.Select(pn => pn.Profile.ID).Where(i => (i ?? 0) != 0).ToList();
+                    if (profileIds.Any())
+                    {
+                        _logger.LogTrace($"Timestamp||ImportId:{logId}||Loading EF cache: {sw.Elapsed}");
+                        await _dal.LoadIntoCacheAsync(pt => profileIds.Contains(pt.ProfileId));
+                        await _dtDal.LoadIntoCacheAsync(dt => profileIds.Contains(dt.CustomType.ProfileId));
+                        var endEFCache = sw.Elapsed;
+                        _logger.LogTrace($"Timestamp||ImportId:{logId}||Finished loading EF cache: {endEFCache - startEFCache}");
+                    }
+                    else
+                    {
+                        var endEFCache = sw.Elapsed;
+                        _logger.LogTrace($"Timestamp||ImportId:{logId}||Not loading EF cache - no required profiles: {endEFCache - startEFCache}");
+                    }
                     var nodeSetModels = new Dictionary<string, NodeSetModel>();
                     var dalOpcContext = new DalOpcContext(this, nodeSetModels, userToken, userToken, false);
 
@@ -294,8 +301,9 @@ namespace CESMII.ProfileDesigner.OpcUa
         {
             var nsModel = tModel.NameVersion.CCacheId as NodeSetFileModel;
             _logger.LogTrace($"Timestamp||ImportId:{logId}||Loading nodeset {tModel.NameVersion.ModelUri}: {sw.Elapsed}");
-            var profile = dalProfile.Where(p => p.Namespace == tModel.NameVersion.ModelUri /*&& p.PublicationDate == tmodel.NameVersion.PublicationDate*/ /*&& (p.AuthorId == null || p.AuthorId == userToken)*/,
-                    userToken, verbose: false)?.Data?.OrderByDescending(p => p.Version)?.FirstOrDefault();
+            var profiles = dalProfile.Where(p => p.Namespace == tModel.NameVersion.ModelUri && p.PublishDate == tModel.NameVersion.PublicationDate && p.Version == tModel.NameVersion.ModelVersion /*&& (p.AuthorId == null || p.AuthorId == userToken)*/,
+                    userToken, verbose: false)?.Data?.OrderByDescending(p => p.Version);
+            var profile = profiles?.FirstOrDefault();
             _logger.LogTrace($"Timestamp||ImportId:{logId}||Loaded nodeset {tModel.NameVersion.ModelUri}: {sw.Elapsed}");
 
             if (profile == null)
@@ -362,7 +370,7 @@ namespace CESMII.ProfileDesigner.OpcUa
             {
                 profile.NodeSetFiles = new List<NodeSetFileModel>();
             }
-            if (!profile.NodeSetFiles.Any(m => m.FileName == nsModel.FileName && m.PublicationDate == nsModel.PublicationDate))
+            if (!profile.NodeSetFiles.Any(m => m.FileName == nsModel.FileName && m.PublicationDate == nsModel.PublicationDate && m.Version == nsModel.Version))
             {
                 profile.NodeSetFiles.Add(nsModel);
             }
@@ -400,13 +408,18 @@ namespace CESMII.ProfileDesigner.OpcUa
             }
 
             var firstModel = nodeSet.Models.FirstOrDefault();
+            if (firstModel.ModelUri != profile.Namespace)
+            {
+                throw new Exception($"Mismatching primary model meta data and meta data from cache");
+            }
             if (
-                firstModel.ModelUri != profile.Namespace
-                || firstModel.Version != profile.Version
+                firstModel.Version != profile.Version
                 || ((firstModel.PublicationDateSpecified ? firstModel.PublicationDate.ToUniversalTime() : null) != profile.PublishDate?.ToUniversalTime())
                 )
             {
-                throw new Exception($"Mismatching primary model meta data and meta data from cache");
+                var message = $"Warning: Newer version {firstModel.Version} of {firstModel.ModelUri} required. Profile designer only offers {profile.Version}. Attempting to load anyway.";
+                opcContext.Logger.LogWarning(message);
+                //throw new Exception(message);
             }
 
             return NodeModelFactoryOpc.LoadNodeSetAsync(opcContext, nodeSet, profile, this.Aliases, doNotReimport);
@@ -498,12 +511,17 @@ namespace CESMII.ProfileDesigner.OpcUa
             var dalOpcContext = new DalOpcContext(this, nodeSetModels, userToken, authorId, false);
 
             // pre-load OPC UA base model
-            if (!nodeSetModels.ContainsKey(strOpcNamespaceUri))
+            if (profileModel.Namespace != strOpcNamespaceUri && !nodeSetModels.ContainsKey(strOpcNamespaceUri))
             {
                 try
                 {
                     // TODO find the right OPC version references in the nodeSet?
-                    var opcNodeSetModel = _profileDal.Where(ns => ns.Namespace == strOpcNamespaceUri /*&& (ns.AuthorId == null || ns.AuthorId == userId)*/, userToken, null, null, false, true).Data.OrderByDescending(m => m.PublishDate).FirstOrDefault();
+                    // For now: take the highest available version (special core nodeset versioning logic)
+                    var opcNodeSetModel = _profileDal.Where(ns => ns.Namespace == strOpcNamespaceUri, userToken, null, null, false, true).Data
+                        .OrderByDescending(m => string.Join(".", m.Version.Split(".").Take(2))) // First by version family
+                        .ThenByDescending(m => m.PublishDate) //Then by publishdate, within the version family
+                        .FirstOrDefault(); // Order by version family
+
                     // workaround for bug https://github.com/dotnet/runtime/issues/67622
                     var fileCachePatched = opcNodeSetModel.NodeSetFiles[0].FileCache.Replace("<Value/>", "<Value xsi:nil='true' />");
                     using (MemoryStream nodeSetStream = new MemoryStream(Encoding.UTF8.GetBytes(fileCachePatched)))
@@ -521,6 +539,9 @@ namespace CESMII.ProfileDesigner.OpcUa
                     this.Logger.LogError(ex, "Internal error preparing for nodeset export.");
                 }
             }
+
+            // populate the model being exported with proper version and publication date
+            //dalOpcContext.GetOrAddNodesetModel(new ModelTableEntry {  ModelUri = profileModel.Namespace, PublicationDate = profileModel.PublishDate ?? default, Version = profileModel.Version, PublicationDateSpecified = profileModel.PublishDate != null}, true);
 
             var profileItemsResult = _dal.Where(pi => pi.ProfileId == profileModel.ID /*&& (pi.AuthorId == null || pi.AuthorId == userId)*/, userToken, null, null, false, true);
             if (profileItemsResult.Data != null)

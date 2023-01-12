@@ -1,0 +1,10 @@
+====>Expected attribute name '/UANodeSet[1]' - comparing <UANodeSet...> at /UANodeSet[1] to <UANodeSet...> at /UANodeSet[1]/@LastModified
+====>Expected attribute value '1.04' but was '1.04.7' - comparing <RequiredModel Version="1.04"...> at /UANodeSet[1]/Models[1]/Model[1]/RequiredModel[1]/@Version to <RequiredModel Version="1.04.7"...> at /UANodeSet[1]/Models[1]/Model[1]/RequiredModel[1]/@Version
+====>Expected attribute value '2018-02-09T00:00:00Z' but was '2020-07-15T00:00:00Z' - comparing <RequiredModel PublicationDate="2018-02-09T00:00:00Z"...> at /UANodeSet[1]/Models[1]/Model[1]/RequiredModel[1]/@PublicationDate to <RequiredModel PublicationDate="2020-07-15T00:00:00Z"...> at /UANodeSet[1]/Models[1]/Model[1]/RequiredModel[1]/@PublicationDate
+====>Expected attribute name '/UANodeSet[1]/UAObject[1]/@EventNotifier' - comparing <UAObject...> at /UANodeSet[1]/UAObject[1]/@EventNotifier to <UAObject...> at /UANodeSet[1]/UAObject[1]
+====>Expected attribute name '/UANodeSet[1]/UAObject[2]/@EventNotifier' - comparing <UAObject...> at /UANodeSet[1]/UAObject[2]/@EventNotifier to <UAObject...> at /UANodeSet[1]/UAObject[2]
+====>Expected attribute name '/UANodeSet[1]/UAObject[3]/@EventNotifier' - comparing <UAObject...> at /UANodeSet[1]/UAObject[3]/@EventNotifier to <UAObject...> at /UANodeSet[1]/UAObject[3]
+====>Expected attribute name '/UANodeSet[1]/UAObject[4]/@EventNotifier' - comparing <UAObject...> at /UANodeSet[1]/UAObject[4]/@EventNotifier to <UAObject...> at /UANodeSet[1]/UAObject[4]
+====>Expected attribute name '/UANodeSet[1]/UAObject[5]/@EventNotifier' - comparing <UAObject...> at /UANodeSet[1]/UAObject[5]/@EventNotifier to <UAObject...> at /UANodeSet[1]/UAObject[5]
+====>Expected attribute name '/UANodeSet[1]/UAObject[6]/@EventNotifier' - comparing <UAObject...> at /UANodeSet[1]/UAObject[6]/@EventNotifier to <UAObject...> at /UANodeSet[1]/UAObject[6]
+====>Expected attribute name '/UANodeSet[1]/UAObject[7]/@EventNotifier' - comparing <UAObject...> at /UANodeSet[1]/UAObject[7]/@EventNotifier to <UAObject...> at /UANodeSet[1]/UAObject[7]

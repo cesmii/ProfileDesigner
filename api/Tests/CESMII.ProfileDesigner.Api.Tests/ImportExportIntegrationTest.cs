@@ -19,11 +19,12 @@ using Xunit.Abstractions;
 using Xunit.Sdk;
 
 [assembly: CollectionBehavior(DisableTestParallelization = true) ]
+[assembly: TestCollectionOrderer("CESMII.ProfileDesigner.Api.Tests.CollectionOrderer", "CESMII.ProfileDesigner.Api.Tests")]
 
 namespace CESMII.ProfileDesigner.Api.Tests
 {
     [TestCaseOrderer("CESMII.ProfileDesigner.Api.Tests.ImportExportIntegrationTestCaseOrderer", "CESMII.ProfileDesigner.Api.Tests")]
-    public class Integration
+    public partial class Integration
         : IClassFixture<CustomWebApplicationFactory<CESMII.ProfileDesigner.Api.Startup>>
     {
         private readonly CustomWebApplicationFactory<CESMII.ProfileDesigner.Api.Startup> _factory;
@@ -66,7 +67,7 @@ namespace CESMII.ProfileDesigner.Api.Tests
         {
             return ExportInternal(file, true);
         }
-        public async Task ExportInternal(string file, bool exportAASX)
+        internal async Task ExportInternal(string file, bool exportAASX)
         {
             file = Path.Combine(strTestNodeSetDirectory, file);
             output.WriteLine($"Testing {file}");
@@ -485,6 +486,10 @@ namespace CESMII.ProfileDesigner.Api.Tests
             {
                 testCasesWithExpectedDiff = testCases.Where(t =>
                 {
+                    if (!IsImportExportTest(t))
+                    {
+                        return true;
+                    }
                     var file = t.TestMethodArguments[0].ToString();
                     var diffFile = Integration.GetExpectedDiffFile(Path.Combine(Integration.strTestNodeSetDirectory, file));
                     var bHasDiff = File.Exists(diffFile);
@@ -508,7 +513,7 @@ namespace CESMII.ProfileDesigner.Api.Tests
 
             var remainingTestCaseList = testCasesWithExpectedDiff.Except(orderedTestCases).ToList();
 
-            var remainingOrdered = orderedImportRequests.Select(ir => remainingTestCaseList.FirstOrDefault(tc => Path.Combine(Integration.strTestNodeSetDirectory, tc.TestMethodArguments[0].ToString()) == ir.FileName)).Where(tc => tc != null).ToList();
+            var remainingOrdered = orderedImportRequests.Select(ir => remainingTestCaseList.FirstOrDefault(tc => IsImportExportTest(tc) && Path.Combine(Integration.strTestNodeSetDirectory, tc.TestMethodArguments[0].ToString()) == ir.FileName)).Where(tc => tc != null).ToList();
             var excludedTestCases = new List<TTestCase>();
             string[] unstableTests = new string[0];
 
@@ -543,5 +548,26 @@ namespace CESMII.ProfileDesigner.Api.Tests
 
             return orderedTestCases.Concat(remainingUnorderedTests).ToList();
         }
+
+        static bool IsImportExportTest(ITestCase t)
+        {
+            return new[] { nameof(Integration.Import), nameof(Integration.Export), nameof(Integration.ExportAASX) }.Contains(t.TestMethod.Method.Name);
+        }
     }
+
+    public class CollectionOrderer : ITestCollectionOrderer
+    {
+        public CollectionOrderer(object ignored)
+        {
+        }
+
+        public IEnumerable<ITestCollection> OrderTestCollections(
+            IEnumerable<ITestCollection> testCollections) =>
+            testCollections
+                .OrderByDescending(collection => collection.DisplayName.Contains("Integration"))
+                .ThenBy(collection => collection.DisplayName)
+            ;
+    }
+
+
 }

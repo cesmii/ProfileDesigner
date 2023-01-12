@@ -490,8 +490,9 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
 
         private static DataVariableNodeIdMap GetDataVariableNodeIds(VariableModel dataVariableContainer, VariableTypeModel dataVariableContainerType)
         {
-            var dataVariables = (dataVariableContainer.DataVariables.Concat(dataVariableContainer.Properties)).ToList();
-            var typeDataVariables = dataVariableContainerType.DataVariables.Concat(dataVariableContainerType.Properties).ToList();
+            //TBD - SC to confirm w/ MH. fix - add support to protect if dataVariableContainer or dataVariableContainerType is null
+            var dataVariables = (dataVariableContainer?.DataVariables.Concat(dataVariableContainer?.Properties)).ToList();
+            var typeDataVariables = dataVariableContainerType?.DataVariables.Concat(dataVariableContainerType?.Properties).ToList();
 
             if (dataVariables?.Any() != true || typeDataVariables?.Any() != true)
                 return null;
@@ -641,34 +642,37 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
                     profileItem.Attributes.Add(attribute);
                 }
             }
-            if (_model.EnumFields?.Any() == true)
+            if (_model.EnumFields?.Any() == true || _model.HasBaseType("nsu=http://opcfoundation.org/UA/;i=29"))
             {
                 profileItem.TypeId = (int) ProfileItemTypeEnum.Enumeration;
                 if (profileItem.Attributes == null)
                 {
                     profileItem.Attributes = new List<ProfileAttributeModel>();
                 }
-                foreach (var field in _model.EnumFields)
+                if (_model.EnumFields?.Any() == true)
                 {
-                    var int64DataType = dalContext.GetDataType(OpcUaImporter.strOpcNamespaceUri, DataTypeIds.Int64.ToString());
-                    if (int64DataType == null)
+                    foreach (var field in _model.EnumFields)
                     {
-                        throw new Exception($"Unable to resolve Int64 data type.");
+                        var int64DataType = dalContext.GetDataType(OpcUaImporter.strOpcNamespaceUri, DataTypeIds.Int64.ToString());
+                        if (int64DataType == null)
+                        {
+                            throw new Exception($"Unable to resolve Int64 data type.");
+                        }
+                        var attribute = new ProfileAttributeModel
+                        {
+                            IsActive = true,
+                            Name = field.Name,
+                            BrowseName = $"{attributeNamespace};{field.Name}",
+                            // No SymbolicName for enum fields
+                            DisplayName = field.DisplayName?.FirstOrDefault()?.Text,
+                            Description = field.Description?.FirstOrDefault()?.Text,
+                            AttributeType = new LookupItemModel { ID = (int)AttributeTypeIdEnum.EnumField },
+                            DataType = int64DataType,
+                            EnumValue = field.Value,
+                            Namespace = attributeNamespace,
+                        };
+                        profileItem.Attributes.Add(attribute);
                     }
-                    var attribute = new ProfileAttributeModel
-                    {
-                        IsActive = true,
-                        Name = field.Name,
-                        BrowseName = $"{attributeNamespace};{field.Name}",
-                        // No SymbolicName for enum fields
-                        DisplayName = field.DisplayName?.FirstOrDefault()?.Text,
-                        Description = field.Description?.FirstOrDefault()?.Text,
-                        AttributeType = new LookupItemModel { ID = (int)AttributeTypeIdEnum.EnumField },
-                        DataType = int64DataType,
-                        EnumValue = field.Value,
-                        Namespace = attributeNamespace,
-                    };
-                    profileItem.Attributes.Add(attribute);
                 }
             }
         }

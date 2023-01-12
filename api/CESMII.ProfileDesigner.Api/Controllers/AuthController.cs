@@ -11,11 +11,11 @@ using CESMII.ProfileDesigner.DAL;
 using CESMII.ProfileDesigner.Api.Shared.Models;
 using CESMII.ProfileDesigner.Api.Shared.Controllers;
 using CESMII.ProfileDesigner.Api.Shared.Extensions;
+using CESMII.ProfileDesigner.Common.Enums;
 
 namespace CESMII.ProfileDesigner.Api.Controllers
 {
-    [Route("api/[controller]")]
-    [Authorize]
+    [Authorize, Route("api/[controller]")]
     public class AuthController : BaseController<AuthController>
     {
         public AuthController(UserDAL dal, ConfigUtil config, ILogger<AuthController> logger)
@@ -24,7 +24,6 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         }
 
         [HttpPost, Route("onAADLogin")]
-        [Authorize(Roles = "cesmii.profiledesigner.user")]
         public IActionResult OnAADLogin()
         {
             //extract user name from identity passed in via token
@@ -53,6 +52,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             {
                 case 1:
                     result = matches[0];
+                    result.Email = userAAD.Email;
                     result.LastLogin = DateTime.UtcNow;
                     result.DisplayName = userAAD.DisplayName;
                     _dalUser.UpdateAsync(matches[0], new UserToken() { UserId = result.ID.Value }).Wait();
@@ -61,6 +61,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                     result = new UserModel()
                     {
                         ObjectIdAAD = userAAD.ObjectIdAAD,
+                        Email = userAAD.Email,
                         DisplayName = userAAD.DisplayName,
                         LastLogin = DateTime.UtcNow
                     };

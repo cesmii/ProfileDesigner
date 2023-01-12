@@ -30,8 +30,10 @@
         [Column(name: "organization_id")]
         public int? OrganizationId { get; set; }
 
-        public virtual Organization Organization { get; set; }
+        [Column(name: "email_address")]
+        public string EmailAddress { get; set; }
 
+        public virtual Organization Organization { get; set; }
     }
 
 }

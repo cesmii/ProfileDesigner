@@ -31,10 +31,13 @@ function DownloadMessage() {
                     //check for success message OR check if some validation failed
 
                     //if success show w/ link for download
-                    //update item
+                    //update item status to show success
                     var extension = "xml";
                     if (item.downloadFormat === "AASX") {
-                        extension = "aasx"
+                        extension = "aasx";
+                    }
+                    else if (item.downloadFormat === "SmipJson") {
+                        extension = "json";
                     }
                     item = {...item, 
                         show: true,
@@ -46,11 +49,11 @@ function DownloadMessage() {
                         warnings: result.data.warnings
                     };
 
-                    //we can either download file immediately - or have user see link on screen.
-                    //if (item.immediateDownload) {
-                    //    openFile(item);
-                    //}
-
+                    //FIX - because some nodesets are large, they cause us to exceed a max storage limit in local storage. 
+                    //  so, open the file immediately and then don't save item w/ file contents
+                    //  below the state will be updated w/o the large file so user will see a confirmation of the completion
+                    openFile(item);
+                    item.data = null;
                 }
                 else {
                     item = {
@@ -153,6 +156,10 @@ function DownloadMessage() {
             blobType = 'application/octet-stream';
             blobData = Buffer.from(msg.data, "base64");
         }
+        else if (msg.downloadFormat === "SmipJson") {
+            blobType = 'application/json';
+        }
+
         const blob = new Blob([blobData], { type: blobType });
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);

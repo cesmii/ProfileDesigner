@@ -27,6 +27,9 @@ function AdminUserRow(props) { //props are item, showActions
                         Display Name
                     </th>
                     <th className="" >
+                        Email Address
+                    </th>
+                    <th className="" >
                         Object ID (AAD)
                     </th>
                     <th className="" >
@@ -45,6 +48,9 @@ function AdminUserRow(props) { //props are item, showActions
             <tr className={`mx-0 my-1 p-0 py-1 ${cssClass}`}>
                 <td className="py-2 align-middle" >
                     {props.item.displayName != null ? props.item.displayName : '(Not logged in yet)'}
+                </td>
+                <td className="py-2 align-middle" >
+                    {props.item.email}
                 </td>
                 <td className="py-2 align-middle" >
                     {props.item.objectIdAAD}

@@ -58,6 +58,37 @@
         Name = 3
     }
 
+    /// <summary>
+    /// These are used by the profile search groups. 
+    /// These are the parent categories and will be used in the front end and the search endpoint
+    /// </summary>
+    public enum ProfileSearchCriteriaCategoryEnum
+    {
+        /// <summary>
+        /// Category group of profile sources
+        /// </summary>
+        Source = 1
+    }
+
+    /// <summary>
+    /// These are used by the profile definition. 
+    /// These are the parent categories and will be used in the front end and the search endpoint
+    /// </summary>
+    public enum ProfileSearchCriteriaSourceEnum
+    {
+        /// <summary>
+        /// Profiles owned or editable by the user
+        /// </summary>
+        Mine = 1,
+        /// <summary>
+        /// Read-only profiles available to/imported by the user
+        /// </summary>
+        BaseProfile = 2,
+        /// <summary>
+        /// Cloud Library profiles available for import
+        /// </summary>
+        CloudLib = 3,
+    }
 
     public enum PermissionEnum
     {
@@ -83,4 +114,15 @@
         [Description("UserAzureADMapped")]
         UserAzureADMapped = 130
     }
+
+    // Keep in sync with:
+    // - frontend: AppSettings
+    // - CloudLib SDK: Opc.Ua.Cloud.Library.Client.License
+    public enum ProfileLicenseEnum 
+    {
+        MIT,
+        ApacheLicense20,
+        Custom
+    }
+
 }

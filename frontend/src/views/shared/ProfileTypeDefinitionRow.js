@@ -25,10 +25,17 @@ function ProfileTypeDefinitionRow(props) { //props are item, showActions
         setLoadingProps({ downloadItems: JSON.parse(JSON.stringify(msgs)) });
     }
     const downloadProfileAsAASX = async () => {
-        console.log(generateLogMessageString(`downloadProfile||start`, CLASS_NAME));
+        console.log(generateLogMessageString(`downloadProfileAASX||start`, CLASS_NAME));
         //add a row to download messages and this will kick off download
         var msgs = loadingProps.downloadItems || [];
         msgs.push({ profileId: props.item.profile?.id, fileName: cleanFileName(props.item.profile?.namespace), immediateDownload: true, downloadFormat: AppSettings.ExportFormatEnum.AASX });
+        setLoadingProps({ downloadItems: JSON.parse(JSON.stringify(msgs)) });
+    }
+    const downloadProfileAsSmipJson = async () => {
+        console.log(generateLogMessageString(`downloadProfileSmipJson||start`, CLASS_NAME));
+        //add a row to download messages and this will kick off download
+        var msgs = loadingProps.downloadItems || [];
+        msgs.push({ profileId: props.item.profile?.id, fileName: cleanFileName(props.item.profile?.namespace), immediateDownload: true, downloadFormat: AppSettings.ExportFormatEnum.SmipJson });
         setLoadingProps({ downloadItems: JSON.parse(JSON.stringify(msgs)) });
     }
 
@@ -85,6 +92,7 @@ function ProfileTypeDefinitionRow(props) { //props are item, showActions
                         }
                         <Dropdown.Item key="moreVert5" onClick={downloadProfile} ><span className="mr-3" alt="arrow-drop-down"><SVGDownloadIcon name="downloadNodeset" /></span>Download Profile '{getProfileCaption(props.item.profile)}'</Dropdown.Item>
                         <Dropdown.Item key="moreVert6" onClick={downloadProfileAsAASX} ><span className="mr-3" alt="arrow-drop-down"><SVGDownloadIcon name="downloadNodeset" /></span>Download Profile '{getProfileCaption(props.item.profile)}' as AASX</Dropdown.Item>
+                        <Dropdown.Item key="moreVert6" onClick={downloadProfileAsSmipJson} ><span className="mr-3" alt="arrow-drop-down"><SVGDownloadIcon name="downloadNodeset" /></span>Download Profile '{getProfileCaption(props.item.profile)}' for SMIP import (experimental)</Dropdown.Item>
                     </Dropdown.Menu>
                 </Dropdown>
             </>
@@ -110,7 +118,7 @@ function ProfileTypeDefinitionRow(props) { //props are item, showActions
     const renderSelectColumn = (item) => {
 
         return (
-            <div className="mr-3 d-flex align-items-center" >
+            <div className="col-select mr-3 d-flex" >
                 {renderSelectIcon(item)}
             </div>
         );

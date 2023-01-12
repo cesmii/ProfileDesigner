@@ -12,5 +12,9 @@
 
         // A list of the summary of the data, but could be average etc. hence list.
         public List<T> SummaryData { get; set; }
+        public string StartCursor { get; set; }
+        public string EndCursor { get; set; }
+        public bool? HasNextPage { get; set; }
+        public bool? HasPreviousPage { get; set; }
     }
 }

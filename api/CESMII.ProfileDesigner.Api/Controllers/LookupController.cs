@@ -18,7 +18,7 @@ using CESMII.ProfileDesigner.DAL.Utils;
 
 namespace CESMII.ProfileDesigner.Api.Controllers
 {
-    [Authorize, Route("api/[controller]")]
+    [Authorize(Policy = nameof(PermissionEnum.UserAzureADMapped)), Route("api/[controller]")]
     public class LookupController : BaseController<LookupController>
     {
         private readonly IDal<LookupItem, LookupItemModel> _dal;
@@ -42,7 +42,6 @@ namespace CESMII.ProfileDesigner.Api.Controllers
 
 
         [HttpGet, Route("All")]
-        [Authorize(Roles = "cesmii.profiledesigner.user", Policy = nameof(PermissionEnum.UserAzureADMapped))]
         [ProducesResponseType(200, Type = typeof(AppLookupModel))]
         [ProducesResponseType(400)]
         public IActionResult GetAll()
@@ -70,7 +69,6 @@ namespace CESMII.ProfileDesigner.Api.Controllers
 
 
         [HttpGet, Route("searchcriteria")]
-        [Authorize(Roles = "cesmii.profiledesigner.user", Policy = nameof(PermissionEnum.UserAzureADMapped))]
         [ProducesResponseType(200, Type = typeof(ProfileTypeDefFilterModel))]
         [ProducesResponseType(400)]
         public IActionResult GetSearchCriteria() //[FromBody] LookupGroupByModel model)
@@ -102,7 +100,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             };
 
             //group the result by lookup type
-            var excludeList = new List<int?> { (int)ProfileItemTypeEnum.Class };
+            var excludeList = new List<int?> { /*(int)ProfileItemTypeEnum.Class*/ };
             excludeList = excludeList.Union(ProfileMapperUtil.ExcludedProfileTypes).ToList();
             var allItems = _dal.GetAll(base.DalUserToken).Where(x => !excludeList.Contains(x.ID) &&
                 x.LookupType == LookupTypeEnum.ProfileType);
@@ -149,5 +147,88 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             return Ok(result);
         }
 
+        [HttpGet, Route("searchcriteria/profile")]
+        [ProducesResponseType(200, Type = typeof(ProfileFilterModel))]
+        [ProducesResponseType(400)]
+        public IActionResult GetProfileSearchCriteria() //[FromBody] LookupGroupByModel model)
+        {
+            //populate specific types
+            var filters = new List<LookupGroupByModel>
+            {
+                // separate section for my profiles - follow the same structure for flexibility but only including one hardcoded type
+                new LookupGroupByModel()
+                {
+                    Name = ProfileSearchCriteriaCategoryEnum.Source.ToString(),
+                    ID = (int)ProfileSearchCriteriaCategoryEnum.Source,
+                    Items = new List<LookupItemFilterModel>() 
+                    { 
+                        new LookupItemFilterModel() 
+                        {
+                            ID = (int)ProfileSearchCriteriaSourceEnum.Mine,
+                            Name = "My Profiles",
+                            Selected = false,
+                            Visible = true
+                        },
+                        new LookupItemFilterModel()
+                        {
+                            ID = (int)ProfileSearchCriteriaSourceEnum.BaseProfile,
+                            Name = "Base Profiles",
+                            Selected = false,
+                            Visible = true
+                        },
+                        new LookupItemFilterModel()
+                        {
+                            ID = (int)ProfileSearchCriteriaSourceEnum.CloudLib,
+                            Name = "Cloud Library",
+                            Selected = false,
+                            Visible = false
+                        }                  
+                    }
+                }
+            };
+
+            //leave query null, skip, take defaults
+            var result = new ProfileFilterModel()
+            {
+                Filters = filters,
+            };
+
+            return Ok(result);
+        }
+
+        [HttpGet, Route("searchcriteria/cloublibimporter")]
+        [ProducesResponseType(200, Type = typeof(ProfileFilterModel))]
+        [ProducesResponseType(400)]
+        public IActionResult GetCloudLibSearchCriteria() //[FromBody] LookupGroupByModel model)
+        {
+            //populate specific types
+            var filters = new List<LookupGroupByModel>
+            {
+                // separate section for my profiles - follow the same structure for flexibility but only including one hardcoded type
+                new LookupGroupByModel()
+                {
+                    Name = ProfileSearchCriteriaCategoryEnum.Source.ToString(),
+                    ID = (int)ProfileSearchCriteriaCategoryEnum.Source,
+                    Items = new List<LookupItemFilterModel>()
+                    {
+                        new LookupItemFilterModel()
+                        {
+                            ID = (int)ProfileSearchCriteriaSourceEnum.BaseProfile,
+                            Name = "Show Imported Profiles",
+                            Selected = false,
+                            Visible = true
+                        }
+                    }
+                }
+            };
+
+            //leave query null, skip, take defaults
+            var result = new ProfileFilterModel()
+            {
+                Filters = filters,
+            };
+
+            return Ok(result);
+        }
     }
 }

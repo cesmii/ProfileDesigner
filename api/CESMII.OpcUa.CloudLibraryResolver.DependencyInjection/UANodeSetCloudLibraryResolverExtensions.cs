@@ -8,16 +8,24 @@
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
+using Opc.Ua.Cloud.Library.Client;
 
 namespace CESMII.OpcUa.NodeSetImporter
 {
     public static class UANodeSetCloudLibraryResolverExtensions
     {
+        public static IServiceCollection AddCloudLibraryResolver(this IServiceCollection services)
+        {
+            services
+                .AddScoped<IUANodeSetResolverWithProgress, UANodeSetCloudLibraryResolver>(sp => new UANodeSetCloudLibraryResolver(sp.GetRequiredService<IOptions<UACloudLibClient.Options>>().Value))
+                ;
+            return services;
+        }
         public static IServiceCollection AddCloudLibraryResolver(this IServiceCollection services, IConfiguration configurationSection)
         {
             services
-                .Configure<UANodeSetCloudLibraryResolver.CloudLibraryOptions>(configurationSection)
-                .AddScoped<IUANodeSetResolverWithProgress, UANodeSetCloudLibraryResolver>(sp => new UANodeSetCloudLibraryResolver(sp.GetRequiredService<IOptions<UANodeSetCloudLibraryResolver.CloudLibraryOptions>>().Value))
+                .Configure<UACloudLibClient.Options>(configurationSection)
+                .AddScoped<IUANodeSetResolverWithProgress, UANodeSetCloudLibraryResolver>(sp => new UANodeSetCloudLibraryResolver(sp.GetRequiredService<IOptions<UACloudLibClient.Options>>().Value))
                 ;
             return services;
         }

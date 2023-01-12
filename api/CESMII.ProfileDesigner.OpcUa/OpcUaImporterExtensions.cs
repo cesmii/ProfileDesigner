@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using CESMII.OpcUa.NodeSetModel;
 using CESMII.OpcUa.NodeSetImporter;
 using Microsoft.AspNetCore.Builder;
+using CESMII.ProfileDesigner.Opc.Ua.NodeSetDBCache;
 
 #if NODESETDBTEST
 using Microsoft.EntityFrameworkCore;
@@ -30,7 +31,8 @@ namespace CESMII.ProfileDesigner.OpcUa
                         .EnableSensitiveDataLogging()
             );
 #endif
-            services.AddCloudLibraryResolver(configuration.GetSection("CloudLibrary"));
+            services.AddCloudLibraryResolver();
+            services.AddScoped<UANodeSetDBCache>();
         }
         public static void UseOpcUaImporter(this IApplicationBuilder app)
         {

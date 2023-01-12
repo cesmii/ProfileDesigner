@@ -9,22 +9,13 @@ using Opc.Ua.Cloud.Library.Client;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace CESMII.OpcUa.NodeSetImporter
 {
     public class UANodeSetCloudLibraryResolver : IUANodeSetResolverWithProgress
     {
-        public class CloudLibraryOptions
-        {
-            public string EndPoint { get; set; }
-            public string UserName { get; set; }
-            public string Password { get; set; }
-        }
-
         public OnResolveNodeSets OnResolveNodeSets { get; set; }
         public OnNodeSet OnDownloadNodeSet { get; set; }
         public OnNodeSet OnNodeSetFound { get; set; }
@@ -45,7 +36,7 @@ namespace CESMII.OpcUa.NodeSetImporter
                 _client = new UACloudLibClient(strEndPoint, strUserName, strPassword);
             }
         }
-        public UANodeSetCloudLibraryResolver(CloudLibraryOptions options) : this(options.EndPoint, options.UserName, options.Password)
+        public UANodeSetCloudLibraryResolver(UACloudLibClient.Options options) : this(options.EndPoint, options.Username, options.Password)
         {
         }
         public UANodeSetCloudLibraryResolver(UACloudLibClient client)
@@ -69,7 +60,7 @@ namespace CESMII.OpcUa.NodeSetImporter
                     var nodeSets = await _client.GetNodeSetDependencies(namespaceUri: missingModel.ModelUri).ConfigureAwait(false);
                     foreach (var nodeSet in nodeSets)
                     {
-                        nodesetWithURIAndDate.Add((nodeSet.NamespaceUri.ToString(), nodeSet.PublicationDate, nodeSet.Identifier.ToString(CultureInfo.InvariantCulture), nodeSet.NodesetXml));
+                        nodesetWithURIAndDate.Add((nodeSet.NamespaceUri.OriginalString, nodeSet.PublicationDate, nodeSet.Identifier.ToString(CultureInfo.InvariantCulture), nodeSet.NodesetXml));
                     }
                 }
             }
@@ -85,7 +76,7 @@ namespace CESMII.OpcUa.NodeSetImporter
                         OnDownloadNodeSet?.Invoke(nsid.NamespaceUri, null);
                         var nodeSet = await _client.DownloadNodesetAsync(nsid.Identifier).ConfigureAwait(false);
                         nodesetWithURIAndDate.Add((
-                            nodeSet.Nodeset.NamespaceUri?.ToString() ?? nsid.NamespaceUri, // TODO cloud lib currently doesn't return the namespace uri: report issue/fix
+                            nodeSet.Nodeset.NamespaceUri?.OriginalString ?? nsid.NamespaceUri, // TODO cloud lib currently doesn't return the namespace uri: report issue/fix
                             nodeSet.Nodeset.PublicationDate,
                             (string) null,
                             nodeSet.Nodeset.NodesetXml));

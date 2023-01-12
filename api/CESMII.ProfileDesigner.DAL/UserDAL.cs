@@ -173,7 +173,8 @@
                     //AAD - certain data no longer stored in db
                     Organization = entity.Organization == null ? null : new OrganizationModel() { ID = entity.Organization.ID, Name = entity.Organization.Name },
                     Created = entity.Created,
-                    LastLogin = entity.LastLogin
+                    LastLogin = entity.LastLogin,
+                    Email = entity.EmailAddress,
                 };
             }
             else
@@ -189,6 +190,7 @@
             entity.LastLogin = model.LastLogin;
             entity.DisplayName = model.DisplayName;
             entity.OrganizationId = model.Organization?.ID;
+            entity.EmailAddress = model.Email;
 
             //AAD - no longer needed
             //handle update of user permissions

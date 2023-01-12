@@ -39,7 +39,7 @@ function NotAuthorized() {
                             Please re-check your account information or contact the system administrator about your account.
                         </p>
                         <p>
-                        <a href="/login" >Try Again</a>
+                        <a href="/" >Home</a>
                         </p>
                     </div>
                 </div>

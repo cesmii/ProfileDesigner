@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using CESMII.ProfileDesigner.Api.Controllers;
+using CESMII.Common.CloudLibClient;
 using CESMII.ProfileDesigner.Data.Entities;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -85,8 +86,11 @@ namespace CESMII.ProfileDesigner.Api.Tests
                         };
                     })
                 ;
-                // Inject Cloud Library Mock - uncomment to test against live cloud lib
+                // Inject Cloud Library Mock - comment out to test against live cloud lib
                 // Delete mock data files to record reponses from a live cloud lib
+                services.RemoveAll<ICloudLibWrapper>();
+                services.AddScoped<CloudLibWrapper>();
+                services.AddScoped<ICloudLibWrapper, CloudLibMock>();
             });
         }
 
@@ -121,7 +125,7 @@ namespace CESMII.ProfileDesigner.Api.Tests
                     new Claim("ClaimTypes.Surname", "cesmiitest"),
                     new Claim("ClaimTypes.GivenName", "cesmiitest"),
                     new Claim("name", "cesmiitest"),
-                    new Claim("role", "cesmii.profiledesigner.user"),
+                    //new Claim("role", "cesmii.profiledesigner.user"),
                 }));
             var tokenInfo = new JwtSecurityToken(issuer: "testissuer", claims: testUser.Claims);
 

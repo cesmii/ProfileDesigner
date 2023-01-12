@@ -13,7 +13,7 @@ import { AppSettings } from './utils/appsettings'
 import { generateLogMessageString } from './utils/UtilityService'
 import ErrorPage from './components/ErrorPage'
 import { OnLookupLoad } from './components/OnLookupLoad'
-import { useLoginSilent, useOnLoginComplete } from "./components/OnLoginHandler";
+import { useLoginSilent, useRegisterMsalEventCallback } from "./components/OnLoginHandler";
 
 import './App.scss';
 
@@ -49,7 +49,7 @@ function App() {
         //no status is our only indicator the API is not up and running
         else if (!err.status) {
             console.log(generateLogMessageString(`axiosInstance.interceptors.response||error||${err.config.baseURL}${err.config.url}||${err}`, CLASS_NAME));
-            if (err.message != null && err.message.toLowercase().indexOf('request aborted') > -1) {
+            if (err.message != null && err.message.toLowerCase().indexOf('request aborted') > -1) {
                 //do nothing...
             }
             else {
@@ -96,13 +96,19 @@ function App() {
     // Region: hooks
     // once login completes, determine where to navigate based on outcome
     //-------------------------------------------------------------------
-    useOnLoginComplete();
+    //useOnLoginComplete();
 
     //-------------------------------------------------------------------
     // Region: hooks - moved into separate component
     // useEffect - get various lookup data - onlookupLoad component houses the useEffect checks
     //-------------------------------------------------------------------
     OnLookupLoad();
+
+    //-------------------------------------------------------------------
+    // Region: add an event callback handler to capture loginredirect message responses
+    //              only add the callback once.
+    //-------------------------------------------------------------------
+    useRegisterMsalEventCallback(setLoadingProps);
 
     //-------------------------------------------------------------------
     // Region: Render

@@ -1,16 +1,20 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <Configurations>Debug;Release;Staging</Configurations>
   </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.4" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="6.0.4" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="6.0.4" />
+	<ItemGroup>
+		<None Include="..\..\sql\CESMII.ProfileDesigner.DB.sql" Link="CESMII.ProfileDesigner.DB.sql" />
+	</ItemGroup>
+
+	<ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.5" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="6.0.5" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="6.0.5" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.4" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.5" />
   </ItemGroup>
 
   <ItemGroup>

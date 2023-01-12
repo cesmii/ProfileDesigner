@@ -27,6 +27,10 @@
     .col.clickable:hover {
         cursor: pointer;
     }
+
+    &.selectable .col-select {
+        margin-top:13px;
+    }
     /*
     &.mine {
         background-color: color("hlBlue");
@@ -37,7 +41,7 @@
             border: 1px solid color("cornflower");
         }
     }
-*/
+    */
 
     &:hover {
         // background-color: color("alabaster");
@@ -60,6 +64,17 @@
 
     &.selectable {
         cursor: pointer;
+    }
+
+    &.select-readonly {
+        @include background-opacity(color("silver"), .5);
+        background-color: color("silver");
+
+        &:hover {
+            @include background-opacity(color("silver"), .5);
+            background-color: color("silver");
+            border: 1px solid color("white");
+        }
     }
 
     .item-text-block {

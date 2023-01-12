@@ -8,40 +8,40 @@
       "sslPort": 44345
     }
   },
-    "profiles": {
-        "IIS Express": {
-            "commandName": "IISExpress",
-            "launchBrowser": true,
-            "launchUrl": "swagger",
-            "environmentVariables": {
-                "ASPNETCORE_ENVIRONMENT": "Development"
-            }
-        },
-        "IIS Express - Staging": {
-            "commandName": "IISExpress",
-            "launchBrowser": true,
-            "launchUrl": "swagger",
-            "environmentVariables": {
-                "ASPNETCORE_ENVIRONMENT": "Staging"
-            }
-        },
-        "IIS Express - Local": {
-            "commandName": "IISExpress",
-            "launchBrowser": true,
-            "launchUrl": "swagger",
-            "environmentVariables": {
-                "ASPNETCORE_ENVIRONMENT": "Development.Local"
-            }
-        },
-      "CESMII.ProfileDesigner.Api": {
-        "commandName": "Project",
-        "dotnetRunMessages": "true",
-        "launchBrowser": true,
-        "launchUrl": "swagger",
-        "applicationUrl": "https://localhost:5001;http://localhost:5000",
-        "environmentVariables": {
-          "ASPNETCORE_ENVIRONMENT": "Development"
-        }
+  "profiles": {
+    "IIS Express": {
+      "commandName": "IISExpress",
+      "launchBrowser": true,
+      "launchUrl": "swagger",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    },
+    "IIS Express - Staging": {
+      "commandName": "IISExpress",
+      "launchBrowser": true,
+      "launchUrl": "swagger",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Staging"
+      }
+    },
+    "IIS Express - Local": {
+      "commandName": "IISExpress",
+      "launchBrowser": true,
+      "launchUrl": "swagger",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development.Local"
+      }
+    },
+    "CESMII.ProfileDesigner.Api": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "launchBrowser": false,
+      "launchUrl": "swagger",
+      "applicationUrl": "https://localhost:5003;http://localhost:5002",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
       }
     }
+  }
 }

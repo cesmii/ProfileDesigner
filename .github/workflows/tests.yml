@@ -32,7 +32,9 @@ jobs:
     name: Build and Test .NET6 Web API
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
       - name: Set up dotnet Core ${{ env.NETCORE_VERSION }}
         uses: actions/setup-dotnet@v1
         with:
@@ -53,7 +55,10 @@ jobs:
           sudo -u postgres psql --command="CREATE DATABASE profile_designer_local_test WITH OWNER = profiledesigner TABLESPACE = pg_default CONNECTION LIMIT = -1;"
       - name: Create schema
         run: |
-          sudo -u postgres psql -d profile_designer_local_test --file sql/CESMII.ProfileDesigner.DB.sql
+          ls -l ./sql
+          head -5 ./sql/CESMII.ProfileDesigner.DB.sql
+          sudo -u postgres psql -d profile_designer_local_test < ./sql/CESMII.ProfileDesigner.DB.sql
+          #sudo -u postgres psql -d profile_designer_local_test --file ./sql/CESMII.ProfileDesigner.DB.sql
       - name: List existing databases
         run: |
           sudo -u postgres psql -l

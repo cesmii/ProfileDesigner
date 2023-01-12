@@ -1,6 +1,9 @@
 //#region MSAL Helper Settings
 // Browser check variables
 // If you support IE, our recommendation is that you sign-in using Redirect APIs
+
+import { LogLevel } from "@azure/msal-browser";
+
 // If you as a developer are testing using Edge InPrivate mode, please add "isEdge" to the if check
 const _ua = window.navigator.userAgent;
 const _msie = _ua.indexOf("MSIE ");
@@ -19,7 +22,7 @@ export const AppSettings = {
     BASE_API_URL: process.env.REACT_APP_BASE_API_URL  //api server url - environment specific
     , Titles: { Anonymous: 'CESMII | SM Profile Designer', Main: 'CESMII | SM Profile Designer', Caption: 'SM Profile™ Designer' }
     , PageSize: 25
-    , PageSizeOptions: [10, 25, 50, 100]
+    , PageSizeOptions: [5, 10, 25, 50, 100]
     , DateSettings: {
         DateFormat: 'M/d/yyyy'
         , DateFormat_Grid: 'MM/dd/yyyy'
@@ -80,9 +83,23 @@ export const AppSettings = {
         Failed: 16,
         Cancelled: 17
     }
-    , ExportFormatEnum : {
+    , ExportFormatEnum: {
         XML: 'Xml',
-        AASX: 'AASX'
+        AASX: 'AASX',
+        SmipJson: 'SmipJson'
+    }
+    , ImportSourceEnum: {
+        NodeSetXML: 'NodeSet Xml',
+        CloudLib: 'Cloud Library'
+    }
+    , ProfileLicenseEnum: {
+        0: 'MIT',
+        1: 'Apache 2.0',
+        2: 'Custom (see License URL)'
+    }
+    , ProfileListMode: {
+        Profile: 1,
+        CloudLib: 2
     }
     //MSAL (Authentication) Config
     , MsalConfig: {
@@ -98,15 +115,39 @@ export const AppSettings = {
         },
         system: {
             iframeHashTimeout: 10000, //avoid monitor time out error on silent login
+            loggerOptions: {
+                logLevel: LogLevel.Info,
+                loggerCallback: (level, message, containsPii) => {
+                    if (containsPii) {
+                        return;
+                    }
+                    switch (level) {
+                        case LogLevel.Error:
+                            console.error(message);
+                            return;
+                        case LogLevel.Verbose:
+                            console.debug(message);
+                            return;
+                        case LogLevel.Warning:
+                            console.warn(message);
+                            return;
+                        case LogLevel.Info:
+                        default:
+                            console.info(message);
+                            return;
+                    }
+                },
+                piiLoggingEnabled: false
+            }
         },
     }
     , MsalScopes: [process.env.REACT_APP_MSAL_SCOPE]  //tied to scope defined in app registration / scope, set in Azure AAD
-    , AADUserRole: "cesmii.profiledesigner.user"
+    //, AADUserRole: "cesmii.profiledesigner.user"
 }
 
 export const LookupData = {
     dataTypes: [
-          { caption: "Boolean", val: "boolean", useMinMax: false, useEngUnit: false }
+        { caption: "Boolean", val: "boolean", useMinMax: false, useEngUnit: false }
         , { caption: "Char", val: "char", useMinMax: false, useEngUnit: false }
         , { caption: "Composition", val: "composition", useMinMax: false, useEngUnit: false }
         , { caption: "Double", val: "double", useMinMax: true, useEngUnit: true }
@@ -144,7 +185,7 @@ export const LookupData = {
     //    ,{ id: 3, name: "VariableType" }
     //],
     searchFields: [
-          { caption: "Author", val: "author.fullName", dataType: "string" }
+        { caption: "Author", val: "author.fullName", dataType: "string" }
         , { caption: "Description", val: "description", dataType: "string" }
         , { caption: "Id", val: "id", dataType: "numeric" }
         , { caption: "Interface", val: "interface.name", dataType: "string" }

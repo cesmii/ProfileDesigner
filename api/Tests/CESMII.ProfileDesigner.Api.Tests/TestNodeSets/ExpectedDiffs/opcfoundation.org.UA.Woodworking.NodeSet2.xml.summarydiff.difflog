@@ -1,5 +1,4 @@
 ====>Expected attribute name '/UANodeSet[1]' - comparing <UANodeSet...> at /UANodeSet[1] to <UANodeSet...> at /UANodeSet[1]/@LastModified
-====>Expected attribute value '2021-10-03T01:00:00Z' but was '2021-10-03T00:00:00Z' - comparing <Model PublicationDate="2021-10-03T01:00:00Z"...> at /UANodeSet[1]/Models[1]/Model[1]/@PublicationDate to <Model PublicationDate="2021-10-03T00:00:00Z"...> at /UANodeSet[1]/Models[1]/Model[1]/@PublicationDate
 ====>Expected attribute name '/UANodeSet[1]/UADataType[5]/Definition[1]/@IsUnion' - comparing <Definition...> at /UANodeSet[1]/UADataType[5]/Definition[1]/@IsUnion to <Definition...> at /UANodeSet[1]/UADataType[3]/Definition[1]
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAVariable[47]/References[1]/Reference[3] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAVariable[47]/References[1]/Reference[6] to <NULL>

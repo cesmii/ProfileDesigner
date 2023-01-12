@@ -38,6 +38,7 @@ using CESMII.ProfileDesigner.Api.Shared.Extensions;
 using CESMII.Common.CloudLibClient;
 using Opc.Ua.Cloud.Library.Client;
 using System.IdentityModel.Tokens.Jwt;
+using CESMII.OpcUa.NodeSetImporter;
 
 namespace CESMII.ProfileDesigner.Api
 {
@@ -109,6 +110,7 @@ namespace CESMII.ProfileDesigner.Api
             services.AddScoped<IDal<NodeSetFile, NodeSetFileModel>, NodeSetFileDAL>();
             services.AddScoped<ICloudLibDal<CloudLibProfileModel>, CloudLibDAL>();
             services.AddScoped<ICloudLibWrapper, CloudLibWrapper>();
+            services.AddCloudLibraryResolver();
 
             // Configuration, utils, one off objects
             services.AddSingleton<IConfiguration>(Configuration);

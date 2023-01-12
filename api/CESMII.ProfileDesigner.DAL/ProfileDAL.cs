@@ -58,7 +58,7 @@
             var query = base.FindByCondition(userToken, x =>
                (
                  (model.ID != 0 && model.ID != null && x.ID == model.ID)
-                 || (x.Namespace == model.Namespace && x.Version == model.Version)
+                 || (x.Namespace == model.Namespace && x.Version == model.Version && x.PublishDate == model.PublishDate)
                ) /*&& (x.AuthorId == null || x.AuthorId == tenantId)*/, cacheOnly);
             var profile = query.FirstOrDefault();
             return profile;
@@ -271,7 +271,7 @@
                     var current = entity.NodeSetFiles[i];
 
                     //remove if no longer present
-                    var source = files.Find(v => v.ID.Equals(current.ID) || v.FileName == current.FileName);
+                    var source = files.Find(v => v.ID.Equals(current.ID) || (v.FileName == current.FileName && v.PublicationDate == current.PublicationDate && v.Version == current.Version));
                     if (source == null)
                     {
                         entity.NodeSetFiles.RemoveAt(i);
@@ -286,7 +286,7 @@
             // Loop over interfaces passed in and only add those not already there
             foreach (var file in files)
             {
-                if ((file.ID ?? 0) == 0 || entity.NodeSetFiles.Find(x => x.ID.Equals(file.ID) || x.FileName == file.FileName) == null)
+                if ((file.ID ?? 0) == 0 || entity.NodeSetFiles.Find(x => x.ID.Equals(file.ID) || (x.FileName == file.FileName && x.PublicationDate == file.PublicationDate && x.Version == file.Version)) == null)
                 {
                     var fileEntity = _nodeSetFileDAL.CheckForExisting(file, userToken);
                     if (fileEntity == null)

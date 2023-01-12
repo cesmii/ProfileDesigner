@@ -124,7 +124,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
                         //Namespace = opcObject.Namespace,
                         RelatedReferenceId = parentRef.Reference,
                         RelatedReferenceIsInverse = true,
-                        Profile = parent.CustomState as ProfileModel ?? dalContext.GetProfileForNamespace(parent.Namespace),
+                        Profile = parent.CustomState as ProfileModel ?? dalContext.GetProfileForNamespace(parent.Namespace, parent.NodeSet.PublicationDate, parent.NodeSet.Version),
                     };
                     profileItem.Compositions.Add(composition);
                     bUpdated = true;
@@ -168,7 +168,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
                     RelatedModelingRule = opcObject.ModelingRule,
                     //OpcNodeId = NodeModelUtils.GetNodeIdIdentifier(opcObject.NodeId),
                     //Namespace = opcObject.Namespace,
-                    Profile = opcObject.CustomState as ProfileModel ?? dalContext.GetProfileForNamespace(opcObject.Namespace),
+                    Profile = opcObject.CustomState as ProfileModel ?? dalContext.GetProfileForNamespace(opcObject.Namespace, opcObject.NodeSet.PublicationDate, opcObject.NodeSet.Version),
                 };
                 profileItem.Compositions.Add(composition);
             }
@@ -201,7 +201,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
                         //OpcNodeId = NodeModelUtils.GetNodeIdIdentifier(child.NodeId),
                         //Namespace = opcObject.Namespace,
                         RelatedReferenceId = childRef.Reference,
-                        Profile = child.CustomState as ProfileModel ?? dalContext.GetProfileForNamespace(child.Namespace),
+                        Profile = child.CustomState as ProfileModel ?? dalContext.GetProfileForNamespace(child.Namespace, child.NodeSet.PublicationDate, child.NodeSet.Version),
                     };
                     profileItem.Compositions.Add(composition);
                 }
@@ -239,7 +239,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
                     RelatedModelingRule = uaMethod.ModelingRule,
                     //OpcNodeId = NodeModelUtils.GetNodeIdIdentifier(uaMethod.NodeId),
                     //Namespace = opcObject.Namespace,
-                    Profile = uaMethod.CustomState as ProfileModel ?? dalContext.GetProfileForNamespace(uaMethod.Namespace),
+                    Profile = uaMethod.CustomState as ProfileModel ?? dalContext.GetProfileForNamespace(uaMethod.Namespace, uaMethod.NodeSet.PublicationDate, uaMethod.NodeSet.Version),
                 };
                 profileItem.Compositions.Add(composition); // TODO Confirm that this results in correct nodeset on export
             }
@@ -264,7 +264,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
                     //RelatedModelingRule = uaEvent.ModelingRule,
                     //OpcNodeId = NodeModelUtils.GetNodeIdIdentifier(uaEvent.NodeId),
                     //Namespace = opcObject.Namespace,
-                    Profile = uaEvent.CustomState as ProfileModel ?? dalContext.GetProfileForNamespace(uaEvent.Namespace),
+                    Profile = uaEvent.CustomState as ProfileModel ?? dalContext.GetProfileForNamespace(uaEvent.Namespace, uaEvent.NodeSet.PublicationDate, uaEvent.NodeSet.Version),
                 };
                 profileItem.Compositions.Add(composition); // TODO Confirm that this results in correct nodeset on export
             }

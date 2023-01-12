@@ -186,7 +186,7 @@
             }
             else
             {
-                filterExpression = pi => pi.OpcNodeId == model.OpcNodeId && pi.Profile.Namespace == model.Profile.Namespace;
+                filterExpression = pi => pi.OpcNodeId == model.OpcNodeId && pi.Profile.Namespace == model.Profile.Namespace && pi.Profile.PublishDate == model.Profile.PublishDate && pi.Profile.Version == model.Profile.Version;
             }
 
             return filterExpression;

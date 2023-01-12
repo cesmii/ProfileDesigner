@@ -86,7 +86,7 @@ namespace CESMII.ProfileDesigner.Api.Tests
         public OnNodeSet OnNodeSetFound { get; set; }
         public OnNodeSet OnNodeSetNotFound { get; set; }
 
-        public async Task<GraphQlResult<Nodeset>> SearchAsync(int? limit, string cursor, bool pageBackwards, List<string> keywords, List<string> exclude)
+        public async Task<GraphQlResult<Nodeset>> SearchAsync(int? limit, string cursor, bool pageBackwards, List<string> keywords, List<string> exclude, bool noTotalCount)
         {
             var inputs = new SearchInputs
             {
@@ -97,7 +97,7 @@ namespace CESMII.ProfileDesigner.Api.Tests
             };
             if (_wrapper != null)
             {
-                var result = await _wrapper.SearchAsync(limit, cursor, pageBackwards, keywords, exclude);
+                var result = await _wrapper.SearchAsync(limit, cursor, pageBackwards, keywords, exclude, noTotalCount);
 
                 if (!_searchData.ContainsKey(inputs))
                 {

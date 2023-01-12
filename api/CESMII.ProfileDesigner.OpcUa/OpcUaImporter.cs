@@ -46,7 +46,7 @@ namespace CESMII.ProfileDesigner.OpcUa
             IDal<Profile, ProfileModel> profileDal,
             IDal<StandardNodeSet, StandardNodeSetModel> dalStandardNodeSet, 
             ICloudLibDal<CloudLibProfileModel> cloudLibDal,
-            ICloudLibWrapper cloudLibWrapper,
+            IUANodeSetResolverWithProgress cloudLibResolver,
             IDal<NodeSetFile, NodeSetFileModel> nodeSetFileDal,
             UANodeSetDBCache nodeSetCache,
             IDal<EngineeringUnit, EngineeringUnitModel> euDal,
@@ -68,7 +68,7 @@ namespace CESMII.ProfileDesigner.OpcUa
             _profileDal = profileDal;
             _dalStandardNodeSet = dalStandardNodeSet;
             _cloudLibDal = cloudLibDal;
-            _cloudLibWrapper = cloudLibWrapper;
+            _cloudLibResolver = cloudLibResolver;
             _nodeSetFileDal = nodeSetFileDal;
             _nodeSetCache = nodeSetCache;
             _profileUtils = profileUtils;
@@ -86,7 +86,7 @@ namespace CESMII.ProfileDesigner.OpcUa
         internal readonly IDal<Data.Entities.Profile, DAL.Models.ProfileModel> _profileDal;
         private readonly IDal<StandardNodeSet, StandardNodeSetModel> _dalStandardNodeSet;
         private readonly ICloudLibDal<CloudLibProfileModel> _cloudLibDal;
-        private readonly ICloudLibWrapper _cloudLibWrapper;
+        private readonly IUANodeSetResolverWithProgress _cloudLibResolver;
         private readonly IDal<NodeSetFile, NodeSetFileModel> _nodeSetFileDal;
         private readonly UANodeSetDBCache _nodeSetCache;
         readonly Dictionary<string, string> Aliases = new();
@@ -378,12 +378,12 @@ namespace CESMII.ProfileDesigner.OpcUa
             UANodeSetImportResult resultSet;
             try
             {
-                _cloudLibWrapper.OnDownloadNodeSet += callback;
-                resultSet = UANodeSetImporter.ImportNodeSets(myNodeSetCache, null, nodeSetXmlStringList, false, userToken, _cloudLibWrapper);
+                _cloudLibResolver.OnDownloadNodeSet += callback;
+                resultSet = UANodeSetImporter.ImportNodeSets(myNodeSetCache, null, nodeSetXmlStringList, false, userToken, _cloudLibResolver);
             }
             finally
             {
-                _cloudLibWrapper.OnDownloadNodeSet -= callback;
+                _cloudLibResolver.OnDownloadNodeSet -= callback;
             }
 
             return resultSet;

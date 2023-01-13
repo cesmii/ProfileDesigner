@@ -1,2 +1,5 @@
+###1#Feature#preserve required version on export#1
+====>Expected attribute value '2021-03-09T00:00:00Z' but was '2022-11-03T00:00:00Z' - comparing <RequiredModel PublicationDate="2021-03-09T00:00:00Z"...> at /UANodeSet[1]/Models[1]/Model[1]/RequiredModel[2]/@PublicationDate to <RequiredModel PublicationDate="2022-11-03T00:00:00Z"...> at /UANodeSet[1]/Models[1]/Model[1]/RequiredModel[2]/@PublicationDate
+====>Expected attribute value '1.03.0' but was '1.04.0' - comparing <RequiredModel Version="1.03.0"...> at /UANodeSet[1]/Models[1]/Model[1]/RequiredModel[2]/@Version to <RequiredModel Version="1.04.0"...> at /UANodeSet[1]/Models[1]/Model[1]/RequiredModel[2]/@Version
 ###1#Feature#Extensions not supported#C2-90
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Extensions' but was '' - comparing <Extensions...> at /UANodeSet[1]/Extensions[1] to <NULL>

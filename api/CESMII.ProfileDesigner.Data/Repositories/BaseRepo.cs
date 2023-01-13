@@ -98,25 +98,29 @@
             {
                 // Use the Tracked Changes first if under transaction: doesn't work reliably otherwise (ChangeTracker collection changed exception)
                 IQueryable<TEntity> query;
-                try
+                int retryCount = 50;
+                do
                 {
-                    query = _context.Set<TEntity>().Local.AsQueryable().Where(expression);
-                    if (cacheOnly || query?.Any() == true)
+                    try
                     {
-                        //CacheCounters.cacheHitCount++;
-                        return query.AsQueryable();
+                        query = _context.Set<TEntity>().Local.AsQueryable().Where(expression);
+                        if (cacheOnly || query?.Any() == true)
+                        {
+                            //CacheCounters.cacheHitCount++;
+                            return query.AsQueryable();
+                        }
+                        retryCount = 0;
                     }
-                }
-                catch (InvalidOperationException)
-                {
-                    // The underlying collection has changed: try one more time
-                    query = _context.Set<TEntity>().Local.AsQueryable().Where(expression);
-                    if (query?.Any() == true)
+                    catch (InvalidOperationException)
                     {
-                        //CacheCounters.cacheHitCount++;
-                        return query.AsQueryable();
+                        // For some reason (likely on-demand data loading of data) this throws due to modified collection
+                        retryCount--;
+                        if (retryCount <= 0)
+                        {
+                            throw;
+                        }
                     }
-                }
+                } while (retryCount > 0);
             }
             var query2 = _context.Set<TEntity>().Where(expression);
             //if (!query2.Any())

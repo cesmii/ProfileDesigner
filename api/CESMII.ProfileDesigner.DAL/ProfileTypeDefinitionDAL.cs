@@ -186,7 +186,7 @@
             }
             else
             {
-                filterExpression = pi => pi.OpcNodeId == model.OpcNodeId && pi.Profile.Namespace == model.Profile.Namespace;
+                filterExpression = pi => pi.OpcNodeId == model.OpcNodeId && pi.Profile.Namespace == model.Profile.Namespace && pi.Profile.PublishDate == model.Profile.PublishDate && pi.Profile.Version == model.Profile.Version;
             }
 
             return filterExpression;
@@ -673,7 +673,7 @@
             entity.VariableValueRank = model.VariableValueRank;
             entity.IsOptionSet = model.IsOptionSet;
             entity.VariableArrayDimensions = model.VariableArrayDimensions;
-            entity.VariableValue= model.VariableValue;
+            entity.VariableValue = model.VariableValue;
 
             //favorite
             MapToEntityFavorite(ref entity, model, userToken);
@@ -882,7 +882,7 @@
 
                             AdditionalData = attr.AdditionalData,
                             IsActive = true,
-                    });
+                        });
                     }
                 }
             }
@@ -956,7 +956,7 @@
                     var currentEntity = entity.Compositions[i];
 
                     //remove if no longer present
-                    var source = compositions.Find(v => MatchIdentity(currentEntity, v)); 
+                    var source = compositions.Find(v => MatchIdentity(currentEntity, v));
                     if (source == null)
                     {
                         entity.Compositions.RemoveAt(i);
@@ -1052,6 +1052,208 @@
                 //convert to json string
                 entity.MetaTags = JsonConvert.SerializeObject(result);
             }
+        }
+
+        public async Task UpgradeToProfileAsync(ProfileModel profileModel,
+            IRepository<ProfileTypeDefinitionAnalytic> ptAnalyticsRepo,
+            IRepository<ProfileTypeDefinitionFavorite> ptFavoritesRepo,
+            IRepository<LookupDataTypeRanked> dtRankRepo)
+        {
+            _repo.StartTransaction();
+            var profile = _profileDAL.GetRepo().GetAll().FirstOrDefault(p => p.Namespace == profileModel.Namespace && p.PublishDate == profileModel.PublishDate && p.Version == profileModel.Version);
+            var profileRepo = _profileDAL.GetRepo();
+            var dataTypeRepo = _dataTypeDAL.GetRepo();
+
+            var existingProfiles = profileRepo.GetAll().Where(p => p.Namespace == profile.Namespace).ToList();
+            existingProfiles.Remove(profile);
+            foreach (var existingProfile in existingProfiles)
+            {
+                // Update all profile type definitions
+
+                // Parent
+                var profileTypes = _repo.GetAll().Where(pt => pt.Profile.Namespace != existingProfile.Namespace && pt.Parent.Profile == existingProfile).ToList();
+                foreach (var profileType in profileTypes)
+                {
+                    var newParent = _repo.GetAll().FirstOrDefault(pt => pt.Profile == profile && pt.OpcNodeId == profileType.Parent.OpcNodeId);
+                    if (profileType.Parent.OpcNodeId != newParent.OpcNodeId || profileType.Parent.Name != newParent.Name)
+                    {
+                        throw new Exception();
+                    }
+                    profileType.Parent = newParent;
+                    _repo.Update(profileType);
+                }
+
+                // InstanceParent
+                profileTypes = _repo.GetAll().Where(pt => pt.Profile.Namespace != existingProfile.Namespace && pt.InstanceParent.Profile == existingProfile).ToList();
+                foreach (var profileType in profileTypes)
+                {
+                    var newInstanceParent = _repo.GetAll().FirstOrDefault(pt => pt.Profile == profile && pt.OpcNodeId == profileType.InstanceParent.OpcNodeId);
+                    if (profileType.InstanceParent.OpcNodeId != newInstanceParent.OpcNodeId || profileType.InstanceParent.Name != newInstanceParent.Name)
+                    {
+                        throw new Exception();
+                    }
+                    profileType.InstanceParent = newInstanceParent;
+                    _repo.Update(profileType);
+                }
+
+                // VariableDataTypeId
+                profileTypes = _repo.GetAll().Where(pt => pt.Profile.Namespace != existingProfile.Namespace && pt.VariableDataType.Profile == existingProfile).ToList();
+                foreach (var profileType in profileTypes)
+                {
+                    var newVariableType = _repo.GetAll().FirstOrDefault(pt => pt.Profile == profile && pt.OpcNodeId == profileType.VariableDataType.OpcNodeId);
+                    if (profileType.VariableDataType.OpcNodeId != newVariableType.OpcNodeId || profileType.VariableDataType.Name != newVariableType.Name)
+                    {
+                        throw new Exception();
+                    }
+                    profileType.VariableDataType = newVariableType;
+                    _repo.Update(profileType);
+                }
+
+                // Update all profile attributes
+                // data type id
+                var attributes = _repo.GetAll().Where(pt => pt.Profile.Namespace != existingProfile.Namespace)
+                    .SelectMany(pt => pt.Attributes).Where(a => a.DataType.CustomType.Profile == existingProfile).ToList();
+                foreach (var attribute in attributes)
+                {
+                    var newCustomDataType = _repo.GetAll().FirstOrDefault(pt => pt.Profile == profile && pt.OpcNodeId == attribute.DataType.CustomType.OpcNodeId);
+                    var newDataType = dataTypeRepo.GetAll().FirstOrDefault(dt => dt.CustomType.ID == newCustomDataType.ID);
+                    if (newDataType.Name != attribute.DataType.Name || attribute.DataType.CustomType.OpcNodeId != newDataType.CustomType.OpcNodeId || attribute.DataType.Name != newDataType.Name)
+                    {
+                        throw new Exception();
+                    }
+                    attribute.DataType = newDataType;
+                    _repo.Update(attribute.ProfileTypeDefinition);
+                }
+
+                // variable type definition id
+                attributes = _repo.GetAll().Where(pt => pt.Profile.Namespace != existingProfile.Namespace)
+                    .SelectMany(pt => pt.Attributes).Where(a => a.VariableTypeDefinition.Profile == existingProfile).ToList();
+                foreach (var attribute in attributes)
+                {
+                    var newVariableType = _repo.GetAll().FirstOrDefault(pt => pt.Profile == profile && pt.OpcNodeId == attribute.VariableTypeDefinition.OpcNodeId);
+                    if (attribute.VariableTypeDefinition.OpcNodeId != newVariableType.OpcNodeId || attribute.VariableTypeDefinition.Name != newVariableType.Name)
+                    {
+                        throw new Exception();
+                    }
+                    attribute.VariableTypeDefinition = newVariableType;
+                    _repo.Update(attribute.ProfileTypeDefinition);
+                }
+
+                // Update all profile compositions
+                // composition
+                var compositions = _repo.GetAll().Where(pt => pt.Profile.Namespace != existingProfile.Namespace)
+                    .SelectMany(pt => pt.Compositions).Where(c => c.Composition.Profile == existingProfile).ToList();
+                foreach (var composition in compositions)
+                {
+                    var newComposition = _repo.GetAll().FirstOrDefault(pt => pt.Profile == profile && pt.OpcNodeId == composition.Composition.OpcNodeId);
+                    if (composition.Composition.OpcNodeId != newComposition.OpcNodeId || composition.Composition.Name != newComposition.Name)
+                    {
+                        throw new Exception();
+                    }
+                    composition.Composition = newComposition;
+                    _repo.Update(composition.ProfileTypeDefinition);
+                }
+
+
+                // Update all profile interfaces
+                // interface_id
+                var interfaces = _repo.GetAll().Where(pt => pt.Profile.Namespace != existingProfile.Namespace)
+                    .SelectMany(pt => pt.Interfaces).Where(itf => itf.Interface.Profile == existingProfile).ToList();
+                foreach (var itf in interfaces)
+                {
+                    var newInterface = _repo.GetAll().FirstOrDefault(pt => pt.Profile == profile && pt.OpcNodeId == itf.Interface.OpcNodeId);
+                    if (itf.Interface.OpcNodeId != newInterface.OpcNodeId || itf.Interface.Name != newInterface.Name)
+                    {
+                        throw new Exception();
+                    }
+                    itf.Interface = newInterface;
+                    _repo.Update(itf.ProfileTypeDefinition);
+                }
+
+                // Move over user analytics
+                {
+                    var ptAnalyticsRecords = ptAnalyticsRepo.GetAll().Where(pta => pta.ProfileTypeDefinition.Profile == existingProfile).ToList();
+                    foreach (var ptAnalyticsRecord in ptAnalyticsRecords)
+                    {
+                        var ptaNew = ptAnalyticsRepo.GetAll().Where(pta => pta.ProfileTypeDefinition.Profile == profile && pta.ProfileTypeDefinition.OpcNodeId == ptAnalyticsRecord.ProfileTypeDefinition.OpcNodeId).FirstOrDefault();
+                        if (ptaNew != null)
+                        {
+                            ptaNew.ManualRank = ptAnalyticsRecord.ManualRank;
+                            ptaNew.PageVisitCount = ptAnalyticsRecord.PageVisitCount;
+                            ptaNew.ExtendCount = ptAnalyticsRecord.ExtendCount;
+                            ptAnalyticsRepo.Update(ptaNew);
+                        }
+                        else
+                        {
+                            _logger.Warn($"Upgrade: profile {profile.Namespace} {profile.Version} {profile.PublishDate}: did not find analysics record for {ptAnalyticsRecord.ProfileTypeDefinition.Name} {ptAnalyticsRecord.ProfileTypeDefinition.OpcNodeId} present in {existingProfile.Version} {existingProfile.PublishDate}");
+                        }
+                    }
+                }
+                // Move over user favorites
+                {
+                    var ptFavoritesRecords = ptFavoritesRepo.GetAll().Where(pta => pta.ProfileTypeDefinition.Profile == existingProfile).ToList();
+                    foreach (var ptFavoritesRecord in ptFavoritesRecords)
+                    {
+                        var ptfNew = ptFavoritesRepo.GetAll().Where(pta => pta.ProfileTypeDefinition.Profile == profile && pta.ProfileTypeDefinition.OpcNodeId == ptFavoritesRecord.ProfileTypeDefinition.OpcNodeId).FirstOrDefault();
+                        ptfNew.IsFavorite = ptFavoritesRecord.IsFavorite;
+                        ptFavoritesRepo.Update(ptfNew);
+                    }
+                }
+                // Move over data type rank
+                // TODO actually migrate this: it is currently just a read-only view at the Repo/EF level so the Add/Update calls are commented out
+                {
+                    var allDataTypeRanks = dtRankRepo.GetAll().ToList();
+                    foreach (var dtRank in allDataTypeRanks)
+                    {
+                        if (dtRank.CustomTypeId == null)
+                        {
+                            continue;
+                        }
+                        var oldDt = dataTypeRepo.GetAll().Where(dt => dt.CustomTypeId == dtRank.CustomTypeId.Value).FirstOrDefault();
+                        if (oldDt != null && oldDt.CustomType.Profile == existingProfile)
+                        {
+                            var newDt = dataTypeRepo.GetAll().Where(dtr => dtr.CustomType.Profile == profile && dtr.CustomType.OpcNodeId == oldDt.CustomType.OpcNodeId).FirstOrDefault();
+                            if (newDt == null)
+                            {
+                                _logger.Warn($"Upgrade: profile {profile.Namespace} {profile.Version} {profile.PublishDate} does not have type {oldDt.Name} {oldDt.CustomType.OpcNodeId} present in {existingProfile.Version} {existingProfile.PublishDate}");
+                            }
+                            else
+                            {
+                                var newDtRank = dtRankRepo.GetAll().Where(dtr => dtr.ID == newDt.ID).FirstOrDefault();
+                                if (newDtRank == null)
+                                {
+                                    //newDtRank = new LookupDataTypeRanked
+                                    //{
+                                    //    ID = newDt.ID,
+                                    //    Name = dtRank.Name,
+                                    //    OwnerId = dtRank.OwnerId,
+                                    //    CustomTypeId = newDt.ID,
+                                    //    IsActive = dtRank.IsActive,
+                                    //    IsNumeric = newDt.IsNumeric,
+                                    //    UseEngUnit = newDt.UseEngUnit,
+                                    //    UseMinMax = newDt.UseMinMax,
+                                    //    Code = newDt.Code,
+                                    //    DisplayOrder = newDt.DisplayOrder,
+                                    //};
+                                    //dtRankRepo.Add(newDtRank);
+                                }
+                                else
+                                {
+                                    //dtRankRepo.Update(newDtRank);
+                                }
+                                //newDtRank.ManualRank = dtRank.ManualRank;
+                                //newDtRank.PopularityIndex = dtRank.PopularityIndex;
+                                //newDtRank.PopularityLevel = dtRank.PopularityLevel;
+                                //newDtRank.UsageCount = dtRank.UsageCount;
+                            }
+                        }
+                    }
+                }
+
+                await _repo.SaveChangesAsync();
+                await _repo.CommitTransactionAsync();
+            }
+
         }
 
         #endregion

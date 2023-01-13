@@ -4,8 +4,10 @@ import axiosInstance from "../services/AxiosService";
 
 import { Button } from 'react-bootstrap'
 
+import { useMsal } from "@azure/msal-react";
+
 import { AppSettings } from '../utils/appsettings'
-import { generateLogMessageString, renderTitleBlock, scrollTop } from '../utils/UtilityService'
+import { generateLogMessageString, renderTitleBlock, scrollTop, isInRole } from '../utils/UtilityService'
 import { useLoadingContext } from "../components/contexts/LoadingContext";
 import ConfirmationModal from '../components/ConfirmationModal';
 import ProfileEntityModal from './modals/ProfileEntityModal';
@@ -43,6 +45,9 @@ function ProfileList() {
     const [_searchCriteria, setSearchCriteria] = useState(null);
     const [_searchCriteriaChanged, setSearchCriteriaChanged] = useState(0);
     const [_cloudLibSlideOut, setCloudLibSlideOut] = useState({ isOpen: false });
+
+    const { instance } = useMsal();
+    const _activeAccount = instance.getActiveAccount();
 
     //-------------------------------------------------------------------
     // Region: Pass profile id into component if profileId passed in from url
@@ -279,6 +284,14 @@ function ProfileList() {
                             <Dropdown.Item className="py-2" as="button" >
                                 {<ProfileImporter caption="Import NodeSet file" cssClass="mb-0" useCssClassOnly="true" />}
                             </Dropdown.Item>
+                            {(isInRole(_activeAccount, 'cesmii.profiledesigner.admin')) &&
+                                <>
+                                <Dropdown.Divider />
+                                <Dropdown.Item className="py-2" as="button" >
+                                    {<ProfileImporter caption="Upgrade Global NodeSet file" cssClass="mb-0" useCssClassOnly="true" />}
+                                </Dropdown.Item>
+                                </>
+                            }
                         </Dropdown.Menu>
                     </Dropdown>
                     <Button variant="secondary" type="button" className="auto-width mx-2" onClick={onAdd} >Create Profile</Button>

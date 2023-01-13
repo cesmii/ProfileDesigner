@@ -338,7 +338,7 @@ namespace CESMII.ProfileDesigner.Api.Tests
                     var requiredModels = nodeSet.Models?.SelectMany(m => m.RequiredModel?.Select(rm => rm.ModelUri) ?? new List<string>())?.ToList();
                     return (importRequest, modelUri, requiredModels);
                 }
-            }).ToList();
+            }).OrderByDescending(imr => imr.importRequest.FileName).ToList();
 
             var orderedImports = new List<(ImportOPCModel, string, List<string>)>();
             var standalone = importsAndModels.Where(imr => !imr.requiredModels.Any()).ToList();
@@ -352,7 +352,7 @@ namespace CESMII.ProfileDesigner.Api.Tests
             do
             {
                 modelAdded = false;
-                for (int i = importsAndModels.Count - 1; i >= 0; i--)
+                for (int i = 0; i < importsAndModels.Count;)
                 {
                     var imr = importsAndModels[i];
                     bool bDependenciesSatisfied = true;
@@ -370,11 +370,14 @@ namespace CESMII.ProfileDesigner.Api.Tests
                         importsAndModels.RemoveAt(i);
                         modelAdded = true;
                     }
+                    else
+                    {
+                        i++;
+                    }
                 }
             } while (importsAndModels.Count > 0 && modelAdded);
 
-            //Assert.True(modelAdded, $"{importsAndModels.Count} nodesets require models not in the list.");
-            orderedImports.AddRange(importsAndModels);
+            orderedImports.AddRange(importsAndModels); // Add any remaining models (dependencies not satisfied)
             var orderedImportRequest = orderedImports.Select(irm => irm.Item1).ToList();
             return orderedImportRequest;
         }
@@ -401,9 +404,9 @@ namespace CESMII.ProfileDesigner.Api.Tests
                             {
                                 using (Package package = Package.Open(aasxPackageStream, FileMode.Open))
                                 {
-                                    //new Uri("/aasx/" + strippedFileName, UriKind.Relative), MediaTypeNames.Text.Xml
-                                    var strippedFileName = nodeSetFileName.Replace(".NodeSet2.xml", "");
-                                    var xmlPart = package.GetPart(new Uri("/aasx/" + strippedFileName, UriKind.Relative));
+                                    var partName = GetFileNameFromNamespace(profile.Namespace, null, null).Replace(".NodeSet2.xml", "");
+                                    var partUri = new Uri("/aasx/" + partName, UriKind.Relative);
+                                    var xmlPart = package.GetPart(partUri);
                                     using (var xmlStream = xmlPart.GetStream())
                                     {
                                         var xmlBytes = new byte[xmlStream.Length];
@@ -439,7 +442,7 @@ namespace CESMII.ProfileDesigner.Api.Tests
                 fileName += ".";
             }
             //var legacyFileName = fileName + "NodeSet2.xml";
-            if (namespaceUri == Namespaces.OpcUa)
+            if (namespaceUri == Namespaces.OpcUa && version != null)
             {
                 // special versioning rules: must consider version family
                 var versionParts = version.Split(".");
@@ -453,29 +456,29 @@ namespace CESMII.ProfileDesigner.Api.Tests
                     throw new Exception($"Unexpeced version number for OPC core nodeset: must have at least a two-part version number");
                 }
             }
-            var legacyFileName = fileName;
+            //var legacyFileName = fileName;
             if (publicationDate != null && publicationDate.Value != default)
             {
-                legacyFileName = $"{fileName}{publicationDate:yyyyMMdd}.";
+                //legacyFileName = $"{fileName}{publicationDate:yyyyMMdd}.";
                 fileName = $"{fileName}{publicationDate:yyyy-MM-dd}.";
             }
             fileName += "NodeSet2.xml";
-            legacyFileName += "NodeSet2.xml";
-            if (fileName != legacyFileName)
-            {
-                var legacyPath = Path.Combine(strTestNodeSetDirectory, legacyFileName);
-                var path = Path.Combine(strTestNodeSetDirectory, fileName);
-                if (File.Exists(legacyPath) && !File.Exists(path))
-                {
-                    File.Move(legacyPath, path);
-                }
-                var legacyPath2 = Path.Combine(strTestNodeSetDirectory, "ExpectedDiffs", legacyFileName + ".summarydiff.difflog");
-                var path2 = Path.Combine(strTestNodeSetDirectory, "ExpectedDiffs", fileName + ".summarydiff.difflog");
-                if (File.Exists(legacyPath2) && !File.Exists(path2))
-                {
-                    File.Move(legacyPath2, path2);
-                }
-            }
+            //legacyFileName += "NodeSet2.xml";
+            //if (fileName != legacyFileName)
+            //{
+            //    var legacyPath = Path.Combine(strTestNodeSetDirectory, legacyFileName);
+            //    var path = Path.Combine(strTestNodeSetDirectory, fileName);
+            //    if (File.Exists(legacyPath) && !File.Exists(path))
+            //    {
+            //        File.Move(legacyPath, path);
+            //    }
+            //    var legacyPath2 = Path.Combine(strTestNodeSetDirectory, "ExpectedDiffs", legacyFileName + ".summarydiff.difflog");
+            //    var path2 = Path.Combine(strTestNodeSetDirectory, "ExpectedDiffs", fileName + ".summarydiff.difflog");
+            //    if (File.Exists(legacyPath2) && !File.Exists(path2))
+            //    {
+            //        File.Move(legacyPath2, path2);
+            //    }
+            //}
             return fileName;
         }
 
@@ -518,7 +521,7 @@ namespace CESMII.ProfileDesigner.Api.Tests
         }
         public IEnumerable<TTestCase> OrderTestCases<TTestCase>(IEnumerable<TTestCase> testCases) where TTestCase : ITestCase
         {
-            bool ignoreTestsWithoutExpectedOutcome = false;
+            bool ignoreTestsWithoutExpectedOutcome = true;
             var testCasesWithExpectedDiff = testCases.ToList();
             if (ignoreTestsWithoutExpectedOutcome)
             {

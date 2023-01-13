@@ -41,6 +41,7 @@ function ProfileTypeDefinitionListGrid(props) {
     const [_error, setError] = useState({ show: false, message: null, caption: null });
     const [_refreshData, setRefreshData] = useState(0);
     const [_itemCount, setItemCount] = useState(0);
+    const [_isLoading, setIsLoading] = useState(null);
 
     //-------------------------------------------------------------------
     // Region: Event Handling of child component events
@@ -117,8 +118,9 @@ function ProfileTypeDefinitionListGrid(props) {
         async function fetchData() {
             //show a spinner
             setLoadingProps({ isLoading: true, message: null });
+            setIsLoading(true);
 
-            var url = `profiletypedefinition/library`;
+            const url = `profiletypedefinition/library`;
             console.log(generateLogMessageString(`useEffect||fetchData||${url}`, CLASS_NAME));
 
             //apply the page size info from this page
@@ -151,6 +153,7 @@ function ProfileTypeDefinitionListGrid(props) {
                 }
                 //hide a spinner
                 setLoadingProps({ isLoading: false, message: null });
+                setIsLoading(false);
 
             }).catch(e => {
                 if ((e.response && e.response.status === 401) || e.toString().indexOf('Network Error') > -1) {
@@ -165,6 +168,7 @@ function ProfileTypeDefinitionListGrid(props) {
                     //preserve and display item count  
                     setItemCount(null);
                 }
+                setIsLoading(null);
             });
         }
 
@@ -266,7 +270,7 @@ function ProfileTypeDefinitionListGrid(props) {
     // Region: Render helpers
     //-------------------------------------------------------------------
     const renderProfileFilters = () => {
-        if (_dataRows.profileFilters == null || _dataRows.profileFilters.length === 0 ) return;
+        if (_dataRows.profileFilters == null || _dataRows.profileFilters.length === 0 || !props.showProfileFilter ) return;
 
         const mainBody = _dataRows.profileFilters.map((item) => {
             return (
@@ -298,7 +302,8 @@ function ProfileTypeDefinitionListGrid(props) {
 
     //render the main grid
     const renderItemsGrid = () => {
-        if (!loadingProps.isLoading && (_dataRows.all == null || _dataRows.all.length === 0)) {
+        //_isLoading = null until first load happens or we encounter error, true while loading and false when finished loading
+        if (_isLoading != null && !loadingProps.isLoading && (_dataRows.all == null || _dataRows.all.length === 0)) {
             return (
                 <div className="flex-grid no-data">
                     {renderNoDataRow()}

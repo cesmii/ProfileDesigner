@@ -72,9 +72,11 @@ function ProfileEntityForm(props) {
     //  a. W/ Timezone info (typically from server): 2021-09-24T00:00:00
     //  b. No timezone info (after editing in control): 2021-09-24
     const prepDateVal = (val) => {
-        if (val == null) return '';
+        if (val == null || val === '') return '';
         //check and append timezone so we get consistent conversion
-        if (val.indexOf('T00:00:00') === -1) val += `T00:00:00`;
+        //if (val.indexOf('T00:00:00') === -1) val += `T00:00:00`;
+        //DB changed to support date and time timestamp so T:00:00:00 no longer reliable, just check for T
+        if (val.indexOf('T') === -1) val += `T00:00:00`;
 
         var dt = new Date(val);
         var mm = dt.getMonth() + 1;
@@ -149,7 +151,7 @@ function ProfileEntityForm(props) {
                     <div className="col-sm-6">
                         <Form.Group className="mb-1">
                             <Form.Label>Publication Date</Form.Label>
-                            <Form.Control id="publishDate" mindate="2010-01-01" type="date" value={prepDateVal(props.item.publishDate)} onChange={onChangePublishDate} readOnly={mode === "view"} />
+                            <Form.Control id="publishDate" mindate="2010-01-01" type={mode === "view" ? "" : "date"} value={prepDateVal(props.item.publishDate)} onChange={onChangePublishDate} readOnly={mode === "view"} />
                         </Form.Group>
                     </div>
                 </div>

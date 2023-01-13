@@ -32,6 +32,7 @@ namespace CESMII.ProfileDesigner.OpcUa
     using CESMII.ProfileDesigner.Opc.Ua.NodeSetDBCache;
     using CESMII.OpcUa.NodeSetImporter;
     using CESMII.Common.CloudLibClient;
+    using CESMII.ProfileDesigner.Data.Repositories;
 
     public class OpcUaImporter
     {
@@ -51,6 +52,9 @@ namespace CESMII.ProfileDesigner.OpcUa
             UANodeSetDBCache nodeSetCache,
             IDal<EngineeringUnit, EngineeringUnitModel> euDal,
             ProfileMapperUtil profileUtils,
+            IRepository<ProfileTypeDefinitionAnalytic> ptAnalyticsRepo,
+            IRepository<ProfileTypeDefinitionFavorite> ptFavoritesRepo,
+            IRepository<LookupDataTypeRanked> dtRankRepo,
             ILogger<OpcUaImporter> logger
 #if NODESETDBTEST
             , NodeSetModelContext nsDBContext
@@ -72,12 +76,18 @@ namespace CESMII.ProfileDesigner.OpcUa
             _nodeSetFileDal = nodeSetFileDal;
             _nodeSetCache = nodeSetCache;
             _profileUtils = profileUtils;
+            _ptAnalyticsRepo = ptAnalyticsRepo;
+            _ptFavoritesRepo = ptFavoritesRepo;
+            _dtRankRepo = dtRankRepo;
         }
 
         public readonly IDal<ProfileTypeDefinition, ProfileTypeDefinitionModel> _dal;
         public readonly IDal<LookupDataType, LookupDataTypeModel> _dtDal;
         public readonly IDal<EngineeringUnit, EngineeringUnitModel> _euDal;
         public readonly ProfileMapperUtil _profileUtils;
+        private readonly IRepository<ProfileTypeDefinitionAnalytic> _ptAnalyticsRepo;
+        private readonly IRepository<ProfileTypeDefinitionFavorite> _ptFavoritesRepo;
+        private readonly IRepository<LookupDataTypeRanked> _dtRankRepo;
         public readonly LoggerCapture Logger;
         public readonly ILogger _logger;
 #if NODESETDBTEST
@@ -92,7 +102,7 @@ namespace CESMII.ProfileDesigner.OpcUa
         readonly Dictionary<string, string> Aliases = new();
 
 
-        public async Task<List<WarningsByNodeSet>> ImportUaNodeSets(List<ImportOPCModel> nodeSetXmlList, UserToken userToken, Func<string, TaskStatusEnum, Task> logToImportLog, int logId)
+        public async Task<List<WarningsByNodeSet>> ImportUaNodeSets(List<ImportOPCModel> nodeSetXmlList, UserToken userToken, Func<string, TaskStatusEnum, Task> logToImportLog, int logId, bool allowMultiVersion, bool upgradePreviousVersions)
         {
             var sw = Stopwatch.StartNew();
             _logger.LogTrace("Starting import");
@@ -167,7 +177,7 @@ namespace CESMII.ProfileDesigner.OpcUa
                     {
                         foreach (var tmodel in importedNodeSetFiles.Models)
                         {
-                            var profile = FindOrCreateProfileForNodeSet(tmodel, _profileDal, userToken, logId, sw);
+                            var profile = FindOrCreateProfileForNodeSet(tmodel, _profileDal, userToken, logId, sw, allowMultiVersion);
                             profilesAndNodeSets.Add(new ProfileModelAndNodeSet
                             {
                                 Profile = profile, // TODO use the nodesetfile instead
@@ -198,13 +208,20 @@ namespace CESMII.ProfileDesigner.OpcUa
                 {
                     // Performance: Load the profiles and data types into the EF cache, in a singe database query
                     var startEFCache = sw.Elapsed;
-                    var profileIds = profilesAndNodeSets.Select(pn => pn.Profile.ID).Where(i => (i ?? 0) != 0);
-                    _logger.LogTrace($"Timestamp||ImportId:{logId}||Loading EF cache: {sw.Elapsed}");
-                    await _dal.LoadIntoCacheAsync(pt => profileIds.Contains(pt.ProfileId));
-                    await _dtDal.LoadIntoCacheAsync(dt => profileIds.Contains(dt.CustomType.ProfileId));
-                    var endEFCache = sw.Elapsed;
-                    _logger.LogTrace($"Timestamp||ImportId:{logId}||Finished loading EF cache: {endEFCache - startEFCache}");
-
+                    var profileIds = profilesAndNodeSets.Select(pn => pn.Profile.ID).Where(i => (i ?? 0) != 0).ToList();
+                    if (profileIds.Any())
+                    {
+                        _logger.LogTrace($"Timestamp||ImportId:{logId}||Loading EF cache: {sw.Elapsed}");
+                        await _dal.LoadIntoCacheAsync(pt => profileIds.Contains(pt.ProfileId));
+                        await _dtDal.LoadIntoCacheAsync(dt => profileIds.Contains(dt.CustomType.ProfileId));
+                        var endEFCache = sw.Elapsed;
+                        _logger.LogTrace($"Timestamp||ImportId:{logId}||Finished loading EF cache: {endEFCache - startEFCache}");
+                    }
+                    else
+                    {
+                        var endEFCache = sw.Elapsed;
+                        _logger.LogTrace($"Timestamp||ImportId:{logId}||Not loading EF cache - no required profiles: {endEFCache - startEFCache}");
+                    }
                     var nodeSetModels = new Dictionary<string, NodeSetModel>();
                     var dalOpcContext = new DalOpcContext(this, nodeSetModels, userToken, userToken, false);
 
@@ -243,6 +260,10 @@ namespace CESMII.ProfileDesigner.OpcUa
                                     nodesetWarnings.Add(new WarningsByNodeSet()
                                     { ProfileId = profileAndNodeSet.Profile.ID.Value, Key = profileAndNodeSet.Profile.ToString(), Warnings = logList });
                                 }
+                            }
+                            if (upgradePreviousVersions)
+                            {
+                                await UpgradeToProfileAsync(profileAndNodeSet.Profile, userToken);
                             }
                         }
                     }
@@ -290,16 +311,28 @@ namespace CESMII.ProfileDesigner.OpcUa
             return nodesetWarnings;
         }
 
-        private ProfileModel FindOrCreateProfileForNodeSet(ModelValue tModel, IDal<Profile, ProfileModel> dalProfile, UserToken userToken, int logId, Stopwatch sw)
+        private Task UpgradeToProfileAsync(ProfileModel profile, UserToken userToken)
+        {
+            return (_dal as ProfileTypeDefinitionDAL).UpgradeToProfileAsync(profile, _ptAnalyticsRepo, _ptFavoritesRepo, _dtRankRepo);
+        }
+
+        private ProfileModel FindOrCreateProfileForNodeSet(ModelValue tModel, IDal<Profile, ProfileModel> dalProfile, UserToken userToken, int logId, Stopwatch sw, bool allowMultiVersion)
         {
             var nsModel = tModel.NameVersion.CCacheId as NodeSetFileModel;
             _logger.LogTrace($"Timestamp||ImportId:{logId}||Loading nodeset {tModel.NameVersion.ModelUri}: {sw.Elapsed}");
-            var profile = dalProfile.Where(p => p.Namespace == tModel.NameVersion.ModelUri /*&& p.PublicationDate == tmodel.NameVersion.PublicationDate*/ /*&& (p.AuthorId == null || p.AuthorId == userToken)*/,
-                    userToken, verbose: false)?.Data?.OrderByDescending(p => p.Version)?.FirstOrDefault();
+            var profiles = dalProfile.Where(p => p.Namespace == tModel.NameVersion.ModelUri && p.PublishDate == tModel.NameVersion.PublicationDate && p.Version == tModel.NameVersion.ModelVersion /*&& (p.AuthorId == null || p.AuthorId == userToken)*/,
+                    userToken, verbose: false)?.Data?.OrderByDescending(p => p.Version);
+            var profile = profiles?.FirstOrDefault();
             _logger.LogTrace($"Timestamp||ImportId:{logId}||Loaded nodeset {tModel.NameVersion.ModelUri}: {sw.Elapsed}");
 
             if (profile == null)
             {
+                var otherProfileVersion = dalProfile.Where(p => p.Namespace == tModel.NameVersion.ModelUri,
+                    userToken, verbose: false)?.Data?.OrderByDescending(p => p.Version).FirstOrDefault();
+                if (otherProfileVersion != null && !allowMultiVersion)
+                {
+                    throw new Exception($"Profile {tModel.NameVersion.ModelUri} already has version {otherProfileVersion.Version} {otherProfileVersion.PublishDate}. Can not import {tModel.NameVersion.ModelVersion} {tModel.NameVersion.PublicationDate}");
+                }
                 StandardNodeSetModel standardNodeSet = null;
                 CloudLibProfileModel cloudLibNodeSet = null;
                 if ((tModel.NameVersion.UAStandardModelID??0) == 0)
@@ -329,8 +362,8 @@ namespace CESMII.ProfileDesigner.OpcUa
                             cloudLibNodeSet = _cloudLibDal.GetAsync(tModel.NameVersion.ModelUri, tModel.NameVersion.PublicationDate, false).Result;
                             if (cloudLibNodeSet != null)
                             {
-                                _logger.LogWarning($"Did not find exact match for {tModel.NameVersion}. Using standard nodeset with publication date {standardNodeSet.PublishDate} instead.");
                                 standardNodeSet = cloudLibNodeSet.ToStandardNodeSet();
+                                _logger.LogWarning($"Did not find exact match for {tModel.NameVersion}. Using standard nodeset with publication date {standardNodeSet?.PublishDate} instead.");
                                 _dalStandardNodeSet.AddAsync(standardNodeSet, userToken).Wait();
                             }
                             else
@@ -362,7 +395,7 @@ namespace CESMII.ProfileDesigner.OpcUa
             {
                 profile.NodeSetFiles = new List<NodeSetFileModel>();
             }
-            if (!profile.NodeSetFiles.Any(m => m.FileName == nsModel.FileName && m.PublicationDate == nsModel.PublicationDate))
+            if (!profile.NodeSetFiles.Any(m => m.FileName == nsModel.FileName && m.PublicationDate == nsModel.PublicationDate && m.Version == nsModel.Version))
             {
                 profile.NodeSetFiles.Add(nsModel);
             }
@@ -400,13 +433,18 @@ namespace CESMII.ProfileDesigner.OpcUa
             }
 
             var firstModel = nodeSet.Models.FirstOrDefault();
+            if (firstModel.ModelUri != profile.Namespace)
+            {
+                throw new Exception($"Mismatching primary model meta data and meta data from cache");
+            }
             if (
-                firstModel.ModelUri != profile.Namespace
-                || firstModel.Version != profile.Version
+                firstModel.Version != profile.Version
                 || ((firstModel.PublicationDateSpecified ? firstModel.PublicationDate.ToUniversalTime() : null) != profile.PublishDate?.ToUniversalTime())
                 )
             {
-                throw new Exception($"Mismatching primary model meta data and meta data from cache");
+                var message = $"Warning: Newer version {firstModel.Version} of {firstModel.ModelUri} required. Profile designer only offers {profile.Version}. Attempting to load anyway.";
+                opcContext.Logger.LogWarning(message);
+                //throw new Exception(message);
             }
 
             return NodeModelFactoryOpc.LoadNodeSetAsync(opcContext, nodeSet, profile, this.Aliases, doNotReimport);
@@ -503,7 +541,12 @@ namespace CESMII.ProfileDesigner.OpcUa
                 try
                 {
                     // TODO find the right OPC version references in the nodeSet?
-                    var opcNodeSetModel = _profileDal.Where(ns => ns.Namespace == strOpcNamespaceUri /*&& (ns.AuthorId == null || ns.AuthorId == userId)*/, userToken, null, null, false, true).Data.OrderByDescending(m => m.PublishDate).FirstOrDefault();
+                    // For now: take the highest available version (special core nodeset versioning logic)
+                    var opcNodeSetModel = _profileDal.Where(ns => ns.Namespace == strOpcNamespaceUri, userToken, null, null, false, true).Data
+                        .OrderByDescending(m => string.Join(".", m.Version.Split(".").Take(2))) // First by version family
+                        .ThenByDescending(m => m.PublishDate) //Then by publishdate, within the version family
+                        .FirstOrDefault(); // Order by version family
+
                     // workaround for bug https://github.com/dotnet/runtime/issues/67622
                     var fileCachePatched = opcNodeSetModel.NodeSetFiles[0].FileCache.Replace("<Value/>", "<Value xsi:nil='true' />");
                     using (MemoryStream nodeSetStream = new MemoryStream(Encoding.UTF8.GetBytes(fileCachePatched)))
@@ -512,8 +555,20 @@ namespace CESMII.ProfileDesigner.OpcUa
 
                         var opcModel = nodeSet.Models[0];
                         var opcProfile = _profileDal.Where(ns => ns.Namespace == opcModel.ModelUri, userToken, null, null).Data?.FirstOrDefault();
-                        //TODO - this next line is time consuming, but still faster than loading from database.
-                        this.LoadNodeSetAsync(dalOpcContext, nodeSet, opcProfile, true).Wait();
+
+                        if (profileModel.Namespace != strOpcNamespaceUri)
+                        {
+                            //TODO - this next line is time consuming, but still faster than loading from database.
+                            this.LoadNodeSetAsync(dalOpcContext, nodeSet, opcProfile, true).Wait();
+                        }
+                        else
+                        {
+                            // For core nodeset testing, populate the aliases (for easier diffing) but load the actual nodes from profile database
+                            foreach (var alias in nodeSet.Aliases)
+                            {
+                                this.Aliases.TryAdd(alias.Value, alias.Alias);
+                            }
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -521,6 +576,9 @@ namespace CESMII.ProfileDesigner.OpcUa
                     this.Logger.LogError(ex, "Internal error preparing for nodeset export.");
                 }
             }
+
+            // populate the model being exported with proper version and publication date
+            //dalOpcContext.GetOrAddNodesetModel(new ModelTableEntry {  ModelUri = profileModel.Namespace, PublicationDate = profileModel.PublishDate ?? default, Version = profileModel.Version, PublicationDateSpecified = profileModel.PublishDate != null}, true);
 
             var profileItemsResult = _dal.Where(pi => pi.ProfileId == profileModel.ID /*&& (pi.AuthorId == null || pi.AuthorId == userId)*/, userToken, null, null, false, true);
             if (profileItemsResult.Data != null)

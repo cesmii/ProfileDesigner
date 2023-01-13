@@ -55,7 +55,20 @@ namespace CESMII.ProfileDesigner.OpcUa
 
         public LookupDataTypeModel GetDataType(string opcNamespace, string opcNodeId)
         {
-            return _importer._dtDal.Where(dt => dt.CustomType.Profile.Namespace == opcNamespace && dt.CustomType.OpcNodeId == opcNodeId, _userToken, null, null)?.Data?.FirstOrDefault();
+            List<LookupDataTypeModel> dataTypes;
+            if (_nodesetModels.TryGetValue(opcNamespace, out var nodeSetModel))
+            {
+                dataTypes = _importer._dtDal.Where(dt => 
+                    dt.CustomType.Profile.Namespace == nodeSetModel.ModelUri 
+                    && dt.CustomType.Profile.PublishDate == nodeSetModel.PublicationDate
+                    && dt.CustomType.Profile.Version == nodeSetModel.Version
+                    && dt.CustomType.OpcNodeId == opcNodeId, _userToken, null, null)?.Data;
+            }
+            else
+            {
+                dataTypes = _importer._dtDal.Where(dt => dt.CustomType.Profile.Namespace == opcNamespace && dt.CustomType.OpcNodeId == opcNodeId, _userToken, null, null)?.Data;
+            }
+            return dataTypes?.FirstOrDefault();
         }
 
         public ProfileTypeDefinitionModel GetProfileItemById(int? propertyTypeDefinitionId)
@@ -77,13 +90,16 @@ namespace CESMII.ProfileDesigner.OpcUa
 
         public Task<LookupDataTypeModel> GetCustomDataTypeAsync(ProfileTypeDefinitionModel customDataTypeProfile)
         {
-            var result = _importer._dtDal.Where(l =>
-                (
+            var result = _importer._dtDal.Where(
+                l => (
                     ((customDataTypeProfile.ID ?? 0) != 0 && l.CustomTypeId == customDataTypeProfile.ID)
-                    || ((customDataTypeProfile.ID ?? 0) == 0 && l.CustomType != null && l.CustomType.OpcNodeId == customDataTypeProfile.OpcNodeId && l.CustomType.Profile.Namespace == customDataTypeProfile.Profile.Namespace)
-                )
-                /*&& (l.OwnerId == null || l.OwnerId == _userId)*/,
-            _userToken, null, 1, false, false);
+                    || ((customDataTypeProfile.ID ?? 0) == 0 && l.CustomType != null && l.CustomType.OpcNodeId == customDataTypeProfile.OpcNodeId
+                        && l.CustomType.Profile.Namespace == customDataTypeProfile.Profile.Namespace
+                        && l.CustomType.Profile.PublishDate == customDataTypeProfile.Profile.PublishDate
+                        && l.CustomType.Profile.Version == customDataTypeProfile.Profile.Version
+                        )
+                    ),
+                _userToken, null, 1, false, false);
             return Task.FromResult(result.Data.FirstOrDefault());
         }
 
@@ -107,9 +123,9 @@ namespace CESMII.ProfileDesigner.OpcUa
             return _importer._profileUtils.MapToModelProfileSimple(profileTypeDef);
         }
 
-        public ProfileModel GetProfileForNamespace(string uaNamespace)
+        public ProfileModel GetProfileForNamespace(string uaNamespace, DateTime? publicationDate, string version)
         {
-            var result = _importer._profileDal.Where(ns => ns.Namespace == uaNamespace, _userToken, null, null, false, false);
+            var result = _importer._profileDal.Where(ns => ns.Namespace == uaNamespace && ns.PublishDate == publicationDate && ns.Version == version, _userToken, null, null, false, false);
             if (result?.Data?.Any() == true)
             {
                 if (result.Data.Count > 1)
@@ -132,7 +148,7 @@ namespace CESMII.ProfileDesigner.OpcUa
         {
             if (!_nodesetModels.TryGetValue(model.ModelUri, out var nodesetModel))
             {
-                var profile = GetProfileForNamespace(model.ModelUri);
+                var profile = GetProfileForNamespace(model.ModelUri, model.PublicationDateSpecified ? model.PublicationDate : null, model.Version);
 #if NODESETDBTEST
                 var existingNodeSet = GetMatchingOrHigherNodeSetAsync(model.ModelUri, model.PublicationDateSpecified ? model.PublicationDate : null).Result;
                 if (existingNodeSet != null)
@@ -148,6 +164,17 @@ namespace CESMII.ProfileDesigner.OpcUa
                     model.Version = profile.Version;
                     model.PublicationDate = profile.PublishDate ?? DateTime.MinValue;
                     model.PublicationDateSpecified = profile.PublishDate.HasValue;
+                }
+                else
+                {
+                    if (string.IsNullOrEmpty(model.Version))
+                    {
+                        Logger.LogWarning($"Requested NodeSet {model.ModelUri} ({model.PublicationDate}) has no Version");
+                    }
+                    if (!model.PublicationDateSpecified)
+                    {
+                        Logger.LogWarning($"Requested NodeSet {model.ModelUri} ({model.Version}) has no publication date");
+                    }
                 }
                 if (model.PublicationDateSpecified && model.PublicationDate.Kind != DateTimeKind.Utc)
                 {

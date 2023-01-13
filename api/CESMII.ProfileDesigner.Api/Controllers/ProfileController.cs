@@ -812,10 +812,29 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 var result = await _dal.DeleteAsync(model.ID, base.DalUserToken);
                 if (result <= 0)
                 {
-                    _logger.LogWarning($"ProfileController|Delete|Could not delete item. Invalid id:{model.ID}.");
-                    return BadRequest("Could not delete item. Invalid id.");
+                    if (User.IsInRole("cesmii.profiledesigner.admin"))
+                    {
+                        _logger.LogWarning($"ProfileController|Delete|Could not delete item. Invalid id:{model.ID}. Trying again as global user for administrator {base.DalUserToken.UserId}");
+                        // try again with the global user token so that admin can delete global nodesets
+                        var globalToken = new UserToken { UserId = -1 };
+                        result = await _dal.DeleteAsync(model.ID, globalToken);
+                        if (result <= 0)
+                        {
+                            _logger.LogWarning($"ProfileController|Delete|Could not delete item for admin user {base.DalUserToken.UserId}. Invalid id:{model.ID}.");
+                            return BadRequest("Could not delete item. Invalid id.");
+                        }
+                        _logger.LogInformation($"ProfileController|Delete|Deleted item for administrator {base.DalUserToken.UserId}. Id:{model.ID}.");
+                    }
+                    else
+                    {
+                        _logger.LogWarning($"ProfileController|Delete|Could not delete item. Invalid id:{model.ID}.");
+                        return BadRequest("Could not delete item. Invalid id.");
+                    }
                 }
-                _logger.LogInformation($"ProfileController|Delete|Deleted item. Id:{model.ID}.");
+                else
+                {
+                    _logger.LogInformation($"ProfileController|Delete|Deleted item. Id:{model.ID}.");
+                }
             }
             catch (Npgsql.PostgresException eDB)
             {
@@ -910,7 +929,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         /// <returns>Return result model with an isSuccess indicator.</returns>
         [HttpPost, Route("Import")]
         [ProducesResponseType(200, Type = typeof(ResultMessageWithDataModel))]
-        public async Task<IActionResult> Import([FromBody] List<ImportOPCModel> model /*, [FromServices] OpcUaImporter importer*/)
+        public async Task<IActionResult> Import([FromBody] List<ImportOPCModel> model)
         {
             if (!ModelState.IsValid)
             {
@@ -941,7 +960,61 @@ namespace CESMII.ProfileDesigner.Api.Controllers
 
             //pass in the author id as current user
             //kick off background process, logid is returned immediately so front end can track progress...
-            var logId = await _svcImport.ImportOpcUaNodeSet(model, base.DalUserToken);
+            var logId = await _svcImport.ImportOpcUaNodeSet(model, base.DalUserToken, false, false);
+
+            return Ok(
+                new ResultMessageWithDataModel()
+                {
+                    IsSuccess = true,
+                    Message = "Import is processing...",
+                    Data = logId
+                }
+            );
+        }
+
+        /// <summary>
+        /// Import OPC UA nodeset uploaded by front end and upgrade any prior versions to this version. There may be multiple files being uploaded. 
+        /// </summary>
+        /// <remarks>Non-standard nodesets are associated with the user doing the uploading. 
+        /// Standard OPC UA nodesets will go into the library of nodesets visible to all.
+        /// </remarks>
+        /// <param name="nodeSetXmlList"></param>
+        /// <returns>Return result model with an isSuccess indicator.</returns>
+        [HttpPost, Route("ImportUpgrade")]
+        [Authorize(Roles = "cesmii.profiledesigner.admin")]
+        [ProducesResponseType(200, Type = typeof(ResultMessageWithDataModel))]
+        public async Task<IActionResult> ImportWithUpgrade([FromBody] List<ImportOPCModel> model)
+        {
+            if (!ModelState.IsValid)
+            {
+                var errors = ExtractModelStateErrors();
+                _logger.LogCritical($"ProfileController|Import|User Id:{LocalUser.ID}, Errors: {errors}");
+                return Ok(
+                    new ResultMessageWithDataModel()
+                    {
+                        IsSuccess = false,
+                        Message = "The nodeset data is invalid."
+                    }
+                );
+            }
+
+            if (model == null || model.Count == 0)
+            {
+                _logger.LogWarning($"ProfileController|Import|No nodeset files to import. User Id:{LocalUser.ID}.");
+                return Ok(
+                    new ResultMessageWithDataModel()
+                    {
+                        IsSuccess = false,
+                        Message = "No nodesets to import."
+                    }
+                );
+            }
+
+            _logger.LogInformation($"ProfileController|ImportMyOpcUaProfile|Importing {model.Count} nodeset files. User Id:{LocalUser.ID}.");
+
+            //pass in the author id as current user
+            //kick off background process, logid is returned immediately so front end can track progress...
+            var logId = await _svcImport.ImportOpcUaNodeSet(model, base.DalUserToken, true, true);
 
             return Ok(
                 new ResultMessageWithDataModel()

@@ -58,8 +58,14 @@
             var entity = base.FindByCondition(userToken, dt =>
                 (
                   (model.ID != 0 && model.ID != null && dt.ID == model.ID)
-                  || ( dt.Name == model.Name && dt.Code == model.Code)
-                )
+                  || ( dt.Name == model.Name && dt.Code == model.Code 
+                       && (( (dt.CustomTypeId??0) != 0 && dt.CustomTypeId == model.CustomTypeId)
+                            || (
+                               dt.CustomType.Profile.Namespace == model.CustomType.Profile.Namespace 
+                               && dt.CustomType.Profile.PublishDate == model.CustomType.Profile.PublishDate
+                               && dt.CustomType.Profile.Version == model.CustomType.Profile.Version
+                               && dt.CustomType.OpcNodeId == model.CustomType.OpcNodeId
+                ))))
                 , cacheOnly).FirstOrDefault();
             return entity;
         }
@@ -209,7 +215,11 @@
                     entity.CustomType = customTypeEntity;
                 }
             }
+        }
 
+        internal IRepository<LookupDataType> GetRepo()
+        {
+            return _repo;
         }
     }
 }

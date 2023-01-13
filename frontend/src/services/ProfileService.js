@@ -1,4 +1,5 @@
 import { getUserPreferences, setUserPreferences, generateLogMessageString, concatenateField, validate_Required, validate_namespaceFormat } from '../utils/UtilityService';
+import axiosInstance from './AxiosService';
 
 const CLASS_NAME = "ProfileService";
 
@@ -228,3 +229,30 @@ export const validate_All = (item) => {
 export const isProfileValid = (isValid) => {
     return (isValid.namespace && isValid.namespaceFormat);
 }
+
+
+export const saveProfile = (item, onSaveCallback, onSaveCallbackError) => {
+    //perform insert/update call
+    console.log(generateLogMessageString(`handleOnSave||${item.id == null || item.id === 0 ? `add` : `update`}`, CLASS_NAME));
+    const url = item.id == null || item.id === 0 ? `profile/add` : `profile/update`;
+    axiosInstance.post(url, item)
+        .then(resp => {
+
+            if (resp.data.isSuccess) {
+                //callback to parent
+                item.id = resp.data.data;
+                if (onSaveCallback != null) onSaveCallback(item);
+            }
+            else {
+                //callback to parent w/ error
+                console.warn(generateLogMessageString('handleOnSave||error||' + resp.data.message, CLASS_NAME, 'error'));
+                if (onSaveCallbackError != null) onSaveCallbackError(resp.data.message);
+            }
+
+        })
+        .catch(error => {
+            //hide a spinner, show a message
+            if (onSaveCallbackError != null) onSaveCallbackError(JSON.stringify(error));
+            console.error(generateLogMessageString('handleOnSave||error||' + JSON.stringify(error), CLASS_NAME, 'error'));
+        });
+};

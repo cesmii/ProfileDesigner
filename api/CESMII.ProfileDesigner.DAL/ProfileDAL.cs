@@ -90,7 +90,7 @@
             //do filter on author id so that the user can only delete their stuff
             Profile entity = base.FindByCondition(userToken, x => x.ID == id && (x.AuthorId == userToken.UserId || userToken.UserId == -1)).FirstOrDefault();
             if (entity == null)
-                return 0;
+               return 0;
 
             //complex delete with many cascading implications, call stored proc which deletes all dependent objects 
             // in proper order, etc.
@@ -297,6 +297,11 @@
                     entity.NodeSetFiles.Add(fileEntity);
                 }
             }
+        }
+
+        internal IRepository<Profile> GetRepo()
+        {
+            return _repo;
         }
     }
 }

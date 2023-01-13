@@ -206,13 +206,11 @@ namespace CESMII.ProfileDesigner.Opc.Ua.NodeSetDBCache
                     var existingFiles = _dalNodeSetFile.Where(nf => nf.FileName == ns.ModelUri, userToken)?.Data;
                     if (existingFiles?.Any() == true)
                     {
-                        _logger.LogWarning($"Found existing global nodeset(s) {string.Join(", ", existingFiles.Select(f => f.Version + " " + f.PublicationDate))} while importing {ns.ModelUri} {ns.Version} {ns.PublicationDate}");
+                        var existingNodeSets = string.Join(", ", existingFiles.Select(f => $"{f.Version} {f.PublicationDate:yyyy-MM-dd}"));
+                        _logger.LogWarning($"Found existing global nodeset(s) {existingNodeSets} while importing {ns.ModelUri} {ns.Version} {ns.PublicationDate}");
                     }
-                    else 
-                    { 
-                        userToken = UserToken.GetGlobalUser(userToken); // Write as a global node set shared acess user
-                        authorToken = null;
-                    }
+                    userToken = UserToken.GetGlobalUser(userToken); // Write as a global node set shared acess user
+                    authorToken = null;
                 }
                 NodeSetFileModel myModel = GetProfileModel(
                     new ModelNameAndVersion(ns),

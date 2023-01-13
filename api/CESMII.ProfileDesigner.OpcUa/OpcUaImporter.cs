@@ -32,6 +32,7 @@ namespace CESMII.ProfileDesigner.OpcUa
     using CESMII.ProfileDesigner.Opc.Ua.NodeSetDBCache;
     using CESMII.OpcUa.NodeSetImporter;
     using CESMII.Common.CloudLibClient;
+    using CESMII.ProfileDesigner.Data.Repositories;
 
     public class OpcUaImporter
     {
@@ -51,6 +52,9 @@ namespace CESMII.ProfileDesigner.OpcUa
             UANodeSetDBCache nodeSetCache,
             IDal<EngineeringUnit, EngineeringUnitModel> euDal,
             ProfileMapperUtil profileUtils,
+            IRepository<ProfileTypeDefinitionAnalytic> ptAnalyticsRepo,
+            IRepository<ProfileTypeDefinitionFavorite> ptFavoritesRepo,
+            IRepository<LookupDataTypeRanked> dtRankRepo,
             ILogger<OpcUaImporter> logger
 #if NODESETDBTEST
             , NodeSetModelContext nsDBContext
@@ -72,12 +76,18 @@ namespace CESMII.ProfileDesigner.OpcUa
             _nodeSetFileDal = nodeSetFileDal;
             _nodeSetCache = nodeSetCache;
             _profileUtils = profileUtils;
+            _ptAnalyticsRepo = ptAnalyticsRepo;
+            _ptFavoritesRepo = ptFavoritesRepo;
+            _dtRankRepo = dtRankRepo;
         }
 
         public readonly IDal<ProfileTypeDefinition, ProfileTypeDefinitionModel> _dal;
         public readonly IDal<LookupDataType, LookupDataTypeModel> _dtDal;
         public readonly IDal<EngineeringUnit, EngineeringUnitModel> _euDal;
         public readonly ProfileMapperUtil _profileUtils;
+        private readonly IRepository<ProfileTypeDefinitionAnalytic> _ptAnalyticsRepo;
+        private readonly IRepository<ProfileTypeDefinitionFavorite> _ptFavoritesRepo;
+        private readonly IRepository<LookupDataTypeRanked> _dtRankRepo;
         public readonly LoggerCapture Logger;
         public readonly ILogger _logger;
 #if NODESETDBTEST
@@ -92,7 +102,7 @@ namespace CESMII.ProfileDesigner.OpcUa
         readonly Dictionary<string, string> Aliases = new();
 
 
-        public async Task<List<WarningsByNodeSet>> ImportUaNodeSets(List<ImportOPCModel> nodeSetXmlList, UserToken userToken, Func<string, TaskStatusEnum, Task> logToImportLog, int logId)
+        public async Task<List<WarningsByNodeSet>> ImportUaNodeSets(List<ImportOPCModel> nodeSetXmlList, UserToken userToken, Func<string, TaskStatusEnum, Task> logToImportLog, int logId, bool allowMultiVersion, bool upgradePreviousVersions)
         {
             var sw = Stopwatch.StartNew();
             _logger.LogTrace("Starting import");
@@ -167,7 +177,7 @@ namespace CESMII.ProfileDesigner.OpcUa
                     {
                         foreach (var tmodel in importedNodeSetFiles.Models)
                         {
-                            var profile = FindOrCreateProfileForNodeSet(tmodel, _profileDal, userToken, logId, sw);
+                            var profile = FindOrCreateProfileForNodeSet(tmodel, _profileDal, userToken, logId, sw, allowMultiVersion);
                             profilesAndNodeSets.Add(new ProfileModelAndNodeSet
                             {
                                 Profile = profile, // TODO use the nodesetfile instead
@@ -251,6 +261,10 @@ namespace CESMII.ProfileDesigner.OpcUa
                                     { ProfileId = profileAndNodeSet.Profile.ID.Value, Key = profileAndNodeSet.Profile.ToString(), Warnings = logList });
                                 }
                             }
+                            if (upgradePreviousVersions)
+                            {
+                                await UpgradeToProfileAsync(profileAndNodeSet.Profile, userToken);
+                            }
                         }
                     }
 
@@ -297,7 +311,12 @@ namespace CESMII.ProfileDesigner.OpcUa
             return nodesetWarnings;
         }
 
-        private ProfileModel FindOrCreateProfileForNodeSet(ModelValue tModel, IDal<Profile, ProfileModel> dalProfile, UserToken userToken, int logId, Stopwatch sw)
+        private Task UpgradeToProfileAsync(ProfileModel profile, UserToken userToken)
+        {
+            return (_dal as ProfileTypeDefinitionDAL).UpgradeToProfileAsync(profile, _ptAnalyticsRepo, _ptFavoritesRepo, _dtRankRepo);
+        }
+
+        private ProfileModel FindOrCreateProfileForNodeSet(ModelValue tModel, IDal<Profile, ProfileModel> dalProfile, UserToken userToken, int logId, Stopwatch sw, bool allowMultiVersion)
         {
             var nsModel = tModel.NameVersion.CCacheId as NodeSetFileModel;
             _logger.LogTrace($"Timestamp||ImportId:{logId}||Loading nodeset {tModel.NameVersion.ModelUri}: {sw.Elapsed}");
@@ -308,6 +327,12 @@ namespace CESMII.ProfileDesigner.OpcUa
 
             if (profile == null)
             {
+                var otherProfileVersion = dalProfile.Where(p => p.Namespace == tModel.NameVersion.ModelUri,
+                    userToken, verbose: false)?.Data?.OrderByDescending(p => p.Version).FirstOrDefault();
+                if (otherProfileVersion != null && !allowMultiVersion)
+                {
+                    throw new Exception($"Profile {tModel.NameVersion.ModelUri} already has version {otherProfileVersion.Version} {otherProfileVersion.PublishDate}. Can not import {tModel.NameVersion.ModelVersion} {tModel.NameVersion.PublicationDate}");
+                }
                 StandardNodeSetModel standardNodeSet = null;
                 CloudLibProfileModel cloudLibNodeSet = null;
                 if ((tModel.NameVersion.UAStandardModelID??0) == 0)
@@ -337,8 +362,8 @@ namespace CESMII.ProfileDesigner.OpcUa
                             cloudLibNodeSet = _cloudLibDal.GetAsync(tModel.NameVersion.ModelUri, tModel.NameVersion.PublicationDate, false).Result;
                             if (cloudLibNodeSet != null)
                             {
-                                _logger.LogWarning($"Did not find exact match for {tModel.NameVersion}. Using standard nodeset with publication date {standardNodeSet.PublishDate} instead.");
                                 standardNodeSet = cloudLibNodeSet.ToStandardNodeSet();
+                                _logger.LogWarning($"Did not find exact match for {tModel.NameVersion}. Using standard nodeset with publication date {standardNodeSet?.PublishDate} instead.");
                                 _dalStandardNodeSet.AddAsync(standardNodeSet, userToken).Wait();
                             }
                             else
@@ -511,7 +536,7 @@ namespace CESMII.ProfileDesigner.OpcUa
             var dalOpcContext = new DalOpcContext(this, nodeSetModels, userToken, authorId, false);
 
             // pre-load OPC UA base model
-            if (profileModel.Namespace != strOpcNamespaceUri && !nodeSetModels.ContainsKey(strOpcNamespaceUri))
+            if (!nodeSetModels.ContainsKey(strOpcNamespaceUri))
             {
                 try
                 {
@@ -530,8 +555,20 @@ namespace CESMII.ProfileDesigner.OpcUa
 
                         var opcModel = nodeSet.Models[0];
                         var opcProfile = _profileDal.Where(ns => ns.Namespace == opcModel.ModelUri, userToken, null, null).Data?.FirstOrDefault();
-                        //TODO - this next line is time consuming, but still faster than loading from database.
-                        this.LoadNodeSetAsync(dalOpcContext, nodeSet, opcProfile, true).Wait();
+
+                        if (profileModel.Namespace != strOpcNamespaceUri)
+                        {
+                            //TODO - this next line is time consuming, but still faster than loading from database.
+                            this.LoadNodeSetAsync(dalOpcContext, nodeSet, opcProfile, true).Wait();
+                        }
+                        else
+                        {
+                            // For core nodeset testing, populate the aliases (for easier diffing) but load the actual nodes from profile database
+                            foreach (var alias in nodeSet.Aliases)
+                            {
+                                this.Aliases.TryAdd(alias.Value, alias.Alias);
+                            }
+                        }
                     }
                 }
                 catch (Exception ex)

@@ -129,7 +129,8 @@ function ProfileTypeDefinitionList() {
             </Helmet>
             {renderHeaderRow()}
             <ProfileTypeDefinitionListGrid onGridRowSelect={onGridRowSelect} searchCriteria={_searchCriteria}
-                onSearchCriteriaChanged={onSearchCriteriaChanged} searchCriteriaChanged={_searchCriteriaChanged} />
+                onSearchCriteriaChanged={onSearchCriteriaChanged} searchCriteriaChanged={_searchCriteriaChanged}
+                showProfileFilter={true} />
         </>
     )
 }

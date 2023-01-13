@@ -449,3 +449,10 @@ export const isInRole = (account, roleName) => {
     //check if role name has a match in array
     return roles.findIndex(x => x.toLowerCase() === roleName.toLowerCase()) > -1;
 }
+
+///--------------------------------------------------------------------------
+/// useQueryString - extract query string parameter from url
+//--------------------------------------------------------------------------
+export function useQueryString(key) {
+    return new URLSearchParams(window.location.search).get(key);
+}

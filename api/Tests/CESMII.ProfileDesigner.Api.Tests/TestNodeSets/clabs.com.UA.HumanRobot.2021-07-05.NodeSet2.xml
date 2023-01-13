@@ -7,7 +7,7 @@
     </NamespaceUris>
     <Models>
         <Model ModelUri="http://clabs.com/UA/HumanRobot" PublicationDate="2021-07-05T00:00:00Z" Version="1.00">
-            <RequiredModel ModelUri="http://opcfoundation.org/UA/" PublicationDate="2022-11-01T00:00:00Z" Version="1.05.02"/>
+            <RequiredModel ModelUri="http://opcfoundation.org/UA/" PublicationDate="2020-07-15T00:00:00Z" Version="1.04.7"/>
             <RequiredModel ModelUri="http://opcfoundation.org/UA/DI/" PublicationDate="2021-03-09T00:00:00Z" Version="1.03.0"/>
             <RequiredModel ModelUri="http://opcfoundation.org/UA/Robotics/" PublicationDate="2021-05-20T00:00:00Z" Version="1.01.2"/>
         </Model>

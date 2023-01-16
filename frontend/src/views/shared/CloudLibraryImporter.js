@@ -120,64 +120,8 @@ function CloudLibraryImporter(props) {
     };
 
     //-------------------------------------------------------------------
-    // Region: Add/Update event handlers
+    // Region: Execute the import
     //-------------------------------------------------------------------
-    const onImportCancel = () => {
-        console.log(generateLogMessageString(`onImportCancel`, CLASS_NAME));
-        if (props.onImportCancel) props.onImportCancel();
-    };
-
-    const onErrorModalClose = () => {
-        //console.log(generateLogMessageString(`onErrorMessageOK`, CLASS_NAME));
-        setError({ show: false, caption: null, message: null });
-    }
-
-    const onImportSelectedClick = () => {
-        console.log(generateLogMessageString(`onImportSelectedClick`, CLASS_NAME));
-        setImportConfirmModal({ show: true, items: _selectedCloudProfiles });
-    };
-
-
-    //on confirm click within the modal, this callback will then trigger the next step (ie call the API)
-    const onImportConfirm = async () => {
-        console.log(generateLogMessageString(`onDeleteConfirm`, CLASS_NAME));
-        setImportConfirmModal({ show: false, item: null });
-        await importItems(_importConfirmModal.items);
-    };
-
-    //render the delete modal when show flag is set to true
-    //callbacks are tied to each button click to proceed or cancel
-    const renderImportConfirmation = () => {
-
-        if (!_importConfirmModal.show) return;
-        if (_importConfirmModal.items.length == 0) {
-            setImportConfirmModal({ show: false, item: null });
-            return;
-        }
-
-        const message = _importConfirmModal.items.length === 1 ?
-            `You are about to import profile '${_importConfirmModal.items[0].title}' and its dependent profiles. Are you sure?` :
-            `You are about to import the following ${_importConfirmModal.items.length} profiles and their dependent profiles: '${_importConfirmModal.items.map(i => i.title).join("', '")}'. Are you sure?`;
-        var caption = `Import Profile${_importConfirmModal.items.length === 1 ? "" : "s"}`;
-
-        return (
-            <>
-                <ConfirmationModal showModal={_importConfirmModal.show} caption={caption} message={message}
-                    /*icon={{ name: "warning", color: color.trinidad }}*/
-                    confirm={{ caption: "Import", callback: onImportConfirm, buttonVariant: "primary" }}
-                    cancel={{
-                        caption: "Cancel",
-                        callback: () => {
-                            console.log(generateLogMessageString(`onImportCancel`, CLASS_NAME));
-                            setImportConfirmModal({ show: false, item: null });
-                            onImportCancel();
-                        },
-                        buttonVariant: null
-                    }} />
-            </>
-        );
-    };
-
     const importItems = async (items) => {
         console.log(generateLogMessageString(`importItems||Count:${items.length}`, CLASS_NAME));
 
@@ -186,11 +130,10 @@ function CloudLibraryImporter(props) {
         });
 
         //perform import call
-
-        var url = `profile/cloudlibrary/import`;
+        const url = `profile/cloudlibrary/import`;
         console.log(generateLogMessageString(`importFromCloudLibary||${url}`, CLASS_NAME));
 
-        var data = //items.length === 1 ? { id: items[0].id.toString() } :
+        const data = //items.length === 1 ? { id: items[0].id.toString() } :
             items.map((item) => { return { id: item.cloudLibraryId.toString() }; });
 
         //var data = { id: props.item.cloudLibraryId };
@@ -266,6 +209,33 @@ function CloudLibraryImporter(props) {
 
     };
 
+    //-------------------------------------------------------------------
+    // Region: event handlers
+    //-------------------------------------------------------------------
+    const onErrorModalClose = () => {
+        //console.log(generateLogMessageString(`onErrorMessageOK`, CLASS_NAME));
+        setError({ show: false, caption: null, message: null });
+    }
+
+    const onImportSelectedClick = () => {
+        console.log(generateLogMessageString(`onImportSelectedClick`, CLASS_NAME));
+        setImportConfirmModal({ show: true, items: _selectedCloudProfiles });
+    };
+
+
+    //on confirm click within the modal, this callback will then trigger the next step (ie call the API)
+    const onImportConfirm = async () => {
+        console.log(generateLogMessageString(`onImportConfirm`, CLASS_NAME));
+        await importItems(_importConfirmModal.items);
+        setImportConfirmModal({ show: false, items: null });
+    };
+
+    const onImportCancel = () => {
+        console.log(generateLogMessageString(`onImportCancel`, CLASS_NAME));
+        setImportConfirmModal({ show: false, items: null });
+        if (props.onImportCancel) props.onImportCancel();
+    };
+
     //bubble up search criteria changed so the parent page can control the search criteria
     const onSearchCriteriaChanged = (criteria) => {
         console.log(generateLogMessageString(`onSearchCriteriaChanged`, CLASS_NAME));
@@ -277,16 +247,47 @@ function CloudLibraryImporter(props) {
 
     const onView = (item) => {
         console.log(generateLogMessageString(`onEdit`, CLASS_NAME));
-        setProfileEntityModal({ show: true, item: item });
+        setProfileEntityModal({ show: true, items: item });
     };
     const onViewClose = () => {
         console.log(generateLogMessageString(`onViewClose`, CLASS_NAME));
-        setProfileEntityModal({ show: false, item: null });
+        setProfileEntityModal({ show: false, items: null });
     };
 
     //-------------------------------------------------------------------
     // Region: Render helpers
     //-------------------------------------------------------------------
+    const renderImportConfirmation = () => {
+
+        if (!_importConfirmModal.show) return;
+        if (_importConfirmModal.items.length == 0) {
+            setImportConfirmModal({ show: false, items: null });
+            return;
+        }
+
+        const message = _importConfirmModal.items.length === 1 ?
+            `You are about to import profile '${_importConfirmModal.items[0].title}' and its dependent profiles. Are you sure?` :
+            `You are about to import the following ${_importConfirmModal.items.length} profiles and their dependent profiles: '${_importConfirmModal.items.map(i => i.title).join("', '")}'. Are you sure?`;
+        var caption = `Import Profile${_importConfirmModal.items.length === 1 ? "" : "s"}`;
+
+        return (
+            <>
+                <ConfirmationModal showModal={_importConfirmModal.show} caption={caption} message={message}
+                    /*icon={{ name: "warning", color: color.trinidad }}*/
+                    confirm={{ caption: "Import", callback: onImportConfirm, buttonVariant: "primary" }}
+                    cancel={{
+                        caption: "Cancel",
+                        callback: () => {
+                            console.log(generateLogMessageString(`onImportCancel`, CLASS_NAME));
+                            setImportConfirmModal({ show: false, items: null });
+                            onImportCancel();
+                        },
+                        buttonVariant: null
+                    }} />
+            </>
+        );
+    };
+
     //renderProfileEntity as a modal to force user to say ok.
     const renderProfileEntity = () => {
 

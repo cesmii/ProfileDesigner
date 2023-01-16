@@ -26,7 +26,8 @@ function CloudLibViewer() {
     //-------------------------------------------------------------------
     const history = useHistory();
     const { id } = useParams();
-    const _tab = useQueryString("tab");
+    const _qsTab = useQueryString("tab");
+    const _qsTitle = useQueryString("c");
     const { loadingProps, setLoadingProps } = useLoadingContext();
     const [_item, setItem] = useState(null);
     const _iconName = 'folder-profile';
@@ -79,7 +80,7 @@ function CloudLibViewer() {
             //setting state causes this to trigger that to happen
             if (result.data == null || result.data === '') {
                 console.log(generateLogMessageString('useEffect||fetchProfile||no profile imported || trigger import', CLASS_NAME));
-                setCloudLibItem([{ cloudLibraryId: id }]);
+                setCloudLibItem([{ cloudLibraryId: id, title: _qsTitle }]);
             }
             else
             {
@@ -108,7 +109,7 @@ function CloudLibViewer() {
             //check on the status of this specific import by investigating import logs, 
             //once it finishes, then attempt to get profile via cloudLibId again
             const hasMatch = loadingProps.importingLogs.some(x =>
-                x.id === _pollForCompletion.importLogId && (x.completed == null || x.status !== AppSettings.ImportLogStatus.Completed));
+                x.id === _pollForCompletion.importLogId && (x.status !== AppSettings.ImportLogStatus.Completed));
             console.log(generateLogMessageString(`pollForCompletion || Import Completed: ${hasMatch}`, CLASS_NAME));
             if (hasMatch) {
                 //try again in 5 seconds
@@ -161,8 +162,8 @@ function CloudLibViewer() {
     // Region: hook - set the default tab on load if passed in
     //-------------------------------------------------------------------
     useEffect(() => {
-        if (_tab != null) setDefaultTab(_tab);
-    }, [_tab]);
+        if (_qsTab != null) setDefaultTab(_qsTab);
+    }, [_qsTab]);
 
     //-------------------------------------------------------------------
     // Region: Event Handling of child component events
@@ -191,11 +192,22 @@ function CloudLibViewer() {
     const renderHeaderRow = (caption) => {
         return (
             <div className="row pb-3">
-                <div className="col-sm-7 mr-auto d-flex">
+                <div className="col-sm-8 mr-auto d-flex">
                     {renderTitleBlock(caption, _iconName, _iconColor)}
                 </div>
-                <div className="col-sm-5 d-flex align-items-center justify-content-end">
+                <div className="col-sm-4 d-flex align-items-center justify-content-end">
                     <span className="my-0 mr-2"><a href={`/profiles/library`} >Profile Library</a></span>
+                </div>
+            </div>
+        );
+    };
+
+    const renderImportingPlaceholder = () => {
+        return (
+            <div className="row pb-3">
+                <div className="col-sm-12 d-flex">
+                    <p className="my-2 py-2 text-center alert alert-custom">Importing SM profile (and dependencies) from CESMII Cloud Library...
+                    <br />This may take a few minutes.</p>
                 </div>
             </div>
         );
@@ -244,20 +256,21 @@ function CloudLibViewer() {
     //-------------------------------------------------------------------
     // Region: Render final output
     //-------------------------------------------------------------------
-    const _name = `${_item == null ? '' : _item?.title != null && _item?.title !== '' ? _item?.title: _item?.namespace }`;
+    const _name = `${_item == null ? '' : _item?.title != null && _item?.title !== '' ? _item?.title : _item?.namespace}`;
     const _caption = `${_name === '' ? '' : _name + ' | ' } Cloud Library Viewer | ${AppSettings.Titles.Main}`;
     return (
         <>
             <Helmet>
                 <title>{_caption}</title>
             </Helmet>
-            {renderHeaderRow(`Profile ${_name === '' ? '' : ' - ' + _name }`)}
+            {renderHeaderRow(`SM Profile Viewer ${_name === '' ? '' : ' - ' + _name }`)}
             {_item != null &&
                 renderTabbedView()
             }
             {_cloudLibItem.length > 0 &&
                 <>
-                    <CloudLibraryImporterNew onImportStarted={onCloudLibImportStarted} items={_cloudLibItem} />
+                    {renderImportingPlaceholder()}
+                    <CloudLibraryImporterNew onImportStarted={onCloudLibImportStarted} items={_cloudLibItem} bypassConfirmation={true} />
                 </>
             }
         </>

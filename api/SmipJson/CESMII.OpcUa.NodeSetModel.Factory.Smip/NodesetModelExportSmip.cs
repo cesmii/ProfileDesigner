@@ -147,7 +147,7 @@ namespace CESMII.OpcUa.NodeSetModel.Export.Smip
 
         public static string EscapeSpecialCharacters(string name)
         {
-            return name.Replace(":", "_").Replace(".", "_").Replace("//", "_").Replace("/", "_").Replace(";", "_").Replace("=", "_");
+            return name.Replace(":", "_").Replace(".", "_").Replace("//", "_").Replace("/", "_").Replace(";", "_").Replace("=", "_").ToLowerInvariant();
         }
 
         public static string Get3PartVersion(string version)

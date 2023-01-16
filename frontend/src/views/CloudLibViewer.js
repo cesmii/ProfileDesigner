@@ -88,6 +88,8 @@ function CloudLibViewer() {
                 setItem(result.data);
                 //trigger retrieval of type definitions
                 setInitSearchCriteria(true);
+                //clear out import cloud library triggers
+                setCloudLibItem([]);
             }
         }
 
@@ -112,13 +114,20 @@ function CloudLibViewer() {
                 x.id === _pollForCompletion.importLogId && (x.status !== AppSettings.ImportLogStatus.Completed));
             console.log(generateLogMessageString(`pollForCompletion || Import Completed: ${hasMatch}`, CLASS_NAME));
             if (hasMatch) {
-                //try again in 5 seconds
+                //try again in 1000 seconds
                 setPollForCompletion({ ..._pollForCompletion, counter: _pollForCompletion.counter + 1 });
             }
             else {
+                console.log(generateLogMessageString(`pollForCompletion || Import Completed`, CLASS_NAME));
+                //clear import message
+                var importingLogs = loadingProps.importingLogs == null || loadingProps.importingLogs.length === 0 ? [] :
+                    JSON.parse(JSON.stringify(loadingProps.importingLogs));
+                importingLogs = importingLogs.filter(x => x.id !== _pollForCompletion.importLogId);
+                setLoadingProps({importingLogs: importingLogs});
+
                 setPollForCompletion({ counter: 0, importLogId: null, isComplete: true });
             }
-        }, 5000);
+        }, 1000);
 
     }, [_pollForCompletion]);
 
@@ -206,8 +215,7 @@ function CloudLibViewer() {
         return (
             <div className="row pb-3">
                 <div className="col-sm-12 d-flex">
-                    <p className="my-2 py-2 text-center alert alert-custom">Importing SM profile (and dependencies) from CESMII Cloud Library...
-                    <br />This may take a few minutes.</p>
+                    <p className="my-2 py-2 mx-auto text-center alert alert-info-custom">Processing...This may take a few minutes.</p>
                 </div>
             </div>
         );

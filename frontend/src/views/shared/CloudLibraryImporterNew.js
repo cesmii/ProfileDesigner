@@ -65,7 +65,7 @@ export function CloudLibraryImporterNew(props) {
         //show a processing message at top. One to stay for duration, one to show for timed period.
         //var msgImportProcessingId = new Date().getTime();
         setLoadingProps({
-            isLoading: true, message: `Importing from Cloud Library...This may take a few minutes.`
+            isLoading: true, message: `Importing from CESMII Cloud Library...This may take a few minutes.`
         });
 
         await axiosInstance.post(url, data).then(result => {

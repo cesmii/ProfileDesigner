@@ -13,6 +13,7 @@ import ProfileEntityForm from './shared/ProfileEntity';
 import { CloudLibraryImporterNew } from './shared/CloudLibraryImporterNew';
 import ProfileTypeDefinitionListGrid from './shared/ProfileTypeDefinitionListGrid';
 import { clearSearchCriteria, toggleSearchFilterSelected } from '../services/ProfileService';
+import { LoadingSpinner } from '../components/LoadingOverlay'
 
 import color from '../components/Constants';
 import './styles/ProfileEntity.scss';
@@ -214,8 +215,11 @@ function CloudLibViewer() {
     const renderImportingPlaceholder = () => {
         return (
             <div className="row pb-3">
-                <div className="col-sm-12 d-flex">
-                    <p className="my-2 py-2 mx-auto text-center alert alert-info-custom">Processing...This may take a few minutes.</p>
+                <div className="col-sm-12">
+                    <div className="mx-auto">
+                        <LoadingSpinner />
+                    </div>
+                    <p className="my-2 py-2 mx-auto text-center">Processing...This may take a few minutes.</p>
                 </div>
             </div>
         );

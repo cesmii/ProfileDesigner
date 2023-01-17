@@ -302,6 +302,8 @@ function ProfileTypeDefinitionListGrid(props) {
 
     //render the main grid
     const renderItemsGrid = () => {
+        if (_isLoading) return null; //don't show no data message if we are trying to load data
+
         //_isLoading = null until first load happens or we encounter error, true while loading and false when finished loading
         if (_isLoading != null && !loadingProps.isLoading && (_dataRows.all == null || _dataRows.all.length === 0)) {
             return (

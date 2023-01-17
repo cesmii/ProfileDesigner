@@ -55,7 +55,7 @@ function ProfileItemRow(props) { //props are item, showActions
 
         return (
             <div className="col-sm-4 ml-auto d-inline-flex justify-content-end align-items-center" >
-                <span className="my-0 mr-2"><a href={`/types/library/profile/${props.item.id}`} ><span className="mr-1" alt="view"><SVGIcon name="visibility" /></span>View Type Definitions</a></span>
+                <span className="my-0 mr-2"><a href={`/profile/${props.item.id}?tab=typedefs`} ><span className="mr-1" alt="view"><SVGIcon name="visibility" /></span>View Type Definitions</a></span>
                 <ProfileActions item={props.item} activeAccount={props.activeAccount} />
             </div>
             );

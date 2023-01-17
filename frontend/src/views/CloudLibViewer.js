@@ -9,11 +9,12 @@ import axiosInstance from "../services/AxiosService";
 import { generateLogMessageString, renderTitleBlock, useQueryString } from '../utils/UtilityService'
 import { AppSettings } from '../utils/appsettings'
 import { useLoadingContext } from '../components/contexts/LoadingContext';
+import { useDeleteImportMessage } from '../components/ImportMessage'
+import { LoadingSpinner } from '../components/LoadingOverlay'
 import ProfileEntityForm from './shared/ProfileEntity';
 import { CloudLibraryImporterNew } from './shared/CloudLibraryImporterNew';
 import ProfileTypeDefinitionListGrid from './shared/ProfileTypeDefinitionListGrid';
 import { clearSearchCriteria, toggleSearchFilterSelected } from '../services/ProfileService';
-import { LoadingSpinner } from '../components/LoadingOverlay'
 
 import color from '../components/Constants';
 import './styles/ProfileEntity.scss';
@@ -39,6 +40,7 @@ function CloudLibViewer() {
     const [_searchCriteria, setSearchCriteria] = useState(null);
     const [_searchCriteriaChanged, setSearchCriteriaChanged] = useState(0);
     const [_defaultTab, setDefaultTab] = useState('general');
+    const [_deleteId, setDeleteId] = useState(null);
 
     //pass to common form
     const _isValid = { namespace: true, namespaceFormat: true, description: true, type: true, symbolicName: true };
@@ -120,12 +122,7 @@ function CloudLibViewer() {
             }
             else {
                 console.log(generateLogMessageString(`pollForCompletion || Import Completed`, CLASS_NAME));
-                //clear import message
-                var importingLogs = loadingProps.importingLogs == null || loadingProps.importingLogs.length === 0 ? [] :
-                    JSON.parse(JSON.stringify(loadingProps.importingLogs));
-                importingLogs = importingLogs.filter(x => x.id !== _pollForCompletion.importLogId);
-                setLoadingProps({importingLogs: importingLogs});
-
+                setDeleteId(_pollForCompletion.importLogId);
                 setPollForCompletion({ counter: 0, importLogId: null, isComplete: true });
             }
         }, 1000);
@@ -176,6 +173,11 @@ function CloudLibViewer() {
     }, [_qsTab]);
 
     //-------------------------------------------------------------------
+    // Region: hook - trigger delete of message on completion automatically
+    //-------------------------------------------------------------------
+    useDeleteImportMessage({ id: _deleteId });
+
+    //-------------------------------------------------------------------
     // Region: Event Handling of child component events
     //-------------------------------------------------------------------
     const onCloudLibImportStarted = (importLogId) => {
@@ -219,7 +221,6 @@ function CloudLibViewer() {
                     <div className="mx-auto">
                         <LoadingSpinner />
                     </div>
-                    <p className="my-2 py-2 mx-auto text-center">Processing...This may take a few minutes.</p>
                 </div>
             </div>
         );
@@ -279,11 +280,11 @@ function CloudLibViewer() {
             {_item != null &&
                 renderTabbedView()
             }
+            {_pollForCompletion.importLogId != null &&
+                renderImportingPlaceholder()
+            }
             {_cloudLibItem.length > 0 &&
-                <>
-                    {renderImportingPlaceholder()}
-                    <CloudLibraryImporterNew onImportStarted={onCloudLibImportStarted} items={_cloudLibItem} bypassConfirmation={true} />
-                </>
+                <CloudLibraryImporterNew onImportStarted={onCloudLibImportStarted} items={_cloudLibItem} bypassConfirmation={true} />
             }
         </>
     )

@@ -286,10 +286,10 @@ function ProfileList() {
                             </Dropdown.Item>
                             {(isInRole(_activeAccount, 'cesmii.profiledesigner.admin')) &&
                                 <>
-                                <Dropdown.Divider />
-                                <Dropdown.Item className="py-2" as="button" >
-                                    {<ProfileImporter caption="Upgrade Global NodeSet file" cssClass="mb-0" useCssClassOnly="true" />}
-                                </Dropdown.Item>
+                                    <Dropdown.Divider className="my-0" />
+                                    <Dropdown.Item className="pb-2" as="button" >
+                                        {<ProfileImporter caption="Upgrade Global NodeSet file" cssClass="mb-0" useCssClassOnly="true" />}
+                                    </Dropdown.Item>
                                 </>
                             }
                         </Dropdown.Menu>

@@ -1,0 +1,112 @@
+====>Expected attribute name '/UANodeSet[1]/Models[1]/Model[1]/RequiredModel[1]' - comparing <RequiredModel...> at /UANodeSet[1]/Models[1]/Model[1]/RequiredModel[1] to <RequiredModel...> at /UANodeSet[1]/Models[1]/Model[1]/RequiredModel[2]/@PublicationDate
+====>Expected attribute value '1.04' but was '1.05.02' - comparing <RequiredModel Version="1.04"...> at /UANodeSet[1]/Models[1]/Model[1]/RequiredModel[2]/@Version to <RequiredModel Version="1.05.02"...> at /UANodeSet[1]/Models[1]/Model[1]/RequiredModel[1]/@Version
+====>Expected attribute value '2019-05-01T00:00:00Z' but was '2022-11-01T00:00:00Z' - comparing <RequiredModel PublicationDate="2019-05-01T00:00:00Z"...> at /UANodeSet[1]/Models[1]/Model[1]/RequiredModel[2]/@PublicationDate to <RequiredModel PublicationDate="2022-11-01T00:00:00Z"...> at /UANodeSet[1]/Models[1]/Model[1]/RequiredModel[1]/@PublicationDate
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObjectType[3]/References[1]/Reference[2] to <NULL>
+====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAObjectType[20]/References[1]/Reference[1]
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[1]/References[1]/Reference[1] to <NULL>
+====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAObject[27]/References[1]/Reference[3]
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[2]/References[1]/Reference[4] to <NULL>
+====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAObject[1]/References[1]/Reference[1]
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[3]/References[1]/Reference[1] to <NULL>
+====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAObject[2]/References[1]/Reference[3]
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObjectType[5]/References[1]/Reference[2] to <NULL>
+====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAObjectType[2]/References[1]/Reference[1]
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[4]/References[1]/Reference[1] to <NULL>
+====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAObject[3]/References[1]/Reference[3]
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[6]/References[1]/Reference[4] to <NULL>
+====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAObject[5]/References[1]/Reference[1]
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[7]/References[1]/Reference[1] to <NULL>
+====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAObject[6]/References[1]/Reference[3]
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Definition' but was '' - comparing <Definition...> at /UANodeSet[1]/UADataType[1]/Definition[1] to <NULL>
+====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Definition' - comparing <NULL> to <Definition...> at /UANodeSet[1]/UADataType[1]/Definition[1]
+====>Expected child 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' but was '' - comparing <Text...> at /UANodeSet[1]/UAVariable[3]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[1]/Body[1]/EnumValueType[1]/Description[1]/Text[1] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' but was '' - comparing <Text...> at /UANodeSet[1]/UAVariable[3]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[2]/Body[1]/EnumValueType[1]/Description[1]/Text[1] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' but was '' - comparing <Text...> at /UANodeSet[1]/UAVariable[3]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[3]/Body[1]/EnumValueType[1]/Description[1]/Text[1] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' but was '' - comparing <Text...> at /UANodeSet[1]/UAVariable[3]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[4]/Body[1]/EnumValueType[1]/Description[1]/Text[1] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' but was '' - comparing <Text...> at /UANodeSet[1]/UAVariable[3]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[5]/Body[1]/EnumValueType[1]/Description[1]/Text[1] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' but was '' - comparing <Text...> at /UANodeSet[1]/UAVariable[3]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[6]/Body[1]/EnumValueType[1]/Description[1]/Text[1] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' but was '' - comparing <Text...> at /UANodeSet[1]/UAVariable[3]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[7]/Body[1]/EnumValueType[1]/Description[1]/Text[1] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Definition' but was '' - comparing <Definition...> at /UANodeSet[1]/UADataType[2]/Definition[1] to <NULL>
+====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Definition' - comparing <NULL> to <Definition...> at /UANodeSet[1]/UADataType[2]/Definition[1]
+====>Expected child 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' but was '' - comparing <Text...> at /UANodeSet[1]/UAVariable[4]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[1]/Body[1]/EnumValueType[1]/Description[1]/Text[1] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' but was '' - comparing <Text...> at /UANodeSet[1]/UAVariable[4]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[2]/Body[1]/EnumValueType[1]/Description[1]/Text[1] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' but was '' - comparing <Text...> at /UANodeSet[1]/UAVariable[4]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[3]/Body[1]/EnumValueType[1]/Description[1]/Text[1] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' but was '' - comparing <Text...> at /UANodeSet[1]/UAVariable[4]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[4]/Body[1]/EnumValueType[1]/Description[1]/Text[1] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' but was '' - comparing <Text...> at /UANodeSet[1]/UAVariable[4]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[5]/Body[1]/EnumValueType[1]/Description[1]/Text[1] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' but was '' - comparing <Text...> at /UANodeSet[1]/UAVariable[4]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[6]/Body[1]/EnumValueType[1]/Description[1]/Text[1] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' but was '' - comparing <Text...> at /UANodeSet[1]/UAVariable[4]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[7]/Body[1]/EnumValueType[1]/Description[1]/Text[1] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' but was '' - comparing <Text...> at /UANodeSet[1]/UAVariable[4]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[8]/Body[1]/EnumValueType[1]/Description[1]/Text[1] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' but was '' - comparing <Text...> at /UANodeSet[1]/UAVariable[4]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[9]/Body[1]/EnumValueType[1]/Description[1]/Text[1] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' but was '' - comparing <Text...> at /UANodeSet[1]/UAVariable[4]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[10]/Body[1]/EnumValueType[1]/Description[1]/Text[1] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' but was '' - comparing <Text...> at /UANodeSet[1]/UAVariable[4]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[11]/Body[1]/EnumValueType[1]/Description[1]/Text[1] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' but was '' - comparing <Text...> at /UANodeSet[1]/UAVariable[4]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[12]/Body[1]/EnumValueType[1]/Description[1]/Text[1] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' but was '' - comparing <Text...> at /UANodeSet[1]/UAVariable[4]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[13]/Body[1]/EnumValueType[1]/Description[1]/Text[1] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' but was '' - comparing <Text...> at /UANodeSet[1]/UAVariable[4]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[14]/Body[1]/EnumValueType[1]/Description[1]/Text[1] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' but was '' - comparing <Text...> at /UANodeSet[1]/UAVariable[4]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[15]/Body[1]/EnumValueType[1]/Description[1]/Text[1] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' but was '' - comparing <Text...> at /UANodeSet[1]/UAVariable[4]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[16]/Body[1]/EnumValueType[1]/Description[1]/Text[1] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' but was '' - comparing <Text...> at /UANodeSet[1]/UAVariable[4]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[17]/Body[1]/EnumValueType[1]/Description[1]/Text[1] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' but was '' - comparing <Text...> at /UANodeSet[1]/UAVariable[4]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[18]/Body[1]/EnumValueType[1]/Description[1]/Text[1] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' but was '' - comparing <Text...> at /UANodeSet[1]/UAVariable[4]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[19]/Body[1]/EnumValueType[1]/Description[1]/Text[1] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' but was '' - comparing <Text...> at /UANodeSet[1]/UAVariable[4]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[20]/Body[1]/EnumValueType[1]/Description[1]/Text[1] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' but was '' - comparing <Text...> at /UANodeSet[1]/UAVariable[4]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[21]/Body[1]/EnumValueType[1]/Description[1]/Text[1] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' but was '' - comparing <Text...> at /UANodeSet[1]/UAVariable[4]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[22]/Body[1]/EnumValueType[1]/Description[1]/Text[1] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' but was '' - comparing <Text...> at /UANodeSet[1]/UAVariable[4]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[23]/Body[1]/EnumValueType[1]/Description[1]/Text[1] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' but was '' - comparing <Text...> at /UANodeSet[1]/UAVariable[4]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[24]/Body[1]/EnumValueType[1]/Description[1]/Text[1] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Definition' but was '' - comparing <Definition...> at /UANodeSet[1]/UADataType[3]/Definition[1] to <NULL>
+====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Definition' - comparing <NULL> to <Definition...> at /UANodeSet[1]/UADataType[3]/Definition[1]
+====>Expected child 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' but was '' - comparing <Text...> at /UANodeSet[1]/UAVariable[5]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[1]/Body[1]/EnumValueType[1]/Description[1]/Text[1] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Definition' but was '' - comparing <Definition...> at /UANodeSet[1]/UADataType[4]/Definition[1] to <NULL>
+====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Definition' - comparing <NULL> to <Definition...> at /UANodeSet[1]/UADataType[4]/Definition[1]
+====>Expected child 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' but was '' - comparing <Text...> at /UANodeSet[1]/UAVariable[6]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[1]/Body[1]/EnumValueType[1]/Description[1]/Text[1] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Definition' but was '' - comparing <Definition...> at /UANodeSet[1]/UADataType[5]/Definition[1] to <NULL>
+====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Definition' - comparing <NULL> to <Definition...> at /UANodeSet[1]/UADataType[5]/Definition[1]
+====>Expected child 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' but was '' - comparing <Text...> at /UANodeSet[1]/UAVariable[7]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[1]/Body[1]/EnumValueType[1]/Description[1]/Text[1] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' but was '' - comparing <Text...> at /UANodeSet[1]/UAVariable[7]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[2]/Body[1]/EnumValueType[1]/Description[1]/Text[1] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' but was '' - comparing <Text...> at /UANodeSet[1]/UAVariable[7]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[3]/Body[1]/EnumValueType[1]/Description[1]/Text[1] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' but was '' - comparing <Text...> at /UANodeSet[1]/UAVariable[7]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[4]/Body[1]/EnumValueType[1]/Description[1]/Text[1] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' but was '' - comparing <Text...> at /UANodeSet[1]/UAVariable[7]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[5]/Body[1]/EnumValueType[1]/Description[1]/Text[1] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' but was '' - comparing <Text...> at /UANodeSet[1]/UAVariable[7]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[6]/Body[1]/EnumValueType[1]/Description[1]/Text[1] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' but was '' - comparing <Text...> at /UANodeSet[1]/UAVariable[7]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[7]/Body[1]/EnumValueType[1]/Description[1]/Text[1] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' but was '' - comparing <Text...> at /UANodeSet[1]/UAVariable[7]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[8]/Body[1]/EnumValueType[1]/Description[1]/Text[1] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' but was '' - comparing <Text...> at /UANodeSet[1]/UAVariable[7]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[9]/Body[1]/EnumValueType[1]/Description[1]/Text[1] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Definition' but was '' - comparing <Definition...> at /UANodeSet[1]/UADataType[6]/Definition[1] to <NULL>
+====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Definition' - comparing <NULL> to <Definition...> at /UANodeSet[1]/UADataType[6]/Definition[1]
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[9]/References[1]/Reference[3] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[10]/References[1]/Reference[3] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObjectType[7]/References[1]/Reference[2] to <NULL>
+====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAObjectType[4]/References[1]/Reference[1]
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[11]/References[1]/Reference[1] to <NULL>
+====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAObject[10]/References[1]/Reference[3]
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAReferenceType' but was '' - comparing <UAReferenceType...> at /UANodeSet[1]/UAReferenceType[1] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAReferenceType' but was '' - comparing <UAReferenceType...> at /UANodeSet[1]/UAReferenceType[2] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAReferenceType' but was '' - comparing <UAReferenceType...> at /UANodeSet[1]/UAReferenceType[3] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAView' but was '' - comparing <UAView...> at /UANodeSet[1]/UAView[1] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAView' but was '' - comparing <UAView...> at /UANodeSet[1]/UAView[2] to <NULL>
+====>Expected child '#comment' but was '' - comparing <!--
+ * Copyright (c) 2005-2020 The OPC Foundation, Inc. All rights reserved.
+ *
+ * OPC Foundation MIT License 1.00
+ * 
+ * Permission is hereby granted, free of charge, to any person
+ * obtaining a copy of this software and associated documentation
+ * files (the "Software"), to deal in the Software without
+ * restriction, including without limitation the rights to use,
+ * copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following
+ * conditions:
+ * 
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+ * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+ * OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * The complete license agreement can be found here:
+ * http://opcfoundation.org/License/MIT/1.00/
+--> at /comment()[1] to <NULL>

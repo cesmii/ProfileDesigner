@@ -84,7 +84,7 @@
 
         public async Task<GraphQlResult<CloudLibProfileModel>> Where(int limit, string cursor, bool pageBackwards, List<string> keywords, List<string> exclude = null)
         {
-            var matches = await _cloudLib.SearchAsync(limit, cursor, pageBackwards, keywords, exclude);
+            var matches = await _cloudLib.SearchAsync(limit, cursor, pageBackwards, keywords, exclude, false);
             if (matches == null) return new GraphQlResult<CloudLibProfileModel>();
 
             //TBD - exclude some nodesets which are core nodesets - list defined in appSettings

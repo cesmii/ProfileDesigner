@@ -42,7 +42,7 @@ namespace CESMII.ProfileDesigner.Api.Utils
             _configuration = configuration;
         }
 
-        public async Task<int> ImportOpcUaNodeSet(List<ImportOPCModel> nodeSetXmlList, UserToken userToken)
+        public async Task<int> ImportOpcUaNodeSet(List<ImportOPCModel> nodeSetXmlList, UserToken userToken, bool allowMultiVersion, bool upgradePreviousVersions)
         {
             //the rest of the fields are set in the dal
             var logItem = new ImportLogModel()
@@ -66,7 +66,7 @@ namespace CESMII.ProfileDesigner.Api.Utils
                 //web api request completes and disposes of the import service object (and its module vars)
                 try
                 {
-                    backgroundTask = ImportOpcUaNodeSetInternal(nodeSetXmlList, logId.Value, userToken);
+                    backgroundTask = ImportOpcUaNodeSetInternal(nodeSetXmlList, logId.Value, userToken, allowMultiVersion, upgradePreviousVersions);
                     await backgroundTask;
                 }
                 catch (Exception ex)
@@ -91,7 +91,7 @@ namespace CESMII.ProfileDesigner.Api.Utils
         /// <param name="nodeSetXmlList"></param>
         /// <param name="authorToken"></param>
         /// <returns></returns>
-        private async Task ImportOpcUaNodeSetInternal(List<ImportOPCModel> nodeSetXmlList, int logId, UserToken userToken)
+        private async Task ImportOpcUaNodeSetInternal(List<ImportOPCModel> nodeSetXmlList, int logId, UserToken userToken, bool allowMultiVersion, bool upgradePreviousVersions)
         {
             var dalImportLog = GetImportLogDalIsolated();
 
@@ -114,7 +114,7 @@ namespace CESMII.ProfileDesigner.Api.Utils
                     {
                         await CreateImportLogMessage(dalImportLog, logId, userToken, message, status);
                     }, 
-                    logId);
+                    logId, allowMultiVersion, upgradePreviousVersions);
 
                 if (nodesetWarnings != null)
                 {

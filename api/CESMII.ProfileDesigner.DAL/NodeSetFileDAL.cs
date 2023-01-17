@@ -52,7 +52,7 @@ namespace CESMII.ProfileDesigner.DAL
             return base.FindByCondition(userToken, x => 
                 ( 
                   (model.ID != 0 && model.ID != null && x.ID == model.ID)
-                  || x.FileName == model.FileName
+                  || (x.FileName == model.FileName && x.PublicationDate == model.PublicationDate && x.Version == model.Version)
                 ) 
                 , cacheOnly).FirstOrDefault();
         }

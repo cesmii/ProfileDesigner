@@ -10,10 +10,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CESMII.Marketplace.CloudLibClient\CESMII.Common.CloudLibClient.csproj" />
+    <ProjectReference Include="..\..\common\CESMII.Common.CloudLibClient\CESMII.Common.CloudLibClient.csproj" />
     <ProjectReference Include="..\CESMII.ProfileDesigner.Common\CESMII.ProfileDesigner.Common.csproj" />
     <ProjectReference Include="..\CESMII.ProfileDesigner.Data\CESMII.ProfileDesigner.Data.csproj" />
-    <ProjectReference Include="..\Opc.Ua.Cloud.Library.Client\Opc.Ua.Cloud.Library.Client.csproj" />
+    <ProjectReference Include="..\..\common\Opc.Ua.Cloud.Library.Client\Opc.Ua.Cloud.Library.Client.csproj" />
   </ItemGroup>
 
 </Project>

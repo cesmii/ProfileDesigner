@@ -72,15 +72,24 @@
             {
                 Count = count
             };
-            try
+            int retryCount = 50;
+            do
             {
-                result.Data = MapToModels(data.ToList(), verbose);
-            }
-            catch (InvalidOperationException)
-            {
-                // For some reason this throws due to modified collection on first try (local cache change due to side effect of mapping?)
-                result.Data = MapToModels(data.ToList(), verbose);
-            }
+                try
+                {
+                    result.Data = MapToModels(data.ToList(), verbose);
+                    retryCount = 0;
+                }
+                catch (InvalidOperationException)
+                {
+                    // For some reason (likely on-demand data loading of data) this throws due to modified collection
+                    retryCount--;
+                    if (retryCount <= 0)
+                    {
+                        throw;
+                    }
+                }
+            } while (retryCount > 0);
             result.SummaryData = null;
             return result;
         }

@@ -1,7 +1,7 @@
 import React from 'react'
 
 import { isOwner, renderProfileIcon } from './ProfileRenderHelpers';
-import { formatDate } from '../../utils/UtilityService';
+import { formatDateUtc } from '../../utils/UtilityService';
 import { getProfileCaption } from '../../services/ProfileService'
 import { SVGIcon } from '../../components/SVGIcon';
 import ProfileActions from './ProfileActions';
@@ -172,7 +172,7 @@ function ProfileItemRow(props) { //props are item, showActions
                                 <p className="my-0 small-size" >Version: {props.item.version}</p>
                             }
                             {props.item.publishDate != null &&
-                                <p className="my-0 small-size" >Published: {formatDate(props.item.publishDate)}</p>
+                                <p className="my-0 small-size" >Published: {formatDateUtc(props.item.publishDate)}</p>
                             }
                             {props.item.description != null &&
                                 <p className="my-0 small-size" >Description: {props.item.description.substr(0, 80)}</p>

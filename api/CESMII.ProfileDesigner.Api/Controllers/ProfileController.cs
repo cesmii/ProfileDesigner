@@ -658,17 +658,10 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 _logger.LogWarning($"ProfileController|Add|Invalid model (null)");
                 return BadRequest($"Invalid model (null). Check Publish Date formatting.");
             }
-            if (model.PublishDate != null && model.PublishDate?.Kind != DateTimeKind.Utc)
-            {
-                if (model.PublishDate?.Kind == DateTimeKind.Unspecified)
-                {
-                    model.PublishDate = DateTime.SpecifyKind(model.PublishDate.Value, DateTimeKind.Utc);
-                }
-                else
-                {
-                    model.PublishDate = model.PublishDate?.ToUniversalTime();
-                }
-            }
+
+            // Keep PostgreSQL happy - Make sure UTC date gets sent to "date with timezone" timestamp field.
+            ConvertPublishDateToUTC(model);
+
             //test for unique namespace/owner id/publish date combo
             if (!IsValidModel(model))
             {
@@ -709,6 +702,28 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 Message = "Item was added.",
                 Data = id
             });
+        }
+
+        private static void ConvertPublishDateToUTC(ProfileModel model)
+        {
+            if (model.PublishDate != null && model.PublishDate?.Kind != DateTimeKind.Utc)
+            {
+                //// Set time to noon to avoid loss of a day when converting to UTC
+                //if (model.PublishDate.Value.Hour < 12)
+                //{
+                //    int h = model.PublishDate.Value.Hour;
+                //    DateTime dt = new DateTime(model.PublishDate.Value.Year, model.PublishDate.Value.Month, model.PublishDate.Value.Day, 12, 0, 0);
+                //    model.PublishDate = dt;
+                //}
+                if (model.PublishDate?.Kind == DateTimeKind.Unspecified)
+                {
+                    model.PublishDate = DateTime.SpecifyKind(model.PublishDate.Value, DateTimeKind.Utc);
+                }
+                else
+                {
+                    model.PublishDate = model.PublishDate?.ToUniversalTime();
+                }
+            }
         }
 
         /// <summary>
@@ -769,6 +784,9 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 _logger.LogWarning($"ProfileController|Add|Invalid model (null)");
                 return BadRequest($"Invalid model (null). Check Publish Date formatting.");
             }
+
+            // Keep PostgreSQL happy - Make sure UTC date gets sent to "date with timezone" timestamp field.
+            ConvertPublishDateToUTC(model);
 
             //test for unique namespace/owner id/publish date combo
             if (_dal.Count(x => !x.ID.Equals(model.ID) && x.Namespace.ToLower().Equals(model.Namespace.ToLower()) &&
@@ -1109,7 +1127,8 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                     }
                     else if (model.Format?.ToUpper() == "SMIPJSON")
                     {
-                        var smipJson = NodeModelExportToSmip.ExportToSmip(exportedNodeSets);
+                        var modelToExport = exportedNodeSets.FirstOrDefault().model;
+                        var smipJson = NodeModelExportToSmip.ExportToSmip(modelToExport);
                         result = JsonConvert.SerializeObject(smipJson, Formatting.Indented);
                     }
                     else

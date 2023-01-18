@@ -125,6 +125,15 @@ export function formatDate(val) {
     //return d.getFullYear() + '/' + d.getMonth() + '/' + d.getDate();
     return d.getMonth() + 1 + '/' + d.getDate() + '/' + d.getFullYear();
 }
+///--------------------------------------------------------------------------
+/// Create a timestamp value to display Utc Date
+///--------------------------------------------------------------------------
+export function formatDateUtc(val) {
+    if (val == null || val === '') return null;
+    var d = new Date(val);
+    return d.getUTCMonth() + 1 + '/' + d.getUTCDate() + '/' + d.getUTCFullYear();
+}
+
   ///#endregion: Logging Helper Methods
 
 ///--------------------------------------------------------------------------
@@ -448,4 +457,11 @@ export const isInRole = (account, roleName) => {
 
     //check if role name has a match in array
     return roles.findIndex(x => x.toLowerCase() === roleName.toLowerCase()) > -1;
+}
+
+///--------------------------------------------------------------------------
+/// useQueryString - extract query string parameter from url
+//--------------------------------------------------------------------------
+export function useQueryString(key) {
+    return new URLSearchParams(window.location.search).get(key);
 }

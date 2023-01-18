@@ -116,11 +116,13 @@ export const AppSettings = {
         system: {
             iframeHashTimeout: 10000, //avoid monitor time out error on silent login
             loggerOptions: {
-                logLevel: LogLevel.Info,
+                logLevel: LogLevel.Warning,
                 loggerCallback: (level, message, containsPii) => {
                     if (containsPii) {
                         return;
                     }
+                    if (!process.env.REACT_APP_MSAL_ENABLE_LOGGER) return;
+
                     switch (level) {
                         case LogLevel.Error:
                             console.error(message);

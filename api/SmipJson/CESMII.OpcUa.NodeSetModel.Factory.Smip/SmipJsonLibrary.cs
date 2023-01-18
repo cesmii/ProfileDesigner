@@ -13,9 +13,8 @@ namespace CESMII.OpcUa.NodeSetModel.Factory.Smip
 {
     public class NodeModelExportToSmip
     {
-        public static SmipTypeSystem ExportToSmip(List<(UANodeSet nodeSet, string xml, NodeSetModel model, Dictionary<string, NodeSetModel> requiredModels)> exportedNodeSets)
+        public static SmipTypeSystem ExportToSmip(NodeSetModel modelToExport)
         {
-            var modelToExport = exportedNodeSets.FirstOrDefault().model;
             var namespaceToExport = modelToExport.ModelUri;
             var libraryName = namespaceToExport.ToLowerInvariant();
             var libraryVersion = NodeModelExportSmip<SmipNode, NodeModel>.Get3PartVersion(modelToExport.Version);
@@ -43,8 +42,8 @@ namespace CESMII.OpcUa.NodeSetModel.Factory.Smip
             {
                 new ObjectTypeModelExportSmip() { _model = objectType }.ExportNode(library);
             }
+
             return library;
         }
-
     }
 }

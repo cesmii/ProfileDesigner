@@ -8,9 +8,9 @@ import { isOwner } from './ProfileRenderHelpers';
 
 import { AppSettings } from '../../utils/appsettings'
 
-const CLASS_NAME = "ProfileEntity";
+const CLASS_NAME = "ProfileEntityForm";
 
-function ProfileEntity(props) {
+function ProfileEntityForm(props) {
 
     //-------------------------------------------------------------------
     // Region: Initialization
@@ -72,9 +72,11 @@ function ProfileEntity(props) {
     //  a. W/ Timezone info (typically from server): 2021-09-24T00:00:00
     //  b. No timezone info (after editing in control): 2021-09-24
     const prepDateVal = (val) => {
-        if (val == null) return '';
+        if (val == null || val === '') return '';
         //check and append timezone so we get consistent conversion
-        if (val.indexOf('T00:00:00') === -1) val += `T00:00:00`;
+        //if (val.indexOf('T00:00:00') === -1) val += `T00:00:00`;
+        //DB changed to support date and time timestamp so T:00:00:00 no longer reliable, just check for T
+        if (val.indexOf('T') === -1) val += `T00:00:00`;
 
         var dt = new Date(val);
         var mm = dt.getMonth() + 1;
@@ -120,7 +122,7 @@ function ProfileEntity(props) {
                     <div className="col-md-12">
                         <Form.Group>
                             <Form.Label>Title</Form.Label>
-                            <Form.Control id="title" type="" placeholder="" value={props.item.title} onChange={onChange} readOnly={isReadOnly} />
+                            <Form.Control id="title" type="" placeholder="" value={props.item.title ? props.item.title : ''} onChange={onChange} readOnly={isReadOnly} />
                         </Form.Group>
                     </div>
                     <div className="col-12">
@@ -137,7 +139,7 @@ function ProfileEntity(props) {
                                 </span>
                             }
                             <Form.Control className={(!props.isValid.namespace || !props.isValid.namespaceFormat ? 'invalid-field' : '')} id="namespace" type=""
-                                value={props.item.namespace} onBlur={validateForm_namespace} onChange={onChange} readOnly={isReadOnly} />
+                                value={props.item.namespace ? props.item.namespace : ''} onBlur={validateForm_namespace} onChange={onChange} readOnly={isReadOnly} />
                         </Form.Group>
                     </div>
                     <div className="col-sm-6">
@@ -149,7 +151,7 @@ function ProfileEntity(props) {
                     <div className="col-sm-6">
                         <Form.Group className="mb-1">
                             <Form.Label>Publication Date</Form.Label>
-                            <Form.Control id="publishDate" mindate="2010-01-01" type="date" value={prepDateVal(props.item.publishDate)} onChange={onChangePublishDate} readOnly={mode === "view"} />
+                            <Form.Control id="publishDate" mindate="2010-01-01" type={mode === "view" ? "" : "date"} value={prepDateVal(props.item.publishDate)} onChange={onChangePublishDate} readOnly={mode === "view"} />
                         </Form.Group>
                     </div>
                 </div>
@@ -157,13 +159,13 @@ function ProfileEntity(props) {
                     <div className="col-md-12">
                         <Form.Group>
                             <Form.Label>Description</Form.Label>
-                            <Form.Control as="textarea" id="description" type="" placeholder="" value={props.item.description} onChange={onChange} readOnly={isReadOnly}>{props.item.description}</Form.Control>
+                            <Form.Control as="textarea" id="description" type="" placeholder="" value={props.item.description ? props.item.description : ''} onChange={onChange} readOnly={isReadOnly}>{props.item.description}</Form.Control>
                         </Form.Group>
                     </div>
                     <div className="col-md-12">
                         <Form.Group>
                             <Form.Label>Contributor</Form.Label>
-                            <Form.Control id="contributorName" type="" placeholder="" value={props.item.contributorName} onChange={onChange} readOnly={isReadOnly} />
+                            <Form.Control id="contributorName" type="" placeholder="" value={props.item.contributorName ? props.item.contributorName : ''} onChange={onChange} readOnly={isReadOnly} />
                         </Form.Group>
                     </div>
                     <div className="col-md-12">
@@ -277,4 +279,4 @@ function ProfileEntity(props) {
     )
 }
 
-export default ProfileEntity;
+export default ProfileEntityForm;

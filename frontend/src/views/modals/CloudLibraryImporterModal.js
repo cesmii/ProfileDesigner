@@ -6,7 +6,7 @@ import { generateLogMessageString } from '../../utils/UtilityService'
 
 import '../styles/ProfileList.scss';
 import '../../components/styles/InfoPanel.scss';
-import CloudLibraryImporter from '../shared/CloudLibraryImporter';
+import CloudLibraryListGrid from '../shared/CloudLibraryListGrid';
 
 const CLASS_NAME = "CloudLibraryImporterModal";
 
@@ -44,7 +44,7 @@ function CloudLibraryImporterModal(props) {
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body className="my-1 pt-0 pb-2">
-                    <CloudLibraryImporter onImportStarted={onImportStarted} />
+                    <CloudLibraryListGrid onImportStarted={onImportStarted} />
                 </Modal.Body>
             {/*    <Modal.Footer>*/}
             {/*        <Button variant="secondary" className="mx-1" onClick={onImportCanceled}>Close</Button>*/}

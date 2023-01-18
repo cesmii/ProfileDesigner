@@ -200,7 +200,8 @@ function ProfileList() {
                         ],
                         //get profile count from server...this will trigger that call on the side menu
                         refreshProfileCount: true,
-                        refreshProfileList: true
+                        refreshProfileList: true,
+                        refreshSearchCriteria: true //refresh this list to make sure list of profiles is accurate in the filters
                     });
                 }
                 else {

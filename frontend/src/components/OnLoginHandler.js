@@ -87,7 +87,13 @@ export const onAADLogin = (setLoadingProps) => {
         .then(result => {
             if (result.data.isSuccess) {
                 console.log(generateLogMessageString(`onAADLogin||${result.data.message}`, CLASS_NAME));
-                setLoadingProps({ loginStatusCode: 200 });
+                //get current search criteria data
+                setLoadingProps({
+                    loginStatusCode: 200,
+                    refreshSearchCriteria: true,
+                    refreshProfileSearchCriteria: true,
+                    refreshCloudLibImporterSearchCriteria: true
+                });
                 //if (callbackFn) callbackFn(200);
             }
             else {

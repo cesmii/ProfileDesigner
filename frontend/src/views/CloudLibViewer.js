@@ -76,13 +76,12 @@ function CloudLibViewer() {
 
             if (result == null) return;
 
-            setLoadingProps({ isLoading: false, message: null });
-
             //if we get no data back, then we need to initiate an import from CloudLibrary
             //setting state causes this to trigger that to happen
             if (result.data == null || result.data === '') {
                 console.log(generateLogMessageString('useEffect||fetchProfile||no profile imported || trigger import', CLASS_NAME));
                 setCloudLibItem([{ cloudLibraryId: id, title: _qsTitle }]);
+                setLoadingProps({ isLoading: false, message: null });
             }
             else
             {
@@ -90,6 +89,8 @@ function CloudLibViewer() {
                 setItem(result.data);
                 //clear out import cloud library triggers
                 setCloudLibItem([]);
+                //re-get the latest type definition search filters to make sure this profile is included
+                setLoadingProps({ isLoading: false, message: null, searchCriteria: null, refreshSearchCriteria: true });
             }
         }
 
@@ -121,6 +122,8 @@ function CloudLibViewer() {
                 console.log(generateLogMessageString(`pollForCompletion || Import Completed`, CLASS_NAME));
                 setDeleteMessageId(_pollForCompletion.importLogId);
                 setPollForCompletion({ counter: 0, importLogId: null, isComplete: true });
+                //re-get the latest type definition search filters to make sure this profile is included
+                setLoadingProps({ isLoading: false, message: null, searchCriteria: null, refreshSearchCriteria: true });
             }
         }, 1000);
 

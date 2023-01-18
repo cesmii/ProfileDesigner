@@ -4,7 +4,7 @@ import { Dropdown } from 'react-bootstrap'
 import { useLoadingContext } from "../../components/contexts/LoadingContext";
 import { SVGIcon, SVGDownloadIcon } from '../../components/SVGIcon'
 import { isOwner, renderProfileIcon } from './ProfileRenderHelpers';
-import { cleanFileName, formatDate, generateLogMessageString } from '../../utils/UtilityService';
+import { cleanFileName, formatDateUtc, generateLogMessageString } from '../../utils/UtilityService';
 import { getProfileCaption } from '../../services/ProfileService'
 import { AppSettings } from '../../utils/appsettings';
 
@@ -222,7 +222,7 @@ function ProfileItemRow(props) { //props are item, showActions
                                 <p className="my-0 small-size" >Version: {props.item.version}</p>
                             }
                             {props.item.publishDate != null &&
-                                <p className="my-0 small-size" >Published: {formatDate(props.item.publishDate)}</p>
+                                <p className="my-0 small-size" >Published: {formatDateUtc(props.item.publishDate)}</p>
                             }
                             {props.item.description != null &&
                                 <p className="my-0 small-size" >Description: {props.item.description.substr(0, 80)}</p>

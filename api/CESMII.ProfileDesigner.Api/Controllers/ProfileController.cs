@@ -77,6 +77,35 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             return Ok(result);
         }
 
+        /// <summary>
+        /// User can look up profile by passing in Cloud library Id. This would happen when marketplace
+        /// user wants to inspect profile at a more granular level and view in profile designer. 
+        /// </summary>
+        /// <remarks>The user may or may not have downloaded the profile prior to this request. 
+        /// If the profile is not present, return null to caller. The caller will then trigger
+        /// a separate call to import the profile.  
+        /// </remarks>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [HttpPost, Route("GetByCloudLibId")]
+        [ProducesResponseType(200, Type = typeof(ProfileModel))]
+        [ProducesResponseType(400)]
+        public IActionResult GetByCloudLibId([FromBody] IdStringModel model)
+        {
+            if (model == null)
+            {
+                _logger.LogWarning($"ProfileController|GetByCloudLibId|Invalid model (null)");
+                return BadRequest($"Invalid model (null)");
+            }
+
+            var result = _dal.Where(x => x.StandardProfile != null && x.StandardProfile.CloudLibraryId.Equals(model.ID), 
+                base.DalUserToken, null, null, false, true).Data;
+            if (result == null || result.Count == 0)
+            {
+                return Ok(null);
+            }
+            return Ok(result.FirstOrDefault());
+        }
 
         /// <summary>
         /// Search my profiles library for profiles matching criteria passed in. This is a simple search field and 

@@ -1,23 +1,19 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import Modal from 'react-bootstrap/Modal'
 import { useMsal } from "@azure/msal-react";
-import axiosInstance from "../../services/AxiosService";
-
 import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
-
-import { generateLogMessageString } from '../../utils/UtilityService'
-import { useLoadingContext } from "../../components/contexts/LoadingContext";
-
-import { SVGIcon } from "../../components/SVGIcon";
-import { getProfileCaption, isProfileValid, profileNew } from '../../services/ProfileService';
 import { Nav } from 'react-bootstrap';
-import ProfileEntity from '../shared/ProfileEntity';
-import { validate_All } from '../../services/ProfileService';
-import '../styles/ProfileEntity.scss';
-import { isOwner } from '../shared/ProfileRenderHelpers';
+import axiosInstance from "../../services/AxiosService";
 
 import { AppSettings } from '../../utils/appsettings';
+import { generateLogMessageString } from '../../utils/UtilityService'
+import { useLoadingContext } from "../../components/contexts/LoadingContext";
+import ProfileEntityForm from '../shared/ProfileEntity';
+import { getProfileCaption, isProfileValid, profileNew, validate_All } from '../../services/ProfileService';
+import { isOwner } from '../shared/ProfileRenderHelpers';
+import { SVGIcon } from "../../components/SVGIcon";
+import '../styles/ProfileEntity.scss';
 
 const CLASS_NAME = "ProfileCloudLibImportModal";
 
@@ -45,7 +41,7 @@ function ProfileCloudLibImportModal(props) {
     //-------------------------------------------------------------------
     const validateForm = () => {
         console.log(generateLogMessageString(`validateForm`, CLASS_NAME));
-        var isValid = validate_All(_item);
+        const isValid = validate_All(_item);
         setIsValid(isValid);
         return isProfileValid(isValid);
     }
@@ -296,7 +292,7 @@ function ProfileCloudLibImportModal(props) {
                     {renderErrorMessage()}
                     {!props.showSelectUI && renderAddForm() }
                     {props.showSelectUI && renderTabbedForm()}
-                    <ProfileEntity item={_item} onValidate={onValidate} isValid={_isValid} />
+                    <ProfileEntityForm item={_item} onValidate={onValidate} isValid={_isValid} />
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" type="button" className="mx-3" onClick={onImport} >Import</Button>

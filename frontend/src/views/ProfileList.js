@@ -11,9 +11,6 @@ import { generateLogMessageString, renderTitleBlock, scrollTop, isInRole } from 
 import { useLoadingContext } from "../components/contexts/LoadingContext";
 import ConfirmationModal from '../components/ConfirmationModal';
 import ProfileEntityModal from './modals/ProfileEntityModal';
-//import CloudLibraryImporterModal from './modals/CloudLibraryImporterModal';
-//import CloudLibraryImporter from './shared/CloudLibraryImporter';
-//import CloudLibList from './CloudLibList';
 import CloudLibSlideOut from './shared/CloudLibSlideOut.js'
 import ProfileListGrid from './shared/ProfileListGrid';
 import ProfileImporter from './shared/ProfileImporter';
@@ -40,8 +37,6 @@ function ProfileList() {
     const [_error, setError] = useState({ show: false, message: null, caption: null });
     //used in popup profile add/edit ui. Default to new version
     const [_profileEntityModal, setProfileEntityModal] = useState({ show: false, item: null});
-    //const [_cloudLibImporterModal, setCloudLibImporterModal] = useState({ show: false });
-    const [_initSearchCriteria, setInitSearchCriteria] = useState(true);
     const [_searchCriteria, setSearchCriteria] = useState(null);
     const [_searchCriteriaChanged, setSearchCriteriaChanged] = useState(0);
     const [_cloudLibSlideOut, setCloudLibSlideOut] = useState({ isOpen: false });
@@ -52,34 +47,19 @@ function ProfileList() {
     //-------------------------------------------------------------------
     // Region: Pass profile id into component if profileId passed in from url
     //-------------------------------------------------------------------
+    //-------------------------------------------------------------------
+    // Region: search criteria check and populate
+    //-------------------------------------------------------------------
     useEffect(() => {
-
-        if (!_initSearchCriteria) return;
-
         //check for searchcriteria - trigger fetch of search criteria data - if not already triggered
         if ((loadingProps.profileSearchCriteria == null || loadingProps.profileSearchCriteria.filters == null) && !loadingProps.refreshProfileSearchCriteria) {
             setLoadingProps({ refreshProfileSearchCriteria: true });
+            return;
         }
-        //start with a blank criteria slate. Handle possible null scenario if criteria hasn't loaded yet. 
-        const criteria = loadingProps.profileSearchCriteria == null ? null : JSON.parse(JSON.stringify(loadingProps.profileSearchCriteria));
+        setSearchCriteria(JSON.parse(JSON.stringify(loadingProps.profileSearchCriteria)));
 
-        if (criteria == null) {
-            return; //criteria = clearSearchCriteria(criteria);
-        }
+    }, [loadingProps.profileSearchCriteria]);
 
-        //update state
-        setInitSearchCriteria(false);
-        if (criteria != null) {
-            setSearchCriteria(criteria);
-            setSearchCriteriaChanged(_searchCriteriaChanged + 1);
-        }
-        setLoadingProps({ ...loadingProps, profileSearchCriteria: criteria });
-
-        //this will execute on unmount
-        return () => {
-            //console.log(generateLogMessageString('useEffect||Cleanup', CLASS_NAME));
-        };
-    }, [_initSearchCriteria, loadingProps.profileSearchCriteriaRefreshed]);
 
     //-------------------------------------------------------------------
     // Region: hooks - show or hide panel - update body tag
@@ -118,16 +98,6 @@ function ProfileList() {
         console.log(generateLogMessageString(`onCloseSlideOut`, CLASS_NAME));
         setCloudLibSlideOut({ isOpen: false });
     }
-
-    const onCloudLibImportCancel = () => {
-        console.log(generateLogMessageString(`onCloudLibImportCancel`, CLASS_NAME));
-        //setCloudLibImporterModal({ show: false });
-    };
-
-    const onCloudLibImportStarted = (id) => {
-        //setCloudLibImporterModal({ show: false });
-    }
-
 
     const onAdd = () => {
         console.log(generateLogMessageString(`onAdd`, CLASS_NAME));
@@ -286,10 +256,10 @@ function ProfileList() {
                             </Dropdown.Item>
                             {(isInRole(_activeAccount, 'cesmii.profiledesigner.admin')) &&
                                 <>
-                                <Dropdown.Divider />
-                                <Dropdown.Item className="py-2" as="button" >
-                                    {<ProfileImporter caption="Upgrade Global NodeSet file" cssClass="mb-0" useCssClassOnly="true" />}
-                                </Dropdown.Item>
+                                    <Dropdown.Divider className="my-0" />
+                                    <Dropdown.Item className="pb-2" as="button" >
+                                        {<ProfileImporter caption="Upgrade Global NodeSet file" cssClass="mb-0" useCssClassOnly="true" />}
+                                    </Dropdown.Item>
                                 </>
                             }
                         </Dropdown.Menu>
@@ -322,18 +292,7 @@ function ProfileList() {
             <ProfileEntityModal item={_profileEntityModal.item} showModal={_profileEntityModal.show} onSave={onSave} onCancel={onSaveCancel} showSavedMessage={true} />
         );
     };
-    //const renderProfileCloudLibImport = () => {
 
-    //    if (!_cloudLibImporterModal.show) return;
-
-    //    //<CloudLibraryImporterModal showModal={_cloudLibImporterModal.show} onImportCanceled={onCloudLibImportCancel} onImportStarted={onCloudLibImportStarted} />
-    //    //<CloudLibList/>
-    //    //<CloudLibraryImporter onImportStarted={onCloudLibImportStarted} />
-
-    //    return (
-    //        <CloudLibraryImporter onImportStarted={onCloudLibImportStarted} />
-    //    );
-    //};
 
     //-------------------------------------------------------------------
     // Region: Render final output

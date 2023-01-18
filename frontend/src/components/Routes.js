@@ -21,7 +21,9 @@ import WizardFilterProfile from '../views/WizardFilterProfile'
 
 import PageNotFound from "../views/PageNotFound"
 import ProfileList from '../views/ProfileList'
+import ProfileEntity from '../views/ProfileEntity'
 import CloudLibList from '../views/CloudLibList'
+import CloudLibViewer from '../views/CloudLibViewer'
 import AdminUserEntity from '../views/admin/AdminUserEntity'
 import AdminUserList from '../views/admin/AdminUserList'
 import Login from '../views/Login'
@@ -44,7 +46,9 @@ function Routes() {
             <PublicFixedRoute path="/login/returnUrl=:returnUrl" component={Login} />
             <PublicFixedRoute exact path="/login" component={Login} />
             <PrivateRoute path="/profiles/library" component={ProfileList} />
+            <PrivateRoute path="/profile/:id" component={ProfileEntity} />
             <PrivateRoute path="/cloudlibrary/search" component={CloudLibList} />
+            <PrivateRoute path="/cloudlibrary/viewer/:id" component={CloudLibViewer} />
             {/*Handles types/all and types/mine in the component*/}
             <PrivateRoute path="/types/library/profile/:profileId" component={ProfileTypeDefinitionList} />
             <PrivateRoute path="/types/library" component={ProfileTypeDefinitionList} />

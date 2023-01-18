@@ -2,7 +2,7 @@ import React from 'react'
 import Button from 'react-bootstrap/Button'
 
 import { generateLogMessageString } from '../../utils/UtilityService'
-import CloudLibraryImporter from "../shared/CloudLibraryImporter";
+import CloudLibraryListGrid from "../shared/CloudLibraryListGrid";
 
 import '../../components/styles/RightPanel.scss';
 
@@ -66,7 +66,7 @@ function CloudLibSlideOut(props) { //props are item, showActions
         <>
             <div className={cssClass} >
                 {renderHeading()}
-                <CloudLibraryImporter onImportStarted={onImportStarted} isOpen={props.isOpen} />
+                <CloudLibraryListGrid onImportStarted={onImportStarted} isOpen={props.isOpen} />
             </div>
         </>
     );

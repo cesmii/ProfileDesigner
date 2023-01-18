@@ -35,10 +35,12 @@ function ProfileListGrid(props) {
     });
     const [_pager, setPager] = useState({ currentPage: 1, pageSize: _profilePreferences.pageSize, searchVal: null});
     const { loadingProps, setLoadingProps } = useLoadingContext();
+    const [_isLoading, setIsLoading] = useState(null);
+
     //importer
     const [_forceReload, setForceReload] = useState(0);
 
-    const [_searchCriteria, setSearchCriteria] = useState(props.searchCriteria);
+    const [_searchCriteria, setSearchCriteria] = useState(loadingProps.profileSearchCriteria);
     const [_searchCriteriaChanged, setSearchCriteriaChanged] = useState(0);
 
     //-------------------------------------------------------------------
@@ -115,6 +117,7 @@ function ProfileListGrid(props) {
         async function fetchDataProfile() {
             //show a spinner
             setLoadingProps({ isLoading: true, message: null });
+            setIsLoading(true);
 
             const url = `profile/library`;
             console.log(generateLogMessageString(`useEffect||fetchDataProfile||${url}`, CLASS_NAME));
@@ -147,6 +150,7 @@ function ProfileListGrid(props) {
                 }
                 //hide a spinner
                 setLoadingProps({ isLoading: false, message: null });
+                setIsLoading(false);
 
             }).catch(e => {
                 if ((e.response && e.response.status === 401) || e.toString().indexOf('Network Error') > -1) {
@@ -160,6 +164,7 @@ function ProfileListGrid(props) {
                     });
                     //setItemCount(null);
                 }
+                setIsLoading(false);
             });
         }
 
@@ -254,6 +259,9 @@ function ProfileListGrid(props) {
             });
         }
 
+        //don't fetch data if this is null
+        if (_searchCriteria == null) return;
+
         //this component is shared by profile list and cloud lib importer. Get the proper data based
         //on component mode
         if (!props.mode || props.mode === AppSettings.ProfileListMode.Profile) fetchDataProfile();
@@ -265,6 +273,8 @@ function ProfileListGrid(props) {
 
 
     useEffect(() => {
+        //check for searchcriteria - if there, update state and then that triggers retrieval of grid data
+        if (props.searchCriteria == null) return;
         setSearchCriteria(JSON.parse(JSON.stringify(props.searchCriteria)));
     }, [props.searchCriteria]);
 
@@ -303,6 +313,8 @@ function ProfileListGrid(props) {
         );
     };
     const renderNoDataRow = () => {
+        if (_isLoading) return null; //don't show no data message if we are trying to load data
+
         return (
             <div className="alert alert-info-custom mt-2 mb-2">
                 <div className="text-center" >There are no {entityInfo.name.toLowerCase()} records.</div>
@@ -330,7 +342,7 @@ function ProfileListGrid(props) {
                 showActions={true} cssClass={`profile-list-item ${props.rowCssClass ?? ''}`} selectMode={props.selectMode}
                 onEditCallback={onEdit} onDeleteCallback={onDeleteItemClick} onRowSelect={onRowSelect}
                 onImportCallback={onImport}
-                selectedItems={props.selectedItems} 
+                selectedItems={props.selectedItems} navigateModal={props.navigateModal}
             />)
         });
 

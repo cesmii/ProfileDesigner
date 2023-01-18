@@ -14,8 +14,8 @@ import { getProfileCaption, isProfileValid, profileNew } from '../../services/Pr
 import { Nav } from 'react-bootstrap';
 import ProfileEntity from '../shared/ProfileEntity';
 import { validate_All } from '../../services/ProfileService';
-import '../styles/ProfileEntity.scss';
 import { isOwner } from '../shared/ProfileRenderHelpers';
+import '../styles/ProfileEntity.scss';
 
 const CLASS_NAME = "ProfileEntityModal";
 

@@ -77,6 +77,35 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             return Ok(result);
         }
 
+        /// <summary>
+        /// User can look up profile by passing in Cloud library Id. This would happen when marketplace
+        /// user wants to inspect profile at a more granular level and view in profile designer. 
+        /// </summary>
+        /// <remarks>The user may or may not have downloaded the profile prior to this request. 
+        /// If the profile is not present, return null to caller. The caller will then trigger
+        /// a separate call to import the profile.  
+        /// </remarks>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [HttpPost, Route("GetByCloudLibId")]
+        [ProducesResponseType(200, Type = typeof(ProfileModel))]
+        [ProducesResponseType(400)]
+        public IActionResult GetByCloudLibId([FromBody] IdStringModel model)
+        {
+            if (model == null)
+            {
+                _logger.LogWarning($"ProfileController|GetByCloudLibId|Invalid model (null)");
+                return BadRequest($"Invalid model (null)");
+            }
+
+            var result = _dal.Where(x => x.StandardProfile != null && x.StandardProfile.CloudLibraryId.Equals(model.ID), 
+                base.DalUserToken, null, null, false, true).Data;
+            if (result == null || result.Count == 0)
+            {
+                return Ok(null);
+            }
+            return Ok(result.FirstOrDefault());
+        }
 
         /// <summary>
         /// Search my profiles library for profiles matching criteria passed in. This is a simple search field and 
@@ -629,17 +658,10 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 _logger.LogWarning($"ProfileController|Add|Invalid model (null)");
                 return BadRequest($"Invalid model (null). Check Publish Date formatting.");
             }
-            if (model.PublishDate != null && model.PublishDate?.Kind != DateTimeKind.Utc)
-            {
-                if (model.PublishDate?.Kind == DateTimeKind.Unspecified)
-                {
-                    model.PublishDate = DateTime.SpecifyKind(model.PublishDate.Value, DateTimeKind.Utc);
-                }
-                else
-                {
-                    model.PublishDate = model.PublishDate?.ToUniversalTime();
-                }
-            }
+
+            // Keep PostgreSQL happy - Make sure UTC date gets sent to "date with timezone" timestamp field.
+            ConvertPublishDateToUTC(model);
+
             //test for unique namespace/owner id/publish date combo
             if (!IsValidModel(model))
             {
@@ -680,6 +702,28 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 Message = "Item was added.",
                 Data = id
             });
+        }
+
+        private static void ConvertPublishDateToUTC(ProfileModel model)
+        {
+            if (model.PublishDate != null && model.PublishDate?.Kind != DateTimeKind.Utc)
+            {
+                //// Set time to noon to avoid loss of a day when converting to UTC
+                //if (model.PublishDate.Value.Hour < 12)
+                //{
+                //    int h = model.PublishDate.Value.Hour;
+                //    DateTime dt = new DateTime(model.PublishDate.Value.Year, model.PublishDate.Value.Month, model.PublishDate.Value.Day, 12, 0, 0);
+                //    model.PublishDate = dt;
+                //}
+                if (model.PublishDate?.Kind == DateTimeKind.Unspecified)
+                {
+                    model.PublishDate = DateTime.SpecifyKind(model.PublishDate.Value, DateTimeKind.Utc);
+                }
+                else
+                {
+                    model.PublishDate = model.PublishDate?.ToUniversalTime();
+                }
+            }
         }
 
         /// <summary>
@@ -740,6 +784,9 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 _logger.LogWarning($"ProfileController|Add|Invalid model (null)");
                 return BadRequest($"Invalid model (null). Check Publish Date formatting.");
             }
+
+            // Keep PostgreSQL happy - Make sure UTC date gets sent to "date with timezone" timestamp field.
+            ConvertPublishDateToUTC(model);
 
             //test for unique namespace/owner id/publish date combo
             if (_dal.Count(x => !x.ID.Equals(model.ID) && x.Namespace.ToLower().Equals(model.Namespace.ToLower()) &&
@@ -1080,7 +1127,8 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                     }
                     else if (model.Format?.ToUpper() == "SMIPJSON")
                     {
-                        var smipJson = NodeModelExportToSmip.ExportToSmip(exportedNodeSets);
+                        var modelToExport = exportedNodeSets.FirstOrDefault().model;
+                        var smipJson = NodeModelExportToSmip.ExportToSmip(modelToExport);
                         result = JsonConvert.SerializeObject(smipJson, Formatting.Indented);
                     }
                     else

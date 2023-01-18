@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "dependencies": {
-    "@azure/msal-browser": "^2.30.0",
-    "@azure/msal-react": "^1.4.9",
+    "@azure/msal-browser": "2.30.0",
+    "@azure/msal-react": "1.4.9",
     "@material/react-material-icon": "^0.15.0",
     "@testing-library/jest-dom": "^5.11.5",
     "@testing-library/react": "^11.1.0",

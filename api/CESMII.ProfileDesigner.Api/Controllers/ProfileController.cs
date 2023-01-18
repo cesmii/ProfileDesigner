@@ -1098,7 +1098,8 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                     }
                     else if (model.Format?.ToUpper() == "SMIPJSON")
                     {
-                        var smipJson = NodeModelExportToSmip.ExportToSmip(exportedNodeSets);
+                        var modelToExport = exportedNodeSets.FirstOrDefault().model;
+                        var smipJson = NodeModelExportToSmip.ExportToSmip(modelToExport);
                         result = JsonConvert.SerializeObject(smipJson, Formatting.Indented);
                     }
                     else

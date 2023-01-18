@@ -154,7 +154,6 @@ function ProfileActions(props) {
                         },
                         buttonVariant: null
                     }} />
-                <ErrorModal modalData={_error} callback={onErrorModalClose} />
             </>
         );
     };
@@ -185,6 +184,7 @@ function ProfileActions(props) {
                     </Dropdown.Menu>
                 </Dropdown>
                 {renderDeleteConfirmation()}
+                <ErrorModal modalData={_error} callback={onErrorModalClose} />
             </>
         );
     }
@@ -203,6 +203,7 @@ function ProfileActions(props) {
                     {/*    </Dropdown>*/}
                 </div>
                 {renderDeleteConfirmation()}
+                <ErrorModal modalData={_error} callback={onErrorModalClose} />
             </>
         );
     }

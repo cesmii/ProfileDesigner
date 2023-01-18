@@ -679,13 +679,13 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         {
             if (model.PublishDate != null && model.PublishDate?.Kind != DateTimeKind.Utc)
             {
-                // Set time to noon to avoid loss of a day when converting to UTC
-                if (model.PublishDate.Value.Hour < 12)
-                {
-                    int h = model.PublishDate.Value.Hour;
-                    DateTime dt = new DateTime(model.PublishDate.Value.Year, model.PublishDate.Value.Month, model.PublishDate.Value.Day, 12, 0, 0);
-                    model.PublishDate = dt;
-                }
+                //// Set time to noon to avoid loss of a day when converting to UTC
+                //if (model.PublishDate.Value.Hour < 12)
+                //{
+                //    int h = model.PublishDate.Value.Hour;
+                //    DateTime dt = new DateTime(model.PublishDate.Value.Year, model.PublishDate.Value.Month, model.PublishDate.Value.Day, 12, 0, 0);
+                //    model.PublishDate = dt;
+                //}
                 if (model.PublishDate?.Kind == DateTimeKind.Unspecified)
                 {
                     model.PublishDate = DateTime.SpecifyKind(model.PublishDate.Value, DateTimeKind.Utc);

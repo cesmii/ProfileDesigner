@@ -172,12 +172,15 @@ function ProfileTypeDefinitionListGrid(props) {
             });
         }
 
+        //don't fetch data if this is null, other components will trigger refresh
+        if (props.searchCriteria == null) return;
+
         //only trigger change on certain searchcriteria updates
         if (_refreshData > 0 || props.searchCriteriaChanged) {
             fetchData();
         }
 
-    }, [_refreshData, props.searchCriteriaChanged]);
+    }, [_refreshData, props.searchCriteria, props.searchCriteriaChanged]);
 
     //-------------------------------------------------------------------
     // Region: Delete event handlers

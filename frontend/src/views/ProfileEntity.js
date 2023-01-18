@@ -12,7 +12,7 @@ import { generateLogMessageString, renderTitleBlock, useQueryString } from '../u
 import { AppSettings } from '../utils/appsettings'
 import { useLoadingContext, UpdateRecentFileList } from '../components/contexts/LoadingContext';
 import { isOwner } from './shared/ProfileRenderHelpers';
-import { clearSearchCriteria, isProfileValid, profileNew, saveProfile, toggleSearchFilterSelected, validate_All } from '../services/ProfileService';
+import { isProfileValid, profileNew, saveProfile, toggleSearchFilterSelected, validate_All } from '../services/ProfileService';
 import ProfileEntityForm from './shared/ProfileEntity';
 import ProfileTypeDefinitionListGrid from './shared/ProfileTypeDefinitionListGrid';
 import ProfileActions from './shared/ProfileActions';
@@ -39,7 +39,6 @@ function ProfileEntity() {
     const _iconName = 'folder-profile';
     const _iconColor = color.shark;
 
-    const [_initSearchCriteria, setInitSearchCriteria] = useState(true);
     const [_searchCriteria, setSearchCriteria] = useState(null);
     const [_searchCriteriaChanged, setSearchCriteriaChanged] = useState(0);
     const [_defaultTab, setDefaultTab] = useState('general');
@@ -146,37 +145,27 @@ function ProfileEntity() {
     // Region: hook - trigger search criteria change to get the type definitions
     //-------------------------------------------------------------------
     useEffect(() => {
-
-        if (!_initSearchCriteria) return;
-
         //check for searchcriteria - trigger fetch of search criteria data - if not already triggered
         if ((loadingProps.searchCriteria == null || loadingProps.searchCriteria.filters == null) && !loadingProps.refreshSearchCriteria) {
             setLoadingProps({ refreshSearchCriteria: true });
+            return;
         }
-        //start with a blank criteria slate. Handle possible null scenario if criteria hasn't loaded yet. 
-        var criteria = loadingProps.searchCriteria == null ? null : JSON.parse(JSON.stringify(loadingProps.searchCriteria));
-
-        if (criteria != null) {
-            criteria = clearSearchCriteria(criteria);
-            //add in any profile filter passed in url
-            if (id != null) {
-                toggleSearchFilterSelected(criteria, AppSettings.SearchCriteriaCategory.Profile, parseInt(id));
-            }
+        else if (loadingProps.searchCriteria == null || loadingProps.searchCriteria.filters == null) {
+            return;
         }
 
-        //update state
-        setInitSearchCriteria(false);
-        if (criteria != null) {
-            setSearchCriteria(criteria);
-            setSearchCriteriaChanged(_searchCriteriaChanged + 1);
-        }
-        setLoadingProps({ ...loadingProps, searchCriteria: criteria });
+        //we only need to update search criteria when there is a profile id. 
+        if (id == null) return;
 
-        //this will execute on unmount
-        return () => {
-            //console.log(generateLogMessageString('useEffect||Cleanup', CLASS_NAME));
-        };
-    }, [id, _initSearchCriteria, loadingProps.searchCriteriaRefreshed]);
+        //assign profile id as filter
+        var criteria = JSON.parse(JSON.stringify(loadingProps.searchCriteria));
+        toggleSearchFilterSelected(criteria, AppSettings.SearchCriteriaCategory.Profile, parseInt(id));
+        setSearchCriteria(criteria);
+        //trigger api to get data
+        setSearchCriteriaChanged(_searchCriteriaChanged + 1);
+
+    }, [loadingProps.searchCriteria, id]);
+
 
     //-------------------------------------------------------------------
     // Region: hook - set the default tab on load if passed in
@@ -274,7 +263,6 @@ function ProfileEntity() {
                     {renderTitleBlock(caption, _iconName, _iconColor)}
                 </div>
                 <div className="col-sm-5 d-flex align-items-center justify-content-end">
-                    <span className="my-0 mr-2"><a href={`/profiles/library`} >Profile Library</a></span>
                     {(_mode.toLowerCase() !== "view") &&
                         <>
                         <Button variant="text-solo" className="mx-1 btn-auto auto-width" href={`/profiles/library`} >Cancel</Button>

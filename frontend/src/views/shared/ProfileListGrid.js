@@ -40,7 +40,7 @@ function ProfileListGrid(props) {
     //importer
     const [_forceReload, setForceReload] = useState(0);
 
-    const [_searchCriteria, setSearchCriteria] = useState(props.searchCriteria);
+    const [_searchCriteria, setSearchCriteria] = useState(loadingProps.profileSearchCriteria);
     const [_searchCriteriaChanged, setSearchCriteriaChanged] = useState(0);
 
     //-------------------------------------------------------------------
@@ -259,6 +259,9 @@ function ProfileListGrid(props) {
             });
         }
 
+        //don't fetch data if this is null
+        if (_searchCriteria == null) return;
+
         //this component is shared by profile list and cloud lib importer. Get the proper data based
         //on component mode
         if (!props.mode || props.mode === AppSettings.ProfileListMode.Profile) fetchDataProfile();
@@ -270,6 +273,8 @@ function ProfileListGrid(props) {
 
 
     useEffect(() => {
+        //check for searchcriteria - if there, update state and then that triggers retrieval of grid data
+        if (props.searchCriteria == null) return;
         setSearchCriteria(JSON.parse(JSON.stringify(props.searchCriteria)));
     }, [props.searchCriteria]);
 
@@ -337,7 +342,7 @@ function ProfileListGrid(props) {
                 showActions={true} cssClass={`profile-list-item ${props.rowCssClass ?? ''}`} selectMode={props.selectMode}
                 onEditCallback={onEdit} onDeleteCallback={onDeleteItemClick} onRowSelect={onRowSelect}
                 onImportCallback={onImport}
-                selectedItems={props.selectedItems} 
+                selectedItems={props.selectedItems} navigateModal={props.navigateModal}
             />)
         });
 

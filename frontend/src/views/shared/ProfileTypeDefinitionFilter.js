@@ -1,20 +1,19 @@
 import React, { useEffect, useState }from 'react'
-
-import { useLoadingContext } from '../../components/contexts/LoadingContext'
-import { generateLogMessageString } from '../../utils/UtilityService';
 import { Button, Form, FormControl, InputGroup } from 'react-bootstrap';
+
+import { generateLogMessageString } from '../../utils/UtilityService';
+import { clearSearchCriteria, toggleSearchFilterSelected } from '../../services/ProfileService';
 import { SVGIcon } from '../../components/SVGIcon';
 
 import '../../components/styles/InfoPanel.scss';
-import { clearSearchCriteria, toggleSearchFilterSelected } from '../../services/ProfileService';
 
 const CLASS_NAME = "ProfileTypeDefinitionFilter";
+
 function ProfileTypeDefinitionFilter(props) {
 
     //-------------------------------------------------------------------
     // Region: Initialization
     //-------------------------------------------------------------------
-    const { loadingProps, setLoadingProps } = useLoadingContext();
     const [_filterVal, setFilterVal] = useState(null); //props.searchValue
     const _sortByOptions = [
         { val: "1", caption: "My Types" },
@@ -26,22 +25,11 @@ function ProfileTypeDefinitionFilter(props) {
     // Region: useEffect
     //-------------------------------------------------------------------
     useEffect(() => {
+        if (props.searchCriteria == null || props.searchCriteria.filters == null) return;
 
-        if ((props.searchCriteria == null || props.searchCriteria.filters == null) && loadingProps.refreshSearchCriteria) {
-            //do nothing & wait for the refreshSearchCriteria action to finish, it means some other component already requested we fetch the criteria
-        }
-        //trigger fetch of search criteria data
-        else if (props.searchCriteria == null || props.searchCriteria.filters == null) {
-            setLoadingProps({ refreshSearchCriteria: true });
-        }
-        else if (props.searchCriteria.query !== _filterVal) {
+        if (props.searchCriteria.query !== _filterVal) {
             setFilterVal(props.searchCriteria.query);
         }
-
-        //this will execute on unmount
-        return () => {
-            console.log(generateLogMessageString('useEffect||Cleanup', CLASS_NAME));
-        };
 
     }, [props.searchCriteria]);
 
@@ -77,8 +65,8 @@ function ProfileTypeDefinitionFilter(props) {
         criteria.query = _filterVal;
 
         //loop through filters and their items and find the id. Note ids are not unique across groups 
-        var parentId = e.currentTarget.getAttribute('data-parentid');
-        var id = e.currentTarget.getAttribute('data-id');
+        const parentId = e.currentTarget.getAttribute('data-parentid');
+        const id = e.currentTarget.getAttribute('data-id');
         toggleSearchFilterSelected(criteria, parentId, id);
 
         //bubble up to parent component and it will save state
@@ -116,19 +104,6 @@ function ProfileTypeDefinitionFilter(props) {
         console.log(generateLogMessageString('onListViewToggle', CLASS_NAME));
         if (props.toggleDisplayMode) props.toggleDisplayMode("list");
     }
-
-    //const hasSelected = () => {
-    //    if (loadingProps == null || props.searchCriteria == null || props.searchCriteria.filters == null
-    //        || props.searchCriteria.filters == null || props.searchCriteria.filters.length === 0) return false;
-
-    //    //loop through filters and if we find any with a selected, we return true
-    //    var selected = props.searchCriteria.filters.filter(parent => {
-    //        return parent.items.filter(x => { return x.selected; }).length > 0;
-    //    });
-        
-    //    //if we get here, nothing selected 
-    //    return selected.length > 0;
-    //}
 
 
     //-------------------------------------------------------------------

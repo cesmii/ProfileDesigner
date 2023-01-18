@@ -24,12 +24,12 @@ function ProfileItemRow(props) { //props are item, showActions
     //};
 
 
-    //const onEditItem = (e) => {
-    //    e.stopPropagation();
-    //    //format date if present
-    //    //props.item.publishDate = formatDate(props.item.publishDate);
-    //    props.onEditCallback(props.item);
-    //}
+    const onEditItem = (e) => {
+        e.stopPropagation();
+        //format date if present
+        //props.item.publishDate = formatDate(props.item.publishDate);
+        props.onEditCallback(props.item);
+    }
 
     const onRowSelect = () => {
         //only some modes allow selecting row
@@ -78,7 +78,43 @@ function ProfileItemRow(props) { //props are item, showActions
         );
     }
 
-    //render simplified Profile show on profile type entity or profile type list 
+    const renderTitleNamespace = () => {
+
+        let profileCaption = null;
+        let profileValue = null;
+        if (props.item.title == null) {
+            profileCaption = props.profileCaption == null ? "Namespace: " : `${props.profileCaption}: `;
+            profileValue = props.item.namespace;
+        }
+        else {
+            profileCaption = props.profileCaption == null ? "Title: " : `${props.profileCaption}: `;
+            profileValue = props.item.title;
+
+        }
+
+        if (!props.showActions) {
+            return (
+                <>
+                    {profileCaption}
+                    <span className="ml-2" >{profileValue}</span>
+                </>
+            );
+        }
+        else {
+            return (
+                <>
+                    {profileCaption}
+                    {props.navigateModal ?
+                        <button className="ml-1 btn btn-link" onClick={onEditItem} >{profileValue}</button>
+                        :
+                        <a className="ml-2" href={`/profile/${props.item.id}`} >{profileValue}</a>
+                    }
+                </>
+            );
+        }
+    }
+
+    //render simplified Profile show on profile type entity or profile type list
     const renderRowSimple = () => {
 
         const isSelected = props.item != null && IsRowSelected(props.item) ? "selected" : "";
@@ -115,18 +151,6 @@ function ProfileItemRow(props) { //props are item, showActions
         const isReadonly = props.item?.hasLocalProfile;
         const cssClass = `row py-1 align-items-center ${props.cssClass == null ? '' : props.cssClass} ${isSelected} ${props.selectMode != null ? "selectable" : ""} ${isReadonly ? "select-readonly" : ""}`;
 
-
-        let profileCaption = null;
-        let profileValue = null;
-        if (props.item.title == null) {
-            profileCaption = props.profileCaption == null ? "Namespace: " : `${props.profileCaption}: `;
-            profileValue = props.item.namespace;
-        }
-        else {
-            profileCaption = props.profileCaption == null ? "Title: " : `${props.profileCaption}: `;
-            profileValue = props.item.title;
-
-        }
         return (
             <div className={cssClass} onClick={props.item.hasLocalProfile ? null : onRowSelect}> {/*TODO Make the local profile selection configurable */}
                 <div className="col-sm-8 d-flex" >
@@ -139,12 +163,7 @@ function ProfileItemRow(props) { //props are item, showActions
                     <div className="col-sm-11 d-flex align-items-center" >
                         <div className="d-block" >
                             <p className="my-0 d-flex align-content-center">
-                                {profileCaption}
-                                {!props.showActions /*|| props.selectMode != null*/ ?
-                                    <span className="ml-2" >{profileValue}</span>
-                                    :
-                                    <a className="ml-2" href={`/profile/${props.item.id}`} >{profileValue}</a>
-                                }
+                                {renderTitleNamespace()}
                             </p>
                             {props.item.title != null &&
                                 <p className="my-0 small-size" >Namespace: {props.item.namespace}</p>

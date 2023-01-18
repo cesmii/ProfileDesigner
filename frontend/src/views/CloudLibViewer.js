@@ -12,9 +12,9 @@ import { useLoadingContext } from '../components/contexts/LoadingContext';
 import { useDeleteImportMessage } from '../components/ImportMessage'
 import { LoadingSpinner } from '../components/LoadingOverlay'
 import ProfileEntityForm from './shared/ProfileEntity';
-import { CloudLibraryImporterNew } from './shared/CloudLibraryImporterNew';
+import { CloudLibraryImporter } from './shared/CloudLibraryImporter';
 import ProfileTypeDefinitionListGrid from './shared/ProfileTypeDefinitionListGrid';
-import { clearSearchCriteria, toggleSearchFilterSelected } from '../services/ProfileService';
+import { toggleSearchFilterSelected } from '../services/ProfileService';
 
 import color from '../components/Constants';
 import './styles/ProfileEntity.scss';
@@ -36,11 +36,10 @@ function CloudLibViewer() {
     const _iconColor = color.shark;
     const [_cloudLibItem, setCloudLibItem] = useState([]);
     const [_pollForCompletion, setPollForCompletion] = useState({counter: 0, importLogId: null, isComplete: null});
-    const [ _initSearchCriteria, setInitSearchCriteria ] = useState(false);
     const [_searchCriteria, setSearchCriteria] = useState(null);
     const [_searchCriteriaChanged, setSearchCriteriaChanged] = useState(0);
     const [_defaultTab, setDefaultTab] = useState('general');
-    const [_deleteId, setDeleteId] = useState(null);
+    const [_deleteMessageId, setDeleteMessageId] = useState(null);
 
     //pass to common form
     const _isValid = { namespace: true, namespaceFormat: true, description: true, type: true, symbolicName: true };
@@ -89,8 +88,6 @@ function CloudLibViewer() {
             {
                 //set item state value
                 setItem(result.data);
-                //trigger retrieval of type definitions
-                setInitSearchCriteria(true);
                 //clear out import cloud library triggers
                 setCloudLibItem([]);
             }
@@ -122,7 +119,7 @@ function CloudLibViewer() {
             }
             else {
                 console.log(generateLogMessageString(`pollForCompletion || Import Completed`, CLASS_NAME));
-                setDeleteId(_pollForCompletion.importLogId);
+                setDeleteMessageId(_pollForCompletion.importLogId);
                 setPollForCompletion({ counter: 0, importLogId: null, isComplete: true });
             }
         }, 1000);
@@ -130,40 +127,30 @@ function CloudLibViewer() {
     }, [_pollForCompletion]);
 
     //-------------------------------------------------------------------
-    // Region: hook - trigger search criteria change to get the type definitions
+    // Region: search criteria check and populate
     //-------------------------------------------------------------------
     useEffect(() => {
-
-        if (!_initSearchCriteria) return;
-
         //check for searchcriteria - trigger fetch of search criteria data - if not already triggered
         if ((loadingProps.searchCriteria == null || loadingProps.searchCriteria.filters == null) && !loadingProps.refreshSearchCriteria) {
             setLoadingProps({ refreshSearchCriteria: true });
+            return;
         }
-        //start with a blank criteria slate. Handle possible null scenario if criteria hasn't loaded yet. 
-        var criteria = loadingProps.searchCriteria == null ? null : JSON.parse(JSON.stringify(loadingProps.searchCriteria));
-
-        if (criteria != null) {
-            criteria = clearSearchCriteria(criteria);
-            //add in any profile filter passed in url
-            if (_item?.id != null) {
-                toggleSearchFilterSelected(criteria, AppSettings.SearchCriteriaCategory.Profile, parseInt(_item.id));
-            }
+        else if (loadingProps.searchCriteria == null || loadingProps.searchCriteria.filters == null) {
+            return;
         }
 
-        //update state
-        setInitSearchCriteria(false);
-        if (criteria != null) {
-            setSearchCriteria(criteria);
-            setSearchCriteriaChanged(_searchCriteriaChanged + 1);
-        }
-        setLoadingProps({ ...loadingProps, searchCriteria: criteria });
+        //we only need to update search criteria when there is a profile id. 
+        if (_item?.id == null) return;
 
-        //this will execute on unmount
-        return () => {
-            //console.log(generateLogMessageString('useEffect||Cleanup', CLASS_NAME));
-        };
-    }, [_item?.id, _initSearchCriteria, loadingProps.searchCriteriaRefreshed]);
+        //assign profile id as filter
+        var criteria = JSON.parse(JSON.stringify(loadingProps.searchCriteria));
+        toggleSearchFilterSelected(criteria, AppSettings.SearchCriteriaCategory.Profile, parseInt(_item.id));
+        setSearchCriteria(criteria);
+        //trigger api to get data
+        setSearchCriteriaChanged(_searchCriteriaChanged + 1);
+
+    }, [loadingProps.searchCriteria, _item?.id]);
+
 
     //-------------------------------------------------------------------
     // Region: hook - set the default tab on load if passed in
@@ -175,12 +162,12 @@ function CloudLibViewer() {
     //-------------------------------------------------------------------
     // Region: hook - trigger delete of message on completion automatically
     //-------------------------------------------------------------------
-    useDeleteImportMessage({ id: _deleteId });
+    useDeleteImportMessage({ id: _deleteMessageId });
 
     //-------------------------------------------------------------------
     // Region: Event Handling of child component events
     //-------------------------------------------------------------------
-    const onCloudLibImportStarted = (importLogId) => {
+    const onImportStarted = (importLogId) => {
         console.log(generateLogMessageString(`onImportStarted || start poll for completion`, CLASS_NAME));
         setPollForCompletion({ counter: 1, importLogId: importLogId, isComplete: false });
     }
@@ -284,7 +271,7 @@ function CloudLibViewer() {
                 renderImportingPlaceholder()
             }
             {_cloudLibItem.length > 0 &&
-                <CloudLibraryImporterNew onImportStarted={onCloudLibImportStarted} items={_cloudLibItem} bypassConfirmation={true} />
+                <CloudLibraryImporter onImportStarted={onImportStarted} items={_cloudLibItem} />
             }
         </>
     )

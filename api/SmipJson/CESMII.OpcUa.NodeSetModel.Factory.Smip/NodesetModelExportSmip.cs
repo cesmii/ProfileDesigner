@@ -402,6 +402,8 @@ namespace CESMII.OpcUa.NodeSetModel.Export.Smip
             // document
             // max_number
             // min_number
+
+            // TODO Data Variables, Properties
             return childEquipmentTypeInfo;
         }
         //public override (T ExportedNode, List<UANode> AdditionalNodes) GetUANode<T>(NamespaceTable namespaces, Dictionary<string, string> aliases)
@@ -538,9 +540,14 @@ namespace CESMII.OpcUa.NodeSetModel.Export.Smip
                 equipmentType.ChildEquipment.Add(childEquipmentTypeInfo.tiqModel);
             }
 
-            var dataVariableTypeInfos = _model.DataVariables.Select(dv => new DataVariableModelExportSmip { _model = dv }.ExportNode(library)).ToList();
+            // For now: flatten any properties in sub-folders (Organized - i=35)
+            var organizesReferenceId = new ExpandedNodeId(ReferenceTypeIds.Organizes, Namespaces.OpcUa).ToString();
+            var organizedProperties = _model.OtherReferencedNodes.Where(rn => rn.Reference == organizesReferenceId).SelectMany(rn => rn.Node.Properties).ToList();
+            var organizedVariables = _model.OtherReferencedNodes.Where(rn => rn.Reference == organizesReferenceId).SelectMany(rn => rn.Node.DataVariables).ToList();
 
-            var propertyTypeInfos = _model.Properties.Select(prop => new PropertyModelExportSmip { _model = prop as PropertyModel }.ExportNode(library)).ToList();
+            var dataVariableTypeInfos = _model.DataVariables.Concat(organizedVariables).Select(dv => new DataVariableModelExportSmip { _model = dv }.ExportNode(library)).ToList();
+
+            var propertyTypeInfos = _model.Properties.Concat(organizedProperties).Select(prop => new PropertyModelExportSmip { _model = prop as PropertyModel }.ExportNode(library)).ToList();
             var variableTypeInfos = dataVariableTypeInfos.Concat(propertyTypeInfos).ToList();
 
             foreach (var variableTypeInfo in variableTypeInfos)
@@ -567,6 +574,11 @@ namespace CESMII.OpcUa.NodeSetModel.Export.Smip
                 {
                     throw new Exception($"Unexpected variable type {variableTypeInfo.tiqModel.GetType().Name} returned for {variableTypeInfo.tiqModel?.RelativeName}");
                 }
+            }
+
+            foreach (var referencedNode in _model.OtherReferencedNodes)
+            {
+                // TODO Folder (Organizes) references
             }
 
             return equipmentTypeInfo;

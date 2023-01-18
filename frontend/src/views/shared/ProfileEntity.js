@@ -79,11 +79,11 @@ function ProfileEntityForm(props) {
         if (val.indexOf('T') === -1) val += `T00:00:00`;
 
         var dt = new Date(val);
-        var mm = dt.getMonth() + 1;
+        var mm = dt.getUTCMonth() + 1;
         mm = mm < 10 ? `0${mm.toString()}` : mm.toString();
-        var dd = dt.getDate();
+        var dd = dt.getUTCDate();
         dd = dd < 10 ? `0${dd.toString()}` : dd.toString();
-        var result = `${dt.getFullYear()}-${mm}-${dd}`;
+        var result = `${dt.getUTCFullYear()}-${mm}-${dd}`;
         console.log(generateLogMessageString(`prepDateVal||inbound:${val}||outbound:${result}`, CLASS_NAME));
         return result;
     }

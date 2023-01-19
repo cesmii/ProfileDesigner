@@ -77,6 +77,35 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             return Ok(result);
         }
 
+        /// <summary>
+        /// User can look up profile by passing in Cloud library Id. This would happen when marketplace
+        /// user wants to inspect profile at a more granular level and view in profile designer. 
+        /// </summary>
+        /// <remarks>The user may or may not have downloaded the profile prior to this request. 
+        /// If the profile is not present, return null to caller. The caller will then trigger
+        /// a separate call to import the profile.  
+        /// </remarks>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [HttpPost, Route("GetByCloudLibId")]
+        [ProducesResponseType(200, Type = typeof(ProfileModel))]
+        [ProducesResponseType(400)]
+        public IActionResult GetByCloudLibId([FromBody] IdStringModel model)
+        {
+            if (model == null)
+            {
+                _logger.LogWarning($"ProfileController|GetByCloudLibId|Invalid model (null)");
+                return BadRequest($"Invalid model (null)");
+            }
+
+            var result = _dal.Where(x => x.StandardProfile != null && x.StandardProfile.CloudLibraryId.Equals(model.ID), 
+                base.DalUserToken, null, null, false, true).Data;
+            if (result == null || result.Count == 0)
+            {
+                return Ok(null);
+            }
+            return Ok(result.FirstOrDefault());
+        }
 
         /// <summary>
         /// Search my profiles library for profiles matching criteria passed in. This is a simple search field and 
@@ -629,17 +658,10 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 _logger.LogWarning($"ProfileController|Add|Invalid model (null)");
                 return BadRequest($"Invalid model (null). Check Publish Date formatting.");
             }
-            if (model.PublishDate != null && model.PublishDate?.Kind != DateTimeKind.Utc)
-            {
-                if (model.PublishDate?.Kind == DateTimeKind.Unspecified)
-                {
-                    model.PublishDate = DateTime.SpecifyKind(model.PublishDate.Value, DateTimeKind.Utc);
-                }
-                else
-                {
-                    model.PublishDate = model.PublishDate?.ToUniversalTime();
-                }
-            }
+
+            // Keep PostgreSQL happy - Make sure UTC date gets sent to "date with timezone" timestamp field.
+            ConvertPublishDateToUTC(model);
+
             //test for unique namespace/owner id/publish date combo
             if (!IsValidModel(model))
             {
@@ -680,6 +702,28 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 Message = "Item was added.",
                 Data = id
             });
+        }
+
+        private static void ConvertPublishDateToUTC(ProfileModel model)
+        {
+            if (model.PublishDate != null && model.PublishDate?.Kind != DateTimeKind.Utc)
+            {
+                //// Set time to noon to avoid loss of a day when converting to UTC
+                //if (model.PublishDate.Value.Hour < 12)
+                //{
+                //    int h = model.PublishDate.Value.Hour;
+                //    DateTime dt = new DateTime(model.PublishDate.Value.Year, model.PublishDate.Value.Month, model.PublishDate.Value.Day, 12, 0, 0);
+                //    model.PublishDate = dt;
+                //}
+                if (model.PublishDate?.Kind == DateTimeKind.Unspecified)
+                {
+                    model.PublishDate = DateTime.SpecifyKind(model.PublishDate.Value, DateTimeKind.Utc);
+                }
+                else
+                {
+                    model.PublishDate = model.PublishDate?.ToUniversalTime();
+                }
+            }
         }
 
         /// <summary>
@@ -740,6 +784,9 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 _logger.LogWarning($"ProfileController|Add|Invalid model (null)");
                 return BadRequest($"Invalid model (null). Check Publish Date formatting.");
             }
+
+            // Keep PostgreSQL happy - Make sure UTC date gets sent to "date with timezone" timestamp field.
+            ConvertPublishDateToUTC(model);
 
             //test for unique namespace/owner id/publish date combo
             if (_dal.Count(x => !x.ID.Equals(model.ID) && x.Namespace.ToLower().Equals(model.Namespace.ToLower()) &&
@@ -812,10 +859,29 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 var result = await _dal.DeleteAsync(model.ID, base.DalUserToken);
                 if (result <= 0)
                 {
-                    _logger.LogWarning($"ProfileController|Delete|Could not delete item. Invalid id:{model.ID}.");
-                    return BadRequest("Could not delete item. Invalid id.");
+                    if (User.IsInRole("cesmii.profiledesigner.admin"))
+                    {
+                        _logger.LogWarning($"ProfileController|Delete|Could not delete item. Invalid id:{model.ID}. Trying again as global user for administrator {base.DalUserToken.UserId}");
+                        // try again with the global user token so that admin can delete global nodesets
+                        var globalToken = new UserToken { UserId = -1 };
+                        result = await _dal.DeleteAsync(model.ID, globalToken);
+                        if (result <= 0)
+                        {
+                            _logger.LogWarning($"ProfileController|Delete|Could not delete item for admin user {base.DalUserToken.UserId}. Invalid id:{model.ID}.");
+                            return BadRequest("Could not delete item. Invalid id.");
+                        }
+                        _logger.LogInformation($"ProfileController|Delete|Deleted item for administrator {base.DalUserToken.UserId}. Id:{model.ID}.");
+                    }
+                    else
+                    {
+                        _logger.LogWarning($"ProfileController|Delete|Could not delete item. Invalid id:{model.ID}.");
+                        return BadRequest("Could not delete item. Invalid id.");
+                    }
                 }
-                _logger.LogInformation($"ProfileController|Delete|Deleted item. Id:{model.ID}.");
+                else
+                {
+                    _logger.LogInformation($"ProfileController|Delete|Deleted item. Id:{model.ID}.");
+                }
             }
             catch (Npgsql.PostgresException eDB)
             {
@@ -910,7 +976,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         /// <returns>Return result model with an isSuccess indicator.</returns>
         [HttpPost, Route("Import")]
         [ProducesResponseType(200, Type = typeof(ResultMessageWithDataModel))]
-        public async Task<IActionResult> Import([FromBody] List<ImportOPCModel> model /*, [FromServices] OpcUaImporter importer*/)
+        public async Task<IActionResult> Import([FromBody] List<ImportOPCModel> model)
         {
             if (!ModelState.IsValid)
             {
@@ -941,7 +1007,61 @@ namespace CESMII.ProfileDesigner.Api.Controllers
 
             //pass in the author id as current user
             //kick off background process, logid is returned immediately so front end can track progress...
-            var logId = await _svcImport.ImportOpcUaNodeSet(model, base.DalUserToken);
+            var logId = await _svcImport.ImportOpcUaNodeSet(model, base.DalUserToken, false, false);
+
+            return Ok(
+                new ResultMessageWithDataModel()
+                {
+                    IsSuccess = true,
+                    Message = "Import is processing...",
+                    Data = logId
+                }
+            );
+        }
+
+        /// <summary>
+        /// Import OPC UA nodeset uploaded by front end and upgrade any prior versions to this version. There may be multiple files being uploaded. 
+        /// </summary>
+        /// <remarks>Non-standard nodesets are associated with the user doing the uploading. 
+        /// Standard OPC UA nodesets will go into the library of nodesets visible to all.
+        /// </remarks>
+        /// <param name="nodeSetXmlList"></param>
+        /// <returns>Return result model with an isSuccess indicator.</returns>
+        [HttpPost, Route("ImportUpgrade")]
+        [Authorize(Roles = "cesmii.profiledesigner.admin")]
+        [ProducesResponseType(200, Type = typeof(ResultMessageWithDataModel))]
+        public async Task<IActionResult> ImportWithUpgrade([FromBody] List<ImportOPCModel> model)
+        {
+            if (!ModelState.IsValid)
+            {
+                var errors = ExtractModelStateErrors();
+                _logger.LogCritical($"ProfileController|Import|User Id:{LocalUser.ID}, Errors: {errors}");
+                return Ok(
+                    new ResultMessageWithDataModel()
+                    {
+                        IsSuccess = false,
+                        Message = "The nodeset data is invalid."
+                    }
+                );
+            }
+
+            if (model == null || model.Count == 0)
+            {
+                _logger.LogWarning($"ProfileController|Import|No nodeset files to import. User Id:{LocalUser.ID}.");
+                return Ok(
+                    new ResultMessageWithDataModel()
+                    {
+                        IsSuccess = false,
+                        Message = "No nodesets to import."
+                    }
+                );
+            }
+
+            _logger.LogInformation($"ProfileController|ImportMyOpcUaProfile|Importing {model.Count} nodeset files. User Id:{LocalUser.ID}.");
+
+            //pass in the author id as current user
+            //kick off background process, logid is returned immediately so front end can track progress...
+            var logId = await _svcImport.ImportOpcUaNodeSet(model, base.DalUserToken, true, true);
 
             return Ok(
                 new ResultMessageWithDataModel()
@@ -1007,7 +1127,8 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                     }
                     else if (model.Format?.ToUpper() == "SMIPJSON")
                     {
-                        var smipJson = NodeModelExportToSmip.ExportToSmip(exportedNodeSets);
+                        var modelToExport = exportedNodeSets.FirstOrDefault().model;
+                        var smipJson = NodeModelExportToSmip.ExportToSmip(modelToExport);
                         result = JsonConvert.SerializeObject(smipJson, Formatting.Indented);
                     }
                     else

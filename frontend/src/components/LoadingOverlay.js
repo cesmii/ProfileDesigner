@@ -84,4 +84,16 @@ function LoadingOverlayInline(props) {
     )
 }
 
-export { LoadingOverlay, LoadingOverlayInline };
+
+//-------------------------------------------------------------------
+// Show a loading spinner only
+//-------------------------------------------------------------------
+function LoadingSpinner() {
+    return (
+        <>
+            {renderSpinner()}
+        </>
+    )
+}
+
+export { LoadingOverlay, LoadingOverlayInline, LoadingSpinner };

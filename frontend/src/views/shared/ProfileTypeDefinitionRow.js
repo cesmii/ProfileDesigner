@@ -92,7 +92,7 @@ function ProfileTypeDefinitionRow(props) { //props are item, showActions
                         }
                         <Dropdown.Item key="moreVert5" onClick={downloadProfile} ><span className="mr-3" alt="arrow-drop-down"><SVGDownloadIcon name="downloadNodeset" /></span>Download Profile '{getProfileCaption(props.item.profile)}'</Dropdown.Item>
                         <Dropdown.Item key="moreVert6" onClick={downloadProfileAsAASX} ><span className="mr-3" alt="arrow-drop-down"><SVGDownloadIcon name="downloadNodeset" /></span>Download Profile '{getProfileCaption(props.item.profile)}' as AASX</Dropdown.Item>
-                        <Dropdown.Item key="moreVert6" onClick={downloadProfileAsSmipJson} ><span className="mr-3" alt="arrow-drop-down"><SVGDownloadIcon name="downloadNodeset" /></span>Download Profile '{getProfileCaption(props.item.profile)}' for SMIP import (experimental)</Dropdown.Item>
+                        <Dropdown.Item key="moreVert7" onClick={downloadProfileAsSmipJson} ><span className="mr-3" alt="arrow-drop-down"><SVGDownloadIcon name="downloadNodeset" /></span>Download Profile '{getProfileCaption(props.item.profile)}' for SMIP import (experimental)</Dropdown.Item>
                     </Dropdown.Menu>
                 </Dropdown>
             </>

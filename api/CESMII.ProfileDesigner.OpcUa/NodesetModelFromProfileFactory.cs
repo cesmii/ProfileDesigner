@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 
 using System.Text.Json;
 using CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile;
+using Opc.Ua.Export;
 
 namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
 {
@@ -33,7 +34,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
         ILogger Logger { get; }
 
         ProfileTypeDefinitionSimpleModel MapToModelProfileSimple(ProfileTypeDefinitionModel profileTypeDef);
-        ProfileModel GetProfileForNamespace(string uaNamespace);
+        ProfileModel GetProfileForNamespace(string uaNamespace, DateTime? publicationDate, string version);
         ProfileTypeDefinitionModel CheckExisting(ProfileTypeDefinitionModel profileItem);
         void SetUser(UserToken userToken, UserToken authorToken);
     }
@@ -83,11 +84,11 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
             return nodeModel;
         }
 
-        private static TNodeModel Create<TNodeModelFactory, TNodeModel>(ProfileTypeDefinitionModel profileItem, IOpcUaContext opcContext, IDALContext dalContext) 
+        private static TNodeModel Create<TNodeModelFactory, TNodeModel>(ProfileTypeDefinitionModel profileItem, IOpcUaContext opcContext, IDALContext dalContext)
             where TNodeModel : NodeModel, new()
             where TNodeModelFactory : NodeModelFromProfileFactory<TNodeModel>, new()
         {
-            var nodeModel = NodeModelFactoryOpc<TNodeModel>.Create<TNodeModel>(opcContext, GetProfileItemNodeId(profileItem), profileItem.Profile.Namespace, profileItem.Profile, out var created);
+            var nodeModel = NodeModelFactoryOpc<TNodeModel>.Create<TNodeModel>(opcContext, GetProfileItemNodeId(profileItem), GetModelForProfile(profileItem.Profile), profileItem.Profile, out var created);
             var nodeModelFactory = new TNodeModelFactory { _model = nodeModel, Logger = opcContext.Logger };
             if (created)
             {
@@ -109,6 +110,17 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
                 opcContext.Logger.LogTrace($"Using previously created node model {nodeModel} for profile type definition {profileItem}");
             }
             return nodeModel;
+        }
+
+        protected static ModelTableEntry GetModelForProfile(ProfileModel profile)
+        {
+            return new ModelTableEntry
+            {
+                ModelUri = profile.Namespace,
+                Version = profile.Version,
+                PublicationDate = profile.PublishDate ?? default,
+                PublicationDateSpecified = profile.PublishDate != null,
+            };
         }
 
         protected static string GetProfileItemNodeId(ProfileTypeDefinitionModel profileItem)
@@ -379,7 +391,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
                 // In the profile designer we allow composition directly with a class: create the intermediate OPC Object required
                 try
                 {
-                    var objectModel = NodeModelFactoryOpc<NodeModel>.Create<ObjectModel>(opcContext, GetProfileItemNodeId(objectTypeRelated), objectTypeRelated.Profile.Namespace ?? composingProfile.Profile.Namespace, objectTypeRelated.Profile, out var created);
+                    var objectModel = NodeModelFactoryOpc<NodeModel>.Create<ObjectModel>(opcContext, GetProfileItemNodeId(objectTypeRelated), GetModelForProfile(objectTypeRelated.Profile ?? composingProfile.Profile), objectTypeRelated.Profile, out var created);
                     if (created)
                     {
                         objectModel.DisplayName = NodeModel.LocalizedText.ListFromText(objectTypeRelated.Name);
@@ -448,7 +460,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
     {
         internal static T Create<T>(ProfileModel profile, ProfileAttributeModel attribute, IOpcUaContext opcContext, IDALContext dalContext) where T : VariableModel, new()
         {
-            var variableModel = NodeModelFactoryOpc.Create<T>(opcContext, GetProfileItemNodeId(profile?.Namespace, attribute, dalContext, out var opcNamespace), opcNamespace, profile, out var created);
+            var variableModel = NodeModelFactoryOpc.Create<T>(opcContext, GetProfileItemNodeId(profile?.Namespace, attribute, dalContext, out var opcNamespace), GetModelForProfile(profile), profile, out var created);
             if (created)
             {
                 var dataTypeModel = DataTypeModelFromProfileFactory.GetDataTypeModel(attribute, opcContext, dalContext);
@@ -537,10 +549,11 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
             {
                 if (map?.DataVariableNodeIdsByBrowseName.TryGetValue(typeDataVariable.BrowseName, out var mapEntry) == true)
                 {
-                    VariableModel dataVariable = 
+                    var variableProfile = GetModelForProfile(variableModel.NodeSet.CustomState as ProfileModel ?? profile);
+                    VariableModel dataVariable =
                         mapEntry.IsProperty ?
-                            NodeModelFactoryOpc.Create<PropertyModel>(opcContext, mapEntry.NodeId, variableModel.Namespace, profile, out var dvCreated)
-                            :NodeModelFactoryOpc.Create<DataVariableModel>(opcContext, mapEntry.NodeId, variableModel.Namespace, profile, out dvCreated);
+                            NodeModelFactoryOpc.Create<PropertyModel>(opcContext, mapEntry.NodeId, variableProfile, profile, out var dvCreated)
+                            : NodeModelFactoryOpc.Create<DataVariableModel>(opcContext, mapEntry.NodeId, variableProfile, profile, out dvCreated);
                     if (dvCreated)
                     {
                         dataVariable.DataType = typeDataVariable.DataType;

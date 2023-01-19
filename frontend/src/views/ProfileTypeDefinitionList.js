@@ -8,7 +8,7 @@ import { generateLogMessageString, renderTitleBlock } from '../utils/UtilityServ
 import ProfileTypeDefinitionListGrid from './shared/ProfileTypeDefinitionListGrid';
 
 import color from '../components/Constants'
-import { clearSearchCriteria, toggleSearchFilterSelected } from '../services/ProfileService'
+import { toggleSearchFilterSelected } from '../services/ProfileService'
 import './styles/ProfileTypeDefinitionList.scss';
 
 const CLASS_NAME = "ProfileTypeDefinitionList";
@@ -37,42 +37,29 @@ function ProfileTypeDefinitionList() {
     // Region: Pass profile id into component if profileId passed in from url
     //-------------------------------------------------------------------
     useEffect(() => {
-
-        if (!_initSearchCriteria) return;
-
         //check for searchcriteria - trigger fetch of search criteria data - if not already triggered
         if ((loadingProps.searchCriteria == null || loadingProps.searchCriteria.filters == null) && !loadingProps.refreshSearchCriteria) {
             setLoadingProps({ refreshSearchCriteria: true });
-        }
-        //start with a blank criteria slate. Handle possible null scenario if criteria hasn't loaded yet. 
-        var criteria = loadingProps.searchCriteria == null ? null : JSON.parse(JSON.stringify(loadingProps.searchCriteria));
-
-        if (criteria != null) {
-            criteria = clearSearchCriteria(criteria);
-            //add in any profile filter passed in url
-            if (profileId != null) {
-                toggleSearchFilterSelected(criteria, AppSettings.SearchCriteriaCategory.Profile, parseInt(profileId));
-            }
+            return;
         }
 
-        //update state
-        setInitSearchCriteria(false);
-        if (criteria != null) {
-            setSearchCriteria(criteria);
-            setSearchCriteriaChanged(_searchCriteriaChanged + 1);
+        var criteria = JSON.parse(JSON.stringify(loadingProps.searchCriteria));
+        //assign profile id as filter
+        if (profileId != null) {
+            toggleSearchFilterSelected(criteria, AppSettings.SearchCriteriaCategory.Profile, parseInt(profileId));
         }
-        setLoadingProps({ ...loadingProps, searchCriteria: criteria });
+        setSearchCriteria(criteria);
+        //trigger api to get data
+        setSearchCriteriaChanged(_searchCriteriaChanged + 1);
 
-        //this will execute on unmount
-        return () => {
-            //console.log(generateLogMessageString('useEffect||Cleanup', CLASS_NAME));
-        };
-    }, [profileId, _initSearchCriteria, loadingProps.searchCriteriaRefreshed]);
+    }, [loadingProps.searchCriteria, profileId]);
+
 
     //-------------------------------------------------------------------
     //scenario - we arrive at the types library page immediately after visiting the type def library by profile page
     //      route is not changing so the profile filter not being removed.
     //-------------------------------------------------------------------
+/*
     useEffect(() => {
 
         if (!_initSearchCriteria && profileId == null) setInitSearchCriteria(true);
@@ -82,6 +69,7 @@ function ProfileTypeDefinitionList() {
             //console.log(generateLogMessageString('useEffect||Cleanup', CLASS_NAME));
         };
     }, [profileId]);
+*/
 
     //-------------------------------------------------------------------
     // Region: Event Handling of child component events
@@ -129,7 +117,8 @@ function ProfileTypeDefinitionList() {
             </Helmet>
             {renderHeaderRow()}
             <ProfileTypeDefinitionListGrid onGridRowSelect={onGridRowSelect} searchCriteria={_searchCriteria}
-                onSearchCriteriaChanged={onSearchCriteriaChanged} searchCriteriaChanged={_searchCriteriaChanged} />
+                onSearchCriteriaChanged={onSearchCriteriaChanged} searchCriteriaChanged={_searchCriteriaChanged}
+                showProfileFilter={true} />
         </>
     )
 }

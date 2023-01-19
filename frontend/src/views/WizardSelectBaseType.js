@@ -203,6 +203,7 @@ function WizardSelectBaseType() {
                             selectedItems={selItems} rowCssClass="mx-0"
                             searchCriteria={wizardProps.searchCriteria}
                             onSearchCriteriaChanged={onSearchCriteriaChanged} searchCriteriaChanged={_searchCriteriaChanged}
+                            showProfileFilter={true}
                         />
                 </div>
             </div>

@@ -3873,7 +3873,7 @@ namespace MyNamespace
         public string Version { get; set; }
 
         [Newtonsoft.Json.JsonProperty("publishDate", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset? PublishDate { get; set; }
+        public System.DateTime? PublishDate { get; set; }
 
         [Newtonsoft.Json.JsonProperty("standardProfileID", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int? StandardProfileID { get; set; }

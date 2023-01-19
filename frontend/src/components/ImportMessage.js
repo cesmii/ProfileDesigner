@@ -9,6 +9,71 @@ import { AppSettings } from '../utils/appsettings';
 
 const CLASS_NAME = "ImportMessage";
 
+//-------------------------------------------------------------------
+// use Hook: delete an import message and trigger a refresh of the display
+//  trigger from some other component to kick off an import log refresh and start tracking import status
+//-------------------------------------------------------------------
+export function useDeleteImportMessage(props) {
+
+    //-------------------------------------------------------------------
+    // Region: Initialization
+    //-------------------------------------------------------------------
+    const { loadingProps, setLoadingProps } = useLoadingContext();
+
+    //-------------------------------------------------------------------
+    // Region: hooks
+    //  trigger a delete when the id passed in changes
+    //-------------------------------------------------------------------
+    useEffect(() => {
+
+        if (props.id == null) return;
+
+        console.log(generateLogMessageString(`deleteImportMessage || ${props.id}`, CLASS_NAME));
+
+        //clear import message - local
+        var importingLogs = loadingProps.importingLogs == null || loadingProps.importingLogs.length === 0 ? [] :
+            JSON.parse(JSON.stringify(loadingProps.importingLogs));
+        importingLogs = importingLogs.filter(x => x.id !== props.id);
+        setLoadingProps({ importingLogs: importingLogs });
+
+        //perform delete call - api
+        var data = { id: props.id };
+        var url = `importlog/delete`;
+        axiosInstance.post(url, data)
+            .then(result => {
+
+                if (result.data.isSuccess) {
+                    setLoadingProps({ activateImportLog: true });
+                }
+                else {
+                    console.log(generateLogMessageString(`deleteImportMessage||error||${result.data.message}`, CLASS_NAME, 'error'));
+                }
+            })
+            .catch(error => {
+                //hide a spinner, show a message
+                setLoadingProps({
+                    isLoading: false, message: null, inlineMessages: [
+                        { id: new Date().getTime(), severity: "danger", body: `An error occurred dismissing this message.`, isTimed: true }
+                    ]
+                });
+                console.log(generateLogMessageString('deleteImportMessage||error||' + JSON.stringify(error), CLASS_NAME, 'error'));
+                console.log(error);
+                //scroll back to top
+                window.scroll({
+                    top: 0,
+                    left: 0,
+                    behavior: 'smooth',
+                });
+            });
+
+    }, [props.id]);
+
+    //nothing to render
+    return null;
+};
+
+
+
 function ImportMessage() {
 
     //-------------------------------------------------------------------
@@ -18,6 +83,7 @@ function ImportMessage() {
     const [_dataRows, setDataRows] = useState(null);
     const [_forceReload, setForceReload] = useState(0); //increment this value to cause a re-get of the latest data.
     const [_processingCss, setProcessingCss] = useState(""); //used to create animation effect
+    const [_deleteId, setDeleteId] = useState(null); 
 
     //-------------------------------------------------------------------
     // Region: hooks
@@ -131,24 +197,7 @@ function ImportMessage() {
     // Region: Events
     //-------------------------------------------------------------------
     const dismissMessage = (msgId, warnOnNotFound = false) => {
-        //if msg is in complete status, call API and delete (set inactive)
-        var item = _dataRows.find(msg => { return msg.id.toString() === msgId.toString(); });
-        if (item != null && item.completed != null) {
-            deleteItem(item);
-        }
-
-        var x = _dataRows.findIndex(msg => { return msg.id.toString() === msgId.toString(); });
-        //no item found
-        if (x < 0 && warnOnNotFound) {
-            console.warn(generateLogMessageString(`dismissMessage||no item found to dismiss with this id`, CLASS_NAME));
-            return;
-        }
-
-        //delete the message locally
-        _dataRows.splice(x, 1);
-
-        //update state
-        setDataRows(JSON.parse(JSON.stringify(_dataRows)));
+        setDeleteId(msgId);
     }
 
     const onDismiss = (e) => {
@@ -157,57 +206,20 @@ function ImportMessage() {
         dismissMessage(id);
     }
 
-    //const dismissMessageTimed = (msgId) => {
-    //    console.log(generateLogMessageString('dismissMessageTimed||', CLASS_NAME));
-    //    setTimeout(() => {
-    //        dismissMessage(msgId);
-    //    }, 6000);
-    //}
 
-    const deleteItem = (item) => {
-        console.log(generateLogMessageString(`deleteItem`, CLASS_NAME));
-
-        //perform delete call
-        var data = { id: item.id };
-        var url = `importlog/delete`;
-        axiosInstance.post(url, data)  
-        .then(result => {
-
-            if (result.data.isSuccess) {
-            }
-            else {
-                console.log(generateLogMessageString(`deleteItem||error||${result.data.message}`, CLASS_NAME, 'error'));
-            }
-        })
-        .catch(error => {
-            //hide a spinner, show a message
-            setLoadingProps({
-                isLoading: false, message: null, inlineMessages: [
-                    { id: new Date().getTime(), severity: "danger", body: `An error occurred dismissing this message.`, isTimed: true }
-                ]
-            });
-            console.log(generateLogMessageString('deleteItem||error||' + JSON.stringify(error), CLASS_NAME, 'error'));
-            console.log(error);
-            //scroll back to top
-            window.scroll({
-                top: 0,
-                left: 0,
-                behavior: 'smooth',
-            });
-        });
-    };
+    useDeleteImportMessage({id:_deleteId});
 
     //-------------------------------------------------------------------
     // Region: Render helpers
     //-------------------------------------------------------------------
     const getSeverity = (msg) => {
-        switch (msg.statusName.toLowerCase()) {
-            case "failed":
-            case "cancelled":
+        switch (msg.status) {
+            case AppSettings.ImportLogStatus.Failed:
+            case AppSettings.ImportLogStatus.Cancelled:
                 return "danger";
-            case "completed":
+            case AppSettings.ImportLogStatus.Completed:
                 return "success";
-            case "inprogress":
+            case AppSettings.ImportLogStatus.InProgress:
             default:
                 return "info-custom";
         }
@@ -223,14 +235,14 @@ function ImportMessage() {
         }
 
 
-        switch (msg.statusName.toLowerCase()) {
-            case "failed":
+        switch (msg.status) {
+            case AppSettings.ImportLogStatus.Failed:
                 return `The import failed. ${msgAppend}`;
-            case "cancelled":
+            case AppSettings.ImportLogStatus.Cancelled:
                 return `The import was cancelled. ${msgAppend}`;
-            case "completed":
+            case AppSettings.ImportLogStatus.Completed:
                 return `The import completed. ${msgAppend}`;
-            case "inprogress":
+            case AppSettings.ImportLogStatus.InProgress:
             default:
                 return `The import is processing. ${msgAppend}`;
         }
@@ -238,7 +250,7 @@ function ImportMessage() {
 
     const renderMessage = (msg) => {
         //apply special handling for sev="processing"
-        var isProcessing = msg.statusName.toLowerCase() === "inprogress";
+        var isProcessing = msg.status === AppSettings.ImportLogStatus.InProgress;
         var sev = getSeverity(msg);
         var caption = getMessage(msg);
 
@@ -274,7 +286,9 @@ function ImportMessage() {
     //-------------------------------------------------------------------
     if (_dataRows == null || _dataRows.length === 0) return null;
 
-    return (renderMessages);
+    return (
+        renderMessages
+    );
 }
 
 export { ImportMessage };

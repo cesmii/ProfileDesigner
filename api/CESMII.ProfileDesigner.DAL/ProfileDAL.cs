@@ -58,7 +58,7 @@
             var query = base.FindByCondition(userToken, x =>
                (
                  (model.ID != 0 && model.ID != null && x.ID == model.ID)
-                 || (x.Namespace == model.Namespace && x.Version == model.Version)
+                 || (x.Namespace == model.Namespace && x.Version == model.Version && x.PublishDate == model.PublishDate)
                ) /*&& (x.AuthorId == null || x.AuthorId == tenantId)*/, cacheOnly);
             var profile = query.FirstOrDefault();
             return profile;
@@ -90,7 +90,7 @@
             //do filter on author id so that the user can only delete their stuff
             Profile entity = base.FindByCondition(userToken, x => x.ID == id && (x.AuthorId == userToken.UserId || userToken.UserId == -1)).FirstOrDefault();
             if (entity == null)
-                return 0;
+               return 0;
 
             //complex delete with many cascading implications, call stored proc which deletes all dependent objects 
             // in proper order, etc.
@@ -271,7 +271,7 @@
                     var current = entity.NodeSetFiles[i];
 
                     //remove if no longer present
-                    var source = files.Find(v => v.ID.Equals(current.ID) || v.FileName == current.FileName);
+                    var source = files.Find(v => v.ID.Equals(current.ID) || (v.FileName == current.FileName && v.PublicationDate == current.PublicationDate && v.Version == current.Version));
                     if (source == null)
                     {
                         entity.NodeSetFiles.RemoveAt(i);
@@ -286,7 +286,7 @@
             // Loop over interfaces passed in and only add those not already there
             foreach (var file in files)
             {
-                if ((file.ID ?? 0) == 0 || entity.NodeSetFiles.Find(x => x.ID.Equals(file.ID) || x.FileName == file.FileName) == null)
+                if ((file.ID ?? 0) == 0 || entity.NodeSetFiles.Find(x => x.ID.Equals(file.ID) || (x.FileName == file.FileName && x.PublicationDate == file.PublicationDate && x.Version == file.Version)) == null)
                 {
                     var fileEntity = _nodeSetFileDAL.CheckForExisting(file, userToken);
                     if (fileEntity == null)
@@ -297,6 +297,11 @@
                     entity.NodeSetFiles.Add(fileEntity);
                 }
             }
+        }
+
+        internal IRepository<Profile> GetRepo()
+        {
+            return _repo;
         }
     }
 }

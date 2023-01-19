@@ -6,6 +6,7 @@ import { useMsal } from "@azure/msal-react";
 import ProfileListGrid from './shared/ProfileListGrid';
 import { AppSettings } from '../utils/appsettings'
 import { generateLogMessageString } from '../utils/UtilityService'
+import { useLoadingContext } from "../components/contexts/LoadingContext";
 import { useWizardContext } from '../components/contexts/WizardContext'
 import { getWizardNavInfo, renderWizardBreadcrumbs, renderWizardButtonRow, renderWizardHeader, renderWizardIntroContent, WizardSettings } from '../services/WizardUtil'
 import { ErrorModal } from '../services/CommonUtil'
@@ -34,6 +35,9 @@ function WizardSelectProfile() {
     const _navInfo = getWizardNavInfo(_mode, _pageId);
     const [_error, setError] = useState({ show: false, message: null, caption: null });
 
+    const { loadingProps, setLoadingProps } = useLoadingContext();
+    const [_searchCriteria, setSearchCriteria] = useState(null);
+
     //-------------------------------------------------------------------
     // Region: hooks
     //-------------------------------------------------------------------
@@ -54,6 +58,19 @@ function WizardSelectProfile() {
         };
     }, [wizardProps.currentPage]);
 
+
+    //-------------------------------------------------------------------
+    // Region: search criteria check and populate
+    //-------------------------------------------------------------------
+    useEffect(() => {
+        //check for searchcriteria - trigger fetch of search criteria data - if not already triggered
+        if ((loadingProps.profileSearchCriteria == null || loadingProps.profileSearchCriteria.filters == null) && !loadingProps.refreshProfileSearchCriteria) {
+            setLoadingProps({ refreshProfileSearchCriteria: true });
+            return;
+        }
+        setSearchCriteria(JSON.parse(JSON.stringify(loadingProps.profileSearchCriteria)));
+
+    }, [loadingProps.profileSearchCriteria]);
 
     //-------------------------------------------------------------------
     // Region: Event handling
@@ -118,7 +135,9 @@ function WizardSelectProfile() {
             <div className="card row mb-3">
                     <div className="card-body col-sm-12">
                         <ProfileListGrid isMine={true} onGridRowSelect={onRowClicked} selectMode="single"
-                            selectedItems={selItems} rowCssClass="mx-0" noSearch="true" />
+                            selectedItems={selItems} rowCssClass="mx-0" noSearch="true"
+                            searchCriteria={_searchCriteria}
+                        />
                 </div>
             </div>
             </>

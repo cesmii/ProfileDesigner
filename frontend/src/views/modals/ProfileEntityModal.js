@@ -62,10 +62,10 @@ function ProfileEntityModal(props) {
     useEffect(() => {
         async function fetchProfiles() {
             //Filter out anything 
-            var url = `profile/mine`;
+            const url = `profile/mine`;
             console.log(generateLogMessageString(`useEffect||fetchProfiles||${url}`, CLASS_NAME));
             //TBD - come back to this when the model allows null for take, skip
-            var data = { Query: null, Skip: 0, Take: 10000 };
+            const data = { Query: null, Skip: 0, Take: 10000 };
             const result = await axiosInstance.post(url, data);
             setLookupProfiles(result.data.data);
         }
@@ -151,7 +151,7 @@ function ProfileEntityModal(props) {
 
         //perform insert/update call
         console.log(generateLogMessageString(`handleOnSave||${mode}`, CLASS_NAME));
-        var url = _item.id == null || _item.id === 0 ? `profile/add` : `profile/update`;
+        const url = _item.id == null || _item.id === 0 ? `profile/add` : `profile/update`;
         axiosInstance.post(url, _item)
             .then(resp => {
 
@@ -162,6 +162,7 @@ function ProfileEntityModal(props) {
                             [{ id: new Date().getTime(), severity: "success", body: `Item was saved`, isTimed: true }] :
                             []
                         , refreshProfileCount: true
+                        , refreshSearchCriteria: true
                     });
 
                     //console.log(resp.data);

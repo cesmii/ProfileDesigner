@@ -105,11 +105,11 @@ function ProfileEntity() {
                 if (friendlyCaption.length > 25) {
                     friendlyCaption = `...${friendlyCaption.substring(friendlyCaption.length - 25)}`;
                 }
-                var revisedList = UpdateRecentFileList(loadingProps.recentFileList, {
+                const revisedList = UpdateRecentFileList(loadingProps.recentFileList, {
                     url: history.location.pathname,
                     caption: friendlyCaption,
                     iconName: _iconName,
-                    authorId: result.data.author != null ? result.data.author.objectIdAAD : null
+                    authorId: result.data.author != null && result.data.isReadOnly === false ? result.data.author.objectIdAAD : null
                 });
                 setLoadingProps({ recentFileList: revisedList });
             }
@@ -118,9 +118,6 @@ function ProfileEntity() {
         //get a blank object from server
         async function fetchDataAdd() {
             console.log(generateLogMessageString('useEffect||fetchDataAdd||async', CLASS_NAME));
-            //initialize spinner during loading
-            setLoadingProps({ isLoading: true, message: null });
-
             //set item state value
             setItem(JSON.parse(JSON.stringify(profileNew)));
             setLoadingProps({ isLoading: false, message: null });
@@ -153,15 +150,19 @@ function ProfileEntity() {
         else if (loadingProps.searchCriteria == null || loadingProps.searchCriteria.filters == null) {
             return;
         }
+        //implies it is in progress on re-loading criteria
+        else if (loadingProps.refreshSearchCriteria) {
+            return;
+        }
 
         //we only need to update search criteria when there is a profile id. 
-        if (id == null) return;
+        if (id == null || id === "new") return;
 
         //assign profile id as filter
         var criteria = JSON.parse(JSON.stringify(loadingProps.searchCriteria));
         toggleSearchFilterSelected(criteria, AppSettings.SearchCriteriaCategory.Profile, parseInt(id));
         setSearchCriteria(criteria);
-        //trigger api to get data
+        //trigger api to get data - unless in new mode
         setSearchCriteriaChanged(_searchCriteriaChanged + 1);
 
     }, [loadingProps.searchCriteria, id]);
@@ -226,9 +227,9 @@ function ProfileEntity() {
             isLoading: false, message: null, inlineMessages: 
                 [{ id: new Date().getTime(), severity: "success", body: `Item was saved`, isTimed: true }]
             , refreshProfileCount: true
+            , refreshSearchCriteria: true
         });
-
-        setItem(JSON.parse(JSON.stringify(item)));
+        history.push(`/profile/${item.id}`);
     };
 
     const onSaveError = (msg) => {
@@ -238,6 +239,14 @@ function ProfileEntity() {
             isLoading: false, message: msg, inlineMessages:
                 [{ id: new Date().getTime(), severity: "critical", body: `An error occurred saving this item: ${msg}`, isTimed: false }]
         });
+    };
+
+    //if delete goes through, navigate to profiles library page
+    const onDelete = (success) => {
+        console.log(generateLogMessageString(`onDelete || ${success}`, CLASS_NAME));
+        if (success) {
+            history.push(`/profiles/library`);
+        }
     };
 
     //bubble up search criteria changed so the parent page can control the search criteria
@@ -270,7 +279,9 @@ function ProfileEntity() {
                         <Button variant="icon-outline" type="button" className="mx-1 d-lg-none" onClick={onSave} title="Save" ><i className="material-icons">save</i></Button>
                         </>
                     }
-                    <ProfileActions item={_item} activeAccount={_activeAccount} />
+                    {(_mode.toLowerCase() !== "new") &&
+                        <ProfileActions item={_item} activeAccount={_activeAccount} onDeleteCallback={onDelete} />
+                    }
                 </div>
             </div>
         );
@@ -316,6 +327,14 @@ function ProfileEntity() {
         );
     };
 
+    const renderNewView = () => {
+        return (
+            <div className="entity-details px-2">
+                <ProfileEntityForm item={_item} onValidate={onValidate} isValid={_isValid} onChange={onChange} />
+            </div>
+        );
+    };
+
     //-------------------------------------------------------------------
     // Region: Render
     //-------------------------------------------------------------------
@@ -332,8 +351,11 @@ function ProfileEntity() {
                 <title>{_caption}</title>
             </Helmet>
             {renderHeaderRow(`Profile ${_name === '' ? '' : ' - ' + _name}`)}
-            {_item != null &&
-                renderTabbedView()
+            {(_item != null && id !== "new") &&
+                renderTabbedView()  
+            }
+            {(_item != null && id === "new") &&
+                renderNewView()
             }
         </>
     )

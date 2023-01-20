@@ -234,7 +234,7 @@ namespace CESMII.ProfileDesigner.Api.Tests
             return new List<object[]>
             {
                 // string query, int expectedCount, int expectedNotLocal, int expectedPlusLocal, int expectedNotLocalPlusLocal 
-                new object[ ]{ null, 64, 3, 124, 112, },
+                new object[ ]{ null, 64, 3, 123, 112, },
                 new object[] { "BaseObjectType", 6, 0, 6, 0, },
                 new object[] { "di", 62, 1, 69, 13, },
                 new object[] { "robotics", 1, 0, 1, 1, },

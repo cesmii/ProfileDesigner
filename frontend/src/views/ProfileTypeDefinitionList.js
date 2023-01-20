@@ -42,6 +42,13 @@ function ProfileTypeDefinitionList() {
             setLoadingProps({ refreshSearchCriteria: true });
             return;
         }
+        else if (loadingProps.searchCriteria == null || loadingProps.searchCriteria.filters == null) {
+            return;
+        }
+        //implies it is in progress on re-loading criteria
+        else if (loadingProps.refreshSearchCriteria) {
+            return;
+        }
 
         var criteria = JSON.parse(JSON.stringify(loadingProps.searchCriteria));
         //assign profile id as filter

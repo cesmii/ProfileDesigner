@@ -58,8 +58,8 @@
                   (model.ID != 0 && model.ID != null && dt.ID == model.ID)
                   || ( dt.Name == model.Name && dt.Code == model.Code 
                        && (( (model.CustomTypeId ?? 0) != 0&& (dt.CustomTypeId ?? 0) != 0 && dt.CustomTypeId == model.CustomTypeId)
-                            || (
-                               dt.CustomType.Profile.Namespace == model.CustomType.Profile.Namespace 
+                            || (model.CustomType != null &&
+                               dt.CustomType.Profile.Namespace == model.CustomType.Profile.Namespace
                                && dt.CustomType.Profile.PublishDate == model.CustomType.Profile.PublishDate
                                && dt.CustomType.Profile.Version == model.CustomType.Profile.Version
                                && dt.CustomType.OpcNodeId == model.CustomType.OpcNodeId

@@ -312,7 +312,9 @@ const handleLoginSuccess = (instance, payload, setLoadingProps) => {
 };
 
 export const handleMSALEvent = (message, setLoadingProps) => {
-    console.info(generateLogMessageString(`handleMSALEvent||${message.eventType}`, CLASS_NAME));
+
+    if (process.env.REACT_APP_MSAL_ENABLE_LOGGER)
+        console.info(generateLogMessageString(`handleMSALEvent||${message.eventType}`, CLASS_NAME));
 
     const instance = Msal_Instance;
     const accounts = instance.getAllAccounts();

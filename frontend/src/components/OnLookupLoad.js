@@ -274,7 +274,7 @@ export const OnLookupLoad = () => {
         }
 
         //if not logged in yet, return
-        if (!_isAuthenticated || !loadingProps.refreshFavoritesList) return;
+        if (!_isAuthenticated || loadingProps.refreshFavoritesList === false) return;
 
         if (loadingProps.favoritesList == null || loadingProps.refreshFavoritesList === true) {
             fetchData();

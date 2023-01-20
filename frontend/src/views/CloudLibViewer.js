@@ -141,6 +141,10 @@ function CloudLibViewer() {
         else if (loadingProps.searchCriteria == null || loadingProps.searchCriteria.filters == null) {
             return;
         }
+        //implies it is in progress on re-loading criteria
+        else if (loadingProps.refreshSearchCriteria) {
+            return;
+        }
 
         //we only need to update search criteria when there is a profile id. 
         if (_item?.id == null) return;

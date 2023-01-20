@@ -158,9 +158,10 @@ function ProfileTypeDefinitionEntity() {
 
             //add to the recent file list to keep track of where we have been
             if (thisMode.toLowerCase() === "view" || thisMode.toLowerCase() === "edit") {
-                var revisedList = UpdateRecentFileList(loadingProps.recentFileList, {
+                const revisedList = UpdateRecentFileList(loadingProps.recentFileList, {
                     url: history.location.pathname, caption: result.data.name, iconName: getTypeDefIconName(result.data),
-                    authorId: result.data.author != null ? result.data.author.objectIdAAD : null });
+                    authorId: result.data.author != null && result.data.isReadOnly === false ? result.data.author.objectIdAAD : null
+                });
                 setLoadingProps({ recentFileList: revisedList });
             }
 
@@ -451,7 +452,7 @@ function ProfileTypeDefinitionEntity() {
     //add profile on the fly then go get a refreshed list of items.
     const onSaveProfile = (p) => {
         console.log(generateLogMessageString(`onSaveProfile`, CLASS_NAME));
-        var autoSave = _profileEntityModal.autoSave;
+        const autoSave = _profileEntityModal.autoSave;
         setProfileEntityModal({ show: false, item: null, autoSave: false });
 
         //and then assign it to the new item

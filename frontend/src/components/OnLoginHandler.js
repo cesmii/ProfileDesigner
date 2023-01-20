@@ -92,7 +92,8 @@ export const onAADLogin = (setLoadingProps) => {
                     loginStatusCode: 200,
                     refreshSearchCriteria: true,
                     refreshProfileSearchCriteria: true,
-                    refreshCloudLibImporterSearchCriteria: true
+                    refreshCloudLibImporterSearchCriteria: true,
+                    refreshFavoritesList: true
                 });
                 //if (callbackFn) callbackFn(200);
             }

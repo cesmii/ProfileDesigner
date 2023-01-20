@@ -84,9 +84,9 @@ function ProfileActions(props) {
         setLoadingProps({ isLoading: true, message: "" });
 
         //perform delete call
-        var data = items.length === 1 ? { id: items[0].id } :
+        const data = items.length === 1 ? { id: items[0].id } :
             items.map((item) => { return { id: item.id }; });
-        var url = items.length === 1 ? `profile/delete` : `profile/deletemany`;
+        const url = items.length === 1 ? `profile/delete` : `profile/deletemany`;
         axiosInstance.post(url, data)  //api allows one or many
             .then(result => {
 
@@ -112,6 +112,8 @@ function ProfileActions(props) {
                         isLoading: false, message: null, inlineMessages: null
                     });
                 }
+                //raise callback
+                if (props.onDeleteCallback != null) props.onDeleteCallback(result.data.isSuccess);
 
             })
             .catch(error => {
@@ -125,6 +127,8 @@ function ProfileActions(props) {
                 console.log(error);
                 //scroll back to top
                 scrollTop();
+                //raise callback
+                if (props.onDeleteCallback != null) props.onDeleteCallback(false);
             });
     };
 

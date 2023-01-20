@@ -95,7 +95,7 @@ function ProfileExplorer(props) {
 
         if (items == null) return null;
 
-        var filteredCopy = JSON.parse(JSON.stringify(items));
+        const filteredCopy = JSON.parse(JSON.stringify(items));
 
         if (val == null || val === '') {
             return filteredCopy;
@@ -103,7 +103,7 @@ function ProfileExplorer(props) {
 
         // Filter data - match up against a number of fields
         return filteredCopy.filter((item, i) => {
-            var concatenatedSearch = delimiter + item.name.toLowerCase() + delimiter
+            const concatenatedSearch = delimiter + item.name.toLowerCase() + delimiter
                 + item.composition.name.toLowerCase() + delimiter
             return (concatenatedSearch.indexOf(val.toLowerCase()) !== -1);
         });
@@ -117,12 +117,12 @@ function ProfileExplorer(props) {
         async function fetchData() {
             //TBD - revisit and improve error handling flow...
             //hardcode for now
-            var url = `profiletypedefinition/explorer`;
+            const url = `profiletypedefinition/explorer`;
             console.log(generateLogMessageString(`useEffect||fetchData||${url}`, CLASS_NAME));
 
             var result = null;
             try {
-                var data = { id: props.currentProfileId };
+                const data = { id: props.currentProfileId };
                 result = await axiosInstance.post(url, data);
             }
             catch (err) {
@@ -181,7 +181,7 @@ function ProfileExplorer(props) {
                 break;
         }
 
-        var svg = (<SVGIcon name={iconName} size="18" fill={color.shark} alt={iconName} />);
+        const svg = (<SVGIcon name={iconName} size="18" fill={color.shark} alt={iconName} />);
 
         return (<span>{svg}</span>)
 
@@ -204,10 +204,10 @@ function ProfileExplorer(props) {
 
     //render a profile item - supports a nested view
     const renderProfileItem = (p, level) => {
-        var key = `li_${level.toString()}_${p.id.toString()}`;
-        var cssClass = `small-size${props.currentProfileId == null || props.currentProfileId !== p.id ? '' : ' current'}`;
+        const key = `li_${level.toString()}_${p.id.toString()}`;
+        const cssClass = `small-size${props.currentProfileId == null || props.currentProfileId !== p.id ? '' : ' current'}`;
         // dynamically increase padding for each level
-        var padding = (level * 8).toString() + 'px';
+        const padding = (level * 8).toString() + 'px';
 
         //::::::::::::::::::::::
         // Increment the child count
@@ -229,8 +229,8 @@ function ProfileExplorer(props) {
 
     // render a profile item - supports a nested view
     const renderCompositionItem = (c) => {
-        var key = `li_attr_${c.id.toString()}`;
-        var cssClass = `small-size`;
+        const key = `li_attr_${c.id.toString()}`;
+        const cssClass = `small-size`;
 
         //::::::::::::::::::::::
         // Increment the child count
@@ -251,7 +251,7 @@ function ProfileExplorer(props) {
     //
     const renderLinkedCompositionName = (item) => {
         if (item == null) return;
-        var href = getTypeDefEntityLink(item);
+        const href = getTypeDefEntityLink(item);
         return (
             <a href={href} >{`${item.name} (${item.relatedName})`}</a>
         );
@@ -287,9 +287,9 @@ function ProfileExplorer(props) {
     }
 
     const renderSectionHeader = (items, caption, toggleState, sectionId) => {
-        var toggleCss = toggleState ? "expanded d-flex align-items-center action-menu ml-3" : "d-flex align-items-center action-menu ml-3";
-        var toggleIcon = toggleState ? "arrow-drop-up" : "arrow-drop-down";
-        var myCount = childCount;
+        const toggleCss = toggleState ? "expanded d-flex align-items-center action-menu ml-3" : "d-flex align-items-center action-menu ml-3";
+        const toggleIcon = toggleState ? "arrow-drop-up" : "arrow-drop-down";
+        const myCount = childCount;
         childCount = 0;
         return (
             <>
@@ -320,7 +320,7 @@ function ProfileExplorer(props) {
 
     //render the main area - this is called for each section (inheritance tree, dependencies, compositions, interfaces)
     const renderSection = (items, caption, toggleState, sectionId) => {
-        var toggleCss = toggleState ? "expanded" : "collapsed";
+        const toggleCss = toggleState ? "expanded" : "collapsed";
 
         //has children scenario
         const mainBody = items.map((p) => {

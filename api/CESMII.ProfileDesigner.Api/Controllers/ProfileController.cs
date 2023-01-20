@@ -235,7 +235,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                     if (f.ID == (int)ProfileSearchCriteriaSourceEnum.Mine)
                     {
                         Expression<Func<Profile, bool>> fnMine = x => !x.StandardProfileID.HasValue
-                            && x.AuthorId.Value.Equals(f.ID.Value);
+                            && x.AuthorId.Value.Equals(userToken.UserId);
                         predSource = predSource == null ? fnMine : predSource.OrExtension(fnMine);
                     }
                     else if (f.ID == (int)ProfileSearchCriteriaSourceEnum.BaseProfile)

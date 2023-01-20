@@ -28,7 +28,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
 
         LookupDataTypeModel GetDataType(string opcNamespace, string opcNodeId);
         Task<int?> CreateCustomDataTypeAsync(LookupDataTypeModel customDataTypeLookup);
-        Task<LookupDataTypeModel> GetCustomDataTypeAsync(ProfileTypeDefinitionModel customDataTypeProfile);
+        Task<LookupDataTypeModel> GetCustomDataTypeAsync(ProfileTypeDefinitionModel customDataTypeProfile, bool cacheOnly = false);
         object GetNodeSetCustomState(string uaNamespace);
         EngineeringUnitModel GetOrCreateEngineeringUnitAsync(EngineeringUnitModel engUnitLookup);
         ILogger Logger { get; }
@@ -37,6 +37,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
         ProfileModel GetProfileForNamespace(string uaNamespace, DateTime? publicationDate, string version);
         ProfileTypeDefinitionModel CheckExisting(ProfileTypeDefinitionModel profileItem);
         void SetUser(UserToken userToken, UserToken authorToken);
+        bool RegisterCustomTypePlaceholder(LookupDataTypeModel attributeDataType);
     }
 
     public class NodeModelFromProfileFactory : NodeModelFromProfileFactory<NodeModel>

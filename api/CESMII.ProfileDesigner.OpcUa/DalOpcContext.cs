@@ -53,6 +53,8 @@ namespace CESMII.ProfileDesigner.OpcUa
 
         public ILogger Logger => _importer.Logger;
 
+        Dictionary<ProfileTypeDefinitionModel, LookupDataTypeModel> _resolvedDataTypes = new();
+
         public LookupDataTypeModel GetDataType(string opcNamespace, string opcNodeId)
         {
             List<LookupDataTypeModel> dataTypes;
@@ -85,22 +87,57 @@ namespace CESMII.ProfileDesigner.OpcUa
 
         public async Task<int?> CreateCustomDataTypeAsync(LookupDataTypeModel customDataTypeLookup)
         {
+            if (_resolvedDataTypes.ContainsKey(customDataTypeLookup.CustomType))
+            {
+                // ignore
+            }
+            _resolvedDataTypes[customDataTypeLookup.CustomType] = customDataTypeLookup;
             return (await _importer._dtDal.UpsertAsync(customDataTypeLookup, _userToken, false)).Item1;
         }
 
-        public Task<LookupDataTypeModel> GetCustomDataTypeAsync(ProfileTypeDefinitionModel customDataTypeProfile)
+        public Task<LookupDataTypeModel> GetCustomDataTypeAsync(ProfileTypeDefinitionModel customDataTypeProfile, bool cacheOnly = false)
         {
+            if (_resolvedDataTypes.TryGetValue(customDataTypeProfile, out LookupDataTypeModel lookupDataTypeModel))
+            {
+                return Task.FromResult(lookupDataTypeModel);
+            }
+            if (cacheOnly)
+            {
+                return Task.FromResult<LookupDataTypeModel>(null);
+            }
+
             var result = _importer._dtDal.Where(
                 l => (
                     ((customDataTypeProfile.ID ?? 0) != 0 && l.CustomTypeId == customDataTypeProfile.ID)
                     || ((customDataTypeProfile.ID ?? 0) == 0 && l.CustomType != null && l.CustomType.OpcNodeId == customDataTypeProfile.OpcNodeId
-                        && l.CustomType.Profile.Namespace == customDataTypeProfile.Profile.Namespace
-                        && l.CustomType.Profile.PublishDate == customDataTypeProfile.Profile.PublishDate
-                        && l.CustomType.Profile.Version == customDataTypeProfile.Profile.Version
-                        )
+                        && ((l.CustomType.Profile.ID != null && l.CustomType.Profile.ID == customDataTypeProfile.Profile.ID)
+                            || (
+                               l.CustomType.Profile.Namespace == customDataTypeProfile.Profile.Namespace
+                            && l.CustomType.Profile.PublishDate == customDataTypeProfile.Profile.PublishDate
+                            && l.CustomType.Profile.Version == customDataTypeProfile.Profile.Version
+                            && l.CustomType.Profile.OwnerId == customDataTypeProfile.Profile.AuthorId
+                            )
+                        ))
                     ),
                 _userToken, null, 1, false, false);
-            return Task.FromResult(result.Data.FirstOrDefault());
+            var dtLookupModel = result.Data.FirstOrDefault();
+            if (result.Data.Count > 1)
+            {
+                throw new Exception($"Internal error: more than one ({result.Data.Count}) LookupDataTypes {dtLookupModel} for type {customDataTypeProfile} exists in the database or EF cache.");
+            }
+            if (dtLookupModel !=null)
+            {
+                if (!_resolvedDataTypes.TryAdd(customDataTypeProfile, dtLookupModel))
+                {
+                    throw new Exception($"Internal error: LookupDataType {dtLookupModel} for type {customDataTypeProfile} already exists in resolver cache.");
+                }
+            }
+            return Task.FromResult(dtLookupModel);
+        }
+
+        public bool RegisterCustomTypePlaceholder(LookupDataTypeModel dtLookupModel)
+        {
+            return _resolvedDataTypes.TryAdd(dtLookupModel.CustomType, dtLookupModel);
         }
 
         public object GetNodeSetCustomState(string uaNamespace)

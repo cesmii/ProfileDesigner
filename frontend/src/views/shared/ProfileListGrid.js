@@ -40,7 +40,7 @@ function ProfileListGrid(props) {
     //importer
     const [_forceReload, setForceReload] = useState(0);
 
-    const [_searchCriteria, setSearchCriteria] = useState(loadingProps.profileSearchCriteria);
+    const [_searchCriteria, setSearchCriteria] = useState(props.searchCriteria);
     const [_searchCriteriaChanged, setSearchCriteriaChanged] = useState(0);
 
     //-------------------------------------------------------------------
@@ -361,10 +361,12 @@ function ProfileListGrid(props) {
     return (
         <>
             {renderProfileFilters()}
-            <ProfileFilter onSearchCriteriaChanged={onProfileSearchCriteriaChanged} noSortOptions="true"
-                //displayMode={_displayMode}
-                //toggleDisplayMode={toggleDisplayMode} itemCount={_itemCount}
-                cssClass={props.rowCssClass} searchCriteria={_searchCriteria} noSearch={props.noSearch} noClearAll="true" />
+            {!props.hideFilter &&
+                <ProfileFilter onSearchCriteriaChanged={onProfileSearchCriteriaChanged} noSortOptions="true"
+                    //displayMode={_displayMode}
+                    //toggleDisplayMode={toggleDisplayMode} itemCount={_itemCount}
+                cssClass={props.rowCssClass} searchCriteria={_searchCriteria} hideSearchBox={props.hideSearchBox} hideClearAll={true} />
+            }
             <div className="">
                 <div ref={_scrollToRef} className="row">
                     <div className="col-12">

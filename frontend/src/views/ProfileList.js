@@ -53,6 +53,14 @@ function ProfileList() {
             setLoadingProps({ refreshProfileSearchCriteria: true });
             return;
         }
+        else if (loadingProps.profileSearchCriteria == null || loadingProps.profileSearchCriteria.filters == null) {
+            return;
+        }
+        //implies it is in progress on re-loading criteria
+        else if (loadingProps.refreshProfileSearchCriteria) {
+            return;
+        }
+
         setSearchCriteria(JSON.parse(JSON.stringify(loadingProps.profileSearchCriteria)));
 
     }, [loadingProps.profileSearchCriteria]);
@@ -272,7 +280,7 @@ function ProfileList() {
             {(_searchCriteria != null) &&
                 <ProfileListGrid searchCriteria={_searchCriteria} mode={AppSettings.ProfileListMode.Profile}
                     onGridRowSelect={onGridRowSelect} onDeleteItemClick={onDeleteItemClick}
-                    onSearchCriteriaChanged={onSearchCriteriaChanged} searchCriteriaChanged={_searchCriteriaChanged} noSearch="false" />
+                    onSearchCriteriaChanged={onSearchCriteriaChanged} searchCriteriaChanged={_searchCriteriaChanged} hideSearchBox={false} />
             }
             {renderDeleteConfirmation()}
             <ErrorModal modalData={_error} callback={onErrorModalClose} />

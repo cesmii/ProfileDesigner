@@ -320,6 +320,7 @@ export const handleMSALEvent = (message, setLoadingProps) => {
     const accounts = instance.getAllAccounts();
 
     switch (message.eventType) {
+        case EventType.ACQUIRE_TOKEN_FAILURE:
         case EventType.LOGIN_FAILURE:
             //if error, then handle it...if InteractionRequiredAuthError, then acquire the token
             if (message.error instanceof InteractionRequiredAuthError) {
@@ -330,7 +331,7 @@ export const handleMSALEvent = (message, setLoadingProps) => {
                 };
 
                 Msal_Instance.acquireTokenRedirect(loginRequest);
-                console.error(generateLogMessageString(`handleMSALEvent||loginPopup||${message.error}`, CLASS_NAME));
+                console.error(generateLogMessageString(`handleMSALEvent||${message.eventType}||${message.error}`, CLASS_NAME));
             }
             else {
                 handleLoginError(message.error, setLoadingProps);

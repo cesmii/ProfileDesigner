@@ -68,7 +68,25 @@ function WizardSelectProfile() {
             setLoadingProps({ refreshProfileSearchCriteria: true });
             return;
         }
-        setSearchCriteria(JSON.parse(JSON.stringify(loadingProps.profileSearchCriteria)));
+        else if (loadingProps.profileSearchCriteria == null || loadingProps.profileSearchCriteria.filters == null) {
+            return;
+        }
+        //implies it is in progress on re-loading criteria
+        else if (loadingProps.refreshProfileSearchCriteria) {
+            return;
+        }
+
+        //always apply mine filter to the select profile screen. 
+        let criteria = JSON.parse(JSON.stringify(loadingProps.profileSearchCriteria));
+        var mineFilter = criteria.filters[0].items.find(x => { return x.id.toString() === AppSettings.ProfileFilterTypeIds.Mine.toString() });
+        if (mineFilter == null) {
+            console.warn(generateLogMessageString(`useEffect||profileSearchCriteria init||mine filter missing`, CLASS_NAME));
+        }
+        else {
+            mineFilter.selected = true;
+        }
+
+        setSearchCriteria(criteria);
 
     }, [loadingProps.profileSearchCriteria]);
 
@@ -135,8 +153,8 @@ function WizardSelectProfile() {
             <div className="card row mb-3">
                     <div className="card-body col-sm-12">
                         <ProfileListGrid isMine={true} onGridRowSelect={onRowClicked} selectMode="single"
-                            selectedItems={selItems} rowCssClass="mx-0" noSearch="true"
-                            searchCriteria={_searchCriteria}
+                            selectedItems={selItems} rowCssClass="mx-0" hideSearchBox={true}
+                            searchCriteria={_searchCriteria} mode={AppSettings.ProfileListMode.Profile} hideFilter={true}
                         />
                 </div>
             </div>

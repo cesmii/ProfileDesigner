@@ -241,7 +241,7 @@ function ProfileFilter(props) {
         <>
             <div className={`row selected-panel px-3 py-1 mb-1 rounded d-flex ${props.cssClass ?? ''}`} >
                 <div className="col-sm-12 px-0 align-items-start d-block d-lg-flex align-items-center" >
-                    {props.noSearch !== "true" &&
+                    {props.hideSearchBox !== true &&
                         <div className="d-flex mr-lg-3 mb-2 mb-lg-0" >
                             {renderSearchUI()}
                         </div>
@@ -249,7 +249,7 @@ function ProfileFilter(props) {
                     <div className="d-block d-lg-inline mb-2 mb-lg-0" >
                         {renderSections()}
                     </div>
-                    {props.noClearAll !== "true" &&
+                    {!props.hideClearAll &&
                         <div className="ml-auto justify-content-end text-nowrap d-flex align-items-center" >
                             <button onClick={onClearAll} className="ml-2 px-2 btn-auto btn btn-text-solo d-flex align-items-center" >Clear All<i className="pl-1 material-icons">update</i></button>
                         </div>

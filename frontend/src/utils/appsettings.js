@@ -101,6 +101,11 @@ export const AppSettings = {
         Profile: 1,
         CloudLib: 2
     }
+    , ProfileFilterTypeIds: {
+        Mine: 1,
+        BaseProfile: 2,
+        CloudLib: 3
+    }
     //MSAL (Authentication) Config
     , MsalConfig: {
         auth: {

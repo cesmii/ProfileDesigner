@@ -50,9 +50,11 @@ function Navbar() {
                         <img className="mr-3 mb-2 d-none d-md-block" src={logo} alt="CESMII Logo"></img>
                         <span className="headline-2">{AppSettings.Titles.Caption}</span>
                     </a>
-                    <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
-                        <span className="navbar-toggler-icon"></span>
-                    </button>
+                    {isAuthenticated && _activeAccount != null &&
+                        <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
+                            <span className="navbar-toggler-icon"></span>
+                        </button>
+                    }
                     <div className="navbar-collapse collapse" id="navbarMain">
                         <div className="ml-auto my-2 my-lg-0 nav navbar-nav  align-items-md-center" >
                             {renderAdminMenu()}

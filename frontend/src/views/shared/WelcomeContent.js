@@ -30,7 +30,7 @@ function WelcomeContent(props) {
         return (
             <>
                 <div className={`row mx-0 p-0 pt-4 mb-5`}>
-                    <div className="col-sm-6 col-md-7 p-0 d-none d-sm-block" >
+                    <div className="col-md-6 col-lg-7 p-0 d-none d-sm-block" >
                         <h1>Welcome!</h1>
                         <p className="p-0 py-1 mb-2 lh-intro" >
                             SM Profiles are an innovative way of representing data in structured information models that provide
@@ -47,7 +47,7 @@ function WelcomeContent(props) {
                             <div className="overlay-icon cover rounded shadow" style={bgImageStyle1} >&nbsp;</div>
                         </div>
                     </div>
-                    <div className="col-sm-6 col-md-5 px-0 pl-5" >
+                    <div className="col-md-6 col-lg-5 px-0 pl-md-3 pl-lg-5" >
                         {props.showLogin &&
                             <LoginButton />
                         }

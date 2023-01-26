@@ -1,45 +1,31 @@
-using System;
-using System.Text;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
+using CESMII.Common.CloudLibClient;
+using CESMII.Common.SelfServiceSignUp.Services;
+using CESMII.OpcUa.NodeSetImporter;
+using CESMII.ProfileDesigner.Api.Shared.Extensions;
+using CESMII.ProfileDesigner.Api.Shared.Utils;
+using CESMII.ProfileDesigner.Common;
+using CESMII.ProfileDesigner.Common.Enums;
+using CESMII.ProfileDesigner.Common.Utils;
+using CESMII.ProfileDesigner.DAL;
+using CESMII.ProfileDesigner.DAL.Models;
+using CESMII.ProfileDesigner.Data.Contexts;
+using CESMII.ProfileDesigner.Data.Entities;
+using CESMII.ProfileDesigner.Data.Repositories;
+using CESMII.ProfileDesigner.OpcUa;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
 using Microsoft.Identity.Web;
 using Microsoft.IdentityModel.Logging;
-
-using NLog;
-using NLog.Extensions.Logging;
-
-using CESMII.ProfileDesigner.Common;
-using CESMII.ProfileDesigner.Common.Utils;
-using CESMII.ProfileDesigner.Api.Shared.Utils;
-using CESMII.ProfileDesigner.Data.Contexts;
-using CESMII.ProfileDesigner.Data.Entities;
-using CESMII.ProfileDesigner.Data.Repositories;
-using CESMII.ProfileDesigner.DAL;
-using CESMII.ProfileDesigner.DAL.Models;
-using CESMII.ProfileDesigner.Common.Enums;
-using CESMII.ProfileDesigner.OpcUa;
-using CESMII.ProfileDesigner.Api.Shared.Extensions;
-using CESMII.Common.CloudLibClient;
+using Microsoft.OpenApi.Models;
 using Opc.Ua.Cloud.Library.Client;
-using System.IdentityModel.Tokens.Jwt;
-using CESMII.OpcUa.NodeSetImporter;
-using CESMII.Common.SelfServiceSignUp.Services;
+using System;
+using System.Threading.Tasks;
 
 namespace CESMII.ProfileDesigner.Api
 {

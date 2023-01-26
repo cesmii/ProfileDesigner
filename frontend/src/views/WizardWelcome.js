@@ -43,22 +43,6 @@ function WizardWelcome() {
             return;
         }
 
-        /*moved to WizardMaster page
-        //check for searchcriteria - trigger fetch of search criteria data - if not already triggered
-        if ((loadingProps.searchCriteria == null || loadingProps.searchCriteria.filters == null) && !loadingProps.refreshSearchCriteria) {
-            setLoadingProps({ refreshSearchCriteria: true });
-        }
-        //start with a blank criteria slate. Handle possible null scenario if criteria hasn't loaded yet. 
-        var criteria = loadingProps.searchCriteria == null ? null : JSON.parse(JSON.stringify(loadingProps.searchCriteria));
-        criteria = criteria == null ? null : clearSearchCriteria(criteria);
-
-        //init the wizard props when we enter the wizard
-        setWizardProps({
-            currentPage: _currentPage.id,
-            mode: null, profile: null, profileId: null, parentId: null,
-            searchCriteria: criteria
-        });
-        */
         setWizardProps({
             currentPage: _currentPage.id,
             mode: null, profile: null, profileId: null, parentId: null

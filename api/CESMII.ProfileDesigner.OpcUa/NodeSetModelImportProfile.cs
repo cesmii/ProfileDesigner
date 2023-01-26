@@ -365,7 +365,18 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
             var attributeDataType = dalContext.GetCustomDataTypeAsync(dataTypeProfile).Result;
             if (attributeDataType == null)
             {
-                attributeDataType = new LookupDataTypeModel { Name = dataTypeProfile.Name, Code = "custom", CustomType = dataTypeProfile };
+                dalContext.Logger.LogTrace($"Recursive data type detected. Creating a place holder to be filled in when recursion unwinds.");
+                attributeDataType = new LookupDataTypeModel
+                {
+                    // Placeholder must have all the properties that are used in LookupDataTypeDAL.CheckExisting as the type is written twice
+                    Name = dataTypeProfile.Name,
+                    Code = $"{profileItem.Profile.Namespace}.{profileItem.OpcNodeId}",
+                    CustomType = dataTypeProfile
+                };
+                if (!dalContext.RegisterCustomTypePlaceholder(attributeDataType))
+                {
+                    throw new Exception($"Internal error: unable to register placeholder for recursive LookupDataType in cache after failing to retrieve from cache.");
+                }
             }
             return attributeDataType;
         }
@@ -684,23 +695,31 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
 
             var isNumeric = _model.HasBaseType("nsu=http://opcfoundation.org/UA/;i=26");
 
-            // Create data type table entry
-            var dataTypeLookup = new LookupDataTypeModel
+            var dataTypeLookup = dalContext.GetCustomDataTypeAsync(profileItem, true).Result;
+            if (dataTypeLookup == null)
             {
-                ID = null,
-                Name = profileItem.Name,
-                Code = $"{profileItem.Profile.Namespace}.{profileItem.OpcNodeId}", //"custom",
-                CustomTypeId = profileItem.ID,
-                CustomType = profileItem,
-                // TODO verify if OPA UC allows enginering units on non-numeric types
-                UseEngUnit = isNumeric,
-                UseMinMax = isNumeric,
-                IsNumeric = isNumeric,
-                //For standard (UA, UA/DI), AuthorId is null.
-                //For standard imported by owner (UA/Robotics), AuthorId has value and we use this to keep the separation by owner.
-                //For custom (myNodeset), AuthorId has value and we use this to keep the separation by owner.
-                OwnerId = profileItem.AuthorId
-            };
+                // Create data type table entry
+                dataTypeLookup = new LookupDataTypeModel();
+            }
+            else
+            {
+                // Got a placeholder for a recursive data type: fill in the missing pieces
+            }
+
+            dataTypeLookup.ID = null;
+            dataTypeLookup.Name = profileItem.Name;
+            dataTypeLookup.Code = $"{profileItem.Profile.Namespace}.{profileItem.OpcNodeId}";
+            dataTypeLookup.CustomTypeId = profileItem.ID;
+            dataTypeLookup.CustomType = profileItem;
+            // TODO verify if OPA UC allows enginering units on non-numeric types
+            dataTypeLookup.UseEngUnit = isNumeric;
+            dataTypeLookup.UseMinMax = isNumeric;
+            dataTypeLookup.IsNumeric = isNumeric;
+            //For standard (UA, UA/DI), AuthorId is null.
+            //For standard imported by owner (UA/Robotics), AuthorId has value and we use this to keep the separation by owner.
+            //For custom (myNodeset), AuthorId has value and we use this to keep the separation by owner.
+            dataTypeLookup.OwnerId = profileItem.AuthorId;
+
             var dataTypeId = dalContext.CreateCustomDataTypeAsync(dataTypeLookup).Result;
             return bUpdated;
         }

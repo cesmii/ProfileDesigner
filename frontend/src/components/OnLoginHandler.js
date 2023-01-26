@@ -92,7 +92,8 @@ export const onAADLogin = (setLoadingProps) => {
                     loginStatusCode: 200,
                     refreshSearchCriteria: true,
                     refreshProfileSearchCriteria: true,
-                    refreshCloudLibImporterSearchCriteria: true
+                    refreshCloudLibImporterSearchCriteria: true,
+                    refreshFavoritesList: true
                 });
                 //if (callbackFn) callbackFn(200);
             }
@@ -311,12 +312,15 @@ const handleLoginSuccess = (instance, payload, setLoadingProps) => {
 };
 
 export const handleMSALEvent = (message, setLoadingProps) => {
-    console.info(generateLogMessageString(`handleMSALEvent||${message.eventType}`, CLASS_NAME));
+
+    if (process.env.REACT_APP_MSAL_ENABLE_LOGGER)
+        console.info(generateLogMessageString(`handleMSALEvent||${message.eventType}`, CLASS_NAME));
 
     const instance = Msal_Instance;
     const accounts = instance.getAllAccounts();
 
     switch (message.eventType) {
+        case EventType.ACQUIRE_TOKEN_FAILURE:
         case EventType.LOGIN_FAILURE:
             //if error, then handle it...if InteractionRequiredAuthError, then acquire the token
             if (message.error instanceof InteractionRequiredAuthError) {
@@ -327,7 +331,7 @@ export const handleMSALEvent = (message, setLoadingProps) => {
                 };
 
                 Msal_Instance.acquireTokenRedirect(loginRequest);
-                console.error(generateLogMessageString(`handleMSALEvent||loginPopup||${message.error}`, CLASS_NAME));
+                console.error(generateLogMessageString(`handleMSALEvent||${message.eventType}||${message.error}`, CLASS_NAME));
             }
             else {
                 handleLoginError(message.error, setLoadingProps);

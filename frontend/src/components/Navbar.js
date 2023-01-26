@@ -38,17 +38,25 @@ function Navbar() {
         e.preventDefault();
     }
 
+
+    //-------------------------------------------------------------------
+    // Region: render helpers
+    //-------------------------------------------------------------------
     const renderNav = () => {
         return (
-            <nav className="navbar navbar-dark bg-primary navbar-expand-md">
-                <div className="container-fluid pr-0">
-                    <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <nav className="navbar navbar-expand-md navbar-dark bg-primary">
+                <div className={`container-fluid ${isAuthenticated && _activeAccount != null ? "" : "container-lg"}`}>
+                    <a className="navbar-brand d-flex align-items-center" href="/">
+                        <img className="mr-3 mb-2 d-none d-md-block" src={logo} alt="CESMII Logo"></img>
+                        <span className="headline-2">{AppSettings.Titles.Caption}</span>
+                    </a>
+                    <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
                         <span className="navbar-toggler-icon"></span>
                     </button>
-                    <div className="collapse navbar-collapse mt-2 mt-md-0" id="navbarNav">
-                        <ul className="navbar-nav align-items-start align-items-md-center">
+                    <div className="navbar-collapse collapse" id="navbarMain">
+                        <div className="ml-auto my-2 my-lg-0 nav navbar-nav  align-items-md-center" >
                             {renderAdminMenu()}
-                        </ul>
+                        </div>
                     </div>
                 </div>
             </nav>
@@ -58,7 +66,7 @@ function Navbar() {
     const renderAdminMenu = () => {
         if (!isAuthenticated && !isAuthorized) return;
         return (
-            <li className="nav-item" >
+            <div className="nav-item" >
                 <Dropdown>
                     <Dropdown.Toggle className="ml-0 ml-md-2 px-1 dropdown-custom-components d-flex align-items-center" title={_activeAccount?.username}>
                         <SVGIcon name="account-circle" size="32" fill={Color.white} className="mr-2" />
@@ -76,27 +84,15 @@ function Navbar() {
                         }
                     </Dropdown.Menu>
                 </Dropdown>
-            </li>
+            </div>
             );
     };
 
     return (
         <header>
-            <div className={`container-fluid d-flex h-100 ${isAuthenticated && _activeAccount != null ? "" : "container-lg"}`} >
-                <div className="col-sm-12 px-0 px-sm-1 d-flex align-content-center" >
-                    <div className="d-flex align-items-center">
-                        <a className="navbar-brand d-flex align-items-center" href="/">
-                            <img className="mr-3 mb-2 d-none d-md-block" src={logo} alt="CESMII Logo"></img>
-                            <span className="headline-2 font-weight-bold">{AppSettings.Titles.Caption}</span>
-                        </a>
-                    </div>
-                    <div className="d-flex align-items-center ml-auto">
-                        {renderNav()}
-                    </div>
-                </div>
-            </div>
+            {renderNav()}
         </header>
-        )
+    )
 }
 
 export default Navbar

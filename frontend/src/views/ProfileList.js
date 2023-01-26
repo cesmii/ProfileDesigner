@@ -10,7 +10,6 @@ import { AppSettings } from '../utils/appsettings'
 import { generateLogMessageString, renderTitleBlock, scrollTop, isInRole } from '../utils/UtilityService'
 import { useLoadingContext } from "../components/contexts/LoadingContext";
 import ConfirmationModal from '../components/ConfirmationModal';
-import ProfileEntityModal from './modals/ProfileEntityModal';
 import CloudLibSlideOut from './shared/CloudLibSlideOut.js'
 import ProfileListGrid from './shared/ProfileListGrid';
 import ProfileImporter from './shared/ProfileImporter';
@@ -35,8 +34,6 @@ function ProfileList() {
     const [_deleteModal, setDeleteModal] = useState({ show: false, items: null });
     //importer
     const [_error, setError] = useState({ show: false, message: null, caption: null });
-    //used in popup profile add/edit ui. Default to new version
-    const [_profileEntityModal, setProfileEntityModal] = useState({ show: false, item: null});
     const [_searchCriteria, setSearchCriteria] = useState(null);
     const [_searchCriteriaChanged, setSearchCriteriaChanged] = useState(0);
     const [_cloudLibSlideOut, setCloudLibSlideOut] = useState({ isOpen: false });
@@ -56,6 +53,14 @@ function ProfileList() {
             setLoadingProps({ refreshProfileSearchCriteria: true });
             return;
         }
+        else if (loadingProps.profileSearchCriteria == null || loadingProps.profileSearchCriteria.filters == null) {
+            return;
+        }
+        //implies it is in progress on re-loading criteria
+        else if (loadingProps.refreshProfileSearchCriteria) {
+            return;
+        }
+
         setSearchCriteria(JSON.parse(JSON.stringify(loadingProps.profileSearchCriteria)));
 
     }, [loadingProps.profileSearchCriteria]);
@@ -99,28 +104,6 @@ function ProfileList() {
         setCloudLibSlideOut({ isOpen: false });
     }
 
-    const onAdd = () => {
-        console.log(generateLogMessageString(`onAdd`, CLASS_NAME));
-        setProfileEntityModal({ show: true, item: null });
-    };
-
-    const onEdit = (item) => {
-        console.log(generateLogMessageString(`onEdit`, CLASS_NAME));
-        setProfileEntityModal({ show: true, item: item });
-    };
-
-    const onSave = (id) => {
-        console.log(generateLogMessageString(`onSave`, CLASS_NAME));
-        setProfileEntityModal({ show: false, item: null });
-        //force re-load to show the newly added, edited items
-        setLoadingProps({ refreshProfileList: true });
-    };
-
-    const onSaveCancel = () => {
-        console.log(generateLogMessageString(`onSaveCancel`, CLASS_NAME));
-        setProfileEntityModal({ show: false, item: null });
-    };
-
     const onErrorModalClose = () => {
         //console.log(generateLogMessageString(`onErrorMessageOK`, CLASS_NAME));
         setError({ show: false, caption: null, message: null });
@@ -154,10 +137,10 @@ function ProfileList() {
 
         if (!_deleteModal.show) return;
 
-        var message = _deleteModal.items.length === 1 ?
+        const message = _deleteModal.items.length === 1 ?
             `You are about to delete your profile '${_deleteModal.items[0].namespace}'. This will delete all type definitions associated with this profile. This action cannot be undone. Are you sure?` :
             `You are about to delete ${_deleteModal.items.length} profiles. This will delete all type definitions associated with these profiles. This action cannot be undone. Are you sure?`;
-        var caption = `Delete Profile${_deleteModal.items.length === 1 ? "" : "s"}`;
+        const caption = `Delete Profile${_deleteModal.items.length === 1 ? "" : "s"}`;
 
         return (
             <>
@@ -183,9 +166,9 @@ function ProfileList() {
         setLoadingProps({ isLoading: true, message: "" });
 
         //perform delete call
-        var data = items.length === 1 ? { id: items[0].id } :
+        const data = items.length === 1 ? { id: items[0].id } :
             items.map((item) => { return { id: item.id }; });
-        var url = items.length === 1 ? `profile/delete` : `profile/deletemany`;
+        const url = items.length === 1 ? `profile/delete` : `profile/deletemany`;
         axiosInstance.post(url, data)  //api allows one or many
             .then(result => {
 
@@ -265,7 +248,7 @@ function ProfileList() {
                             }
                         </Dropdown.Menu>
                     </Dropdown>
-                    <Button variant="secondary" type="button" className="auto-width mx-2" onClick={onAdd} >Create Profile</Button>
+                    <Button variant="secondary" type="button" className="auto-width mx-2" href="/profile/new" >Create Profile</Button>
                 </div>
             </div>
         );
@@ -284,17 +267,6 @@ function ProfileList() {
         );
     }
 
-    //renderProfileEntity as a modal to force user to say ok.
-    const renderProfileEntity = () => {
-
-        if (!_profileEntityModal.show) return;
-
-        return (
-            <ProfileEntityModal item={_profileEntityModal.item} showModal={_profileEntityModal.show} onSave={onSave} onCancel={onSaveCancel} showSavedMessage={true} />
-        );
-    };
-
-
     //-------------------------------------------------------------------
     // Region: Render final output
     //-------------------------------------------------------------------
@@ -307,10 +279,9 @@ function ProfileList() {
             {renderIntroContent()}
             {(_searchCriteria != null) &&
                 <ProfileListGrid searchCriteria={_searchCriteria} mode={AppSettings.ProfileListMode.Profile}
-                    onGridRowSelect={onGridRowSelect} onEdit={onEdit} onDeleteItemClick={onDeleteItemClick}
-                    onSearchCriteriaChanged={onSearchCriteriaChanged} searchCriteriaChanged={_searchCriteriaChanged} noSearch="false" />
+                    onGridRowSelect={onGridRowSelect} onDeleteItemClick={onDeleteItemClick}
+                    onSearchCriteriaChanged={onSearchCriteriaChanged} searchCriteriaChanged={_searchCriteriaChanged} hideSearchBox={false} />
             }
-            {renderProfileEntity()}
             {renderDeleteConfirmation()}
             <ErrorModal modalData={_error} callback={onErrorModalClose} />
             <CloudLibSlideOut isOpen={_cloudLibSlideOut.isOpen} onClosePanel={onCloseSlideOut} onImportStarted={onCloseSlideOut} />

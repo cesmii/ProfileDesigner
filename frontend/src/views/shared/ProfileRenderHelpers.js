@@ -66,16 +66,12 @@ export const renderProfileIcon = (item, account, size = 20, useMarginRight = tru
 // Region: Common Is profile or type definition author/owner for this item
 //-------------------------------------------------------------------
 export const isOwner = (item, account) => {
-    return true;
     if (item == null) return false;
     if (item.author == null) return false;
     if (account == null) return false;
     if (account.idTokenClaims == null) return false;
 
-    const oid = account.idTokenClaims?.oid;
-    if (oid == null) return false;
-
     //check if oid is match in item.author.oid
-    return true;
-    return oid === item.author.objectIdAAD;
+    const oid = account.idTokenClaims?.oid;
+    return oid != null && oid === item.author.objectIdAAD;
 }

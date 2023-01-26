@@ -188,8 +188,6 @@ namespace CESMII.ProfileDesigner.Api.Tests
 
         private async Task<ICollection<CloudLibProfileModel>> PagedVsNonPagedAsync(Client apiClient, CloudLibFilterModel filter)
         {
-            var cloud = (await apiClient.CloudlibraryAsync(filter)).Data;
-
             var pagedFilter = new CloudLibFilterModel
             {
                 Query = filter.Query,
@@ -197,6 +195,16 @@ namespace CESMII.ProfileDesigner.Api.Tests
                 Cursor = null,
                 Take = 5,
             };
+
+            List<CloudLibProfileModel> cloud = new();
+            CloudLibProfileModelDALResult result;
+            do
+            {
+                result = await apiClient.CloudlibraryAsync(filter);
+                cloud.AddRange(result.Data);
+                filter.Cursor = result.EndCursor;
+            } while (result.HasNextPage == true);
+
 
             List<CloudLibProfileModel> paged = await GetAllPaged(apiClient, pagedFilter);
             Assert.True(paged.Count == cloud.Count);
@@ -216,7 +224,7 @@ namespace CESMII.ProfileDesigner.Api.Tests
                 paged.AddRange(page.Data);
                 bComplete = page.HasNextPage != true;
                 pagedFilter.Cursor = page.EndCursor;
-            } while (!bComplete && paged.Count < 100);
+            } while (!bComplete/* && paged.Count < 100*/);
             output.WriteLine($"Filter: {paged.Count}");
             return paged;
         }
@@ -226,15 +234,15 @@ namespace CESMII.ProfileDesigner.Api.Tests
             return new List<object[]>
             {
                 // string query, int expectedCount, int expectedNotLocal, int expectedPlusLocal, int expectedNotLocalPlusLocal 
-                new object[ ]{ null, 64, 8, 69, 68, },
+                new object[ ]{ null, 64, 3, 123, 112, },
                 new object[] { "BaseObjectType", 6, 0, 6, 0, },
-                new object[] { "di", 56, 3, 56, 9, },
+                new object[] { "di", 62, 1, 69, 13, },
                 new object[] { "robotics", 1, 0, 1, 1, },
-                new object[] { "plastic", 15, 0, 15, 14, },
-                new object[] { "pump", 6, 0, 6, 2,},
+                new object[] { "plastic", 15, 0, 32, 29, },
+                new object[] { "pump", 6, 0, 7, 3,},
                 new object[] { "abcdefg", 0, 0, 0, 0, },
-                new object[] { "Interface", 21, 0, 21, 0, },
-                new object[] { "Event", 23, 1, 23, 1, },
+                new object[] { "Interface", 24, 0, 24, 0, },
+                new object[] { "Event", 23, 0, 23, 0, },
 /*
                 new object[ ]{ null, 63, 7, 67, 67, },
                 new object[] { new string[] { "BaseObjectType" }, 6, 0, 6, 0, },

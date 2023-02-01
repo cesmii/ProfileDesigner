@@ -3,7 +3,7 @@
     using System;
     using System.Collections.Generic;
     using CESMII.ProfileDesigner.Common.Enums;
-    
+
     public class ProfileModel : AbstractModel
     {
         public string Namespace { get; set; }
@@ -31,7 +31,7 @@
 
         /// <summary>Gets or sets the license.</summary>
         /// <value>The license.</value>
-        public ProfileLicenseEnum? License { get; set; }
+        public string License { get; set; }
 
         /// <summary>Gets or sets the license URL.</summary>
         /// <value>The license URL.</value>
@@ -98,7 +98,7 @@
 
         public override string ToString()
         {
-            var valPublishDate = PublishDate.HasValue ? $"({PublishDate.Value.ToString("yyyy-MM-dd")})" : ""; 
+            var valPublishDate = PublishDate.HasValue ? $"({PublishDate.Value.ToString("yyyy-MM-dd")})" : "";
             return $"{Namespace} {Version} {valPublishDate}";
         }
 
@@ -126,6 +126,24 @@
                 NodeSetFiles = profile.NodeSetFiles,
                 HasLocalProfile = true,
                 CloudLibraryId = profile.StandardProfile?.CloudLibraryId,
+                Title = profile.Title,
+                Description = profile.Description,
+                License = profile.License,
+                LicenseUrl = profile.LicenseUrl,
+                Keywords = profile.Keywords,
+                AdditionalProperties = profile.AdditionalProperties,
+                CategoryName = profile.CategoryName,
+                ContributorName = profile.ContributorName,
+                CopyrightText = profile.CopyrightText,
+                Author = profile.Author,
+                DocumentationUrl = profile.DocumentationUrl,
+                IconUrl = profile.IconUrl,
+                ImportWarnings = profile.ImportWarnings,
+                PurchasingInformationUrl = profile.PurchasingInformationUrl,
+                ReleaseNotesUrl = profile.ReleaseNotesUrl,
+                SupportedLocales = profile.SupportedLocales,
+                TestSpecificationUrl = profile.TestSpecificationUrl,
+                NodesetXml = null,
             };
         }
 

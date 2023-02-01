@@ -18,6 +18,7 @@
         /// <param name="id"></param>
         /// <returns></returns>
         Task<TModel> DownloadAsync(string id);
+        Task<string> UploadAsync(TModel profile, string nodeSetXml);
         /// <summary>
         /// Download the nodeset xml portion of the CloudLib profile
         /// </summary>

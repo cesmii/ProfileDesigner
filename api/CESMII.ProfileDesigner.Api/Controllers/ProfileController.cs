@@ -628,6 +628,93 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             return await Import(importModels);
         }
 
+        /// <summary>
+        /// Publishes a profile to the Cloud Library 
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [HttpPost, Route("cloudlibrary/publish")]
+        [ProducesResponseType(200, Type = typeof(ResultMessageWithDataModel))]
+        public async Task<IActionResult> PublishToCloudLibrary([FromBody] IdIntModel model)
+        {
+            if (model == null)
+            {
+                _logger.LogWarning("ProfileController|PublishToCloudLibrary|Invalid model");
+                return BadRequest("Profile|CloudLibrary||Publish|Invalid model");
+            }
+
+            try
+            {
+                var profile = _dal.GetById(model.ID, base.DalUserToken);
+                if (profile == null)
+                {
+                    _logger.LogWarning($"ProfileController|PublishToCloudLibrary|Failed to publish : {model.ID}.");
+                    return Ok(
+                        new ResultMessageWithDataModel()
+                        {
+                            IsSuccess = false,
+                            Message = "Profile not found."
+                        }
+                    );
+
+                }
+                var exportResult = await Export(new ExportRequestModel { ID = model.ID }).ConfigureAwait(false);
+                var exportedNodeSet = (exportResult as OkObjectResult)?.Value as ResultMessageExportModel;
+                if (exportedNodeSet == null || !exportedNodeSet.IsSuccess)
+                {
+                    _logger.LogWarning($"ProfileController|PublishToCloudLibrary|Failed to export : {model.ID}.");
+                    return Ok(
+                        new ResultMessageWithDataModel()
+                        {
+                            IsSuccess = false,
+                            Message = "Failed to export."
+                        }
+                    );
+                }
+                var cloudLibProfile = CloudLibProfileModel.MapFromProfile(profile);
+
+                // Add profile designer user information to the profile
+                var user = _dalUser.GetById(base.DalUserToken.UserId, base.DalUserToken);
+                if (cloudLibProfile.AdditionalProperties == null)
+                {
+                    cloudLibProfile.AdditionalProperties = new();
+                }
+                // TODO: remove email/displayname once we have CloudLib admin UI
+                cloudLibProfile.AdditionalProperties.Add(KeyValuePair.Create("CESMIIUserInfo", $"{user.Email}, {user.DisplayName}, {user.ObjectIdAAD}, PD{base.DalUserToken.UserId}"));
+
+                var error = await _cloudLibDal.UploadAsync(cloudLibProfile, exportedNodeSet.Data as string);
+                if (!string.IsNullOrEmpty(error))
+                {
+                    _logger.LogWarning($"ProfileController|PublishToCloudLibrary|Failed to upload : {model.ID}.");
+                    return Ok(
+                        new ResultMessageWithDataModel()
+                        {
+                            IsSuccess = false,
+                            Message =error,
+                        }
+                    );
+                }
+
+                return Ok(
+                    new ResultMessageWithDataModel()
+                    {
+                        IsSuccess = true,
+                        Message = "Published to Cloud Library, pending approval.",
+                    }
+                );
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"ProfileController|PublishToCloudLibrary|Failed to publish to Cloud Library: {model.ID} {ex.Message}.");
+                return Ok(
+                    new ResultMessageWithDataModel()
+                    {
+                        IsSuccess = false,
+                        Message = "Error publishing profile to Cloud Library."
+                    }
+                );
+            }
+        }
 
 
         /// <summary>

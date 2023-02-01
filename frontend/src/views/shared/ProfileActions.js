@@ -23,6 +23,7 @@ function ProfileActions(props) {
     //-------------------------------------------------------------------
     const { loadingProps, setLoadingProps } = useLoadingContext();
     const [_deleteModal, setDeleteModal] = useState({ show: false, items: null });
+    const [_publishToCloudLibModal, setPublishToCloudLibModal] = useState({ show: false, item: null });
     const [_error, setError] = useState({ show: false, message: null, caption: null });
 
     //-------------------------------------------------------------------
@@ -48,6 +49,15 @@ function ProfileActions(props) {
         var msgs = loadingProps.downloadItems || [];
         msgs.push({ profileId: props.item.id, fileName: cleanFileName(props.item.namespace), immediateDownload: true, downloadFormat: AppSettings.ExportFormatEnum.SmipJson });
         setLoadingProps({ downloadItems: JSON.parse(JSON.stringify(msgs)) });
+    }
+    const onPublishToCloudLib = async () => {
+        console.log(generateLogMessageString(`onPublishToCloudLib||start`, CLASS_NAME));
+        setPublishToCloudLibModal({ show: true, item: props.item });
+    }
+    const onPublishToCloudLibConfirm = async () => {
+        console.log(generateLogMessageString(`onPublishToCloudLibConfirm||start`, CLASS_NAME));
+        publishToCloudLib(_publishToCloudLibModal.item);
+        setPublishToCloudLibModal({ show: false, item: null });
     }
 
     const onImportItem = () => {
@@ -133,6 +143,59 @@ function ProfileActions(props) {
     };
 
     //-------------------------------------------------------------------
+    // Region: API call to perform publication to CloudLib
+    //-------------------------------------------------------------------
+    const publishToCloudLib = (item) => {
+        console.log(generateLogMessageString(`publishToCloudLib||${item.namespace}`, CLASS_NAME));
+
+        //show a spinner
+        setLoadingProps({ isLoading: true, message: "" });
+
+        //perform publish call
+        const data = { id: item.id };
+        const url = `profile/cloudlibrary/publish`;
+        axiosInstance.post(url, data)
+            .then(result => {
+                if (result.data.isSuccess) {
+                    //hide a spinner, show a message
+                    setLoadingProps({
+                        isLoading: false, message: null, inlineMessages: [
+                            {
+                                id: new Date().getTime(), severity: "success",
+                                body: `Profile was submitted for publication`,
+                                isTimed: true
+                            }
+                        ],
+                    });
+                }
+                else {
+                    setError({ show: true, caption: 'Publish Error', message: `An error occurred publishing this profile: ${result.data.message}` });
+                    //update spinner, messages
+                    setLoadingProps({
+                        isLoading: false, message: null, inlineMessages: null
+                    });
+                }
+                //raise callback
+                if (props.onPublishToCloudLibCallback != null) props.onPublishToCloudLibCallback(result.data.isSuccess);
+
+            })
+            .catch(error => {
+                //hide a spinner, show a message
+                setLoadingProps({
+                    isLoading: false, message: null, inlineMessages: [
+                        { id: new Date().getTime(), severity: "danger", body: `An error occurred publishing this profile.`, isTimed: false }
+                    ]
+                });
+                console.log(generateLogMessageString('publishProfile||error||' + JSON.stringify(error), CLASS_NAME, 'error'));
+                console.log(error);
+                //scroll back to top
+                scrollTop();
+                //raise callback
+                if (props.onPublishToCloudLibCallback != null) props.onPublishToCloudLibCallback(false);
+            });
+    };
+
+    //-------------------------------------------------------------------
     // Region: Render Helpers
     //-------------------------------------------------------------------
     //render the delete modal when show flag is set to true
@@ -163,6 +226,33 @@ function ProfileActions(props) {
         );
     };
 
+    const renderPublishConfirmation = () => {
+
+        if (!_publishToCloudLibModal.show) return;
+
+        // TODO Detect and warn about unsaved changes in the form
+
+        let message =
+            `You are about to submit your profile '${_publishToCloudLibModal.item.namespace}' for publication. After approval the profile will appear in the CESMII Cloud Library and Marketplase. Are you sure?`;
+        let caption = `Publish Profile`;
+
+        return (
+            <>
+                <ConfirmationModal showModal={_publishToCloudLibModal.show} caption={caption} message={message}
+                    icon={{ name: "warning", color: color.trinidad }}
+                    confirm={{ caption: "Publish", callback: onPublishToCloudLibConfirm, buttonVariant: "danger" }}
+                    cancel={{
+                        caption: "Cancel",
+                        callback: () => {
+                            console.log(generateLogMessageString(`onPublishCancel`, CLASS_NAME));
+                            setPublishToCloudLibModal({ show: false, item: null });
+                        },
+                        buttonVariant: null
+                    }} />
+            </>
+        );
+    };
+
     //-------------------------------------------------------------------
     // Region: Final render
     //-------------------------------------------------------------------
@@ -186,9 +276,11 @@ function ProfileActions(props) {
                         <Dropdown.Item key="moreVert4" onClick={downloadItem} ><span className="mr-3" alt="arrow-drop-down"><SVGDownloadIcon name="download" /></span>Download Profile</Dropdown.Item>
                         <Dropdown.Item key="moreVert5" onClick={downloadItemAsAASX} ><span className="mr-3" alt="arrow-drop-down"><SVGDownloadIcon name="downloadAASX" /></span>Download Profile as AASX</Dropdown.Item>
                         <Dropdown.Item key="moreVert6" onClick={downloadItemAsSmipJson} ><span className="mr-3" alt="arrow-drop-down"><SVGDownloadIcon name="downloadSmipJson" /></span>Download Profile for SMIP import (experimental)</Dropdown.Item>
+                        <Dropdown.Item key="moreVert7" onClick={onPublishToCloudLib} ><span className="mr-3" alt="arrow-drop-down"><SVGDownloadIcon name="publishToCloudLib" /></span>Publish to Cloud Library</Dropdown.Item>
                     </Dropdown.Menu>
                 </Dropdown>
                 {renderDeleteConfirmation()}
+                {renderPublishConfirmation()}
                 <ErrorModal modalData={_error} callback={onErrorModalClose} />
             </>
         );

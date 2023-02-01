@@ -35,7 +35,7 @@ function ProfileEntity() {
     const [_mode, setMode] = useState(initPageMode());
     const { loadingProps, setLoadingProps } = useLoadingContext();
     const [_item, setItem] = useState(null);
-    const [_isValid, setIsValid] = useState({ namespace: true, namespaceFormat: true, description: true, type: true, symbolicName: true });
+    const [_isValid, setIsValid] = useState({ namespace: true, namespaceFormat: true, description: true, type: true, symbolicName: true, licenseExpression: true });
     const _iconName = 'folder-profile';
     const _iconColor = color.shark;
 
@@ -180,10 +180,24 @@ function ProfileEntity() {
     //-------------------------------------------------------------------
     //on validate handler from child form
     const onValidate = (isValid) => {
-        setIsValid({
-            namespace: isValid.namespace,
-            namespaceFormat: isValid.namespaceFormat
-        });
+        if (isValid.namespace != null) {
+            setIsValid(previous => (
+                {
+                    ...previous,
+                    namespace: isValid.namespace,
+                    namespaceFormat: isValid.namespaceFormat
+                })
+            );
+
+        }
+        if (isValid.licenseExpression != null) {
+            setIsValid(previous => (
+                {
+                    ...previous,
+                    licenseExpression: isValid.licenseExpression
+                })
+            );
+        }
     }
 
     const validateForm = () => {
@@ -224,7 +238,7 @@ function ProfileEntity() {
         console.log(generateLogMessageString('onSaveSuccess', CLASS_NAME));
         //hide a spinner, show a message
         setLoadingProps({
-            isLoading: false, message: null, inlineMessages: 
+            isLoading: false, message: null, inlineMessages:
                 [{ id: new Date().getTime(), severity: "success", body: `Item was saved`, isTimed: true }]
             , refreshProfileCount: true
             , refreshSearchCriteria: true
@@ -274,9 +288,9 @@ function ProfileEntity() {
                 <div className="col-sm-5 d-flex align-items-center justify-content-end">
                     {(_mode.toLowerCase() !== "view") &&
                         <>
-                        <Button variant="text-solo" className="mx-1 btn-auto auto-width" href={`/profiles/library`} >Cancel</Button>
-                        <Button variant="secondary" type="button" className="mx-3 d-none d-lg-block" onClick={onSave} >Save</Button>
-                        <Button variant="icon-outline" type="button" className="mx-1 d-lg-none" onClick={onSave} title="Save" ><i className="material-icons">save</i></Button>
+                            <Button variant="text-solo" className="mx-1 btn-auto auto-width" href={`/profiles/library`} >Cancel</Button>
+                            <Button variant="secondary" type="button" className="mx-3 d-none d-lg-block" onClick={onSave} >Save</Button>
+                            <Button variant="icon-outline" type="button" className="mx-1 d-lg-none" onClick={onSave} title="Save" ><i className="material-icons">save</i></Button>
                         </>
                     }
                     {(_mode.toLowerCase() !== "new") &&
@@ -352,7 +366,7 @@ function ProfileEntity() {
             </Helmet>
             {renderHeaderRow(`Profile ${_name === '' ? '' : ' - ' + _name}`)}
             {(_item != null && id !== "new") &&
-                renderTabbedView()  
+                renderTabbedView()
             }
             {(_item != null && id === "new") &&
                 renderNewView()

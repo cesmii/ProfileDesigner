@@ -92,11 +92,6 @@ export const AppSettings = {
         NodeSetXML: 'NodeSet Xml',
         CloudLib: 'Cloud Library'
     }
-    , ProfileLicenseEnum: {
-        0: 'MIT',
-        1: 'Apache 2.0',
-        2: 'Custom (see License URL)'
-    }
     , ProfileListMode: {
         Profile: 1,
         CloudLib: 2

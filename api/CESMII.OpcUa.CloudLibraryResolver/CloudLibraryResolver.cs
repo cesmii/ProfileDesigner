@@ -89,7 +89,7 @@ namespace CESMII.OpcUa.NodeSetImporter
                 var bestMatch = nodesetWithURIAndDate.FirstOrDefault(n => n?.Item1 == missing.ModelUri && n?.Item2 == missing.PublicationDate);
                 if (bestMatch == null)
                 {
-                    bestMatch = nodesetWithURIAndDate.Where(n => n?.Item1 == missing.ModelUri && n?.Item2 >= missing.PublicationDate).OrderBy(m => m?.Item2).FirstOrDefault();
+                    bestMatch = nodesetWithURIAndDate.Where(n => n?.Item1 == missing.ModelUri && (missing.PublicationDate == null || n?.Item2 >= missing.PublicationDate)).OrderBy(m => m?.Item2).FirstOrDefault();
                 }
                 if (bestMatch != null)
                 {

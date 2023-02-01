@@ -236,7 +236,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             var profile = _dal.GetById(model.ID, base.DalUserToken);
             var result = new ProfileLookupModel
             {
-                Compositions = _profileUtils.BuildCompositionLookup(profile, base.DalUserToken),
+                Compositions = _profileUtils.BuildCompositionLookup(base.DalUserToken),
                 Interfaces = _profileUtils.BuildInterfaceLookup(profile, base.DalUserToken)
             };
             return Ok(result);
@@ -259,7 +259,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             var parent = _dal.GetById(model.ID, base.DalUserToken);
             var result = new ProfileLookupModel
             {
-                Compositions = _profileUtils.BuildCompositionLookupExtend(parent, base.DalUserToken),
+                Compositions = _profileUtils.BuildCompositionLookup(base.DalUserToken),
                 Interfaces = _profileUtils.BuildInterfaceLookup(null, base.DalUserToken)
             };
             return Ok(result);

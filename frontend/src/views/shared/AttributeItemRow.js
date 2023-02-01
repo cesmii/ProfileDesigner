@@ -6,7 +6,7 @@ import { SVGIcon, SVGCheckIcon } from '../../components/SVGIcon'
 import color from '../../components/Constants'
 import { generateLogMessageString, convertToNumeric, toInt, onChangeNumericKeysOnly} from '../../utils/UtilityService'
 import ConfirmationModal from '../../components/ConfirmationModal';
-import { validate_name, validate_nameDuplicate, validate_dataType, validate_All, onChangeDataTypeShared, renderAttributeIcon, onChangeAttributeTypeShared, validate_attributeType, validate_enumValueDuplicate, validate_enumValueNumeric, onChangeCompositionShared, renderDataTypeUIShared } from '../../services/AttributesService';
+import { validate_name, validate_nameDuplicate, validate_dataType, validate_All, onChangeDataTypeShared, renderAttributeIcon, onChangeAttributeTypeShared, validate_attributeType, validate_enumValueDuplicate, validate_enumValueNumeric, onChangeCompositionShared, renderDataTypeUIShared, renderCompositionSelectUIShared } from '../../services/AttributesService';
 import { AppSettings } from '../../utils/appsettings'
 
 const CLASS_NAME = "AttributeItemRow";
@@ -233,13 +233,13 @@ function AttributeItemRow(props) { //props are item, showActions
     //Note many of the data types are considered custom but w/ no child attr. The parent component
     //will handle that scenario and open the slide out in detail view. 
     const onShowSlideOutCustomType = () => {
-        props.toggleSlideOutCustomType(true, _editItem.dataType.customType.id, _editItem.id, _editItem.typeDefinitionId);
+        props.toggleSlideOutCustomType(true, _editItem.dataType.customType.id, _editItem.id, _editItem.typeDefinitionId, props.readOnly);
     };
 
     //call from item row click, bubble up - a composition would fall into this category.
     //This will show the associated profile's list of attr in read only grid.
     const onShowSlideOutComposition = () => {
-        props.toggleSlideOutCustomType(true, _editItem.composition.id, _editItem.id, _editItem.typeDefinitionId);
+        props.toggleSlideOutCustomType(true, _editItem.composition.id, _editItem.id, _editItem.typeDefinitionId, props.readOnly);
     };
 
     //this will open a view showing a single attribute in an edit type form. It may be read only depending on the scenario. 
@@ -250,23 +250,21 @@ function AttributeItemRow(props) { //props are item, showActions
     //attribute edit ui - change data type
     const onChangeDataType = (e) => {
         //var data = onChangeDataTypeShared(e.target.value, _editItem, _editSettings, props.lookupDataTypes);
-        var data = onChangeDataTypeShared(e.value, _editItem, _editSettings, props.lookupDataTypes);
+        const data = onChangeDataTypeShared(e.value, _editItem, _editSettings, props.lookupDataTypes);
 
         //replace add settings (updated in shared method)
         setEditSettings(JSON.parse(JSON.stringify(data.settings)));
         //update state - after changes made in shared method
         setEditItem(JSON.parse(JSON.stringify(data.item)));
-        return;
     }
 
     const onChangeAttributeType = (e) => {
-        var data = onChangeAttributeTypeShared(e, _editItem, _editSettings, props.lookupAttributeTypes, props.lookupDataTypes);
+        const data = onChangeAttributeTypeShared(e, _editItem, _editSettings, props.lookupAttributeTypes, props.lookupDataTypes);
 
         //replace settings (updated in shared method)
         setEditSettings(JSON.parse(JSON.stringify(data.settings)));
         //update state - after changes made in shared method
         setEditItem(JSON.parse(JSON.stringify(data.item)));
-        return;
     }
 
     //attribute add ui - change composition ddl
@@ -274,8 +272,8 @@ function AttributeItemRow(props) { //props are item, showActions
         //_Item changed by ref in shared method
         onChangeCompositionShared(e, _editItem);
 
-        //call commonn change method
-        onChange(e);
+        //update state
+        setEditItem(JSON.parse(JSON.stringify(_editItem)));
     }
 
     //attribute edit ui - change structure 
@@ -299,7 +297,7 @@ function AttributeItemRow(props) { //props are item, showActions
         }
 
         //convert to int - this will convert '10.' to '10' to int
-        var val = toInt(e.target.value);
+        const val = toInt(e.target.value);
 
         _editItem[e.target.id] = val;
         setEditItem(JSON.parse(JSON.stringify(_editItem)));
@@ -397,24 +395,14 @@ function AttributeItemRow(props) { //props are item, showActions
 
     //only show this for one attr type
     const renderCompositionUI = () => {
-        const options = props.lookupCompositions.map((item) => {
-            return (<option key={item.id} value={item.id} >{item.name}</option>)
-        });
 
-        return (
-            <Form.Group>
-                <Form.Control id="compositionId" as="select" value={_editItem.compositionId} onBlur={validateForm_composition} aria-label="Composition"
-                    onChange={onChangeComposition} className={(!_isValid.composition ? 'invalid-field minimal pr-5' : 'minimal pr-5')} >
-                    <option key="-1|Select One" value="-1" >Select</option>
-                    {options}
-                </Form.Control>
-                {!_isValid.composition &&
-                    <span className="invalid-field-message inline">
-                        Required
-                    </span>
-                }
-            </Form.Group>
-        )
+        return renderCompositionSelectUIShared(_editItem,
+            props.lookupCompositions,
+            null, //props.typeDefinition.type, //tbd
+            _isValid.composition,
+            true,
+            onChangeComposition,
+            validateForm_composition);
     };
 
     //render structure
@@ -646,7 +634,7 @@ function AttributeItemRow(props) { //props are item, showActions
     //render slide out icon. No restrictions on showing this unless in inline edit mode.
     const renderActionIconSlideOut = () => {
 
-        var onClickFn = onShowSlideOutDetail;
+        let onClickFn = onShowSlideOutDetail;
         if (_editItem.dataType.customType != null) {
             onClickFn = onShowSlideOutCustomType;
         }

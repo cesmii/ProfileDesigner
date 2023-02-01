@@ -187,9 +187,14 @@ namespace CESMII.ProfileDesigner.DAL.Utils
             {
                 ancestor = ancestor.Parent?.ID == null ? null : _dal.GetById(ancestor.Parent.ID.Value, userToken);
                 //note we don't get the attribs from the current profile. They are not "extended". 
-                if (ancestor != null && ancestor.Attributes != null)
+                if (ancestor?.Attributes != null)
                 {
                     result = result.Concat(ancestor.Attributes).ToList();
+                }
+                //FIX. add compositions to extended attributes
+                if (ancestor?.Compositions != null)
+                {
+                    result = result.Concat(MapCompositionsToProfileAttributeModels(ancestor)).ToList();
                 }
             }
 
@@ -264,57 +269,25 @@ namespace CESMII.ProfileDesigner.DAL.Utils
         #endregion
 
         #region Build lookup tables for given profile
-        public List<ProfileTypeDefinitionSimpleModel> BuildCompositionLookup(ProfileTypeDefinitionModel profile, UserToken userToken)
+        public List<ProfileTypeDefinitionSimpleModel> BuildCompositionLookup(UserToken userToken)
         {
-            //TBD - remove variable types from composition list.           
-            //navigate up the inheritance tree until the root. 
-            List<ProfileTypeDefinitionAncestoryModel> ancestors = profile == null ? new List<ProfileTypeDefinitionAncestoryModel>() :
-                this.GenerateAncestoryTree(profile, userToken);
-            //find all descendants that may be related...
-            List<ProfileTypeDefinitionSimpleModel> dependencies = profile == null ? new List<ProfileTypeDefinitionSimpleModel>() :
-                this.GenerateDependencies(profile, userToken);
-
-            //now return the profiles that are NOT an ancestor or a dependency.
-            var finalDependencies = ancestors.Concat(dependencies).Select(x => x.ID).ToList();
-
+            //CHANGE: 
+            //A composition can depend on a type def and that type def can depend on that composition - either directly or indirectly
+            //Customer type can have list of orders type. Order can have a customer type. 
+            //Recursive - Parent-child are types pointing to themselves so that should be permitted.  
             //compositions can only derive from BaseObjectType - get BaseObjectType profile's dependencies and trim down the
             //list of the compositions if any of these are in the final dependencies list
             var compRoot = _dal.GetByFunc(
                 x => x.Name.ToLower().Equals(_config.ProfilesSettings.ReservedProfileNames.CompositionRootProfileName.ToLower()),
                 userToken, false);
-            var eligibleComps = this.GenerateDependencies(compRoot, userToken);
-
-            //if no dependencies, just get all. This should only happen in a new scenario.
-            if (finalDependencies.Count == 0)
-            {
-                return eligibleComps;
-            }
-            else
-            {
-                return eligibleComps.Where(p => !finalDependencies.Contains(p.ID) &&
-                    !p.ID.Equals(profile.ID)).ToList(); 
-                    //&& p.ProfileType.ID.Equals(profile.Type.ID), userToken, null, null, false).Data; //only get items of same profile type
-            }
+            var result = this.GenerateDependencies(compRoot, userToken)
+                .OrderBy(x => x.Profile.Title)
+                .ThenBy(x => x.Profile.Namespace)
+                .ThenBy(x => x.Profile.Version)
+                .ThenBy(x => x.Profile.PublishDate).ToList();
+            return result;
         }
 
-        public List<ProfileTypeDefinitionSimpleModel> BuildCompositionLookupExtend(ProfileTypeDefinitionModel parent, UserToken userToken)
-        {
-            //navigate up the inheritance tree until the root. 
-            List<ProfileTypeDefinitionAncestoryModel> ancestors = this.GenerateAncestoryTree(parent, userToken);
-            var finalDependencies = ancestors.Select(x => x.ID).ToList();
-            //add parent to dependencies list manually
-            finalDependencies.Add(parent.ID);
-
-            //compositions can only derive from BaseObjectType - get BaseObjectType profile's dependencies and trim down the
-            //list of the compositions if any of these are in the final dependencies list
-            var compRoot = _dal.GetByFunc(
-                x => x.Name.ToLower().Equals(_config.ProfilesSettings.ReservedProfileNames.CompositionRootProfileName.ToLower()),
-                userToken, false);
-            var eligibleComps = this.GenerateDependencies(compRoot, userToken);
-
-            return eligibleComps.Where(p => !finalDependencies.Contains(p.ID) &&
-                !p.ID.Equals(parent.ID)).ToList();
-        }
 
         /// <summary>
         /// 
@@ -363,7 +336,11 @@ namespace CESMII.ProfileDesigner.DAL.Utils
                 counter++;
             }
 
-            return result;
+            return result
+                .OrderBy(x => x.Profile.Title)
+                .ThenBy(x => x.Profile.Namespace)
+                .ThenBy(x => x.Profile.Version)
+                .ThenBy(x => x.Profile.PublishDate).ToList();
         }
 
         #endregion

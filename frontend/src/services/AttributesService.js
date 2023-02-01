@@ -5,6 +5,7 @@ import { SVGIcon } from '../components/SVGIcon'
 import color from '../components/Constants'
 import { AppSettings } from '../utils/appsettings';
 import { getUserPreferences, setUserPreferences, convertToNumeric, validateNumeric, validate_NoSpecialCharacters } from '../utils/UtilityService';
+import { getProfileCaption } from './ProfileService';
 
 //const CLASS_NAME = "AttributeService";
 
@@ -258,15 +259,15 @@ export const onChangeEngUnitShared = (val, item, lookupEngUnits) => {
 //-------------------------------------------------------------------
 export const onChangeInterfaceShared = (e, item) => {
     //change item ref variable
-    item.interfaceId = parseInt(e.target.value);
-    if (e.target.value.toString() === "-1") {
+    item.interfaceId = parseInt(e.value);
+    if (e.value.toString() === "-1") {
         item.interface = null;
         item.interfaceId = null;
     }
     else {
         item.interface = {};
-        item.interface.id = parseInt(e.target.value);
-        item.interface.name = e.target.options[e.target.selectedIndex].text;
+        item.interface.id = parseInt(e.value);
+        item.interface.name = e.label;
     }
 }
 
@@ -277,15 +278,15 @@ export const onChangeInterfaceShared = (e, item) => {
 //-------------------------------------------------------------------
 export const onChangeCompositionShared = (e, item) => {
     //change item ref variable
-    item.compositionId = parseInt(e.target.value);
-    if (e.target.value.toString() === "-1") {
+    item.compositionId = parseInt(e.value);
+    if (e.value.toString() === "-1") {
         item.composition = null;
         item.compositionId = null;
     }
     else {
         item.composition = {};
-        item.composition.id = parseInt(e.target.value);
-        item.composition.name = e.target.options[e.target.selectedIndex].text;
+        item.composition.id = parseInt(e.value);
+        item.composition.name = e.label;
         //this is what is used downstream. 
         item.composition.relatedProfileTypeDefinitionId = item.composition.id;
         item.composition.relatedName = item.composition.name;
@@ -299,10 +300,10 @@ export const onChangeCompositionShared = (e, item) => {
 export const renderAttributeIcon = (item) => {
     //set up color properly
     //var iconColor = (currentUserId == null || currentUserId !== item.author.id) ? color.silver : color.shark;
-    var iconColor = item._itemType == null || item._itemType === "profile" ? color.shark : color.silver;
+    const iconColor = item._itemType == null || item._itemType === "profile" ? color.shark : color.silver;
 
     //set up icon properly
-    var iconName = item._itemType == null || item._itemType === "profile" ? "account-circle" : "group";
+    let iconName = item._itemType == null || item._itemType === "profile" ? "account-circle" : "group";
 
     if (item.dataType.id === AppSettings.DataTypeDefaults.CompositionId) iconName = "profile";
 
@@ -323,13 +324,171 @@ export const renderAttributeIcon = (item) => {
 //-------------------------------------------------------------------
 export const renderDataTypeUIShared = (editItem, lookupDataTypes, typeDef, isValid, showLabel, onChangeCallback, onBlurCallback) => {
     if (lookupDataTypes == null || lookupDataTypes.length === 0) return;
-    const options = renderDataTypeSelectOptions(lookupDataTypes, typeDef?.type);
+    const options = buildSelectOptionsByDatatype(lookupDataTypes, typeDef?.type);
 
     //map value bind to structure the control accepts
-    var selValue = {
+    const selValue = {
         label: editItem.dataType.id == null || editItem.dataType.id.toString() === "-1" ?
             "Select" : editItem.dataType.name, value: editItem.dataType.id
     };
+
+    return renderSelectGroupByUI(
+        options,
+        selValue,
+        'ddlDatatype',
+        `Data Type`,
+        isValid,
+        showLabel,
+        onChangeCallback,
+        onBlurCallback
+    );
+};
+
+const buildSelectOptionsByDatatype = (lookupItems, type, skipInterfaceAndCompositionType = false) => {
+    if (lookupItems == null || lookupItems.length === 0) return null;
+
+    //filter out certain items
+    const lookupItemsFiltered = lookupItems.filter((item) => {
+        if (type != null && type.name.toLowerCase() === 'interface' && item.code === 'interface') {
+            //skip this one if we are on a profile of type interface. Interface profile can't add interfaces. It extends interfaces.
+            return null;
+        }
+        if (skipInterfaceAndCompositionType &&
+            (item.id === AppSettings.DataTypeDefaults.CompositionId || item.id === AppSettings.DataTypeDefaults.InterfaceId)) {
+            return null;
+        }
+        return item;
+    });
+
+    //this data is ordered by popularity - a combo of usage count and a manual rank count. Everytime
+    //we hit a new popularity level, add a grouping row separator
+    return buildSelectOptionsByPopularity(lookupItemsFiltered, "name");
+}
+
+//-------------------------------------------------------------------
+// Region: Render composition drop down list
+//-------------------------------------------------------------------
+export const renderCompositionSelectUIShared = (selItem, lookupItems, type, isValid, showLabel, onChangeCallback, onBlurCallback) => {
+    if (lookupItems == null || lookupItems.length === 0) return;
+    const options = buildSelectOptionsByProfile(lookupItems);
+
+    //map value bind to structure the control accepts
+    const selValue = {
+        label: selItem === {} || selItem.compositionId == null || selItem.compositionId.toString() === "-1" ?
+            "Select" : selItem.composition?.relatedName, value: selItem.composition?.id
+    };
+
+    return renderSelectGroupByUI(
+        options,
+        selValue,
+        'compositionId',
+        `Composition[${type == null || type.name.toLowerCase() === "class" ? "Type Definition" : "Interface"}]`,
+        isValid,
+        showLabel,
+        onChangeCallback,
+        onBlurCallback
+    );
+};
+
+//-------------------------------------------------------------------
+// Region: Render Interface drop down list
+//-------------------------------------------------------------------
+export const renderInterfaceSelectUIShared = (selItem, lookupItems, isValid, showLabel, onChangeCallback, onBlurCallback) => {
+    if (lookupItems == null || lookupItems.length === 0) return;
+    const options = buildSelectOptionsByProfile(lookupItems);
+
+    //map value bind to structure the control accepts
+    const selValue = {
+        label: selItem === {} || selItem.interfaceId == null || selItem.interfaceId.toString() === "-1" ?
+            "Select" : selItem.interface?.name, value: selItem.interface?.id
+    };
+
+    return renderSelectGroupByUI(
+        options,
+        selValue,
+        'interfaceId',
+        `Interface`,
+        isValid,
+        showLabel,
+        onChangeCallback,
+        onBlurCallback
+    );
+};
+
+//-------------------------------------------------------------------
+// Region: Shared multi-level select box render methods
+//-------------------------------------------------------------------
+// buildSelectOptionsByProfile: build a multi-level array grouped by profile then level 2 is type definition
+const buildSelectOptionsByProfile = (lookupItems) => {
+    if (lookupItems == null || lookupItems.length === 0) return null;
+
+    //if we only have a single loading... item, then handle differently
+    if (lookupItems.length === 1 && lookupItems[0].id === -1) {
+        return [{ value: lookupItems[0].id, label: lookupItems[0].name }];
+    }
+
+    //this data is ordered by profileid then by type def name. Everytime
+    //we hit a new profile id, add a grouping row separator
+    let profileId = null;
+    let result = [];
+    let curGroup = {};
+    lookupItems.forEach((item) => {
+        //note - for custom types - api handles setting name properly
+        //same popularity level, nothing special
+        if (profileId == null || profileId !== item.profile?.id) {
+            curGroup = { label: getProfileCaption(item.profile), options: [] };
+            curGroup.options.push({ value: item.id, label: item.name });
+            result.push(curGroup);
+            profileId = item.profile.id;
+        }
+        else if (profileId === item.profile?.id) {
+            curGroup.options.push({ value: item.id, label: item.name });
+        }
+    });
+
+    return result;
+}
+
+//-------------------------------------------------------------------
+// buildSelectOptionsByPopularity: build a multi-level array grouped by popularity indicator then level 2 is type definition
+//-------------------------------------------------------------------
+export const buildSelectOptionsByPopularity = (lookupItems, fldName = "name") => {
+    if (lookupItems == null || lookupItems.length === 0) return null;
+
+    //this data is ordered by popularity - a combo of usage count and a manual rank count. Everytime
+    //we hit a new popularity level, add a grouping row separator
+    let popularityLevel = null;
+    let result = [];
+    let curGroup = {};
+    lookupItems.forEach((item) => {
+        //same popularity level, nothing special
+        if (popularityLevel == null || popularityLevel !== item.popularityLevel) {
+            curGroup = { label: mapPopularityLevelToName(item.popularityLevel), options: [] };
+            curGroup.options.push({ value: item.id, label: item[fldName] });
+            result.push(curGroup);
+            popularityLevel = item.popularityLevel;
+        }
+        else if (popularityLevel === item.popularityLevel) {
+            curGroup.options.push({ value: item.id, label: item[fldName] });
+        }
+    });
+
+    return result;
+}
+
+//-------------------------------------------------------------------
+// renderSelectGroupByUI: build multi-level select box, label
+//-------------------------------------------------------------------
+const renderSelectGroupByUI = (
+    options,
+    selValue,
+    id,
+    lbl,
+    isValid,
+    showLabel,
+    onChangeCallback,
+    onBlurCallback
+) => {
 
     const styleCustom = {
         groupHeading: (provided, state) => ({
@@ -347,16 +506,16 @@ export const renderDataTypeUIShared = (editItem, lookupDataTypes, typeDef, isVal
 
     return (
         <Form.Group>
-            {showLabel && 
-                <Form.Label>Data Type</Form.Label>
+            {showLabel &&
+                <Form.Label>{lbl}</Form.Label>
             }
-            {(showLabel && !isValid) &&
+            {(showLabel && isValid != null && !isValid) &&
                 <span className="invalid-field-message inline">
                     Required
                 </span>
             }
             <Select
-                id="dataType"
+                id={id}
                 styles={styleCustom}
                 value={selValue}
                 defaultValue={{ label: "Select", value: "-1" }}
@@ -366,40 +525,6 @@ export const renderDataTypeUIShared = (editItem, lookupDataTypes, typeDef, isVal
             />
         </Form.Group>
     )
-};
-
-const renderDataTypeSelectOptions = (lookupDataTypes, type, skipInterfaceAndCompositionType = false) => {
-    if (lookupDataTypes == null || lookupDataTypes.length === 0) return null;
-
-    //this data is ordered by popularity - a combo of usage count and a manual rank count. Everytime
-    //we hit a new popularity level, add a grouping row separator
-    var popularityLevel = null;
-    var result = [];
-    var curGroup = {};
-    lookupDataTypes.forEach((item) => {
-        if (type != null && type.name.toLowerCase() === 'interface' && item.code === 'interface') {
-            //skip this one if we are on a profile of type interface. Interface profile can't add interfaces. It extends interfaces.
-            return null;
-        }
-        if (skipInterfaceAndCompositionType &&
-            (item.id === AppSettings.DataTypeDefaults.CompositionId || item.id === AppSettings.DataTypeDefaults.InterfaceId)) {
-            return null;
-        }
-
-        //note - for custom types - api handles setting name properly
-        //same popularity level, nothing special
-        if (popularityLevel == null || popularityLevel !== item.popularityLevel) {
-            curGroup = { label: mapPopularityLevelToName(item.popularityLevel), options: [] };
-            curGroup.options.push({ value: item.id, label: item.name });
-            result.push(curGroup);
-            popularityLevel = item.popularityLevel;
-        }
-        else if (popularityLevel === item.popularityLevel) {
-            curGroup.options.push({ value: item.id, label: item.name });
-        }
-    });
-
-    return result;
 }
 
 
@@ -409,64 +534,27 @@ const renderDataTypeSelectOptions = (lookupDataTypes, type, skipInterfaceAndComp
 export const renderEngUnitUIShared = (editItem, lookupEngUnits, onChangeCallback, onBlurCallback) => {
     if (lookupEngUnits == null || lookupEngUnits.length === 0) return;
 
-    const options = renderEngUnitSelectOptions(lookupEngUnits);
+    const options = buildSelectOptionsByPopularity(lookupEngUnits, "displayName");
 
     //map value bind to structure the control accepts
-    var selValue = {
+    const selValue = {
         label: editItem.engUnit?.id == null || editItem.engUnit.id.toString() === "-1" ?
             "Select" : editItem.engUnit.displayName,
         value: editItem.engUnit?.id == null ? -1 : editItem.engUnit.id
     };
 
-    const styleCustom = {
-        groupHeading: (provided, state) => ({
-            ...provided,
-            backgroundColor: "rgba(204, 204, 204, 0.3)",
-            margin: 0,
-            paddingTop: 10,
-            paddingBottom: 10
-        })
-    }
-
-    return (
-        <Form.Group>
-            <Form.Label>Eng Unit</Form.Label>
-            <Select
-                id="engUnit"
-                styles={styleCustom}
-                value={selValue}
-                defaultValue={{ label: "Select", value: "-1" }}
-                onChange={onChangeCallback}
-                onBlur={onBlurCallback}
-                options={options}
-            />
-        </Form.Group>
-    )
+    return renderSelectGroupByUI(
+        options,
+        selValue,
+        'engUnit',
+        `Eng Unit`,
+        null,
+        true,
+        onChangeCallback,
+        onBlurCallback
+    );
 };
 
-export const renderEngUnitSelectOptions = (lookupEngUnits) => {
-    if (lookupEngUnits == null || lookupEngUnits.length === 0) return null;
-
-    //this data is ordered by popularity - a combo of usage count and a manual rank count. Everytime
-    //we hit a new popularity level, add a grouping row separator
-    var popularityLevel = null;
-    var result = [];
-    var curGroup = {};
-    lookupEngUnits.forEach((item) => {
-        //same popularity level, nothing special
-        if (popularityLevel == null || popularityLevel !== item.popularityLevel) {
-            curGroup = { label: mapPopularityLevelToName(item.popularityLevel), options: [] };
-            curGroup.options.push({ value: item.id, label: item.displayName });
-            result.push(curGroup);
-            popularityLevel = item.popularityLevel;
-        }
-        else if (popularityLevel === item.popularityLevel) {
-            curGroup.options.push({ value: item.id, label: item.displayName });
-        }
-    });
-
-    return result;
-}
 
 
 //map a popularity level to a name in a multi-category drop down list - used by data type and eng unit

@@ -6,7 +6,7 @@ import { generateLogMessageString, validate_namespaceFormat, validate_Required }
 import '../styles/ProfileEntity.scss';
 import { isOwner } from './ProfileRenderHelpers';
 
-import { AppSettings } from '../../utils/appsettings'
+import spdxExpressionValidate from 'spdx-expression-validate';
 
 const CLASS_NAME = "ProfileEntityForm";
 
@@ -25,6 +25,13 @@ function ProfileEntityForm(props) {
         var isValid = {
             namespace: validate_Required(e.target.value),
             namespaceFormat: validate_namespaceFormat(e.target.value)
+        };
+        if (props.onValidate) props.onValidate(isValid);
+    };
+
+    const validateForm_license = (e) => {
+        var isValid = {
+            licenseExpression: e.target.value == null || e.target.value ==="" ? true : spdxExpressionValidate(e.target.value)
         };
         if (props.onValidate) props.onValidate(isValid);
     };
@@ -100,8 +107,7 @@ function ProfileEntityForm(props) {
     const onChangeLicense = (e) => {
         //console.log(generateLogMessageString(`onChangeLicense||e:${e.target}`, CLASS_NAME));
         //note you must update the state value for the input to be read only. It is not enough to simply have the onChange handler.
-        const license = parseInt(e.target.value);
-        props.item.license = isNaN(license) ? null : license;
+        props.item.license = e.target.value;
 
         //pass a copy of the updated object to parent to update state
         if (props.onChange) props.onChange(JSON.parse(JSON.stringify(props.item)));
@@ -112,10 +118,6 @@ function ProfileEntityForm(props) {
     //-------------------------------------------------------------------
     const renderForm = () => {
         var isReadOnly = mode === "view";
-        const licenseOptions = () => Object.keys(AppSettings.ProfileLicenseEnum).map((key) => {
-            return (<option key={key} value={key} >{AppSettings.ProfileLicenseEnum[key]}</option>)
-        });
-
         return (
             <>
                 <div className="row">
@@ -183,10 +185,13 @@ function ProfileEntityForm(props) {
                     <div className="col-md-12">
                         <Form.Group>
                             <Form.Label>License</Form.Label>
-                            <Form.Control id="license" type="" as="select" placeholder="" value={props.item.license == null ? '' : props.item.license} onChange={onChangeLicense} readOnly={isReadOnly}>
-                                <option value="">not specified</option>
-                                {licenseOptions()}
-                            </Form.Control>
+                            {!props.isValid.licenseExpression &&
+                                <span className="invalid-field-message inline">
+                                    Invalid license expression. (Refer to the <a href="https://spdx.org/licenses/" target="_blank">SPDX License list</a> for valid identifiers.)
+                                </span>
+                            }
+                            <Form.Control id="license" type="" placeholder="" value={props.item.license == null ? '' : props.item.license} onChange={onChangeLicense}
+                                onBlur={validateForm_license} readOnly={isReadOnly} />
                         </Form.Group>
                     </div>
                     <div className="col-md-12">

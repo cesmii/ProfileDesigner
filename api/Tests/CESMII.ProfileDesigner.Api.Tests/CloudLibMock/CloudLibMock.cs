@@ -170,5 +170,10 @@ namespace CESMII.ProfileDesigner.Api.Tests
             Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
+
+        public Task<string> UploadAsync(UANameSpace uaNamespace)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

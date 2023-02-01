@@ -126,11 +126,6 @@
         {
             if (entity != null)
             {
-                ProfileLicenseEnum? profileLicense = null;
-                if (Enum.TryParse<ProfileLicenseEnum>(entity.License, true, out var parsed))
-                {
-                    profileLicense = parsed;
-                }
                 var result = new ProfileModel()
                 {
                     ID = entity.ID,
@@ -154,7 +149,7 @@
                     PublishDate = entity.PublishDate,
                     // Cloud Library meta data
                     Title = entity.Title,
-                    License = profileLicense,
+                    License = entity.License,
                     LicenseUrl = entity.LicenseUrl,
                     CopyrightText = entity.CopyrightText,
                     ContributorName = entity.ContributorName,

@@ -3,7 +3,7 @@ import React from 'react'
 //import { generateLogMessageString } from '../../utils/UtilityService'
 import { SVGIcon } from '../../components/SVGIcon'
 import color from '../../components/Constants'
-import { getTypeDefIconName } from '../../utils/UtilityService';
+import { formatDate, getTypeDefIconName } from '../../utils/UtilityService';
 import { getTypeDefEntityLink } from '../../services/ProfileService';
 
 //const CLASS_NAME = "ProfileRenderHelpers";

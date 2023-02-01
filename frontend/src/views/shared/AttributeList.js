@@ -11,7 +11,7 @@ import { SVGIcon } from '../../components/SVGIcon'
 import { generateLogMessageString, pageDataRows, convertToNumeric, toInt, onChangeNumericKeysOnly } from '../../utils/UtilityService'
 import {
     getAttributesPreferences, setAttributesPageSize, attributeNew, validate_All, validate_nameDuplicate,
-    validate_name, onChangeDataTypeShared, onChangeAttributeTypeShared, validate_attributeType, validate_enumValueDuplicate, validate_enumValueNumeric, onChangeInterfaceShared, onChangeCompositionShared, renderDataTypeUIShared
+    validate_name, onChangeDataTypeShared, onChangeAttributeTypeShared, validate_attributeType, validate_enumValueDuplicate, validate_enumValueNumeric, onChangeInterfaceShared, onChangeCompositionShared, renderDataTypeUIShared, renderCompositionSelectUIShared, renderInterfaceSelectUIShared
 } from '../../services/AttributesService';
 import AttributeItemRow from './AttributeItemRow';
 import AttributeSlideOut from './AttributeSlideOut';
@@ -87,8 +87,8 @@ function AttributeList(props) {
         //merge together two attributes collections, sort enum val (if present) then name
         var result = (profileAttributes == null ? [] : profileAttributes).concat(extendedProfileAttributes == null ? [] : extendedProfileAttributes)
         result.sort((a, b) => {
-            var enumValA = a.enumValue == null ? 999999 : a.enumValue;
-            var enumValB = b.enumValue == null ? 999999 : b.enumValue;
+            const enumValA = a.enumValue == null ? 999999 : a.enumValue;
+            const enumValB = b.enumValue == null ? 999999 : b.enumValue;
             if (enumValA < enumValB) {
                 return -1;
             }
@@ -106,7 +106,7 @@ function AttributeList(props) {
         }); //sort by name
 
         //page data
-        var pagedData = pageDataRows(result, 1, _preferences.pageSize); 
+        const pagedData = pageDataRows(result, 1, _preferences.pageSize); 
 
         return { all: result, filtered: result, paged: pagedData };
     }
@@ -118,6 +118,9 @@ function AttributeList(props) {
     //-------------------------------------------------------------------
     useEffect(() => {
         async function fetchLookupProfileTypeDefs() {
+
+            //placeholder vals while we load
+            setLookupCompositions([{ id: -1, name: 'Loading...', profile: { id: -1, title: '', namespace: '', version: '', publishDate: '' } }]);
 
             //Filter out anything
             //where the profile is neither a descendant or a parent/grandparent, etc. of the profile we 
@@ -147,6 +150,7 @@ function AttributeList(props) {
                     setLookupInterfaces({ all: result.data.interfaces, current: result.data.interfaces });
                 } else {
                     console.warn(generateLogMessageString(`useEffect||fetchLookupProfileTypeDefs||error||status:${result.status}`, CLASS_NAME));
+                    setLookupCompositions([{ id: -1, name: 'Error loading composition data...', profile: { id: -1, title: '', namespace: '', version: '', publishDate: '' } }]);
                 }
             }).catch(e => {
                 if (e.response && e.response.status === 401) {
@@ -156,15 +160,12 @@ function AttributeList(props) {
                     console.error(generateLogMessageString(`useEffect||fetchLookupProfileTypeDefs||error||status:${e.response && e.response.data ? e.response.data : `A system error has occurred during the profile api call.`}`, CLASS_NAME));
                     console.log(e);
                 }
+                setLookupCompositions([{ id: -1, name: 'Error loading composition data...', profile: { id: -1, title: '', namespace: '', version: '', publishDate: '' } }]);
             });
         }
 
         fetchLookupProfileTypeDefs();
 
-        //this will execute on unmount
-        return () => {
-            console.log(generateLogMessageString('useEffect||Cleanup', CLASS_NAME));
-        };
     }, [props.typeDefinition?.id]);
 
     //-------------------------------------------------------------------
@@ -257,9 +258,9 @@ function AttributeList(props) {
     // Region: Validation
     //-------------------------------------------------------------------
     const validateForm_name = (e) => {
-        var isValid = validate_name(e.target.value, _addItem);
+        const isValid = validate_name(e.target.value, _addItem);
         //dup check
-        var isValidDup = validate_nameDuplicate(e.target.value, _addItem, _allAttributes.all);
+        const isValidDup = validate_nameDuplicate(e.target.value, _addItem, _allAttributes.all);
         setIsValid({ ..._isValid, name: isValid, nameDuplicate: isValidDup });
     };
 
@@ -500,16 +501,16 @@ function AttributeList(props) {
         //_addItem changed by ref in shared method
         onChangeCompositionShared(e, _addItem);
 
-        //call commonn change method
-        onChange(e);
+        //update state
+        setAdd(JSON.parse(JSON.stringify(_addItem)));
     }
 
     const onChangeInterface = (e) => {
         //_addItem changed by ref in shared method
         onChangeInterfaceShared(e, _addItem);
 
-        //call commonn change method
-        onChange(e);
+        //update state
+        setAdd(JSON.parse(JSON.stringify(_addItem)));
     }
 
     //attribute add ui - change structure 
@@ -527,25 +528,23 @@ function AttributeList(props) {
     //attribute add ui - change data type
     const onChangeDataType = (e) => {
         //var data = onChangeDataTypeShared(e.target.value, _addItem, _addSettings, _lookupDataTypes);
-        var data = onChangeDataTypeShared(e.value, _addItem, _addSettings, _lookupDataTypes);
+        const data = onChangeDataTypeShared(e.value, _addItem, _addSettings, _lookupDataTypes);
 
         //replace add settings (updated in shared method)
         setAddSettings(JSON.parse(JSON.stringify(data.settings)));
         //update state - after changes made in shared method
         setAdd(JSON.parse(JSON.stringify(data.item)));
-        return;
 
     }
 
     //attribute add ui - change data type
     const onChangeAttributeType = (e) => {
-        var data = onChangeAttributeTypeShared(e, _addItem, _addSettings, _lookupAttributeTypes, _lookupDataTypes);
+        const data = onChangeAttributeTypeShared(e, _addItem, _addSettings, _lookupAttributeTypes, _lookupDataTypes);
 
         //replace settings (updated in shared method)
         setAddSettings(JSON.parse(JSON.stringify(data.settings)));
         //update state - after changes made in shared method
         setAdd(JSON.parse(JSON.stringify(data.item)));
-        return;
     }
 
     //onchange numeric field
@@ -638,7 +637,7 @@ function AttributeList(props) {
     };
 
     //call from item row click or from panel itself - slides out profile attribute list from a custom data type profile
-    const toggleSlideOutCustomType = (isOpen, customTypeDefId, attrId, typeDefId) => {
+    const toggleSlideOutCustomType = (isOpen, customTypeDefId, attrId, typeDefId, readOnly) => {
         console.log(generateLogMessageString(`toggleSlideOutCustomType||Id:${customTypeDefId}`, CLASS_NAME));
 
         if (isOpen) {
@@ -648,7 +647,7 @@ function AttributeList(props) {
             //TBD - for now, treat everything as normal slide out so that a user
             //can edit advanced properties of their attribute. 
             //To go back to sliding out the profile of the child, we uncomment the following /**/
-            toggleSlideOutDetail(isOpen, typeDefId, attrId, props.readOnly);
+            toggleSlideOutDetail(isOpen, typeDefId, attrId, readOnly);
 
             /* See comment above. This contains support for sliding out for certain items like structures or types w/ attrs. 
             var data = { id: customTypeDefId };
@@ -690,7 +689,7 @@ function AttributeList(props) {
 
         if (isOpen) {
             //add profile type def id to filter to account for inherited attr
-            var attr = _allAttributes.all.find(a => { return a.id === id && a.typeDefinitionId === typeDefId });
+            const attr = _allAttributes.all.find(a => { return a.id === id && a.typeDefinitionId === typeDefId });
             if (attr != null) {
                 SetSlideOut({ isOpen: isOpen, item: attr, showDetail: true, readOnly: readOnly });
             }
@@ -710,7 +709,7 @@ function AttributeList(props) {
 
         if (dataRows == null) return null;
 
-        var filteredCopy = JSON.parse(JSON.stringify(dataRows));
+        const filteredCopy = JSON.parse(JSON.stringify(dataRows));
 
         if (val == null || val === '') {
             return filteredCopy;
@@ -718,7 +717,7 @@ function AttributeList(props) {
 
         // Filter data - match up against a number of fields
         return filteredCopy.filter((item, i) => {
-            var concatenatedSearch = delimiter + item.name.toLowerCase() + delimiter
+            const concatenatedSearch = delimiter + item.name.toLowerCase() + delimiter
                 + item.dataType.name.toLowerCase() + delimiter
                 + (item.minValue != null ? item.minValue.toString().toLowerCase() + delimiter : "")
                 + (item.maxValue != null ? item.maxValue.toString().toLowerCase() + delimiter : "")
@@ -747,11 +746,11 @@ function AttributeList(props) {
             )
         }
 
-        var isTypeDefReadOnly = props.typeDefinition.isReadOnly || !isOwner(props.typeDefinition, props.activeAccount);
+        const isTypeDefReadOnly = props.typeDefinition.isReadOnly || !isOwner(props.typeDefinition, props.activeAccount);
 
         const mainBody = _dataRows.paged.map((row) => {
             if (row.isDeleted) return null;  //if user deletes row client side, hide that row from view.
-            var key = `${row.id}|${row.compositionId == null ? '' : row.compositionId}|` +
+            const key = `${row.id}|${row.compositionId == null ? '' : row.compositionId}|` +
                 `${row.dataType.customTypeId == null ? '' : row.dataType.customTypeId}|${row.interfaceId == null ? '' : row.interfaceId}`;
 
             //FIXED
@@ -760,15 +759,15 @@ function AttributeList(props) {
             //}
             //the presence of the callback will indicate to attrib item row whether to display delete button
             //only allow onDeleteInterface callback if attrib is assoc w/ interface and interface is implemented by this profile.
-            var x = props.typeDefinition.interfaces == null ? -1 :
+            const x = props.typeDefinition.interfaces == null ? -1 :
                 props.typeDefinition.interfaces.findIndex(i => { return i.id === row.interfaceId; });
             //item is an interface attr or not associated with this profile
             //must be owner of this profile type def
-            var deleteInterfaceCallback = isTypeDefReadOnly || row.interfaceId == null || x < 0 ? null : onDeleteInterface;
+            const deleteInterfaceCallback = isTypeDefReadOnly || row.interfaceId == null || x < 0 ? null : onDeleteInterface;
 
             //only allow onDelete callback if attrib is assoc w/ this profile.
             //must be owner of this profile type def
-            var deleteCallback = isTypeDefReadOnly || row.typeDefinitionId !== props.typeDefinition.id ? null : onDelete;
+            const deleteCallback = isTypeDefReadOnly || row.typeDefinitionId !== props.typeDefinition.id ? null : onDelete;
 
             //set readonly if the item is not a part of this profile.
             //console.log(generateLogMessageString(`renderGrid||key||${key}`, CLASS_NAME));
@@ -793,8 +792,8 @@ function AttributeList(props) {
     const renderAttributeCount = () => {
         if (_dataRows.all == null) return;
 
-        var captionAll = _dataRows.all.length === 1 ? `1 Attribute` : `${_dataRows.all.length} Attributes`;
-        var captionFiltered = _dataRows.filtered.length !== _dataRows.all.length ? ` (${_dataRows.filtered.length} filtered)` : '';
+        const captionAll = _dataRows.all.length === 1 ? `1 Attribute` : `${_dataRows.all.length} Attributes`;
+        const captionFiltered = _dataRows.filtered.length !== _dataRows.all.length ? ` (${_dataRows.filtered.length} filtered)` : '';
 
         return (
             <span className="small-size mt-2 mr-3">{captionAll}{captionFiltered}</span>
@@ -807,29 +806,6 @@ function AttributeList(props) {
         return <GridPager currentPage={_dataRows.pager.currentPage} pageSize={_dataRows.pager.pageSize} itemCount={_dataRows.pager.itemCount} onChangePage={onChangePage} />
     }
 
-    /*
-    const renderDataTypeUI = () => {
-        if (_lookupDataTypes == null || _lookupDataTypes.length === 0) return;
-
-        const options = renderDataTypeSelectOptions(_lookupDataTypes, props.typeDefinition.type);
-
-        return (
-            <Form.Group>
-                <Form.Label>Data Type</Form.Label>
-                {!_isValid.dataType &&
-                    <span className="invalid-field-message inline">
-                        Required
-                    </span>
-                }
-                <Form.Control id="dataType" as="select" value={_addItem.dataType.id} 
-                    onChange={onChangeDataType} className={(!_isValid.dataType ? 'invalid-field minimal pr-5' : 'minimal pr-5')} >
-                    <option key="-1|Select One" value="-1" >Select</option>
-                    {options}
-                </Form.Control>
-            </Form.Group>
-        )
-    };
-    */
 
     const renderDataTypeUI = () => {
         return renderDataTypeUIShared(_addItem, _lookupDataTypes, props.typeDefinition.type, _isValid.dataType, true, onChangeDataType);
@@ -864,7 +840,7 @@ function AttributeList(props) {
         if (!_addSettings.showEnumeration) return;
         //if (_addItem.attributeType.id !== AppSettings.AttributeTypeDefaults.EnumerationId) return;
 
-        var tip = !_isValid.enumValue ? 'Integer > 0 required.' : '';
+        let tip = !_isValid.enumValue ? 'Integer > 0 required.' : '';
         tip = !_isValid.enumValueIsNumeric ? tip + ' Integer required.' : tip;
         return (
             <Form.Group>
@@ -890,25 +866,13 @@ function AttributeList(props) {
     const renderCompositionUI = () => {
         if (!_addSettings.showComposition) return;
 
-        const options = _lookupCompositions.map((item) => {
-            return (<option key={item.id} value={item.id} >{item.name}</option>)
-        });
-
-        return (
-            <Form.Group>
-                <Form.Label>Composition [{props.typeDefinition.type == null || props.typeDefinition.type.name.toLowerCase() === "class" ? "Profile" : "Interface"}]</Form.Label>
-                {!_isValid.composition &&
-                    <span className="invalid-field-message inline">
-                        Required
-                    </span>
-                }
-                <Form.Control id="compositionId" as="select" value={_addItem.compositionId} onBlur={validateForm_composition}
-                    onChange={onChangeComposition} className={(!_isValid.composition ? 'invalid-field minimal pr-5' : 'minimal pr-5')} >
-                    <option key="-1|Select One" value="-1" >Select</option>
-                    {options}
-                </Form.Control>
-            </Form.Group>
-        )
+        return renderCompositionSelectUIShared(_addItem,
+            _lookupCompositions,
+            props.typeDefinition.type,
+            _isValid.composition,
+            true,
+            onChangeComposition,
+            validateForm_composition);
     };
 
     //only show this for one attr type
@@ -940,25 +904,12 @@ function AttributeList(props) {
     const renderInterfaceUI = () => {
         if (!_addSettings.showInterface) return;
 
-        const options = _lookupInterfaces.current.map((item) => {
-            return (<option key={item.id} value={item.id} >{item.name}</option>)
-        });
-
-        return (
-            <Form.Group>
-                <Form.Label>Interface</Form.Label>
-                {!_isValid.interface &&
-                    <span className="invalid-field-message inline">
-                        Required
-                    </span>
-                }
-                <Form.Control id="interfaceId" as="select" value={_addItem.interfaceId} onBlur={validateForm_interface}
-                    onChange={onChangeInterface} className={(!_isValid.interface ? 'invalid-field minimal pr-5' : 'minimal pr-5')} >
-                    <option key="-1|Select One" value="-1" >Select</option>
-                    {options}
-                </Form.Control>
-            </Form.Group>
-        )
+        return renderInterfaceSelectUIShared(_addItem,
+            _lookupInterfaces.current,
+            _isValid.interface,
+            true,
+            onChangeInterface,
+            validateForm_interface);
     };
 
     //only show this for certain data types

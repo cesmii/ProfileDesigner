@@ -23,7 +23,7 @@ function ProfileActions(props) {
     //-------------------------------------------------------------------
     const { loadingProps, setLoadingProps } = useLoadingContext();
     const [_deleteModal, setDeleteModal] = useState({ show: false, items: null });
-    const [_publishToCloudLibModal, setPublishToCloudLibModal] = useState({ show: false, item: null });
+    const [_publishToCloudLibModal, setPublishToCloudLibModal] = useState({ show: false, item: null, message: null });
     const [_error, setError] = useState({ show: false, message: null, caption: null });
 
     //-------------------------------------------------------------------
@@ -52,7 +52,12 @@ function ProfileActions(props) {
     }
     const onPublishToCloudLib = async () => {
         console.log(generateLogMessageString(`onPublishToCloudLib||start`, CLASS_NAME));
-        setPublishToCloudLibModal({ show: true, item: props.item });
+        if (props.item.license == "MIT" || props.item.license == "GPL-2.0") {
+            setPublishToCloudLibModal({ show: true, item: props.item, message: null });
+        }
+        else {
+            setPublishToCloudLibModal({ show: true, item: null, message: "Profiles can only be published under the MIT or GPL-2.0 license." });
+        }
     }
     const onPublishToCloudLibConfirm = async () => {
         console.log(generateLogMessageString(`onPublishToCloudLibConfirm||start`, CLASS_NAME));
@@ -232,15 +237,36 @@ function ProfileActions(props) {
 
         // TODO Detect and warn about unsaved changes in the form
 
-        let message =
-            `You are about to submit your profile '${_publishToCloudLibModal.item.namespace}' for publication. After approval the profile will appear in the CESMII Cloud Library and Marketplase. Are you sure?`;
         let caption = `Publish Profile`;
+
+        if (_publishToCloudLibModal.item == null) {
+
+            return (
+                <>
+                    <ConfirmationModal showModal={_publishToCloudLibModal.show} caption={caption} message={_publishToCloudLibModal.message}
+                        icon={{ name: "warning", color: color.trinidad }}
+                        cancel={{
+                            caption: "Cancel",
+                            callback: () => {
+                                console.log(generateLogMessageString(`onPublishCancel`, CLASS_NAME));
+                                setPublishToCloudLibModal({ show: false, item: null });
+                            },
+                            buttonVariant: null
+                        }} />
+                </>
+            );
+
+        }
+
+        let message =
+            `You are about to submit your profile '${_publishToCloudLibModal.item.namespace}' for publication. After approval the profile will appear in the CESMII Cloud Library and Marketplase.`;
 
         return (
             <>
                 <ConfirmationModal showModal={_publishToCloudLibModal.show} caption={caption} message={message}
                     icon={{ name: "warning", color: color.trinidad }}
                     confirm={{ caption: "Publish", callback: onPublishToCloudLibConfirm, buttonVariant: "danger" }}
+                    requireAgreementText = "I have the right to distribute this profile under the indicated license."
                     cancel={{
                         caption: "Cancel",
                         callback: () => {

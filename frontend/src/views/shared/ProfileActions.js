@@ -276,7 +276,9 @@ function ProfileActions(props) {
                         <Dropdown.Item key="moreVert4" onClick={downloadItem} ><span className="mr-3" alt="arrow-drop-down"><SVGDownloadIcon name="download" /></span>Download Profile</Dropdown.Item>
                         <Dropdown.Item key="moreVert5" onClick={downloadItemAsAASX} ><span className="mr-3" alt="arrow-drop-down"><SVGDownloadIcon name="downloadAASX" /></span>Download Profile as AASX</Dropdown.Item>
                         <Dropdown.Item key="moreVert6" onClick={downloadItemAsSmipJson} ><span className="mr-3" alt="arrow-drop-down"><SVGDownloadIcon name="downloadSmipJson" /></span>Download Profile for SMIP import (experimental)</Dropdown.Item>
-                        <Dropdown.Item key="moreVert7" onClick={onPublishToCloudLib} ><span className="mr-3" alt="arrow-drop-down"><SVGDownloadIcon name="publishToCloudLib" /></span>Publish to Cloud Library</Dropdown.Item>
+                        {isOwner(props.item, props.activeAccount) && props.item.standardProfileID == null &&
+                            <Dropdown.Item key="moreVert7" onClick={onPublishToCloudLib} ><span className="mr-3" alt="arrow-drop-down"><SVGDownloadIcon name="publishToCloudLib" /></span>Publish to Cloud Library</Dropdown.Item>
+                        }
                     </Dropdown.Menu>
                 </Dropdown>
                 {renderDeleteConfirmation()}

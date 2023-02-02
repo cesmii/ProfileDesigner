@@ -19,6 +19,7 @@ namespace CESMII.ProfileDesigner.DAL.Utils
         private readonly IDal<ProfileTypeDefinition, ProfileTypeDefinitionModel> _dal;
         private readonly IDal<LookupItem, LookupItemModel> _dalLookup;
         private readonly IDal<LookupDataType, LookupDataTypeModel> _dalDataType;
+        private readonly IStoredProcedureDal<ProfileTypeDefinitionSimpleModel> _dalRelated;
         private readonly Common.ConfigUtil _config;
         
         private readonly static List<int?> _excludedProfileTypes = new() { (int)ProfileItemTypeEnum.Object, (int)ProfileItemTypeEnum.Method };
@@ -29,12 +30,14 @@ namespace CESMII.ProfileDesigner.DAL.Utils
         public ProfileMapperUtil(IDal<ProfileTypeDefinition, ProfileTypeDefinitionModel> dal,
             IDal<LookupItem, LookupItemModel> dalLookup,
             IDal<LookupDataType, LookupDataTypeModel> dalDataType,
+            IStoredProcedureDal<ProfileTypeDefinitionSimpleModel> dalRelated,
             Common.ConfigUtil config
             )
         {
             _dal = dal;
             _dalLookup = dalLookup;
             _dalDataType = dalDataType;
+            _dalRelated = dalRelated;
             _config = config;
         }
 
@@ -128,22 +131,23 @@ namespace CESMII.ProfileDesigner.DAL.Utils
         /// <summary>
         /// Get the list of profiles that depend on this profile
         /// </summary>
-        /// <param name="profile"></param>
+        /// <param name="typeDef"></param>
         /// <returns></returns>
-        public List<ProfileTypeDefinitionSimpleModel> GenerateDependencies(ProfileTypeDefinitionModel profile, UserToken userToken)
+        public List<ProfileTypeDefinitionSimpleModel> GenerateDependencies(ProfileTypeDefinitionModel typeDef, UserToken userToken)
         {
             //TODO: Investigate performance on this method.
             //find all descendants that may be related...go n levels deep
-            var result = new List<ProfileTypeDefinitionSimpleModel>();
-            BuildDescendantsTree(ref result, profile.ID, 1, userToken);
+            //var result = new List<ProfileTypeDefinitionSimpleModel>();
+            //BuildDescendantsTree(ref result, typeDef.ID, 1, userToken);
+            var result = GetDescendants(typeDef.ID.Value, userToken);
             var count = result.Count;
 
             //find compositions, variable types which depend on this profile
             var dependencies = _dal.Where(p => !ProfileMapperUtil.ExcludedProfileTypes.Contains(p.ProfileTypeId) /*p.ProfileTypeId != (int)ProfileItemTypeEnum.Object*/ &&
-            (p.ParentId.Equals(profile.ID) ||
-                            p.Compositions.Any(p => p.CompositionId.Equals(profile.ID)) 
+            (p.ParentId.Equals(typeDef.ID) ||
+                            p.Compositions.Any(p => p.CompositionId.Equals(typeDef.ID)) 
                             || p.Attributes.Any(a => a.DataType.CustomTypeId.HasValue 
-                                    && a.DataType.CustomTypeId.Equals(profile.ID)))
+                                    && a.DataType.CustomTypeId.Equals(typeDef.ID)))
                             , userToken, null, null).Data
                 .Select(s => MapToModelProfileAncestory(s, count + 1));
 
@@ -170,6 +174,25 @@ namespace CESMII.ProfileDesigner.DAL.Utils
             {
                 BuildDescendantsTree(ref descendants, child.ID, level, userToken);
             }
+        }
+
+        /// <summary>
+        /// Build a list of descendants that will be used in the dependencies list. 
+        /// </summary>
+        /// <param name="descendants"></param>
+        /// <param name="parentId"></param>
+        /// <param name="level"></param>
+        private List<ProfileTypeDefinitionSimpleModel> GetDescendants(int id, UserToken userToken)
+        {
+            var result = _dalRelated.ExecuteStoredProcedureGetItems(null, 4, false, id, userToken.UserId);
+            return result.Data
+                .OrderBy(x => x.Level)
+                .OrderBy(x => x.Profile.Title)
+                .ThenBy(x => x.Profile.Namespace)
+                .ThenBy(x => x.Profile.Version)
+                .ThenBy(x => x.Profile.PublishDate)
+                .ThenBy(x => x.Name)
+                .ToList();
         }
 
         /// <summary>

@@ -186,6 +186,15 @@
                 .HasOne(x => x.Profile).WithMany(x => x.ImportWarnings).HasForeignKey(x => x.ProfileId)
                 ;
 
+            //------------------------------------------------
+            //Special scenario - need to use this to call some stored procs
+            //  which return collections of data
+            //------------------------------------------------
+            modelBuilder.Entity<ProfileTypeDefinitionSimple>(e =>
+            {
+                e.HasNoKey();
+            });
+
         }
     }
 }

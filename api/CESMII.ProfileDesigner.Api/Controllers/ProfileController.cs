@@ -628,6 +628,8 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             return await Import(importModels);
         }
 
+        List<string> _permissibleLicenses = new() { "MIT", "GPL-2.0" };
+
         /// <summary>
         /// Publishes a profile to the Cloud Library 
         /// </summary>
@@ -648,7 +650,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 var profile = _dal.GetById(model.ID, base.DalUserToken);
                 if (profile == null)
                 {
-                    _logger.LogWarning($"ProfileController|PublishToCloudLibrary|Failed to publish : {model.ID}.");
+                    _logger.LogWarning($"ProfileController|PublishToCloudLibrary|Failed to publish : {model.ID}. Profile not found.");
                     return Ok(
                         new ResultMessageWithDataModel()
                         {
@@ -656,8 +658,20 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                             Message = "Profile not found."
                         }
                     );
+                }
+
+                if (!_permissibleLicenses.Contains(profile.License))
+                {
+                    return Ok(
+                        new ResultMessageWithDataModel()
+                        {
+                            IsSuccess = false,
+                            Message = $"License must be {string.Join(" or ", _permissibleLicenses)}."
+                        }
+                    );
 
                 }
+
                 var exportResult = await Export(new ExportRequestModel { ID = model.ID }).ConfigureAwait(false);
                 var exportedNodeSet = (exportResult as OkObjectResult)?.Value as ResultMessageExportModel;
                 if (exportedNodeSet == null || !exportedNodeSet.IsSuccess)

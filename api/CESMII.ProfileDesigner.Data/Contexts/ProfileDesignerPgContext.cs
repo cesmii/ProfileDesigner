@@ -194,6 +194,10 @@
             {
                 e.HasNoKey();
             });
+            modelBuilder.Entity<StoredProcedureCount>(e =>
+            {
+                e.HasNoKey();
+            });
 
         }
     }

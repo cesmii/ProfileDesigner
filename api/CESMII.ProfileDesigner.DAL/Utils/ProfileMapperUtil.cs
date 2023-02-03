@@ -140,7 +140,6 @@ namespace CESMII.ProfileDesigner.DAL.Utils
             //var result = new List<ProfileTypeDefinitionSimpleModel>();
             //BuildDescendantsTree(ref result, typeDef.ID, 1, userToken);
             var result = GetDescendants(typeDef.ID.Value, userToken);
-            var count = result.Count;
 
             //find compositions, variable types which depend on this profile
             var dependencies = _dal.Where(p => !ProfileMapperUtil.ExcludedProfileTypes.Contains(p.ProfileTypeId) /*p.ProfileTypeId != (int)ProfileItemTypeEnum.Object*/ &&
@@ -149,9 +148,13 @@ namespace CESMII.ProfileDesigner.DAL.Utils
                             || p.Attributes.Any(a => a.DataType.CustomTypeId.HasValue 
                                     && a.DataType.CustomTypeId.Equals(typeDef.ID)))
                             , userToken, null, null).Data
-                .Select(s => MapToModelProfileAncestory(s, count + 1));
+                .Select(s => MapToModelProfileAncestory(s, result.Count + 1));
 
-            return result.Concat(dependencies).OrderBy(p => p.Level).ThenBy(p => p.Name).ToList();
+            var f = result.Data.Concat(dependencies).OrderBy(p => p.Level).ThenBy(p => p.Name).ToList();
+
+            var resultNew = GetDependencies(typeDef.ID.Value, userToken);
+
+            return f;
         }
 
         /// <summary>
@@ -182,17 +185,40 @@ namespace CESMII.ProfileDesigner.DAL.Utils
         /// <param name="descendants"></param>
         /// <param name="parentId"></param>
         /// <param name="level"></param>
-        private List<ProfileTypeDefinitionSimpleModel> GetDescendants(int id, UserToken userToken)
+        private DALResult<ProfileTypeDefinitionSimpleModel> GetDescendants(int id, UserToken userToken)
         {
-            var result = _dalRelated.ExecuteStoredProcedureGetItems(null, 4, false, id, userToken.UserId);
-            return result.Data
-                .OrderBy(x => x.Level)
-                .OrderBy(x => x.Profile.Title)
-                .ThenBy(x => x.Profile.Namespace)
-                .ThenBy(x => x.Profile.Version)
-                .ThenBy(x => x.Profile.PublishDate)
-                .ThenBy(x => x.Name)
-                .ToList();
+            var fnName = "public.fn_profile_type_definition_get_descendants";
+            var orderBys = new List<OrderBySimple>() {
+                new OrderBySimple() { FieldName = "level" },
+                new OrderBySimple() { FieldName = "profile_title" } ,
+                new OrderBySimple() { FieldName = "profile_namespace" } ,
+                new OrderBySimple() { FieldName = "profile_version" } ,
+                new OrderBySimple() { FieldName = "profile_publish_date" } ,
+                new OrderBySimple() { FieldName = "name" }
+            };
+            //TBD - pass in paging to this.
+            return _dalRelated.GetItemsPaged(fnName, null, null, false, orderBys, id, userToken.UserId);
+        }
+
+        /// <summary>
+        /// Build a list of dependencies (descendants and peer dependencies)
+        /// </summary>
+        /// <param name="descendants"></param>
+        /// <param name="parentId"></param>
+        /// <param name="level"></param>
+        private DALResult<ProfileTypeDefinitionSimpleModel> GetDependencies(int id, UserToken userToken)
+        {
+            var fnName = "public.fn_profile_type_definition_get_dependencies";
+            var orderBys = new List<OrderBySimple>() {
+                new OrderBySimple() { FieldName = "level" },
+                new OrderBySimple() { FieldName = "profile_title" } ,
+                new OrderBySimple() { FieldName = "profile_namespace" } ,
+                new OrderBySimple() { FieldName = "profile_version" } ,
+                new OrderBySimple() { FieldName = "profile_publish_date" } ,
+                new OrderBySimple() { FieldName = "name" }
+            };
+            //TBD - pass in paging to this.
+            return _dalRelated.GetItemsPaged(fnName, null, null, false, orderBys, id, userToken.UserId);
         }
 
         /// <summary>

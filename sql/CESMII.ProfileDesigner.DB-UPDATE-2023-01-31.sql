@@ -64,7 +64,9 @@ begin
 		FROM public.profile_type_definition t
 		JOIN public.profile p on p.id = t.profile_id
 		JOIN descendant d ON t.parent_id = d.id
-		WHERE p.ua_standard_profile_id IS NOT NULL OR p.owner_id = _ownerId
+		WHERE
+			(p.owner_id IS NULL AND p.ua_standard_profile_id IS NOT NULL) --root nodesets
+			OR (p.owner_id = _ownerId)  --my nodesets or nodesets I imported
 	)
 
 	SELECT  d.id,
@@ -155,6 +157,10 @@ begin
 				CAST(1 as integer) AS level
 		FROM public.profile_type_definition t 
 		JOIN public.profile_composition c on c.profile_type_definition_id = t.id AND c.composition_id = _id
+		JOIN public.profile p ON p.id = t.profile_id
+		WHERE 
+			(p.owner_id IS NULL AND p.ua_standard_profile_id IS NOT NULL) --root nodesets
+			OR (p.owner_id = _ownerId)  --my nodesets or nodesets I imported
 		
 		UNION
 		--union with type defs that use this profile as an interface
@@ -162,13 +168,21 @@ begin
 				CAST(1 as integer) AS level
 		FROM public.profile_type_definition t 
 		JOIN public.profile_interface i on i.profile_type_definition_id = t.id AND i.interface_id = _id
+		JOIN public.profile p ON p.id = t.profile_id
+		WHERE 
+			(p.owner_id IS NULL AND p.ua_standard_profile_id IS NOT NULL) --root nodesets
+			OR (p.owner_id = _ownerId)  --my nodesets or nodesets I imported
 		
 		UNION
 		--union with type defs that have attributes that use a data type which points to a profile type def (2nd level)
 		SELECT  t.id,
 				CAST(2 as integer) AS level
 		FROM public.profile_type_definition t 
-		WHERE t.id IN (
+		JOIN public.profile p ON p.id = t.profile_id
+		WHERE 
+			((p.owner_id IS NULL AND p.ua_standard_profile_id IS NOT NULL) --root nodesets
+			OR (p.owner_id = _ownerId)) AND  --my nodesets or nodesets I imported
+			t.id IN (
 			SELECT distinct(t.id) -- , t.name, a.name, d.* 
 			FROM public.profile_attribute a
 			JOIN public.data_type d on d.id = a.data_type_id
@@ -206,11 +220,12 @@ end; $$
 
 /*
 --test - Execute the function
-SELECT * FROM public.fn_profile_type_definition_get_dependencies(16107, 40) d
-WHERE d.level < 2
-ORDER BY d.level, d.name
-LIMIT 10 OFFSET 10;
-SELECT * FROM public.fn_profile_type_definition_get_dependencies(16107, 40)  ORDER BY level,profile_title,profile_namespace,profile_version,profile_publish_date,name LIMIT 4
+SELECT * FROM public.fn_profile_type_definition_get_dependencies(13603, 40) d
+order by profile_title
+--WHERE d.level < 2
+--ORDER BY d.level, d.name
+--LIMIT 10 OFFSET 10;
+--SELECT * FROM public.fn_profile_type_definition_get_dependencies(16107, 40)  ORDER BY level,profile_title,profile_namespace,profile_version,profile_publish_date,name LIMIT 4
 
 SELECT Count(*) FROM public.fn_profile_type_definition_get_dependencies(16107, 40) d
 WHERE d.level < 2

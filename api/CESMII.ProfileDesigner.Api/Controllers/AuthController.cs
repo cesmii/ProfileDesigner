@@ -1,17 +1,15 @@
 ﻿using System;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
-
-using CESMII.ProfileDesigner.Common;
-using CESMII.ProfileDesigner.DAL.Models;
-using CESMII.ProfileDesigner.DAL;
-using CESMII.ProfileDesigner.Api.Shared.Models;
 using CESMII.ProfileDesigner.Api.Shared.Controllers;
 using CESMII.ProfileDesigner.Api.Shared.Extensions;
-using CESMII.ProfileDesigner.Common.Enums;
+using CESMII.ProfileDesigner.Api.Shared.Models;
+using CESMII.ProfileDesigner.Common;
+using CESMII.ProfileDesigner.DAL;
+using CESMII.ProfileDesigner.DAL.Models;
 
 namespace CESMII.ProfileDesigner.Api.Controllers
 {

@@ -309,11 +309,7 @@ namespace CESMII.ProfileDesigner.DAL.Utils
             var compRoot = _dal.GetByFunc(
                 x => x.Name.ToLower().Equals(_config.ProfilesSettings.ReservedProfileNames.CompositionRootProfileName.ToLower()),
                 userToken, false);
-            var result = this.GenerateDependencies(compRoot, userToken)
-                .OrderBy(x => x.Profile.Title)
-                .ThenBy(x => x.Profile.Namespace)
-                .ThenBy(x => x.Profile.Version)
-                .ThenBy(x => x.Profile.PublishDate).ToList();
+            var result = this.GetDescendants(compRoot.ID.Value, userToken).Data;
             return result;
         }
 

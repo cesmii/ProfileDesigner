@@ -74,6 +74,7 @@ namespace CESMII.ProfileDesigner.DAL.Utils
         public List<ProfileTypeDefinitionAncestoryModel> GenerateAncestoryTree(ProfileTypeDefinitionModel typeDef, UserToken userToken, bool includeSiblings = false)
         {
             //navigate up the inheritance tree until the root. this is sorted properly. Should be at least one.
+            //note this includes the item itself in the lineage.
             var lineage = this.GetAncestors(typeDef.ID.Value ,userToken);
 
             //convert result set to ProfileTypeDefinitionAncestoryModel which has children collection. 
@@ -110,7 +111,6 @@ namespace CESMII.ProfileDesigner.DAL.Utils
             };
 
             //build out a list and siblings will go on same level as the profile
-
             //find siblings - profiles with same parent. 
             //Append to cur item if there is a multi-gen scenario. append as sibling if profile is the root 
             if (includeSiblings)

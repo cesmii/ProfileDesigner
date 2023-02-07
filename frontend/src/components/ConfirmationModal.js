@@ -9,11 +9,12 @@ import { SVGIcon } from './SVGIcon'
 //const CLASS_NAME = "ConfirmationModal";
 
 function ConfirmationModal(props) { //props are item, showActions
-    
+
     //-------------------------------------------------------------------
     // Region: Initialization
     //-------------------------------------------------------------------
     const [showModal, setShowModal] = useState(props.showModal);
+    const [checked, setChecked] = React.useState(false);
 
     //-------------------------------------------------------------------
     // Region: Validation
@@ -30,6 +31,9 @@ function ConfirmationModal(props) { //props are item, showActions
     const onConfirm = (e) => {
         setShowModal(false);
         if (props.confirm.callback != null) props.confirm.callback(e);
+    };
+    const onCheckboxChange = (e) => {
+        setChecked(!checked);
     };
 
     //-------------------------------------------------------------------
@@ -54,22 +58,33 @@ function ConfirmationModal(props) { //props are item, showActions
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body className="my-3">
-                    {(props.message == null || props.message === '') ?
-                        "Are you sure?" : props.message
-                    }
+                    <p>
+                        {(props.message == null || props.message === '') ?
+                            "Are you sure?" : props.message
+                        }
+                    </p>
+                    {(props.requireAgreementText != null) &&
+                        <p>
+                            <label>
+                                <input type="checkbox" checked={checked} onChange={onCheckboxChange} />
+                                {props.requireAgreementText}
+                            </label>
+                        </p>
+                        }
                 </Modal.Body>
                 <Modal.Footer>
                     {props.cancel != null &&
-                    <Button variant={props.cancel == null || props.cancel.buttonVariant == null ? "text-solo" : props.cancel.buttonVariant}
-                        onClick={onHide} data-id={props.msgId} >
-                        {(props.cancel == null || props.cancel.caption == null || props.cancel.caption === '') ?
-                            "Cancel" : props.cancel.caption
-                        }
-                    </Button>
+                        <Button variant={props.cancel == null || props.cancel.buttonVariant == null ? "text-solo" : props.cancel.buttonVariant}
+                            onClick={onHide} data-id={props.msgId} >
+                            {(props.cancel == null || props.cancel.caption == null || props.cancel.caption === '') ?
+                                "Cancel" : props.cancel.caption
+                            }
+                        </Button>
                     }
                     {props.confirm != null &&
                         <Button variant={props.confirm == null || props.confirm.buttonVariant == null ? "" : props.confirm.buttonVariant}
-                        style={{ minWidth: '128px' }} onClick={onConfirm} data-id={props.msgId} >
+                            disabled={props.requireAgreementText != null && !checked}
+                            style={{ minWidth: '128px' }} onClick={onConfirm} data-id={props.msgId} >
                             {(props.confirm == null || props.confirm.caption == null || props.confirm.caption === '') ?
                                 "OK" : props.confirm.caption
                             }

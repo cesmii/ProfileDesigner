@@ -1,4 +1,5 @@
 using CESMII.Common.CloudLibClient;
+using CESMII.Common.SelfServiceSignUp;
 using CESMII.Common.SelfServiceSignUp.Services;
 using CESMII.OpcUa.NodeSetImporter;
 using CESMII.ProfileDesigner.Api.Shared.Extensions;
@@ -106,9 +107,11 @@ namespace CESMII.ProfileDesigner.Api
             // Configuration, utils, one off objects
             services.AddSingleton<IConfiguration>(Configuration);
             services.AddSingleton<ConfigUtil>();  // helper to allow us to bind to app settings data 
-            services.AddSingleton<MailRelayService>();  // helper for emailing (in CESMII.Common.SelfServiceSignUp)
             services.AddScoped<DAL.Utils.ProfileMapperUtil>();  // helper to allow us to modify profile data for front end 
             services.AddOpcUaImporter(Configuration);
+            services.AddSingleton<SelfSignUpAuthFilter>();               // Validator for self-sign up - authentiate API Connector username & password.
+            services.AddSingleton<SelfServiceSignUpNotifyController>();  // API Connector for Self-Service Sign-Up User Flow
+            services.AddSingleton<MailRelayService>();                   // helper for emailing (in CESMII.Common.SelfServiceSignUp)
             //services.AddSingleton<UACloudLibClient>(sp => new UACloudLibClient(configuration.GetSection("CloudLibrary")new UACloudLibClient.Options))
 
             services.AddControllers();

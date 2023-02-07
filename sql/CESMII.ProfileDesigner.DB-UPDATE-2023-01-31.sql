@@ -312,7 +312,7 @@ begin
 			p.version as profile_version,
 			d.level
 	FROM ancestor d
-	JOIN public.profile_type_definition t ON d.id = t.id AND t.id <> _id
+	JOIN public.profile_type_definition t ON d.id = t.id --AND t.id <> _id --include item itself
 	JOIN public.profile p ON p.id = t.profile_id
 	JOIN public.lookup l ON l.id = t.type_id
 	order by d.level, t.name

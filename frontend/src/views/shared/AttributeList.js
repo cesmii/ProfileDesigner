@@ -345,7 +345,7 @@ function AttributeList(props) {
             }
 
             //call parent to add to items collection, update state
-            var attributes = props.onAttributeAdd(_addItem);
+            const attributes = props.onAttributeAdd(_addItem);
 
             //after parent adds, update this component's state
             onAddUpdateState(attributes);
@@ -458,8 +458,11 @@ function AttributeList(props) {
 
     //attribute add ui - change composition ddl
     const onChangeComposition = (e) => {
+        //find the full composition item associated with selection. We need to 
+        //populate more than just id in shared method
+        const match = _lookupCompositions.find(x => x.id === e.value);
         //_addItem changed by ref in shared method
-        onChangeCompositionShared(e, _addItem);
+        onChangeCompositionShared(match, _addItem);
 
         //update state
         setAdd(JSON.parse(JSON.stringify(_addItem)));
@@ -516,7 +519,7 @@ function AttributeList(props) {
         }
 
         //convert to int - this will convert '10.' to '10' to int
-        var val = toInt(e.target.value);
+        const val = toInt(e.target.value);
 
         _addItem[e.target.id] = val;
         setAdd(JSON.parse(JSON.stringify(_addItem)));

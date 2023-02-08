@@ -936,10 +936,18 @@ function ProfileTypeDefinitionEntity() {
                 </div>
                 <div className="row mt-1">
                     <div className="col-sm-6 col-lg-2">
-                        <Form.Group className="d-flex h-100">
-                            <Form.Check className="align-self-end" type="checkbox" id="isAbstract" label="Is Abstract" checked={_item.isAbstract}
-                                onChange={onChange} readOnly={_isReadOnly} />
-                        </Form.Group>
+                        {!_isReadOnly ?
+                            <Form.Group className="d-flex h-100">
+                                <Form.Check className="align-self-end" type="checkbox" id="isAbstract" label="Is Abstract" checked={_item.isAbstract}
+                                    onChange={onChange} />
+                            </Form.Group>
+                            :
+                            <Form.Group>
+                                <Form.Label>Is Abstract</Form.Label>
+                                <Form.Control id="isAbstract" type="" placeholder=""
+                                    value={_item.isAbstract} readOnly="readOnly" />
+                            </Form.Group>
+                        }
                     </div>
                 </div>
                 <div className="row mt-1">

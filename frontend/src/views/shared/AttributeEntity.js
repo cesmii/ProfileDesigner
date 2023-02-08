@@ -386,7 +386,6 @@ function AttributeEntity(props) { //props are item, showActions
         if (!isReadOnly) {
             return renderCompositionSelectUIShared(_editItem,
                 props.lookupCompositions,
-                null, //props.typeDefinition.type, //tbd
                 _isValid.composition,
                 true,
                 onChangeComposition,

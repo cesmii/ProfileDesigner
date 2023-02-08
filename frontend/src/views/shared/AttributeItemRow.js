@@ -401,7 +401,6 @@ function AttributeItemRow(props) { //props are item, showActions
 
         return renderCompositionSelectUIShared(_editItem,
             props.lookupCompositions,
-            null, //props.typeDefinition.type, //tbd
             _isValid.composition,
             true,
             onChangeComposition,

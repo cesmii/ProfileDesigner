@@ -1247,7 +1247,7 @@ end;$$
 ---------------------------------------------------------*/
 drop function if exists fn_profile_type_definition_get_descendants; 
 create function fn_profile_type_definition_get_descendants (
-   IN _id int, _ownerId int
+   IN _id int, _ownerId int, _limitByType boolean, _excludeAbstract boolean
 ) 
 /*
 	Function: fn_profile_type_definition_get_descendants
@@ -1324,18 +1324,29 @@ begin
 			p.version as profile_version,
 			d.level
 	FROM descendant d
-	JOIN public.profile_type_definition t ON d.id = t.id AND t.id <> _id
+	JOIN public.profile_type_definition t ON d.id = t.id 
+		AND t.id <> _id
 	JOIN public.profile p ON p.id = t.profile_id
 	JOIN public.lookup l ON l.id = t.type_id
+	WHERE 
+	--optional parameters
+	1 = (CASE WHEN _limitByType = false THEN 1
+		 WHEN _limitByType = true AND t.type_id IN (SELECT t1.type_id FROM public.profile_type_definition t1 WHERE t1.id = _id) THEN 1
+		 ELSE 0 END)
+	--optional parameters
+	AND 1 = (CASE WHEN _excludeAbstract = false THEN 1
+		 WHEN _excludeAbstract = true AND t.is_abstract = false THEN 1
+		 ELSE 0 END)
 	;
 end; $$ 
+
 
 /*---------------------------------------------------------
 	Function: fn_profile_type_definition_get_dependencies
 ---------------------------------------------------------*/
 drop function if exists fn_profile_type_definition_get_dependencies; 
 create function fn_profile_type_definition_get_dependencies (
-   IN _id int, _ownerId int
+   IN _id int, _ownerId int, _limitByType boolean, _excludeAbstract boolean
 ) 
 /*
 	Function: fn_profile_type_definition_get_dependencies
@@ -1435,8 +1446,17 @@ begin
 	JOIN public.profile_type_definition t ON d.id = t.id AND t.id <> _id
 	JOIN public.profile p ON p.id = t.profile_id
 	JOIN public.lookup l ON l.id = t.type_id
+	WHERE 
+	--optional parameters
+	1 = (CASE WHEN _limitByType = false THEN 1
+		 WHEN _limitByType = true AND t.type_id IN (SELECT t1.type_id FROM public.profile_type_definition t1 WHERE t1.id = _id) THEN 1
+		 ELSE 0 END)
+	--optional parameters
+	AND 1 = (CASE WHEN _excludeAbstract = false THEN 1
+		 WHEN _excludeAbstract = true AND t.is_abstract = false THEN 1
+		 ELSE 0 END)
 	UNION 
-	SELECT * FROM public.fn_profile_type_definition_get_descendants(_id, _ownerId)
+	SELECT * FROM public.fn_profile_type_definition_get_descendants(_id, _ownerId, _limitByType, _excludeAbstract)
 	;
 end; $$ 
 

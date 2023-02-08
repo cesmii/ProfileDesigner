@@ -369,7 +369,7 @@ const buildSelectOptionsByDatatype = (lookupItems, type, skipInterfaceAndComposi
 //-------------------------------------------------------------------
 // Region: Render composition drop down list
 //-------------------------------------------------------------------
-export const renderCompositionSelectUIShared = (selItem, lookupItems, type, isValid, showLabel, onChangeCallback, onBlurCallback) => {
+export const renderCompositionSelectUIShared = (selItem, lookupItems, isValid, showLabel, onChangeCallback, onBlurCallback) => {
     if (lookupItems == null || lookupItems.length === 0) return;
     const options = buildSelectOptionsByProfile(lookupItems);
 
@@ -383,7 +383,7 @@ export const renderCompositionSelectUIShared = (selItem, lookupItems, type, isVa
         options,
         selValue,
         'compositionId',
-        `Composition[${type == null || type.name.toLowerCase() === "class" ? "Type Definition" : "Interface"}]`,
+        `Composition`,
         isValid,
         showLabel,
         onChangeCallback,

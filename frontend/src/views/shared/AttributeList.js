@@ -365,14 +365,14 @@ function AttributeList(props) {
         if (props.typeDefinition.extendedProfileAttributes == null) props.typeDefinition.extendedProfileAttributes = [];
 
         //go get the interface profile to retrieve its attributes.
-        var data = { id: _addItem.interface.id };
+        const data = { id: _addItem.interface.id };
         axiosInstance.post(`profiletypedefinition/getbyid`, data).then(result => {
             if (result.status === 200) {
-                var interfaceGroupId = Math.floor(Math.random() * 30);
-                var iface = result.data;
+                const interfaceGroupId = Math.floor(Math.random() * 30);
+                const iface = result.data;
                 //create a new combined collection of the attributes to be added, update some vals and then bubble up
                 //add both the interface's attributes and its extended attributes into one collection and add em all
-                var interfaceAttrItems = iface.profileAttributes.concat(iface.extendedProfileAttributes);
+                const interfaceAttrItems = iface.profileAttributes.concat(iface.extendedProfileAttributes);
                 interfaceAttrItems.forEach((attrib, counter) => {
                     //assign the interface obj and id for downstream usage
                     attrib.interface = { id: iface.id, name: iface.name };
@@ -381,13 +381,13 @@ function AttributeList(props) {
                     //TBD - how do we avoid name collision for 2 diff interfaces which have same attribute names.
 
                     //if attribute already exists in current profile, then rename it so we avoid a name duplication
-                    var match = props.typeDefinition.profileAttributes.find((a) => { return a.id === attrib.id && a.name.toLowerCase() === attrib.name.toLowerCase() });
+                    const match = props.typeDefinition.profileAttributes.find((a) => { return a.id === attrib.id && a.name.toLowerCase() === attrib.name.toLowerCase() });
                     if (match != null) {
                         //TBD - account for scenario where there is already a duplicate(1)
                         match.name = `${match.name}(1)`;
                     }
 
-                    var matchEx = props.typeDefinition.extendedProfileAttributes.find((a) => { return a.id === attrib.id && a.name.toLowerCase() === attrib.name.toLowerCase() });
+                    const matchEx = props.typeDefinition.extendedProfileAttributes.find((a) => { return a.id === attrib.id && a.name.toLowerCase() === attrib.name.toLowerCase() });
                     if (matchEx != null) {
                         //TBD - what to do here?
                     }
@@ -399,7 +399,7 @@ function AttributeList(props) {
                 });
 
                 //call parent to add to items collection, update state
-                var attributes = props.onAttributeInterfaceAdd(iface, props.typeDefinition.profileAttributes, props.typeDefinition.extendedProfileAttributes);
+                const attributes = props.onAttributeInterfaceAdd(iface, props.typeDefinition.profileAttributes, props.typeDefinition.extendedProfileAttributes);
 
                 //if adding interface, remove the selected item from the list
                 setLookupInterfaces({
@@ -831,7 +831,6 @@ function AttributeList(props) {
 
         return renderCompositionSelectUIShared(_addItem,
             _lookupCompositions,
-            props.typeDefinition.type,
             _isValid.composition,
             true,
             onChangeComposition,

@@ -165,19 +165,23 @@ namespace CESMII.ProfileDesigner.DAL.Utils
         /// <param name="descendants"></param>
         /// <param name="parentId"></param>
         /// <param name="level"></param>
-        private DALResult<ProfileTypeDefinitionSimpleModel> GetDescendants(int id, UserToken userToken)
+        private DALResult<ProfileTypeDefinitionSimpleModel> GetDescendants(int id, UserToken userToken
+            , bool limitByType, bool excludeIsAbstract, List<OrderBySimple> orderBys = null)
         {
             var fnName = "public.fn_profile_type_definition_get_descendants";
-            var orderBys = new List<OrderBySimple>() {
-                new OrderBySimple() { FieldName = "level" },
-                new OrderBySimple() { FieldName = "profile_title" } ,
-                new OrderBySimple() { FieldName = "profile_namespace" } ,
-                new OrderBySimple() { FieldName = "profile_version" } ,
-                new OrderBySimple() { FieldName = "profile_publish_date" } ,
-                new OrderBySimple() { FieldName = "name" }
-            };
+            if (orderBys == null)
+            {
+                orderBys = new List<OrderBySimple>() {
+                    new OrderBySimple() { FieldName = "level" },
+                    new OrderBySimple() { FieldName = "profile_title" } ,
+                    new OrderBySimple() { FieldName = "profile_namespace" } ,
+                    new OrderBySimple() { FieldName = "profile_version" } ,
+                    new OrderBySimple() { FieldName = "profile_publish_date" } ,
+                    new OrderBySimple() { FieldName = "name" }
+                };
+            }
             //TBD - pass in paging to this.
-            return _dalRelated.GetItemsPaged(fnName, null, null, false, orderBys, id, userToken.UserId);
+            return _dalRelated.GetItemsPaged(fnName, null, null, false, orderBys, id, userToken.UserId, limitByType, excludeIsAbstract);
         }
 
         /// <summary>
@@ -198,7 +202,7 @@ namespace CESMII.ProfileDesigner.DAL.Utils
                 new OrderBySimple() { FieldName = "name" }
             };
             //TBD - pass in paging to this.
-            return _dalRelated.GetItemsPaged(fnName, null, null, false, orderBys, id, userToken.UserId);
+            return _dalRelated.GetItemsPaged(fnName, null, null, false, orderBys, id, userToken.UserId, false, false);
         }
 
         /// <summary>
@@ -309,7 +313,14 @@ namespace CESMII.ProfileDesigner.DAL.Utils
             var compRoot = _dal.GetByFunc(
                 x => x.Name.ToLower().Equals(_config.ProfilesSettings.ReservedProfileNames.CompositionRootProfileName.ToLower()),
                 userToken, false);
-            var result = this.GetDescendants(compRoot.ID.Value, userToken).Data;
+            var orderBys = new List<OrderBySimple>() {
+                new OrderBySimple() { FieldName = "profile_namespace" } ,
+                new OrderBySimple() { FieldName = "profile_title" } ,
+                new OrderBySimple() { FieldName = "profile_version" } ,
+                new OrderBySimple() { FieldName = "profile_publish_date" } ,
+                new OrderBySimple() { FieldName = "name" }
+            };
+            var result = this.GetDescendants(compRoot.ID.Value, userToken, true, true, orderBys).Data;
             return result;
         }
 

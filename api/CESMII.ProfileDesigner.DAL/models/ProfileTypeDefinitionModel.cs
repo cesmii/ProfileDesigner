@@ -158,9 +158,8 @@
         }
     }
 
-    public class ProfileTypeDefinitionSimpleModel 
+    public class ProfileTypeDefinitionSimpleModel : AbstractModel
     {
-        public int? ID { get; set; }
         [JsonIgnore]
         [Newtonsoft.Json.JsonIgnore]
         public virtual ProfileTypeDefinitionModel ProfileTypeDefinition { get; set; }

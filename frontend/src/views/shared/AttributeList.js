@@ -117,56 +117,16 @@ function AttributeList(props) {
     //      are working with
     //-------------------------------------------------------------------
     useEffect(() => {
-        async function fetchLookupProfileTypeDefs() {
-
-            //placeholder vals while we load
-            setLookupCompositions([{ id: -1, name: 'Loading...', profile: { id: -1, title: '', namespace: '', version: '', publishDate: '' } }]);
-
-            //Filter out anything
-            //where the profile is neither a descendant or a parent/grandparent, etc. of the profile we 
-            //are working with, can't be a dependency of this profile
-            // If we are working with a profile, then composition can't be an interface type
-            // If we are working with an interface, then composition can't be a profile type
-            var data = { id: props.typeDefinition.id };
-            var url = `profiletypedefinition/lookup/profilerelated`; //profiles only
-            //this is an extend scenario
-            if ((props.typeDefinition.id == null || props.typeDefinition.id === 0) && props.typeDefinition.parent != null) {
-                data = { id: props.typeDefinition.parent.id };
-                url = `profiletypedefinition/lookup/profilerelated/extend`; //profiles only
-            }
-            console.log(generateLogMessageString(`useEffect||fetchLookupProfileTypeDefs||${url}`, CLASS_NAME));
-            //const result = await axiosInstance.post(url, data);
-
-            await axiosInstance.post(url, data).then(result => {
-                if (result.status === 200) {
-                    //profile id - 3 scenarios - 1. typical - use profile id, 2. extend profile where parent profile should be used, 
-                    //      3. new profile - no parent, no inheritance, use 0 
-                    //var pId = props.typeDefinition.id;
-                    //if (props.typeDefinition.id === 0 && props.typeDefinition.parent != null) pId = props.typeDefinition.parent.id;
-
-                    //TBD - handle paged data scenario, do a predictive search look up
-                    setLookupCompositions(result.data.compositions); //also updates state
-                    //Pull interfaces from back end
-                    setLookupInterfaces({ all: result.data.interfaces, current: result.data.interfaces });
-                } else {
-                    console.warn(generateLogMessageString(`useEffect||fetchLookupProfileTypeDefs||error||status:${result.status}`, CLASS_NAME));
-                    setLookupCompositions([{ id: -1, name: 'Error loading composition data...', profile: { id: -1, title: '', namespace: '', version: '', publishDate: '' } }]);
-                }
-            }).catch(e => {
-                if (e.response && e.response.status === 401) {
-                    console.error(generateLogMessageString(`useEffect||fetchLookupProfileTypeDefs||error||status:${e.response.status}`, CLASS_NAME));
-                }
-                else {
-                    console.error(generateLogMessageString(`useEffect||fetchLookupProfileTypeDefs||error||status:${e.response && e.response.data ? e.response.data : `A system error has occurred during the profile api call.`}`, CLASS_NAME));
-                    console.log(e);
-                }
-                setLookupCompositions([{ id: -1, name: 'Error loading composition data...', profile: { id: -1, title: '', namespace: '', version: '', publishDate: '' } }]);
-            });
+        if (props.lookupRelated == null) {
+            setLookupCompositions([]); //also updates state
+            setLookupInterfaces({ all: [], current: [] });
+        }
+        else {
+            setLookupCompositions(props.lookupRelated.compositions); //also updates state
+            setLookupInterfaces({ all: props.lookupRelated.interfaces, current: props.lookupRelated.interfaces });
         }
 
-        fetchLookupProfileTypeDefs();
-
-    }, [props.typeDefinition?.id]);
+    }, [props.lookupRelated]); 
 
     //-------------------------------------------------------------------
     // Region: Hooks - load lookup data static from context. if not present, trigger a fetch of this data. 
@@ -385,7 +345,7 @@ function AttributeList(props) {
             }
 
             //call parent to add to items collection, update state
-            var attributes = props.onAttributeAdd(_addItem);
+            const attributes = props.onAttributeAdd(_addItem);
 
             //after parent adds, update this component's state
             onAddUpdateState(attributes);
@@ -405,14 +365,14 @@ function AttributeList(props) {
         if (props.typeDefinition.extendedProfileAttributes == null) props.typeDefinition.extendedProfileAttributes = [];
 
         //go get the interface profile to retrieve its attributes.
-        var data = { id: _addItem.interface.id };
+        const data = { id: _addItem.interface.id };
         axiosInstance.post(`profiletypedefinition/getbyid`, data).then(result => {
             if (result.status === 200) {
-                var interfaceGroupId = Math.floor(Math.random() * 30);
-                var iface = result.data;
+                const interfaceGroupId = Math.floor(Math.random() * 30);
+                const iface = result.data;
                 //create a new combined collection of the attributes to be added, update some vals and then bubble up
                 //add both the interface's attributes and its extended attributes into one collection and add em all
-                var interfaceAttrItems = iface.profileAttributes.concat(iface.extendedProfileAttributes);
+                const interfaceAttrItems = iface.profileAttributes.concat(iface.extendedProfileAttributes);
                 interfaceAttrItems.forEach((attrib, counter) => {
                     //assign the interface obj and id for downstream usage
                     attrib.interface = { id: iface.id, name: iface.name };
@@ -421,13 +381,13 @@ function AttributeList(props) {
                     //TBD - how do we avoid name collision for 2 diff interfaces which have same attribute names.
 
                     //if attribute already exists in current profile, then rename it so we avoid a name duplication
-                    var match = props.typeDefinition.profileAttributes.find((a) => { return a.id === attrib.id && a.name.toLowerCase() === attrib.name.toLowerCase() });
+                    const match = props.typeDefinition.profileAttributes.find((a) => { return a.id === attrib.id && a.name.toLowerCase() === attrib.name.toLowerCase() });
                     if (match != null) {
                         //TBD - account for scenario where there is already a duplicate(1)
                         match.name = `${match.name}(1)`;
                     }
 
-                    var matchEx = props.typeDefinition.extendedProfileAttributes.find((a) => { return a.id === attrib.id && a.name.toLowerCase() === attrib.name.toLowerCase() });
+                    const matchEx = props.typeDefinition.extendedProfileAttributes.find((a) => { return a.id === attrib.id && a.name.toLowerCase() === attrib.name.toLowerCase() });
                     if (matchEx != null) {
                         //TBD - what to do here?
                     }
@@ -439,7 +399,7 @@ function AttributeList(props) {
                 });
 
                 //call parent to add to items collection, update state
-                var attributes = props.onAttributeInterfaceAdd(iface, props.typeDefinition.profileAttributes, props.typeDefinition.extendedProfileAttributes);
+                const attributes = props.onAttributeInterfaceAdd(iface, props.typeDefinition.profileAttributes, props.typeDefinition.extendedProfileAttributes);
 
                 //if adding interface, remove the selected item from the list
                 setLookupInterfaces({
@@ -498,8 +458,11 @@ function AttributeList(props) {
 
     //attribute add ui - change composition ddl
     const onChangeComposition = (e) => {
+        //find the full composition item associated with selection. We need to 
+        //populate more than just id in shared method
+        const match = _lookupCompositions.find(x => x.id === e.value);
         //_addItem changed by ref in shared method
-        onChangeCompositionShared(e, _addItem);
+        onChangeCompositionShared(match, _addItem);
 
         //update state
         setAdd(JSON.parse(JSON.stringify(_addItem)));
@@ -556,7 +519,7 @@ function AttributeList(props) {
         }
 
         //convert to int - this will convert '10.' to '10' to int
-        var val = toInt(e.target.value);
+        const val = toInt(e.target.value);
 
         _addItem[e.target.id] = val;
         setAdd(JSON.parse(JSON.stringify(_addItem)));
@@ -868,7 +831,6 @@ function AttributeList(props) {
 
         return renderCompositionSelectUIShared(_addItem,
             _lookupCompositions,
-            props.typeDefinition.type,
             _isValid.composition,
             true,
             onChangeComposition,

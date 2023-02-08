@@ -233,11 +233,11 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 return Ok(new ProfileLookupModel());
             }
 
-            var profile = _dal.GetById(model.ID, base.DalUserToken);
+            var typeDef = _dal.GetById(model.ID, base.DalUserToken);
             var result = new ProfileLookupModel
             {
                 Compositions = _profileUtils.BuildCompositionLookup(base.DalUserToken),
-                Interfaces = _profileUtils.BuildInterfaceLookup(profile, base.DalUserToken)
+                Interfaces = _profileUtils.BuildInterfaceLookup(typeDef, base.DalUserToken)
             };
             return Ok(result);
         }
@@ -256,7 +256,6 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         [ProducesResponseType(400)]
         public IActionResult LookupProfileRelatedExtend([FromBody] IdIntModel model)
         {
-            var parent = _dal.GetById(model.ID, base.DalUserToken);
             var result = new ProfileLookupModel
             {
                 Compositions = _profileUtils.BuildCompositionLookup(base.DalUserToken),
@@ -306,7 +305,6 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             //Build the explorer...
             var dependencies = _profileUtils.GenerateDependencies(profile, base.DalUserToken);
 
-            //Build the explorer inheritance tree...
             var treeview = _profileUtils.GenerateAncestoryTree(profile, base.DalUserToken, true);
 
             // note interfaces, compositions already accounted for in profile object

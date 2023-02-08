@@ -174,8 +174,12 @@ function AttributeEntity(props) { //props are item, showActions
 
     //attribute add ui - change composition ddl
     const onChangeComposition = (e) => {
+        //find the full composition item associated with selection. We need to 
+        //populate more than just id in shared method
+        const match = props.lookupCompositions.find(x => x.id === e.value);
+
         //_addItem changed by ref in shared method
-        onChangeCompositionShared(e, _editItem);
+        onChangeCompositionShared(match, _editItem);
 
         //update state
         setEditItem(JSON.parse(JSON.stringify(_editItem)));
@@ -382,7 +386,6 @@ function AttributeEntity(props) { //props are item, showActions
         if (!isReadOnly) {
             return renderCompositionSelectUIShared(_editItem,
                 props.lookupCompositions,
-                null, //props.typeDefinition.type, //tbd
                 _isValid.composition,
                 true,
                 onChangeComposition,

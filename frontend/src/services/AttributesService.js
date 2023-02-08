@@ -276,17 +276,18 @@ export const onChangeInterfaceShared = (e, item) => {
 //      Shared by attributeList.add, attributeItemRow inline edit and
 //      attributeEntity edit 
 //-------------------------------------------------------------------
-export const onChangeCompositionShared = (e, item) => {
+export const onChangeCompositionShared = (match, item) => {
     //change item ref variable
-    item.compositionId = parseInt(e.value);
-    if (e.value.toString() === "-1") {
+    if (match == null) {
         item.composition = null;
         item.compositionId = null;
     }
     else {
         item.composition = {};
-        item.composition.id = parseInt(e.value);
-        item.composition.name = e.label;
+        item.compositionId = match.id;
+        item.composition.id = match.id;
+        item.composition.name = match.name;
+        item.composition.browseName = match.browseName; //this becomes critical for adding on server side in new scenario
         //this is what is used downstream. 
         item.composition.relatedProfileTypeDefinitionId = item.composition.id;
         item.composition.relatedName = item.composition.name;
@@ -368,7 +369,7 @@ const buildSelectOptionsByDatatype = (lookupItems, type, skipInterfaceAndComposi
 //-------------------------------------------------------------------
 // Region: Render composition drop down list
 //-------------------------------------------------------------------
-export const renderCompositionSelectUIShared = (selItem, lookupItems, type, isValid, showLabel, onChangeCallback, onBlurCallback) => {
+export const renderCompositionSelectUIShared = (selItem, lookupItems, isValid, showLabel, onChangeCallback, onBlurCallback) => {
     if (lookupItems == null || lookupItems.length === 0) return;
     const options = buildSelectOptionsByProfile(lookupItems);
 
@@ -382,7 +383,7 @@ export const renderCompositionSelectUIShared = (selItem, lookupItems, type, isVa
         options,
         selValue,
         'compositionId',
-        `Composition[${type == null || type.name.toLowerCase() === "class" ? "Type Definition" : "Interface"}]`,
+        `Composition`,
         isValid,
         showLabel,
         onChangeCallback,

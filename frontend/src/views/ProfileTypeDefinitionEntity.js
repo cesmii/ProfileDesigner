@@ -53,12 +53,13 @@ function ProfileTypeDefinitionEntity() {
     const [mode, setMode] = useState(initPageMode());
     const [_item, setItem] = useState({});
     const [isLoading, setIsLoading] = useState(true);
-    const [isReadOnly, setIsReadOnly] = useState(true);
+    const [_isReadOnly, setIsReadOnly] = useState(true);
     const [_isValid, setIsValid] = useState({ name: true, profile: true, description: true, type: true, symbolicName: true });
     //const [_lookupProfiles, setLookupProfiles] = useState([]);
     //used in popup profile add/edit ui. Default to new version
     const [_profileEntityModal, setProfileEntityModal] = useState({ show: false, item: null, autoSave: false  });
     const _profileNew = { id: 0, namespace: '', version: null, publishDate: null, authorId: null };
+    const [_lookupRelated, setLookupRelated] = useState({ compositions: [], interfaces: [] });
 
     const { wizardProps, setWizardProps } = useWizardContext();
     var _navInfo = history.location.pathname.indexOf('/wizard/') === - 1 ? null : getWizardNavInfo(wizardProps.mode, 'ExtendBaseType');
@@ -98,11 +99,11 @@ function ProfileTypeDefinitionEntity() {
 
             //mode not set right if we were on this page, save an extend and navigate into edit same profile. Rely on
             // parentId, id. Then determine mode. for extend, we use parentId, for edit/view, we use id.
-            var result = null;
+            let result = null;
             try {
                 //add logic for wizard scenario
-                var data = { id: (parentId != null ? parentId : id) };
-                var url = `profiletypedefinition/getbyid`;
+                let data = { id: (parentId != null ? parentId : id) };
+                let url = `profiletypedefinition/getbyid`;
                 if (parentId != null && history.location.pathname.indexOf('/wizard/') > -1) {
                     url = `profiletypedefinition/wizard/extend`;
                     //add profile id in
@@ -222,6 +223,76 @@ function ProfileTypeDefinitionEntity() {
         };
     }, [id, parentId, profileId ]);
 
+
+    //-------------------------------------------------------------------
+    // Region: Hooks - When composition data type is chosen, go get a list of profiles
+    //      where the profile is neither a descendant or a parent/grandparent, etc. of the profile we 
+    //      are working with
+    //-------------------------------------------------------------------
+    useEffect(() => {
+        async function fetchLookupProfileTypeDefs(lookupId, isExtend) {
+
+            //placeholder vals while we load
+            setLookupRelated({ ..._lookupRelated, compositions: [{ id: -1, name: 'Loading...', profile: { id: -1, title: '', namespace: '', version: '', publishDate: '' } }] });
+
+            //Filter out anything
+            //where the profile is neither a descendant or a parent/grandparent, etc. of the profile we 
+            //are working with, can't be a dependency of this profile
+            // If we are working with a profile, then composition can't be an interface type
+            // If we are working with an interface, then composition can't be a profile type
+            const data = { id: lookupId };
+            const url = `profiletypedefinition/lookup/profilerelated${isExtend ? '/extend' : ''}`;
+            console.log(generateLogMessageString(`useEffect||fetchLookupProfileTypeDefs||${url}`, CLASS_NAME));
+            //const result = await axiosInstance.post(url, data);
+
+            await axiosInstance.post(url, data).then(result => {
+                if (result.status === 200) {
+                    //profile id - 3 scenarios - 1. typical - use profile id, 2. extend profile where parent profile should be used, 
+                    //      3. new profile - no parent, no inheritance, use 0 
+                    //var pId = props.typeDefinition.id;
+                    //if (props.typeDefinition.id === 0 && props.typeDefinition.parent != null) pId = props.typeDefinition.parent.id;
+
+                    //TBD - handle paged data scenario, do a predictive search look up
+                    setLookupRelated({
+                        compositions: result.data.compositions,
+                        interfaces: result.data.interfaces
+                    });
+                } else {
+                    console.warn(generateLogMessageString(`useEffect||fetchLookupProfileTypeDefs||error||status:${result.status}`, CLASS_NAME));
+                    setLookupRelated({
+                        ..._lookupRelated,
+                        compositions: [{ id: -1, name: 'Error loading composition data...', profile: { id: -1, title: '', namespace: '', version: '', publishDate: '' } }]
+                    });
+                }
+            }).catch(e => {
+                if (e.response && e.response.status === 401) {
+                    console.error(generateLogMessageString(`useEffect||fetchLookupProfileTypeDefs||error||status:${e.response.status}`, CLASS_NAME));
+                }
+                else {
+                    console.error(generateLogMessageString(`useEffect||fetchLookupProfileTypeDefs||error||status:${e.response && e.response.data ? e.response.data : `A system error has occurred during the profile api call.`}`, CLASS_NAME));
+                    console.log(e);
+                }
+                setLookupRelated({
+                    ..._lookupRelated,
+                    compositions: [{ id: -1, name: 'Error loading composition data...', profile: { id: -1, title: '', namespace: '', version: '', publishDate: '' } }]
+                });
+            });
+        }
+
+        //we load even if we might be in readonly mode because we don't know if readonly until 
+        //we get the full data back and evaluate ownership. We want to run this in parallel
+        //and thus can't wait to know if readonly. 
+        fetchLookupProfileTypeDefs(
+            parentId != null ? parentId : (id != null && id.toString() !== 'new' ? id : null),
+            parentId != null
+        );
+
+    }, [id, parentId]);
+
+
+    //-------------------------------------------------------------------
+    //
+    //-------------------------------------------------------------------
     function initPageMode() {
         //if path contains extend and parent id is set, mode is extend
         //else - we won't know the author ownership till we fetch data, default view
@@ -648,11 +719,11 @@ function ProfileTypeDefinitionEntity() {
 
     const renderProfileDefType = () => {
         //show readonly input for view mode
-        if (isReadOnly) {
+        if (_isReadOnly) {
             return (
                 <Form.Group>
                     <Form.Label htmlFor="type">Type</Form.Label>
-                    <Form.Control id="type" type="" value={_item.type != null ? _item.type.name : ""} readOnly={isReadOnly} />
+                    <Form.Control id="type" type="" value={_item.type != null ? _item.type.name : ""} readOnly={_isReadOnly} />
                 </Form.Group>
             )
         }
@@ -793,7 +864,7 @@ function ProfileTypeDefinitionEntity() {
                             <div className={`input-group ${(!_isValid.name ? "invalid-group" : "")}`} >
                                 <Form.Group className="flex-grow-1 m-0">
                                     <Form.Control className={(!_isValid.name ? `invalid-field` : ``)} id="name" type="" placeholder={`Enter name`}
-                                        value={_item.name} onBlur={validateForm_name} onChange={onChange} readOnly={isReadOnly} />
+                                        value={_item.name} onBlur={validateForm_name} onChange={onChange} readOnly={_isReadOnly} />
                                 </Form.Group>
                             </div>
                         </div>
@@ -823,13 +894,13 @@ function ProfileTypeDefinitionEntity() {
                     <div className="col-md-6">
                         <Form.Group>
                             <Form.Label htmlFor="entity_author" >Author name</Form.Label>
-                            <Form.Control id="entity_author" type="" placeholder="Enter your name here" value={_item.author?.fullName} onChange={onChange} readOnly={isReadOnly} disabled='disabled' />
+                            <Form.Control id="entity_author" type="" placeholder="Enter your name here" value={_item.author?.fullName} onChange={onChange} readOnly={_isReadOnly} disabled='disabled' />
                         </Form.Group>
                     </div>
                     <div className="col-md-6">
                         <Form.Group>
                             <Form.Label htmlFor="entity_organization" >Organization</Form.Label>
-                            <Form.Control id="entity_organization" type="" placeholder="Enter your organization's name" value={_item.author?.organization?.name} onChange={onChange} readOnly={isReadOnly} disabled='disabled' />
+                            <Form.Control id="entity_organization" type="" placeholder="Enter your organization's name" value={_item.author?.organization?.name} onChange={onChange} readOnly={_isReadOnly} disabled='disabled' />
                         </Form.Group>
                     </div>
                 </div>
@@ -837,7 +908,7 @@ function ProfileTypeDefinitionEntity() {
                     <div className="col-sm-6">
                         <Form.Group>
                             <Form.Label htmlFor="browseName" >OPC Browse Name</Form.Label>
-                            <Form.Control id="browseName" type="" placeholder="" readOnly={isReadOnly}
+                            <Form.Control id="browseName" type="" placeholder="" readOnly={_isReadOnly}
                                 value={_item.browseName != null ? _item.browseName : ""} onChange={onChange}  />
                         </Form.Group>
                     </div>
@@ -849,7 +920,7 @@ function ProfileTypeDefinitionEntity() {
                                     No numbers, spaces or special characters permitted
                                 </span>
                             }
-                            <Form.Control id="symbolicName" className={(!_isValid.symbolicName ? `invalid-field` : ``)} type="" placeholder="" readOnly={isReadOnly}
+                            <Form.Control id="symbolicName" className={(!_isValid.symbolicName ? `invalid-field` : ``)} type="" placeholder="" readOnly={_isReadOnly}
                                 value={_item.symbolicName != null ? _item.symbolicName : ""} onChange={onChange} onBlur={validateForm_symbolicName} />
                         </Form.Group>
                     </div>
@@ -865,17 +936,25 @@ function ProfileTypeDefinitionEntity() {
                 </div>
                 <div className="row mt-1">
                     <div className="col-sm-6 col-lg-2">
-                        <Form.Group className="d-flex h-100">
-                            <Form.Check className="align-self-end" type="checkbox" id="isAbstract" label="Is Abstract" checked={_item.isAbstract}
-                                onChange={onChange} readOnly={isReadOnly} />
-                        </Form.Group>
+                        {!_isReadOnly ?
+                            <Form.Group className="d-flex h-100">
+                                <Form.Check className="align-self-end" type="checkbox" id="isAbstract" label="Is Abstract" checked={_item.isAbstract}
+                                    onChange={onChange} />
+                            </Form.Group>
+                            :
+                            <Form.Group>
+                                <Form.Label>Is Abstract</Form.Label>
+                                <Form.Control id="isAbstract" type="" placeholder=""
+                                    value={_item.isAbstract} readOnly="readOnly" />
+                            </Form.Group>
+                        }
                     </div>
                 </div>
                 <div className="row mt-1">
                     <div className="col-sm-12">
                         <Form.Group>
                             <Form.Label htmlFor="metaTagsConcatenated" >Meta tags (optional)</Form.Label>
-                            <Form.Control id="metaTagsConcatenated" type="" placeholder="Enter tags seperated by a comma" value={_item.metaTagsConcatenated} onChange={onChange} readOnly={isReadOnly} />
+                            <Form.Control id="metaTagsConcatenated" type="" placeholder="Enter tags seperated by a comma" value={_item.metaTagsConcatenated} onChange={onChange} readOnly={_isReadOnly} />
                         </Form.Group>
                     </div>
                 </div>
@@ -884,7 +963,7 @@ function ProfileTypeDefinitionEntity() {
                         <Form.Group>
                             <Form.Label htmlFor="documentUrl">Document Url</Form.Label>
                             <Form.Control id="documentUrl" type="" placeholder="Enter Url to the reference documentation (if applicable)."
-                                value={_item.documentUrl != null ? _item.documentUrl : ""} onChange={onChange} readOnly={isReadOnly} />
+                                value={_item.documentUrl != null ? _item.documentUrl : ""} onChange={onChange} readOnly={_isReadOnly} />
                         </Form.Group>
                     </div>
                 </div>
@@ -941,7 +1020,9 @@ function ProfileTypeDefinitionEntity() {
                                         <Card.Body className="pt-3">
                                             <AttributeList typeDefinition={_item} profileAttributes={_item.profileAttributes} extendedProfileAttributes={_item.extendedProfileAttributes} readOnly={mode === "view"}
                                                 onAttributeAdd={onAttributeAdd} onAttributeInterfaceAdd={onAttributeInterfaceAdd} activeAccount={_activeAccount}
-                                                onAttributeDelete={onAttributeDelete} onAttributeInterfaceDelete={onAttributeInterfaceDelete} onAttributeUpdate={onAttributeUpdate} />
+                                                onAttributeDelete={onAttributeDelete} onAttributeInterfaceDelete={onAttributeInterfaceDelete} onAttributeUpdate={onAttributeUpdate}
+                                                lookupRelated={_lookupRelated}
+                                            />
                                         </Card.Body>
                                     </Card>
                                 </Tab.Pane>

@@ -101,6 +101,12 @@ export const AppSettings = {
         BaseProfile: 2,
         CloudLib: 3
     }
+    , PublishProfileStatus: {
+        Pending: "PENDING",
+        Approved: "APPROVED",
+        Rejected: "REJECTED",
+        Canceled: "CANCELED"
+    }
     //MSAL (Authentication) Config
     , MsalConfig: {
         auth: {

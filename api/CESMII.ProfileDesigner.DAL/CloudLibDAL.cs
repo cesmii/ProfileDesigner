@@ -103,6 +103,37 @@
             };
         }
 
+        public async Task<GraphQlResult<CloudLibProfileModel>> GetNodeSetsPendingApprovalAsync(int limit, string cursor, bool pageBackwards, AdditionalProperty additionalProperty)
+        {
+            UAProperty uaProp = null;
+            if (additionalProperty != null)
+            {
+                uaProp = new UAProperty
+                {
+                    Name = additionalProperty.Name,
+                    Value = additionalProperty.Value,
+                };
+            }
+            var matches = await _cloudLib.GetNodeSetsPendingApprovalAsync(limit, cursor, pageBackwards, prop: uaProp);
+            if (matches == null) return new GraphQlResult<CloudLibProfileModel>();
+
+            //TBD - exclude some nodesets which are core nodesets - list defined in appSettings
+
+            return new GraphQlResult<CloudLibProfileModel>(matches)
+            {
+                Edges = MapToModelsNodesetResult(matches.Edges),
+            };
+        }
+
+        public async Task<CloudLibProfileModel> UpdateApprovalStatusAsync(string cloudLibraryId, string newStatus, string statusInfo)
+        {
+            var uaNamespace = await _cloudLib.UpdateApprovalStatusAsync(cloudLibraryId, newStatus, statusInfo);
+
+            var cloudLibProfile = MapToModelNamespace(uaNamespace);
+
+            return cloudLibProfile;
+        }
+
 
         protected List<GraphQlNodeAndCursor<CloudLibProfileModel>> MapToModelsNodesetResult(List<GraphQlNodeAndCursor<Nodeset>> entities)
         {
@@ -140,7 +171,7 @@
                         Version = entity.Version,
                         Keywords = entity.Metadata.Keywords?.ToList(),
                         DocumentationUrl = entity.Metadata.DocumentationUrl?.OriginalString,
-                        AdditionalProperties = entity.Metadata.AdditionalProperties?.Select(p => new KeyValuePair<string, string>(p.Name, p.Value))?.ToList(),
+                        AdditionalProperties = entity.Metadata.AdditionalProperties?.Select(p => new AdditionalProperty { Name = p.Name, Value = p.Value })?.ToList(),
                         CategoryName = entity.Metadata.Category?.Name,
                         CopyrightText = entity.Metadata.CopyrightText,
                         IconUrl = entity.Metadata.IconUrl?.OriginalString,
@@ -150,6 +181,8 @@
                         ReleaseNotesUrl = entity.Metadata.ReleaseNotesUrl?.OriginalString,
                         TestSpecificationUrl = entity.Metadata.TestSpecificationUrl?.OriginalString,
                         SupportedLocales = entity.Metadata.SupportedLocales?.ToList(),
+                        CloudLibApprovalStatus = entity.Metadata.ApprovalStatus,
+                        CloudLibApprovalDescription = entity.Metadata.ApprovalInformation,
                     }
                 };
             }
@@ -206,7 +239,7 @@
                     ReleaseNotesUrl = entity.ReleaseNotesUrl?.OriginalString,
                     TestSpecificationUrl = entity.TestSpecificationUrl?.OriginalString,
                     SupportedLocales = entity.SupportedLocales?.ToList(),
-                    AdditionalProperties = entity.AdditionalProperties?.Select(p => new KeyValuePair<string, string>(p.Name, p.Value))?.ToList(),
+                    AdditionalProperties = entity.AdditionalProperties?.Select(p => new AdditionalProperty { Name = p.Name, Value = p.Value })?.ToList(),
 
                     //IsFeatured = false,
                     //ImagePortrait = _images.FirstOrDefault(x => x.ID.Equals(_config.DefaultImageIdPortrait)),
@@ -256,7 +289,7 @@
                     ReleaseNotesUrl = entity.ReleaseNotesUrl?.OriginalString,
                     TestSpecificationUrl = entity.TestSpecificationUrl?.OriginalString,
                     SupportedLocales = entity.SupportedLocales?.ToList(),
-                    AdditionalProperties = entity.AdditionalProperties?.Select(p => new KeyValuePair<string, string>(p.Name, p.Value))?.ToList(),
+                    AdditionalProperties = entity.AdditionalProperties?.Select(p => new AdditionalProperty { Name = p.Name, Value = p.Value })?.ToList(),
 
                     //IsFeatured = false,
                     //ImagePortrait = _images.FirstOrDefault(x => x.ID.Equals(_config.DefaultImageIdPortrait)),
@@ -291,7 +324,7 @@
                 ReleaseNotesUrl = !string.IsNullOrEmpty(model.ReleaseNotesUrl) ? new Uri(model.ReleaseNotesUrl) : null,
                 TestSpecificationUrl = !string.IsNullOrEmpty(model.TestSpecificationUrl) ? new Uri(model.TestSpecificationUrl) : null,
                 SupportedLocales = model.SupportedLocales?.ToArray(),
-                AdditionalProperties = model.AdditionalProperties?.Select(kv => new UAProperty { Name = kv.Key, Value = kv.Value }).ToArray(),
+                AdditionalProperties = model.AdditionalProperties?.Select(kv => new UAProperty { Name = kv.Name, Value = kv.Value }).ToArray(),
                 Nodeset = new Nodeset
                 {
                     NamespaceUri = !string.IsNullOrEmpty(model.Namespace) ? new Uri(model.Namespace) : null,
@@ -310,5 +343,6 @@
             //set flag so we only run dispose once.
             _disposed = true;
         }
+
     }
 }

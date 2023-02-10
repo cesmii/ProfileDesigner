@@ -297,6 +297,7 @@ ALTER TABLE public.engineering_unit
 --	Create NodeSet Lookup Table
 ---------------------------------------------------------------------
 
+/*
 CREATE TABLE public.standard_nodeset
 (
     id SERIAL PRIMARY KEY,
@@ -315,7 +316,7 @@ TABLESPACE pg_default;
 
 ALTER TABLE public.standard_nodeset
     OWNER to profiledesigner;
-
+*/
 /* These now come from the cloud library
 INSERT INTO public.standard_nodeset (id, namespace, version, filename, publish_date, is_active) VALUES (1, 'http://opcfoundation.org/UA/ADI/', '1.01', NULL, '2013-07-31', true);
 INSERT INTO public.standard_nodeset (id, namespace, version, filename, publish_date, is_active) VALUES (2, 'http://opcfoundation.org/UA/AML/', '1.00', NULL, '2016-02-22', true);
@@ -379,7 +380,7 @@ INSERT INTO public.standard_nodeset (id, namespace, version, filename, publish_d
 INSERT INTO public.standard_nodeset (id, namespace, version, filename, publish_date, is_active) VALUES (60, 'http://opcfoundation.org/UA/PlasticsRubber/Extrusion/Pelletizer/', '1.00', NULL, '2020-06-01', true);
 */
 --manually adjust the identity starting val
-SELECT setval('standard_nodeset_id_seq', 61);
+--SELECT setval('standard_nodeset_id_seq', 61);
 
 /*profile-profiletype-rename-refactor - START*/
 ---------------------------------------------------------------------
@@ -425,11 +426,13 @@ CREATE TABLE public.profile
     namespace character varying(400) COLLATE pg_catalog."default" NOT NULL,
     version character varying(25) COLLATE pg_catalog."default",
     publish_date timestamp with time zone NULL,
-    ua_standard_profile_id integer NULL,
+    --ua_standard_profile_id integer NULL,
     author_id integer NULL,
 	
 	-- Cloud Library meta data
-	title text NULL,
+	cloud_library_id character varying(100)  NULL,
+  cloud_library_pending_approval boolean NULL,
+  title text NULL,
 	license text NULL,
 	copyright_text text NULL,
 	contributor_name text NULL,
@@ -445,11 +448,11 @@ CREATE TABLE public.profile
 	supported_locales text[] NULL,
 	-- End Cloud Library meta data
 	
-    CONSTRAINT profile_standard_profile_id FOREIGN KEY (ua_standard_profile_id)
-        REFERENCES public.standard_nodeset (id) MATCH SIMPLE
-        ON UPDATE NO ACTION
-        ON DELETE NO ACTION
-        DEFERRABLE INITIALLY DEFERRED,	
+    --CONSTRAINT profile_standard_profile_id FOREIGN KEY (ua_standard_profile_id)
+    --    REFERENCES public.standard_nodeset (id) MATCH SIMPLE
+    --    ON UPDATE NO ACTION
+    --    ON DELETE NO ACTION
+    --    DEFERRABLE INITIALLY DEFERRED,	
     CONSTRAINT profile_author_id FOREIGN KEY (author_id)
         REFERENCES public.user (id) MATCH SIMPLE
         ON UPDATE NO ACTION

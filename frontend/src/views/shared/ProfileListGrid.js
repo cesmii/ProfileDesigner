@@ -96,6 +96,11 @@ function ProfileListGrid(props) {
         if (props.onGridRowSelect) props.onGridRowSelect(item);
     };
 
+    const onRowChanged = (item) => {
+        console.log(generateLogMessageString(`onRowChanged`, CLASS_NAME));
+        setForceReload(_forceReload + 1)
+    }
+
     //-------------------------------------------------------------------
     // Region: Event Handling of child component events
     //-------------------------------------------------------------------
@@ -340,7 +345,7 @@ function ProfileListGrid(props) {
         const mainBody = _dataRows.all.map((item) => {
             return (<ProfileItemRow key={item.id} item={item} activeAccount={_activeAccount}
                 showActions={true} cssClass={`profile-list-item ${props.rowCssClass ?? ''}`} selectMode={props.selectMode}
-                onEditCallback={onEdit} onDeleteCallback={onDeleteItemClick} onRowSelect={onRowSelect}
+                onEditCallback={onEdit} onDeleteCallback={onDeleteItemClick} onRowSelect={onRowSelect} onRowChanged={onRowChanged}
                 onImportCallback={onImport}
                 selectedItems={props.selectedItems} navigateModal={props.navigateModal}
             />)

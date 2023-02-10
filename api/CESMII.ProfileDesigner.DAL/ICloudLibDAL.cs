@@ -27,6 +27,8 @@
         Task<TModel> GetAsync(string namespaceUri, DateTime? publicationDate, bool exactMatch);
 
         Task<GraphQlResult<TModel>> Where(int limit, string cursor, bool beforeCursor, List<string> keywords, List<string> exclude = null);
+        Task<GraphQlResult<CloudLibProfileModel>> GetNodeSetsPendingApprovalAsync(int limit, string cursor, bool pageBackwards, AdditionalProperty additionalProperty);
+        Task<CloudLibProfileModel> UpdateApprovalStatusAsync(string cloudLibraryId, string newStatus, string statusInfo);
 
     }
 

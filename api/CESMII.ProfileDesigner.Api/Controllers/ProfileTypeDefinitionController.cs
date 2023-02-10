@@ -155,7 +155,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 Expression<Func<ProfileTypeDefinition, bool>> predAuthor = null;
                 foreach (var filterAuthor in filterAuthors)
                 {
-                    Expression<Func<ProfileTypeDefinition, bool>> fnz = x => !x.Profile.StandardProfileID.HasValue 
+                    Expression<Func<ProfileTypeDefinition, bool>> fnz = x => string.IsNullOrEmpty(x.Profile.CloudLibraryId) 
                         && x.Profile.AuthorId.Value.Equals(filterAuthor.ID.Value);
                     predAuthor = predAuthor.OrExtension(fnz);
                 }

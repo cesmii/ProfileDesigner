@@ -197,6 +197,11 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                     foreach (var profile in result.Data.Where(p => p.CloudLibPendingApproval == true))
                     {
                         profile.CloudLibPendingApproval = false;
+                        var cloudLibProfile = _cloudLibDal.GetById(profile.CloudLibraryId).Result;
+                        if (cloudLibProfile == null)
+                        {
+                            profile.CloudLibraryId = null;
+                        }
                         _dal.UpdateAsync(profile, base.DalUserToken).Wait();
                     }
                 }
@@ -723,6 +728,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                     Name = strCESMIIUserInfo,
                     Value = $"{user.Email}, {user.DisplayName}, {user.ObjectIdAAD}, PD{base.DalUserToken.UserId}",
                 };
+                cloudLibProfile.AdditionalProperties.RemoveAll(p => p.Name == userInfoProp.Name);
                 cloudLibProfile.AdditionalProperties.Add(userInfoProp);
 
                 try

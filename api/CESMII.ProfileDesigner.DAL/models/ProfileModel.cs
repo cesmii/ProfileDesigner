@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using CESMII.ProfileDesigner.Common.Enums;
 
     public class ProfileModel : AbstractModel
@@ -136,7 +137,7 @@
                 License = profile.License,
                 LicenseUrl = profile.LicenseUrl,
                 Keywords = profile.Keywords,
-                AdditionalProperties = profile.AdditionalProperties,
+                AdditionalProperties = profile.AdditionalProperties.Select(p => new AdditionalProperty {  Name = p.Name, Value =p.Value}).ToList(),
                 CategoryName = profile.CategoryName,
                 ContributorName = profile.ContributorName,
                 CopyrightText = profile.CopyrightText,

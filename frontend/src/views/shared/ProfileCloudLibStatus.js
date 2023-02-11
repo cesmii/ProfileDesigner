@@ -31,7 +31,7 @@ function ProfileCloudLibStatus(props) {
     //-------------------------------------------------------------------
     const onPublishToCloudLib = async () => {
         console.log(generateLogMessageString(`onPublishToCloudLib||start`, CLASS_NAME));
-        if (props.item.title == null || props.item.description == null || props.item.contributorName == null || props.item.copyrightText == null || props.item.categoryName == null ) {
+        if (props.item.title == null || props.item.description == null || props.item.contributorName == null || props.item.copyrightText == null || props.item.categoryName == null) {
             setPublishToCloudLibModal({ show: true, item: null, message: "Please fill in Title, Description, Contributor, Copyright, License and Category before publishing the profile." });
         }
         else if (props.item.license === "MIT" || props.item.license === "GPL-2.0") {
@@ -229,7 +229,7 @@ function ProfileCloudLibStatus(props) {
                 <ConfirmationModal showModal={_publishToCloudLibModal.show} caption={caption} message={message}
                     icon={{ name: "warning", color: color.trinidad }}
                     confirm={{ caption: "Publish", callback: onPublishToCloudLibConfirm, buttonVariant: "danger" }}
-                    requireAgreementText= {agreementMessage}
+                    requireAgreementText={agreementMessage}
                     cancel={{
                         caption: "Cancel",
                         callback: () => {
@@ -280,10 +280,14 @@ function ProfileCloudLibStatus(props) {
             <>
                 <Dropdown className="cloudlib-action-menu icon-dropdown" onClick={(e) => e.stopPropagation()} >
                     <Dropdown.Toggle drop="left" title="Cloud Library Actions" >
-                        <span className="my-0 mr-2"><SVGIcon size="50" name={renderCloudIconName()} /></span>
                         {props.item.cloudLibApprovalStatus === "REJECTED" &&
-                            <span>{props.item.cloudLibApprovalDescription }</span>
+                            <>
+                                <p>
+                                    {props.item.cloudLibApprovalDescription}
+                                </p>
+                            </>
                         }
+                        <span className="my-0 mr-2"><SVGIcon size="50" name={renderCloudIconName()} /></span>
                     </Dropdown.Toggle>
                     {isOwner(props.item, props.activeAccount) && (props.item.cloudLibraryId == null || (props.item.cloudLibraryId != null && props.item.cloudLibPendingApproval)) &&
                         <Dropdown.Menu>

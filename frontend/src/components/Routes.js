@@ -26,6 +26,7 @@ import CloudLibList from '../views/CloudLibList'
 import CloudLibViewer from '../views/CloudLibViewer'
 import AdminUserEntity from '../views/admin/AdminUserEntity'
 import AdminUserList from '../views/admin/AdminUserList'
+import AdminCloudLibApprovalList from '../views/admin/AdminCloudLibApprovalList'
 import Login from '../views/Login'
 import NotAuthorized from '../views/NotAuthorized'
 import LoginSuccess from '../views/LoginSuccess'
@@ -69,6 +70,7 @@ function Routes() {
             <WizardRoute path="/wizard/extend/:parentId" component={ProfileTypeDefinitionEntity} />
             <AdminRoute path="/admin/user/list" component={AdminUserList} roles={['cesmii.profiledesigner.admin']}/>
             <AdminRoute path="/admin/user/:id" component={AdminUserEntity} roles={['cesmii.profiledesigner.admin']} />
+            <AdminRoute path="/admin/cloudlibrary/approval/list" component={AdminCloudLibApprovalList} roles={['cesmii.profiledesigner.admin']} />
             <PublicFixedRoute path="/notpermitted" component={NotAuthorized} />
             <PublicFixedRoute path="/notauthorized" component={NotAuthorized} />
             <PublicFixedRoute component={PageNotFound} />

@@ -721,14 +721,14 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 // SendProfileEmailNotification(strSenderEmail, strSenderDisplayName, strAuthorEmail, strAuthorDisplayName, strAuthorInfo, strOrganizationInfo, strProfileInfo);
 
                 var error = await _cloudLibDal.UploadAsync(cloudLibProfile, exportedNodeSet.Data as string);
-                if (!string.IsNullOrEmpty(error))
+                if (!string.IsNullOrEmpty(error) && error != "Upload successful!")
                 {
                     _logger.LogWarning($"ProfileController|PublishToCloudLibrary|Failed to upload : {model.ID}.");
                     return Ok(
                         new ResultMessageWithDataModel()
                         {
                             IsSuccess = false,
-                            Message =error,
+                            Message = error,
                         }
                     );
                 }

@@ -92,8 +92,10 @@ begin
 	JOIN public.profile p ON p.id = t.profile_id
 	JOIN public.lookup l ON l.id = t.type_id
 	WHERE 
+	--rule: always exclude object and method
+	l.id NOT IN (11, 20)   
 	--optional parameters
-	1 = (CASE WHEN _limitByType = false THEN 1
+	AND 1 = (CASE WHEN _limitByType = false THEN 1
 		 WHEN _limitByType = true AND t.type_id IN (SELECT t1.type_id FROM public.profile_type_definition t1 WHERE t1.id = _id) THEN 1
 		 ELSE 0 END)
 	--optional parameters
@@ -228,8 +230,10 @@ begin
 	JOIN public.profile p ON p.id = t.profile_id
 	JOIN public.lookup l ON l.id = t.type_id
 	WHERE 
+	--rule: always exclude object and method
+	l.id NOT IN (11, 20)   
 	--optional parameters
-	1 = (CASE WHEN _limitByType = false THEN 1
+	AND 1 = (CASE WHEN _limitByType = false THEN 1
 		 WHEN _limitByType = true AND t.type_id IN (SELECT t1.type_id FROM public.profile_type_definition t1 WHERE t1.id = _id) THEN 1
 		 ELSE 0 END)
 	--optional parameters
@@ -344,6 +348,8 @@ end; $$
 
 /*
 --test - Execute the function
+SELECT * FROM public.profile_type_definition where id = 13603
+
 SELECT * FROM public.fn_profile_type_definition_get_ancestors(6149, 40) d
 WHERE d.level < 2
 ORDER BY d.level, d.name

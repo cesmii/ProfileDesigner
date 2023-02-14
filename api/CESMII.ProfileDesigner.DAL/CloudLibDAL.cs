@@ -54,7 +54,7 @@
 
         public async Task<CloudLibProfileModel> GetById(string id)
         {
-            var entity = await _cloudLib.DownloadAsync(id);
+            var entity = await _cloudLib.GetAsync(id);
             if (entity == null) return null;
             return MapToModelNamespace(entity);
         }
@@ -290,7 +290,8 @@
                     TestSpecificationUrl = entity.TestSpecificationUrl?.OriginalString,
                     SupportedLocales = entity.SupportedLocales?.ToList(),
                     AdditionalProperties = entity.AdditionalProperties?.Select(p => new AdditionalProperty { Name = p.Name, Value = p.Value })?.ToList(),
-
+                    CloudLibApprovalStatus = entity.ApprovalStatus,
+                    CloudLibApprovalDescription = entity.ApprovalInformation,
                     //IsFeatured = false,
                     //ImagePortrait = _images.FirstOrDefault(x => x.ID.Equals(_config.DefaultImageIdPortrait)),
                     ////ImageSquare = _images.FirstOrDefault(x => x.ID.Equals(_config.DefaultImageIdSquare)),

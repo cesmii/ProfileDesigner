@@ -185,5 +185,10 @@ namespace CESMII.ProfileDesigner.Api.Tests
         {
             throw new NotImplementedException();
         }
+
+        public Task<UANameSpace> GetAsync(string identifier)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

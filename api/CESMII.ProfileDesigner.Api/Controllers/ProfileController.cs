@@ -184,25 +184,26 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                         {
                             profile.CloudLibApprovalStatus = clProfile.CloudLibApprovalStatus;
                             profile.CloudLibApprovalDescription = clProfile.CloudLibApprovalDescription;
-                            if (profile.CloudLibApprovalStatus == "APPROVED" && profile.CloudLibPendingApproval == true)
-                            {
-                                profile.CloudLibPendingApproval = false;
-                                _dal.UpdateAsync(profile, base.DalUserToken).Wait();
-                            }
                         }
                     }
                 }
-                else
+
+                foreach (var profile in result.Data.Where(p => p.CloudLibPendingApproval == true))
                 {
-                    foreach (var profile in result.Data.Where(p => p.CloudLibPendingApproval == true))
+                    if (cloudLibPendingApproval?.Data?.Any(p => p.CloudLibraryId == profile.CloudLibraryId) != true)
                     {
-                        profile.CloudLibPendingApproval = false;
                         var cloudLibProfile = _cloudLibDal.GetById(profile.CloudLibraryId).Result;
                         if (cloudLibProfile == null)
                         {
+                            profile.CloudLibPendingApproval = false;
                             profile.CloudLibraryId = null;
+                            _dal.UpdateAsync(profile, base.DalUserToken).Wait();
                         }
-                        _dal.UpdateAsync(profile, base.DalUserToken).Wait();
+                        else if (cloudLibProfile.CloudLibApprovalStatus == "APPROVED")
+                        {
+                            profile.CloudLibPendingApproval = false;
+                            _dal.UpdateAsync(profile, base.DalUserToken).Wait();
+                        }
                     }
                 }
             }

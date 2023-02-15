@@ -176,19 +176,18 @@ namespace CESMII.ProfileDesigner.Api.Tests
             throw new NotImplementedException();
         }
 
-        public Task<GraphQlResult<Nodeset>> GetNodeSetsPendingApprovalAsync(int? limit, string cursor, bool pageBackwards, bool noTotalCount = false, UAProperty? prop = null)
+        public Task<GraphQlResult<Nodeset>> GetNodeSetsPendingApprovalAsync(int? limit, string cursor, bool pageBackwards, bool noTotalCount = false, UAProperty prop = null)
         {
             throw new NotImplementedException();
         }
-        public Task<UANameSpace?> UpdateApprovalStatusAsync(string nodeSetId, string newStatus, string statusInfo, UAProperty? additionalProperty = null)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<UANameSpace?> GetAsync(string identifier)
+        public Task<UANameSpace> UpdateApprovalStatusAsync(string nodeSetId, string newStatus, string statusInfo, UAProperty additionalProperty = null)
         {
             throw new NotImplementedException();
         }
 
+        public Task<UANameSpace> GetAsync(string identifier)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

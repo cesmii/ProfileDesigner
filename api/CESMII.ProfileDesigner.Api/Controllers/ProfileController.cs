@@ -739,6 +739,21 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 };
                 cloudLibProfile.AdditionalProperties.RemoveAll(p => p.Name == userInfoProp.Name);
                 cloudLibProfile.AdditionalProperties.Add(userInfoProp);
+                string strSenderEmail = user.Email;
+                string strSenderDisplayName = user.DisplayName;
+                string strAuthorEmail = profile.Author.Email;
+                string strAuthorDisplayName = profile.Author.DisplayName;
+                string strAuthorInfo = $"\tAuthor: <strong>{profile.Author.DisplayName} [{profile.Author.Email}]</strong> -- ({profile.Author.ObjectIdAAD})";
+                string strOrganizationInfo = $"\tOrganization: <strong>{profile.Author.Organization}</strong>";
+                string strProfileInfo = $"\tProfile Title: <strong>{profile.Title}</strong>: <br/>" +
+                                        $"\tProfile Description: <strong>{profile.Description}</strong> <br/>" +
+                                        $"\tProfile Namespace: <strong>{profile.Namespace}</strong>: <br/>" +
+                                        $"\tProfile Version: <strong>{profile.Version}</strong>: <br/>" +
+                                        $"\tProfile Publication Date: <strong>{profile.PublishDate}</strong> <br/>" +
+                                        $"\tProfile License: <strong>{profile.License}</strong> <br/>";
+
+                // This is where I am testing it....
+                // SendProfileEmailNotification(strSenderEmail, strSenderDisplayName, strAuthorEmail, strAuthorDisplayName, strAuthorInfo, strOrganizationInfo, strProfileInfo);
 
                 try
                 {
@@ -747,21 +762,6 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                     profile.CloudLibraryId = cloudLibId;
                     profile.CloudLibPendingApproval = true;
                     await _dal.UpdateAsync(profile, base.DalUserToken);
-                    string strSenderEmail = user.Email;
-                    string strSenderDisplayName = user.DisplayName;
-                    string strAuthorEmail = profile.Author.Email;
-                    string strAuthorDisplayName = profile.Author.DisplayName;
-                    string strAuthorInfo = $"\tAuthor: <strong>{profile.Author.DisplayName} [{profile.Author.Email}]</strong> -- ({profile.Author.ObjectIdAAD})";
-                    string strOrganizationInfo = $"\tOrganization: <strong>{profile.Author.Organization}</strong>";
-                    string strProfileInfo = $"\tProfile Title: <strong>{profile.Title}</strong>: <br/>" +
-                                            $"\tProfile Description: <strong>{profile.Description}</strong> <br/>" +
-                                            $"\tProfile Namespace: <strong>{profile.Namespace}</strong>: <br/>" +
-                                            $"\tProfile Version: <strong>{profile.Version}</strong>: <br/>" +
-                                            $"\tProfile Publication Date: <strong>{profile.PublishDate}</strong> <br/>" +
-                                            $"\tProfile License: <strong>{profile.License}</strong> <br/>";
-
-                    // This is where I am testing it....
-                    // SendProfileEmailNotification(strSenderEmail, strSenderDisplayName, strAuthorEmail, strAuthorDisplayName, strAuthorInfo, strOrganizationInfo, strProfileInfo);
                 }
                 catch (UploadException ex)
                 {

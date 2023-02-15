@@ -1332,8 +1332,10 @@ begin
 	JOIN public.profile p ON p.id = t.profile_id
 	JOIN public.lookup l ON l.id = t.type_id
 	WHERE 
+	--rule: always exclude object and method
+	l.id NOT IN (11, 20)   
 	--optional parameters
-	1 = (CASE WHEN _limitByType = false THEN 1
+	AND 1 = (CASE WHEN _limitByType = false THEN 1
 		 WHEN _limitByType = true AND t.type_id IN (SELECT t1.type_id FROM public.profile_type_definition t1 WHERE t1.id = _id) THEN 1
 		 ELSE 0 END)
 	--optional parameters
@@ -1450,8 +1452,10 @@ begin
 	JOIN public.profile p ON p.id = t.profile_id
 	JOIN public.lookup l ON l.id = t.type_id
 	WHERE 
+	--rule: always exclude object and method
+	l.id NOT IN (11, 20)   
 	--optional parameters
-	1 = (CASE WHEN _limitByType = false THEN 1
+	AND 1 = (CASE WHEN _limitByType = false THEN 1
 		 WHEN _limitByType = true AND t.type_id IN (SELECT t1.type_id FROM public.profile_type_definition t1 WHERE t1.id = _id) THEN 1
 		 ELSE 0 END)
 	--optional parameters

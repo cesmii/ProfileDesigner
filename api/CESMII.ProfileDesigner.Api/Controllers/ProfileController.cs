@@ -27,6 +27,11 @@ using CESMII.ProfileDesigner.OpcUa;
 using CESMII.OpcUa.NodeSetImporter;
 using CESMII.OpcUa.NodeSetModel.Factory.Smip;
 using Newtonsoft.Json;
+using System.Net.Mail;
+using CESMII.Common.SelfServiceSignUp.Services;
+using Opc.Ua;
+using SendGrid.Helpers.Mail;
+using KeyValuePair = System.Collections.Generic.KeyValuePair;
 using CESMII.Common.CloudLibClient;
 
 namespace CESMII.ProfileDesigner.Api.Controllers
@@ -36,6 +41,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
     {
         private readonly IDal<Profile, ProfileModel> _dal;
         private readonly ICloudLibDal<CloudLibProfileModel> _cloudLibDal;
+        private readonly MailRelayService _mailService;
 
         private readonly Utils.ImportService _svcImport;
         private readonly OpcUaImporter _exporter;
@@ -45,13 +51,15 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             UserDAL dalUser,
             Utils.ImportService svcImport,
             OpcUaImporter exporter,
-            ConfigUtil config, ILogger<ProfileController> logger)
+            ConfigUtil config, ILogger<ProfileController> logger,
+            MailRelayService mailservice)
             : base(config, logger, dalUser)
         {
             _dal = dal;
             _cloudLibDal = cloudLibDal;
             _svcImport = svcImport;
             _exporter = exporter;
+            _mailService = mailservice;
         }
 
         [HttpPost, Route("GetByID")]
@@ -739,6 +747,21 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                     profile.CloudLibraryId = cloudLibId;
                     profile.CloudLibPendingApproval = true;
                     await _dal.UpdateAsync(profile, base.DalUserToken);
+                    string strSenderEmail = user.Email;
+                    string strSenderDisplayName = user.DisplayName;
+                    string strAuthorEmail = profile.Author.Email;
+                    string strAuthorDisplayName = profile.Author.DisplayName;
+                    string strAuthorInfo = $"\tAuthor: <strong>{profile.Author.DisplayName} [{profile.Author.Email}]</strong> -- ({profile.Author.ObjectIdAAD})";
+                    string strOrganizationInfo = $"\tOrganization: <strong>{profile.Author.Organization}</strong>";
+                    string strProfileInfo = $"\tProfile Title: <strong>{profile.Title}</strong>: <br/>" +
+                                            $"\tProfile Description: <strong>{profile.Description}</strong> <br/>" +
+                                            $"\tProfile Namespace: <strong>{profile.Namespace}</strong>: <br/>" +
+                                            $"\tProfile Version: <strong>{profile.Version}</strong>: <br/>" +
+                                            $"\tProfile Publication Date: <strong>{profile.PublishDate}</strong> <br/>" +
+                                            $"\tProfile License: <strong>{profile.License}</strong> <br/>";
+
+                    // This is where I am testing it....
+                    // SendProfileEmailNotification(strSenderEmail, strSenderDisplayName, strAuthorEmail, strAuthorDisplayName, strAuthorInfo, strOrganizationInfo, strProfileInfo);
                 }
                 catch (UploadException ex)
                 {
@@ -751,6 +774,9 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                         }
                     );
                 }
+
+                // This is where it goes....
+                SendProfileEmailNotification(strSenderEmail, strSenderDisplayName, strAuthorEmail, strAuthorDisplayName, strAuthorInfo, strOrganizationInfo, strProfileInfo);
 
                 return Ok(
                     new ResultMessageWithDataModel()
@@ -767,11 +793,50 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                     new ResultMessageWithDataModel()
                     {
                         IsSuccess = false,
-                        Message = "Error publishing profile to Cloud Library."
+                        Message = ex.Message
                     }
                 );
             }
         }
+
+        internal async void SendProfileEmailNotification(string strSenderEmail, string strSenderDisplayName, string strAuthorEmail, string strAuthorDisplayName, string strAuthorInfo, string strOrganizationInfo, string strProfileInfo)
+        {
+            // Send email that we have created a new user account
+            string strUserName = "DisplayName";
+
+            string strSubject = "Profile submission to CESMII Cloud Library";
+            string strContent = $"<p>Thank you very much for your submission to the Clean Energy Smart Manufacturing Innovation Institute (CESMII) Cloud Library.</p>" +
+                                $"<p></p>" +
+                                $"<p>{strAuthorInfo}</p>" +
+                                $"<p>{strOrganizationInfo}</p>" +
+                                $"<p></p>" +
+                                $"<p>{strProfileInfo}</p>" +
+                                $"<p></p>" +
+                                $"<p></p>" +
+                                $"<p>Sincerely,</p>" +
+                                $"<p>CESMII Support Team</p>" +
+                                $"<p></p>";
+
+            _logger.LogInformation($"SendProfileEmailNotification: About to send notification email.");
+
+            // Setup "To" list 
+            // List of recipients for the notification email.
+            List<EmailAddress> leaTo = new List<EmailAddress>();
+            if (strAuthorEmail.ToLower() != strSenderEmail.ToLower())
+                leaTo.Add(new EmailAddress(strAuthorEmail, strAuthorDisplayName));
+
+            leaTo.Add(new EmailAddress(strSenderEmail, strSenderDisplayName));
+
+            // Setup Contents of our email message.
+            MailMessage mm = new MailMessage()
+            {
+                Subject = strSubject,
+                Body = strContent
+            };
+
+            await _mailService.SendEmailSendGrid(mm, leaTo);
+        }
+
 
         /// <summary>
         /// Publishes a profile to the Cloud Library 

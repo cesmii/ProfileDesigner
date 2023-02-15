@@ -57,7 +57,7 @@ namespace CESMII.OpcUa.NodeSetImporter
                 // Attempt to use the new API first
                 foreach (var missingModel in missingModels)
                 {
-                    var nodeSets = await _client.GetNodeSetDependencies(namespaceUri: missingModel.ModelUri).ConfigureAwait(false);
+                    var nodeSets = await _client.GetNodeSetDependencies(modelUri: missingModel.ModelUri).ConfigureAwait(false);
                     foreach (var nodeSet in nodeSets)
                     {
                         nodesetWithURIAndDate.Add((nodeSet.NamespaceUri.OriginalString, nodeSet.PublicationDate, nodeSet.Identifier.ToString(CultureInfo.InvariantCulture), nodeSet.NodesetXml));

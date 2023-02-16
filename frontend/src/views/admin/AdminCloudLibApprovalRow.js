@@ -31,7 +31,7 @@ function AdminCloudLibApprovalRow(props) { //props are item, showActions
             <>
                 <tr className={`mx-0 my-1 p-0 py-1 ${cssClass}`}>
                     <th className="" >
-                        Cloud Library
+                        User
                     </th>
                     <th className="" >
                         Title
@@ -44,6 +44,9 @@ function AdminCloudLibApprovalRow(props) { //props are item, showActions
                     </th>
                     <th className="" >
                         PublicationDate
+                    </th>
+                    <th className="" >
+                        Nodeset
                     </th>
                     <th className="" >
                         Approval Status
@@ -78,7 +81,7 @@ function AdminCloudLibApprovalRow(props) { //props are item, showActions
         <>
             <tr className={`mx-0 my-1 p-0 py-1 ${cssClass}`}>
                 <td className="py-2 align-middle" >
-                    <a href={`/cloudlibrary/viewer/${props.item.cloudLibraryId}`}>View in Profile Designer</a> (ID: {props.item.cloudLibraryId})
+                    <a href={`/admin/user/${props.item.author.id}`}>{props.item.author.displayName}</a>
                 </td>
                 <td className="py-2 align-middle" >
                     {props.item.title}
@@ -91,6 +94,9 @@ function AdminCloudLibApprovalRow(props) { //props are item, showActions
                 </td>
                 <td className="py-2 align-middle" >
                     {formatDate(props.item.publishDate)}
+                </td>
+                <td className="py-2 align-middle" >
+                    <a href={`/cloudlibrary/viewer/${props.item.cloudLibraryId}`}>View in Profile Designer</a> (ID: {props.item.cloudLibraryId})
                 </td>
                 <td className="py-2 align-middle" >
                     {props.item.cloudLibApprovalStatus}

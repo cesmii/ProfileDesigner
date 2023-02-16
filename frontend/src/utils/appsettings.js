@@ -105,7 +105,8 @@ export const AppSettings = {
         Pending: "PENDING",
         Approved: "APPROVED",
         Rejected: "REJECTED",
-        Canceled: "CANCELED"
+        Canceled: "CANCELED",
+        Unknown: "UNKNOWN"
     }
     //MSAL (Authentication) Config
     , MsalConfig: {

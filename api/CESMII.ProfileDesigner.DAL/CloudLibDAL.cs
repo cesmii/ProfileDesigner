@@ -12,6 +12,8 @@
     using Opc.Ua.Cloud.Library.Client;
     using CESMII.ProfileDesigner.DAL.Models;
     using CESMII.ProfileDesigner.Common.Enums;
+    using System.Text.RegularExpressions;
+    using CESMII.ProfileDesigner.Data.Entities;
 
     /// <summary>
     /// Most lookup data is contained in this single entity and differntiated by a lookup type. 
@@ -21,19 +23,23 @@
         protected bool _disposed = false;
         protected static readonly Logger _logger = LogManager.GetCurrentClassLogger();
         private readonly ICloudLibWrapper _cloudLib;
+        private readonly IDal<User, UserModel> _dalUser;
+
         //private readonly MarketplaceItemConfig _config;
         //private readonly LookupItemModel _smItemType;
 
         //supporting data
         //protected List<ImageItemModel> _images;
 
-        public CloudLibDAL(ICloudLibWrapper cloudLib
+        public CloudLibDAL(ICloudLibWrapper cloudLib,
+            UserDAL dalUser
             //IDal<LookupItem, LookupItemModel> dalLookup,
             //IDal<ImageItem, ImageItemModel> dalImages,
             //ConfigUtil configUtil
             )
         {
             _cloudLib = cloudLib;
+            _dalUser = dalUser;
 
             //init some stuff we will use during the mapping methods
             //_config = configUtil.MarketplaceSettings.SmProfile;
@@ -105,10 +111,10 @@
 
         public async Task<GraphQlResult<CloudLibProfileModel>> GetNodeSetsPendingApprovalAsync(int limit, string cursor, bool pageBackwards, AdditionalProperty additionalProperty)
         {
-            UAProperty uaProp = null;
+            Opc.Ua.Cloud.Library.Client.UAProperty uaProp = null;
             if (additionalProperty != null)
             {
-                uaProp = new UAProperty
+                uaProp = new() 
                 {
                     Name = additionalProperty.Name,
                     Value = additionalProperty.Value,
@@ -156,12 +162,40 @@
             if (entityAndCursor != null && entityAndCursor.Node != null)
             {
                 var entity = entityAndCursor.Node;
+
+                int? userId = null;
+                UserSimpleModel user = null;
+                try
+                {
+                    var userInfoProp = entity.Metadata?.AdditionalProperties?.FirstOrDefault(p => p.Name == ICloudLibDal<CloudLibProfileModel>.strCESMIIUserInfo);
+
+                    if (!string.IsNullOrEmpty(userInfoProp?.Value))
+                    {
+                        var userIdString = Regex.Replace(userInfoProp?.Value, ".*PD", "");
+                        if (int.TryParse(userIdString, out var userId2))
+                        {
+                            var userModel = _dalUser.GetById(userId2, null);
+                            if (userModel != null)
+                            {
+                                user = new UserSimpleModel { ID = userModel.ID, ObjectIdAAD = userModel.ObjectIdAAD, DisplayName = userModel.DisplayName };
+                                userId = user.ID;
+                            }
+                        }
+                    }
+                }
+                catch (Exception)
+                {
+                    // ignore
+                }
+
                 return new GraphQlNodeAndCursor<CloudLibProfileModel>()
                 {
                     Cursor = entityAndCursor.Cursor,
                     Node = new CloudLibProfileModel
                     {
                         ID = null,
+                        AuthorId = userId,
+                        Author = user,
                         CloudLibraryId = entity.Identifier.ToString(),
                         ContributorName = entity.Metadata?.Contributor?.Name,
                         Description = entity.Metadata.Description,
@@ -325,7 +359,7 @@
                 ReleaseNotesUrl = !string.IsNullOrEmpty(model.ReleaseNotesUrl) ? new Uri(model.ReleaseNotesUrl) : null,
                 TestSpecificationUrl = !string.IsNullOrEmpty(model.TestSpecificationUrl) ? new Uri(model.TestSpecificationUrl) : null,
                 SupportedLocales = model.SupportedLocales?.ToArray(),
-                AdditionalProperties = model.AdditionalProperties?.Select(kv => new UAProperty { Name = kv.Name, Value = kv.Value }).ToArray(),
+                AdditionalProperties = model.AdditionalProperties?.Select(kv => new Opc.Ua.Cloud.Library.Client.UAProperty { Name = kv.Name, Value = kv.Value }).ToArray(),
                 Nodeset = new Nodeset
                 {
                     NamespaceUri = !string.IsNullOrEmpty(model.Namespace) ? new Uri(model.Namespace) : null,

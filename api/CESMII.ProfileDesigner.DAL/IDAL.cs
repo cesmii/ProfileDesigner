@@ -18,6 +18,14 @@
         {
             return new UserToken { UserId = userToken.UserId, TargetTenantId = 0, };
         }
+        public override string ToString()
+        {
+            if (TargetTenantId != null)
+            {
+                return $"{UserId} ({TargetTenantId})";
+            }
+            return $"{UserId}";
+        }
     }
 
     public interface IDal<TEntity, TModel>: IDisposable where TEntity : AbstractEntity where TModel: AbstractModel

@@ -179,6 +179,9 @@ function ProfileCloudLibStatus(props) {
         if (props.item.cloudLibApprovalStatus === AppSettings.PublishProfileStatus.Rejected) {
             return "publish-rejected";
         }
+        if (props.item.cloudLibApprovalStatus === AppSettings.PublishProfileStatus.Unknown) {
+            return "publish-unknown";
+        }
         if (props.item.cloudLibApprovalStatus === AppSettings.PublishProfileStatus.Pending || props.item.cloudLibPendingApproval) {
             return "publish-pending";
         }

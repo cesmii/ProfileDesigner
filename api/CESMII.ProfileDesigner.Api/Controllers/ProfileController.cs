@@ -855,7 +855,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         internal async void SendProfileEmailNotification(string strSenderEmail, string strSenderDisplayName, string strAuthorEmail, string strAuthorDisplayName, string strAuthorInfo, string strOrganizationInfo, string strProfileInfo)
         {
             // Send email that we have created a new user account
-            string strUserName = "DisplayName";
+            //string strUserName = "DisplayName";
 
             string strSubject = "Profile submission to CESMII Cloud Library";
             string strContent = $"<p>Thank you very much for your submission to the Clean Energy Smart Manufacturing Innovation Institute (CESMII) Cloud Library.</p>" +

@@ -744,7 +744,7 @@ namespace CESMII.ProfileDesigner.OpcUa
 
         public async Task ImportEngineeringUnitsAsync(UserToken userToken)
         {
-            var units = NodeModelOpcExtensions.GetUNECEEngineeringUnits();
+            var units = NodeModelOpcExtensions.UNECEEngineeringUnits;//.GetUNECEEngineeringUnits();
             _euDal.StartTransaction();
             foreach (var unit in units)
             {

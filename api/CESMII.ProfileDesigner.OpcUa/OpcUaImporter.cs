@@ -133,22 +133,22 @@ namespace CESMII.ProfileDesigner.OpcUa
                 _logger.LogTrace($"Timestamp||ImportId:{logId}||Importing node sets: {sw.Elapsed}");
 
                 var nodeSetXmlStringList = nodeSetXmlList.Select(nodeSetXml => nodeSetXml.Data).ToList();
-                UANodeSetImportResult importedNodeSetFiles = ImportAndDownloadNodeSetFiles(_nodeSetCache, userToken, nodeSetXmlStringList, logToImportLog);
+                UANodeSetImportResult cachedNodeSetFiles = CacheAndDownloadNodeSetFiles(_nodeSetCache, userToken, nodeSetXmlStringList, logToImportLog);
                 _logger.LogTrace($"Timestamp||ImportId:{logId}||Imported node sets: {sw.Elapsed}");
-                if (!string.IsNullOrEmpty(importedNodeSetFiles.ErrorMessage))
+                if (!string.IsNullOrEmpty(cachedNodeSetFiles.ErrorMessage))
                 {
                     //The UA Importer encountered a crash/error
                     //failed complete message
                     _profileDal.RollbackTransaction();
-                    await logToImportLog(importedNodeSetFiles.ErrorMessage + $"<br/>{filesImportedMsg}", TaskStatusEnum.Failed);
+                    await logToImportLog(cachedNodeSetFiles.ErrorMessage + $"<br/>{filesImportedMsg}", TaskStatusEnum.Failed);
                     return null;
                 }
-                if (importedNodeSetFiles?.MissingModels?.Count > 0)
+                if (cachedNodeSetFiles?.MissingModels?.Count > 0)
                 {
                     //The UA Importer tried to resolve already all missing NodeSet either from Cache or CloudLib but could not find all dependencies
                     //failed complete message
                     _profileDal.RollbackTransaction();
-                    var missingModelsText = string.Join(", ", importedNodeSetFiles.MissingModels);
+                    var missingModelsText = string.Join(", ", cachedNodeSetFiles.MissingModels);
                     await logToImportLog($"Missing dependent node sets: {missingModelsText}.", TaskStatusEnum.Failed);
                     return null;
                 }
@@ -170,9 +170,9 @@ namespace CESMII.ProfileDesigner.OpcUa
                     //    return null;
                     //}
 
-                    if (importedNodeSetFiles != null && importedNodeSetFiles.Models.Any())
+                    if (cachedNodeSetFiles != null && cachedNodeSetFiles.Models.Any())
                     {
-                        foreach (var tmodel in importedNodeSetFiles.Models)
+                        foreach (var tmodel in cachedNodeSetFiles.Models)
                         {
                             var profile = FindOrCreateProfileForNodeSet(tmodel, _profileDal, userToken, logId, sw, allowMultiVersion);
                             profilesAndNodeSets.Add(new ProfileModelAndNodeSet
@@ -187,7 +187,7 @@ namespace CESMII.ProfileDesigner.OpcUa
                 }
                 catch (Exception e)
                 {
-                    _nodeSetCache.DeleteNewlyAddedNodeSetsFromCache(importedNodeSetFiles);
+                    _nodeSetCache.DeleteNewlyAddedNodeSetsFromCache(cachedNodeSetFiles);
                     //log complete message to logger and abbreviated message to user. 
                     _logger.LogCritical(e, $"ImportId:{logId}||ImportService|ImportOpcUaProfile|{e.Message}");
                     //failed complete message
@@ -371,7 +371,7 @@ namespace CESMII.ProfileDesigner.OpcUa
             return profile;
         }
 
-        private UANodeSetImportResult ImportAndDownloadNodeSetFiles(UANodeSetDBCache myNodeSetCache, UserToken userToken, List<string> nodeSetXmlStringList, Func<string, TaskStatusEnum, Task> logToImportLog)
+        private UANodeSetImportResult CacheAndDownloadNodeSetFiles(UANodeSetDBCache myNodeSetCache, UserToken userToken, List<string> nodeSetXmlStringList, Func<string, TaskStatusEnum, Task> logToImportLog)
         {
             OnNodeSet callback = (string namespaceUri, DateTime? publicationDate) =>
             {
@@ -381,7 +381,8 @@ namespace CESMII.ProfileDesigner.OpcUa
             try
             {
                 _cloudLibResolver.OnDownloadNodeSet += callback;
-                resultSet = UANodeSetImporter.ImportNodeSets(myNodeSetCache, null, nodeSetXmlStringList, false, userToken, _cloudLibResolver);
+                var cacheManager = new UANodeSetCacheManager(myNodeSetCache, _cloudLibResolver);
+                resultSet = cacheManager.ImportNodeSets(nodeSetXmlStringList, false, userToken);
             }
             finally
             {
@@ -587,7 +588,7 @@ namespace CESMII.ProfileDesigner.OpcUa
 #else
                 model.UpdateIndices();
 #endif
-                exportedNodeSet = UANodeSetModelImporter.ExportNodeSet(model, nodeSetModels, this.Aliases);
+                exportedNodeSet = UANodeSetModelExporter.ExportNodeSet(model, nodeSetModels, this.Aliases);
             }
             // .Net6 changed the default to no-identation: https://github.com/dotnet/runtime/issues/64885
             string exportedNodeSetXml;

@@ -551,7 +551,7 @@ namespace CESMII.ProfileDesigner.OpcUa
             }
 
             // populate the model being exported with proper version and publication date
-            //dalOpcContext.GetOrAddNodesetModel(new ModelTableEntry {  ModelUri = profileModel.Namespace, PublicationDate = profileModel.PublishDate ?? default, Version = profileModel.Version, PublicationDateSpecified = profileModel.PublishDate != null}, true);
+            dalOpcContext.GetOrAddNodesetModel(new ModelTableEntry {  ModelUri = profileModel.Namespace, PublicationDate = profileModel.PublishDate ?? default, Version = profileModel.Version, PublicationDateSpecified = profileModel.PublishDate != null}, true);
 
             var profileItemsResult = _dal.Where(pi => pi.ProfileId == profileModel.ID /*&& (pi.AuthorId == null || pi.AuthorId == userId)*/, userToken, null, null, false, true);
             if (profileItemsResult.Data != null)

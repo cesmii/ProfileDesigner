@@ -277,7 +277,7 @@ namespace CESMII.ProfileDesigner.DAL.Utils
             switch (val)
             {
                 case SearchCriteriaSortByEnum.Author:
-                    result.Add(new OrderByExpression<ProfileTypeDefinition>() { Expression = x => !x.Profile.StandardProfileID.HasValue && 
+                    result.Add(new OrderByExpression<ProfileTypeDefinition>() { Expression = x => string.IsNullOrEmpty(x.Profile.CloudLibraryId) && 
                                                                                     x.AuthorId.HasValue && x.AuthorId.Equals(userId) ? 1 : 0, IsDescending = true });
                     result.Add(new OrderByExpression<ProfileTypeDefinition>() { Expression = x => x.Name });
                     result.Add(new OrderByExpression<ProfileTypeDefinition>() { Expression = x => x.Profile.Namespace });

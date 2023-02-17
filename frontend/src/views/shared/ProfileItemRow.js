@@ -5,6 +5,7 @@ import { formatDateUtc } from '../../utils/UtilityService';
 import { getProfileCaption } from '../../services/ProfileService'
 import { SVGIcon } from '../../components/SVGIcon';
 import ProfileActions from './ProfileActions';
+import ProfileCloudLibStatus from './ProfileCloudLibStatus';
 
 //const CLASS_NAME = "ProfileItemRow";
 
@@ -42,19 +43,25 @@ function ProfileItemRow(props) { //props are item, showActions
 
     const IsRowSelected = (item) => {
         if (props.selectedItems == null) return;
-        var x = item.hasLocalProfile ||  props.selectedItems.findIndex(p => { return p.toString() === item.id.toString(); }); // TODO make the local profile selection configurable
+        var x = item.hasLocalProfile || props.selectedItems.findIndex(p => { return p.toString() === item.id.toString(); }); // TODO make the local profile selection configurable
         return x >= 0;
+    }
+
+    const onRowChanged = (e) => {
+        if (props.onRowChanged) props.onRowChanged(e);
     }
 
     //-------------------------------------------------------------------
     // Region: Render helpers
     //-------------------------------------------------------------------
+
     const renderActionsColumn = (showActions) => {
 
         if (!showActions) return;
 
         return (
             <div className="col-sm-4 ml-auto d-inline-flex justify-content-end align-items-center" >
+                <ProfileCloudLibStatus item={props.item} activeAccount={props.activeAccount} onPublishToCloudLibCallback={onRowChanged} onCancelPublishToCloudLibCallback={onRowChanged} />
                 <span className="my-0 mr-2"><a href={`/profile/${props.item.id}?tab=typedefs`} ><span className="mr-1" alt="view"><SVGIcon name="visibility" /></span>View Type Definitions</a></span>
                 <ProfileActions item={props.item} activeAccount={props.activeAccount} />
             </div>

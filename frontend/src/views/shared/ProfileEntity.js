@@ -187,7 +187,7 @@ function ProfileEntityForm(props) {
                             <Form.Label>License</Form.Label>
                             {!props.isValid.licenseExpression &&
                                 <span className="invalid-field-message inline">
-                                    Invalid license expression. (Refer to the <a href="https://spdx.org/licenses/" target="_blank">SPDX License list</a> for valid identifiers.)
+                                    Invalid license expression. (Refer to the <a href="https://spdx.org/licenses/" target="_blank" rel="noreferrer">SPDX License list</a> for valid identifiers.)
                                 </span>
                             }
                             <Form.Control id="license" type="" placeholder="" value={props.item.license == null ? '' : props.item.license} onChange={onChangeLicense}

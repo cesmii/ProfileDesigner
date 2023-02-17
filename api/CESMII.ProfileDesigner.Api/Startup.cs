@@ -76,7 +76,6 @@ namespace CESMII.ProfileDesigner.Api
             services.AddScoped<IStoredProcedureDal<ProfileTypeDefinitionSimpleModel>, ProfileTypeDefinitionRelatedDAL>();
 
             //NodeSet Related Tables
-            services.AddScoped<IRepository<StandardNodeSet>, BaseRepo<StandardNodeSet, ProfileDesignerPgContext>>();
             services.AddScoped<IRepository<Profile>, BaseRepo<Profile, ProfileDesignerPgContext>>();
             services.AddScoped<IRepository<NodeSetFile>, BaseRepo<NodeSetFile, ProfileDesignerPgContext>>();
 
@@ -97,7 +96,6 @@ namespace CESMII.ProfileDesigner.Api
             services.AddScoped<IDal<ProfileTypeDefinitionAnalytic, ProfileTypeDefinitionAnalyticModel>, ProfileTypeDefinitionAnalyticDAL>();
 
             //NodeSet related
-            services.AddScoped<IDal<StandardNodeSet, StandardNodeSetModel>, StandardNodeSetDAL>();
             services.AddScoped<IDal<Profile, ProfileModel>, ProfileDAL>();
             services.AddScoped<IDal<NodeSetFile, NodeSetFileModel>, NodeSetFileDAL>();
             services.AddScoped<ICloudLibDal<CloudLibProfileModel>, CloudLibDAL>();

@@ -66,7 +66,7 @@ function ConfirmationModal(props) { //props are item, showActions
                     {(props.requireAgreementText != null) &&
                         <p>
                             <label>
-                                <input type="checkbox" checked={checked} onChange={onCheckboxChange} />
+                                <input type="checkbox" checked={checked} onChange={onCheckboxChange} style={{ minWidth: '20px' }}/>
                                 {props.requireAgreementText}
                             </label>
                         </p>

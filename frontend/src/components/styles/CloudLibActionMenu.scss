@@ -1,0 +1,59 @@
+.cloudlib-action-menu {
+    .dropdown-item {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+
+/*        .list-icon {
+            height: 20px;
+            width: 20px;
+            margin-right: 16px;
+        }
+*/
+        &.current {
+            background-color: color("silver");
+        }
+
+        &:hover, &:active {
+            background-color: color("alabaster");
+            // color: color("cornflower");
+        }
+    }
+
+    .dropdown-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .dropdown-toggle,
+    .dropdown-toggle:hover,
+    .dropdown-toggle:active,
+    .dropdown-toggle:visited,
+    .btn-primary:not(:disabled):not(.disabled):active,
+    .btn-primary:not(:disabled):not(.disabled).active,
+    .show > .btn-primary.dropdown-toggle,
+    .btn-primary:focus,
+    .btn-primary.focus,
+    .btn-primary:active {
+        //width: 36px;
+        //height: 36px;
+        margin: 0;
+        padding: 0;
+        color: color("shark");
+        background-color: transparent;
+        border: none;
+        min-width: unset;
+
+        &::after {
+            content: none;
+            border: none;
+        }
+    }
+
+    .dropdown-toggle:hover,
+    .dropdown-toggle:active {
+        background-color: color("cararra");
+        color: color("almost-white")
+    }
+}

@@ -12,7 +12,6 @@ using System.Globalization;
 using System.Linq.Expressions;
 
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.DependencyInjection;
 using Opc.Ua.Cloud.Library.Client;
 
 using CESMII.ProfileDesigner.OpcUa.AASX;
@@ -26,8 +25,6 @@ using CESMII.ProfileDesigner.Data.Entities;
 using CESMII.ProfileDesigner.Data.Extensions;
 using CESMII.ProfileDesigner.OpcUa;
 using CESMII.OpcUa.NodeSetImporter;
-using Opc.Ua.Export;
-using CESMII.OpcUa.NodeSetModel;
 using CESMII.OpcUa.NodeSetModel.Factory.Smip;
 using Newtonsoft.Json;
 using System.Net.Mail;
@@ -35,6 +32,7 @@ using CESMII.Common.SelfServiceSignUp.Services;
 using Opc.Ua;
 using SendGrid.Helpers.Mail;
 using KeyValuePair = System.Collections.Generic.KeyValuePair;
+using CESMII.Common.CloudLibClient;
 
 namespace CESMII.ProfileDesigner.Api.Controllers
 {
@@ -106,7 +104,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 return BadRequest($"Invalid model (null)");
             }
 
-            var result = _dal.Where(x => x.StandardProfile != null && x.StandardProfile.CloudLibraryId.Equals(model.ID), 
+            var result = _dal.Where(x => x.CloudLibraryId.Equals(model.ID),
                 base.DalUserToken, null, null, false, true).Data;
             if (result == null || result.Count == 0)
             {
@@ -134,13 +132,13 @@ namespace CESMII.ProfileDesigner.Api.Controllers
 
             if (string.IsNullOrEmpty(model.Query))
             {
-                return Ok(_dal.Where(s => !s.StandardProfileID.HasValue /*&& s.AuthorId.HasValue && s.AuthorId.Value.Equals(userId)*/,
+                return Ok(_dal.Where(s => string.IsNullOrEmpty(s.CloudLibraryId) /*&& s.AuthorId.HasValue && s.AuthorId.Value.Equals(userId)*/,
                                 base.DalUserToken, model.Skip, model.Take, true));
             }
 
             model.Query = model.Query.ToLower();
             var result = _dal.Where(s =>
-                            !s.StandardProfileID.HasValue && /*s.AuthorId.HasValue && s.AuthorId.Value.Equals(userId) &&*/
+                            string.IsNullOrEmpty(s.CloudLibraryId) && /*s.AuthorId.HasValue && s.AuthorId.Value.Equals(userId) &&*/
                             //string query section
                             (s.Namespace.ToLower().Contains(model.Query)
                             //|| (s.Author != null && (s.Author.FirstName.ToLower() + s.Author.LastName.ToLower()).Contains(
@@ -159,7 +157,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         /// <returns></returns>
         [HttpPost, Route("library")]
         [ProducesResponseType(200, Type = typeof(DALResult<ProfileModel>))]
-        public IActionResult GetLibrary([FromBody] ProfileTypeDefFilterModel model)
+        public async Task<IActionResult> GetLibraryAsync([FromBody] ProfileTypeDefFilterModel model)
         {
             if (model == null)
             {
@@ -167,7 +165,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 return BadRequest("Profile|Library|Invalid model");
             }
 
-            return Ok(SearchProfiles(model));
+            return Ok(await SearchProfilesAsync(model));
         }
 
         #region Search Helper Functions
@@ -176,11 +174,13 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
-        private DALResult<ProfileModel> SearchProfiles([FromBody] ProfileTypeDefFilterModel model)
+        private async Task<DALResult<ProfileModel>> SearchProfilesAsync([FromBody] ProfileTypeDefFilterModel model)
         {
             //search on some pre-determined fields
             var orderByExprs = BuildSearchOrderByExpressions(LocalUser.ID.Value, model.SortByEnum);
             var result = _dal.Where(BuildPredicate(model, base.DalUserToken), base.DalUserToken, model.Skip, model.Take, true, false, orderByExprs.ToArray());
+
+            await UpdateCloudLibraryStatus(result?.Data, false);
 
             return new DALResult<ProfileModel>()
             {
@@ -188,6 +188,89 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 Data = result.Data,
                 SummaryData = result.SummaryData
             };
+        }
+
+        private async Task UpdateCloudLibraryStatus(List<ProfileModel> profiles, bool refreshAll)
+        {
+            if (refreshAll || profiles?.Any(p => p.CloudLibPendingApproval == true) == true)
+            {
+                List<CloudLibProfileModel> pendingNodesets = new();
+                try
+                {
+                    string cursor = null;
+                    do
+                    {
+                        var cloudResultPage = await _cloudLibDal.GetNodeSetsPendingApprovalAsync(100, cursor, false, additionalProperty: new AdditionalProperty { Name = ICloudLibDal<CloudLibProfileModel>.strCESMIIUserInfo, Value = $"PD{base.DalUserToken.UserId}" });
+                        pendingNodesets.AddRange(cloudResultPage.Nodes);
+                        cursor = cloudResultPage.PageInfo.HasNextPage ? cloudResultPage.PageInfo.EndCursor : null;
+                    }
+                    while (cursor != null);
+                    if (pendingNodesets?.Any() == true)
+                    {
+                        foreach (var clProfile in pendingNodesets)
+                        {
+                            var profile = profiles.FirstOrDefault(p => p.CloudLibraryId == clProfile.CloudLibraryId);
+                            if (profile != null)
+                            {
+                                profile.CloudLibApprovalStatus = clProfile.CloudLibApprovalStatus;
+                                profile.CloudLibApprovalDescription = clProfile.CloudLibApprovalDescription;
+                                if (profile.CloudLibPendingApproval == false)
+                                {
+                                    profile.CloudLibPendingApproval = true;
+                                    await _dal.UpdateAsync(profile, base.DalUserToken);
+                                }
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error retrieving cloud library approval status");
+                    pendingNodesets = null;
+                }
+                try
+                {
+                    foreach (var profile in profiles.Where(p => p.CloudLibPendingApproval == true))
+                    {
+                        if (pendingNodesets == null)
+                        {
+                            profile.CloudLibApprovalStatus = "UNKNOWN";
+                        }
+                        else if (!pendingNodesets.Any(p => p.CloudLibraryId == profile.CloudLibraryId))
+                        {
+                            try
+                            {
+                                var cloudLibProfile = await _cloudLibDal.GetById(profile.CloudLibraryId);
+                                if (cloudLibProfile == null)
+                                {
+                                    profile.CloudLibPendingApproval = false;
+                                    profile.CloudLibraryId = null;
+                                    await _dal.UpdateAsync(profile, base.DalUserToken);
+                                }
+                                else
+                                {
+                                    profile.CloudLibApprovalStatus = cloudLibProfile.CloudLibApprovalStatus;
+                                    profile.CloudLibApprovalDescription= cloudLibProfile.CloudLibApprovalDescription;
+                                    if (cloudLibProfile.CloudLibApprovalStatus == "APPROVED")
+                                    {
+                                        profile.CloudLibPendingApproval = false;
+                                        await _dal.UpdateAsync(profile, base.DalUserToken);
+                                    }
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                _logger.LogError(ex, $"Error retrieving cloud library approval status for {profile}");
+                                profile.CloudLibApprovalStatus = "UNKNOWN";
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, $"Internal Error updating cloud library approval status");
+                }
+            }
         }
 
         private List<OrderByExpression<Profile>> BuildSearchOrderByExpressions(int userId, SearchCriteriaSortByEnum val = SearchCriteriaSortByEnum.Name)
@@ -199,7 +282,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 case SearchCriteriaSortByEnum.Author:
                     result.Add(new OrderByExpression<Profile>()
                     {
-                        Expression = x => !x.StandardProfileID.HasValue &&
+                        Expression = x => string.IsNullOrEmpty(x.CloudLibraryId) &&
                             x.AuthorId.HasValue && x.AuthorId.Equals(userId) ? 1 : 0,
                         IsDescending = true
                     });
@@ -242,13 +325,13 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 {
                     if (f.ID == (int)ProfileSearchCriteriaSourceEnum.Mine)
                     {
-                        Expression<Func<Profile, bool>> fnMine = x => !x.StandardProfileID.HasValue
+                        Expression<Func<Profile, bool>> fnMine = x => string.IsNullOrEmpty(x.CloudLibraryId)
                             && x.AuthorId.Value.Equals(userToken.UserId);
                         predSource = predSource == null ? fnMine : predSource.OrExtension(fnMine);
                     }
                     else if (f.ID == (int)ProfileSearchCriteriaSourceEnum.BaseProfile)
                     {
-                        Expression<Func<Profile, bool>> fnMine = x => x.StandardProfileID.HasValue;
+                        Expression<Func<Profile, bool>> fnMine = x => string.IsNullOrEmpty(x.CloudLibraryId);
                         predSource = predSource == null ? fnMine : predSource.OrExtension(fnMine);
                     }
                 }
@@ -409,7 +492,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                                     // owned profiles first when excluding and adding
                                     orderBy.Insert(0, new OrderByExpression<Profile>
                                     {
-                                        Expression = p => !p.AuthorId.HasValue || p.StandardProfileID.HasValue,
+                                        Expression = p => !p.AuthorId.HasValue || !string.IsNullOrEmpty(p.CloudLibraryId),
                                         IsDescending = false,
                                     });
                                 }
@@ -438,7 +521,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                                     : allLocalProfiles.OrderBy(pm => pm.Namespace).ThenBy(pm => pm.PublishDate)
                                 )
                                 .Skip(localCursor));
-                            totalCount += allLocalProfiles.Count(p => string.IsNullOrEmpty(p.StandardProfile?.CloudLibraryId));
+                            totalCount += allLocalProfiles.Count(p => string.IsNullOrEmpty(p.CloudLibraryId));
                         }
                     }
                     else
@@ -545,12 +628,6 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                     // Add in local profile information
                     // TODO handle different publication dates between cloudlib and local library
                     cloudLibProfile.ID = localProfile.ID;
-                    if (cloudLibProfile.StandardProfileID != localProfile.StandardProfileID)
-                    {
-                        // TODO: inconsistency in DB?
-                    }
-                    cloudLibProfile.StandardProfile = localProfile.StandardProfile;
-                    cloudLibProfile.StandardProfileID = localProfile.StandardProfileID;
                     cloudLibProfile.AuthorId = localProfile.AuthorId;
                     cloudLibProfile.ImportWarnings = localProfile.ImportWarnings;
                     cloudLibProfile.NodeSetFiles = localProfile.NodeSetFiles;
@@ -702,8 +779,13 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                     cloudLibProfile.AdditionalProperties = new();
                 }
                 // TODO: remove email/displayname once we have CloudLib admin UI
-                cloudLibProfile.AdditionalProperties.Add(KeyValuePair.Create("CESMIIUserInfo", $"{user.Email}, {user.DisplayName}, {user.ObjectIdAAD}, PD{base.DalUserToken.UserId}"));
-
+                var userInfoProp = new AdditionalProperty
+                {
+                    Name = ICloudLibDal<CloudLibProfileModel>.strCESMIIUserInfo,
+                    Value = $"{user.Email}, {user.DisplayName}, {user.ObjectIdAAD}, PD{base.DalUserToken.UserId}",
+                };
+                cloudLibProfile.AdditionalProperties.RemoveAll(p => p.Name == userInfoProp.Name);
+                cloudLibProfile.AdditionalProperties.Add(userInfoProp);
                 string strSenderEmail = user.Email;
                 string strSenderDisplayName = user.DisplayName;
                 string strAuthorEmail = profile.Author.Email;
@@ -720,22 +802,35 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 // This is where I am testing it....
                 // SendProfileEmailNotification(strSenderEmail, strSenderDisplayName, strAuthorEmail, strAuthorDisplayName, strAuthorInfo, strOrganizationInfo, strProfileInfo);
 
-                var error = await _cloudLibDal.UploadAsync(cloudLibProfile, exportedNodeSet.Data as string);
-                if (!string.IsNullOrEmpty(error) && error != "Upload successful!")
+                try
                 {
-                    _logger.LogWarning($"ProfileController|PublishToCloudLibrary|Failed to upload : {model.ID}.");
+                    var cloudLibId = await _cloudLibDal.UploadAsync(cloudLibProfile, exportedNodeSet.Data as string);
+
+                    profile.CloudLibraryId = cloudLibId;
+                    profile.CloudLibPendingApproval = true;
+                    await _dal.UpdateAsync(profile, base.DalUserToken);
+                }
+                catch (UploadException ex)
+                {
+                    _logger.LogError($"ProfileController|PublishToCloudLibrary|Failed to publish to Cloud Library: {model.ID} {ex.Message}.");
                     return Ok(
                         new ResultMessageWithDataModel()
                         {
                             IsSuccess = false,
-                            Message = error,
+                            Message = ex.Message,
                         }
                     );
                 }
 
                 // This is where it goes....
-                SendProfileEmailNotification(strSenderEmail, strSenderDisplayName, strAuthorEmail, strAuthorDisplayName, strAuthorInfo, strOrganizationInfo, strProfileInfo);
-
+                try
+                {
+                    SendProfileEmailNotification(strSenderEmail, strSenderDisplayName, strAuthorEmail, strAuthorDisplayName, strAuthorInfo, strOrganizationInfo, strProfileInfo);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, $"Failed to send email notification for publish request {model.ID} for user {base.DalUserToken}");
+                }
                 return Ok(
                     new ResultMessageWithDataModel()
                     {
@@ -760,7 +855,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         internal async void SendProfileEmailNotification(string strSenderEmail, string strSenderDisplayName, string strAuthorEmail, string strAuthorDisplayName, string strAuthorInfo, string strOrganizationInfo, string strProfileInfo)
         {
             // Send email that we have created a new user account
-            string strUserName = "DisplayName";
+            //string strUserName = "DisplayName";
 
             string strSubject = "Profile submission to CESMII Cloud Library";
             string strContent = $"<p>Thank you very much for your submission to the Clean Energy Smart Manufacturing Innovation Institute (CESMII) Cloud Library.</p>" +
@@ -797,6 +892,147 @@ namespace CESMII.ProfileDesigner.Api.Controllers
 
 
         /// <summary>
+        /// Publishes a profile to the Cloud Library 
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [HttpPost, Route("cloudlibrary/publishcancel")]
+        [ProducesResponseType(200, Type = typeof(ResultMessageWithDataModel))]
+        public async Task<IActionResult> CancelPublishToCloudLibrary([FromBody] IdIntModel model)
+        {
+            if (model == null)
+            {
+                _logger.LogWarning("ProfileController|CancelPublishToCloudLibrary|Invalid model");
+                return BadRequest("Profile|CloudLibrary||PublishCancel|Invalid model");
+            }
+
+            try
+            {
+                var profile = _dal.GetById(model.ID, base.DalUserToken);
+                if (profile == null)
+                {
+                    _logger.LogWarning($"ProfileController|CancelPublishToCloudLibrary|Failed to cancel : {model.ID}. Profile not found.");
+                    return Ok(
+                        new ResultMessageWithDataModel()
+                        {
+                            IsSuccess = false,
+                            Message = "Profile not found."
+                        }
+                    );
+                }
+
+                try
+                {
+                    var updatedProfile = await _cloudLibDal.UpdateApprovalStatusAsync(profile.CloudLibraryId, "CANCELED", $"Canceled by user {DalUserToken.UserId}");
+                    if (updatedProfile == null || updatedProfile.CloudLibApprovalStatus == null || updatedProfile.CloudLibApprovalStatus == "CANCELED")
+                    {
+                        profile.CloudLibraryId = null;
+                        profile.CloudLibPendingApproval = null;
+                        await _dal.UpdateAsync(profile, base.DalUserToken);
+                    }
+                    else
+                    {
+                        _logger.LogWarning($"ProfileController|CancelPublishToCloudLibrary|Failed to cancel : {model.ID}. Status Update failed.");
+                        return Ok(
+                            new ResultMessageWithDataModel()
+                            {
+                                IsSuccess = false,
+                                Message = "Status update failed."
+                            }
+                        );
+
+                    }
+                }
+                catch (UploadException ex)
+                {
+                    _logger.LogError($"ProfileController|CancelPublishToCloudLibrary|Failed to cancel publish request to Cloud Library: {model.ID} {ex.Message}.");
+                    return Ok(
+                        new ResultMessageWithDataModel()
+                        {
+                            IsSuccess = false,
+                            Message = ex.Message,
+                        }
+                    );
+                }
+
+                return Ok(
+                    new ResultMessageWithDataModel()
+                    {
+                        IsSuccess = true,
+                        Message = "Canceled publish request.",
+                    }
+                );
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"ProfileController|CancelPublishToCloudLibrary|Failed to cancel publish request to Cloud Library: {model.ID} {ex.Message}.");
+                return Ok(
+                    new ResultMessageWithDataModel()
+                    {
+                        IsSuccess = false,
+                        Message = "Error canceling publish request."
+                    }
+                );
+            }
+        }
+
+
+        /// <summary>
+        /// Search profiles library for profiles matching criteria passed in. This is a simple search field and 
+        /// this will check against several profile fields and return results. 
+        /// </summary>
+        /// <remarks>Items in profiles library will not have an author id</remarks>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [HttpPost, Route("cloudlibrary/pendingApprovals")]
+        [ProducesResponseType(200, Type = typeof(DALResult<CloudLibProfileModel>))]
+        public async Task<IActionResult> GetCloudLibraryPendingApprovals([FromBody] CloudLibFilterModel model)
+        {
+            if (model == null)
+            {
+                _logger.LogWarning("ProfileController|GetCloudLibraryPendingApprovals|Invalid model");
+                return BadRequest("Profile|pendingApprovals|Invalid model");
+            }
+
+            if (!string.IsNullOrEmpty(model.Query))
+            {
+                _logger.LogWarning("ProfileController|GetCloudLibraryPendingApprovals|Query not supported");
+                return BadRequest("Profile|pendingApprovals|Query not supported");
+            }
+            if (model.Filters?.Any() == true)
+            {
+                _logger.LogWarning("ProfileController|GetCloudLibraryPendingApprovals|Filters not supported");
+                return BadRequest("Profile|pendingApprovals|Filters not supported");
+            }
+
+            try
+            {
+                // Get profiles submitted by this user from the cloudlib
+                var cloudResultPage = await _cloudLibDal.GetNodeSetsPendingApprovalAsync(model.Take, model.Cursor, model.PageBackwards, additionalProperty: new AdditionalProperty { Name = ICloudLibDal<CloudLibProfileModel>.strCESMIIUserInfo, Value = $"PD{base.DalUserToken.UserId}" });
+
+                if (cloudResultPage.Edges.Count > model.Take)
+                {
+                    _logger.LogWarning($"ProfileController|GetCloudLibraryPendingApprovals|Received more profiles than requested: {cloudResultPage.Edges.Count}, expected {model.Take}.");
+                }
+                var dalResult = new DALResult<CloudLibProfileModel>
+                {
+                    Count = cloudResultPage.TotalCount,
+                    Data = cloudResultPage.Nodes.ToList(),
+                    StartCursor = cloudResultPage.PageInfo.StartCursor,
+                    EndCursor = cloudResultPage.PageInfo.EndCursor,
+                    HasNextPage = cloudResultPage.PageInfo.HasNextPage,
+                    HasPreviousPage = cloudResultPage.PageInfo.HasPreviousPage,
+                };
+                return Ok(dalResult);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"ProfileController|GetCloudLibraryPendingApprovals|Exception: {ex.Message}.");
+                return StatusCode(500, "Error processing query.");
+            }
+        }
+
+        /// <summary>
         /// Get an all profile count and a count of my profiles. 
         /// </summary>
         /// <returns></returns>
@@ -805,8 +1041,8 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         [ProducesResponseType(400)]
         public IActionResult GetCounts()
         {
-            var all = _dal.Count(s => s.StandardProfileID.HasValue, base.DalUserToken);
-            var mine = _dal.Count(s => !s.StandardProfileID.HasValue && s.AuthorId.HasValue && s.AuthorId.Value.Equals(DalUserToken.UserId), base.DalUserToken);
+            var all = _dal.Count(s => !string.IsNullOrEmpty(s.CloudLibraryId), base.DalUserToken);
+            var mine = _dal.Count(s => string.IsNullOrEmpty(s.CloudLibraryId) && s.AuthorId.HasValue && s.AuthorId.Value.Equals(DalUserToken.UserId), base.DalUserToken);
             return Ok(new ProfileCountModel() { All = all, Mine = mine });
         }
 
@@ -842,7 +1078,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             //set some values server side 
             model.AuthorId = base.DalUserToken.UserId;
             model.NodeSetFiles = null;
-            model.StandardProfileID = null;
+            model.CloudLibraryId = null;
 
             //re-validate
             ModelState.Clear();
@@ -1173,7 +1409,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
 
             //pass in the author id as current user
             //kick off background process, logid is returned immediately so front end can track progress...
-            var logId = await _svcImport.ImportOpcUaNodeSet(model, base.DalUserToken, false, false);
+            var logId = await _svcImport.ImportOpcUaNodeSet(model, base.DalUserToken, allowMultiVersion: false, upgradePreviousVersions: false);
 
             return Ok(
                 new ResultMessageWithDataModel()

@@ -258,7 +258,7 @@ function CloudLibraryListGrid(props) {
     const renderImportConfirmation = () => {
 
         if (!_importConfirmModal.show) return;
-        if (_importConfirmModal.items.length == 0) {
+        if (_importConfirmModal.items.length === 0) {
             setImportConfirmModal({ show: false, items: null });
             return;
         }

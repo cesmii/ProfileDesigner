@@ -3,8 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
-    using System.Linq;
-    using System.Linq.Expressions;
     using System.Text.Json.Serialization;
 
     /// <summary>
@@ -148,7 +146,7 @@
                 //the db. Account for that possibility here. the returned value won't have an impact on the update
                 if (this.Profile == null) return false;
                 //read only logic for most cases when pulling data and profile is present
-                return !this.Profile.AuthorId.HasValue || this.Profile.StandardProfileID.HasValue;
+                return !this.Profile.AuthorId.HasValue || !string.IsNullOrEmpty(this.Profile.CloudLibraryId);
             }
         }
 

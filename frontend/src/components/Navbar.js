@@ -78,6 +78,7 @@ function Navbar() {
                         {(isInRole(_activeAccount, 'cesmii.profiledesigner.admin')) &&
                             <>
                             <Dropdown.Item eventKey="3" href="/admin/user/list">View Users</Dropdown.Item>
+                            <Dropdown.Item eventKey="4" href="/admin/cloudlibrary/approval/list">Approve Cloud Library publication requests</Dropdown.Item>
                             <Dropdown.Divider />
                             </>
                         }

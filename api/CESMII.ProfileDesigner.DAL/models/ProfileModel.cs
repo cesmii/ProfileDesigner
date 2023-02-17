@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using CESMII.ProfileDesigner.Common.Enums;
 
     public class ProfileModel : AbstractModel
@@ -12,9 +13,10 @@
 
         public DateTime? PublishDate { get; set; }
 
-        public int? StandardProfileID { get; set; }
-
-        public StandardNodeSetModel StandardProfile { get; set; }
+        public string CloudLibraryId { get; set; }
+        public bool? CloudLibPendingApproval { get; set; }
+        public string CloudLibApprovalStatus { get; set; }
+        public string CloudLibApprovalDescription { get; set; }
 
         public List<NodeSetFileModel> NodeSetFiles { get; set; }
 
@@ -86,13 +88,13 @@
 
         /// <summary>Gets or sets the additional properties.</summary>
         /// <value>The additional properties.</value>
-        public List<KeyValuePair<string, string>> AdditionalProperties { get; set; }
+        public List<AdditionalProperty> AdditionalProperties { get; set; }
         #endregion // Cloud Library meta data
         public bool IsReadOnly
         {
             get
             {
-                return !this.AuthorId.HasValue || this.StandardProfileID.HasValue;
+                return !this.AuthorId.HasValue || !string.IsNullOrEmpty(this.CloudLibraryId)/* this.StandardProfileID.HasValue*/;
             }
         }
 
@@ -102,6 +104,12 @@
             return $"{Namespace} {Version} {valPublishDate}";
         }
 
+    }
+
+    public class AdditionalProperty
+    {
+        public string Name { get; set; }
+        public string Value { get; set; }
     }
 
     /// <summary>
@@ -121,17 +129,15 @@
                 PublishDate = profile.PublishDate,
                 Version = profile.Version,
                 AuthorId = profile.AuthorId,
-                StandardProfileID = profile.StandardProfileID,
-                StandardProfile = profile.StandardProfile,
                 NodeSetFiles = profile.NodeSetFiles,
                 HasLocalProfile = true,
-                CloudLibraryId = profile.StandardProfile?.CloudLibraryId,
+                CloudLibraryId = profile.CloudLibraryId,
                 Title = profile.Title,
                 Description = profile.Description,
                 License = profile.License,
                 LicenseUrl = profile.LicenseUrl,
                 Keywords = profile.Keywords,
-                AdditionalProperties = profile.AdditionalProperties,
+                AdditionalProperties = profile.AdditionalProperties.Select(p => new AdditionalProperty {  Name = p.Name, Value =p.Value}).ToList(),
                 CategoryName = profile.CategoryName,
                 ContributorName = profile.ContributorName,
                 CopyrightText = profile.CopyrightText,
@@ -148,7 +154,6 @@
         }
 
         public bool HasLocalProfile { get; set; }
-        public string CloudLibraryId { get; set; }
         public string NodesetXml { get; set; }
     }
 

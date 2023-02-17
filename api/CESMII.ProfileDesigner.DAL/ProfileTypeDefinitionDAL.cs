@@ -334,7 +334,8 @@
                 {
                     ID = entity.ID,
                     Namespace = entity.Namespace,
-                    StandardProfileID = entity.StandardProfileID,
+                    CloudLibraryId = entity.CloudLibraryId,
+                    CloudLibPendingApproval = entity.CloudLibPendingApproval,
                     Version = entity.Version,
                     PublishDate = entity.PublishDate,
                     AuthorId = entity.AuthorId,

@@ -45,7 +45,6 @@ namespace CESMII.ProfileDesigner.OpcUa
             IDal<ProfileTypeDefinition, ProfileTypeDefinitionModel> dal,
             IDal<LookupDataType, LookupDataTypeModel> dtDal,
             IDal<Profile, ProfileModel> profileDal,
-            IDal<StandardNodeSet, StandardNodeSetModel> dalStandardNodeSet, 
             ICloudLibDal<CloudLibProfileModel> cloudLibDal,
             IUANodeSetResolverWithProgress cloudLibResolver,
             IDal<NodeSetFile, NodeSetFileModel> nodeSetFileDal,
@@ -70,7 +69,6 @@ namespace CESMII.ProfileDesigner.OpcUa
             this.nsDBContext = nsDBContext;
 #endif
             _profileDal = profileDal;
-            _dalStandardNodeSet = dalStandardNodeSet;
             _cloudLibDal = cloudLibDal;
             _cloudLibResolver = cloudLibResolver;
             _nodeSetFileDal = nodeSetFileDal;
@@ -94,7 +92,6 @@ namespace CESMII.ProfileDesigner.OpcUa
         private readonly NodeSetModelContext nsDBContext;
 #endif
         internal readonly IDal<Data.Entities.Profile, DAL.Models.ProfileModel> _profileDal;
-        private readonly IDal<StandardNodeSet, StandardNodeSetModel> _dalStandardNodeSet;
         private readonly ICloudLibDal<CloudLibProfileModel> _cloudLibDal;
         private readonly IUANodeSetResolverWithProgress _cloudLibResolver;
         private readonly IDal<NodeSetFile, NodeSetFileModel> _nodeSetFileDal;
@@ -136,22 +133,22 @@ namespace CESMII.ProfileDesigner.OpcUa
                 _logger.LogTrace($"Timestamp||ImportId:{logId}||Importing node sets: {sw.Elapsed}");
 
                 var nodeSetXmlStringList = nodeSetXmlList.Select(nodeSetXml => nodeSetXml.Data).ToList();
-                UANodeSetImportResult importedNodeSetFiles = ImportAndDownloadNodeSetFiles(_nodeSetCache, userToken, nodeSetXmlStringList, logToImportLog);
+                UANodeSetImportResult cachedNodeSetFiles = CacheAndDownloadNodeSetFiles(_nodeSetCache, userToken, nodeSetXmlStringList, logToImportLog);
                 _logger.LogTrace($"Timestamp||ImportId:{logId}||Imported node sets: {sw.Elapsed}");
-                if (!string.IsNullOrEmpty(importedNodeSetFiles.ErrorMessage))
+                if (!string.IsNullOrEmpty(cachedNodeSetFiles.ErrorMessage))
                 {
                     //The UA Importer encountered a crash/error
                     //failed complete message
                     _profileDal.RollbackTransaction();
-                    await logToImportLog(importedNodeSetFiles.ErrorMessage + $"<br/>{filesImportedMsg}", TaskStatusEnum.Failed);
+                    await logToImportLog(cachedNodeSetFiles.ErrorMessage + $"<br/>{filesImportedMsg}", TaskStatusEnum.Failed);
                     return null;
                 }
-                if (importedNodeSetFiles?.MissingModels?.Count > 0)
+                if (cachedNodeSetFiles?.MissingModels?.Count > 0)
                 {
                     //The UA Importer tried to resolve already all missing NodeSet either from Cache or CloudLib but could not find all dependencies
                     //failed complete message
                     _profileDal.RollbackTransaction();
-                    var missingModelsText = string.Join(", ", importedNodeSetFiles.MissingModels);
+                    var missingModelsText = string.Join(", ", cachedNodeSetFiles.MissingModels);
                     await logToImportLog($"Missing dependent node sets: {missingModelsText}.", TaskStatusEnum.Failed);
                     return null;
                 }
@@ -173,9 +170,9 @@ namespace CESMII.ProfileDesigner.OpcUa
                     //    return null;
                     //}
 
-                    if (importedNodeSetFiles != null && importedNodeSetFiles.Models.Any())
+                    if (cachedNodeSetFiles != null && cachedNodeSetFiles.Models.Any())
                     {
-                        foreach (var tmodel in importedNodeSetFiles.Models)
+                        foreach (var tmodel in cachedNodeSetFiles.Models)
                         {
                             var profile = FindOrCreateProfileForNodeSet(tmodel, _profileDal, userToken, logId, sw, allowMultiVersion);
                             profilesAndNodeSets.Add(new ProfileModelAndNodeSet
@@ -190,7 +187,7 @@ namespace CESMII.ProfileDesigner.OpcUa
                 }
                 catch (Exception e)
                 {
-                    _nodeSetCache.DeleteNewlyAddedNodeSetsFromCache(importedNodeSetFiles);
+                    _nodeSetCache.DeleteNewlyAddedNodeSetsFromCache(cachedNodeSetFiles);
                     //log complete message to logger and abbreviated message to user. 
                     _logger.LogCritical(e, $"ImportId:{logId}||ImportService|ImportOpcUaProfile|{e.Message}");
                     //failed complete message
@@ -333,44 +330,18 @@ namespace CESMII.ProfileDesigner.OpcUa
                 {
                     throw new Exception($"Profile {tModel.NameVersion.ModelUri} already has version {otherProfileVersion.Version} {otherProfileVersion.PublishDate}. Can not import {tModel.NameVersion.ModelVersion} {tModel.NameVersion.PublicationDate}");
                 }
-                StandardNodeSetModel standardNodeSet = null;
-                CloudLibProfileModel cloudLibNodeSet = null;
-                if ((tModel.NameVersion.UAStandardModelID??0) == 0)
+                var cloudLibNodeSet = _cloudLibDal.GetAsync(tModel.NameVersion.ModelUri, tModel.NameVersion.PublicationDate, true).Result;
+                if (cloudLibNodeSet == null)
                 {
-                    cloudLibNodeSet = _cloudLibDal.GetAsync(tModel.NameVersion.ModelUri, tModel.NameVersion.PublicationDate, true).Result;
+                    // No exact match: use a newer one to prevent editing of older nodesets
+                    cloudLibNodeSet = _cloudLibDal.GetAsync(tModel.NameVersion.ModelUri, tModel.NameVersion.PublicationDate, false).Result;
                     if (cloudLibNodeSet != null)
                     {
-                        standardNodeSet = cloudLibNodeSet.ToStandardNodeSet();
-                        _dalStandardNodeSet.AddAsync(standardNodeSet, userToken).Wait();
+                        _logger.LogWarning($"Did not find exact match for {tModel.NameVersion}. Using standard nodeset with publication date {cloudLibNodeSet?.PublishDate} instead.");
                     }
                     else
                     {
-                        // No exact match: use a newer one to prevent editing of older nodesets
-                        standardNodeSet = _dalStandardNodeSet
-                            .Where(
-                                sns => sns.Namespace == tModel.NameVersion.ModelUri && sns.PublishDate > tModel.NameVersion.PublicationDate,
-                                userToken)
-                            .Data
-                                ?.OrderByDescending(sns => sns.PublishDate).FirstOrDefault();
-                        if (standardNodeSet != null)
-                        {
-                            _logger.LogWarning($"Did not find exact match for {tModel.NameVersion}. Using standard nodeset with publication date {standardNodeSet.PublishDate} instead.");
-                            tModel.NameVersion.UAStandardModelID = standardNodeSet.ID;
-                        }
-                        else
-                        {
-                            cloudLibNodeSet = _cloudLibDal.GetAsync(tModel.NameVersion.ModelUri, tModel.NameVersion.PublicationDate, false).Result;
-                            if (cloudLibNodeSet != null)
-                            {
-                                standardNodeSet = cloudLibNodeSet.ToStandardNodeSet();
-                                _logger.LogWarning($"Did not find exact match for {tModel.NameVersion}. Using standard nodeset with publication date {standardNodeSet?.PublishDate} instead.");
-                                _dalStandardNodeSet.AddAsync(standardNodeSet, userToken).Wait();
-                            }
-                            else
-                            {
-                                _logger.LogWarning($"Did not find newer version for {tModel.NameVersion}. Not treating as standard node set to allow editing of future versions.");
-                            }
-                        }
+                        _logger.LogWarning($"Did not find newer version for {tModel.NameVersion}. Not treating as standard node set to allow editing of future versions.");
                     }
                 }
 
@@ -387,8 +358,6 @@ namespace CESMII.ProfileDesigner.OpcUa
                 profile.PublishDate = tModel.NameVersion.PublicationDate;
                 profile.Version = tModel.NameVersion.ModelVersion;
                 profile.AuthorId = nsModel.AuthorId;
-                profile.StandardProfileID = tModel.NameVersion.UAStandardModelID;
-                profile.StandardProfile = standardNodeSet;
             }
 
             if (profile.NodeSetFiles == null)
@@ -402,7 +371,7 @@ namespace CESMII.ProfileDesigner.OpcUa
             return profile;
         }
 
-        private UANodeSetImportResult ImportAndDownloadNodeSetFiles(UANodeSetDBCache myNodeSetCache, UserToken userToken, List<string> nodeSetXmlStringList, Func<string, TaskStatusEnum, Task> logToImportLog)
+        private UANodeSetImportResult CacheAndDownloadNodeSetFiles(UANodeSetDBCache myNodeSetCache, UserToken userToken, List<string> nodeSetXmlStringList, Func<string, TaskStatusEnum, Task> logToImportLog)
         {
             OnNodeSet callback = (string namespaceUri, DateTime? publicationDate) =>
             {
@@ -412,7 +381,8 @@ namespace CESMII.ProfileDesigner.OpcUa
             try
             {
                 _cloudLibResolver.OnDownloadNodeSet += callback;
-                resultSet = UANodeSetImporter.ImportNodeSets(myNodeSetCache, null, nodeSetXmlStringList, false, userToken, _cloudLibResolver);
+                var cacheManager = new UANodeSetCacheManager(myNodeSetCache, _cloudLibResolver);
+                resultSet = cacheManager.ImportNodeSets(nodeSetXmlStringList, false, userToken);
             }
             finally
             {
@@ -423,7 +393,7 @@ namespace CESMII.ProfileDesigner.OpcUa
         }
 
 
-        public System.Threading.Tasks.Task<List<NodeSetModel>> LoadNodeSetAsync(IOpcUaContext opcContext,  UANodeSet nodeSet, ProfileModel profile, bool doNotReimport = false)
+        public System.Threading.Tasks.Task<List<NodeSetModel>> LoadNodeSetAsync(IOpcUaContext opcContext, UANodeSet nodeSet, ProfileModel profile, bool doNotReimport = false)
         {
             if (!nodeSet.Models.Any())
             {
@@ -522,14 +492,18 @@ namespace CESMII.ProfileDesigner.OpcUa
 
         public (UANodeSet nodeSet, string xml, NodeSetModel model, Dictionary<string, NodeSetModel> requiredModels) ExportInternal(ProfileModel profileModel, UserToken userToken, UserToken authorId, bool bForceReexport)
         {
-            if (profileModel.StandardProfile != null && !bForceReexport)
+            if (!string.IsNullOrEmpty(profileModel.CloudLibraryId) && !bForceReexport)
             {
+                // Use the original XML for profiles imported from the cloud lbirary (if available)
                 var nodeSetFile = _nodeSetFileDal.Where(nsf => nsf.Profiles.Any(p => p.ID == profileModel.ID), userToken, verbose: true).Data?.FirstOrDefault();
                 var nodeSetXml = nodeSetFile?.FileCache;
-                using (MemoryStream ms = new(Encoding.UTF8.GetBytes(nodeSetXml)))
+                if (nodeSetXml != null)
                 {
-                    var nodeSet = UANodeSet.Read(ms);
-                    return (nodeSet, nodeSetXml, null, null);
+                    using (MemoryStream ms = new(Encoding.UTF8.GetBytes(nodeSetXml)))
+                    {
+                        var nodeSet = UANodeSet.Read(ms);
+                        return (nodeSet, nodeSetXml, null, null);
+                    }
                 }
             }
             Dictionary<string, NodeSetModel> nodeSetModels = new();
@@ -578,7 +552,7 @@ namespace CESMII.ProfileDesigner.OpcUa
             }
 
             // populate the model being exported with proper version and publication date
-            //dalOpcContext.GetOrAddNodesetModel(new ModelTableEntry {  ModelUri = profileModel.Namespace, PublicationDate = profileModel.PublishDate ?? default, Version = profileModel.Version, PublicationDateSpecified = profileModel.PublishDate != null}, true);
+            dalOpcContext.GetOrAddNodesetModel(new ModelTableEntry { ModelUri = profileModel.Namespace, PublicationDate = profileModel.PublishDate ?? default, Version = profileModel.Version, PublicationDateSpecified = profileModel.PublishDate != null }, true);
 
             var profileItemsResult = _dal.Where(pi => pi.ProfileId == profileModel.ID /*&& (pi.AuthorId == null || pi.AuthorId == userId)*/, userToken, null, null, false, true);
             if (profileItemsResult.Data != null)
@@ -614,7 +588,7 @@ namespace CESMII.ProfileDesigner.OpcUa
 #else
                 model.UpdateIndices();
 #endif
-                exportedNodeSet = UANodeSetModelImporter.ExportNodeSet(model, nodeSetModels, this.Aliases);
+                exportedNodeSet = UANodeSetModelExporter.ExportNodeSet(model, nodeSetModels, this.Aliases);
             }
             // .Net6 changed the default to no-identation: https://github.com/dotnet/runtime/issues/64885
             string exportedNodeSetXml;
@@ -740,7 +714,7 @@ namespace CESMII.ProfileDesigner.OpcUa
                     }
                 }
                 bool bFound = false;
-                foreach(var referencingNode in uaVariable.OtherReferencingNodes)
+                foreach (var referencingNode in uaVariable.OtherReferencingNodes)
                 {
                     if (dalContext.profileItemsByNodeId.TryGetValue(referencingNode.Node.NodeId, out var referencingProfileType))
                     {
@@ -771,7 +745,7 @@ namespace CESMII.ProfileDesigner.OpcUa
 
         public async Task ImportEngineeringUnitsAsync(UserToken userToken)
         {
-            var units = NodeModelOpcExtensions.GetUNECEEngineeringUnits();
+            var units = NodeModelOpcExtensions.UNECEEngineeringUnits;//.GetUNECEEngineeringUnits();
             _euDal.StartTransaction();
             foreach (var unit in units)
             {

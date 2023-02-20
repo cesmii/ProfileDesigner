@@ -168,16 +168,16 @@ function ProfileExplorer(props) {
                 iconName = 'account-tree';
                 break;
             case "compositions":
-                iconName = 'profile';
+                iconName = 'type-def';
                 break;
             case "dependencies":
-                iconName = 'folder-profile';
+                iconName = 'type-def';
                 break;
             case "interfaces":
                 iconName = 'key';
                 break;
             default:
-                iconName = 'profile';
+                iconName = 'type-def';
                 break;
         }
 

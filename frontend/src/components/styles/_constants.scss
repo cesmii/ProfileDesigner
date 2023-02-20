@@ -80,13 +80,28 @@ $inputControl-radius: 12px;
     @include background-opacity(color("silver"), .1);
 }
 
-.avatar-locked {
+.avatar.locked, .avatar.info {
     @include background-opacity(color("silver"), .2);
     border: 2px solid color("white");
 }
 
-.avatar-unlocked {
+.avatar.unlocked {
     @include background-opacity(color("cornflower"), .2);
+    border: 2px solid color("white");
+}
+
+.avatar.success {
+    @include background-opacity(color("silver"), .2);
+    border: 2px solid color("white");
+}
+
+.avatar.warning {
+    @include background-opacity(color("amber"), .2);
+    border: 2px solid color("white");
+}
+
+.avatar.error, .avatar.critical {
+    @include background-opacity(color("cardinal"), .2);
     border: 2px solid color("white");
 }
 

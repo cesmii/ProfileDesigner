@@ -1243,7 +1243,7 @@ begin
 	;
     commit;
 end;$$
-
+;
 
 /*---------------------------------------------------------
 	Function: fn_profile_type_definition_get_descendants
@@ -1344,7 +1344,7 @@ begin
 		 ELSE 0 END)
 	;
 end; $$ 
-
+;
 
 /*---------------------------------------------------------
 	Function: fn_profile_type_definition_get_dependencies
@@ -1466,7 +1466,7 @@ begin
 	SELECT * FROM public.fn_profile_type_definition_get_descendants(_id, _ownerId, _limitByType, _excludeAbstract)
 	;
 end; $$ 
-
+;
 
 /*---------------------------------------------------------
 	Function: fn_profile_type_definition_get_ancestors
@@ -1552,7 +1552,7 @@ begin
 	order by d.level, t.name
 	;
 end; $$ 
-
+;
 
 ---------------------------------------------------------------------
 ---------------------------------------------------------------------

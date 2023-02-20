@@ -48,7 +48,7 @@ function ConfirmationModal(props) { //props are item, showActions
             {/* Add animation=false to prevent React warning findDomNode is deprecated in StrictMode*/}
             <Modal key={props.msgId | new Date().getTime()} animation={false} show={showModal} onHide={onHide} data-id={props.msgId} centered>
                 <Modal.Header closeButton>
-                    <Modal.Title>
+                    <Modal.Title className="d-flex align-items-center" >
                         {props.icon != null &&
                             <SVGIcon name={props.icon.name} size="36" fill={props.icon.color} className="mr-2" />
                         }

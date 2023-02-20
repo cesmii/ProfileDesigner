@@ -763,7 +763,7 @@ function ProfileTypeDefinitionEntity() {
     //render Profile Row as a read-only reminder of the parent
     const renderProfile = () => {
 
-        var actionUI = (_item.id != null && _item.id > 0 && _item.profile != null) ? null :
+        const actionUI = (_item.id != null && _item.id > 0 && _item.profile != null) ? null :
             (
                 <button type="button" className="btn btn-secondary auto-width" onClick={onSelectProfile} title="Select Profile" >Select</button>
             );
@@ -826,7 +826,7 @@ function ProfileTypeDefinitionEntity() {
     
     const renderCommonSection = () => {
 
-        var iconName = mode.toLowerCase() === "extend" ? "extend" : getTypeDefIconName(_item);
+        const iconName = mode.toLowerCase() === "extend" ? "extend" : getTypeDefIconName(_item);
 
         return (
             <>

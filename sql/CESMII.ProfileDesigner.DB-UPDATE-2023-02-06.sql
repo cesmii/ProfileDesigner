@@ -14,6 +14,7 @@ update public.profile as p
 SET cloud_library_id = s.cloudlibrary_id
 FROM public.standard_nodeset AS s
 where p.ua_standard_profile_id = s.id
+;
 
 ALTER TABLE IF EXISTS public.profile DROP CONSTRAINT IF EXISTS profile_standard_profile_id;
 

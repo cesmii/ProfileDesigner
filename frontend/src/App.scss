@@ -365,6 +365,11 @@ option.selected {
         background-color: color("cararra");
         color: color("textPrimary");
     }
+
+    &.auto-width {
+        min-width: unset;
+        white-space: nowrap;
+    }
 }
 
 .btn-text-solo {

@@ -208,7 +208,7 @@ export function getProfileTypeCaption(item) {
 
 //TBD - move to profile service file
 export function getTypeDefIconName(item) {
-    if (item == null || item.type == null) return 'profile';
+    if (item == null || item.type == null) return 'type-def';
     //TBD - eventually get icons specific for each type
     switch (item.type.name.replace(/\s/g,'').toLowerCase()) {
         case "namespace":
@@ -221,7 +221,7 @@ export function getTypeDefIconName(item) {
         case 'structure':
         case 'class':
         default:
-            return 'profile';
+            return 'type-def';
     }
 }
 
@@ -465,3 +465,15 @@ export const isInRole = (account, roleName) => {
 export function useQueryString(key) {
     return new URLSearchParams(window.location.search).get(key);
 }
+
+///--------------------------------------------------------------------------
+/// menu icon convenience code
+//--------------------------------------------------------------------------
+export function renderMenuIcon(iconName, alt) {
+    if (iconName == null || iconName === '') return null;
+    return (
+        <span className="mr-3" alt={`${alt == null ? iconName : alt}`}><SVGIcon name={iconName} size={24} /></span>
+    );
+}
+
+

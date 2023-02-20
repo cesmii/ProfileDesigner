@@ -152,9 +152,9 @@ function SideMenu() {
     return (
         <div className="siderail-left" >
             <ul>
-                <SideMenuItem caption="Welcome Wizard" bgColor={color.cornflower} iconName="folder-profile" navUrl="/" />
-                <SideMenuItem caption="Type Library" bgColor={color.shark} iconName="profile" navUrl="/types/library" />
-                <SideMenuItem caption="Profile Library" bgColor={color.shark} iconName="folder-profile" navUrl="/profiles/library" />
+                <SideMenuItem caption="Welcome Wizard" bgColor={color.shark} iconName="home" navUrl="/" />
+                <SideMenuItem caption="Type Library" bgColor={color.shark} iconName="type-def" navUrl="/types/library" />
+                <SideMenuItem caption="Profile Library" bgColor={color.shark} iconName="dashboard" navUrl="/profiles/library" />
             </ul>
             {(loadingProps.favoritesList != null && loadingProps.favoritesList.length > 0) &&
                 <SideMenuLinkList caption='Favorites' bgColor={color.citron} iconName='favorite' items={loadingProps.favoritesList} activeAccount={_activeAccount} ></SideMenuLinkList>

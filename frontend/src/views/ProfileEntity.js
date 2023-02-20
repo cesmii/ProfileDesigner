@@ -16,6 +16,7 @@ import { isProfileValid, profileNew, saveProfile, toggleSearchFilterSelected, va
 import ProfileEntityForm from './shared/ProfileEntity';
 import ProfileTypeDefinitionListGrid from './shared/ProfileTypeDefinitionListGrid';
 import ProfileActions from './shared/ProfileActions';
+import ProfileCloudLibStatus from './shared/ProfileCloudLibStatus'
 
 import color from '../components/Constants';
 import './styles/ProfileEntity.scss';
@@ -36,7 +37,7 @@ function ProfileEntity() {
     const { loadingProps, setLoadingProps } = useLoadingContext();
     const [_item, setItem] = useState(null);
     const [_isValid, setIsValid] = useState({ namespace: true, namespaceFormat: true, description: true, type: true, symbolicName: true, licenseExpression: true });
-    const _iconName = 'folder-profile';
+    const _iconName = 'dashboard';
     const _iconColor = color.shark;
 
     const [_searchCriteria, setSearchCriteria] = useState(null);
@@ -272,6 +273,13 @@ function ProfileEntity() {
         setSearchCriteriaChanged(_searchCriteriaChanged + 1);
     };
 
+    const onPublishChange = (success) => {
+        console.log(generateLogMessageString(`onPublishChange`, CLASS_NAME));
+
+        //re-display current page to get updated status
+        history.push(`/profile/${_item.id}`);
+    }
+
     // TBD: need loop to remove and add styles for "nav-item" CSS animations
     const tabListener = (eventKey) => {
     }
@@ -286,6 +294,10 @@ function ProfileEntity() {
                     {renderTitleBlock(caption, _iconName, _iconColor)}
                 </div>
                 <div className="col-sm-5 d-flex align-items-center justify-content-end">
+                    {(_item != null) &&
+                        <ProfileCloudLibStatus item={_item} activeAccount={_activeAccount}
+                            onPublishProfileCallback={onPublishChange} onWithdrawProfileCallback={onPublishChange} />
+                    }
                     {(_mode.toLowerCase() !== "view") &&
                         <>
                             <Button variant="text-solo" className="mx-1 btn-auto auto-width" href={`/profiles/library`} >Cancel</Button>

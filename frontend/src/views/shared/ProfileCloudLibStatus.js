@@ -1,14 +1,12 @@
 import React, { useState } from 'react'
-import { Dropdown } from 'react-bootstrap'
 
 import axiosInstance from '../../services/AxiosService';
 import { useLoadingContext } from "../../components/contexts/LoadingContext";
 import { AppSettings } from '../../utils/appsettings';
 import ConfirmationModal from '../../components/ConfirmationModal';
 import { ErrorModal } from '../../services/CommonUtil';
-import { isOwner } from './ProfileRenderHelpers';
 import { generateLogMessageString, scrollTop } from '../../utils/UtilityService';
-import { SVGIcon, SVGDownloadIcon } from '../../components/SVGIcon'
+import { SVGIcon } from '../../components/SVGIcon'
 import color from '../../components/Constants';
 
 const CLASS_NAME = "ProfileActions";
@@ -22,47 +20,9 @@ function ProfileCloudLibStatus(props) {
     // Region: Initialization
     //-------------------------------------------------------------------
     const { setLoadingProps } = useLoadingContext();
-    const [_publishToCloudLibModal, setPublishToCloudLibModal] = useState({ show: false, item: null, message: null });
-    const [_cancelPublishToCloudLibModal, cancelPublishToCloudLibModal] = useState({ show: false, item: null, message: null });
+    const [_publishProfileModal, setPublishProfileModal] = useState({ show: false, item: null, message: null });
+    const [_withdrawProfileModal, setWithdrawProfileModal] = useState({ show: false, item: null, message: null });
     const [_error, setError] = useState({ show: false, message: null, caption: null });
-
-    //-------------------------------------------------------------------
-    // Region: Event handlers
-    //-------------------------------------------------------------------
-    const onPublishToCloudLib = async () => {
-        console.log(generateLogMessageString(`onPublishToCloudLib||start`, CLASS_NAME));
-        if (props.item.title == null || props.item.description == null || props.item.contributorName == null || props.item.copyrightText == null || props.item.categoryName == null) {
-            setPublishToCloudLibModal({ show: true, item: null, message: "Please fill in Title, Description, Contributor, Copyright, License and Category before publishing the profile." });
-        }
-        else if (props.item.license === "MIT" || props.item.license === "GPL-2.0") {
-            setPublishToCloudLibModal({ show: true, item: props.item, message: null });
-        }
-        else {
-            setPublishToCloudLibModal({ show: true, item: null, message: "Profiles can only be published to the CESMII Cloud Library and Marketplace under the MIT or GPL-2.0 license." });
-        }
-    }
-    const onPublishToCloudLibConfirm = async () => {
-        console.log(generateLogMessageString(`onPublishToCloudLibConfirm||start`, CLASS_NAME));
-        publishToCloudLib(_publishToCloudLibModal.item);
-        setPublishToCloudLibModal({ show: false, item: null });
-    }
-
-    const onCancelPublishToCloudLib = async () => {
-        console.log(generateLogMessageString(`onCancelPublishToCloudLib||start`, CLASS_NAME));
-        cancelPublishToCloudLibModal({ show: true, item: props.item, message: null });
-    }
-
-    const onCancelPublishToCloudLibConfirm = async () => {
-        console.log(generateLogMessageString(`onCancelPublishToCloudLibConfirm||start`, CLASS_NAME));
-        cancelPublishToCloudLib(_cancelPublishToCloudLibModal.item);
-        cancelPublishToCloudLibModal({ show: false, item: null });
-    }
-
-    const onErrorModalClose = () => {
-        //console.log(generateLogMessageString(`onErrorMessageOK`, CLASS_NAME));
-        setError({ show: false, caption: null, message: null });
-    }
-
 
     //-------------------------------------------------------------------
     // Region: API call to perform publication to CloudLib
@@ -84,7 +44,7 @@ function ProfileCloudLibStatus(props) {
                         isLoading: false, message: null, inlineMessages: [
                             {
                                 id: new Date().getTime(), severity: "success",
-                                body: `Profile was submitted for publication`,
+                                body: `Profile was submitted for publication. The CESMII team will review your submission shortly.`,
                                 isTimed: true
                             }
                         ],
@@ -98,7 +58,7 @@ function ProfileCloudLibStatus(props) {
                     });
                 }
                 //raise callback
-                if (props.onPublishToCloudLibCallback != null) props.onPublishToCloudLibCallback(result.data.isSuccess);
+                if (props.onPublishProfileCallback != null) props.onPublishProfileCallback(result.data.isSuccess);
 
             })
             .catch(error => {
@@ -113,12 +73,12 @@ function ProfileCloudLibStatus(props) {
                 //scroll back to top
                 scrollTop();
                 //raise callback
-                if (props.onPublishToCloudLibCallback != null) props.onPublishToCloudLibCallback(false);
+                if (props.onPublishProfileCallback != null) props.onPublishProfileCallback(false);
             });
     };
 
-    const cancelPublishToCloudLib = (item) => {
-        console.log(generateLogMessageString(`cancelPublishToCloudLib||${item.namespace}`, CLASS_NAME));
+    const withdrawProfile = (item) => {
+        console.log(generateLogMessageString(`withdrawProfile||${item.namespace}`, CLASS_NAME));
 
         //show a spinner
         setLoadingProps({ isLoading: true, message: "" });
@@ -134,28 +94,28 @@ function ProfileCloudLibStatus(props) {
                         isLoading: false, message: null, inlineMessages: [
                             {
                                 id: new Date().getTime(), severity: "success",
-                                body: `Profile submission was canceled`,
+                                body: `Profile submission was withdrawn.`,
                                 isTimed: true
                             }
                         ],
                     });
                 }
                 else {
-                    setError({ show: true, caption: 'Cancel Error', message: `An error occurred canceling the publish request for this profile: ${result.data.message}` });
+                    setError({ show: true, caption: 'Cancel Error', message: `An error occurred withdrawing this submission: ${result.data.message}` });
                     //update spinner, messages
                     setLoadingProps({
                         isLoading: false, message: null, inlineMessages: null
                     });
                 }
                 //raise callback
-                if (props.onCancelPublishToCloudLibCallback != null) props.onCancelPublishToCloudLibCallback(result.data.isSuccess);
+                if (props.onWithdrawProfileCallback != null) props.onWithdrawProfileCallback(result.data.isSuccess);
 
             })
             .catch(error => {
                 //hide a spinner, show a message
                 setLoadingProps({
                     isLoading: false, message: null, inlineMessages: [
-                        { id: new Date().getTime(), severity: "danger", body: `An error occurred canceling the publish request for this profile.`, isTimed: false }
+                        { id: new Date().getTime(), severity: "danger", body: `An error occurred withdrawing this submission.`, isTimed: false }
                     ]
                 });
                 console.log(generateLogMessageString('cancelPublishToCloudLib||error||' + JSON.stringify(error), CLASS_NAME, 'error'));
@@ -163,81 +123,101 @@ function ProfileCloudLibStatus(props) {
                 //scroll back to top
                 scrollTop();
                 //raise callback
-                if (props.onCancelPublishToCloudLibCallback != null) props.onCancelPublishToCloudLibCallback(false);
+                if (props.onWithdrawProfileCallback != null) props.onWithdrawProfileCallback(false);
             });
     };
 
+    //-------------------------------------------------------------------
+    // Region: Event handlers
+    //-------------------------------------------------------------------
+    const onPublish = async () => {
+        console.log(generateLogMessageString(`onPublishToCloudLib||start`, CLASS_NAME));
+
+        let msg = null;
+        //check required fields
+        let requiredFields = [];
+        if (props.item.title == null || props.item.title == '') requiredFields.push('Title');
+        if (props.item.namespace == null || props.item.namespace == '') requiredFields.push('Namespace');
+        if (props.item.publishDate == null || props.item.publishDate == '') requiredFields.push('Publish Date');
+        if (props.item.description == null || props.item.description == '') requiredFields.push('Description');
+        if (props.item.contributorName == null || props.item.contributorName == '') requiredFields.push('Contributor');
+        if (props.item.copyrightText == null || props.item.copyrightText == '') requiredFields.push('Copyright');
+        if (props.item.license == null || props.item.license == '') requiredFields.push('License');
+        if (props.item.categoryName == null || props.item.categoryName == '') requiredFields.push('Category');
+        if (requiredFields.length > 0) {
+            msg = `${requiredFields.join(', ')} ${requiredFields.length === 1 ? 'is' : 'are'} required before publishing this profile.`
+        }
+
+        //check valid license selection
+        if (props.item.license !== "MIT" && props.item.license !== "GPL-2.0") {
+            msg = msg == null ? '' : msg + ' ';
+            msg += "Profiles can only be published to the CESMII Cloud Library and Marketplace under the MIT or GPL-2.0 license.";
+        }
+
+        //if message is not null, then show error and return
+        if (msg != null) {
+            setError({ show: true, caption: 'Publish Error - Invalid data', message: msg });
+            return;
+        }
+        //all good, continue with publish
+        setPublishProfileModal({ show: true, item: props.item, message: null });
+    }
+
+    const onPublishConfirm = async () => {
+        console.log(generateLogMessageString(`onPublishConfirm||start`, CLASS_NAME));
+        publishToCloudLib(_publishProfileModal.item);
+        setPublishProfileModal({ show: false, item: null });
+    }
+
+    const onWithdrawProfile = async () => {
+        console.log(generateLogMessageString(`onWithdrawProfile||start`, CLASS_NAME));
+        setWithdrawProfileModal({ show: true, item: props.item, message: null });
+    }
+
+    const onWithdrawProfileConfirm = async () => {
+        console.log(generateLogMessageString(`onWithdrawProfileConfirm||start`, CLASS_NAME));
+        withdrawProfile(_withdrawProfileModal.item);
+        setWithdrawProfileModal({ show: false, item: null });
+    }
+
+    const onErrorModalClose = () => {
+        //console.log(generateLogMessageString(`onErrorMessageOK`, CLASS_NAME));
+        setError({ show: false, caption: null, message: null });
+    }
 
     //-------------------------------------------------------------------
     // Region: Render Helpers
     //-------------------------------------------------------------------
-
-    const renderCloudIconName = () => {
-        if (props.item.cloudLibApprovalStatus === AppSettings.PublishProfileStatus.Approved) {
-            return "publish-approved";
-        }
-        if (props.item.cloudLibApprovalStatus === AppSettings.PublishProfileStatus.Rejected) {
-            return "publish-rejected";
-        }
-        if (props.item.cloudLibApprovalStatus === AppSettings.PublishProfileStatus.Unknown) {
-            return "publish-unknown";
-        }
-        if (props.item.cloudLibApprovalStatus === AppSettings.PublishProfileStatus.Pending || props.item.cloudLibPendingApproval) {
-            return "publish-pending";
-        }
-        if (props.item.cloudLibApprovalStatus == null && props.item.cloudLibraryId != null) {
-            return "publish-imported";
-        }
-        if (props.item.cloudLibApprovalStatus == null && props.item.cloudLibraryId == null) {
-            return "publish-none";
-        }
-    }
-
-
-
     const renderPublishConfirmation = () => {
 
-        if (!_publishToCloudLibModal.show) return;
+        if (!_publishProfileModal.show) return;
 
         // TODO Detect and warn about unsaved changes in the form
 
         let caption = `Publish Profile`;
 
-        if (_publishToCloudLibModal.item == null) {
-
-            return (
-                <>
-                    <ConfirmationModal showModal={_publishToCloudLibModal.show} caption={caption} message={_publishToCloudLibModal.message}
-                        icon={{ name: "warning", color: color.trinidad }}
-                        cancel={{
-                            caption: "Cancel",
-                            callback: () => {
-                                console.log(generateLogMessageString(`onPublishCancel`, CLASS_NAME));
-                                setPublishToCloudLibModal({ show: false, item: null });
-                            },
-                            buttonVariant: null
-                        }} />
-                </>
-            );
-
-        }
-
         let message =
-            `You are about to submit your profile '${_publishToCloudLibModal.item.namespace}' for publication. After approval the profile will appear in the CESMII Cloud Library and Marketplace.`;
+            `You are about to submit your profile '${_publishProfileModal.item.namespace}' for publication. ` +
+            `Once your profile is submitted, your profile will no longer be editable. ` +
+            `After approval, the profile will appear in the CESMII Cloud Library and Marketplace. ` +
+            `The CESMII team will review your submission.To check on the status of your submission, visit the Profile Library.` ;
 
-        const agreementMessage = `I have the right to distribute this profile under the '${_publishToCloudLibModal.item.license}' license, on behalf of the organization '${_publishToCloudLibModal.item.contributorName}' and using the namespace '${_publishToCloudLibModal.item.namespace}'.`;
+        const agreementMessage =
+            `I have the right to distribute this profile under the '${_publishProfileModal.item.license}' license, ` +
+            `on behalf of the organization '${_publishProfileModal.item.contributorName}' and using the ` +
+            `namespace '${_publishProfileModal.item.namespace}'.`;
 
         return (
             <>
-                <ConfirmationModal showModal={_publishToCloudLibModal.show} caption={caption} message={message}
-                    icon={{ name: "warning", color: color.trinidad }}
-                    confirm={{ caption: "Publish", callback: onPublishToCloudLibConfirm, buttonVariant: "danger" }}
+                <ConfirmationModal showModal={_publishProfileModal.show} caption={caption} message={message}
+                    icon={{ name: "cloud-upload", color: color.cornflower }}
+                    confirm={{ caption: "Publish", callback: onPublishConfirm, buttonVariant: "primary" }}
                     requireAgreementText={agreementMessage}
                     cancel={{
                         caption: "Cancel",
                         callback: () => {
                             console.log(generateLogMessageString(`onPublishCancel`, CLASS_NAME));
-                            setPublishToCloudLibModal({ show: false, item: null });
+                            setPublishProfileModal({ show: false, item: null });
                         },
                         buttonVariant: null
                     }} />
@@ -247,23 +227,25 @@ function ProfileCloudLibStatus(props) {
 
     const renderCancelPublishConfirmation = () => {
 
-        if (!_cancelPublishToCloudLibModal.show) return;
+        if (!_withdrawProfileModal.show) return;
 
-        let caption = `Cancel Publish Request`;
+        let caption = `Withdraw Publish Request`;
 
         let message =
-            `You are about to cancel the request to publish your profile '${_cancelPublishToCloudLibModal.item.namespace}'. This will make the profile editable again and let you resubmit it.`;
+            `You are about to withdraw the request to publish profile '${_withdrawProfileModal.item.namespace}'. ` +
+            `This will remove the pending submission from the Cloud Library. ` +
+            `The profile will become editable again and allow you to resubmit at a later time.`;
 
         return (
             <>
-                <ConfirmationModal showModal={_cancelPublishToCloudLibModal.show} caption={caption} message={message}
-                    icon={{ name: "warning", color: color.trinidad }}
-                    confirm={{ caption: "Cancel Publish Request", callback: onCancelPublishToCloudLibConfirm, buttonVariant: "danger" }}
+                <ConfirmationModal showModal={_withdrawProfileModal.show} caption={caption} message={message}
+                    icon={{ name: "warning", color: color.amber }}
+                    confirm={{ caption: "Withdraw Publish Request", callback: onWithdrawProfileConfirm, buttonVariant: "secondary" }}
                     cancel={{
                         caption: "Cancel",
                         callback: () => {
-                            console.log(generateLogMessageString(`onCancelPublishCancel`, CLASS_NAME));
-                            cancelPublishToCloudLibModal({ show: false, item: null });
+                            console.log(generateLogMessageString(`onWithdrawPublishCancel`, CLASS_NAME));
+                            setWithdrawProfileModal({ show: false, item: null });
                         },
                         buttonVariant: null
                     }} />
@@ -273,49 +255,71 @@ function ProfileCloudLibStatus(props) {
 
 
     //-------------------------------------------------------------------
+    // Region: Render Helpers - Column to show publish profile link OR publish profile status
+    //-------------------------------------------------------------------
+    const renderActionAndStatus = () => {
+        if (props.item.profileState === AppSettings.ProfileStateEnum.Local) {
+            return (
+                <>
+                    <button onClick={onPublish} className="btn btn-primary auto-width d-inline-flex align-items-center" >
+                        <span className="mr-1 mb-1" alt="upload"><SVGIcon name="cloud-upload" size={20} fill={color.white} /></span>
+                        Publish
+                    </button>
+                </>
+            );
+        }
+
+        if (props.item.profileState === AppSettings.ProfileStateEnum.CloudLibPending) {
+            return (
+                <>
+                    <span className="my-0 mr-2 d-flex align-items-center">
+                        <span className="mr-1" alt="upload"><SVGIcon name="cloud-upload" size={20} fill={color.amber} /></span>
+                        Publish Status: Pending
+                    </span>
+                    <button onClick={onWithdrawProfile} variant="primary" className="btn btn-primary auto-width d-inline-flex align-items-center px-3" >
+                        Withdraw
+                    </button>
+                </>
+            );
+        }
+
+        if (props.item.profileState === AppSettings.ProfileStateEnum.CloudLibRejected) {
+            return (
+                <>
+                <span className="my-0 mr-2 d-flex align-items-center">
+                    <span className="mr-1" alt="upload"><SVGIcon name="cloud-upload" size={20} fill={color.apple} /></span>
+                    Publish Status: Rejected
+                </span>
+                <button onClick={onWithdrawProfile} variant="primary" className="btn btn-primary auto-width d-inline-flex align-items-center px-3" >
+                    Withdraw
+                </button>
+                </>
+            );
+        }
+
+        return null;
+    };
+
+
+    //-------------------------------------------------------------------
     // Region: Final render
     //-------------------------------------------------------------------
-    if (!props.item) return null;
+    //we only show the ui if the user owns this profile and it is not yet published. This is determined
+    //on back end and we use profileState
+    if (!props.item ||
+        props.item.profileState === AppSettings.ProfileStateEnum.CloudLibPublished ||
+        props.item.profileState === AppSettings.ProfileStateEnum.Core ||
+        props.item.profileState === AppSettings.ProfileStateEnum.Unknown) return null;
 
-    if (props.item.hasLocalProfile == null || props.item.hasLocalProfile) {
-        //if standard ua nodeset, author is null
-        return (
-            <>
-                <Dropdown className="cloudlib-action-menu icon-dropdown" onClick={(e) => e.stopPropagation()} >
-                    <Dropdown.Toggle drop="left" title="Cloud Library Actions" >
-                        {props.item.cloudLibApprovalStatus === "REJECTED" &&
-                            <>
-                                <p>
-                                    {props.item.cloudLibApprovalDescription}
-                                </p>
-                            </>
-                        }
-                        <span className="my-0 mr-2"><SVGIcon size="50" name={renderCloudIconName()} /></span>
-                    </Dropdown.Toggle>
-                    {isOwner(props.item, props.activeAccount) && (props.item.cloudLibraryId == null || (props.item.cloudLibraryId != null && props.item.cloudLibPendingApproval)) &&
-                        <Dropdown.Menu>
-                            {isOwner(props.item, props.activeAccount) && props.item.cloudLibraryId == null && !props.item.cloudLibPendingApproval &&
-                                <Dropdown.Item key="moreVert7" onClick={onPublishToCloudLib} ><span className="mr-3" alt="arrow-drop-down"><SVGDownloadIcon name="publishToCloudLib" /></span>Publish to Cloud Library</Dropdown.Item>
-                            }
-                            {isOwner(props.item, props.activeAccount) && props.item.cloudLibraryId != null && props.item.cloudLibPendingApproval &&
-                                <Dropdown.Item key="moreVert7" onClick={onCancelPublishToCloudLib} ><span className="mr-3" alt="arrow-drop-down"><SVGDownloadIcon name="cancelPublishToCloudLib" /></span>Cancel publication request</Dropdown.Item>
-                            }
-                        </Dropdown.Menu>
-                    }
-                </Dropdown>
-                {renderPublishConfirmation()}
-                {renderCancelPublishConfirmation()}
-                <ErrorModal modalData={_error} callback={onErrorModalClose} />
-            </>
-        );
-    }
-    else {
-        return (
-            <>
-                <ErrorModal modalData={_error} callback={onErrorModalClose} />
-            </>
-        );
-    }
+    return (
+        <>
+            {renderActionAndStatus()}
+            {renderPublishConfirmation()}
+            {renderCancelPublishConfirmation()}
+            <ErrorModal modalData={_error} callback={onErrorModalClose} />
+        </>
+    );
+
 
 }
 

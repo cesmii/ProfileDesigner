@@ -15,7 +15,7 @@
 
         public string CloudLibraryId { get; set; }
         public bool? CloudLibPendingApproval { get; set; }
-        public string CloudLibApprovalStatus { get; set; }
+        public string CloudLibApprovalStatus { get; set; } = "UNKNOWN";
         public string CloudLibApprovalDescription { get; set; }
 
         public List<NodeSetFileModel> NodeSetFiles { get; set; }
@@ -103,6 +103,30 @@
             var valPublishDate = PublishDate.HasValue ? $"({PublishDate.Value.ToString("yyyy-MM-dd")})" : "";
             return $"{Namespace} {Version} {valPublishDate}";
         }
+
+        /// <summary>
+        /// Calculate and return the profile state. This state will drive how the UI displays this profile.
+
+        /// </summary>
+        public ProfileStateEnum ProfileState
+        {
+            get
+            {
+                if (!this.AuthorId.HasValue && !string.IsNullOrEmpty(this.CloudLibraryId)) return ProfileStateEnum.Core;
+                else if (this.AuthorId.HasValue && !string.IsNullOrEmpty(this.CloudLibraryId) && 
+                        this.CloudLibPendingApproval.HasValue && this.CloudLibPendingApproval.Value &&
+                        this.CloudLibApprovalStatus?.ToUpper() == "PENDING") return ProfileStateEnum.CloudLibPending;
+                else if (this.AuthorId.HasValue && !string.IsNullOrEmpty(this.CloudLibraryId) &&
+                        this.CloudLibPendingApproval.HasValue && this.CloudLibPendingApproval.Value &&
+                        this.CloudLibApprovalStatus?.ToUpper() == "REJECTED") return ProfileStateEnum.CloudLibRejected;
+                else if (this.AuthorId.HasValue && !string.IsNullOrEmpty(this.CloudLibraryId)) return ProfileStateEnum.CloudLibPublished;
+                // Note author id will only be set to the the user making the request or null. 
+                // Other areas of the code will check to make sure that the requesting user only gets their stuff or core stuff
+                else if (this.AuthorId.HasValue && string.IsNullOrEmpty(this.CloudLibraryId)) return ProfileStateEnum.Local; 
+                else return ProfileStateEnum.Unknown; 
+            }
+        }
+
 
     }
 

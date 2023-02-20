@@ -7,7 +7,7 @@ import { Button } from 'react-bootstrap'
 import { useMsal } from "@azure/msal-react";
 
 import { AppSettings } from '../utils/appsettings'
-import { generateLogMessageString, renderTitleBlock, scrollTop, isInRole } from '../utils/UtilityService'
+import { generateLogMessageString, renderTitleBlock, scrollTop, isInRole, renderMenuIcon } from '../utils/UtilityService'
 import { useLoadingContext } from "../components/contexts/LoadingContext";
 import ConfirmationModal from '../components/ConfirmationModal';
 import CloudLibSlideOut from './shared/CloudLibSlideOut.js'
@@ -28,7 +28,7 @@ function ProfileList() {
     // Region: Initialization
     //-------------------------------------------------------------------
     const caption = 'Profile Library';
-    const iconName = 'folder-shared';
+    const iconName = 'dashboard'; //'folder-profile';
     const iconColor = color.shark;
     const { loadingProps, setLoadingProps } = useLoadingContext();
     const [_deleteModal, setDeleteModal] = useState({ show: false, items: null });
@@ -234,15 +234,15 @@ function ProfileList() {
                             Import...
                         </Dropdown.Toggle>
                         <Dropdown.Menu className="py-0" >
-                            <Dropdown.Item className="py-2" onClick={onCloudLibImportClick}>Import from Cloud Library</Dropdown.Item>
+                            <Dropdown.Item className="py-2" onClick={onCloudLibImportClick}>{renderMenuIcon("cloud-download")}Import from Cloud Library</Dropdown.Item>
                             <Dropdown.Item className="py-2" as="button" >
-                                {<ProfileImporter caption="Import NodeSet file" cssClass="mb-0" useCssClassOnly="true" />}
+                                {<ProfileImporter caption="Import NodeSet file" iconName="file-upload" cssClass="mb-0" useCssClassOnly="true" />}
                             </Dropdown.Item>
                             {(isInRole(_activeAccount, 'cesmii.profiledesigner.admin')) &&
                                 <>
                                     <Dropdown.Divider className="my-0" />
                                     <Dropdown.Item className="pb-2" as="button" >
-                                        {<ProfileImporter caption="Upgrade Global NodeSet file" cssClass="mb-0" useCssClassOnly="true" />}
+                                    {<ProfileImporter caption="Upgrade Global NodeSet file" iconName="settings" cssClass="mb-0" useCssClassOnly="true" />}
                                     </Dropdown.Item>
                                 </>
                             }

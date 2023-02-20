@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import axiosInstance from "../../services/AxiosService";
 
 import { useLoadingContext } from '../../components/contexts/LoadingContext';
-import { generateLogMessageString } from '../../utils/UtilityService'
+import { generateLogMessageString, renderMenuIcon } from '../../utils/UtilityService'
 import { ErrorModal } from '../../services/CommonUtil';
 import { AppSettings } from '../../utils/appsettings';
 
@@ -173,7 +173,7 @@ function ProfileImporter(props) {
     return (
         <>
             <label className={buttonCss}>
-                {caption}
+                {renderMenuIcon(props.iconName)}{caption}
                 <input type="file" value={_fileSelection} multiple onClick={resetFileSelection} disabled={props.disabled ? "disabled" : ""} onChange={onImportClick} style={{ display: "none" }} />
             </label>
             <ErrorModal modalData={_error} callback={onErrorModalClose} />

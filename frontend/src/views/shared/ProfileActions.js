@@ -7,8 +7,8 @@ import { AppSettings } from '../../utils/appsettings';
 import ConfirmationModal from '../../components/ConfirmationModal';
 import { ErrorModal } from '../../services/CommonUtil';
 import { isOwner } from './ProfileRenderHelpers';
-import { cleanFileName, generateLogMessageString, scrollTop } from '../../utils/UtilityService';
-import { SVGIcon, SVGDownloadIcon } from '../../components/SVGIcon'
+import { cleanFileName, generateLogMessageString, renderMenuIcon, scrollTop } from '../../utils/UtilityService';
+import { SVGIcon } from '../../components/SVGIcon'
 import color from '../../components/Constants';
 
 const CLASS_NAME = "ProfileActions";
@@ -182,11 +182,11 @@ function ProfileActions(props) {
                         {/*    <Dropdown.Item key="moreVert2" href={getTypeDefinitionNewUrl()} ><span className="mr-3" alt="extend"><SVGIcon name="extend" /></span>New Type Definition</Dropdown.Item>*/}
                         {/*}*/}
                         {isOwner(props.item, props.activeAccount) &&
-                            <Dropdown.Item key="moreVert3" onClick={onDeleteItem} ><span className="mr-3" alt="delete"><SVGIcon name="delete" /></span>Delete Profile</Dropdown.Item>
+                            <Dropdown.Item key="moreVert3" onClick={onDeleteItem} >{renderMenuIcon("delete")}Delete Profile</Dropdown.Item>
                         }
-                        <Dropdown.Item key="moreVert4" onClick={downloadItem} ><span className="mr-3" alt="arrow-drop-down"><SVGDownloadIcon name="download" /></span>Download Profile</Dropdown.Item>
-                        <Dropdown.Item key="moreVert5" onClick={downloadItemAsAASX} ><span className="mr-3" alt="arrow-drop-down"><SVGDownloadIcon name="downloadAASX" /></span>Download Profile as AASX</Dropdown.Item>
-                        <Dropdown.Item key="moreVert6" onClick={downloadItemAsSmipJson} ><span className="mr-3" alt="arrow-drop-down"><SVGDownloadIcon name="downloadSmipJson" /></span>Download Profile for SMIP import (experimental)</Dropdown.Item>
+                        <Dropdown.Item key="moreVert4" onClick={downloadItem} >{renderMenuIcon("download")}Download Profile</Dropdown.Item>
+                        <Dropdown.Item key="moreVert5" onClick={downloadItemAsAASX} >{renderMenuIcon("download")}Download Profile as AASX</Dropdown.Item>
+                        <Dropdown.Item key="moreVert6" onClick={downloadItemAsSmipJson} >{renderMenuIcon("download")}Download Profile for SMIP import (experimental)</Dropdown.Item>
                     </Dropdown.Menu>
                 </Dropdown>
                 {renderDeleteConfirmation()}
@@ -198,7 +198,7 @@ function ProfileActions(props) {
         return (
             <>
                 <div className="col-sm-4 ml-auto d-inline-flex justify-content-end align-items-center" >
-                    <button className="ml-1 btn btn-link" onClick={onImportItem} ><span className="mr-1" alt="view"><SVGDownloadIcon name="import" /></span>Import from Cloud Library</button>
+                    <button className="ml-1 btn btn-link" onClick={onImportItem} >{renderMenuIcon("cloud-download")}Import from Cloud Library</button>
                     {/*    <Dropdown className="action-menu icon-dropdown" onClick={(e) => e.stopPropagation()} >*/}
                     {/*        <Dropdown.Toggle drop="left" title="Actions" >*/}
                     {/*            <SVGIcon name="more-vert" />*/}

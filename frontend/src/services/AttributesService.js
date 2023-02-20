@@ -299,17 +299,14 @@ export const onChangeCompositionShared = (match, item) => {
 // Region: Shared render methods
 //-------------------------------------------------------------------
 export const renderAttributeIcon = (item) => {
+    //simplify icons
     //set up color properly
-    //var iconColor = (currentUserId == null || currentUserId !== item.author.id) ? color.silver : color.shark;
     const iconColor = item._itemType == null || item._itemType === "profile" ? color.shark : color.silver;
 
     //set up icon properly
-    let iconName = item._itemType == null || item._itemType === "profile" ? "account-circle" : "group";
+    let iconName = "puzzle-piece";
 
-    if (item.dataType.id === AppSettings.DataTypeDefaults.CompositionId) iconName = "profile";
-
-    //custom type - special icon type
-    if (item.dataType.customType != null) iconName = "customdatatype";
+    if (item.dataType.id === AppSettings.DataTypeDefaults.CompositionId) iconName = "type-def";
 
     if (item.interface != null) iconName = "key";
 

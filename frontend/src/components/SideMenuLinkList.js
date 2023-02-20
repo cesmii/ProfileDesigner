@@ -53,6 +53,8 @@ function SideMenuLinkList(props) { //props are subMenuItems, bgColor, iconName, 
 
 
     const renderListItem = (link, index) => {
+        //backward compatible
+        if (link.iconName === "profile" || link.iconName === "folder-profile") link.iconName = "type-def";
 
         const iconColor = !isOwner({ author: { objectIdAAD: link?.authorId } }, props.activeAccount) ? color.gris : color.cornflower;
         const key = `li_${index.toString()}`;

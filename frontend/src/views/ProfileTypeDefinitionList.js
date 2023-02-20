@@ -27,7 +27,7 @@ function ProfileTypeDefinitionList() {
     const { loadingProps, setLoadingProps } = useLoadingContext();
     const { profileId } = useParams()
     const caption = `Type Library`;
-    const iconName = 'profile';
+    const iconName = 'type-def';
     const iconColor = color.shark;
     const [ _initSearchCriteria, setInitSearchCriteria ] = useState(true);
     const [ _searchCriteria, setSearchCriteria ] = useState(null);

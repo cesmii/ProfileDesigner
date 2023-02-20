@@ -8,17 +8,20 @@
     border-bottom: 1px solid color("alto");
     transition: all 200ms ease-in-out;
 
-    .col-avatar {
+    .col-spacer, .col-avatar {
         min-width: 80px;
         width: 80px;
         max-width: 80px;
-        height: 80px;
-        font-size: 42px;
         font-weight: 200;
         display: flex;
         align-items: center;
         justify-content: center;
         margin-right: 24px;
+    }
+
+    .col-avatar {
+        height: 80px;
+        font-size: 42px;
         color: color("white");
         background-color: color("cardinal") !important;
         border-radius: 4px;

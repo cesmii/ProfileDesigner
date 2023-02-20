@@ -90,6 +90,40 @@
         CloudLib = 3,
     }
 
+    public enum ProfileStateEnum
+    {
+        /// <summary>
+        /// Core nodeset: ua or ua/di nodeset
+        /// Not owned by anyone and one of the foundational nodesets - can't be changed
+        /// Readonly state
+        /// </summary>
+        Core = 1,
+        /// <summary>
+        /// A published nodeset that the current user has downloaded into their view
+        /// ua/robotics or it could be a nodeset that they published that is now in the CloudLib
+        /// Readonly state
+        /// </summary>
+        CloudLibPublished = 2,
+        /// <summary>
+        /// A nodeset that is in a pending state of being published. This would be pending but ot approved yet. 
+        /// Readonly state
+        /// </summary>
+        CloudLibPending = 3,
+        /// <summary>
+        /// A nodeset that is in submitted but rejected by approver. This could be pending or rejected but not withdrawn
+        /// Readonly state
+        /// </summary>
+        CloudLibRejected = 4,
+        /// <summary>
+        /// A nodeset that is currently being modified by the user. This user owns this proifle and can modify.
+        /// </summary>
+        Local = 5,
+        /// <summary>
+        /// Unknown scenario is not expected...
+        /// </summary>
+        Unknown = 0
+    }
+
     public enum PermissionEnum
     {
         /*

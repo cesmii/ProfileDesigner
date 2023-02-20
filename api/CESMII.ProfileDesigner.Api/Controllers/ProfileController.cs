@@ -66,7 +66,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         //[ProducesResponseType(200, Type = typeof(NodeSetModel))]
         [ProducesResponseType(200, Type = typeof(ProfileTypeDefinitionModel))]
         [ProducesResponseType(400)]
-        public IActionResult GetByID([FromBody] IdIntModel model)
+        public async Task<IActionResult> GetByID([FromBody] IdIntModel model)
         {
             if (model == null)
             {
@@ -80,6 +80,11 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 _logger.LogWarning($"ProfileController|GetById|No records found matching this ID: {model.ID}");
                 return BadRequest($"No records found matching this ID: {model.ID}");
             }
+
+            //query cloud lib to get the approval status of this item.
+            var containerTemp = new List<ProfileModel>() { result };
+            await UpdateCloudLibraryStatus(containerTemp, false);
+
             return Ok(result);
         }
 
@@ -96,7 +101,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         [HttpPost, Route("GetByCloudLibId")]
         [ProducesResponseType(200, Type = typeof(ProfileModel))]
         [ProducesResponseType(400)]
-        public IActionResult GetByCloudLibId([FromBody] IdStringModel model)
+        public async Task<IActionResult> GetByCloudLibId([FromBody] IdStringModel model)
         {
             if (model == null)
             {
@@ -110,6 +115,10 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             {
                 return Ok(null);
             }
+
+            //query cloud lib to get the approval status of this item.
+            await UpdateCloudLibraryStatus(result, false);
+
             return Ok(result.FirstOrDefault());
         }
 

@@ -108,6 +108,14 @@ export const AppSettings = {
         Canceled: "CANCELED",
         Unknown: "UNKNOWN"
     }
+    , ProfileStateEnum: {
+        Core: 1,
+        CloudLibPublished: 2,
+        CloudLibPending: 3,
+        CloudLibRejected: 4,
+        Local: 5,
+        Unknown: 0
+    }
     //MSAL (Authentication) Config
     , MsalConfig: {
         auth: {

@@ -43,11 +43,11 @@ export const renderProfileIcon = (item, size = 24, useMarginRight = true) => {
 
     switch (item.profileState) {
         case AppSettings.ProfileStateEnum.CloudLibPending:
-            iconColor = color.amber;
-            break;
+        //    iconColor = color.amber;
+        //    break;
         case AppSettings.ProfileStateEnum.CloudLibRejected:
-            iconColor = color.cardinal;
-            break;
+        //    iconColor = color.cardinal;
+        //    break;
         case AppSettings.ProfileStateEnum.Local:
             iconColor = color.cornflower;
             break;
@@ -65,12 +65,12 @@ export const renderProfileAvatarBgCss = (item) => {
     if (item == null) return 'avatar info';
 
     switch (item.profileState) {
-        ///*
+        /*
         case AppSettings.ProfileStateEnum.CloudLibPending:
             return 'avatar warning';
         case AppSettings.ProfileStateEnum.CloudLibRejected:
             return 'avatar error';
-        //*/
+        */
         case AppSettings.ProfileStateEnum.Local:
         case AppSettings.ProfileStateEnum.CloudLibPublished:
         case AppSettings.ProfileStateEnum.Core:

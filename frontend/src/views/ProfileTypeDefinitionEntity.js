@@ -7,7 +7,6 @@ import axiosInstance from "../services/AxiosService";
 import Form from 'react-bootstrap/Form'
 import Card from 'react-bootstrap/Card'
 import Button from 'react-bootstrap/Button'
-import Dropdown from 'react-bootstrap/Dropdown'
 import Tab from 'react-bootstrap/Tab'
 import Nav from 'react-bootstrap/Nav'
 
@@ -20,9 +19,9 @@ import DependencyList from './shared/DependencyList';
 import ProfileBreadcrumbs from './shared/ProfileBreadcrumbs';
 import ProfileEntityModal from './modals/ProfileEntityModal';
 import ProfileItemRow from './shared/ProfileItemRow';
+import TypeDefinitionActions from './shared/TypeDefinitionActions';
 
 import { SVGIcon } from "../components/SVGIcon";
-import { getProfileCaption } from '../services/ProfileService';
 import { getWizardNavInfo, renderWizardBreadcrumbs, WizardSettings } from '../services/WizardUtil';
 import { isOwner } from './shared/ProfileRenderHelpers';
 import './styles/ProfileTypeDefinitionEntity.scss';
@@ -676,27 +675,13 @@ function ProfileTypeDefinitionEntity() {
         };
     };
 
-    const downloadProfile = async () => {
-        console.log(generateLogMessageString(`downloadProfile||start`, CLASS_NAME));
-        //add a row to download messages and this will kick off download
-        var msgs = loadingProps.downloadItems || [];
-        msgs.push({ profileId: _item.profile?.id, fileName: cleanFileName(_item.profile?.namespace), immediateDownload: true});
-        setLoadingProps({ downloadItems: JSON.parse(JSON.stringify(msgs)) });
-    }
-    const downloadProfileAsAASX = async () => {
-        console.log(generateLogMessageString(`downloadProfileAsAASX||start`, CLASS_NAME));
-        //add a row to download messages and this will kick off download
-        var msgs = loadingProps.downloadItems || [];
-        msgs.push({ profileId: _item.profile?.id, fileName: cleanFileName(_item.profile?.namespace), immediateDownload: true, downloadFormat: AppSettings.ExportFormatEnum.AASX });
-        setLoadingProps({ downloadItems: JSON.parse(JSON.stringify(msgs)) });
-    }
-    const downloadProfileAsSmipJson = async () => {
-        console.log(generateLogMessageString(`downloadItemAsSmipJson||start`, CLASS_NAME));
-        //add a row to download messages and this will kick off download
-        var msgs = loadingProps.downloadItems || [];
-        msgs.push({ profileId: _item.profile?.id, fileName: cleanFileName(_item.profile?.namespace), immediateDownload: true, downloadFormat: AppSettings.ExportFormatEnum.SmipJson });
-        setLoadingProps({ downloadItems: JSON.parse(JSON.stringify(msgs)) });
-    }
+    //if delete goes through, navigate to profiles library page
+    const onDelete = (success) => {
+        console.log(generateLogMessageString(`onDelete || ${success}`, CLASS_NAME));
+        if (success) {
+            history.push(`/types/library`);
+        }
+    };
 
     //-------------------------------------------------------------------
     // Region: Render Helpers
@@ -795,18 +780,7 @@ function ProfileTypeDefinitionEntity() {
 
         //React-bootstrap bug if you launch modal, then the dropdowns don't work. Add onclick code to the drop down as a workaround - https://github.com/react-bootstrap/react-bootstrap/issues/5561
         return (
-            <Dropdown className="action-menu icon-dropdown ml-1 ml-md-2" onClick={(e) => e.stopPropagation()} >
-                <Dropdown.Toggle drop="left" title="Actions" >
-                    <SVGIcon name="more-vert" size="24" />
-                </Dropdown.Toggle>
-                <Dropdown.Menu>
-                    <Dropdown.Item href={`/type/extend/${_item.id}`}>Extend '{_item.name}'</Dropdown.Item>
-                    {/*<Dropdown.Item onClick={downloadMe} >Download '{item.name}'</Dropdown.Item>*/}
-                    <Dropdown.Item onClick={downloadProfile} >Download Profile '{getProfileCaption(_item.profile)}'</Dropdown.Item>
-                    <Dropdown.Item onClick={downloadProfileAsAASX} >Download Profile '{getProfileCaption(_item.profile)} as AASX'</Dropdown.Item>
-                    <Dropdown.Item onClick={downloadProfileAsSmipJson} >Download Profile '{getProfileCaption(_item.profile)} for SMIP import (experimental)'</Dropdown.Item>
-                </Dropdown.Menu>
-            </Dropdown>
+            <TypeDefinitionActions item={_item} activeAccount={_activeAccount} onDeleteCallback={onDelete} showExtend={true} className='ml-2' />
         );
     }
 

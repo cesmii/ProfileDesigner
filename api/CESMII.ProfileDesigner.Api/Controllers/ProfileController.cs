@@ -3,15 +3,17 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 using System.Globalization;
 using System.Linq.Expressions;
+using System.Net.Mail;
 
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using SendGrid.Helpers.Mail;
+
 using Opc.Ua.Cloud.Library.Client;
 
 using CESMII.ProfileDesigner.OpcUa.AASX;
@@ -26,12 +28,7 @@ using CESMII.ProfileDesigner.Data.Extensions;
 using CESMII.ProfileDesigner.OpcUa;
 using CESMII.OpcUa.NodeSetImporter;
 using CESMII.OpcUa.NodeSetModel.Factory.Smip;
-using Newtonsoft.Json;
-using System.Net.Mail;
 using CESMII.Common.SelfServiceSignUp.Services;
-using Opc.Ua;
-using SendGrid.Helpers.Mail;
-using KeyValuePair = System.Collections.Generic.KeyValuePair;
 using CESMII.Common.CloudLibClient;
 
 namespace CESMII.ProfileDesigner.Api.Controllers
@@ -45,6 +42,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
 
         private readonly Utils.ImportService _svcImport;
         private readonly OpcUaImporter _exporter;
+        private readonly List<string> _permissibleLicenses = new() { "MIT", "GPL-2.0" };
 
         public ProfileController(IDal<Profile, ProfileModel> dal,
             ICloudLibDal<CloudLibProfileModel> cloudLibDal,
@@ -340,8 +338,8 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                     }
                     else if (f.ID == (int)ProfileSearchCriteriaSourceEnum.BaseProfile)
                     {
-                        Expression<Func<Profile, bool>> fnMine = x => string.IsNullOrEmpty(x.CloudLibraryId);
-                        predSource = predSource == null ? fnMine : predSource.OrExtension(fnMine);
+                        Expression<Func<Profile, bool>> fnBase = x => !string.IsNullOrEmpty(x.CloudLibraryId);
+                        predSource = predSource == null ? fnBase : predSource.OrExtension(fnBase);
                     }
                 }
                 //append to predicate list
@@ -722,10 +720,9 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             return await Import(importModels);
         }
 
-        List<string> _permissibleLicenses = new() { "MIT", "GPL-2.0" };
-
         /// <summary>
         /// Publishes a profile to the Cloud Library 
+        /// This endpoint accepts the profile id and will look up the profile in the DB.
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
@@ -739,45 +736,89 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 return BadRequest("Profile|CloudLibrary||Publish|Invalid model");
             }
 
+            var profile = _dal.GetById(model.ID, base.DalUserToken);
+            if (profile == null)
+            {
+                _logger.LogWarning($"ProfileController|PublishToCloudLibrary|Failed to publish : {model.ID}. Profile not found.");
+                return Ok(
+                    new ResultMessageWithDataModel()
+                    {
+                        IsSuccess = false,
+                        Message = "Profile not found."
+                    }
+                );
+            }
+
+            return Ok(await PublishToCloudLibrary(profile));
+        }
+
+        /// <summary>
+        /// Save the current model and then publish to CloudLib
+        /// Publishes a profile to the Cloud Library. 
+        /// This endpoint accepts the entire profile model.
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [HttpPost, Route("cloudlibrary/saveandpublish")]
+        [ProducesResponseType(200, Type = typeof(ResultMessageWithDataModel))]
+        public async Task<IActionResult> SaveAndPublishToCloudLibrary([FromBody] ProfileModel model)
+        {
+            if (model == null)
+            {
+                _logger.LogWarning("ProfileController|PublishToCloudLibrary|Invalid model");
+                return BadRequest("Profile|CloudLibrary||Publish|Invalid model");
+            }
+
+            //first do the save and then do the publish. if save fails, return that result and end
+            ResultMessageWithDataModel resultSave = await UpdateCommon(model);
+            if (!resultSave.IsSuccess) return Ok(resultSave);
+
+            //now do the publish
+            return Ok(await PublishToCloudLibrary(model));            
+        }
+
+        /// <summary>
+        /// Publishes a profile to the Cloud Library. 
+        /// This endpoint accepts the entire profile model.
+        /// </summary>
+        /// <remarks>Save optional depending on caller</remarks>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        private async Task<ResultMessageWithDataModel> PublishToCloudLibrary(ProfileModel model)
+        {
             try
             {
-                var profile = _dal.GetById(model.ID, base.DalUserToken);
+                var profile = _dal.GetById(model.ID.Value, base.DalUserToken);
                 if (profile == null)
                 {
-                    _logger.LogWarning($"ProfileController|PublishToCloudLibrary|Failed to publish : {model.ID}. Profile not found.");
-                    return Ok(
-                        new ResultMessageWithDataModel()
+                    _logger.LogWarning($"ProfileController|PublishToCloudLibrary|Failed to publish : {model.ID.Value}. Profile not found.");
+                    return new ResultMessageWithDataModel()
                         {
                             IsSuccess = false,
                             Message = "Profile not found."
-                        }
-                    );
+                        };
                 }
 
                 if (!_permissibleLicenses.Contains(profile.License))
                 {
-                    return Ok(
-                        new ResultMessageWithDataModel()
+                    return new ResultMessageWithDataModel()
                         {
                             IsSuccess = false,
                             Message = $"License must be {string.Join(" or ", _permissibleLicenses)}."
-                        }
-                    );
+                        };
 
                 }
 
-                var exportResult = await Export(new ExportRequestModel { ID = model.ID }).ConfigureAwait(false);
+                var exportResult = await Export(new ExportRequestModel { ID = model.ID.Value }).ConfigureAwait(false);
                 var exportedNodeSet = (exportResult as OkObjectResult)?.Value as ResultMessageExportModel;
                 if (exportedNodeSet == null || !exportedNodeSet.IsSuccess)
                 {
                     _logger.LogWarning($"ProfileController|PublishToCloudLibrary|Failed to export : {model.ID}.");
-                    return Ok(
-                        new ResultMessageWithDataModel()
+                    return new ResultMessageWithDataModel()
                         {
                             IsSuccess = false,
                             Message = "Failed to export."
-                        }
-                    );
+                        };
                 }
                 var cloudLibProfile = CloudLibProfileModel.MapFromProfile(profile);
 
@@ -821,17 +862,15 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 }
                 catch (UploadException ex)
                 {
-                    _logger.LogError($"ProfileController|PublishToCloudLibrary|Failed to publish to Cloud Library: {model.ID} {ex.Message}.");
-                    return Ok(
-                        new ResultMessageWithDataModel()
+                    _logger.LogError($"ProfileController|PublishToCloudLibrary|Failed to publish to Cloud Library: {model.ID.Value} {ex.Message}.");
+                    return new ResultMessageWithDataModel()
                         {
                             IsSuccess = false,
                             Message = ex.Message,
-                        }
-                    );
+                        };
                 }
 
-                // This is where it goes....
+                // notify recipient of new profile to review
                 try
                 {
                     SendProfileEmailNotification(strSenderEmail, strSenderDisplayName, strAuthorEmail, strAuthorDisplayName, strAuthorInfo, strOrganizationInfo, strProfileInfo);
@@ -840,65 +879,22 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 {
                     _logger.LogError(ex, $"Failed to send email notification for publish request {model.ID} for user {base.DalUserToken}");
                 }
-                return Ok(
-                    new ResultMessageWithDataModel()
-                    {
-                        IsSuccess = true,
-                        Message = "Published to Cloud Library, pending approval.",
-                    }
-                );
+                return new ResultMessageWithDataModel()
+                {
+                    IsSuccess = true,
+                    Message = "Published to Cloud Library, pending approval.",
+                };
             }
             catch (Exception ex)
             {
                 _logger.LogError($"ProfileController|PublishToCloudLibrary|Failed to publish to Cloud Library: {model.ID} {ex.Message}.");
-                return Ok(
-                    new ResultMessageWithDataModel()
-                    {
-                        IsSuccess = false,
-                        Message = ex.Message
-                    }
-                );
+                return new ResultMessageWithDataModel()
+                {
+                    IsSuccess = false,
+                    Message = ex.Message
+                };
             }
         }
-
-        internal async void SendProfileEmailNotification(string strSenderEmail, string strSenderDisplayName, string strAuthorEmail, string strAuthorDisplayName, string strAuthorInfo, string strOrganizationInfo, string strProfileInfo)
-        {
-            // Send email that we have created a new user account
-            //string strUserName = "DisplayName";
-
-            string strSubject = "Profile submission to CESMII Cloud Library";
-            string strContent = $"<p>Thank you very much for your submission to the Clean Energy Smart Manufacturing Innovation Institute (CESMII) Cloud Library.</p>" +
-                                $"<p></p>" +
-                                $"<p>{strAuthorInfo}</p>" +
-                                $"<p>{strOrganizationInfo}</p>" +
-                                $"<p></p>" +
-                                $"<p>{strProfileInfo}</p>" +
-                                $"<p></p>" +
-                                $"<p></p>" +
-                                $"<p>Sincerely,</p>" +
-                                $"<p>CESMII Support Team</p>" +
-                                $"<p></p>";
-
-            _logger.LogInformation($"SendProfileEmailNotification: About to send notification email.");
-
-            // Setup "To" list 
-            // List of recipients for the notification email.
-            List<EmailAddress> leaTo = new List<EmailAddress>();
-            if (strAuthorEmail.ToLower() != strSenderEmail.ToLower())
-                leaTo.Add(new EmailAddress(strAuthorEmail, strAuthorDisplayName));
-
-            leaTo.Add(new EmailAddress(strSenderEmail, strSenderDisplayName));
-
-            // Setup Contents of our email message.
-            MailMessage mm = new MailMessage()
-            {
-                Subject = strSubject,
-                Body = strContent
-            };
-
-            await _mailService.SendEmailSendGrid(mm, leaTo);
-        }
-
 
         /// <summary>
         /// Publishes a profile to the Cloud Library 
@@ -1115,27 +1111,6 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             });
         }
 
-        private static void ConvertPublishDateToUTC(ProfileModel model)
-        {
-            if (model.PublishDate != null && model.PublishDate?.Kind != DateTimeKind.Utc)
-            {
-                //// Set time to noon to avoid loss of a day when converting to UTC
-                //if (model.PublishDate.Value.Hour < 12)
-                //{
-                //    int h = model.PublishDate.Value.Hour;
-                //    DateTime dt = new DateTime(model.PublishDate.Value.Year, model.PublishDate.Value.Month, model.PublishDate.Value.Day, 12, 0, 0);
-                //    model.PublishDate = dt;
-                //}
-                if (model.PublishDate?.Kind == DateTimeKind.Unspecified)
-                {
-                    model.PublishDate = DateTime.SpecifyKind(model.PublishDate.Value, DateTimeKind.Utc);
-                }
-                else
-                {
-                    model.PublishDate = model.PublishDate?.ToUniversalTime();
-                }
-            }
-        }
 
         /// <summary>
         /// Validate the profile model has unique name and publish date combination
@@ -1196,6 +1171,16 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 return BadRequest($"Invalid model (null). Check Publish Date formatting.");
             }
 
+            return Ok(await UpdateCommon(model));
+        }
+
+        /// <summary>
+        /// Update an existing nodeset that is maintained within this system.
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        private async Task<ResultMessageWithDataModel> UpdateCommon(ProfileModel model)
+        {
             // Keep PostgreSQL happy - Make sure UTC date gets sent to "date with timezone" timestamp field.
             ConvertPublishDateToUTC(model);
 
@@ -1207,12 +1192,12 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                             //&& (!x.PublishDate.HasValue ? new DateTime(0) : x.PublishDate.Value.Date).Equals(!model.PublishDate.HasValue ? new DateTime(0) : model.PublishDate.Value.Date)
                             , base.DalUserToken) > 0)
             {
-                return Ok(new ResultMessageWithDataModel()
+                return new ResultMessageWithDataModel()
                 {
                     IsSuccess = false,
                     Message = "There is already a profile with this namespace and publish date combination. Enter a different namespace or publish date.",
                     Data = null
-                });
+                };
             }
 
             var item = _dal.GetById(model.ID.Value, base.DalUserToken);
@@ -1220,7 +1205,13 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             if (!item.AuthorId.Equals(LocalUser.ID))
             {
                 _logger.LogWarning($"ProfileController|Update|AuthorId {model.AuthorId} of item {model.ID} is different than User Id {LocalUser.ID} making update.");
-                return BadRequest("Invalid operation. You cannot update a profile that you did not author");
+
+                return new ResultMessageWithDataModel()
+                {
+                    IsSuccess = false,
+                    Message = "Invalid operation. You cannot update a profile that you did not author.",
+                    Data = null
+                };
             }
 
             //re-validate
@@ -1230,28 +1221,38 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             if (!ModelState.IsValid)
             {
                 var errors = ExtractModelStateErrors();
-                return BadRequest("The profile record is invalid. Please correct the following: " + errors.ToString());
+                return new ResultMessageWithDataModel()
+                {
+                    IsSuccess = false,
+                    Message = "The profile record is invalid. Please correct the following: " + errors.ToString(),
+                    Data = null
+                };
             }
 
             var result = await _dal.UpdateAsync(model, base.DalUserToken);
             if (result < 0)
             {
                 _logger.LogWarning($"ProfileController|Update|Could not update profile item. Invalid id:{model.ID}.");
-                return BadRequest("Could not update item. Invalid id.");
+                return new ResultMessageWithDataModel()
+                {
+                    IsSuccess = false,
+                    Message = "Could not update item. Invalid id.",
+                    Data = null
+                };
             }
             _logger.LogInformation($"ProfileController|Update|Updated item. Id:{model.ID}.");
 
             //TBD - come back to this. Race condition. timing error - issue with update not completing and then calling get
             //      issue is child item's virtual property is null unless we give it enough time to complete update process. 
             //return result object plus item.
-            return Ok(new ResultMessageWithDataModel()
+            return new ResultMessageWithDataModel()
             {
                 IsSuccess = true,
                 Message = "Item was updated.",
                 //Data = new JRaw(JsonConvert.SerializeObject(this.GetItem(model.ID))
                 //Data = new JRaw(JsonConvert.SerializeObject(new IdIntModel() { ID = model.ID }))  //TBD - returning empty array - why?
                 Data = model.ID
-            });
+            };
         }
 
         /// <summary>
@@ -1316,11 +1317,6 @@ namespace CESMII.ProfileDesigner.Api.Controllers
 
             //return success message object
             return Ok(new ResultMessageModel() { IsSuccess = true, Message = "Item was deleted." });
-        }
-
-        internal int? DeleteInternalTestHook(IdIntModel model)
-        {
-            return _dal.DeleteAsync(model.ID, new UserToken { UserId = -1 }).Result;
         }
 
         /// <summary>
@@ -1579,6 +1575,74 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 }));
             }
         }
+
+        #region Helper methods
+        internal int? DeleteInternalTestHook(IdIntModel model)
+        {
+            return _dal.DeleteAsync(model.ID, new UserToken { UserId = -1 }).Result;
+        }
+
+        private static void ConvertPublishDateToUTC(ProfileModel model)
+        {
+            if (model.PublishDate != null && model.PublishDate?.Kind != DateTimeKind.Utc)
+            {
+                //// Set time to noon to avoid loss of a day when converting to UTC
+                //if (model.PublishDate.Value.Hour < 12)
+                //{
+                //    int h = model.PublishDate.Value.Hour;
+                //    DateTime dt = new DateTime(model.PublishDate.Value.Year, model.PublishDate.Value.Month, model.PublishDate.Value.Day, 12, 0, 0);
+                //    model.PublishDate = dt;
+                //}
+                if (model.PublishDate?.Kind == DateTimeKind.Unspecified)
+                {
+                    model.PublishDate = DateTime.SpecifyKind(model.PublishDate.Value, DateTimeKind.Utc);
+                }
+                else
+                {
+                    model.PublishDate = model.PublishDate?.ToUniversalTime();
+                }
+            }
+        }
+
+        internal async void SendProfileEmailNotification(string strSenderEmail, string strSenderDisplayName, string strAuthorEmail, string strAuthorDisplayName, string strAuthorInfo, string strOrganizationInfo, string strProfileInfo)
+        {
+            // Send email that we have created a new user account
+            //string strUserName = "DisplayName";
+
+            string strSubject = "Profile submission to CESMII Cloud Library";
+            string strContent = $"<p>Thank you very much for your submission to the Clean Energy Smart Manufacturing Innovation Institute (CESMII) Cloud Library.</p>" +
+                                $"<p></p>" +
+                                $"<p>{strAuthorInfo}</p>" +
+                                $"<p>{strOrganizationInfo}</p>" +
+                                $"<p></p>" +
+                                $"<p>{strProfileInfo}</p>" +
+                                $"<p></p>" +
+                                $"<p></p>" +
+                                $"<p>Sincerely,</p>" +
+                                $"<p>CESMII Support Team</p>" +
+                                $"<p></p>";
+
+            _logger.LogInformation($"SendProfileEmailNotification: About to send notification email.");
+
+            // Setup "To" list 
+            // List of recipients for the notification email.
+            List<EmailAddress> leaTo = new List<EmailAddress>();
+            if (strAuthorEmail.ToLower() != strSenderEmail.ToLower())
+                leaTo.Add(new EmailAddress(strAuthorEmail, strAuthorDisplayName));
+
+            leaTo.Add(new EmailAddress(strSenderEmail, strSenderDisplayName));
+
+            // Setup Contents of our email message.
+            MailMessage mm = new MailMessage()
+            {
+                Subject = strSubject,
+                Body = strContent
+            };
+
+            await _mailService.SendEmailSendGrid(mm, leaTo);
+        }
+
+        #endregion
 
     }
 }

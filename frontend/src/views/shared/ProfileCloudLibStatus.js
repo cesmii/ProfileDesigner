@@ -34,8 +34,8 @@ function ProfileCloudLibStatus(props) {
         setLoadingProps({ isLoading: true, message: "" });
 
         //perform publish call
-        const data = { id: item.id };
-        const url = `profile/cloudlibrary/publish`;
+        const data = !props.saveAndPublish ? { id: item.id } : item;
+        const url = !props.saveAndPublish ? `profile/cloudlibrary/publish` : `profile/cloudlibrary/saveandpublish`;
         axiosInstance.post(url, data)
             .then(result => {
                 if (result.data.isSuccess) {
@@ -261,7 +261,7 @@ function ProfileCloudLibStatus(props) {
         if (props.item.profileState === AppSettings.ProfileStateEnum.Local) {
             return (
                 <>
-                    <button onClick={onPublish} className="btn btn-primary auto-width d-inline-flex align-items-center" >
+                    <button onClick={onPublish} className="btn btn-primary auto-width d-inline-flex align-items-center mr-2" >
                         <span className="mr-1 mb-1" alt="upload"><SVGIcon name="cloud-upload" size={20} fill={color.white} /></span>
                         Publish
                     </button>
@@ -269,30 +269,20 @@ function ProfileCloudLibStatus(props) {
             );
         }
 
-        if (props.item.profileState === AppSettings.ProfileStateEnum.CloudLibPending) {
+        if (props.item.profileState === AppSettings.ProfileStateEnum.CloudLibPending ||
+            props.item.profileState === AppSettings.ProfileStateEnum.CloudLibRejected) {
+            const statusName = props.item.profileState === AppSettings.ProfileStateEnum.CloudLibPending ? "Pending" : "Rejected";
+            const iconColor = props.item.profileState === AppSettings.ProfileStateEnum.CloudLibPending ? color.amber : color.cardinal;
             return (
                 <>
                     <span className="my-0 mr-2 d-flex align-items-center">
-                        <span className="mr-1" alt="upload"><SVGIcon name="cloud-upload" size={20} fill={color.amber} /></span>
-                        Publish Status: Pending
+                        <span className="font-weight-bold mr-2">Status:</span>
+                        <span className="mr-1" alt="upload"><SVGIcon name="cloud-upload" size={24} fill={iconColor} /></span>
+                        {statusName}
                     </span>
-                    <button onClick={onWithdrawProfile} variant="primary" className="btn btn-primary auto-width d-inline-flex align-items-center px-3" >
-                        Withdraw
+                    <button onClick={onWithdrawProfile} className="btn btn-secondary auto-width d-inline-flex align-items-center px-3 mr-2" >
+                        Cancel Publish
                     </button>
-                </>
-            );
-        }
-
-        if (props.item.profileState === AppSettings.ProfileStateEnum.CloudLibRejected) {
-            return (
-                <>
-                <span className="my-0 mr-2 d-flex align-items-center">
-                    <span className="mr-1" alt="upload"><SVGIcon name="cloud-upload" size={20} fill={color.apple} /></span>
-                    Publish Status: Rejected
-                </span>
-                <button onClick={onWithdrawProfile} variant="primary" className="btn btn-primary auto-width d-inline-flex align-items-center px-3" >
-                    Withdraw
-                </button>
                 </>
             );
         }

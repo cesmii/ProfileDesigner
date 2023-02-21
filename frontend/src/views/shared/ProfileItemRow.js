@@ -210,15 +210,7 @@ function ProfileItemRow(props) { //props are item, showActions
                     props.item.cloudLibApprovalDescription != null && 
                     props.item.cloudLibApprovalDescription !== '') &&
                     <div className="col-sm-12 d-flex" >
-                        {props.selectMode != null &&
-                            <div className="col-spacer mr-1" >
-                            </div>
-                        }
-                        <div className="col-spacer mr-2" >
-                        </div>
-                        <div className="col-sm-11" >
-                        <p className="alert alert-danger my-2 small-size" >Rejection Reason: {props.item.cloudLibApprovalDescription}</p>
-                        </div>
+                        <p className="alert alert-danger my-2 small-size w-100" >Publish Rejection Reason: {props.item.cloudLibApprovalDescription}</p>
                     </div>
                 }
             </div >

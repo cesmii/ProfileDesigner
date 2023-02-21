@@ -189,11 +189,13 @@ a {
 }
 
 .favorite {
-    color: color("forestGreen");
+    color: color("cardinal");
 
     &:hover {
-        color: color("forestGreen");
+        color: color("cardinal");
+        fill: color("cardinal");
         opacity: 0.8;
+        cursor: pointer;
     }
 }
 
@@ -369,6 +371,11 @@ option.selected {
     &.auto-width {
         min-width: unset;
         white-space: nowrap;
+    }
+
+    &.med-width {
+        width: 165px;
+        min-width: 165px;
     }
 }
 
@@ -555,8 +562,8 @@ option.selected {
 }
 
 .btn-square.favorite svg.selected {
-    color: color("forestGreen");
-    fill: color("forestGreen");
+    color: color("cardinal");
+    fill: color("cardinal");
 }
 
 .btn-auto {

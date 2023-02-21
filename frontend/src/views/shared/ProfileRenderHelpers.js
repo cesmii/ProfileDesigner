@@ -42,9 +42,6 @@ export const renderProfileIcon = (item, size = 24, useMarginRight = true) => {
     let iconColor = null;
 
     switch (item.profileState) {
-        case AppSettings.ProfileStateEnum.CloudLibPublished:
-            iconColor = color.nevada;
-            break;
         case AppSettings.ProfileStateEnum.CloudLibPending:
             iconColor = color.amber;
             break;
@@ -54,11 +51,11 @@ export const renderProfileIcon = (item, size = 24, useMarginRight = true) => {
         case AppSettings.ProfileStateEnum.Local:
             iconColor = color.cornflower;
             break;
+        case AppSettings.ProfileStateEnum.CloudLibPublished:
         case AppSettings.ProfileStateEnum.Core:
         default:
             iconColor = color.nevada;
     }
-    //console.log(item);
 
     const svg = (<SVGIcon name={iconName} size={size} fill={iconColor} alt={iconName} size={size} />);
     return (<span className={`d-flex align-items-center justify-content-center ${useMarginRight ? "mr-2" : ""}`} >{svg}</span>)
@@ -68,10 +65,12 @@ export const renderProfileAvatarBgCss = (item) => {
     if (item == null) return 'avatar info';
 
     switch (item.profileState) {
+        ///*
         case AppSettings.ProfileStateEnum.CloudLibPending:
             return 'avatar warning';
         case AppSettings.ProfileStateEnum.CloudLibRejected:
             return 'avatar error';
+        //*/
         case AppSettings.ProfileStateEnum.Local:
         case AppSettings.ProfileStateEnum.CloudLibPublished:
         case AppSettings.ProfileStateEnum.Core:
@@ -79,6 +78,24 @@ export const renderProfileAvatarBgCss = (item) => {
             return 'avatar info';
     }
 };
+
+export const renderProfilePublishStatus = (item, caption = 'Status', className = 'mr-2') => {
+    if (item == null) return null;
+
+    //only for certain statuses
+    if (item.profileState !== AppSettings.ProfileStateEnum.CloudLibPending &&
+        item.profileState !== AppSettings.ProfileStateEnum.CloudLibRejected) return;
+
+    const statusName = item.profileState === AppSettings.ProfileStateEnum.CloudLibPending ? "Pending" : "Rejected";
+    const iconColor = item.profileState === AppSettings.ProfileStateEnum.CloudLibPending ? color.amber : color.cardinal;
+    return (
+        <span className={`my-0 d-flex align-items-center ${className}`} >
+            <span className="font-weight-bold mr-2">{caption}:</span>
+            <span className="mr-1" alt="upload"><SVGIcon name="cloud-upload" size={24} fill={iconColor} /></span>
+            {statusName}
+        </span>
+    );
+}
 
 //-------------------------------------------------------------------
 // Region: Common Is profile or type definition author/owner for this item

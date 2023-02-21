@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { renderProfileAvatarBgCss, renderProfileIcon } from './ProfileRenderHelpers';
+import { renderProfileAvatarBgCss, renderProfileIcon, renderProfilePublishStatus } from './ProfileRenderHelpers';
 import { formatDateUtc } from '../../utils/UtilityService';
 import { getProfileCaption } from '../../services/ProfileService'
 import { SVGIcon } from '../../components/SVGIcon';
@@ -63,7 +63,7 @@ function ProfileItemRow(props) { //props are item, showActions
         return (
             <>
             <div className="col-sm-3 ml-auto d-inline-flex justify-content-end align-items-center" >
-                <ProfileCloudLibStatus item={props.item} activeAccount={props.activeAccount} 
+                    <ProfileCloudLibStatus item={props.item} activeAccount={props.activeAccount} showButton={true} showStatus={false}
                         onPublishProfileCallback={onRowChanged} onWithdrawProfileCallback={onRowChanged} />
             </div>
             <div className="col-sm-3 ml-auto d-inline-flex justify-content-end align-items-center" >
@@ -110,6 +110,7 @@ function ProfileItemRow(props) { //props are item, showActions
                 <>
                     {profileCaption}
                     <span className="ml-2" >{profileValue}</span>
+                    {renderProfilePublishStatus(props.item, 'Publish Status', 'ml-auto mr-2')}
                 </>
             );
         }
@@ -118,10 +119,11 @@ function ProfileItemRow(props) { //props are item, showActions
                 <>
                     {profileCaption}
                     {props.navigateModal ?
-                        <button className="ml-1 btn btn-link" onClick={onEditItem} >{profileValue}</button>
+                        <button className="ml-1 mr-2 btn btn-link" onClick={onEditItem} >{profileValue}</button>
                         :
-                        <a className="ml-2" href={`/profile/${props.item.id}`} >{profileValue}</a>
+                        <a className="mx-2" href={`/profile/${props.item.id}`} >{profileValue}</a>
                     }
+                    {renderProfilePublishStatus(props.item, 'Publish Status', 'ml-auto mr-2')}
                 </>
             );
         }
@@ -175,7 +177,7 @@ function ProfileItemRow(props) { //props are item, showActions
                     </div>
                     <div className="col-sm-11 d-flex align-items-center" >
                         <div className="d-block" >
-                            <p className="my-0 d-flex align-content-center">
+                            <p className="my-0 d-flex align-items-center">
                                 {renderTitleNamespace()}
                             </p>
                             {props.item.title != null &&
@@ -193,6 +195,10 @@ function ProfileItemRow(props) { //props are item, showActions
                 {renderActionsColumn(props.showActions && props.selectMode == null)}
                 {props.item.description != null &&
                     <div className="col-sm-12 d-flex" >
+                        {props.selectMode != null &&
+                            <div className="col-spacer mr-1" >
+                            </div>
+                        }
                         <div className="col-spacer mr-2" >
                         </div>
                         <div className="col-sm-11" >
@@ -204,6 +210,10 @@ function ProfileItemRow(props) { //props are item, showActions
                     props.item.cloudLibApprovalDescription != null && 
                     props.item.cloudLibApprovalDescription !== '') &&
                     <div className="col-sm-12 d-flex" >
+                        {props.selectMode != null &&
+                            <div className="col-spacer mr-1" >
+                            </div>
+                        }
                         <div className="col-spacer mr-2" >
                         </div>
                         <div className="col-sm-11" >

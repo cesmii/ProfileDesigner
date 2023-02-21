@@ -295,7 +295,7 @@ function ProfileEntity() {
                 </div>
                 <div className="col-sm-5 d-flex align-items-center justify-content-end">
                     {(_item != null) &&
-                        <ProfileCloudLibStatus item={_item} activeAccount={_activeAccount} saveAndPublish={true}
+                        <ProfileCloudLibStatus item={_item} activeAccount={_activeAccount} saveAndPublish={true} showButton={true} showStatus={true}
                             onPublishProfileCallback={onPublishChange} onWithdrawProfileCallback={onPublishChange} />
                     }
                     {(_mode.toLowerCase() !== "view") &&

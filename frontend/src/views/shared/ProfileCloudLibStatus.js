@@ -8,6 +8,7 @@ import { ErrorModal } from '../../services/CommonUtil';
 import { generateLogMessageString, scrollTop } from '../../utils/UtilityService';
 import { SVGIcon } from '../../components/SVGIcon'
 import color from '../../components/Constants';
+import { renderProfilePublishStatus } from './ProfileRenderHelpers';
 
 const CLASS_NAME = "ProfileActions";
 
@@ -229,10 +230,10 @@ function ProfileCloudLibStatus(props) {
 
         if (!_withdrawProfileModal.show) return;
 
-        let caption = `Withdraw Publish Request`;
+        let caption = `Cancel Publish Request`;
 
         let message =
-            `You are about to withdraw the request to publish profile '${_withdrawProfileModal.item.namespace}'. ` +
+            `You are about to cancel the request to publish profile '${_withdrawProfileModal.item.namespace}'. ` +
             `This will remove the pending submission from the Cloud Library. ` +
             `The profile will become editable again and allow you to resubmit at a later time.`;
 
@@ -240,7 +241,7 @@ function ProfileCloudLibStatus(props) {
             <>
                 <ConfirmationModal showModal={_withdrawProfileModal.show} caption={caption} message={message}
                     icon={{ name: "warning", color: color.amber }}
-                    confirm={{ caption: "Withdraw Publish Request", callback: onWithdrawProfileConfirm, buttonVariant: "secondary" }}
+                    confirm={{ caption: "Yes", callback: onWithdrawProfileConfirm, buttonVariant: "secondary" }}
                     cancel={{
                         caption: "Cancel",
                         callback: () => {
@@ -257,33 +258,22 @@ function ProfileCloudLibStatus(props) {
     //-------------------------------------------------------------------
     // Region: Render Helpers - Column to show publish profile link OR publish profile status
     //-------------------------------------------------------------------
-    const renderActionAndStatus = () => {
+    const renderButton = () => {
         if (props.item.profileState === AppSettings.ProfileStateEnum.Local) {
             return (
-                <>
-                    <button onClick={onPublish} className="btn btn-primary auto-width d-inline-flex align-items-center mr-2" >
-                        <span className="mr-1 mb-1" alt="upload"><SVGIcon name="cloud-upload" size={20} fill={color.white} /></span>
-                        Publish
-                    </button>
-                </>
+                <button onClick={onPublish} className="btn btn-primary med-width d-inline-flex align-content-center mr-2" >
+                    <span className="mr-1" alt="upload"><SVGIcon name="cloud-upload" size={18} fill={color.white} /></span>
+                    <span className="" >Publish</span>
+                </button>
             );
         }
 
         if (props.item.profileState === AppSettings.ProfileStateEnum.CloudLibPending ||
             props.item.profileState === AppSettings.ProfileStateEnum.CloudLibRejected) {
-            const statusName = props.item.profileState === AppSettings.ProfileStateEnum.CloudLibPending ? "Pending" : "Rejected";
-            const iconColor = props.item.profileState === AppSettings.ProfileStateEnum.CloudLibPending ? color.amber : color.cardinal;
             return (
-                <>
-                    <span className="my-0 mr-2 d-flex align-items-center">
-                        <span className="font-weight-bold mr-2">Status:</span>
-                        <span className="mr-1" alt="upload"><SVGIcon name="cloud-upload" size={24} fill={iconColor} /></span>
-                        {statusName}
-                    </span>
-                    <button onClick={onWithdrawProfile} className="btn btn-secondary auto-width d-inline-flex align-items-center px-3 mr-2" >
-                        Cancel Publish
-                    </button>
-                </>
+                <button onClick={onWithdrawProfile} className="btn btn-secondary med-width px-0 mr-2" >
+                    Cancel Publish
+                </button>
             );
         }
 
@@ -303,10 +293,17 @@ function ProfileCloudLibStatus(props) {
 
     return (
         <>
-            {renderActionAndStatus()}
-            {renderPublishConfirmation()}
-            {renderCancelPublishConfirmation()}
-            <ErrorModal modalData={_error} callback={onErrorModalClose} />
+            {props.showStatus &&
+                renderProfilePublishStatus(props.item, 'Publish Status', 'mr-2')
+            }
+            {props.showButton &&
+                <>
+                    {renderButton()}
+                    {renderPublishConfirmation()}
+                    {renderCancelPublishConfirmation()}
+                    <ErrorModal modalData={_error} callback={onErrorModalClose} />
+                </>
+            }
         </>
     );
 

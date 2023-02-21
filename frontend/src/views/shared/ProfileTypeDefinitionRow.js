@@ -2,9 +2,9 @@ import React from 'react'
 import { Dropdown } from 'react-bootstrap'
 
 import { useLoadingContext } from '../../components/contexts/LoadingContext'
-import { SVGIcon, SVGDownloadIcon } from '../../components/SVGIcon'
+import { SVGIcon } from '../../components/SVGIcon'
 import { isOwner, renderTypeIcon } from './ProfileRenderHelpers';
-import { cleanFileName, generateLogMessageString } from '../../utils/UtilityService';
+import { cleanFileName, generateLogMessageString, renderMenuIcon } from '../../utils/UtilityService';
 import { getProfileCaption } from '../../services/ProfileService'
 import { AppSettings } from '../../utils/appsettings';
  
@@ -88,11 +88,14 @@ function ProfileTypeDefinitionRow(props) { //props are item, showActions
                     </Dropdown.Toggle>
                     <Dropdown.Menu>
                         {(!item.isReadOnly && isOwner(item, props.activeAccount)) &&
-                            <Dropdown.Item key="moreVert3" onClick={onDeleteItem} ><span className="mr-3" alt="delete"><SVGIcon name="delete" /></span>Delete Type Definition</Dropdown.Item>
+                            <>
+                            <Dropdown.Item key="moreVert3" onClick={onDeleteItem} >{renderMenuIcon("delete")}Delete Type Definition</Dropdown.Item>
+                            <Dropdown.Divider />
+                            </>
                         }
-                        <Dropdown.Item key="moreVert5" onClick={downloadProfile} ><span className="mr-3" alt="arrow-drop-down"><SVGDownloadIcon name="downloadNodeset" /></span>Download Profile '{getProfileCaption(props.item.profile)}'</Dropdown.Item>
-                        <Dropdown.Item key="moreVert6" onClick={downloadProfileAsAASX} ><span className="mr-3" alt="arrow-drop-down"><SVGDownloadIcon name="downloadNodeset" /></span>Download Profile '{getProfileCaption(props.item.profile)}' as AASX</Dropdown.Item>
-                        <Dropdown.Item key="moreVert7" onClick={downloadProfileAsSmipJson} ><span className="mr-3" alt="arrow-drop-down"><SVGDownloadIcon name="downloadNodeset" /></span>Download Profile '{getProfileCaption(props.item.profile)}' for SMIP import (experimental)</Dropdown.Item>
+                        <Dropdown.Item key="moreVert5" onClick={downloadProfile} >{renderMenuIcon("download")}Download Profile '{getProfileCaption(props.item.profile)}'</Dropdown.Item>
+                        <Dropdown.Item key="moreVert6" onClick={downloadProfileAsAASX} >{renderMenuIcon("download")}Download Profile '{getProfileCaption(props.item.profile)}' as AASX</Dropdown.Item>
+                        <Dropdown.Item key="moreVert7" onClick={downloadProfileAsSmipJson} >{renderMenuIcon("download")}Download Profile '{getProfileCaption(props.item.profile)}' for SMIP import (experimental)</Dropdown.Item>
                     </Dropdown.Menu>
                 </Dropdown>
             </>

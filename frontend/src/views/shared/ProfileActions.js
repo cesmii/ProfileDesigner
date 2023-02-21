@@ -182,7 +182,10 @@ function ProfileActions(props) {
                         {/*    <Dropdown.Item key="moreVert2" href={getTypeDefinitionNewUrl()} ><span className="mr-3" alt="extend"><SVGIcon name="extend" /></span>New Type Definition</Dropdown.Item>*/}
                         {/*}*/}
                         {isOwner(props.item, props.activeAccount) &&
+                            <>
                             <Dropdown.Item key="moreVert3" onClick={onDeleteItem} >{renderMenuIcon("delete")}Delete Profile</Dropdown.Item>
+                            <Dropdown.Divider />
+                            </>
                         }
                         <Dropdown.Item key="moreVert4" onClick={downloadItem} >{renderMenuIcon("download")}Download Profile</Dropdown.Item>
                         <Dropdown.Item key="moreVert5" onClick={downloadItemAsAASX} >{renderMenuIcon("download")}Download Profile as AASX</Dropdown.Item>

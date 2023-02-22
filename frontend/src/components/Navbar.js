@@ -75,10 +75,12 @@ function Navbar() {
                         {_activeAccount?.name}
                     </Dropdown.Toggle>
                     <Dropdown.Menu>
-                        {(isInRole(_activeAccount, 'cesmii.profiledesigner.admin')) &&
+                        {(isInRole(_activeAccount, AppSettings.AADAdminRole)) &&
                             <>
                             <Dropdown.Item eventKey="3" href="/admin/user/list">View Users</Dropdown.Item>
-                            <Dropdown.Item eventKey="4" href="/admin/cloudlibrary/approval/list">Approve Cloud Library publication requests</Dropdown.Item>
+                            {/*
+                                < Dropdown.Item eventKey="4" href="/admin/cloudlibrary/approval/list">Approve Cloud Library publication requests</Dropdown.Item>
+                            */}
                             <Dropdown.Divider />
                             </>
                         }

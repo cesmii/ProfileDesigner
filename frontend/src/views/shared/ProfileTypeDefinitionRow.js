@@ -92,7 +92,7 @@ function ProfileTypeDefinitionRow(props) { //props are item, showActions
     const renderRowView = () => {
         const isReadOnly = (props.item.isReadOnly || !isOwner(props.item, props.activeAccount));
         const cssClass = `row py-1 align-items-center ${props.cssClass} ${isReadOnly ? "" : "mine"} ${IsRowSelected(props.item) ? "selected" : ""} ${props.selectMode != null ? "selectable" : ""}`;
-        const avatarCss = `col-avatar mt-1 mr-2 rounded-circle avatar ${isReadOnly ? "locked" : "unlocked"} elevated clickable`;
+        const avatarCss = `col-avatar mt-1 mr-2 rounded-circle avatar info elevated clickable`;
 
         return (
             <div className={cssClass} onClick={onRowSelect}>

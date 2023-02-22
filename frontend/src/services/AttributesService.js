@@ -304,11 +304,11 @@ export const renderAttributeIcon = (item) => {
     const iconColor = item._itemType == null || item._itemType === "profile" ? color.shark : color.silver;
 
     //set up icon properly
-    let iconName = "puzzle-piece";
+    let iconName = AppSettings.IconMapper.Attribute;
 
-    if (item.dataType.id === AppSettings.DataTypeDefaults.CompositionId) iconName = "type-def";
+    if (item.dataType.id === AppSettings.DataTypeDefaults.CompositionId) iconName = AppSettings.IconMapper.TypeDefinition;
 
-    if (item.interface != null) iconName = "key";
+    if (item.interface != null) iconName = AppSettings.IconMapper.Interface;
 
     return (
         <span className="mr-2">

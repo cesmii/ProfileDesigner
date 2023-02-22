@@ -208,20 +208,20 @@ export function getProfileTypeCaption(item) {
 
 //TBD - move to profile service file
 export function getTypeDefIconName(item) {
-    if (item == null || item.type == null) return 'type-def';
+    if (item == null || item.type == null) return AppSettings.IconMapper.TypeDefinition;
     //TBD - eventually get icons specific for each type
     switch (item.type.name.replace(/\s/g,'').toLowerCase()) {
         case "namespace":
             return "folder-profile";
         case 'interface':
-            return 'key';
+            return AppSettings.IconMapper.Interface;
         case 'customdatatype':
             return 'customdatatype';
         case 'abstract':
         case 'structure':
         case 'class':
         default:
-            return 'type-def';
+            return AppSettings.IconMapper.TypeDefinition;
     }
 }
 

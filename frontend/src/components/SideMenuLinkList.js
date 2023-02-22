@@ -6,6 +6,7 @@ import color from './Constants'
 import './styles/SideMenuLinkList.scss';
 import Fab from './Fab';
 import { isOwner } from '../views/shared/ProfileRenderHelpers';
+import { AppSettings } from '../utils/appsettings';
 
 //import { generateLogMessageString } from '../utils/UtilityService'
 
@@ -54,7 +55,7 @@ function SideMenuLinkList(props) { //props are subMenuItems, bgColor, iconName, 
 
     const renderListItem = (link, index) => {
         //backward compatible
-        if (link.iconName === "profile" || link.iconName === "folder-profile") link.iconName = "type-def";
+        if (link.iconName === "profile" || link.iconName === "folder-profile") link.iconName = AppSettings.IconMapper.TypeDefinition;
 
         const iconColor = !isOwner({ author: { objectIdAAD: link?.authorId } }, props.activeAccount) ? color.gris : color.cornflower;
         const key = `li_${index.toString()}`;

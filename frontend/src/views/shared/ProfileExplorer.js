@@ -5,6 +5,7 @@ import InputGroup from 'react-bootstrap/InputGroup'
 import Button from 'react-bootstrap/Button'
 import axiosInstance from "../../services/AxiosService";
 
+import { AppSettings } from '../../utils/appsettings'
 import { generateLogMessageString } from '../../utils/UtilityService'
 import { filterProfiles, getTypeDefEntityLink } from '../../services/ProfileService';
 import { renderTypeIcon, renderLinkedName } from './ProfileRenderHelpers';
@@ -168,16 +169,16 @@ function ProfileExplorer(props) {
                 iconName = 'account-tree';
                 break;
             case "compositions":
-                iconName = 'type-def';
+                iconName = AppSettings.IconMapper.TypeDefinition;
                 break;
             case "dependencies":
-                iconName = 'type-def';
+                iconName = AppSettings.IconMapper.TypeDefinition;
                 break;
             case "interfaces":
-                iconName = 'key';
+                iconName = AppSettings.IconMapper.Interface;
                 break;
             default:
-                iconName = 'type-def';
+                iconName = AppSettings.IconMapper.TypeDefinition;
                 break;
         }
 

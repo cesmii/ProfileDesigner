@@ -38,7 +38,7 @@ export const renderLinkedName = (item, cssClass = null ) => {
 export const renderProfileIcon = (item, size = 24, useMarginRight = true) => {
     if (item == null) return;
 
-    let iconName = "dashboard";
+    let iconName = AppSettings.IconMapper.Profile;
     let iconColor = null;
 
     switch (item.profileState) {

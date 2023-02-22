@@ -28,7 +28,7 @@ function ProfileList() {
     // Region: Initialization
     //-------------------------------------------------------------------
     const caption = 'Profile Library';
-    const iconName = 'dashboard'; //'folder-profile';
+    const iconName = AppSettings.IconMapper.Profile;
     const iconColor = color.shark;
     const { loadingProps, setLoadingProps } = useLoadingContext();
     const [_deleteModal, setDeleteModal] = useState({ show: false, items: null });

@@ -159,7 +159,8 @@ export const AppSettings = {
         },
     }
     , MsalScopes: [process.env.REACT_APP_MSAL_SCOPE]  //tied to scope defined in app registration / scope, set in Azure AAD
-    //, AADUserRole: "cesmii.profiledesigner.user"
+    , AADAdminRole: "cesmii.profiledesigner.admin"
+    , IconMapper: { Profile: 'profile', TypeDefinition: 'description', Attribute: 'puzzle-piece', Interface: 'key'}
 }
 
 export const LookupData = {

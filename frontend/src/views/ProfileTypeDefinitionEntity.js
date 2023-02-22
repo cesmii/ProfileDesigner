@@ -13,7 +13,7 @@ import Nav from 'react-bootstrap/Nav'
 import { useLoadingContext, UpdateRecentFileList } from "../components/contexts/LoadingContext";
 import { useWizardContext } from '../components/contexts/WizardContext';
 import { AppSettings } from '../utils/appsettings';
-import { generateLogMessageString, getTypeDefIconName, getProfileTypeCaption, cleanFileName, validate_NoSpecialCharacters } from '../utils/UtilityService'
+import { generateLogMessageString, getTypeDefIconName, getProfileTypeCaption, validate_NoSpecialCharacters } from '../utils/UtilityService'
 import AttributeList from './shared/AttributeList';
 import DependencyList from './shared/DependencyList';
 import ProfileBreadcrumbs from './shared/ProfileBreadcrumbs';
@@ -115,7 +115,7 @@ function ProfileTypeDefinitionEntity() {
                 result = await axiosInstance.post(url, data);
             }
             catch (err) {
-                var msg = 'An error occurred retrieving this profile.';
+                var msg = 'An error occurred retrieving this type definition.';
                 console.log(generateLogMessageString('useEffect||fetchData||error', CLASS_NAME, 'error'));
                 //console.log(err.response.status);
                 if (err != null && err.response != null && err.response.status === 404) {
@@ -236,7 +236,7 @@ function ProfileTypeDefinitionEntity() {
 
             //Filter out anything
             //where the profile is neither a descendant or a parent/grandparent, etc. of the profile we 
-            //are working with, can't be a dependency of this profile
+            //are working with, can't be a dependency of this type definition
             // If we are working with a profile, then composition can't be an interface type
             // If we are working with an interface, then composition can't be a profile type
             const data = { id: lookupId };
@@ -427,7 +427,7 @@ function ProfileTypeDefinitionEntity() {
                 //hide a spinner, show a message
                 setLoadingProps({
                     isLoading: false, message: null, inlineMessages: [
-                        { id: new Date().getTime(), severity: "danger", body: `An error occurred ${mode.toLowerCase() === "extend" ? "extending" : "saving"} this profile.`, isTimed: false }
+                        { id: new Date().getTime(), severity: "danger", body: `An error occurred ${mode.toLowerCase() === "extend" ? "extending" : "saving"} this type definition.`, isTimed: false }
                     ]
                 });
                 console.log(generateLogMessageString('handleOnSave||error||' + JSON.stringify(error), CLASS_NAME, 'error'));

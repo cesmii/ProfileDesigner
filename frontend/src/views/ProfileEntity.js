@@ -37,7 +37,7 @@ function ProfileEntity() {
     const { loadingProps, setLoadingProps } = useLoadingContext();
     const [_item, setItem] = useState(null);
     const [_isValid, setIsValid] = useState({ namespace: true, namespaceFormat: true, description: true, type: true, symbolicName: true, licenseExpression: true });
-    const _iconName = 'dashboard';
+    const _iconName = AppSettings.IconMapper.Profile;
     const _iconColor = color.shark;
 
     const [_searchCriteria, setSearchCriteria] = useState(null);

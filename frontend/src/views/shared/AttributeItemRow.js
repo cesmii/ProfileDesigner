@@ -59,7 +59,7 @@ function AttributeItemRow(props) { //props are item, showActions
                 isCustomDataType: _editItem.dataType.isCustom
             };
         }
-        var lookupItem = props.lookupDataTypes.find(dt => { return dt.val === _editItem.dataType.id; });
+        const lookupItem = props.lookupDataTypes.find(dt => { return dt.val === _editItem.dataType.id; });
         return {
             useMinMax: lookupItem != null && lookupItem.useMinMax,
             useEngUnit: lookupItem != null && lookupItem.useEngUnit,
@@ -67,8 +67,8 @@ function AttributeItemRow(props) { //props are item, showActions
         };
     };
 
-    var [_isEditMode, setIsEditMode] = useState(false);
-    var [_editItem, setEditItem] = useState(JSON.parse(JSON.stringify(props.item)));
+    const [_isEditMode, setIsEditMode] = useState(false);
+    const [_editItem, setEditItem] = useState(JSON.parse(JSON.stringify(props.item)));
     const [_isValid, setIsValid] = useState({
         name: true,
         nameDuplicate: true,
@@ -107,14 +107,14 @@ function AttributeItemRow(props) { //props are item, showActions
     // Region: Validation
     //-------------------------------------------------------------------
     const validateForm_name = (e) => {
-        var isValid = validate_name(e.target.value, _editItem);
+        const isValid = validate_name(e.target.value, _editItem);
         //dup check
-        var isValidDup = validate_nameDuplicate(e.target.value, _editItem, props.allAttributes);
+        const isValidDup = validate_nameDuplicate(e.target.value, _editItem, props.allAttributes);
         setIsValid({ ..._isValid, name: isValid, nameDuplicate: isValidDup });
     };
 
     const validateForm_dataType = (e) => {
-        var dataType = props.lookupDataTypes.find(dt => { return dt.id === parseInt(e.target.value); });
+        const dataType = props.lookupDataTypes.find(dt => { return dt.id === parseInt(e.target.value); });
         setIsValid({ ..._isValid, dataType: validate_dataType(dataType) });
     };
 
@@ -123,7 +123,7 @@ function AttributeItemRow(props) { //props are item, showActions
     };
 
     const validateForm_composition = (e) => {
-        var isValid = e.target.value.toString() !== "-1" || parseInt(_editItem.attributeType.id) !== AppSettings.AttributeTypeDefaults.CompositionId;
+        const isValid = e.target.value.toString() !== "-1" || parseInt(_editItem.attributeType.id) !== AppSettings.AttributeTypeDefaults.CompositionId;
         setIsValid({ ..._isValid, composition: isValid });
     };
 
@@ -134,9 +134,9 @@ function AttributeItemRow(props) { //props are item, showActions
 
     const validateForm_enumValue = (e) => {
         //dup check
-        var isValidDup = validate_enumValueDuplicate(e.target.value, _editItem, props.allAttributes);
+        const isValidDup = validate_enumValueDuplicate(e.target.value, _editItem, props.allAttributes);
         //check for valid integer - is numeric and is positive
-        var isValidValue = validate_enumValueNumeric(e.target.value, _editItem);
+        const isValidValue = validate_enumValueNumeric(e.target.value, _editItem);
         setIsValid({ ..._isValid, enumValue: isValidValue, enumValueDuplicate: isValidDup });
     }
 
@@ -144,7 +144,7 @@ function AttributeItemRow(props) { //props are item, showActions
     const validateForm = () => {
         console.log(generateLogMessageString(`validateForm`, CLASS_NAME));
 
-        var isValid = validate_All(_editItem, _editSettings, props.allAttributes);
+        const isValid = validate_All(_editItem, _editSettings, props.allAttributes);
 
         setIsValid(JSON.parse(JSON.stringify(isValid)));
         return (isValid.name && isValid.nameDuplicate && isValid.dataType && isValid.attributeType
@@ -350,9 +350,9 @@ function AttributeItemRow(props) { //props are item, showActions
 
         if (_editItem.attributeType.id !== AppSettings.AttributeTypeDefaults.EnumerationId) return;
 
-        var isReadOnly = (render_CheckReadOnly());
+        const isReadOnly = (render_CheckReadOnly());
 
-        var tip = !_isValid.enumValue ? 'Integer > 0 required.' : '';
+        const tip = !_isValid.enumValue ? 'Integer > 0 required.' : '';
         tip = !_isValid.enumValueIsNumeric ? tip + ' Integer required.' : tip;
         return (
             <Form.Group className="form-inline">
@@ -566,7 +566,7 @@ function AttributeItemRow(props) { //props are item, showActions
         });
 
         //typical scenario is just data type id
-        var selectedId = _editItem.attributeType == null ? "-1" : _editItem.attributeType.id;
+        const selectedId = _editItem.attributeType == null ? "-1" : _editItem.attributeType.id;
 
         return (
             <Form.Group className="flex-grow-1 align-self-center" >
@@ -585,7 +585,7 @@ function AttributeItemRow(props) { //props are item, showActions
         if (render_CheckReadOnly() || !_isEditMode) {
             //grab the associated caption when showing in read only mode
             if (_editItem.attributeType == null || _editItem.attributeType.id.toString() === "-1") return "";
-            var selItem = (props.lookupAttributeTypes == null || props.lookupAttributeTypes.length === 0) ? null :
+            const selItem = (props.lookupAttributeTypes == null || props.lookupAttributeTypes.length === 0) ? null :
                 props.lookupAttributeTypes.find(x => { return x.id === _editItem.attributeType.id });
             return selItem == null ? _editItem.attributeType.name : selItem.name;
         }
@@ -662,8 +662,8 @@ function AttributeItemRow(props) { //props are item, showActions
     const renderActionIconDelete = () => {
 
         //default behavior
-        var showDeleteBtn = props.onDelete != null;
-        var deleteCallback = onDeleteModal;
+        let showDeleteBtn = props.onDelete != null;
+        let deleteCallback = onDeleteModal;
 
         //if interface and allowed to delete interface, override
         if (_editItem.interface != null && props.onDeleteInterface == null) {
@@ -734,7 +734,7 @@ function AttributeItemRow(props) { //props are item, showActions
     const renderInterfaceStyle = () => {
         if (_editItem.interfaceGroupId != null) {
             //use the group id to get a color from the color constants file - this keeps a group of items color coded together
-            var colorCounter = 0;
+            let colorCounter = 0;
             for (const c in colorLookups) {
 
                 if (_editItem.interfaceGroupId === colorCounter) {
@@ -754,7 +754,7 @@ function AttributeItemRow(props) { //props are item, showActions
 
         if (!showDeleteModal) return;
 
-        var message = (<> <strong>WARNING: </strong>You are about to delete '{_editItem.name}'. </>);
+        const message = (<> <strong>WARNING: </strong>You are about to delete '{_editItem.name}'. </>);
 
         return (
             <>
@@ -771,7 +771,7 @@ function AttributeItemRow(props) { //props are item, showActions
 
         if (!showDeleteInterfaceModal) return;
 
-        var message = (<> <strong>WARNING: </strong>You are about to delete all attributes associated with interface '{_editItem.interface.name}'. </>);
+        const message = (<> <strong>WARNING: </strong>You are about to delete all attributes associated with interface '{_editItem.interface.name}'. </>);
 
         return (
             <>
@@ -811,7 +811,7 @@ function AttributeItemRow(props) { //props are item, showActions
     return (
         <>
             <tr style={renderInterfaceStyle()} className="" >
-                <td className="pl-1 col-icon" >{renderAttributeIcon(_editItem)}</td>
+                <td className="pl-1 col-icon" >{renderAttributeIcon(_editItem, props.readOnly)}</td>
                 <td className="px-2" >
                     <div className={`row ${_isEditMode ? "mt-2" : ""}`} >
                         <div className="col-sm-5 align-self-center" >{renderName()}</div>

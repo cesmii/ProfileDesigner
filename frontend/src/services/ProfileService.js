@@ -41,7 +41,8 @@ export function filterProfiles(items, filterVal) {
 // getProfileCaption - Get a consistently formatted profile caption for use in various ui elements
 //-------------------------------------------------------------------
 export function getProfileCaption(item) {
-    return `${item.namespace}${item.version == null ? '' : ` (v ${item.version})`}`;
+    const namespace = `${item.namespace}${item.version == null ? '' : ` (v ${item.version})`}`;
+    return item.title == null || item.title === '' ? namespace : `${item.title} (${namespace})`;
 }
 
 

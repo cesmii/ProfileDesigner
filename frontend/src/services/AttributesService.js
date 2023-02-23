@@ -298,10 +298,10 @@ export const onChangeCompositionShared = (match, item) => {
 //-------------------------------------------------------------------
 // Region: Shared render methods
 //-------------------------------------------------------------------
-export const renderAttributeIcon = (item) => {
+export const renderAttributeIcon = (item, readOnly) => {
     //simplify icons
     //set up color properly
-    const iconColor = item._itemType == null || item._itemType === "profile" ? color.shark : color.silver;
+    const iconColor = readOnly ? color.readOnly : color.mine;
 
     //set up icon properly
     let iconName = AppSettings.IconMapper.Attribute;

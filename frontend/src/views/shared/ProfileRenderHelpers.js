@@ -3,7 +3,7 @@ import React from 'react'
 //import { generateLogMessageString } from '../../utils/UtilityService'
 import { SVGIcon } from '../../components/SVGIcon'
 import color from '../../components/Constants'
-import { getTypeDefIconName } from '../../utils/UtilityService';
+import { getIconColorByProfileState, getTypeDefIconName } from '../../utils/UtilityService';
 import { getTypeDefEntityLink } from '../../services/ProfileService';
 import { AppSettings } from '../../utils/appsettings';
 
@@ -17,7 +17,7 @@ export const renderTypeIcon = (item, account, size = 20, useMarginRight = true) 
 
     const isOwnerBool = isOwner(item, account);
     const iconName = getTypeDefIconName(item);
-    const iconColor = (item.isReadOnly || !isOwnerBool) ? color.shark : color.cornflower;
+    const iconColor = (item.isReadOnly || !isOwnerBool) ? color.readOnly : color.mine;
 
     const svg = (<SVGIcon name={iconName} size={size} fill={iconColor} alt={iconName} />);
 
@@ -35,30 +35,13 @@ export const renderLinkedName = (item, cssClass = null ) => {
 //-------------------------------------------------------------------
 // Region: Common Nodeset Render helpers
 //-------------------------------------------------------------------
-export const renderProfileIcon = (item, size = 24, useMarginRight = true) => {
+export const renderProfileIcon = (item, size = 24, className = '') => {
     if (item == null) return;
 
-    let iconName = AppSettings.IconMapper.Profile;
-    let iconColor = null;
-
-    switch (item.profileState) {
-        case AppSettings.ProfileStateEnum.CloudLibPending:
-        //    iconColor = color.amber;
-        //    break;
-        case AppSettings.ProfileStateEnum.CloudLibRejected:
-        //    iconColor = color.cardinal;
-        //    break;
-        case AppSettings.ProfileStateEnum.Local:
-            iconColor = color.cornflower;
-            break;
-        case AppSettings.ProfileStateEnum.CloudLibPublished:
-        case AppSettings.ProfileStateEnum.Core:
-        default:
-            iconColor = color.nevada;
-    }
-
-    const svg = (<SVGIcon name={iconName} size={size} fill={iconColor} alt={iconName} size={size} />);
-    return (<span className={`d-flex align-items-center justify-content-center ${useMarginRight ? "mr-2" : ""}`} >{svg}</span>)
+    const iconName = AppSettings.IconMapper.Profile;
+    const iconColor = getIconColorByProfileState(item.profileState);
+    const svg = (<SVGIcon name={iconName} size={size} fill={iconColor} alt={iconName} />);
+    return (<span className={`d-flex align-items-center justify-content-center ${className}`} >{svg}</span>)
 };
 
 export const renderProfileAvatarBgCss = (item) => {

@@ -147,7 +147,10 @@ function ProfileItemRow(props) { //props are item, showActions
                     <div className={avatarCss} >{profileIcon}</div>
                     <div className="col-sm-11" >
                         <span className="font-weight-bold mr-2" >{props.profileCaption == null ? "Profile: " : `${props.profileCaption}: `}</span>
-                        <a className="mx-2" href={`/profile/${props.item.id}`} >{caption}</a>
+                        {props.item == null ?
+                            caption : 
+                            <a className="mx-2" href={`/profile/${props.item.id}`} >{caption}</a>
+                        }
                         {(props.actionUI != null) &&
                             <div className="ml-2 d-inline-flex" >
                                 {props.actionUI}

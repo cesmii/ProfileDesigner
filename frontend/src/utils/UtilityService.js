@@ -1,3 +1,4 @@
+import color from "../components/Constants";
 import { SVGIcon } from "../components/SVGIcon";
 import { AppSettings } from "./appsettings";
 
@@ -225,6 +226,25 @@ export function getTypeDefIconName(item) {
     }
 }
 
+export const getIconColorByProfileState = (profileState) => {
+    if (profileState == null) return color.readOnly;
+
+    switch (profileState) {
+        case AppSettings.ProfileStateEnum.CloudLibPending:
+        //    iconColor = color.amber;
+        //    break;
+        case AppSettings.ProfileStateEnum.CloudLibRejected:
+        //    iconColor = color.cardinal;
+        //    break;
+        case AppSettings.ProfileStateEnum.Local:
+            return color.mine;
+        case AppSettings.ProfileStateEnum.CloudLibPublished:
+        case AppSettings.ProfileStateEnum.Core:
+        default:
+            return color.readOnly;
+    }
+};
+
 ///--------------------------------------------------------------------------
 /// Helper - scroll to top
 //--------------------------------------------------------------------------
@@ -391,7 +411,7 @@ export const renderTitleBlock = (caption, iconName, iconColor ) => {
     return (
         <div className="header-title-block d-flex mb-2">
             {(iconName != null && iconName !== "") &&
-                <span className="mr-3">
+                <span className="mr-2">
                     <SVGIcon name={iconName} size="36" fill={iconColor} alt={caption} />
                 </span>
             }

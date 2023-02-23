@@ -95,7 +95,7 @@ function ProfileItemRow(props) { //props are item, showActions
 
         let profileCaption = null;
         let profileValue = null;
-        if (props.item.title == null) {
+        if (props.item.title == null || props.item.title === '') {
             profileCaption = props.profileCaption == null ? "Namespace: " : `${props.profileCaption}: `;
             profileValue = props.item.namespace;
         }
@@ -138,8 +138,8 @@ function ProfileItemRow(props) { //props are item, showActions
         //var colCss = `${props.actionUI == null ? "col-sm-12" : "col-sm-10"} d-flex align-items-center`;
         const caption = props.item == null ? "" : getProfileCaption(props.item);
         const profileIcon = props.item == null ?
-            renderProfileIcon({ authorId: null }, 24, false) :
-            renderProfileIcon(props.item, 24, false);
+            renderProfileIcon({ authorId: null }, 24) :
+            renderProfileIcon(props.item, 24);
 
         return (
             <div className={cssClass} onClick={onRowSelect} >
@@ -147,7 +147,7 @@ function ProfileItemRow(props) { //props are item, showActions
                     <div className={avatarCss} >{profileIcon}</div>
                     <div className="col-sm-11" >
                         <span className="font-weight-bold mr-2" >{props.profileCaption == null ? "Profile: " : `${props.profileCaption}: `}</span>
-                        {caption}
+                        <a className="mx-2" href={`/profile/${props.item.id}`} >{caption}</a>
                         {(props.actionUI != null) &&
                             <div className="ml-2 d-inline-flex" >
                                 {props.actionUI}
@@ -173,14 +173,14 @@ function ProfileItemRow(props) { //props are item, showActions
                         renderSelectColumn(props.item, isReadonly)
                     }
                     <div className={`col-avatar mt-1 mr-2 rounded-circle ${renderProfileAvatarBgCss(props.item)} elevated`} >
-                        {renderProfileIcon(props.item, 24, false)}
+                        {renderProfileIcon(props.item, 24)}
                     </div>
                     <div className="col-sm-11 d-flex align-items-center" >
                         <div className="d-block" >
                             <p className="my-0 d-flex align-items-center">
                                 {renderTitleNamespace()}
                             </p>
-                            {props.item.title != null &&
+                            {(props.item.title != null && props.item.title != '') &&
                                 <p className="my-0 small-size" >Namespace: {props.item.namespace}</p>
                             }
                             {props.item.version != null &&

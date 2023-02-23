@@ -8,7 +8,7 @@ import { Button } from 'react-bootstrap';
 import { useMsal } from "@azure/msal-react";
 import axiosInstance from "../services/AxiosService";
 
-import { generateLogMessageString, renderTitleBlock, useQueryString } from '../utils/UtilityService'
+import { generateLogMessageString, getIconColorByProfileState, renderTitleBlock, useQueryString } from '../utils/UtilityService'
 import { AppSettings } from '../utils/appsettings'
 import { useLoadingContext, UpdateRecentFileList } from '../components/contexts/LoadingContext';
 import { isOwner } from './shared/ProfileRenderHelpers';
@@ -18,7 +18,6 @@ import ProfileTypeDefinitionListGrid from './shared/ProfileTypeDefinitionListGri
 import ProfileActions from './shared/ProfileActions';
 import ProfileCloudLibStatus from './shared/ProfileCloudLibStatus'
 
-import color from '../components/Constants';
 import './styles/ProfileEntity.scss';
 
 const CLASS_NAME = "ProfileEntity";
@@ -38,7 +37,6 @@ function ProfileEntity() {
     const [_item, setItem] = useState(null);
     const [_isValid, setIsValid] = useState({ namespace: true, namespaceFormat: true, description: true, type: true, symbolicName: true, licenseExpression: true });
     const _iconName = AppSettings.IconMapper.Profile;
-    const _iconColor = color.shark;
 
     const [_searchCriteria, setSearchCriteria] = useState(null);
     const [_searchCriteriaChanged, setSearchCriteriaChanged] = useState(0);
@@ -288,10 +286,11 @@ function ProfileEntity() {
     // Region: Render Helpers
     //-------------------------------------------------------------------
     const renderHeaderRow = (caption) => {
+        const iconColor = getIconColorByProfileState(_item?.profileState);
         return (
             <div className="row pb-3">
                 <div className="col-sm-7 mr-auto d-flex">
-                    {renderTitleBlock(caption, _iconName, _iconColor)}
+                    {renderTitleBlock(caption, _iconName, iconColor)}
                 </div>
                 <div className="col-sm-5 d-flex align-items-center justify-content-end">
                     {(_item != null) &&

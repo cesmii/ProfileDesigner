@@ -17,7 +17,7 @@ export const renderTypeIcon = (item, account, size = 20, useMarginRight = true) 
 
     const isOwnerBool = isOwner(item, account);
     const iconName = getTypeDefIconName(item);
-    const iconColor = (item.isReadOnly || !isOwnerBool) ? color.shark : color.cornflower;
+    const iconColor = (item.isReadOnly || !isOwnerBool) ? color.readOnly : color.mine;
 
     const svg = (<SVGIcon name={iconName} size={size} fill={iconColor} alt={iconName} />);
 
@@ -49,15 +49,15 @@ export const renderProfileIcon = (item, size = 24, useMarginRight = true) => {
         //    iconColor = color.cardinal;
         //    break;
         case AppSettings.ProfileStateEnum.Local:
-            iconColor = color.cornflower;
+            iconColor = color.mine;
             break;
         case AppSettings.ProfileStateEnum.CloudLibPublished:
         case AppSettings.ProfileStateEnum.Core:
         default:
-            iconColor = color.nevada;
+            iconColor = color.readOnly;
     }
 
-    const svg = (<SVGIcon name={iconName} size={size} fill={iconColor} alt={iconName} size={size} />);
+    const svg = (<SVGIcon name={iconName} size={size} fill={iconColor} alt={iconName} />);
     return (<span className={`d-flex align-items-center justify-content-center ${useMarginRight ? "mr-2" : ""}`} >{svg}</span>)
 };
 

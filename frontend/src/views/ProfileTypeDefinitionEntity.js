@@ -13,7 +13,7 @@ import Nav from 'react-bootstrap/Nav'
 import { useLoadingContext, UpdateRecentFileList } from "../components/contexts/LoadingContext";
 import { useWizardContext } from '../components/contexts/WizardContext';
 import { AppSettings } from '../utils/appsettings';
-import { generateLogMessageString, getTypeDefIconName, getProfileTypeCaption, validate_NoSpecialCharacters } from '../utils/UtilityService'
+import { generateLogMessageString, getTypeDefIconName, getProfileTypeCaption, validate_NoSpecialCharacters, getIconColorByProfileState } from '../utils/UtilityService'
 import AttributeList from './shared/AttributeList';
 import DependencyList from './shared/DependencyList';
 import ProfileBreadcrumbs from './shared/ProfileBreadcrumbs';
@@ -133,7 +133,7 @@ function ProfileTypeDefinitionEntity() {
             // set view/edit mode now that we can compare user against author of item
             // just a check to make sure that if the mode is edit, but user isn't the author,
             // we force them back to view mode
-            var thisMode = 'view';
+            let thisMode = 'view';
             if (id != null) {
                 thisMode = (result.data.isReadOnly || !isOwner(result.data, _activeAccount)) ? "view" : "edit";
             }
@@ -801,13 +801,14 @@ function ProfileTypeDefinitionEntity() {
     const renderCommonSection = () => {
 
         const iconName = mode.toLowerCase() === "extend" ? "extend" : getTypeDefIconName(_item);
+        const iconColor = getIconColorByProfileState(_isReadOnly ? AppSettings.ProfileStateEnum.Core : AppSettings.ProfileStateEnum.Local);
 
         return (
             <>
                 <div className="row my-1">
                     <div className="col-sm-9 col-md-8 align-self-center" >
-                        <h1 className="mb-0">
-                            <SVGIcon name={iconName} size="24" className="mr-1 mr-md-2" />
+                        <h1 className="mb-0 pl-3">
+                            <SVGIcon name={iconName} fill={iconColor} alt={iconName} size="24" className="mr-1 mr-md-2" />
                             Type Definition
                             {(_item.name != null && _item.name.trim() !== '') &&
                                 <>
@@ -953,8 +954,8 @@ function ProfileTypeDefinitionEntity() {
     //-------------------------------------------------------------------
     // Region: Render
     //-------------------------------------------------------------------
-    var titleCaption = buildTitleCaption(mode);
-    var caption = getProfileTypeCaption(_item);
+    const titleCaption = buildTitleCaption(mode);
+    const caption = getProfileTypeCaption(_item);
 
     const renderMainContent = () => {
         if (loadingProps.isLoading || isLoading) return;

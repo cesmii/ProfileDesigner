@@ -30,6 +30,11 @@ using CESMII.OpcUa.NodeSetImporter;
 using CESMII.OpcUa.NodeSetModel.Factory.Smip;
 using CESMII.Common.SelfServiceSignUp.Services;
 using CESMII.Common.CloudLibClient;
+using Microsoft.EntityFrameworkCore.Metadata;
+using NLog.Layouts;
+using Opc.Ua;
+using System.ComponentModel;
+using System.Runtime.InteropServices;
 
 namespace CESMII.ProfileDesigner.Api.Controllers
 {
@@ -840,8 +845,9 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 string strSenderDisplayName = user.DisplayName;
                 string strAuthorEmail = profile.Author.Email;
                 string strAuthorDisplayName = profile.Author.DisplayName;
-                string strAuthorInfo = $"\tAuthor: <strong>{profile.Author.DisplayName} [{profile.Author.Email}]</strong> -- ({profile.Author.ObjectIdAAD})";
-                string strOrganizationInfo = $"\tOrganization: <strong>{profile.Author.Organization}</strong>";
+                string strAuthorInfo = $"\tAuthor: <strong>{profile.Author.DisplayName} [{profile.Author.Email}]</strong>";
+                string strOrganizationInfo = $"\tOrganization: <strong>{profile.Author.Organization.Name}</strong>";
+                string strProfileNamespace = $"{profile.Namespace}";
                 string strProfileInfo = $"\tProfile Title: <strong>{profile.Title}</strong>: <br/>" +
                                         $"\tProfile Description: <strong>{profile.Description}</strong> <br/>" +
                                         $"\tProfile Namespace: <strong>{profile.Namespace}</strong>: <br/>" +
@@ -873,7 +879,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 // notify recipient of new profile to review
                 try
                 {
-                    SendProfileEmailNotification(strSenderEmail, strSenderDisplayName, strAuthorEmail, strAuthorDisplayName, strAuthorInfo, strOrganizationInfo, strProfileInfo);
+                    SendProfileEmailNotification(strSenderEmail, strSenderDisplayName, strAuthorEmail, strAuthorDisplayName, strAuthorInfo, strOrganizationInfo, strProfileNamespace, strProfileInfo);
                 }
                 catch (Exception ex)
                 {
@@ -1604,13 +1610,24 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             }
         }
 
-        internal async void SendProfileEmailNotification(string strSenderEmail, string strSenderDisplayName, string strAuthorEmail, string strAuthorDisplayName, string strAuthorInfo, string strOrganizationInfo, string strProfileInfo)
+        internal async void SendProfileEmailNotification(string strSenderEmail, string strSenderDisplayName, string strAuthorEmail, string strAuthorDisplayName, string strAuthorInfo, string strOrganizationInfo, string strProfileNamespace, string strProfileInfo)
         {
             // Send email that we have created a new user account
             //string strUserName = "DisplayName";
 
             string strSubject = "Profile submission to CESMII Cloud Library";
-            string strContent = $"<p>Thank you very much for your submission to the Clean Energy Smart Manufacturing Innovation Institute (CESMII) Cloud Library.</p>" +
+
+
+
+                        string strContent = 
+                                $"<p>Thank you for submitting your profile to the Clean Energy Smart Manufacturing Innovation Institute (CESMII) Cloud Library. " +
+                                $"Your submission will be reviewed by the CESMII team. " +
+                                $"After approval, your profile will appear in the CESMII Cloud Library and Marketplace. </p>" +
+                                $"<p></p>" +
+                                $"<p>To check on the status of your submission, visit the Profile Library in the Profile Designer. " +
+                                $"You can cancel your submission at any time from by clicking the <b>Cancel Publish</b> button in the Profile Library.</p>" +
+                                $"<p></p>" +
+                                $"<p>Please note that once a profile has been submitted for publishing, the profile is no longer editable.</p>" +
                                 $"<p></p>" +
                                 $"<p>{strAuthorInfo}</p>" +
                                 $"<p>{strOrganizationInfo}</p>" +
@@ -1621,7 +1638,6 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                                 $"<p>Sincerely,</p>" +
                                 $"<p>CESMII Support Team</p>" +
                                 $"<p></p>";
-
             _logger.LogInformation($"SendProfileEmailNotification: About to send notification email.");
 
             // Setup "To" list 
@@ -1629,7 +1645,6 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             List<EmailAddress> leaTo = new List<EmailAddress>();
             if (strAuthorEmail.ToLower() != strSenderEmail.ToLower())
                 leaTo.Add(new EmailAddress(strAuthorEmail, strAuthorDisplayName));
-
             leaTo.Add(new EmailAddress(strSenderEmail, strSenderDisplayName));
 
             // Setup Contents of our email message.

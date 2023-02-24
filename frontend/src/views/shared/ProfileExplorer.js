@@ -163,7 +163,7 @@ function ProfileExplorer(props) {
     //-------------------------------------------------------------------
     //render an icon per section
     const renderSectionHeaderIcon = (sectionId) => {
-        var iconName = "profile";
+        let iconName = "profile";
         switch (sectionId.toLowerCase()) {
             case "inheritancetree":
                 iconName = 'account-tree';
@@ -182,7 +182,7 @@ function ProfileExplorer(props) {
                 break;
         }
 
-        const svg = (<SVGIcon name={iconName} size="18" fill={color.shark} alt={iconName} />);
+        const svg = (<SVGIcon name={iconName} size="18" fill={color.readOnly} alt={iconName} />);
 
         return (<span>{svg}</span>)
 
@@ -207,8 +207,9 @@ function ProfileExplorer(props) {
     const renderProfileItem = (p, level) => {
         const key = `li_${level.toString()}_${p.id.toString()}`;
         const cssClass = `small-size${props.currentProfileId == null || props.currentProfileId !== p.id ? '' : ' current'}`;
-        // dynamically increase padding for each level
-        const padding = (level * 8).toString() + 'px';
+        // dynamically increase padding for each level, override and make constant for interfaces
+        const padding = p.type?.name?.toLowerCase() === "interface" ? "32px" : 
+            (level * 8).toString() + 'px';
 
         //::::::::::::::::::::::
         // Increment the child count
@@ -216,8 +217,9 @@ function ProfileExplorer(props) {
 
         return (
             <li id={key} key={key} className={cssClass} >
-                <div style={{ paddingLeft: padding }} className="hierarchy-link d-flex pr-3">
-                    {renderTypeIcon(p, props.activeAccount, 18)}
+                <div style={{ paddingLeft: padding }}
+                    className={`hierarchy-link d-flex pr-3`} >
+                    {renderTypeIcon(p, props.activeAccount, 18, 'mr-2')}
                     <span className="hierarchy-item text-break">{renderLinkedName(p)}</span>
                     {/* Affordance for "go-to / view" */}
                     <SVGIcon name="chevron-right" fill={color.silver} className="view-affordance-icon float-right" />
@@ -240,7 +242,7 @@ function ProfileExplorer(props) {
         return (
             <li id={key} key={key} className={cssClass} >
                 <div className="composition-link d-flex pr-3">
-                    {renderTypeIcon(c, props.activeAccount, 18, color.nevada)}
+                    {renderTypeIcon(c, props.activeAccount, 18, 'mr-2')}
                     <span className="composition-item text-break">{renderLinkedCompositionName(c)}</span>
                     {/* Affordance for "go-to / view" */}
                     <SVGIcon name="chevron-right" fill={color.silver} className="view-affordance-icon float-right" />
@@ -304,7 +306,7 @@ function ProfileExplorer(props) {
                         <span key="toggle" className="ml-auto">
                             <Button variant="accordion" className="btn" title={toggleState ? "Collapse" : "Expand"} >
                                 <span>
-                                    <SVGIcon name={toggleIcon} fill={color.shark} alt={caption} className="toggle-icon" />
+                                    <SVGIcon name={toggleIcon} fill={color.readOnly} alt={caption} className="toggle-icon" />
                                 </span>
                             </Button>
                         </span> :

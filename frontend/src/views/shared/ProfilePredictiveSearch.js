@@ -156,7 +156,7 @@ function ProfilePredictiveSearch(props) {
             //show a type icon and the name or namespace
             return (
                 <Dropdown.Item key={i} href={p.url} >
-                    {renderTypeIcon(p, props.activeAccount, 24, true)}
+                    {renderTypeIcon(p, props.activeAccount, 24)}
                     {p.name}
                 </Dropdown.Item>
             );

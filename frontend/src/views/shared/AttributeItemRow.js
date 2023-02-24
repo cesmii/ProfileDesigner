@@ -747,6 +747,12 @@ function AttributeItemRow(props) { //props are item, showActions
                 colorCounter++;
             }
         }
+        //non - interfaces - keep alignment consistent
+        return {
+            borderLeftColor: "Transparent",
+            borderLeftWidth: "4px",
+            borderLeftStyle: "solid"
+        };
     }
 
     //render the delete modals

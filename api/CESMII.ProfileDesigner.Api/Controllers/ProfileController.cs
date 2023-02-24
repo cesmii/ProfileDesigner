@@ -848,12 +848,12 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 string strAuthorInfo = $"\tAuthor: <strong>{profile.Author.DisplayName} [{profile.Author.Email}]</strong>";
                 string strOrganizationInfo = $"\tOrganization: <strong>{profile.Author.Organization.Name}</strong>";
                 string strProfileNamespace = $"{profile.Namespace}";
-                string strProfileInfo = $"Profile Title: <strong>{profile.Title}</strong>: <br/>" +
-                                        $"Profile Description: <strong>{profile.Description}</strong> <br/>" +
-                                        $"Profile Namespace: <strong>{profile.Namespace}</strong>: <br/>" +
-                                        $"Profile Version: <strong>{profile.Version}</strong>: <br/>" +
-                                        $"Profile Publication Date: <strong>{profile.PublishDate}</strong> <br/>" +
-                                        $"Profile License: <strong>{profile.License}</strong> <br/>";
+                string strProfileInfo = $"Profile Title: <strong>{profile.Title}</strong><br/>" +
+                                        $"Profile Description: <strong>{profile.Description}</strong><br/>" +
+                                        $"Profile Namespace: <strong>{profile.Namespace}</strong><br/>" +
+                                        $"Profile Version: <strong>{profile.Version}</strong><br/>" +
+                                        $"Profile Publication Date: <strong>{profile.PublishDate}</strong><br/>" +
+                                        $"Profile License: <strong>{profile.License}</strong><br/>";
 
                 try
                 {
@@ -976,11 +976,11 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                     string strOrganizationInfo = $"\tOrganization: <strong>{profile.Author.Organization.Name}</strong>";
                     string strProfileNamespace = $"{profile.Namespace}";
                     string strProfileInfo = $"Profile Title: <strong>{profile.Title}</strong>: <br/>" +
-                                            $"Profile Description: <strong>{profile.Description}</strong> <br/>" +
-                                            $"Profile Namespace: <strong>{profile.Namespace}</strong>: <br/>" +
-                                            $"Profile Version: <strong>{profile.Version}</strong>: <br/>" +
-                                            $"Profile Publication Date: <strong>{profile.PublishDate}</strong> <br/>" +
-                                            $"Profile License: <strong>{profile.License}</strong> <br/>";
+                                            $"Profile Description: <strong>{profile.Description}</strong><br/>" +
+                                            $"Profile Namespace: <strong>{profile.Namespace}</strong><br/>" +
+                                            $"Profile Version: <strong>{profile.Version}</strong><br/>" +
+                                            $"Profile Publication Date: <strong>{profile.PublishDate}</strong><br/>" +
+                                            $"Profile License: <strong>{profile.License}</strong><br/>";
 
                     string strSubject = "CESMII Cloud Library - Profile submission cancellation";
                     EmailNotificationCancelPublishProfile(strSubject, strSenderEmail, strSenderDisplayName, strAuthorEmail, strAuthorDisplayName, strAuthorInfo, strOrganizationInfo, strProfileNamespace, strProfileInfo);
@@ -1666,7 +1666,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         internal async void EmailNotificationCancelPublishProfile(string strSubject, string strSenderEmail, string strSenderDisplayName, string strAuthorEmail, string strAuthorDisplayName, string strAuthorInfo, string strOrganizationInfo, string strProfileNamespace, string strProfileInfo)
         {
             string strContent =
-                    $"<p>We have received your request to cancel the submission of your profile, {strProfileNamespace},for review to the Clean Energy Smart Manufacturing Innovation Institute (CESMII) Cloud Library. " +
+                    $"<p>We have received your request to cancel the profile submission for profile {strProfileNamespace}. " +
                     $"<p></p>" +
                     $"<p>Your may now edit your profile and submit it at a later time. " +
                     $"<p></p>" +

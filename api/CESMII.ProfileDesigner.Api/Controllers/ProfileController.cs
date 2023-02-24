@@ -1637,7 +1637,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         internal async void EmailNotificationPublishProfile(string strSubject, string strSenderEmail, string strSenderDisplayName, string strAuthorEmail, string strAuthorDisplayName, string strAuthorInfo, string strOrganizationInfo, string strProfileNamespace, string strProfileInfo)
         {
             string strContent =
-                    $"<p>Thank you for submitting your profile, {strProfileNamespace},to the Clean Energy Smart Manufacturing Innovation Institute (CESMII) Cloud Library. " +
+                    $"<p>Thank you for submitting your profile {strProfileNamespace} to the Clean Energy Smart Manufacturing Innovation Institute (CESMII) Cloud Library. " +
                     $"Your submission will be reviewed by the CESMII team. " +
                     $"After approval, your profile will appear in the CESMII Cloud Library and Marketplace. </p>" +
                     $"<p></p>" +

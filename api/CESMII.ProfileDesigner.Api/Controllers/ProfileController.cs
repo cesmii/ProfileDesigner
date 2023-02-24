@@ -1676,9 +1676,10 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                     $"<p></p>" +
                     $"<p></p>" +
                     $"<p></p>" +
-                    $"<p style=\"text-indent: 50px;\">{strAuthorInfo}</p>" +
-                    $"<p style=\"text-indent: 50px;\">{strOrganizationInfo}</p>" +
-                    $"<p style=\"text-indent: 50px;\">{strProfileInfo}</p>" +
+                    $"<p style=\"margin-left: 50px;\">{strAuthorInfo}</br>" +
+                    $"{strOrganizationInfo}</p>" +
+                    $"<p style=\"margin-left: 50px;\">{strProfileInfo}" +
+                    $"</p>" +
                     $"<p></p>";
             _logger.LogInformation($"EmailNotificationCancelPublishProfile: About to send notification email.");
 

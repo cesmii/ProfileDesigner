@@ -149,7 +149,7 @@ function ProfileItemRow(props) { //props are item, showActions
                         <span className="font-weight-bold mr-2" >{props.profileCaption == null ? "Profile: " : `${props.profileCaption}: `}</span>
                         {props.item == null ?
                             caption : 
-                            <a className="mx-2" href={`/profile/${props.item.id}`} >{caption}</a>
+                            <a className="mx-2" href={`/profile/${props.item.id}?tab=typedefs`} >{caption}</a>
                         }
                         {(props.actionUI != null) &&
                             <div className="ml-2 d-inline-flex" >

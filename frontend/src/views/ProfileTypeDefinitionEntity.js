@@ -976,7 +976,7 @@ function ProfileTypeDefinitionEntity() {
                                 </Nav.Item>
                                 <Nav.Item className="col-sm-4 rounded p-0 px-md-0" >
                                     <Nav.Link eventKey="dependencies" className="text-center text-md-left p-1 px-2 h-100" >
-                                        <span className="headline-3">Dependencies</span>
+                                        <span className="headline-3">Extended By</span>
                                         {/*<span className="d-none d-md-inline"><br />Type Definitions that depend on 'me'</span>*/}
                                     </Nav.Link>
                                 </Nav.Item>

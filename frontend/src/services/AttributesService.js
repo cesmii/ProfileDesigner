@@ -301,7 +301,7 @@ export const onChangeCompositionShared = (match, item) => {
 export const renderAttributeIcon = (item, readOnly) => {
     //simplify icons
     //set up color properly
-    const iconColor = readOnly ? color.readOnly : color.mine;
+    const iconColor = readOnly ? color.nevada : color.mine;
 
     //set up icon properly
     let iconName = AppSettings.IconMapper.Attribute;

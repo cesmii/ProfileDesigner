@@ -42,7 +42,7 @@ function DependencyItemRow(props) { //props are item, showActions
     return (
         <>
             <div className={cssClass}>
-                <div className={`${avatarCss}`} >{renderTypeIcon(props.item, props.activeAccount, 20, false)}</div>
+                <div className={`${avatarCss}`} >{renderTypeIcon(props.item, props.activeAccount, 20)}</div>
                 <div className="col-sm-3 left" >{renderLinkedName(props.item)}</div>
                 <div className="col-sm-4 left" >{getProfileCaption(props.item.profile)}</div>
                 <div className="col-sm-4 left" >{props.item.description}</div>

@@ -12,16 +12,15 @@ import { AppSettings } from '../../utils/appsettings';
 //-------------------------------------------------------------------
 // Region: Common Profile Render helpers
 //-------------------------------------------------------------------
-export const renderTypeIcon = (item, account, size = 20, useMarginRight = true) => {
+export const renderTypeIcon = (item, account, size = 20, className = "") => {
     if (item == null || item.type == null) return;
 
     const isOwnerBool = isOwner(item, account);
     const iconName = getTypeDefIconName(item);
     const iconColor = (item.isReadOnly || !isOwnerBool) ? color.readOnly : color.mine;
-
     const svg = (<SVGIcon name={iconName} size={size} fill={iconColor} alt={iconName} />);
 
-    return (<span className={useMarginRight ? "d-flex align-items-center justify-content-center mr-2" : "d-flex align-items-center justify-content-center "} >{svg}</span>)
+    return (<span className={`d-flex align-items-center justify-content-center ${className}`} >{svg}</span>)
 };
 
 export const renderLinkedName = (item, cssClass = null ) => {

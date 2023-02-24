@@ -100,7 +100,7 @@ function ProfileTypeDefinitionRow(props) { //props are item, showActions
                     {props.selectMode != null &&
                         renderSelectColumn(props.item)
                     }
-                    <div className={avatarCss} >{renderTypeIcon(props.item, props.activeAccount, 20, false)}</div>
+                    <div className={avatarCss} >{renderTypeIcon(props.item, props.activeAccount, 20)}</div>
                     <div className="col-sm-8" >
                         <p className="mb-1" >
                             {props.selectMode != null ?
@@ -144,7 +144,7 @@ function ProfileTypeDefinitionRow(props) { //props are item, showActions
                             renderSelectFloat(props.item)
                         }
                         <p className="mb-1 d-flex align-items-center" >
-                            <span className={avatarCss} >{renderTypeIcon(props.item, props.activeAccount, 20, false)}</span>
+                            <span className={avatarCss} >{renderTypeIcon(props.item, props.activeAccount, 20)}</span>
                             {props.selectMode != null ?
                                 props.item.name
                                 :

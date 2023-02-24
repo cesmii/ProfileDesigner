@@ -877,7 +877,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 try
                 {
                     string strSubject = "CESMII Cloud Library - Your profile has been submitted";
-                    SendProfileEmailNotification(strSubject, strSenderEmail, strSenderDisplayName, strAuthorEmail, strAuthorDisplayName, strAuthorInfo, strOrganizationInfo, strProfileNamespace, strProfileInfo);
+                    EmailNotificationPublishProfile(strSubject, strSenderEmail, strSenderDisplayName, strAuthorEmail, strAuthorDisplayName, strAuthorInfo, strOrganizationInfo, strProfileNamespace, strProfileInfo);
                 }
                 catch (Exception ex)
                 {
@@ -962,6 +962,32 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                             Message = ex.Message,
                         }
                     );
+                }
+
+                // Send email to notify recipient that we have received the cancel publish request
+                try
+                {
+                    var user = _dalUser.GetById(base.DalUserToken.UserId, base.DalUserToken);
+                    string strSenderEmail = user.Email;
+                    string strSenderDisplayName = user.DisplayName;
+                    string strAuthorEmail = profile.Author.Email;
+                    string strAuthorDisplayName = profile.Author.DisplayName;
+                    string strAuthorInfo = $"\tAuthor: <strong>{profile.Author.DisplayName} [{profile.Author.Email}]</strong>";
+                    string strOrganizationInfo = $"\tOrganization: <strong>{profile.Author.Organization.Name}</strong>";
+                    string strProfileNamespace = $"{profile.Namespace}";
+                    string strProfileInfo = $"Profile Title: <strong>{profile.Title}</strong>: <br/>" +
+                                            $"Profile Description: <strong>{profile.Description}</strong> <br/>" +
+                                            $"Profile Namespace: <strong>{profile.Namespace}</strong>: <br/>" +
+                                            $"Profile Version: <strong>{profile.Version}</strong>: <br/>" +
+                                            $"Profile Publication Date: <strong>{profile.PublishDate}</strong> <br/>" +
+                                            $"Profile License: <strong>{profile.License}</strong> <br/>";
+
+                    string strSubject = "CESMII Cloud Library - Profile submission cancellation";
+                    EmailNotificationCancelPublishProfile(strSubject, strSenderEmail, strSenderDisplayName, strAuthorEmail, strAuthorDisplayName, strAuthorInfo, strOrganizationInfo, strProfileNamespace, strProfileInfo);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, $"Failed to send email notification for publish request {model.ID} for user {base.DalUserToken}");
                 }
 
                 return Ok(
@@ -1608,31 +1634,59 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             }
         }
 
-        internal async void SendProfileEmailNotification(string strSubject, string strSenderEmail, string strSenderDisplayName, string strAuthorEmail, string strAuthorDisplayName, string strAuthorInfo, string strOrganizationInfo, string strProfileNamespace, string strProfileInfo)
+        internal async void EmailNotificationPublishProfile(string strSubject, string strSenderEmail, string strSenderDisplayName, string strAuthorEmail, string strAuthorDisplayName, string strAuthorInfo, string strOrganizationInfo, string strProfileNamespace, string strProfileInfo)
         {
-                        string strContent = 
-                                $"<p>Thank you for submitting your profile, {strProfileNamespace},to the Clean Energy Smart Manufacturing Innovation Institute (CESMII) Cloud Library. " +
-                                $"Your submission will be reviewed by the CESMII team. " +
-                                $"After approval, your profile will appear in the CESMII Cloud Library and Marketplace. </p>" +
-                                $"<p></p>" +
-                                $"<p>To check on the status of your submission, visit the Profile Library in the Profile Designer. " +
-                                $"You can cancel your submission at any time from by clicking the <b>Cancel Publish</b> button in the Profile Library.</p>" +
-                                $"<p></p>" +
-                                $"<p>Please note that once a profile has been submitted for publishing, the profile is no longer editable.</p>" +
-                                $"<p></p>" +
-                                $"<p>Thank you again for your profile submission!</p>" +
-                                $"<p></p>" +
-                                $"<p>Sincerely,</p>" +
-                                $"<p>CESMII Support Team</p>" +
-                                $"<p></p>" +
-                                $"<p></p>" +
-                                $"<p></p>" +
-                                $"<p style=\"text-indent: 50px;\">{strAuthorInfo}</p>" +
-                                $"<p style=\"text-indent: 50px;\">{strOrganizationInfo}</p>" +
-                                $"<p style=\"text-indent: 50px;\">{strProfileInfo}</p>" +
-                                $"<p></p>";
-            _logger.LogInformation($"SendProfileEmailNotification: About to send notification email.");
+            string strContent =
+                    $"<p>Thank you for submitting your profile, {strProfileNamespace},to the Clean Energy Smart Manufacturing Innovation Institute (CESMII) Cloud Library. " +
+                    $"Your submission will be reviewed by the CESMII team. " +
+                    $"After approval, your profile will appear in the CESMII Cloud Library and Marketplace. </p>" +
+                    $"<p></p>" +
+                    $"<p>To check on the status of your submission, visit the Profile Library in the Profile Designer. " +
+                    $"You can cancel your submission at any time from by clicking the <b>Cancel Publish</b> button in the Profile Library.</p>" +
+                    $"<p></p>" +
+                    $"<p>Please note that once a profile has been submitted for publishing, the profile is no longer editable.</p>" +
+                    $"<p></p>" +
+                    $"<p>Thank you for your support of the CESMII Profile Designer and again, thank you for your profile submission!</p>" +
+                    $"<p></p>" +
+                    $"<p>Sincerely,</p>" +
+                    $"<p>CESMII Support Team</p>" +
+                    $"<p></p>" +
+                    $"<p></p>" +
+                    $"<p></p>" +
+                    $"<p style=\"text-indent: 50px;\">{strAuthorInfo}</p>" +
+                    $"<p style=\"text-indent: 50px;\">{strOrganizationInfo}</p>" +
+                    $"<p style=\"text-indent: 50px;\">{strProfileInfo}</p>" +
+                    $"<p></p>";
+            _logger.LogInformation($"EmailNotificationPublishProfile: About to send notification email.");
 
+            await SendEmailNotification(strSubject, strSenderEmail, strSenderDisplayName, strAuthorEmail, strAuthorDisplayName, strContent);
+        }
+
+        internal async void EmailNotificationCancelPublishProfile(string strSubject, string strSenderEmail, string strSenderDisplayName, string strAuthorEmail, string strAuthorDisplayName, string strAuthorInfo, string strOrganizationInfo, string strProfileNamespace, string strProfileInfo)
+        {
+            string strContent =
+                    $"<p>We have received your request to cancel the submission of your profile, {strProfileNamespace},for review to the Clean Energy Smart Manufacturing Innovation Institute (CESMII) Cloud Library. " +
+                    $"<p></p>" +
+                    $"<p>Your may now edit your profile and submit it at a later time. " +
+                    $"<p></p>" +
+                    $"<p>Thank you again for your support of the CESMII Profile Designer!</p>" +
+                    $"<p></p>" +
+                    $"<p>Sincerely,</p>" +
+                    $"<p>CESMII Support Team</p>" +
+                    $"<p></p>" +
+                    $"<p></p>" +
+                    $"<p></p>" +
+                    $"<p style=\"text-indent: 50px;\">{strAuthorInfo}</p>" +
+                    $"<p style=\"text-indent: 50px;\">{strOrganizationInfo}</p>" +
+                    $"<p style=\"text-indent: 50px;\">{strProfileInfo}</p>" +
+                    $"<p></p>";
+            _logger.LogInformation($"EmailNotificationCancelPublishProfile: About to send notification email.");
+
+            await SendEmailNotification(strSubject, strSenderEmail, strSenderDisplayName, strAuthorEmail, strAuthorDisplayName, strContent);
+        }
+
+        private async Task SendEmailNotification(string strSubject, string strSenderEmail, string strSenderDisplayName, string strAuthorEmail, string strAuthorDisplayName, string strContent)
+        {
             // Setup "To" list 
             // List of recipients for the notification email.
             List<EmailAddress> leaTo = new List<EmailAddress>();

@@ -9,15 +9,18 @@
     using CESMII.ProfileDesigner.DAL.Models;
     using CESMII.ProfileDesigner.Data.Entities;
     using CESMII.ProfileDesigner.Data.Repositories;
+    using Microsoft.Extensions.DependencyInjection;
 
     public class ProfileDAL : TenantBaseDAL<Profile, ProfileModel>, IDal<Profile, ProfileModel>
     {
-        public ProfileDAL(IRepository<Profile> repo, IDal<NodeSetFile, NodeSetFileModel> nodeSetFileDAL) : base(repo)
+        public ProfileDAL(IRepository<Profile> repo, IDal<NodeSetFile, NodeSetFileModel> nodeSetFileDAL, IServiceProvider sp) : base(repo)
         {
             // TODO clean up the dependencies: expand interface?
             _nodeSetFileDAL = nodeSetFileDAL as NodeSetFileDAL;
+            _serviceProvider = sp; 
         }
         private readonly NodeSetFileDAL _nodeSetFileDAL;
+        private readonly IServiceProvider _serviceProvider;
 
         public override async Task<int?> AddAsync(ProfileModel model, UserToken userToken)
         {
@@ -181,6 +184,11 @@
         }
         protected override void MapToEntity(ref Profile entity, ProfileModel model, UserToken userToken)
         {
+            string oldNamespace = null;
+            if (entity.Namespace != model.Namespace)
+            {
+                oldNamespace = entity.Namespace;
+            }
             entity.Namespace = model.Namespace;
             entity.CloudLibraryId = model.CloudLibraryId;
             entity.CloudLibPendingApproval = model.CloudLibPendingApproval;
@@ -227,6 +235,17 @@
                 }
             }
             MapToEntityNodeSetFiles(ref entity, model.NodeSetFiles, userToken);
+            if (oldNamespace != null)
+            {
+                ChangeProfileNamespace(entity, oldNamespace);
+            }
+        }
+
+        private void ChangeProfileNamespace(Profile entity, string oldNamespace)
+        {
+            // Obtain DAL on demand to avoid circular dependency at creation time
+            var profileTypeDefinitionDAL = _serviceProvider.GetService<IDal<ProfileTypeDefinition, ProfileTypeDefinitionModel>>() as ProfileTypeDefinitionDAL;
+            profileTypeDefinitionDAL.ChangeProfileNamespace(entity, oldNamespace);
         }
 
         protected void MapToEntityNodeSetFiles(ref Profile entity, List<NodeSetFileModel> files, UserToken userToken)

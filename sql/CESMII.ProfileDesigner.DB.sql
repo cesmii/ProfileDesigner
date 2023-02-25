@@ -1305,7 +1305,7 @@ begin
 		JOIN public.profile p on p.id = t.profile_id
 		JOIN descendant d ON t.parent_id = d.id
 		WHERE
-			(p.owner_id IS NULL AND p.ua_standard_profile_id IS NOT NULL) --root nodesets
+			(p.owner_id IS NULL AND p.cloud_library_id IS NOT NULL) --root nodesets
 			OR (p.owner_id = _ownerId)  --my nodesets or nodesets I imported
 	)
 
@@ -1397,7 +1397,7 @@ begin
 		JOIN public.profile_composition c on c.profile_type_definition_id = t.id AND c.composition_id = _id
 		JOIN public.profile p ON p.id = t.profile_id
 		WHERE 
-			(p.owner_id IS NULL AND p.ua_standard_profile_id IS NOT NULL) --root nodesets
+			(p.owner_id IS NULL AND p.cloud_library_id IS NOT NULL) --root nodesets
 			OR (p.owner_id = _ownerId)  --my nodesets or nodesets I imported
 		
 		UNION
@@ -1408,7 +1408,7 @@ begin
 		JOIN public.profile_interface i on i.profile_type_definition_id = t.id AND i.interface_id = _id
 		JOIN public.profile p ON p.id = t.profile_id
 		WHERE 
-			(p.owner_id IS NULL AND p.ua_standard_profile_id IS NOT NULL) --root nodesets
+			(p.owner_id IS NULL AND p.cloud_library_id IS NOT NULL) --root nodesets
 			OR (p.owner_id = _ownerId)  --my nodesets or nodesets I imported
 		
 		UNION
@@ -1418,7 +1418,7 @@ begin
 		FROM public.profile_type_definition t 
 		JOIN public.profile p ON p.id = t.profile_id
 		WHERE 
-			((p.owner_id IS NULL AND p.ua_standard_profile_id IS NOT NULL) --root nodesets
+			((p.owner_id IS NULL AND p.cloud_library_id IS NOT NULL) --root nodesets
 			OR (p.owner_id = _ownerId)) AND  --my nodesets or nodesets I imported
 			t.id IN (
 			SELECT distinct(t.id) -- , t.name, a.name, d.* 
@@ -1525,7 +1525,7 @@ begin
 		FROM public.profile_type_definition t
 		JOIN public.profile p on p.id = t.profile_id
 		JOIN ancestor d ON d.parent_id = t.id
-		--WHERE p.ua_standard_profile_id IS NOT NULL OR p.owner_id = _ownerId
+		--WHERE p.cloud_library_id IS NOT NULL OR p.owner_id = _ownerId
 	)
 
 	SELECT  d.id,

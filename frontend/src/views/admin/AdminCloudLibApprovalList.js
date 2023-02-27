@@ -32,7 +32,7 @@ function AdminCloudLibApprovalList() {
     const [_pager, setPager] = useState({ currentPage: 1, pageSize: _userPreferences.pageSize, searchVal: null });
     const { loadingProps, setLoadingProps } = useLoadingContext();
     const [_refreshData, setRefreshData] = useState(0);
-    const [_changeApprovalModal, setChangeApprovalModal] = useState({ show: false, item: null });
+    const [_approvalModal, setApprovalModal] = useState({ show: false, item: null, approveState: AppSettings.ProfileStateEnum.Unknown });
     const [_error, setError] = useState({ show: false, message: null, caption: null });
 
     const caption = 'Admin';
@@ -71,10 +71,10 @@ function AdminCloudLibApprovalList() {
             //show a spinner
             setLoadingProps({ isLoading: true, message: null });
 
-            var url = `cloudlibrary/pendingapprovals`;
+            const url = `cloudlibrary/pendingapprovals`;
             console.log(generateLogMessageString(`useEffect||fetchData||${url}`, CLASS_NAME));
 
-            var data = { Query: _pager.searchVal, Skip: (_pager.currentPage - 1) * _pager.pageSize, Take: _pager.pageSize };
+            const data = { Query: _pager.searchVal, Skip: (_pager.currentPage - 1) * _pager.pageSize, Take: _pager.pageSize };
             await axiosInstance.post(url, data).then(result => {
                 if (result.status === 200) {
 
@@ -122,24 +122,39 @@ function AdminCloudLibApprovalList() {
     //-------------------------------------------------------------------
     // Region: Event Handling - delete item
     //-------------------------------------------------------------------
-    const onChangeApprovalStatus = (item) => {
-        console.log(generateLogMessageString('onChangeApprovalStatus', CLASS_NAME));
-        setChangeApprovalModal({ show: true, item: item });
+    const onApprovalStart = (item) => {
+        console.log(generateLogMessageString('onApprovalStart', CLASS_NAME));
+        setApprovalModal({ show: true, item: item, approveState: AppSettings.ProfileStateEnum.CloudLibApproved });
     };
 
-    const onChangeApprovalConfirm = (approvalData) => {
-        console.log(generateLogMessageString('onChangeApprovalConfirm', CLASS_NAME));
+    const onRejectStart = (item) => {
+        console.log(generateLogMessageString('onRejectStart', CLASS_NAME));
+        setApprovalModal({ show: true, item: item, approveState: AppSettings.ProfileStateEnum.CloudLibRejected });
+    };
+
+    const onCancelStart = (item) => {
+        console.log(generateLogMessageString('onCancelStart', CLASS_NAME));
+        setApprovalModal({ show: true, item: item, approveState: AppSettings.ProfileStateEnum.CloudLibCanceled });
+    };
+
+    const onPendingStart = (item) => {
+        console.log(generateLogMessageString('onPendingStart', CLASS_NAME));
+        setApprovalModal({ show: true, item: item, approveState: AppSettings.ProfileStateEnum.CloudLibPending });
+    };
+
+    const onApprovalConfirm = (approvalData) => {
+        console.log(generateLogMessageString('onApprovalConfirm', CLASS_NAME));
 
         //show a spinner
         setLoadingProps({ isLoading: true, message: "" });
 
         //perform delete call
-        var data = { id: _changeApprovalModal.item.cloudLibraryId, approvalStatus: approvalData.approvalStatus, approvalDescription: approvalData.description };
-        var url = `cloudlibrary/approve`;
+        const data = { id: _approvalModal.item.cloudLibraryId, approveState: _approvalModal.approveState, approvalDescription: approvalData.description };
+        const url = `cloudlibrary/approve`;
         axiosInstance.post(url, data)  //api allows one or many
             .then(result => {
 
-                if (result.data != null && result.data.cloudLibraryId == _changeApprovalModal.item.cloudLibraryId) {
+                if (result.data != null && result.data.cloudLibraryId == _approvalModal.item.cloudLibraryId) {
                     //hide a spinner, show a message
                     setLoadingProps({
                         isLoading: false, message: null, inlineMessages: [
@@ -149,19 +164,19 @@ function AdminCloudLibApprovalList() {
                         ],
                     });
 
-                    setChangeApprovalModal({ show: false, item: null });
+                    setApprovalModal({ show: false, item: null });
                 }
                 else {
                     //update spinner, messages
-                    setError({ show: true, caption: 'Delete Item Error', message: `An error occurred updating approval status${result.data.message}` });
+                    setError({ show: true, caption: 'Cloud Library Approve / Reject', message: `An error occurred updating approval status. ${result.data.message}` });
                     setLoadingProps({ isLoading: false, message: null });
-                    setChangeApprovalModal({ show: false, item: null });
+                    setApprovalModal({ show: false, item: null });
                 }
                 setRefreshData(_refreshData + 1);
             })
             .catch(error => {
                 //hide a spinner, show a message
-                setError({ show: true, caption: 'Update approval status Error', message: `An error occurred updating the approval status.` });
+                setError({ show: true, caption: 'Cloud Library Approve / Reject', message: `An error occurred updating the approval status.` });
                 setLoadingProps({ isLoading: false, message: null });
 
                 console.log(generateLogMessageString('changeApprovalStatus||error||' + JSON.stringify(error), CLASS_NAME, 'error'));
@@ -172,7 +187,7 @@ function AdminCloudLibApprovalList() {
                     left: 0,
                     behavior: 'smooth',
                 });
-                setChangeApprovalModal({ show: false, item: null });
+                setApprovalModal({ show: false, item: null });
             });
     };
 
@@ -193,41 +208,21 @@ function AdminCloudLibApprovalList() {
         return <GridPager currentPage={_pager.currentPage} pageSize={_pager.pageSize} itemCount={_dataRows.itemCount} onChangePage={onChangePage} />
     }
 
-    const renderItemsGridHeader = () => {
-        if ((_dataRows.all == null || _dataRows.all.length === 0)) return;
-        return (
-            <thead>
-                <AdminCloudLibApprovalRow key="header" item={null} isHeader={true} cssClass="admin-item-row" />
-            </thead>
-        )
-    }
-
     //render the main grid
     const renderItemsGrid = () => {
         if (!loadingProps.isLoading && (_dataRows.all == null || _dataRows.all.length === 0)) {
             return (
-                <tbody>
-                    <tr>
-                        <td className="no-data">
-                            {renderNoDataRow()}
-                        </td>
-                    </tr>
-                </tbody>
+                renderNoDataRow()
             )
         }
         if ((_dataRows.all == null || _dataRows.all.length === 0)) return;
 
-        const mainBody = _dataRows.all.map((item) => {
+        return _dataRows.all.map((item) => {
             return (
-                <AdminCloudLibApprovalRow key={item.id} item={item} cssClass={`admin-item-row`} onChangeApprovalStatus={onChangeApprovalStatus} />
+                <AdminCloudLibApprovalRow key={item.cloudLibraryId} item={item} className={`admin-item-row`}
+                    onApprove={onApprovalStart} onReject={onRejectStart} onCancel={onCancelStart} onSetPending={onPendingStart} />
             );
         });
-
-        return (
-            <tbody>
-                {mainBody}
-            </tbody>
-        )
     }
 
     //render error message as a modal to force user to say ok.
@@ -256,21 +251,28 @@ function AdminCloudLibApprovalList() {
     //callbacks are tied to each button click to proceed or cancel
     const renderChangeApprovalStatusConfirmation = () => {
 
-        if (!_changeApprovalModal.show) return;
+        if (!_approvalModal.show) return;
 
-        var message = `You are about change status for '${_changeApprovalModal.item.title}'. This action cannot be undone. Are you sure?`;
-        var caption = `Change Approval Status`;
+        const caption = `${_approvalModal.approveState === AppSettings.ProfileStateEnum.CloudLibApproved ? 'Approve Publish Profile' :
+            _approvalModal.approveState === AppSettings.ProfileStateEnum.CloudLibRejected ? 'Reject Publish Profile' :
+            _approvalModal.approveState === AppSettings.ProfileStateEnum.CloudLibCanceled ? 'Remove Publish Profile' : 
+            _approvalModal.approveState === AppSettings.ProfileStateEnum.CloudLibPending ? 'Set To Pending Profile' : 'Change Approval Status'}`;
+        const btnOkCaption = `${_approvalModal.approveState === AppSettings.ProfileStateEnum.CloudLibApproved ? 'Approve' :
+            _approvalModal.approveState === AppSettings.ProfileStateEnum.CloudLibRejected ? 'Reject' :
+                _approvalModal.approveState === AppSettings.ProfileStateEnum.CloudLibCanceled ? 'Remove' : 
+                _approvalModal.approveState === AppSettings.ProfileStateEnum.CloudLibPending ? 'Set Pending' : 'Yes'}`;
+        const message = `You are about to change status for '${_approvalModal.item.title}'. This action cannot be undone. Are you sure?`;
 
         return (
             <>
-                <AdminCloudLibApprovalModal item={_changeApprovalModal.item} showModal={_changeApprovalModal.show} caption={caption} message={message}
-                    icon={{ name: "warning", color: color.trinidad }}
-                    confirm={{ caption: "Change", callback: onChangeApprovalConfirm, buttonVariant: "danger" }}
+                <AdminCloudLibApprovalModal item={_approvalModal.item} showModal={_approvalModal.show} caption={caption} message={message}
+                    icon={{ name: "warning", color: color.amber }}
+                    confirm={{ caption: btnOkCaption, callback: onApprovalConfirm, buttonVariant: "primary" }}
                     cancel={{
                         caption: "Cancel",
                         callback: () => {
                             console.log(generateLogMessageString(`onChangeApprovalCancel`, CLASS_NAME));
-                            setChangeApprovalModal({ show: false, item: null });
+                            setApprovalModal({ show: false, item: null, approveState: AppSettings.ProfileStateEnum.Unknown });
                         },
                         buttonVariant: null
                     }} />
@@ -288,7 +290,7 @@ function AdminCloudLibApprovalList() {
             </Helmet>
             <div className="row py-2 pb-4">
                 <div className="col-sm-8">
-                    <h1>Admin | View Pending Approvals for Cloud Library</h1>
+                    <h1>Admin | Cloud Lib Approval Queue</h1>
                 </div>
                 <div className="col-sm-4 d-flex align-items-center justify-content-end" >
                     <HeaderSearch showAdvancedSearch={false} filterVal={_pager.searchVal == null ? null : _pager.searchVal} onSearch={handleOnSearchChange} searchMode="standard" activeAccount={_activeAccount} />
@@ -307,10 +309,7 @@ function AdminCloudLibApprovalList() {
 
             <div className="row" >
                 <div ref={_scrollToRef} className="col-sm-12 mb-4" >
-                    <table className="flex-grid w-100" >
-                        {renderItemsGridHeader()}
-                        {renderItemsGrid()}
-                    </table>
+                    {renderItemsGrid()}
                     {renderPagination()}
                 </div>
             </div>

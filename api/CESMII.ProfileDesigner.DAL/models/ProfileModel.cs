@@ -112,14 +112,16 @@
         {
             get
             {
-                if (!this.AuthorId.HasValue && !string.IsNullOrEmpty(this.CloudLibraryId)) return ProfileStateEnum.Core;
-                else if (this.AuthorId.HasValue && !string.IsNullOrEmpty(this.CloudLibraryId) && 
-                        this.CloudLibPendingApproval.HasValue && this.CloudLibPendingApproval.Value &&
+                if (!string.IsNullOrEmpty(this.CloudLibraryId) && 
                         this.CloudLibApprovalStatus?.ToUpper() == "PENDING") return ProfileStateEnum.CloudLibPending;
-                else if (this.AuthorId.HasValue && !string.IsNullOrEmpty(this.CloudLibraryId) &&
-                        this.CloudLibPendingApproval.HasValue && this.CloudLibPendingApproval.Value &&
+                else if (!string.IsNullOrEmpty(this.CloudLibraryId) &&
                         this.CloudLibApprovalStatus?.ToUpper() == "REJECTED") return ProfileStateEnum.CloudLibRejected;
-                else if (this.AuthorId.HasValue && !string.IsNullOrEmpty(this.CloudLibraryId)) return ProfileStateEnum.CloudLibPublished;
+                else if (!string.IsNullOrEmpty(this.CloudLibraryId) &&
+                        this.CloudLibApprovalStatus?.ToUpper() == "APPROVED") return ProfileStateEnum.CloudLibApproved;
+                else if (!string.IsNullOrEmpty(this.CloudLibraryId) &&
+                        this.CloudLibApprovalStatus?.ToUpper() == "CANCELED") return ProfileStateEnum.CloudLibCancelled;
+                else if (!string.IsNullOrEmpty(this.CloudLibraryId)) return ProfileStateEnum.CloudLibPublished;
+                else if (!this.AuthorId.HasValue && !string.IsNullOrEmpty(this.CloudLibraryId)) return ProfileStateEnum.Core;
                 // Note author id will only be set to the the user making the request or null. 
                 // Other areas of the code will check to make sure that the requesting user only gets their stuff or core stuff
                 else if (this.AuthorId.HasValue && string.IsNullOrEmpty(this.CloudLibraryId)) return ProfileStateEnum.Local; 

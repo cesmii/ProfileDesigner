@@ -112,8 +112,10 @@ export const AppSettings = {
         Core: 1,
         CloudLibPublished: 2,
         CloudLibPending: 3,
-        CloudLibRejected: 4,
-        Local: 5,
+        CloudLibApproved: 4,
+        CloudLibRejected: 5,
+        CloudLibCanceled: 6,
+        Local: 7,
         Unknown: 0
     }
     //MSAL (Authentication) Config

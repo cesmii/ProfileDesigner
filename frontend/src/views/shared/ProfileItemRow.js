@@ -15,17 +15,6 @@ function ProfileItemRow(props) { //props are item, showActions
     //-------------------------------------------------------------------
     // Region: Event Handling of child component events
     //-------------------------------------------------------------------
-    //const getTypeDefinitionsUrl = () => {
-    //    //var val = encodeURIComponent(props.item.namespace);
-    //    return (props.item.isReadOnly || props.item.authorId == null || props.currentUserId !== props.item.authorId) ?
-    //        `/types/library/p=${props.item.id}` : `/types/mine/p=${props.item.id}`;
-    //};
-
-    //const getTypeDefinitionNewUrl = () => {
-    //    return `/type/new/p=${props.item.id}`; 
-    //};
-
-
     const onEditItem = (e) => {
         e.stopPropagation();
         //format date if present
@@ -110,7 +99,6 @@ function ProfileItemRow(props) { //props are item, showActions
                 <>
                     {profileCaption}
                     <span className="ml-2" >{profileValue}</span>
-                    {renderProfilePublishStatus(props.item, 'Publish Status', 'ml-auto mr-2')}
                 </>
             );
         }
@@ -123,7 +111,6 @@ function ProfileItemRow(props) { //props are item, showActions
                         :
                         <a className="mx-2" href={`/profile/${props.item.id}`} >{profileValue}</a>
                     }
-                    {renderProfilePublishStatus(props.item, 'Publish Status', 'ml-auto mr-2')}
                 </>
             );
         }

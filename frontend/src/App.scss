@@ -391,7 +391,7 @@ option.selected {
     }
 }
 
-.btn-primary, .btn-secondary {
+.btn-primary, .btn-secondary, .btn-tertiary {
     color: white;
     font-weight: 700;
     line-height: 20px;
@@ -406,6 +406,15 @@ option.selected {
 
     &.dropdown-toggle {
         font-weight: normal;
+    }
+}
+
+
+.btn-tertiary {
+    color: color('shark');
+
+    &:focus{
+        box-shadow: none !important;
     }
 }
 

@@ -1,8 +1,8 @@
 import React from 'react'
-import { Button } from 'react-bootstrap'
+import { Dropdown } from 'react-bootstrap'
 import { AppSettings } from '../../utils/appsettings';
 
-import { formatDateUtc, generateLogMessageString } from '../../utils/UtilityService';
+import { formatDateUtc, generateLogMessageString, renderMenuIcon } from '../../utils/UtilityService';
 import { renderProfileAvatarBgCss, renderProfileIcon, renderProfilePublishStatus } from '../shared/ProfileRenderHelpers';
 
 const CLASS_NAME = "AdminCloudLibApprovalRow";
@@ -42,24 +42,30 @@ function AdminCloudLibApprovalRow(props) {
     //-------------------------------------------------------------------
     // Region: Render helpers
     //-------------------------------------------------------------------
-    const renderActionsColumn = (className = 'col-sm-4') => {
+    const renderActionsColumn = (className = 'col-sm-3') => {
 
         return (
             <div className={`${className} ml-auto d-inline-flex justify-content-end align-items-center`} >
-
-                {(props.item.profileState === AppSettings.ProfileStateEnum.CloudLibPending ||
-                    props.item.profileState === AppSettings.ProfileStateEnum.Unknown) &&
-                    <>
-                    <Button variant="primary" className="auto-width mx-2" onClick={onApprove}>Approve</Button>
-                    <Button variant="secondary" className="auto-width mx-2" onClick={onReject}>Reject</Button>
-                    </>
-                }
-                {(props.item.profileState === AppSettings.ProfileStateEnum.CloudLibRejected) &&
-                    <>
-                        <Button variant="secondary" className="auto-width mx-2" onClick={onSetPending}>Set Pending</Button>
-                    </>
-                }
-                <Button variant="secondary" className="auto-width mx-2" onClick={onCancel}>Remove</Button>
+                <Dropdown className="" onClick={(e) => e.stopPropagation()} >
+                    <Dropdown.Toggle drop="left" title="Actions" variant="tertiary" className="d-flex align-items-center" >
+                        {renderProfilePublishStatus(props.item, '', '(Change)', 'mr-1')}
+                    </Dropdown.Toggle>
+                    <Dropdown.Menu>
+                        {(props.item.profileState === AppSettings.ProfileStateEnum.CloudLibPending ||
+                            props.item.profileState === AppSettings.ProfileStateEnum.Unknown) &&
+                            <>
+                            <Dropdown.Item key="moreVert1" onClick={onApprove} >{renderMenuIcon("check")}Approve</Dropdown.Item>
+                            <Dropdown.Item key="moreVert2" onClick={onReject} >{renderMenuIcon("close")}Reject</Dropdown.Item>
+                            </>
+                        }
+                        {(props.item.profileState === AppSettings.ProfileStateEnum.CloudLibRejected) &&
+                            <>
+                            <Dropdown.Item key="moreVert3" onClick={onSetPending} >{renderMenuIcon("cloud-queue")}Set Pending</Dropdown.Item>
+                            </>
+                        }
+                        <Dropdown.Item key="moreVert4" onClick={onCancel} >{renderMenuIcon("delete")}Remove</Dropdown.Item>
+                    </Dropdown.Menu>
+                </Dropdown>
             </div>
         );
     }
@@ -86,7 +92,6 @@ function AdminCloudLibApprovalRow(props) {
                 {(!props.navigateModal && props.item != null) &&
                     <a className="mx-2" href={`/cloudlibrary/viewer/${props.item.cloudLibraryId}`} >{profileValue}</a>
                 }
-                {renderProfilePublishStatus(props.item, 'Publish Status', 'ml-auto mr-2')}
             </>
         );
     }

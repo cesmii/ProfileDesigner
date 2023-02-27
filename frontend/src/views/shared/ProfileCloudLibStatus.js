@@ -1,11 +1,12 @@
 import React, { useState } from 'react'
+import { Dropdown } from 'react-bootstrap'
 
 import axiosInstance from '../../services/AxiosService';
 import { useLoadingContext } from "../../components/contexts/LoadingContext";
 import { AppSettings } from '../../utils/appsettings';
 import ConfirmationModal from '../../components/ConfirmationModal';
 import { ErrorModal } from '../../services/CommonUtil';
-import { generateLogMessageString, scrollTop } from '../../utils/UtilityService';
+import { generateLogMessageString, renderMenuIcon, scrollTop } from '../../utils/UtilityService';
 import { SVGIcon } from '../../components/SVGIcon'
 import color from '../../components/Constants';
 import { renderProfilePublishStatus } from './ProfileRenderHelpers';
@@ -258,6 +259,7 @@ function ProfileCloudLibStatus(props) {
     //-------------------------------------------------------------------
     // Region: Render Helpers - Column to show publish profile link OR publish profile status
     //-------------------------------------------------------------------
+    /*
     const renderButton = () => {
         if (props.item.profileState === AppSettings.ProfileStateEnum.Local) {
             return (
@@ -279,7 +281,36 @@ function ProfileCloudLibStatus(props) {
 
         return null;
     };
+    */
 
+    const renderButton = () => {
+        if (props.item.profileState === AppSettings.ProfileStateEnum.Local) {
+            return (
+                <button onClick={onPublish} className="btn btn-primary med-width d-inline-flex align-content-center mr-2" >
+                    <span className="mr-1" alt="upload"><SVGIcon name="cloud-upload" size={18} fill={color.white} /></span>
+                    <span className="" >Publish</span>
+                </button>
+            );
+        }
+
+        if (props.item.profileState === AppSettings.ProfileStateEnum.CloudLibPending ||
+            props.item.profileState === AppSettings.ProfileStateEnum.CloudLibRejected) {
+            return (
+                <div className={`d-inline-flex align-items-center`} >
+                    <Dropdown className="" onClick={(e) => e.stopPropagation()} >
+                        <Dropdown.Toggle drop="left" title="Actions" variant="tertiary" className="d-flex align-items-center" >
+                            {renderProfilePublishStatus(props.item, '', '(Change)', 'mr-1')}
+                        </Dropdown.Toggle>
+                        <Dropdown.Menu>
+                            <Dropdown.Item key="moreVert1" onClick={onWithdrawProfile} >{renderMenuIcon("undo")}Cancel Publish</Dropdown.Item>
+                        </Dropdown.Menu>
+                    </Dropdown>
+                </div>
+            );
+        }
+
+        return null;
+    };
 
     //-------------------------------------------------------------------
     // Region: Final render
@@ -294,7 +325,7 @@ function ProfileCloudLibStatus(props) {
     return (
         <>
             {props.showStatus &&
-                renderProfilePublishStatus(props.item, 'Publish Status', 'mr-2')
+                renderProfilePublishStatus(props.item, 'Publish Status', '', 'mr-2')
             }
             {props.showButton &&
                 <>

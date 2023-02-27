@@ -106,6 +106,7 @@ namespace CESMII.ProfileDesigner.Api
             services.AddSingleton<IConfiguration>(Configuration);
             services.AddSingleton<ConfigUtil>();  // helper to allow us to bind to app settings data 
             services.AddScoped<DAL.Utils.ProfileMapperUtil>();  // helper to allow us to modify profile data for front end 
+            services.AddScoped<Utils.CloudLibraryUtil>();  // helper to allow controllers to do stuff related to CloudLibPublish 
             services.AddOpcUaImporter(Configuration);
             services.AddSingleton<SelfSignUpAuthFilter>();               // Validator for self-sign up - authentiate API Connector username & password.
             services.AddSingleton<SelfServiceSignUpNotifyController>();  // API Connector for Self-Service Sign-Up User Flow

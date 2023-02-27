@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -8,11 +6,11 @@ using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 using System.Globalization;
 using System.Linq.Expressions;
-using System.Net.Mail;
 
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using SendGrid.Helpers.Mail;
 
 using Opc.Ua.Cloud.Library.Client;
 
@@ -26,9 +24,10 @@ using CESMII.ProfileDesigner.DAL.Models;
 using CESMII.ProfileDesigner.Data.Entities;
 using CESMII.ProfileDesigner.Data.Extensions;
 using CESMII.ProfileDesigner.OpcUa;
+using CESMII.ProfileDesigner.Api.Utils;
+
 using CESMII.OpcUa.NodeSetImporter;
 using CESMII.OpcUa.NodeSetModel.Factory.Smip;
-using CESMII.Common.SelfServiceSignUp.Services;
 using CESMII.Common.CloudLibClient;
 
 namespace CESMII.ProfileDesigner.Api.Controllers
@@ -38,7 +37,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
     {
         private readonly IDal<Profile, ProfileModel> _dal;
         private readonly ICloudLibDal<CloudLibProfileModel> _cloudLibDal;
-        private readonly MailRelayService _mailService;
+        private readonly CloudLibraryUtil _cloudLibUtil;
 
         private readonly Utils.ImportService _svcImport;
         private readonly OpcUaImporter _exporter;
@@ -50,14 +49,14 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             Utils.ImportService svcImport,
             OpcUaImporter exporter,
             ConfigUtil config, ILogger<ProfileController> logger,
-            MailRelayService mailservice)
+            CloudLibraryUtil cloudLibUtil)
             : base(config, logger, dalUser)
         {
             _dal = dal;
             _cloudLibDal = cloudLibDal;
             _svcImport = svcImport;
             _exporter = exporter;
-            _mailService = mailservice;
+            _cloudLibUtil = cloudLibUtil;
         }
 
         [HttpPost, Route("GetByID")]
@@ -257,7 +256,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                                 else
                                 {
                                     profile.CloudLibApprovalStatus = cloudLibProfile.CloudLibApprovalStatus;
-                                    profile.CloudLibApprovalDescription= cloudLibProfile.CloudLibApprovalDescription;
+                                    profile.CloudLibApprovalDescription = cloudLibProfile.CloudLibApprovalDescription;
                                     if (cloudLibProfile.CloudLibApprovalStatus == "APPROVED")
                                     {
                                         profile.CloudLibPendingApproval = false;
@@ -293,16 +292,22 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                             x.AuthorId.HasValue && x.AuthorId.Equals(userId) ? 1 : 0,
                         IsDescending = true
                     });
-                    result.Add(new OrderByExpression<Profile>() { Expression = x => (string.IsNullOrEmpty(x.Title) ? 
-                            x.Namespace.Replace("https://", "").Replace("http://", "") : x.Title).Trim() });
+                    result.Add(new OrderByExpression<Profile>()
+                    {
+                        Expression = x => (string.IsNullOrEmpty(x.Title) ?
+                            x.Namespace.Replace("https://", "").Replace("http://", "") : x.Title).Trim()
+                    });
                     result.Add(new OrderByExpression<Profile>() { Expression = x => x.Namespace.Replace("https://", "").Replace("http://", "").Trim() });
                     result.Add(new OrderByExpression<Profile>() { Expression = x => x.PublishDate, IsDescending = true });
                     break;
                 //case SearchCriteriaSortByEnum.Popular:
                 //case SearchCriteriaSortByEnum.Name:
                 default:
-                    result.Add(new OrderByExpression<Profile>() { Expression = x => (string.IsNullOrEmpty(x.Title) ? 
-                            x.Namespace.Replace("https://", "").Replace("http://", "") : x.Title).Trim() });
+                    result.Add(new OrderByExpression<Profile>()
+                    {
+                        Expression = x => (string.IsNullOrEmpty(x.Title) ?
+                            x.Namespace.Replace("https://", "").Replace("http://", "") : x.Title).Trim()
+                    });
                     result.Add(new OrderByExpression<Profile>() { Expression = x => x.Namespace.Replace("https://", "").Replace("http://", "").Trim() });
                     result.Add(new OrderByExpression<Profile>() { Expression = x => x.PublishDate, IsDescending = true });
                     break;
@@ -778,7 +783,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             if (!resultSave.IsSuccess) return Ok(resultSave);
 
             //now do the publish
-            return Ok(await PublishToCloudLibrary(model));            
+            return Ok(await PublishToCloudLibrary(model));
         }
 
         /// <summary>
@@ -797,19 +802,19 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 {
                     _logger.LogWarning($"ProfileController|PublishToCloudLibrary|Failed to publish : {model.ID.Value}. Profile not found.");
                     return new ResultMessageWithDataModel()
-                        {
-                            IsSuccess = false,
-                            Message = "Profile not found."
-                        };
+                    {
+                        IsSuccess = false,
+                        Message = "Profile not found."
+                    };
                 }
 
                 if (!_permissibleLicenses.Contains(profile.License))
                 {
                     return new ResultMessageWithDataModel()
-                        {
-                            IsSuccess = false,
-                            Message = $"License must be {string.Join(" or ", _permissibleLicenses)}."
-                        };
+                    {
+                        IsSuccess = false,
+                        Message = $"License must be {string.Join(" or ", _permissibleLicenses)}."
+                    };
 
                 }
 
@@ -819,14 +824,15 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 {
                     _logger.LogWarning($"ProfileController|PublishToCloudLibrary|Failed to export : {model.ID}.");
                     return new ResultMessageWithDataModel()
-                        {
-                            IsSuccess = false,
-                            Message = "Failed to export."
-                        };
+                    {
+                        IsSuccess = false,
+                        Message = "Failed to export."
+                    };
                 }
                 var cloudLibProfile = CloudLibProfileModel.MapFromProfile(profile);
 
                 // Add profile designer user information to the profile
+                //Todo: Just user LocalUser which already has this info
                 var user = _dalUser.GetById(base.DalUserToken.UserId, base.DalUserToken);
                 if (cloudLibProfile.AdditionalProperties == null)
                 {
@@ -840,21 +846,6 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 };
                 cloudLibProfile.AdditionalProperties.RemoveAll(p => p.Name == userInfoProp.Name);
                 cloudLibProfile.AdditionalProperties.Add(userInfoProp);
-                string strSenderEmail = user.Email;
-                string strSenderDisplayName = user.DisplayName;
-                string strAuthorEmail = profile.Author.Email;
-                string strAuthorDisplayName = profile.Author.DisplayName;
-                string strAuthorInfo = $"\tAuthor: <strong>{profile.Author.DisplayName} [{profile.Author.Email}]</strong> -- ({profile.Author.ObjectIdAAD})";
-                string strOrganizationInfo = $"\tOrganization: <strong>{profile.Author.Organization}</strong>";
-                string strProfileInfo = $"\tProfile Title: <strong>{profile.Title}</strong>: <br/>" +
-                                        $"\tProfile Description: <strong>{profile.Description}</strong> <br/>" +
-                                        $"\tProfile Namespace: <strong>{profile.Namespace}</strong>: <br/>" +
-                                        $"\tProfile Version: <strong>{profile.Version}</strong>: <br/>" +
-                                        $"\tProfile Publication Date: <strong>{profile.PublishDate}</strong> <br/>" +
-                                        $"\tProfile License: <strong>{profile.License}</strong> <br/>";
-
-                // This is where I am testing it....
-                // SendProfileEmailNotification(strSenderEmail, strSenderDisplayName, strAuthorEmail, strAuthorDisplayName, strAuthorInfo, strOrganizationInfo, strProfileInfo);
 
                 try
                 {
@@ -868,21 +859,15 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 {
                     _logger.LogError($"ProfileController|PublishToCloudLibrary|Failed to publish to Cloud Library: {model.ID.Value} {ex.Message}.");
                     return new ResultMessageWithDataModel()
-                        {
-                            IsSuccess = false,
-                            Message = ex.Message,
-                        };
+                    {
+                        IsSuccess = false,
+                        Message = ex.Message,
+                    };
                 }
 
                 // notify recipient of new profile to review
-                try
-                {
-                    SendProfileEmailNotification(strSenderEmail, strSenderDisplayName, strAuthorEmail, strAuthorDisplayName, strAuthorInfo, strOrganizationInfo, strProfileInfo);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, $"Failed to send email notification for publish request {model.ID} for user {base.DalUserToken}");
-                }
+                _cloudLibUtil.EmailPublishNotification(profile, LocalUser );
+
                 return new ResultMessageWithDataModel()
                 {
                     IsSuccess = true,
@@ -1466,44 +1451,6 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                     model.PublishDate = model.PublishDate?.ToUniversalTime();
                 }
             }
-        }
-
-        internal async void SendProfileEmailNotification(string strSenderEmail, string strSenderDisplayName, string strAuthorEmail, string strAuthorDisplayName, string strAuthorInfo, string strOrganizationInfo, string strProfileInfo)
-        {
-            // Send email that we have created a new user account
-            //string strUserName = "DisplayName";
-
-            string strSubject = "Profile submission to CESMII Cloud Library";
-            string strContent = $"<p>Thank you very much for your submission to the Clean Energy Smart Manufacturing Innovation Institute (CESMII) Cloud Library.</p>" +
-                                $"<p></p>" +
-                                $"<p>{strAuthorInfo}</p>" +
-                                $"<p>{strOrganizationInfo}</p>" +
-                                $"<p></p>" +
-                                $"<p>{strProfileInfo}</p>" +
-                                $"<p></p>" +
-                                $"<p></p>" +
-                                $"<p>Sincerely,</p>" +
-                                $"<p>CESMII Support Team</p>" +
-                                $"<p></p>";
-
-            _logger.LogInformation($"SendProfileEmailNotification: About to send notification email.");
-
-            // Setup "To" list 
-            // List of recipients for the notification email.
-            List<EmailAddress> leaTo = new List<EmailAddress>();
-            if (strAuthorEmail.ToLower() != strSenderEmail.ToLower())
-                leaTo.Add(new EmailAddress(strAuthorEmail, strAuthorDisplayName));
-
-            leaTo.Add(new EmailAddress(strSenderEmail, strSenderDisplayName));
-
-            // Setup Contents of our email message.
-            MailMessage mm = new MailMessage()
-            {
-                Subject = strSubject,
-                Body = strContent
-            };
-
-            await _mailService.SendEmailSendGrid(mm, leaTo);
         }
 
         #endregion

@@ -61,7 +61,7 @@ export const renderProfileAvatarBgCss = (item) => {
     }
 };
 
-export const renderProfilePublishStatus = (item, caption = 'Status', className = 'mr-2') => {
+export const renderProfilePublishStatus = (item, caption = 'Status', appendText = '', className = 'mr-2') => {
     if (item == null) return null;
 
     //only for certain statuses
@@ -72,9 +72,14 @@ export const renderProfilePublishStatus = (item, caption = 'Status', className =
     const iconColor = item.profileState === AppSettings.ProfileStateEnum.CloudLibPending ? color.amber : color.cardinal;
     return (
         <span className={`my-0 d-flex align-items-center ${className}`} >
-            <span className="font-weight-bold mr-2">{caption}:</span>
+            {(caption != null && caption !== '') &&
+                <span className="font-weight-bold mr-2">{caption}:</span>
+            }
             <span className="mr-1" alt="upload"><SVGIcon name="cloud-upload" size={24} fill={iconColor} /></span>
             {statusName}
+            {(appendText != null && appendText !== '') &&
+                <span className="ml-1">{appendText}</span>
+            }
         </span>
     );
 }

@@ -1,5 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Logging;
@@ -9,10 +11,9 @@ using CESMII.ProfileDesigner.DAL.Models;
 using CESMII.ProfileDesigner.DAL;
 using CESMII.ProfileDesigner.Api.Shared.Models;
 using CESMII.ProfileDesigner.Api.Shared.Controllers;
-using System.Linq;
-using System.Threading.Tasks;
 using CESMII.ProfileDesigner.Data.Entities;
 using CESMII.ProfileDesigner.Common.Enums;
+using CESMII.ProfileDesigner.Api.Utils;
 using CESMII.Common.CloudLibClient;
 
 namespace CESMII.ProfileDesigner.Api.Controllers
@@ -24,18 +25,20 @@ namespace CESMII.ProfileDesigner.Api.Controllers
     {
         private readonly ICloudLibDal<CloudLibProfileModel> _dalCloudLib;
         private readonly IDal<Profile, ProfileModel> _dalProfile;
-        private readonly UserDAL _userDal;
+        private readonly CloudLibraryUtil _cloudLibUtil;
 
         public CloudLibraryController(
             ICloudLibDal<CloudLibProfileModel> cloudLibDal,
             IDal<Profile, ProfileModel> profileDal,
             UserDAL userDal,
-            ConfigUtil config, ILogger<UserController> logger)
+            ConfigUtil config, 
+            CloudLibraryUtil cloudLibUtil,
+            ILogger<UserController> logger)
             : base(config, logger, userDal)
         {
             _dalCloudLib = cloudLibDal;
             _dalProfile = profileDal;
-            _userDal = userDal;
+            _cloudLibUtil = cloudLibUtil;
         }
 
 
@@ -71,6 +74,12 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             return Ok(result);
         }
 
+        /// <summary>
+        /// Changes publish status of a profile in the Cloud Library. 
+        /// Could be approved, rejected, cancelled.
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [HttpPost, Route("approve")]
         [Authorize(Roles = "cesmii.profiledesigner.admin")]
         [ProducesResponseType(200, Type = typeof(CloudLibProfileModel))]
@@ -96,16 +105,28 @@ namespace CESMII.ProfileDesigner.Api.Controllers
 
             }
 
-            var approvedNodeSet = await _dalCloudLib.UpdateApprovalStatusAsync(model.ID, GetApprovalStatusString(model.ApproveState), model.ApprovalDescription);
+            var approvedNodeSet = await _dalCloudLib.UpdateApprovalStatusAsync(model.ID, 
+                CloudLibraryUtil.GetApprovalStatusString(model.ApproveState), model.ApprovalDescription);
             if (approvedNodeSet == null)
             {
                 return BadRequest($"Approval update failed.");
             }
+
+            //Todo: Get the authoring user - from author field or additional properties. 
+            //      Then notify them that the status has changed to approved, rejected, etc.
+            //      if rejected, include reason in email. 
+            //      if approved, explain that this profile is now a part of the Cloud Library and cannot
+            //         be edited or removed. 
+            //      They can publish a new version if needed.  
+            //notify author that their profile publish status has changed. 
+            //await _cloudLibUtil.EmailStatusNotification(profile, LocalUser);
+
             return Ok(approvedNodeSet);
         }
 
         /// <summary>
-        /// Publishes a profile to the Cloud Library 
+        /// Cancels a publish profile to the Cloud Library. 
+        /// This is called by the authoring user. 
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
@@ -136,8 +157,10 @@ namespace CESMII.ProfileDesigner.Api.Controllers
 
                 try
                 {
-                    var updatedProfile = await _dalCloudLib.UpdateApprovalStatusAsync(profile.CloudLibraryId, GetApprovalStatusString(ProfileStateEnum.CloudLibCancelled), $"Canceled by user {DalUserToken.UserId}");
-                    if (updatedProfile == null || updatedProfile.CloudLibApprovalStatus == null || updatedProfile.CloudLibApprovalStatus == GetApprovalStatusString(ProfileStateEnum.CloudLibCancelled))
+                    var updatedProfile = await _dalCloudLib.UpdateApprovalStatusAsync(profile.CloudLibraryId,
+                        CloudLibraryUtil.GetApprovalStatusString(ProfileStateEnum.CloudLibCancelled), $"Canceled by user {DalUserToken.UserId}");
+                    if (updatedProfile == null || updatedProfile.CloudLibApprovalStatus == null ||
+                        updatedProfile.CloudLibApprovalStatus == CloudLibraryUtil.GetApprovalStatusString(ProfileStateEnum.CloudLibCancelled))
                     {
                         profile.CloudLibraryId = null;
                         profile.CloudLibPendingApproval = null;
@@ -168,11 +191,15 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                     );
                 }
 
+                //notify
+                await _cloudLibUtil.EmailCancelNotification(profile, LocalUser);
+
+                //return all good
                 return Ok(
                     new ResultMessageWithDataModel()
                     {
                         IsSuccess = true,
-                        Message = "Canceled publish request.",
+                        Message = "Cancelled publish request.",
                     }
                 );
             }
@@ -183,27 +210,10 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                     new ResultMessageWithDataModel()
                     {
                         IsSuccess = false,
-                        Message = "Error canceling publish request."
+                        Message = "Error cancelling publish request."
                     }
                 );
             }
-        }
-
-        private string GetApprovalStatusString(ProfileStateEnum val)
-        {
-            switch (val)
-            {
-                case ProfileStateEnum.CloudLibPublished: return "PUBLISHED";
-                case ProfileStateEnum.CloudLibPending: return "PENDING";
-                case ProfileStateEnum.CloudLibApproved: return "APPROVED";
-                case ProfileStateEnum.CloudLibRejected: return "REJECTED";
-                case ProfileStateEnum.CloudLibCancelled: return "CANCELED";
-                case ProfileStateEnum.Local: 
-                case ProfileStateEnum.Core: 
-                    return "";
-                default: return "UNKNOWN";
-            }
-
         }
     }
 }

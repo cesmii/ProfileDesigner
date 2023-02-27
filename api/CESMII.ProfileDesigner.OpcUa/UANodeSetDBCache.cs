@@ -165,6 +165,16 @@ namespace CESMII.ProfileDesigner.Opc.Ua.NodeSetDBCache
         public bool AddNodeSet(UANodeSetImportResult results, string nodeSetXml, object authorId, bool requested)
         {
             bool WasNewSet = false;
+
+            //Fix: Error - Data at the root level is invalid. Line 1, position 1.
+            //Reference: https://stackoverflow.com/questions/17795167/xml-loaddata-data-at-the-root-level-is-invalid-line-1-position-1
+            string _byteOrderMarkUtf8 = Encoding.UTF8.GetString(Encoding.UTF8.GetPreamble());
+            if (nodeSetXml.StartsWith(_byteOrderMarkUtf8))
+            {
+                nodeSetXml = nodeSetXml.Remove(0, _byteOrderMarkUtf8.Length);
+            }
+            //end fix
+
             #region Comment Processing
             var doc = XElement.Load(new StringReader(nodeSetXml));
             var comments = doc.DescendantNodes().OfType<XComment>();

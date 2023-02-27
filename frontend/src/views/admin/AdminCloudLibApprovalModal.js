@@ -1,9 +1,7 @@
 import React, { useState } from 'react'
 import Modal from 'react-bootstrap/Modal'
 import Form from 'react-bootstrap/Form'
-import FormControl from 'react-bootstrap/FormControl'
 import Button from 'react-bootstrap/Button'
-import { AppSettings } from '../../utils/appsettings';
 
 import { SVGIcon } from '../../components/SVGIcon'
 
@@ -16,9 +14,10 @@ function AdminCloudLibApprovalModal(props) { //props are item and config.callbac
     //-------------------------------------------------------------------
     const [showModal, setShowModal] = useState(props.showModal);
     const [_formData, setFormData] = useState({
-        approvalStatus: props.item.cloudLibApprovalStatus,
-        description: props.item.cloudLibApprovalDescription
+        description: ''
     });
+    const [_isValid, setIsValid] = useState({ description: true });
+
     //-------------------------------------------------------------------
     // Region: Validation
     //-------------------------------------------------------------------
@@ -32,9 +31,18 @@ function AdminCloudLibApprovalModal(props) { //props are item and config.callbac
     };
 
     const onConfirm = (e) => {
+        //check required fields
+        const isValid = !(_formData.description == null || _formData.description === '')
+        if (!isValid) {
+            setIsValid({ description: isValid });
+            return;
+        }
+
+        //close modal if all good
         setShowModal(false);
         if (props.confirm.callback != null) props.confirm.callback(_formData);
     };
+
     const onChange = (e) => {
         e.preventDefault();
         setFormData({
@@ -71,38 +79,21 @@ function AdminCloudLibApprovalModal(props) { //props are item and config.callbac
                         }
                     </p>
                     <Form className={`header-search-block mx-3"`}>
-                        <div className="col-sm-6">
-                            <Form.Group className="mb-1">
-                                <Form.Label>Status</Form.Label>
-                                <Form.Control
-                                    name="approvalStatus"
-                                    as="select"
-                                    placeholder="Status"
-                                    aria-label="Status"
-                                    onChange={onChange}
-                                    value={_formData.approvalStatus}
-                                >
-                                    <option value={AppSettings.PublishProfileStatus.Approved}>Approve</option>
-                                    <option value={AppSettings.PublishProfileStatus.Rejected}>Reject</option>
-                                    <option value={AppSettings.PublishProfileStatus.Canceled}>Cancel</option>
-                                    <option value={AppSettings.PublishProfileStatus.Pending}>Pending</option>
-                                </Form.Control>
-                            </Form.Group>
-                        </div>
-                        <div className="col-md-12">
-                            <Form.Group className="mb-1">
-                                <Form.Label>Explanation</Form.Label>
-                                <Form.Control
-                                    name="description"
-                                    type="text"
-                                    placeholder="Rejection Reason"
-                                    aria-label="Rejection Reason"
-                                    onChange={onChange}
-                                    value={_formData.description}
-                                />
-                            </Form.Group>
-                        </div>
-                        <Form.Group>
+                        <Form.Group className="mb-1">
+                            <Form.Label>Reason*</Form.Label>
+                            {!_isValid.description &&
+                                <span className="invalid-field-message inline">
+                                    Required
+                                </span>
+                            }
+                            <Form.Control
+                                as="textarea"
+                                name="description"
+                                type="text"
+                                aria-label="Reason"
+                                onChange={onChange}
+                                value={_formData.description}
+                            />
                         </Form.Group>
                     </Form>
                 </Modal.Body>
@@ -110,8 +101,10 @@ function AdminCloudLibApprovalModal(props) { //props are item and config.callbac
                     <Button variant="text-solo" onClick={onHide}  >
                         Cancel
                     </Button>
-                    <Button disabled={_formData.approvalStatus == null} style={{ minWidth: '128px' }} onClick={onConfirm} >
-                        Change Status
+                    <Button disabled={_formData.description == null} style={{ minWidth: '128px' }} onClick={onConfirm} >
+                        {(props.confirm?.caption == null || props.confirm?.caption === '') ?
+                            "Change Status" : props.confirm.caption
+                        }
                     </Button>
                 </Modal.Footer>
             </Modal>

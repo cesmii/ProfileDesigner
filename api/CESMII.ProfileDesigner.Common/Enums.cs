@@ -113,11 +113,21 @@
         /// A nodeset that is in submitted but rejected by approver. This could be pending or rejected but not withdrawn
         /// Readonly state
         /// </summary>
-        CloudLibRejected = 4,
+        CloudLibApproved = 4,
+        /// <summary>
+        /// A nodeset that is in submitted but rejected by approver. This could be pending or rejected but not withdrawn
+        /// Readonly state
+        /// </summary>
+        CloudLibRejected = 5,
+        /// <summary>
+        /// A nodeset that is in submitted but rejected by approver. This could be pending or rejected but not withdrawn
+        /// Readonly state
+        /// </summary>
+        CloudLibCancelled = 6,
         /// <summary>
         /// A nodeset that is currently being modified by the user. This user owns this proifle and can modify.
         /// </summary>
-        Local = 5,
+        Local = 7,
         /// <summary>
         /// Unknown scenario is not expected...
         /// </summary>

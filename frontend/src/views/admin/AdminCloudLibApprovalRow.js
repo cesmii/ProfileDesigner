@@ -1,129 +1,188 @@
 import React from 'react'
-import { formatDate } from '../../utils/UtilityService';
-import { generateLogMessageString } from '../../utils/UtilityService'
 import { Button } from 'react-bootstrap'
+import { AppSettings } from '../../utils/appsettings';
+
+import { formatDateUtc, generateLogMessageString } from '../../utils/UtilityService';
+import { renderProfileAvatarBgCss, renderProfileIcon, renderProfilePublishStatus } from '../shared/ProfileRenderHelpers';
 
 const CLASS_NAME = "AdminCloudLibApprovalRow";
 
-function AdminCloudLibApprovalRow(props) { //props are item, showActions
+function AdminCloudLibApprovalRow(props) { 
 
     //-------------------------------------------------------------------
     // Region: Event Handling of child component events
     //-------------------------------------------------------------------
+    const onApprove = () => {
+        console.log(generateLogMessageString('onApprove', CLASS_NAME));
+        if (props.onApprove) props.onApprove(props.item);
+    }
 
-    const onChangeApprovalStatus = (item) => {
-        console.log(generateLogMessageString('onChangeApprovalStatus', CLASS_NAME));
-        if (props.onChangeApprovalStatus) props.onChangeApprovalStatus(item);
+    const onReject = () => {
+        console.log(generateLogMessageString('onReject', CLASS_NAME));
+        if (props.onReject) props.onReject(props.item);
+    }
+
+    const onCancel = () => {
+        console.log(generateLogMessageString('onCancel', CLASS_NAME));
+        if (props.onCancel) props.onCancel(props.item);
+    }
+
+    const onSetPending = () => {
+        console.log(generateLogMessageString('onSetPending', CLASS_NAME));
+        if (props.onSetPending) props.onSetPending(props.item);
+    }
+
+    const onEditItem = (e) => {
+        e.stopPropagation();
+        //format date if present
+        //props.item.publishDate = formatDate(props.item.publishDate);
+        props.onEditCallback(props.item);
     }
 
     //-------------------------------------------------------------------
     // Region: Render helpers
     //-------------------------------------------------------------------
+    const renderActionsColumn = (className = 'col-sm-4') => {
 
-    //build the row
-    //-------------------------------------------------------------------
-    // Region: Render final output
-    //-------------------------------------------------------------------
-    var cssClass = props.cssClass + (props.isHeader ? " bottom header" : " center border-top");
+        return (
+            <div className={`${className} ml-auto d-inline-flex justify-content-end align-items-center`} >
 
-    if (props.isHeader) {
+                {(props.item.profileState === AppSettings.ProfileStateEnum.CloudLibPending ||
+                    props.item.profileState === AppSettings.ProfileStateEnum.Unknown) &&
+                    <>
+                    <Button variant="primary" className="auto-width mx-2" onClick={onApprove}>Approve</Button>
+                    <Button variant="secondary" className="auto-width mx-2" onClick={onReject}>Reject</Button>
+                    </>
+                }
+                {(props.item.profileState === AppSettings.ProfileStateEnum.CloudLibRejected) &&
+                    <>
+                        <Button variant="secondary" className="auto-width mx-2" onClick={onSetPending}>Set Pending</Button>
+                    </>
+                }
+                <Button variant="secondary" className="auto-width mx-2" onClick={onCancel}>Remove</Button>
+            </div>
+        );
+    }
+
+    const renderTitleNamespace = () => {
+
+        let profileCaption = null;
+        let profileValue = null;
+        if (props.item.title == null || props.item.title === '') {
+            profileCaption = props.profileCaption == null ? "Namespace: " : `${props.profileCaption}: `;
+            profileValue = props.item.namespace;
+        }
+        else {
+            profileCaption = props.profileCaption == null ? "Title: " : `${props.profileCaption}: `;
+            profileValue = props.item.title;
+        }
+
         return (
             <>
-                <tr className={`mx-0 my-1 p-0 py-1 ${cssClass}`}>
-                    <th className="" >
-                        User
-                    </th>
-                    <th className="" >
-                        Title
-                    </th>
-                    <th className="" >
-                        Namespace
-                    </th>
-                    <th className="" >
-                        Version
-                    </th>
-                    <th className="" >
-                        PublicationDate
-                    </th>
-                    <th className="" >
-                        Nodeset
-                    </th>
-                    <th className="" >
-                        Approval Status
-                    </th>
-                    <th className="" >
-                        Approval Status Description
-                    </th>
-                    <th className="" >
-                        License
-                    </th>
-                    <th className="" >
-                        Copyright
-                    </th>
-                    <th className="" >
-                        Contributor
-                    </th>
-                    <th className="" >
-                        Category
-                    </th>
-                    <th className="" >
-                        Description
-                    </th>
-                </tr>
+                {profileCaption}
+                {props.navigateModal &&
+                    <button className="ml-1 mr-2 btn btn-link" onClick={onEditItem} >{profileValue}</button>
+                }
+                {(!props.navigateModal && props.item != null) &&
+                    <a className="mx-2" href={`/cloudlibrary/viewer/${props.item.cloudLibraryId}`} >{profileValue}</a>
+                }
+                {renderProfilePublishStatus(props.item, 'Publish Status', 'ml-auto mr-2')}
             </>
         );
     }
 
-    //item row
+    //-------------------------------------------------------------------
+    // Region: Render row
+    //-------------------------------------------------------------------
+    const renderRow = () => {
+
+        const className = `row py-2 mb-2 border-bottom align-items-center ${props.className == null ? '' : props.className}`;
+
+        return (
+            <div className={className}> 
+                <div className="col-sm-1 align-self-start" >
+                    <div className={`col-avatar mt-1 mr-2 rounded-circle ${renderProfileAvatarBgCss(props.item)} elevated`} >
+                        {renderProfileIcon(props.item, 24)}
+                    </div>
+                </div>
+                <div className="row col-sm-8" >
+                    <div className="col-sm-12 align-items-center" >
+                        <p className="my-0 d-flex align-items-center">
+                            {renderTitleNamespace()}
+                        </p>
+                    </div>
+                    <div className="col-sm-6 align-items-center" >
+                        <div className="d-block" >
+                            {(props.item.title != null && props.item.title !== '') &&
+                                <p className="my-0 small-size" >Namespace: {props.item.namespace}</p>
+                            }
+                            {props.item.version != null &&
+                                <p className="my-0 small-size" >Version: {props.item.version}</p>
+                            }
+                            {props.item.publishDate != null &&
+                                <p className="my-0 small-size" >Published: {formatDateUtc(props.item.publishDate)}</p>
+                            }
+                            {props.item.categoryName != null &&
+                                <p className="my-0 small-size" >Category: {props.item.categoryName}</p>
+                            }
+                        </div>
+                    </div>
+                    <div className="col-sm-6 align-items-center" >
+                        <div className="d-block" >
+                            {props.item.author != null &&
+                                <p className="my-0 small-size" >Author: <a href={`/admin/user/${props.item.author.id}`}>{props.item.author.displayName}</a></p>
+                            }
+                            {props.item.contributorName != null &&
+                                <p className="my-0 small-size" >Contributor: {props.item.contributorName}</p>
+                            }
+                            {props.item.license != null &&
+                                <p className="my-0 small-size" >License: {props.item.license}</p>
+                            }
+                        </div>
+                    </div>
+                </div>
+                {renderActionsColumn('col-sm-3')}
+                {props.item.description != null &&
+                    <div className="row col-sm-12" >
+                        <div className="col-sm-11 offset-1" >
+                            <p className="my-0 small-size" >Copyright: {props.item.copyrightText}</p>
+                        </div>
+                    </div>
+                }
+                {props.item.description != null &&
+                    <div className="row col-sm-12" >
+                        <div className="col-sm-11 offset-1" >
+                            <p className="my-0 small-size" >Description: {props.item.description.length > 160 ? props.item.description.substr(0, 160) + '...' : props.item.description}</p>
+                        </div>
+                    </div>
+                }
+                {(props.item.profileState === AppSettings.ProfileStateEnum.CloudLibRejected &&
+                    props.item.cloudLibApprovalDescription != null &&
+                    props.item.cloudLibApprovalDescription !== '') &&
+                    <div className="col-sm-12 d-flex" >
+                    <p className="alert alert-danger my-2 small-size w-100" >{props.item.cloudLibApprovalStatus}: {props.item.cloudLibApprovalDescription}</p>
+                    </div>
+                }
+                {(props.item.profileState === AppSettings.ProfileStateEnum.CloudLibApproved &&
+                    props.item.cloudLibApprovalDescription != null &&
+                    props.item.cloudLibApprovalDescription !== '') &&
+                    <div className="col-sm-12 d-flex" >
+                    <p className="alert alert-success my-2 small-size w-100" >{props.item.cloudLibApprovalStatus}: {props.item.cloudLibApprovalDescription}</p>
+                    </div>
+                }
+            </div >
+        );
+    };
+
+    //-------------------------------------------------------------------
+    // Region: Render final output
+    //-------------------------------------------------------------------
     if (props.item === null || props.item === {}) return null;
 
     return (
-        <>
-            <tr className={`mx-0 my-1 p-0 py-1 ${cssClass}`}>
-                <td className="py-2 align-middle" >
-                    <a href={`/admin/user/${props.item.author.id}`}>{props.item.author.displayName}</a>
-                </td>
-                <td className="py-2 align-middle" >
-                    {props.item.title}
-                </td>
-                <td className="py-2 align-middle" >
-                    {props.item.namespace}
-                </td>
-                <td className="py-2 align-middle" >
-                    {props.item.version}
-                </td>
-                <td className="py-2 align-middle" >
-                    {formatDate(props.item.publishDate)}
-                </td>
-                <td className="py-2 align-middle" >
-                    <a href={`/cloudlibrary/viewer/${props.item.cloudLibraryId}`}>View in Profile Designer</a> (ID: {props.item.cloudLibraryId})
-                </td>
-                <td className="py-2 align-middle" >
-                    {props.item.cloudLibApprovalStatus}
-                    <Button variant="secondary" className="auto-width mx-2" onClick={() => onChangeApprovalStatus(props.item)}>Change Status</Button>
-                </td>
-                <td className="py-2 align-middle" >
-                    {props.item.cloudLibApprovalDescription}
-                </td>
-                <td className="py-2 align-middle" >
-                    {props.item.license}
-                </td>
-                <td className="py-2 align-middle" >
-                    {props.item.copyrightText}
-                </td>
-                <td className="py-2 align-middle" >
-                    {props.item.contributorName}
-                </td>
-                <td className="py-2 align-middle" >
-                    {props.item.categoryName}
-                </td>
-                <td className="py-2 align-middle" >
-                    {props.item.description}
-                </td>
-
-            </tr>
-        </>
+        renderRow()
     );
+
 }
 
 export default AdminCloudLibApprovalRow;

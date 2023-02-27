@@ -86,7 +86,7 @@ function ProfileCloudLibStatus(props) {
 
         //perform publish call
         const data = { id: item.id };
-        const url = `profile/cloudlibrary/publishcancel`;
+        const url = `cloudlibrary/publishcancel`;
         axiosInstance.post(url, data)
             .then(result => {
                 if (result.data.isSuccess) {

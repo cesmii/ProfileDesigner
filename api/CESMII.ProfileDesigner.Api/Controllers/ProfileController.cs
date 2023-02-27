@@ -115,7 +115,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             }
 
             //query cloud lib to get the approval status of this item.
-            await UpdateCloudLibraryStatus(result, false);
+            await UpdateCloudLibraryStatus(result, true);
 
             return Ok(result.FirstOrDefault());
         }
@@ -187,7 +187,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             var orderByExprs = BuildSearchOrderByExpressions(LocalUser.ID.Value, model.SortByEnum);
             var result = _dal.Where(BuildPredicate(model, base.DalUserToken), base.DalUserToken, model.Skip, model.Take, true, false, orderByExprs.ToArray());
 
-            await UpdateCloudLibraryStatus(result?.Data, false);
+            await UpdateCloudLibraryStatus(result?.Data, true);  //refresh all in case cloud library changed status of prev approved outside of Profile Designer
 
             return new DALResult<ProfileModel>()
             {
@@ -293,13 +293,17 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                             x.AuthorId.HasValue && x.AuthorId.Equals(userId) ? 1 : 0,
                         IsDescending = true
                     });
-                    result.Add(new OrderByExpression<Profile>() { Expression = x => x.Namespace });
+                    result.Add(new OrderByExpression<Profile>() { Expression = x => (string.IsNullOrEmpty(x.Title) ? 
+                            x.Namespace.Replace("https://", "").Replace("http://", "") : x.Title).Trim() });
+                    result.Add(new OrderByExpression<Profile>() { Expression = x => x.Namespace.Replace("https://", "").Replace("http://", "").Trim() });
                     result.Add(new OrderByExpression<Profile>() { Expression = x => x.PublishDate, IsDescending = true });
                     break;
                 //case SearchCriteriaSortByEnum.Popular:
                 //case SearchCriteriaSortByEnum.Name:
                 default:
-                    result.Add(new OrderByExpression<Profile>() { Expression = x => x.Namespace });
+                    result.Add(new OrderByExpression<Profile>() { Expression = x => (string.IsNullOrEmpty(x.Title) ? 
+                            x.Namespace.Replace("https://", "").Replace("http://", "") : x.Title).Trim() });
+                    result.Add(new OrderByExpression<Profile>() { Expression = x => x.Namespace.Replace("https://", "").Replace("http://", "").Trim() });
                     result.Add(new OrderByExpression<Profile>() { Expression = x => x.PublishDate, IsDescending = true });
                     break;
             }
@@ -896,146 +900,6 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             }
         }
 
-        /// <summary>
-        /// Publishes a profile to the Cloud Library 
-        /// </summary>
-        /// <param name="model"></param>
-        /// <returns></returns>
-        [HttpPost, Route("cloudlibrary/publishcancel")]
-        [ProducesResponseType(200, Type = typeof(ResultMessageWithDataModel))]
-        public async Task<IActionResult> CancelPublishToCloudLibrary([FromBody] IdIntModel model)
-        {
-            if (model == null)
-            {
-                _logger.LogWarning("ProfileController|CancelPublishToCloudLibrary|Invalid model");
-                return BadRequest("Profile|CloudLibrary||PublishCancel|Invalid model");
-            }
-
-            try
-            {
-                var profile = _dal.GetById(model.ID, base.DalUserToken);
-                if (profile == null)
-                {
-                    _logger.LogWarning($"ProfileController|CancelPublishToCloudLibrary|Failed to cancel : {model.ID}. Profile not found.");
-                    return Ok(
-                        new ResultMessageWithDataModel()
-                        {
-                            IsSuccess = false,
-                            Message = "Profile not found."
-                        }
-                    );
-                }
-
-                try
-                {
-                    var updatedProfile = await _cloudLibDal.UpdateApprovalStatusAsync(profile.CloudLibraryId, "CANCELED", $"Canceled by user {DalUserToken.UserId}");
-                    if (updatedProfile == null || updatedProfile.CloudLibApprovalStatus == null || updatedProfile.CloudLibApprovalStatus == "CANCELED")
-                    {
-                        profile.CloudLibraryId = null;
-                        profile.CloudLibPendingApproval = null;
-                        await _dal.UpdateAsync(profile, base.DalUserToken);
-                    }
-                    else
-                    {
-                        _logger.LogWarning($"ProfileController|CancelPublishToCloudLibrary|Failed to cancel : {model.ID}. Status Update failed.");
-                        return Ok(
-                            new ResultMessageWithDataModel()
-                            {
-                                IsSuccess = false,
-                                Message = "Status update failed."
-                            }
-                        );
-
-                    }
-                }
-                catch (UploadException ex)
-                {
-                    _logger.LogError($"ProfileController|CancelPublishToCloudLibrary|Failed to cancel publish request to Cloud Library: {model.ID} {ex.Message}.");
-                    return Ok(
-                        new ResultMessageWithDataModel()
-                        {
-                            IsSuccess = false,
-                            Message = ex.Message,
-                        }
-                    );
-                }
-
-                return Ok(
-                    new ResultMessageWithDataModel()
-                    {
-                        IsSuccess = true,
-                        Message = "Canceled publish request.",
-                    }
-                );
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"ProfileController|CancelPublishToCloudLibrary|Failed to cancel publish request to Cloud Library: {model.ID} {ex.Message}.");
-                return Ok(
-                    new ResultMessageWithDataModel()
-                    {
-                        IsSuccess = false,
-                        Message = "Error canceling publish request."
-                    }
-                );
-            }
-        }
-
-
-        /// <summary>
-        /// Search profiles library for profiles matching criteria passed in. This is a simple search field and 
-        /// this will check against several profile fields and return results. 
-        /// </summary>
-        /// <remarks>Items in profiles library will not have an author id</remarks>
-        /// <param name="model"></param>
-        /// <returns></returns>
-        [HttpPost, Route("cloudlibrary/pendingApprovals")]
-        [ProducesResponseType(200, Type = typeof(DALResult<CloudLibProfileModel>))]
-        public async Task<IActionResult> GetCloudLibraryPendingApprovals([FromBody] CloudLibFilterModel model)
-        {
-            if (model == null)
-            {
-                _logger.LogWarning("ProfileController|GetCloudLibraryPendingApprovals|Invalid model");
-                return BadRequest("Profile|pendingApprovals|Invalid model");
-            }
-
-            if (!string.IsNullOrEmpty(model.Query))
-            {
-                _logger.LogWarning("ProfileController|GetCloudLibraryPendingApprovals|Query not supported");
-                return BadRequest("Profile|pendingApprovals|Query not supported");
-            }
-            if (model.Filters?.Any() == true)
-            {
-                _logger.LogWarning("ProfileController|GetCloudLibraryPendingApprovals|Filters not supported");
-                return BadRequest("Profile|pendingApprovals|Filters not supported");
-            }
-
-            try
-            {
-                // Get profiles submitted by this user from the cloudlib
-                var cloudResultPage = await _cloudLibDal.GetNodeSetsPendingApprovalAsync(model.Take, model.Cursor, model.PageBackwards, additionalProperty: new AdditionalProperty { Name = ICloudLibDal<CloudLibProfileModel>.strCESMIIUserInfo, Value = $"PD{base.DalUserToken.UserId}" });
-
-                if (cloudResultPage.Edges.Count > model.Take)
-                {
-                    _logger.LogWarning($"ProfileController|GetCloudLibraryPendingApprovals|Received more profiles than requested: {cloudResultPage.Edges.Count}, expected {model.Take}.");
-                }
-                var dalResult = new DALResult<CloudLibProfileModel>
-                {
-                    Count = cloudResultPage.TotalCount,
-                    Data = cloudResultPage.Nodes.ToList(),
-                    StartCursor = cloudResultPage.PageInfo.StartCursor,
-                    EndCursor = cloudResultPage.PageInfo.EndCursor,
-                    HasNextPage = cloudResultPage.PageInfo.HasNextPage,
-                    HasPreviousPage = cloudResultPage.PageInfo.HasPreviousPage,
-                };
-                return Ok(dalResult);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"ProfileController|GetCloudLibraryPendingApprovals|Exception: {ex.Message}.");
-                return StatusCode(500, "Error processing query.");
-            }
-        }
 
         /// <summary>
         /// Get an all profile count and a count of my profiles. 

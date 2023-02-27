@@ -47,8 +47,8 @@ function AdminCloudLibApprovalRow(props) {
         return (
             <div className={`${className} ml-auto d-inline-flex justify-content-end align-items-center`} >
                 <Dropdown className="" onClick={(e) => e.stopPropagation()} >
-                    <Dropdown.Toggle drop="left" title="Actions" variant="tertiary" className="d-flex align-items-center" >
-                        {renderProfilePublishStatus(props.item, '', '(Change)', 'mr-1')}
+                    <Dropdown.Toggle drop="left" title="Click to change" variant="tertiary" className="d-flex align-items-center" >
+                        {renderProfilePublishStatus(props.item, '', '', 'mr-1')}
                     </Dropdown.Toggle>
                     <Dropdown.Menu>
                         {(props.item.profileState === AppSettings.ProfileStateEnum.CloudLibPending ||

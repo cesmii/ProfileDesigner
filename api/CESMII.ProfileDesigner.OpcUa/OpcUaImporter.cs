@@ -174,7 +174,15 @@ namespace CESMII.ProfileDesigner.OpcUa
                     {
                         foreach (var tmodel in cachedNodeSetFiles.Models)
                         {
-                            var profile = FindOrCreateProfileForNodeSet(tmodel, _profileDal, userToken, logId, sw, allowMultiVersion);
+                            string cloudLibId = null;
+                            if (nodeSetXmlList.Count == 1 && nodeSetXmlList[0].CloudLibraryId != null)
+                            {
+                                if (tmodel.RequestedForThisImport)
+                                {
+                                    cloudLibId = nodeSetXmlList[0].CloudLibraryId;
+                                }
+                            }
+                            var profile = FindOrCreateProfileForNodeSet(tmodel, cloudLibId, _profileDal, userToken, logId, sw, allowMultiVersion);
                             profilesAndNodeSets.Add(new ProfileModelAndNodeSet
                             {
                                 Profile = profile, // TODO use the nodesetfile instead
@@ -313,7 +321,7 @@ namespace CESMII.ProfileDesigner.OpcUa
             return (_dal as ProfileTypeDefinitionDAL).UpgradeToProfileAsync(profile, _ptAnalyticsRepo, _ptFavoritesRepo, _dtRankRepo);
         }
 
-        private ProfileModel FindOrCreateProfileForNodeSet(ModelValue tModel, IDal<Profile, ProfileModel> dalProfile, UserToken userToken, int logId, Stopwatch sw, bool allowMultiVersion)
+        private ProfileModel FindOrCreateProfileForNodeSet(ModelValue tModel, string cloudLibId, IDal<Profile, ProfileModel> dalProfile, UserToken userToken, int logId, Stopwatch sw, bool allowMultiVersion)
         {
             var nsModel = tModel.NameVersion.CCacheId as NodeSetFileModel;
             _logger.LogTrace($"Timestamp||ImportId:{logId}||Loading nodeset {tModel.NameVersion.ModelUri}: {sw.Elapsed}");
@@ -330,18 +338,26 @@ namespace CESMII.ProfileDesigner.OpcUa
                 {
                     throw new Exception($"Profile {tModel.NameVersion.ModelUri} already has version {otherProfileVersion.Version} {otherProfileVersion.PublishDate}. Can not import {tModel.NameVersion.ModelVersion} {tModel.NameVersion.PublicationDate}");
                 }
-                var cloudLibNodeSet = _cloudLibDal.GetAsync(tModel.NameVersion.ModelUri, tModel.NameVersion.PublicationDate, true).Result;
+                CloudLibProfileModel cloudLibNodeSet = null;
+                if (cloudLibId != null)
+                {
+                    cloudLibNodeSet = _cloudLibDal.GetById(cloudLibId).Result;
+                }
                 if (cloudLibNodeSet == null)
                 {
-                    // No exact match: use a newer one to prevent editing of older nodesets
-                    cloudLibNodeSet = _cloudLibDal.GetAsync(tModel.NameVersion.ModelUri, tModel.NameVersion.PublicationDate, false).Result;
-                    if (cloudLibNodeSet != null)
+                    cloudLibNodeSet = _cloudLibDal.GetAsync(tModel.NameVersion.ModelUri, tModel.NameVersion.PublicationDate, true).Result;
+                    if (cloudLibNodeSet == null)
                     {
-                        _logger.LogWarning($"Did not find exact match for {tModel.NameVersion}. Using standard nodeset with publication date {cloudLibNodeSet?.PublishDate} instead.");
-                    }
-                    else
-                    {
-                        _logger.LogWarning($"Did not find newer version for {tModel.NameVersion}. Not treating as standard node set to allow editing of future versions.");
+                        // No exact match: use a newer one to prevent editing of older nodesets
+                        cloudLibNodeSet = _cloudLibDal.GetAsync(tModel.NameVersion.ModelUri, tModel.NameVersion.PublicationDate, false).Result;
+                        if (cloudLibNodeSet != null)
+                        {
+                            _logger.LogWarning($"Did not find exact match for {tModel.NameVersion}. Using standard nodeset with publication date {cloudLibNodeSet?.PublishDate} instead.");
+                        }
+                        else
+                        {
+                            _logger.LogWarning($"Did not find newer version for {tModel.NameVersion}. Not treating as standard node set to allow editing of future versions.");
+                        }
                     }
                 }
 

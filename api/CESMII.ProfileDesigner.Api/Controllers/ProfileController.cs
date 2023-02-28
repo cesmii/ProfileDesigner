@@ -710,6 +710,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                     {
                         Data = nodeSetToImport.NodesetXml,
                         FileName = nodeSetToImport.Namespace,
+                        CloudLibraryId = nodeSetToImport.CloudLibraryId,
                     };
                     importModels.Add(importModel);
                 }
@@ -866,7 +867,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 }
 
                 // notify recipient of new profile to review
-                _cloudLibUtil.EmailPublishNotification(profile, LocalUser );
+                _ = _cloudLibUtil.EmailPublishNotification(profile, LocalUser ); // Run asynchronously
 
                 return new ResultMessageWithDataModel()
                 {

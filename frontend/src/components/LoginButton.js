@@ -41,7 +41,7 @@ function LoginButton() {
     //}
 
     return (
-        <div className="elevated mx-3 card mt-5">
+        <div className="elevated mx-3 card mt-3 mt-md-5">
             <div className="card-body">
             <h2 className="text-center mb-3">Returning Users</h2>
             <div className="d-flex mt-auto mx-auto">

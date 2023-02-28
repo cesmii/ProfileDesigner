@@ -33,7 +33,7 @@ export const WizardSettings = {
         {
             modeId: 3, items: [
                 { pageId: 'Welcome', stepNum: 0, caption: 'Start Over', href: '/wizard/welcome' },
-                { pageId: 'SelectExistingProfile', stepNum: 1, caption: 'Select Existing Profile', captionNext: `Next`, href: '/wizard/select-profile' },
+                { pageId: 'SelectExistingProfile', stepNum: 1, caption: 'Select Existing Profile', captionNext: `Next`, href: '/wizard/select-existing-profile' },
                 { pageId: 'FilterProfile', stepNum: 2, caption: 'Select Profile Filter(s)', captionNext: `Next`, href: '/wizard/filter-profile' },
                 { pageId: 'SelectBaseType', stepNum: 3, caption: 'Select Base Type To Extend', captionNext: `Next`, href: '/wizard/select-base-type' },
                 { pageId: 'ExtendBaseType', stepNum: 4, caption: 'Extend Base Type & Save', href: null }

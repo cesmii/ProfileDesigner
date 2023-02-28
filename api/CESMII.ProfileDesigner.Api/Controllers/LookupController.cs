@@ -172,7 +172,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                         new LookupItemFilterModel()
                         {
                             ID = (int)ProfileSearchCriteriaSourceEnum.BaseProfile,
-                            Name = "Base Profiles",
+                            Name = "Cloud Profiles", //could be published or pending and some may not be considered base //"Base Profiles",
                             Selected = false,
                             Visible = true
                         },

@@ -382,7 +382,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
             {
                 if (objectOrTypeModel is InstanceModelBase instanceModel)
                 {
-                    instanceModel.ModelingRule = modelingRule;
+                    instanceModel.ModellingRule = modelingRule;
                     return instanceModel;
                 }
                 return objectOrTypeModel;
@@ -399,7 +399,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
                         objectModel.SymbolicName = objectTypeRelated.SymbolicName;
                         objectModel.BrowseName = objectTypeRelated.BrowseName;
                         objectModel.TypeDefinition = objectTypeModel;
-                        objectModel.ModelingRule = modelingRule;
+                        objectModel.ModellingRule = modelingRule;
                     }
                     return objectModel;
                 }
@@ -485,7 +485,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
                 {
 
                 }
-                variableModel.ModelingRule = GetModelingRuleFromProfile(attribute.IsRequired, attribute.ModelingRule);
+                variableModel.ModellingRule = GetModelingRuleFromProfile(attribute.IsRequired, attribute.ModelingRule);
                 if (attribute.ValueRank != null)
                 {
                     variableModel.ValueRank = attribute.ValueRank;
@@ -521,10 +521,10 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
                     };
                 }
                 variableModel.EngUnitNodeId = attribute.EngUnitOpcNodeId;
-                variableModel.EngUnitModelingRule = attribute.EngUnitModelingRule;
+                variableModel.EngUnitModellingRule = attribute.EngUnitModelingRule;
                 variableModel.EngUnitAccessLevel = attribute.EngUnitAccessLevel;
                 variableModel.EURangeNodeId = attribute.EURangeOpcNodeId;
-                variableModel.EURangeModelingRule = attribute.EURangeModelingRule;
+                variableModel.EURangeModellingRule = attribute.EURangeModelingRule;
                 variableModel.EURangeAccessLevel = attribute.EURangeAccessLevel;
 
                 variableModel.MinValue = (double?)attribute.MinValue;
@@ -572,7 +572,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
                         dataVariable.Value = mapEntry.Value;
                         dataVariable.ValueRank = mapEntry.ValueRank;
                         dataVariable.Parent = variableModel;
-                        dataVariable.ModelingRule = mapEntry.ModelingRule;
+                        dataVariable.ModellingRule = mapEntry.ModelingRule;
                         dataVariable.AccessLevel = typeDataVariable.AccessLevel;
                         // deprecated dataVariable.UserAccessLevel = typeDataVariable.UserAccessLevel;
                         dataVariable.AccessRestrictions = typeDataVariable.AccessRestrictions;

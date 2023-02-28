@@ -189,11 +189,13 @@ a {
 }
 
 .favorite {
-    color: color("forestGreen");
+    color: color("cardinal");
 
     &:hover {
-        color: color("forestGreen");
+        color: color("cardinal");
+        fill: color("cardinal");
         opacity: 0.8;
+        cursor: pointer;
     }
 }
 
@@ -365,6 +367,16 @@ option.selected {
         background-color: color("cararra");
         color: color("textPrimary");
     }
+
+    &.auto-width {
+        min-width: unset;
+        white-space: nowrap;
+    }
+
+    &.med-width {
+        width: 165px;
+        min-width: 165px;
+    }
 }
 
 .btn-text-solo {
@@ -379,7 +391,7 @@ option.selected {
     }
 }
 
-.btn-primary, .btn-secondary {
+.btn-primary, .btn-secondary, .btn-tertiary {
     color: white;
     font-weight: 700;
     line-height: 20px;
@@ -394,6 +406,15 @@ option.selected {
 
     &.dropdown-toggle {
         font-weight: normal;
+    }
+}
+
+
+.btn-tertiary {
+    color: color('shark');
+
+    &:focus{
+        box-shadow: none !important;
     }
 }
 
@@ -550,8 +571,8 @@ option.selected {
 }
 
 .btn-square.favorite svg.selected {
-    color: color("forestGreen");
-    fill: color("forestGreen");
+    color: color("cardinal");
+    fill: color("cardinal");
 }
 
 .btn-auto {
@@ -725,4 +746,5 @@ select.minimal:focus {
 @import "./components/styles/HexOpacityValues";
 /// IMPORT GLOBAL SCSS FILES
 @import "./components/styles/ActionMenu.scss";
+@import "./components/styles/CloudLibActionMenu.scss";
 @import "./components/styles/ImportMenu.scss";

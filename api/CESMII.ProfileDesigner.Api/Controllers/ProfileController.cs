@@ -1,18 +1,17 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 using System.Globalization;
 using System.Linq.Expressions;
 
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
+
 using Opc.Ua.Cloud.Library.Client;
 
 using CESMII.ProfileDesigner.OpcUa.AASX;
@@ -25,11 +24,11 @@ using CESMII.ProfileDesigner.DAL.Models;
 using CESMII.ProfileDesigner.Data.Entities;
 using CESMII.ProfileDesigner.Data.Extensions;
 using CESMII.ProfileDesigner.OpcUa;
+using CESMII.ProfileDesigner.Api.Utils;
+
 using CESMII.OpcUa.NodeSetImporter;
-using Opc.Ua.Export;
-using CESMII.OpcUa.NodeSetModel;
 using CESMII.OpcUa.NodeSetModel.Factory.Smip;
-using Newtonsoft.Json;
+using CESMII.Common.CloudLibClient;
 
 namespace CESMII.ProfileDesigner.Api.Controllers
 {
@@ -38,29 +37,33 @@ namespace CESMII.ProfileDesigner.Api.Controllers
     {
         private readonly IDal<Profile, ProfileModel> _dal;
         private readonly ICloudLibDal<CloudLibProfileModel> _cloudLibDal;
+        private readonly CloudLibraryUtil _cloudLibUtil;
 
         private readonly Utils.ImportService _svcImport;
         private readonly OpcUaImporter _exporter;
+        private readonly List<string> _permissibleLicenses = new() { "MIT", "GPL-2.0" };
 
         public ProfileController(IDal<Profile, ProfileModel> dal,
             ICloudLibDal<CloudLibProfileModel> cloudLibDal,
             UserDAL dalUser,
             Utils.ImportService svcImport,
             OpcUaImporter exporter,
-            ConfigUtil config, ILogger<ProfileController> logger)
+            ConfigUtil config, ILogger<ProfileController> logger,
+            CloudLibraryUtil cloudLibUtil)
             : base(config, logger, dalUser)
         {
             _dal = dal;
             _cloudLibDal = cloudLibDal;
             _svcImport = svcImport;
             _exporter = exporter;
+            _cloudLibUtil = cloudLibUtil;
         }
 
         [HttpPost, Route("GetByID")]
         //[ProducesResponseType(200, Type = typeof(NodeSetModel))]
         [ProducesResponseType(200, Type = typeof(ProfileTypeDefinitionModel))]
         [ProducesResponseType(400)]
-        public IActionResult GetByID([FromBody] IdIntModel model)
+        public async Task<IActionResult> GetByID([FromBody] IdIntModel model)
         {
             if (model == null)
             {
@@ -74,6 +77,11 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 _logger.LogWarning($"ProfileController|GetById|No records found matching this ID: {model.ID}");
                 return BadRequest($"No records found matching this ID: {model.ID}");
             }
+
+            //query cloud lib to get the approval status of this item.
+            var containerTemp = new List<ProfileModel>() { result };
+            await UpdateCloudLibraryStatus(containerTemp, false);
+
             return Ok(result);
         }
 
@@ -90,7 +98,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         [HttpPost, Route("GetByCloudLibId")]
         [ProducesResponseType(200, Type = typeof(ProfileModel))]
         [ProducesResponseType(400)]
-        public IActionResult GetByCloudLibId([FromBody] IdStringModel model)
+        public async Task<IActionResult> GetByCloudLibId([FromBody] IdStringModel model)
         {
             if (model == null)
             {
@@ -98,12 +106,16 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 return BadRequest($"Invalid model (null)");
             }
 
-            var result = _dal.Where(x => x.StandardProfile != null && x.StandardProfile.CloudLibraryId.Equals(model.ID), 
+            var result = _dal.Where(x => x.CloudLibraryId.Equals(model.ID),
                 base.DalUserToken, null, null, false, true).Data;
             if (result == null || result.Count == 0)
             {
                 return Ok(null);
             }
+
+            //query cloud lib to get the approval status of this item.
+            await UpdateCloudLibraryStatus(result, true);
+
             return Ok(result.FirstOrDefault());
         }
 
@@ -126,13 +138,13 @@ namespace CESMII.ProfileDesigner.Api.Controllers
 
             if (string.IsNullOrEmpty(model.Query))
             {
-                return Ok(_dal.Where(s => !s.StandardProfileID.HasValue /*&& s.AuthorId.HasValue && s.AuthorId.Value.Equals(userId)*/,
+                return Ok(_dal.Where(s => string.IsNullOrEmpty(s.CloudLibraryId) /*&& s.AuthorId.HasValue && s.AuthorId.Value.Equals(userId)*/,
                                 base.DalUserToken, model.Skip, model.Take, true));
             }
 
             model.Query = model.Query.ToLower();
             var result = _dal.Where(s =>
-                            !s.StandardProfileID.HasValue && /*s.AuthorId.HasValue && s.AuthorId.Value.Equals(userId) &&*/
+                            string.IsNullOrEmpty(s.CloudLibraryId) && /*s.AuthorId.HasValue && s.AuthorId.Value.Equals(userId) &&*/
                             //string query section
                             (s.Namespace.ToLower().Contains(model.Query)
                             //|| (s.Author != null && (s.Author.FirstName.ToLower() + s.Author.LastName.ToLower()).Contains(
@@ -151,7 +163,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         /// <returns></returns>
         [HttpPost, Route("library")]
         [ProducesResponseType(200, Type = typeof(DALResult<ProfileModel>))]
-        public IActionResult GetLibrary([FromBody] ProfileTypeDefFilterModel model)
+        public async Task<IActionResult> GetLibraryAsync([FromBody] ProfileTypeDefFilterModel model)
         {
             if (model == null)
             {
@@ -159,7 +171,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 return BadRequest("Profile|Library|Invalid model");
             }
 
-            return Ok(SearchProfiles(model));
+            return Ok(await SearchProfilesAsync(model));
         }
 
         #region Search Helper Functions
@@ -168,11 +180,13 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
-        private DALResult<ProfileModel> SearchProfiles([FromBody] ProfileTypeDefFilterModel model)
+        private async Task<DALResult<ProfileModel>> SearchProfilesAsync([FromBody] ProfileTypeDefFilterModel model)
         {
             //search on some pre-determined fields
             var orderByExprs = BuildSearchOrderByExpressions(LocalUser.ID.Value, model.SortByEnum);
             var result = _dal.Where(BuildPredicate(model, base.DalUserToken), base.DalUserToken, model.Skip, model.Take, true, false, orderByExprs.ToArray());
+
+            await UpdateCloudLibraryStatus(result?.Data, true);  //refresh all in case cloud library changed status of prev approved outside of Profile Designer
 
             return new DALResult<ProfileModel>()
             {
@@ -180,6 +194,89 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 Data = result.Data,
                 SummaryData = result.SummaryData
             };
+        }
+
+        private async Task UpdateCloudLibraryStatus(List<ProfileModel> profiles, bool refreshAll)
+        {
+            if (refreshAll || profiles?.Any(p => p.CloudLibPendingApproval == true) == true)
+            {
+                List<CloudLibProfileModel> pendingNodesets = new();
+                try
+                {
+                    string cursor = null;
+                    do
+                    {
+                        var cloudResultPage = await _cloudLibDal.GetNodeSetsPendingApprovalAsync(100, cursor, false, additionalProperty: new AdditionalProperty { Name = ICloudLibDal<CloudLibProfileModel>.strCESMIIUserInfo, Value = $"PD{base.DalUserToken.UserId}" });
+                        pendingNodesets.AddRange(cloudResultPage.Nodes);
+                        cursor = cloudResultPage.PageInfo.HasNextPage ? cloudResultPage.PageInfo.EndCursor : null;
+                    }
+                    while (cursor != null);
+                    if (pendingNodesets?.Any() == true)
+                    {
+                        foreach (var clProfile in pendingNodesets)
+                        {
+                            var profile = profiles.FirstOrDefault(p => p.CloudLibraryId == clProfile.CloudLibraryId);
+                            if (profile != null)
+                            {
+                                profile.CloudLibApprovalStatus = clProfile.CloudLibApprovalStatus;
+                                profile.CloudLibApprovalDescription = clProfile.CloudLibApprovalDescription;
+                                if (profile.CloudLibPendingApproval == false)
+                                {
+                                    profile.CloudLibPendingApproval = true;
+                                    await _dal.UpdateAsync(profile, base.DalUserToken);
+                                }
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error retrieving cloud library approval status");
+                    pendingNodesets = null;
+                }
+                try
+                {
+                    foreach (var profile in profiles.Where(p => p.CloudLibPendingApproval == true))
+                    {
+                        if (pendingNodesets == null)
+                        {
+                            profile.CloudLibApprovalStatus = "UNKNOWN";
+                        }
+                        else if (!pendingNodesets.Any(p => p.CloudLibraryId == profile.CloudLibraryId))
+                        {
+                            try
+                            {
+                                var cloudLibProfile = await _cloudLibDal.GetById(profile.CloudLibraryId);
+                                if (cloudLibProfile == null)
+                                {
+                                    profile.CloudLibPendingApproval = false;
+                                    profile.CloudLibraryId = null;
+                                    await _dal.UpdateAsync(profile, base.DalUserToken);
+                                }
+                                else
+                                {
+                                    profile.CloudLibApprovalStatus = cloudLibProfile.CloudLibApprovalStatus;
+                                    profile.CloudLibApprovalDescription = cloudLibProfile.CloudLibApprovalDescription;
+                                    if (cloudLibProfile.CloudLibApprovalStatus == "APPROVED")
+                                    {
+                                        profile.CloudLibPendingApproval = false;
+                                        await _dal.UpdateAsync(profile, base.DalUserToken);
+                                    }
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                _logger.LogError(ex, $"Error retrieving cloud library approval status for {profile}");
+                                profile.CloudLibApprovalStatus = "UNKNOWN";
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, $"Internal Error updating cloud library approval status");
+                }
+            }
         }
 
         private List<OrderByExpression<Profile>> BuildSearchOrderByExpressions(int userId, SearchCriteriaSortByEnum val = SearchCriteriaSortByEnum.Name)
@@ -191,17 +288,27 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 case SearchCriteriaSortByEnum.Author:
                     result.Add(new OrderByExpression<Profile>()
                     {
-                        Expression = x => !x.StandardProfileID.HasValue &&
+                        Expression = x => string.IsNullOrEmpty(x.CloudLibraryId) &&
                             x.AuthorId.HasValue && x.AuthorId.Equals(userId) ? 1 : 0,
                         IsDescending = true
                     });
-                    result.Add(new OrderByExpression<Profile>() { Expression = x => x.Namespace });
+                    result.Add(new OrderByExpression<Profile>()
+                    {
+                        Expression = x => (string.IsNullOrEmpty(x.Title) ?
+                            x.Namespace.Replace("https://", "").Replace("http://", "") : x.Title).Trim()
+                    });
+                    result.Add(new OrderByExpression<Profile>() { Expression = x => x.Namespace.Replace("https://", "").Replace("http://", "").Trim() });
                     result.Add(new OrderByExpression<Profile>() { Expression = x => x.PublishDate, IsDescending = true });
                     break;
                 //case SearchCriteriaSortByEnum.Popular:
                 //case SearchCriteriaSortByEnum.Name:
                 default:
-                    result.Add(new OrderByExpression<Profile>() { Expression = x => x.Namespace });
+                    result.Add(new OrderByExpression<Profile>()
+                    {
+                        Expression = x => (string.IsNullOrEmpty(x.Title) ?
+                            x.Namespace.Replace("https://", "").Replace("http://", "") : x.Title).Trim()
+                    });
+                    result.Add(new OrderByExpression<Profile>() { Expression = x => x.Namespace.Replace("https://", "").Replace("http://", "").Trim() });
                     result.Add(new OrderByExpression<Profile>() { Expression = x => x.PublishDate, IsDescending = true });
                     break;
             }
@@ -234,14 +341,14 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 {
                     if (f.ID == (int)ProfileSearchCriteriaSourceEnum.Mine)
                     {
-                        Expression<Func<Profile, bool>> fnMine = x => !x.StandardProfileID.HasValue
-                            && x.AuthorId.Value.Equals(f.ID.Value);
+                        Expression<Func<Profile, bool>> fnMine = x => string.IsNullOrEmpty(x.CloudLibraryId)
+                            && x.AuthorId.Value.Equals(userToken.UserId);
                         predSource = predSource == null ? fnMine : predSource.OrExtension(fnMine);
                     }
                     else if (f.ID == (int)ProfileSearchCriteriaSourceEnum.BaseProfile)
                     {
-                        Expression<Func<Profile, bool>> fnMine = x => x.StandardProfileID.HasValue;
-                        predSource = predSource == null ? fnMine : predSource.OrExtension(fnMine);
+                        Expression<Func<Profile, bool>> fnBase = x => !string.IsNullOrEmpty(x.CloudLibraryId);
+                        predSource = predSource == null ? fnBase : predSource.OrExtension(fnBase);
                     }
                 }
                 //append to predicate list
@@ -401,7 +508,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                                     // owned profiles first when excluding and adding
                                     orderBy.Insert(0, new OrderByExpression<Profile>
                                     {
-                                        Expression = p => !p.AuthorId.HasValue || p.StandardProfileID.HasValue,
+                                        Expression = p => !p.AuthorId.HasValue || !string.IsNullOrEmpty(p.CloudLibraryId),
                                         IsDescending = false,
                                     });
                                 }
@@ -430,7 +537,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                                     : allLocalProfiles.OrderBy(pm => pm.Namespace).ThenBy(pm => pm.PublishDate)
                                 )
                                 .Skip(localCursor));
-                            totalCount += allLocalProfiles.Count(p => string.IsNullOrEmpty(p.StandardProfile?.CloudLibraryId));
+                            totalCount += allLocalProfiles.Count(p => string.IsNullOrEmpty(p.CloudLibraryId));
                         }
                     }
                     else
@@ -537,12 +644,6 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                     // Add in local profile information
                     // TODO handle different publication dates between cloudlib and local library
                     cloudLibProfile.ID = localProfile.ID;
-                    if (cloudLibProfile.StandardProfileID != localProfile.StandardProfileID)
-                    {
-                        // TODO: inconsistency in DB?
-                    }
-                    cloudLibProfile.StandardProfile = localProfile.StandardProfile;
-                    cloudLibProfile.StandardProfileID = localProfile.StandardProfileID;
                     cloudLibProfile.AuthorId = localProfile.AuthorId;
                     cloudLibProfile.ImportWarnings = localProfile.ImportWarnings;
                     cloudLibProfile.NodeSetFiles = localProfile.NodeSetFiles;
@@ -609,6 +710,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                     {
                         Data = nodeSetToImport.NodesetXml,
                         FileName = nodeSetToImport.Namespace,
+                        CloudLibraryId = nodeSetToImport.CloudLibraryId,
                     };
                     importModels.Add(importModel);
                 }
@@ -628,6 +730,161 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             return await Import(importModels);
         }
 
+        /// <summary>
+        /// Publishes a profile to the Cloud Library 
+        /// This endpoint accepts the profile id and will look up the profile in the DB.
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [HttpPost, Route("cloudlibrary/publish")]
+        [ProducesResponseType(200, Type = typeof(ResultMessageWithDataModel))]
+        public async Task<IActionResult> PublishToCloudLibrary([FromBody] IdIntModel model)
+        {
+            if (model == null)
+            {
+                _logger.LogWarning("ProfileController|PublishToCloudLibrary|Invalid model");
+                return BadRequest("Profile|CloudLibrary||Publish|Invalid model");
+            }
+
+            var profile = _dal.GetById(model.ID, base.DalUserToken);
+            if (profile == null)
+            {
+                _logger.LogWarning($"ProfileController|PublishToCloudLibrary|Failed to publish : {model.ID}. Profile not found.");
+                return Ok(
+                    new ResultMessageWithDataModel()
+                    {
+                        IsSuccess = false,
+                        Message = "Profile not found."
+                    }
+                );
+            }
+
+            return Ok(await PublishToCloudLibrary(profile));
+        }
+
+        /// <summary>
+        /// Save the current model and then publish to CloudLib
+        /// Publishes a profile to the Cloud Library. 
+        /// This endpoint accepts the entire profile model.
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [HttpPost, Route("cloudlibrary/saveandpublish")]
+        [ProducesResponseType(200, Type = typeof(ResultMessageWithDataModel))]
+        public async Task<IActionResult> SaveAndPublishToCloudLibrary([FromBody] ProfileModel model)
+        {
+            if (model == null)
+            {
+                _logger.LogWarning("ProfileController|PublishToCloudLibrary|Invalid model");
+                return BadRequest("Profile|CloudLibrary||Publish|Invalid model");
+            }
+
+            //first do the save and then do the publish. if save fails, return that result and end
+            ResultMessageWithDataModel resultSave = await UpdateCommon(model);
+            if (!resultSave.IsSuccess) return Ok(resultSave);
+
+            //now do the publish
+            return Ok(await PublishToCloudLibrary(model));
+        }
+
+        /// <summary>
+        /// Publishes a profile to the Cloud Library. 
+        /// This endpoint accepts the entire profile model.
+        /// </summary>
+        /// <remarks>Save optional depending on caller</remarks>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        private async Task<ResultMessageWithDataModel> PublishToCloudLibrary(ProfileModel model)
+        {
+            try
+            {
+                var profile = _dal.GetById(model.ID.Value, base.DalUserToken);
+                if (profile == null)
+                {
+                    _logger.LogWarning($"ProfileController|PublishToCloudLibrary|Failed to publish : {model.ID.Value}. Profile not found.");
+                    return new ResultMessageWithDataModel()
+                    {
+                        IsSuccess = false,
+                        Message = "Profile not found."
+                    };
+                }
+
+                if (!_permissibleLicenses.Contains(profile.License))
+                {
+                    return new ResultMessageWithDataModel()
+                    {
+                        IsSuccess = false,
+                        Message = $"License must be {string.Join(" or ", _permissibleLicenses)}."
+                    };
+
+                }
+
+                var exportResult = await Export(new ExportRequestModel { ID = model.ID.Value }).ConfigureAwait(false);
+                var exportedNodeSet = (exportResult as OkObjectResult)?.Value as ResultMessageExportModel;
+                if (exportedNodeSet == null || !exportedNodeSet.IsSuccess)
+                {
+                    _logger.LogWarning($"ProfileController|PublishToCloudLibrary|Failed to export : {model.ID}.");
+                    return new ResultMessageWithDataModel()
+                    {
+                        IsSuccess = false,
+                        Message = "Failed to export."
+                    };
+                }
+                var cloudLibProfile = CloudLibProfileModel.MapFromProfile(profile);
+
+                // Add profile designer user information to the profile
+                //Todo: Just user LocalUser which already has this info
+                var user = _dalUser.GetById(base.DalUserToken.UserId, base.DalUserToken);
+                if (cloudLibProfile.AdditionalProperties == null)
+                {
+                    cloudLibProfile.AdditionalProperties = new();
+                }
+                // TODO: remove email/displayname once we have CloudLib admin UI
+                var userInfoProp = new AdditionalProperty
+                {
+                    Name = ICloudLibDal<CloudLibProfileModel>.strCESMIIUserInfo,
+                    Value = $"{user.Email}, {user.DisplayName}, {user.ObjectIdAAD}, PD{base.DalUserToken.UserId}",
+                };
+                cloudLibProfile.AdditionalProperties.RemoveAll(p => p.Name == userInfoProp.Name);
+                cloudLibProfile.AdditionalProperties.Add(userInfoProp);
+
+                try
+                {
+                    var cloudLibId = await _cloudLibDal.UploadAsync(cloudLibProfile, exportedNodeSet.Data as string);
+
+                    profile.CloudLibraryId = cloudLibId;
+                    profile.CloudLibPendingApproval = true;
+                    await _dal.UpdateAsync(profile, base.DalUserToken);
+                }
+                catch (UploadException ex)
+                {
+                    _logger.LogError($"ProfileController|PublishToCloudLibrary|Failed to publish to Cloud Library: {model.ID.Value} {ex.Message}.");
+                    return new ResultMessageWithDataModel()
+                    {
+                        IsSuccess = false,
+                        Message = ex.Message,
+                    };
+                }
+
+                // notify recipient of new profile to review
+                _ = _cloudLibUtil.EmailPublishNotification(profile, LocalUser ); // Run asynchronously
+
+                return new ResultMessageWithDataModel()
+                {
+                    IsSuccess = true,
+                    Message = "Published to Cloud Library, pending approval.",
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"ProfileController|PublishToCloudLibrary|Failed to publish to Cloud Library: {model.ID} {ex.Message}.");
+                return new ResultMessageWithDataModel()
+                {
+                    IsSuccess = false,
+                    Message = ex.Message
+                };
+            }
+        }
 
 
         /// <summary>
@@ -639,8 +896,8 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         [ProducesResponseType(400)]
         public IActionResult GetCounts()
         {
-            var all = _dal.Count(s => s.StandardProfileID.HasValue, base.DalUserToken);
-            var mine = _dal.Count(s => !s.StandardProfileID.HasValue && s.AuthorId.HasValue && s.AuthorId.Value.Equals(DalUserToken.UserId), base.DalUserToken);
+            var all = _dal.Count(s => !string.IsNullOrEmpty(s.CloudLibraryId), base.DalUserToken);
+            var mine = _dal.Count(s => string.IsNullOrEmpty(s.CloudLibraryId) && s.AuthorId.HasValue && s.AuthorId.Value.Equals(DalUserToken.UserId), base.DalUserToken);
             return Ok(new ProfileCountModel() { All = all, Mine = mine });
         }
 
@@ -676,7 +933,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             //set some values server side 
             model.AuthorId = base.DalUserToken.UserId;
             model.NodeSetFiles = null;
-            model.StandardProfileID = null;
+            model.CloudLibraryId = null;
 
             //re-validate
             ModelState.Clear();
@@ -704,27 +961,6 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             });
         }
 
-        private static void ConvertPublishDateToUTC(ProfileModel model)
-        {
-            if (model.PublishDate != null && model.PublishDate?.Kind != DateTimeKind.Utc)
-            {
-                //// Set time to noon to avoid loss of a day when converting to UTC
-                //if (model.PublishDate.Value.Hour < 12)
-                //{
-                //    int h = model.PublishDate.Value.Hour;
-                //    DateTime dt = new DateTime(model.PublishDate.Value.Year, model.PublishDate.Value.Month, model.PublishDate.Value.Day, 12, 0, 0);
-                //    model.PublishDate = dt;
-                //}
-                if (model.PublishDate?.Kind == DateTimeKind.Unspecified)
-                {
-                    model.PublishDate = DateTime.SpecifyKind(model.PublishDate.Value, DateTimeKind.Utc);
-                }
-                else
-                {
-                    model.PublishDate = model.PublishDate?.ToUniversalTime();
-                }
-            }
-        }
 
         /// <summary>
         /// Validate the profile model has unique name and publish date combination
@@ -785,6 +1021,16 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 return BadRequest($"Invalid model (null). Check Publish Date formatting.");
             }
 
+            return Ok(await UpdateCommon(model));
+        }
+
+        /// <summary>
+        /// Update an existing nodeset that is maintained within this system.
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        private async Task<ResultMessageWithDataModel> UpdateCommon(ProfileModel model)
+        {
             // Keep PostgreSQL happy - Make sure UTC date gets sent to "date with timezone" timestamp field.
             ConvertPublishDateToUTC(model);
 
@@ -796,12 +1042,12 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                             //&& (!x.PublishDate.HasValue ? new DateTime(0) : x.PublishDate.Value.Date).Equals(!model.PublishDate.HasValue ? new DateTime(0) : model.PublishDate.Value.Date)
                             , base.DalUserToken) > 0)
             {
-                return Ok(new ResultMessageWithDataModel()
+                return new ResultMessageWithDataModel()
                 {
                     IsSuccess = false,
                     Message = "There is already a profile with this namespace and publish date combination. Enter a different namespace or publish date.",
                     Data = null
-                });
+                };
             }
 
             var item = _dal.GetById(model.ID.Value, base.DalUserToken);
@@ -809,7 +1055,13 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             if (!item.AuthorId.Equals(LocalUser.ID))
             {
                 _logger.LogWarning($"ProfileController|Update|AuthorId {model.AuthorId} of item {model.ID} is different than User Id {LocalUser.ID} making update.");
-                return BadRequest("Invalid operation. You cannot update a profile that you did not author");
+
+                return new ResultMessageWithDataModel()
+                {
+                    IsSuccess = false,
+                    Message = "Invalid operation. You cannot update a profile that you did not author.",
+                    Data = null
+                };
             }
 
             //re-validate
@@ -819,28 +1071,38 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             if (!ModelState.IsValid)
             {
                 var errors = ExtractModelStateErrors();
-                return BadRequest("The profile record is invalid. Please correct the following: " + errors.ToString());
+                return new ResultMessageWithDataModel()
+                {
+                    IsSuccess = false,
+                    Message = "The profile record is invalid. Please correct the following: " + errors.ToString(),
+                    Data = null
+                };
             }
 
             var result = await _dal.UpdateAsync(model, base.DalUserToken);
             if (result < 0)
             {
                 _logger.LogWarning($"ProfileController|Update|Could not update profile item. Invalid id:{model.ID}.");
-                return BadRequest("Could not update item. Invalid id.");
+                return new ResultMessageWithDataModel()
+                {
+                    IsSuccess = false,
+                    Message = "Could not update item. Invalid id.",
+                    Data = null
+                };
             }
             _logger.LogInformation($"ProfileController|Update|Updated item. Id:{model.ID}.");
 
             //TBD - come back to this. Race condition. timing error - issue with update not completing and then calling get
             //      issue is child item's virtual property is null unless we give it enough time to complete update process. 
             //return result object plus item.
-            return Ok(new ResultMessageWithDataModel()
+            return new ResultMessageWithDataModel()
             {
                 IsSuccess = true,
                 Message = "Item was updated.",
                 //Data = new JRaw(JsonConvert.SerializeObject(this.GetItem(model.ID))
                 //Data = new JRaw(JsonConvert.SerializeObject(new IdIntModel() { ID = model.ID }))  //TBD - returning empty array - why?
                 Data = model.ID
-            });
+            };
         }
 
         /// <summary>
@@ -905,11 +1167,6 @@ namespace CESMII.ProfileDesigner.Api.Controllers
 
             //return success message object
             return Ok(new ResultMessageModel() { IsSuccess = true, Message = "Item was deleted." });
-        }
-
-        internal int? DeleteInternalTestHook(IdIntModel model)
-        {
-            return _dal.DeleteAsync(model.ID, new UserToken { UserId = -1 }).Result;
         }
 
         /// <summary>
@@ -1007,7 +1264,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
 
             //pass in the author id as current user
             //kick off background process, logid is returned immediately so front end can track progress...
-            var logId = await _svcImport.ImportOpcUaNodeSet(model, base.DalUserToken, false, false);
+            var logId = await _svcImport.ImportOpcUaNodeSet(model, base.DalUserToken, allowMultiVersion: false, upgradePreviousVersions: false);
 
             return Ok(
                 new ResultMessageWithDataModel()
@@ -1168,6 +1425,36 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 }));
             }
         }
+
+        #region Helper methods
+        internal int? DeleteInternalTestHook(IdIntModel model)
+        {
+            return _dal.DeleteAsync(model.ID, new UserToken { UserId = -1 }).Result;
+        }
+
+        private static void ConvertPublishDateToUTC(ProfileModel model)
+        {
+            if (model.PublishDate != null && model.PublishDate?.Kind != DateTimeKind.Utc)
+            {
+                //// Set time to noon to avoid loss of a day when converting to UTC
+                //if (model.PublishDate.Value.Hour < 12)
+                //{
+                //    int h = model.PublishDate.Value.Hour;
+                //    DateTime dt = new DateTime(model.PublishDate.Value.Year, model.PublishDate.Value.Month, model.PublishDate.Value.Day, 12, 0, 0);
+                //    model.PublishDate = dt;
+                //}
+                if (model.PublishDate?.Kind == DateTimeKind.Unspecified)
+                {
+                    model.PublishDate = DateTime.SpecifyKind(model.PublishDate.Value, DateTimeKind.Utc);
+                }
+                else
+                {
+                    model.PublishDate = model.PublishDate?.ToUniversalTime();
+                }
+            }
+        }
+
+        #endregion
 
     }
 }

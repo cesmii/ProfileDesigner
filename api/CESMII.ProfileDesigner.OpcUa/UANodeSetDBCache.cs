@@ -169,7 +169,7 @@ namespace CESMII.ProfileDesigner.Opc.Ua.NodeSetDBCache
             //Fix: Error - Data at the root level is invalid. Line 1, position 1.
             //Reference: https://stackoverflow.com/questions/17795167/xml-loaddata-data-at-the-root-level-is-invalid-line-1-position-1
             string _byteOrderMarkUtf8 = Encoding.UTF8.GetString(Encoding.UTF8.GetPreamble());
-            if (nodeSetXml.StartsWith(_byteOrderMarkUtf8))
+            if (nodeSetXml.StartsWith(_byteOrderMarkUtf8, StringComparison.Ordinal))
             {
                 nodeSetXml = nodeSetXml.Remove(0, _byteOrderMarkUtf8.Length);
             }

@@ -40,7 +40,7 @@ function ProfileListGrid(props) {
     //importer
     const [_forceReload, setForceReload] = useState(0);
 
-    const [_searchCriteria, setSearchCriteria] = useState(loadingProps.profileSearchCriteria);
+    const [_searchCriteria, setSearchCriteria] = useState(props.searchCriteria);
     const [_searchCriteriaChanged, setSearchCriteriaChanged] = useState(0);
 
     //-------------------------------------------------------------------
@@ -95,6 +95,11 @@ function ProfileListGrid(props) {
         //bubble up to parent
         if (props.onGridRowSelect) props.onGridRowSelect(item);
     };
+
+    const onRowChanged = (item) => {
+        console.log(generateLogMessageString(`onRowChanged`, CLASS_NAME));
+        setForceReload(_forceReload + 1)
+    }
 
     //-------------------------------------------------------------------
     // Region: Event Handling of child component events
@@ -340,7 +345,7 @@ function ProfileListGrid(props) {
         const mainBody = _dataRows.all.map((item) => {
             return (<ProfileItemRow key={item.id} item={item} activeAccount={_activeAccount}
                 showActions={true} cssClass={`profile-list-item ${props.rowCssClass ?? ''}`} selectMode={props.selectMode}
-                onEditCallback={onEdit} onDeleteCallback={onDeleteItemClick} onRowSelect={onRowSelect}
+                onEditCallback={onEdit} onDeleteCallback={onDeleteItemClick} onRowSelect={onRowSelect} onRowChanged={onRowChanged}
                 onImportCallback={onImport}
                 selectedItems={props.selectedItems} navigateModal={props.navigateModal}
             />)
@@ -361,10 +366,12 @@ function ProfileListGrid(props) {
     return (
         <>
             {renderProfileFilters()}
-            <ProfileFilter onSearchCriteriaChanged={onProfileSearchCriteriaChanged} noSortOptions="true"
-                //displayMode={_displayMode}
-                //toggleDisplayMode={toggleDisplayMode} itemCount={_itemCount}
-                cssClass={props.rowCssClass} searchCriteria={_searchCriteria} noSearch={props.noSearch} noClearAll="true" />
+            {!props.hideFilter &&
+                <ProfileFilter onSearchCriteriaChanged={onProfileSearchCriteriaChanged} noSortOptions="true"
+                    //displayMode={_displayMode}
+                    //toggleDisplayMode={toggleDisplayMode} itemCount={_itemCount}
+                cssClass={props.rowCssClass} searchCriteria={_searchCriteria} hideSearchBox={props.hideSearchBox} hideClearAll={true} />
+            }
             <div className="">
                 <div ref={_scrollToRef} className="row">
                     <div className="col-12">

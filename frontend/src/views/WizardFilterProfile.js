@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Helmet } from "react-helmet"
 
 import { useHistory } from 'react-router-dom'
@@ -21,9 +21,10 @@ function WizardFilterProfile() {
     const _pageId = 'FilterProfile';
     const history = useHistory();
     const { wizardProps, setWizardProps } = useWizardContext();
-    const { loadingProps } = useLoadingContext();
+    const { loadingProps, setLoadingProps } = useLoadingContext();
     const _currentPage = WizardSettings.panels.find(p => { return p.id === _pageId; });
     const _navInfo = getWizardNavInfo(wizardProps.mode, _pageId);
+    const [_searchCriteria, setSearchCriteria] = useState(null);
 
     //-------------------------------------------------------------------
     // Region: hooks
@@ -47,6 +48,27 @@ function WizardFilterProfile() {
             //setFilterValOnChild('');
         };
     }, [wizardProps.currentPage]);
+
+    //-------------------------------------------------------------------
+    // Region: search criteria check and populate
+    //-------------------------------------------------------------------
+    useEffect(() => {
+        //check for searchcriteria - trigger fetch of search criteria data - if not already triggered
+        if ((loadingProps.profileSearchCriteria == null || loadingProps.profileSearchCriteria.filters == null) && !loadingProps.refreshProfileSearchCriteria) {
+            setLoadingProps({ refreshProfileSearchCriteria: true });
+            return;
+        }
+        else if (loadingProps.profileSearchCriteria == null || loadingProps.profileSearchCriteria.filters == null) {
+            return;
+        }
+        //implies it is in progress on re-loading criteria
+        else if (loadingProps.refreshProfileSearchCriteria) {
+            return;
+        }
+
+        setSearchCriteria(JSON.parse(JSON.stringify(loadingProps.profileSearchCriteria)));
+
+    }, [loadingProps.profileSearchCriteria]);
 
 
     //-------------------------------------------------------------------
@@ -98,7 +120,8 @@ function WizardFilterProfile() {
             <div className="card row mb-3">
                     <div className="card-body">
                         <ProfileListGrid onGridRowSelect={onRowClicked} selectMode="multiple"
-                            selectedItems={selItems} rowCssClass="mx-0" noSearch="true" />
+                            selectedItems={selItems} rowCssClass="mx-0"
+                            searchCriteria={_searchCriteria} mode={AppSettings.ProfileListMode.Profile} hideSearchBox={true} />
                 </div>
             </div>
             </>

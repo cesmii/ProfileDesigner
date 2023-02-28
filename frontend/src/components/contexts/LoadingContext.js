@@ -102,13 +102,13 @@ function UpdateRecentFileList(existingList, link) {
     if (existingList == null) existingList = [];
 
     //Check for dup entry.If dup, remove old one.
-    var i = existingList.findIndex(x => x.url === link.url);
+    const i = existingList.findIndex(x => x.url === link.url);
     //item found, remove it and then we re-add to top of list
     if (i >= 0) {
-        existingList.splice(i, 1);
+        existingList = existingList.filter((x) => { return x.url !== link.url;});
     }
     //add item to top of list
-    var newList = [];
+    let newList = [];
     newList.push(link);
     //TBD - limit to 20 most recent items - change this??
     //return new list

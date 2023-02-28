@@ -1,10 +1,12 @@
 import React from 'react'
 
-import { isOwner, renderProfileIcon } from './ProfileRenderHelpers';
+import { renderProfileAvatarBgCss, renderProfileIcon, renderProfilePublishStatus } from './ProfileRenderHelpers';
 import { formatDateUtc } from '../../utils/UtilityService';
 import { getProfileCaption } from '../../services/ProfileService'
 import { SVGIcon } from '../../components/SVGIcon';
 import ProfileActions from './ProfileActions';
+import ProfileCloudLibStatus from './ProfileCloudLibStatus';
+import { AppSettings } from '../../utils/appsettings';
 
 //const CLASS_NAME = "ProfileItemRow";
 
@@ -13,17 +15,6 @@ function ProfileItemRow(props) { //props are item, showActions
     //-------------------------------------------------------------------
     // Region: Event Handling of child component events
     //-------------------------------------------------------------------
-    //const getTypeDefinitionsUrl = () => {
-    //    //var val = encodeURIComponent(props.item.namespace);
-    //    return (props.item.isReadOnly || props.item.authorId == null || props.currentUserId !== props.item.authorId) ?
-    //        `/types/library/p=${props.item.id}` : `/types/mine/p=${props.item.id}`;
-    //};
-
-    //const getTypeDefinitionNewUrl = () => {
-    //    return `/type/new/p=${props.item.id}`; 
-    //};
-
-
     const onEditItem = (e) => {
         e.stopPropagation();
         //format date if present
@@ -42,23 +33,34 @@ function ProfileItemRow(props) { //props are item, showActions
 
     const IsRowSelected = (item) => {
         if (props.selectedItems == null) return;
-        var x = item.hasLocalProfile ||  props.selectedItems.findIndex(p => { return p.toString() === item.id.toString(); }); // TODO make the local profile selection configurable
+        const x = item.hasLocalProfile || props.selectedItems.findIndex(p => { return p.toString() === item.id.toString(); }); // TODO make the local profile selection configurable
         return x >= 0;
+    }
+
+    const onRowChanged = (e) => {
+        if (props.onRowChanged) props.onRowChanged(e);
     }
 
     //-------------------------------------------------------------------
     // Region: Render helpers
     //-------------------------------------------------------------------
+
     const renderActionsColumn = (showActions) => {
 
         if (!showActions) return;
 
         return (
-            <div className="col-sm-4 ml-auto d-inline-flex justify-content-end align-items-center" >
+            <>
+            <div className="col-sm-3 ml-auto d-inline-flex justify-content-end align-items-center" >
+                    <ProfileCloudLibStatus item={props.item} activeAccount={props.activeAccount} showButton={true} showStatus={false}
+                        onPublishProfileCallback={onRowChanged} onWithdrawProfileCallback={onRowChanged} />
+            </div>
+            <div className="col-sm-3 ml-auto d-inline-flex justify-content-end align-items-center" >
                 <span className="my-0 mr-2"><a href={`/profile/${props.item.id}?tab=typedefs`} ><span className="mr-1" alt="view"><SVGIcon name="visibility" /></span>View Type Definitions</a></span>
                 <ProfileActions item={props.item} activeAccount={props.activeAccount} />
             </div>
-            );
+            </>
+        );
     }
 
     const renderSelectColumn = (item, isReadOnly) => {
@@ -82,7 +84,7 @@ function ProfileItemRow(props) { //props are item, showActions
 
         let profileCaption = null;
         let profileValue = null;
-        if (props.item.title == null) {
+        if (props.item.title == null || props.item.title === '') {
             profileCaption = props.profileCaption == null ? "Namespace: " : `${props.profileCaption}: `;
             profileValue = props.item.namespace;
         }
@@ -105,9 +107,9 @@ function ProfileItemRow(props) { //props are item, showActions
                 <>
                     {profileCaption}
                     {props.navigateModal ?
-                        <button className="ml-1 btn btn-link" onClick={onEditItem} >{profileValue}</button>
+                        <button className="ml-1 mr-2 btn btn-link" onClick={onEditItem} >{profileValue}</button>
                         :
-                        <a className="ml-2" href={`/profile/${props.item.id}`} >{profileValue}</a>
+                        <a className="mx-2" href={`/profile/${props.item.id}`} >{profileValue}</a>
                     }
                 </>
             );
@@ -119,12 +121,12 @@ function ProfileItemRow(props) { //props are item, showActions
 
         const isSelected = props.item != null && IsRowSelected(props.item) ? "selected" : "";
         const cssClass = `row py-1 align-items-center ${props.cssClass == null ? '' : props.cssClass} ${isSelected} ${props.selectMode != null ? "selectable" : ""}`;
-        const avatarCss = `col-avatar mr-2 rounded-circle avatar-${!isOwner(props.item, props.activeAccount) ? "locked" : "unlocked"} elevated`;
+        const avatarCss = `col-avatar mr-2 rounded-circle ${renderProfileAvatarBgCss(props.item)} elevated`;
         //var colCss = `${props.actionUI == null ? "col-sm-12" : "col-sm-10"} d-flex align-items-center`;
         const caption = props.item == null ? "" : getProfileCaption(props.item);
         const profileIcon = props.item == null ?
-            renderProfileIcon({ authorId: null }, props.activeAccount, 20, false) :
-            renderProfileIcon(props.item, props.activeAccount, 20, false);
+            renderProfileIcon({ authorId: null }, 24) :
+            renderProfileIcon(props.item, 24);
 
         return (
             <div className={cssClass} onClick={onRowSelect} >
@@ -132,7 +134,10 @@ function ProfileItemRow(props) { //props are item, showActions
                     <div className={avatarCss} >{profileIcon}</div>
                     <div className="col-sm-11" >
                         <span className="font-weight-bold mr-2" >{props.profileCaption == null ? "Profile: " : `${props.profileCaption}: `}</span>
-                        {caption}
+                        {props.item == null ?
+                            caption : 
+                            <a className="mx-2" href={`/profile/${props.item.id}?tab=typedefs`} >{caption}</a>
+                        }
                         {(props.actionUI != null) &&
                             <div className="ml-2 d-inline-flex" >
                                 {props.actionUI}
@@ -153,19 +158,19 @@ function ProfileItemRow(props) { //props are item, showActions
 
         return (
             <div className={cssClass} onClick={props.item.hasLocalProfile ? null : onRowSelect}> {/*TODO Make the local profile selection configurable */}
-                <div className="col-sm-8 d-flex" >
+                <div className="col-sm-6 d-flex" >
                     {props.selectMode != null &&
                         renderSelectColumn(props.item, isReadonly)
                     }
-                    <div className={`col-avatar mt-1 mr-2 rounded-circle avatar-${!isOwner(props.item, props.activeAccount) ? "locked" : "unlocked"} elevated`} >
-                        {renderProfileIcon(props.item, props.activeAccount, 24, false)}
+                    <div className={`col-avatar mt-1 mr-2 rounded-circle ${renderProfileAvatarBgCss(props.item)} elevated`} >
+                        {renderProfileIcon(props.item, 24)}
                     </div>
                     <div className="col-sm-11 d-flex align-items-center" >
                         <div className="d-block" >
-                            <p className="my-0 d-flex align-content-center">
+                            <p className="my-0 d-flex align-items-center">
                                 {renderTitleNamespace()}
                             </p>
-                            {props.item.title != null &&
+                            {(props.item.title != null && props.item.title != '') &&
                                 <p className="my-0 small-size" >Namespace: {props.item.namespace}</p>
                             }
                             {props.item.version != null &&
@@ -174,14 +179,31 @@ function ProfileItemRow(props) { //props are item, showActions
                             {props.item.publishDate != null &&
                                 <p className="my-0 small-size" >Published: {formatDateUtc(props.item.publishDate)}</p>
                             }
-                            {props.item.description != null &&
-                                <p className="my-0 small-size" >Description: {props.item.description.substr(0, 80)}</p>
-                            }
                         </div>
                     </div>
                 </div>
                 {renderActionsColumn(props.showActions && props.selectMode == null)}
-            </div>
+                {props.item.description != null &&
+                    <div className="col-sm-12 d-flex" >
+                        {props.selectMode != null &&
+                            <div className="col-spacer mr-1" >
+                            </div>
+                        }
+                        <div className="col-spacer mr-2" >
+                        </div>
+                        <div className="col-sm-11" >
+                        <p className="my-0 small-size" >Description: {props.item.description.length > 160 ? props.item.description.substr(0, 160) + '...' : props.item.description}</p>
+                        </div>
+                    </div>
+                }
+                {(props.item.profileState === AppSettings.ProfileStateEnum.CloudLibRejected &&
+                    props.item.cloudLibApprovalDescription != null && 
+                    props.item.cloudLibApprovalDescription !== '') &&
+                    <div className="col-sm-12 d-flex" >
+                        <p className="alert alert-danger my-2 small-size w-100" >Publish Rejection Reason: {props.item.cloudLibApprovalDescription}</p>
+                    </div>
+                }
+            </div >
         );
     };
 

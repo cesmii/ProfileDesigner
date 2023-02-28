@@ -203,6 +203,13 @@ namespace CESMII.ProfileDesigner.OpcUa
                     await logToImportLog($"Nodeset validation failed: {e.Message}.<br/>{filesImportedMsg}", TaskStatusEnum.Failed);
                     return null;
                 }
+
+                if (!profilesAndNodeSets.Any(pn => pn.NodeSetModel.NewInThisImport))
+                {
+                    await logToImportLog($"Nodeset already imported.", TaskStatusEnum.Failed);
+                    return null;
+                }
+
                 //To Here
                 #endregion
 

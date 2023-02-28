@@ -42,7 +42,7 @@ function CloudLibViewer() {
     const [_deleteMessageId, setDeleteMessageId] = useState(null);
 
     //pass to common form
-    const _isValid = { namespace: true, namespaceFormat: true, description: true, type: true, symbolicName: true };
+    const _isValid = { namespace: true, namespaceFormat: true, description: true, type: true, symbolicName: true, licenseExpression: true };
 
     //-------------------------------------------------------------------
     // Region: hooks - get item by cloudlibid

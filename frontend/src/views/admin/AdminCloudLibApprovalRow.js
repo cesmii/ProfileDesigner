@@ -165,14 +165,14 @@ function AdminCloudLibApprovalRow(props) {
                     props.item.cloudLibApprovalDescription != null &&
                     props.item.cloudLibApprovalDescription !== '') &&
                     <div className="col-sm-12 d-flex" >
-                    <p className="alert alert-danger my-2 small-size w-100" >{props.item.cloudLibApprovalStatus}: {props.item.cloudLibApprovalDescription}</p>
+                    <p className="alert alert-danger my-2 small-size w-100" >Publish Rejection Reason: {props.item.cloudLibApprovalDescription}</p>
                     </div>
                 }
                 {(props.item.profileState === AppSettings.ProfileStateEnum.CloudLibApproved &&
                     props.item.cloudLibApprovalDescription != null &&
                     props.item.cloudLibApprovalDescription !== '') &&
                     <div className="col-sm-12 d-flex" >
-                    <p className="alert alert-success my-2 small-size w-100" >{props.item.cloudLibApprovalStatus}: {props.item.cloudLibApprovalDescription}</p>
+                    <p className="alert alert-success my-2 small-size w-100" >Publish Approval Reason: {props.item.cloudLibApprovalDescription}</p>
                     </div>
                 }
             </div >

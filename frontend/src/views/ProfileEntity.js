@@ -294,7 +294,7 @@ function ProfileEntity() {
                 </div>
                 <div className="col-sm-5 d-flex align-items-center justify-content-end">
                     {(_item != null) &&
-                        <ProfileCloudLibStatus item={_item} activeAccount={_activeAccount} saveAndPublish={true} showButton={true} showStatus={true}
+                        <ProfileCloudLibStatus item={_item} activeAccount={_activeAccount} saveAndPublish={true} showButton={true} showStatus={false}
                             onPublishProfileCallback={onPublishChange} onWithdrawProfileCallback={onPublishChange} />
                     }
                     {(_mode.toLowerCase() !== "view") &&
@@ -376,6 +376,13 @@ function ProfileEntity() {
                 <title>{_caption}</title>
             </Helmet>
             {renderHeaderRow(`Profile ${_name === '' ? '' : ' - ' + _name}`)}
+            {(_item != null && _item.profileState === AppSettings.ProfileStateEnum.CloudLibRejected &&
+                _item.cloudLibApprovalDescription != null &&
+                _item.cloudLibApprovalDescription !== '') &&
+                <div className="col-sm-12 d-flex" >
+                    <p className="alert alert-danger my-2 small-size w-100" >Publish Rejection Reason: {_item.cloudLibApprovalDescription}</p>
+                </div>
+            }
             {(_item != null && id !== "new") &&
                 renderTabbedView()
             }

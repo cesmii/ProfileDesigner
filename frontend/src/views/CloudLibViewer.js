@@ -35,7 +35,7 @@ function CloudLibViewer() {
     const _iconName = 'folder-profile';
     const _iconColor = color.shark;
     const [_cloudLibItem, setCloudLibItem] = useState([]);
-    const [_pollForCompletion, setPollForCompletion] = useState({counter: 0, importLogId: null, isComplete: null});
+    const [_pollForCompletion, setPollForCompletion] = useState({counter: 0, importLogId: null, isComplete: null, isFailed: false});
     const [_searchCriteria, setSearchCriteria] = useState(null);
     const [_searchCriteriaChanged, setSearchCriteriaChanged] = useState(0);
     const [_defaultTab, setDefaultTab] = useState('general');
@@ -54,7 +54,7 @@ function CloudLibViewer() {
             //initialize spinner during loading
             setLoadingProps({ isLoading: true, message: null });
 
-            var result = null;
+            let result = null;
             try {
                 const data = { id: id };
                 const url = `profile/getbycloudlibid`;
@@ -94,13 +94,16 @@ function CloudLibViewer() {
             }
         }
 
+        //if a failure occurs, bail out
+        if (_pollForCompletion.isFailed) { return; }
+
         //fetch our data - isComplete == null - initial load of page
         //isComplete === true once we complete import and ready to pull imported data
         if ((id != null && (_pollForCompletion.isComplete == null || _pollForCompletion.isComplete === true))) {
             fetchData();
         }
 
-    }, [id, _pollForCompletion.isComplete]);
+    }, [id, _pollForCompletion.isComplete, _pollForCompletion.isFailed]);
 
     //-------------------------------------------------------------------
     // Region: hook - run a polling operation to check for completion of import
@@ -109,19 +112,36 @@ function CloudLibViewer() {
         if (_pollForCompletion.counter === 0 || !_pollForCompletion.importLogId || _pollForCompletion.isComplete) return;
 
         setTimeout(() => {
-            //check on the status of this specific import by investigating import logs, 
+            //scenario 1 - in progress - keep polling
+            //scenario 2 - failed, update state so we can stop polling for completion and let user know it failed. 
+            //scenario 3 - completed, update state so we can try and grab newly imported item
+
+            //check on the status of this specific import by investigating import logs,
             //once it finishes, then attempt to get profile via cloudLibId again
-            const hasMatch = loadingProps.importingLogs.some(x =>
-                x.id === _pollForCompletion.importLogId && (x.status !== AppSettings.ImportLogStatus.Completed));
-            console.log(generateLogMessageString(`pollForCompletion || Import Completed: ${hasMatch}`, CLASS_NAME));
-            if (hasMatch) {
+            const inProgress = loadingProps.importingLogs.some(x =>
+                x.id === _pollForCompletion.importLogId &&
+                (x.status !== AppSettings.ImportLogStatus.Completed) &&
+                (x.status !== AppSettings.ImportLogStatus.Failed));
+            const isFailed = loadingProps.importingLogs.some(x =>
+                x.id === _pollForCompletion.importLogId &&
+                (x.status === AppSettings.ImportLogStatus.Failed));
+
+            if (inProgress) {
+                console.log(generateLogMessageString(`pollForCompletion || Import in progress...`, CLASS_NAME));
                 //try again in 1000 seconds
                 setPollForCompletion({ ..._pollForCompletion, counter: _pollForCompletion.counter + 1 });
             }
+            else if (isFailed) {
+                //error message - showed by importing log component
+                console.log(generateLogMessageString(`pollForCompletion || Import Failed`, CLASS_NAME));
+                setLoadingProps({isLoading: false, message: null, inlineMessages: []});
+                setPollForCompletion({ counter: 0, importLogId: null, isComplete: null, isFailed: true });
+            }
+            //completed scenario
             else {
                 console.log(generateLogMessageString(`pollForCompletion || Import Completed`, CLASS_NAME));
                 setDeleteMessageId(_pollForCompletion.importLogId);
-                setPollForCompletion({ counter: 0, importLogId: null, isComplete: true });
+                setPollForCompletion({ counter: 0, importLogId: null, isComplete: true, isFailed: false });
                 //re-get the latest type definition search filters to make sure this profile is included
                 setLoadingProps({ isLoading: false, message: null, searchCriteria: null, refreshSearchCriteria: true });
             }

@@ -41,7 +41,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
 
         private readonly Utils.ImportService _svcImport;
         private readonly OpcUaImporter _exporter;
-        private readonly List<string> _permissibleLicenses = new() { "MIT", "GPL-2.0" };
+        private readonly List<string> _permissibleLicenses = new() { "MIT", "BSD-3-Clause" };
 
         public ProfileController(IDal<Profile, ProfileModel> dal,
             ICloudLibDal<CloudLibProfileModel> cloudLibDal,
@@ -867,7 +867,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 }
 
                 // notify recipient of new profile to review
-                _ = _cloudLibUtil.EmailPublishNotification(profile, LocalUser ); // Run asynchronously
+                _ = _cloudLibUtil.EmailPublishNotification(this,profile, LocalUser ); // Run asynchronously
 
                 return new ResultMessageWithDataModel()
                 {

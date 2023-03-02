@@ -114,16 +114,16 @@ function ImportMessage() {
     useEffect(() => {
 
         async function fetchImportLogData() {
-            var data = { Query: null, Skip: 0, Take: 999999 };
+            const data = { Query: null, Skip: 0, Take: 999999 };
             //var data = { id: _importLogIdCurrent };
-            var url = `importlog/mine`;
+            const url = `importlog/mine`;
             console.log(generateLogMessageString(`useEffect||fetchImportLogData||${url}`, CLASS_NAME));
 
             await axiosInstance.post(url, data).then(result => {
                 if (result.status === 200) {
 
                     //find num not completed. If any not completed, kick off timer to re-check again in 6 seconds
-                    var numIncomplete = result.data.data.filter((x) => { return x.completed == null; });
+                    const numIncomplete = result.data.data.filter((x) => { return x.completed == null; });
                     if (numIncomplete.length > 0) {
                         setTimeout(() => {
                             setForceReload(_forceReload + 1);
@@ -147,7 +147,7 @@ function ImportMessage() {
                     //compare a new import log list to previous list. If it has changed, then trigger a profile list refresh
                     //var importingLogs = numIncomplete.length === 0 ? [] : numIncomplete.map((x) => { return { id: x.id, status: x.status, message: x.message }; });
                     //keep completed bu failed around so other components can use this info for their needs, only get most recent msg
-                    var importingLogs = result.data.data
+                    const importingLogs = result.data.data
                         .map((x) => { return { id: x.id, status: x.status, message: x.messages != null && x.messages.length > 0 ? x.messages[0].message : null }; })
                         .filter((x) => { return x.completed == null || x.status !== AppSettings.ImportLogStatus.Completed; });
 
@@ -202,7 +202,7 @@ function ImportMessage() {
 
     const onDismiss = (e) => {
         console.log(generateLogMessageString('onDismiss||', CLASS_NAME));
-        var id = e.currentTarget.getAttribute("data-id");
+        const id = e.currentTarget.getAttribute("data-id");
         dismissMessage(id);
     }
 
@@ -227,7 +227,7 @@ function ImportMessage() {
 
     const getMessage = (msg) => {
         //messages sorted by date descending
-        var msgAppend = '';
+        let msgAppend = '';
         if (msg.messages != null && msg.messages.length > 0) {
             msgAppend = msg.messages[0].message;
         }
@@ -250,9 +250,9 @@ function ImportMessage() {
 
     const renderMessage = (msg) => {
         //apply special handling for sev="processing"
-        var isProcessing = msg.status === AppSettings.ImportLogStatus.InProgress;
-        var sev = getSeverity(msg);
-        var caption = getMessage(msg);
+        const isProcessing = msg.status === AppSettings.ImportLogStatus.InProgress;
+        const sev = getSeverity(msg);
+        const caption = getMessage(msg);
 
         return (
             <div key={`inline-msg-${msg.id}`} className="row mb-1" >

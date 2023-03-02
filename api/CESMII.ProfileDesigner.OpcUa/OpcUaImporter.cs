@@ -183,6 +183,9 @@ namespace CESMII.ProfileDesigner.OpcUa
                                 }
                             }
                             var profile = FindOrCreateProfileForNodeSet(tmodel, cloudLibId, _profileDal, userToken, logId, sw, allowMultiVersion);
+                            //In some cases (admin user previews the profile), tag as "preview" profile for easier removal downstream
+                            //profile.IsPreview = nodeSetXmlList[0].IsPreview;
+
                             profilesAndNodeSets.Add(new ProfileModelAndNodeSet
                             {
                                 Profile = profile, // TODO use the nodesetfile instead

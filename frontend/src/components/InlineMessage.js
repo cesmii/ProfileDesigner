@@ -46,7 +46,7 @@ function InlineMessage() {
 
         //dismiss the message on a timed basis - short if isTimed is true, 
         //long if isTimed is false - still get rid of it after awhile
-        dismissMessageTimed(msg.id, msg.isTimed ? 6000 : 3000000); //6 seconds or 5 minutes
+        dismissMessageTimed(msg.id, msg.isTimed ? 6000 : 3000001); //6 seconds or 5 minutes
 
         return (
             <div key={"inline-msg-" + msg.id} className="row mb-2" >

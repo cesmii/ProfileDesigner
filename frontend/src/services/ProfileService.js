@@ -122,6 +122,7 @@ export function clearSearchCriteria (criteria) {
     return result;
 }
 
+//-------------------------------------------------------------------
 //Find and toggle (set selected) a search filter item. If not present, put warning in console but do not cause exception
 export function toggleSearchFilterSelected (criteria, parentId, id) {
 
@@ -132,7 +133,8 @@ export function toggleSearchFilterSelected (criteria, parentId, id) {
     item.selected = !item.selected;
 }
 
-//Check if a search filter exists. If not present, return null, else return filter. 
+//-------------------------------------------------------------------
+//Check if a search filter exists. If not present, return null, else return filter.
 export function findSearchFilter(criteria, parentId, id) {
 
     //loop through filters and their items and find the id

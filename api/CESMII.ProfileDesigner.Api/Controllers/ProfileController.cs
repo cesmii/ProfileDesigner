@@ -867,7 +867,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 }
 
                 // notify recipient of new profile to review
-                _ = _cloudLibUtil.EmailPublishNotification(profile, LocalUser ); // Run asynchronously
+                _ = _cloudLibUtil.EmailPublishNotification(this,profile, LocalUser ); // Run asynchronously
 
                 return new ResultMessageWithDataModel()
                 {

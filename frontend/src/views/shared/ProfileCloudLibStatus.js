@@ -298,7 +298,7 @@ function ProfileCloudLibStatus(props) {
             return (
                 <div className={`d-inline-flex align-items-center`} >
                     <Dropdown className="" onClick={(e) => e.stopPropagation()} >
-                        <Dropdown.Toggle drop="left" title="Click to change" variant="tertiary" className="d-flex align-items-center" >
+                        <Dropdown.Toggle drop="left" title="Click to change" variant="tertiary" className="d-flex align-items-center mr-2" >
                             {renderProfilePublishStatus(props.item, '', '', 'mr-1')}
                         </Dropdown.Toggle>
                         <Dropdown.Menu>

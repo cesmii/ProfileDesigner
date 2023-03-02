@@ -24,6 +24,14 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <None Include="Views\Shared\_EmailLayout.cshtml" />
+	  <None Include="Views\Shared\_Footer.cshtml" />
+	  <None Include="Views\Shared\_Head.cshtml" />
+	  <None Include="Views\Template\EmailCancelProfileSubmission.cshtml" />
+	  <None Include="Views\Template\EmailProfileSubmission.cshtml" />
+	</ItemGroup>
+
+	<ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.4" />
 
 	<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.5" />

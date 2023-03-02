@@ -192,7 +192,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 }
 
                 //notify
-                await _cloudLibUtil.EmailCancelNotification(profile, LocalUser);
+                await _cloudLibUtil.EmailCancelNotification(this,profile, LocalUser);
 
                 //return all good
                 return Ok(

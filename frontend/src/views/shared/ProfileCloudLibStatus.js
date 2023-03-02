@@ -151,9 +151,9 @@ function ProfileCloudLibStatus(props) {
         }
 
         //check valid license selection
-        if (props.item.license !== "MIT" && props.item.license !== "GPL-2.0") {
+        if (props.item.license !== "MIT" && props.item.license !== "BSD-3-Clause") {
             msg = msg == null ? '' : msg + ' ';
-            msg += "Profiles can only be published to the CESMII Cloud Library and Marketplace under the MIT or GPL-2.0 license.";
+            msg += "Profiles can only be published to the CESMII Cloud Library and Marketplace under the MIT or BSD-3-Clause license.";
         }
 
         //if message is not null, then show error and return

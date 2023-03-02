@@ -41,7 +41,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
 
         private readonly Utils.ImportService _svcImport;
         private readonly OpcUaImporter _exporter;
-        private readonly List<string> _permissibleLicenses = new() { "MIT", "GPL-2.0" };
+        private readonly List<string> _permissibleLicenses = new() { "MIT", "BSD-3-Clause" };
 
         public ProfileController(IDal<Profile, ProfileModel> dal,
             ICloudLibDal<CloudLibProfileModel> cloudLibDal,

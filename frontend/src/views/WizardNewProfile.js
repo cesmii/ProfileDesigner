@@ -131,9 +131,8 @@ function WizardNewProfile() {
 
     //on validate handler from child form
     const onValidate = (isValid) => {
-        setIsValid({
-            namespace: isValid.namespace,
-            namespaceFormat: isValid.namespaceFormat
+        setIsValid(current => {
+            return { ...current, ...isValid };
         });
     }
 

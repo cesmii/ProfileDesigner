@@ -25,12 +25,15 @@ namespace CESMII.ProfileDesigner.Api.Controllers
     public class ImportLogController : BaseController<ImportLogController>
     {
         private readonly IDal<ImportLog, ImportLogModel> _dal;
+        private readonly Utils.ImportService _svcImport;
 
         public ImportLogController(IDal<ImportLog, ImportLogModel> dal, UserDAL dalUser,
+            Utils.ImportService svcImport,
             ConfigUtil config, ILogger<ImportLogController> logger) 
             : base(config, logger, dalUser)
         {
             _dal = dal;
+            _svcImport = svcImport;
         }
 
         [HttpPost, Route("GetByID")]
@@ -69,16 +72,28 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 return BadRequest("Profile|GetMine|Invalid model");
             }
 
-            if (string.IsNullOrEmpty(model.Query))
+            model.Query = model.Query?.ToLower();
+            var old = -60; //minutes - eventually move this to a config
+            var dtCompare = DateTime.UtcNow.AddMinutes(old);
+
+            //self-cleanup...always filter out "old" messages - many times the user does not dismiss old import messages
+            //help them with this. do this in separate threads to avoid collision of connection
+            var oldRows = _dal.Where(s => s.Created <= dtCompare, base.DalUserToken, null, null, false, true).Data;
+            if (oldRows.Any())
             {
-                return Ok(_dal.GetAllPaged(base.DalUserToken, model.Skip, model.Take, false, true));
+                var dalCleanup = _svcImport.GetImportLogDalIsolated();
+                dalCleanup.DeleteManyAsync(oldRows.Select(s => s.ID.Value).ToList(), base.DalUserToken);
             }
 
-            model.Query = model.Query.ToLower();
+            //now get the remaining messages
             var result = _dal.Where(s =>
                             //string query section
-                            string.Join(",", s.FileList).ToLower().Contains(model.Query)
+                            (string.IsNullOrEmpty(model.Query) || string.Join(",", s.FileList).ToLower().Contains(model.Query))
+                            //always filter out "old" messages - many times the user does not dismiss old messages
+                            //help them with this.
+                            && s.Created > dtCompare 
                             , base.DalUserToken, null, null, false, true);
+
             return Ok(result);
         }
 

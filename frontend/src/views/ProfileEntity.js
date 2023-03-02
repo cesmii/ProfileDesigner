@@ -161,12 +161,17 @@ function ProfileEntity() {
 
         //assign profile id as filter
         let criteria = JSON.parse(JSON.stringify(loadingProps.searchCriteria));
+
         //sometimes the cached version will not yet have this profile id. if that happens, add it by refreshing criteria list
         const item = findSearchFilter(criteria, AppSettings.SearchCriteriaCategory.Profile, parseInt(id));
         if (item == null) {
             setLoadingProps({ refreshSearchCriteria: true });
             return;
         }
+        else {
+            item.selected = true;
+        }
+
         setSearchCriteria(criteria);
         //trigger api to get data - unless in new mode
         setSearchCriteriaChanged(_searchCriteriaChanged + 1);

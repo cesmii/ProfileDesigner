@@ -1,0 +1,38 @@
+﻿@using CESMII.ProfileDesigner.DAL.Models
+@model ProfileModel
+@{
+    Layout = "_EmailLayout";
+}
+
+<div>
+    <h2>CANCEL Profile Submission</h2>
+    <p>We have received your request to cancel the profile submission for profile @Model.Namespace. Your may now edit your profile and submit it to be published at a later time.</p>
+
+    <p>Thank you again for your support of the CESMII Profile Designer!</p>
+
+    <p>Sincerely,<br/>
+    CESMII Support Team</p>
+    <br />
+</div>
+
+    <div>
+        <h2>Profile Author and Organization</h2>
+        <p>Author: @Model.Author.DisplayName [@Model.Author.Email]<br/>
+            Organization: @Model.Author.Organization.Name
+        </p>
+    <br />
+</div>
+
+    <div>
+        <h2>Profile Information</h2>
+        <p>
+            Profile Title: @Model.Title<br />
+            Profile Description: @Model.Description<br />
+            Profile Namespace: @Model.Namespace<br />
+            Profile Version: @Model.Version<br />
+            Profile Publication Date: @Model.PublishDate<br />
+            Profile License: @Model.License<br />
+        </p>
+    <br />
+    <br />
+</div>

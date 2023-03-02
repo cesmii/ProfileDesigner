@@ -122,24 +122,37 @@ export function clearSearchCriteria (criteria) {
     return result;
 }
 
-//Find a filter item and set the selected value
+//-------------------------------------------------------------------
+//Find and toggle (set selected) a search filter item. If not present, put warning in console but do not cause exception
 export function toggleSearchFilterSelected (criteria, parentId, id) {
 
-    //loop through filters and their items and find the id
-    //note it won't stop the foreach loop even if it finds it. Account for that.
-    var parent = criteria.filters.find(x => { return x.id.toString() === parentId.toString(); });
-    if (parent == null) {
-        console.warn(generateLogMessageString(`toggleSearchFilterValue||Could not find parent with id: ${parentId.toString()} in lookup data`, CLASS_NAME));
-        return;
-    }
-    var item = parent.items.find(x => { return x.id.toString() === id.toString(); });
-    if (item == null) {
-        console.warn(generateLogMessageString(`toggleSearchFilterValue||Could not find item with id: ${id.toString()} in lookup data`, CLASS_NAME));
-        return;
-    }
+    let item = findSearchFilter(criteria, parentId, id);
+    if (item == null) return;
+
     //toggle the selection or set for initial scenario
     item.selected = !item.selected;
 }
+
+//-------------------------------------------------------------------
+//Check if a search filter exists. If not present, return null, else return filter.
+export function findSearchFilter(criteria, parentId, id) {
+
+    //loop through filters and their items and find the id
+    //note it won't stop the foreach loop even if it finds it. Account for that.
+    const parent = criteria.filters.find(x => { return x.id.toString() === parentId.toString(); });
+    if (parent == null) {
+        console.warn(generateLogMessageString(`toggleSearchFilterValue||Could not find parent with id: ${parentId.toString()} in lookup data`, CLASS_NAME));
+        return null;
+    }
+    const item = parent.items.find(x => { return x.id.toString() === id.toString(); });
+    if (item == null) {
+        console.warn(generateLogMessageString(`toggleSearchFilterValue||Could not find item with id: ${id.toString()} in lookup data`, CLASS_NAME));
+        return null;
+    }
+
+    return item;
+}
+
 
 //-------------------------------------------------------------------
 // Region: Solution Explorer - All profiles
@@ -148,7 +161,7 @@ export function toggleSearchFilterSelected (criteria, parentId, id) {
 export function buildSolutionExplorer(items) {
     console.log(generateLogMessageString(`buildSolutionExplorer`, CLASS_NAME));
     //filter out items with no parent - root level, sort by name
-    var result = items.filter((p) => {
+    let result = items.filter((p) => {
         return p.parent == null;
     });
     result.sort((a, b) => {
@@ -161,7 +174,7 @@ export function buildSolutionExplorer(items) {
         return 0;
     }); //sort by name
     //maintain a remaining items and dwindle this down till nothing is left
-    var remainingItems = items.filter((p) => {
+    let remainingItems = items.filter((p) => {
         return p.parent != null;
     });
     //go through current level and pull out items from source that have this item as a parent

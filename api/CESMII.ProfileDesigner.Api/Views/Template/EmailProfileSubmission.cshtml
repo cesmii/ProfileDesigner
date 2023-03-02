@@ -5,56 +5,64 @@
 }
 
 <div>
-    <h2>Profile Submission</h2>
-    <p>Thank you for submitting your profile @Model.Namespace to the Clean Energy Smart Manufacturing Innovation Institute (CESMII) Cloud Library.</p>
-
-    <p>Thank you for your support of the CESMII Profile Designer!</p>
-
-    <p>Sincerely,<br/>
-    CESMII Support Team</p>
-    <br />
+    
+    <p>Thank you for submitting your Smart Manufacturing Profile, <b>@Model.Title</b>, to the Clean Energy Smart Manufacturing Innovation Institute (CESMII) Cloud Library.</p>
+    <p>Here are the details of your submission:</p>
 </div>
+<div>
+    <h3>Profile: @Model.Title</h3>
+    <p style="margin-left:35px;">
+        Title: @Model.Title<br />
+        Description: @Model.Description<br />
+        Namespace: @Model.Namespace<br />
+        Version: @Model.Version<br />
+        Publication Date: @Model.PublishDate<br />
+        License: @Model.License<br />
+    </p>
 
     <div>
-        <h2>Profile Review</h2>
-    <p>Your submission will be reviewed by the CESMII team. After approval, 
-       your profile will appear in the CESMII Cloud Library and Marketplace. 
-       If we reject your profile, we will send you details about required changes.</p>
-    <br />
-    </div>
-
-    <div>
-        <h2>Checking Profile Status</h2>
-    <p>To check on the status of your submission, visit the Profile Library in the Profile Designer.</p>
-    <br />
-    </div>
-
-    <div>
-        <h2>Editing a Profile</h2>
-    <p>Please note that once a profile has been submitted for publishing, the profile is no longer editable. 
-        If you wish to make edits, you can cancel a submission by clicking the Cancel Publish button in the 
-        Profile Library. You can then make edits in a profile and then submit the profile at a later time for publishing.</p>
-    <br />
-    </div>
-
-    <div>
-        <h2>Profile Author and Organization</h2>
-        <p>Author: @Model.Author.DisplayName [@Model.Author.Email]<br/>
+        <h3>Author and Organization</h3>
+        <p style="margin-left:35px;">
+            Author: @Model.Author.DisplayName [@Model.Author.Email]<br />
             Organization: @Model.Author.Organization.Name
         </p>
-    <br />
+    </div>
 </div>
 
     <div>
-        <h2>Profile Information</h2>
-        <p>
-            Profile Title: @Model.Title<br />
-            Profile Description: @Model.Description<br />
-            Profile Namespace: @Model.Namespace<br />
-            Profile Version: @Model.Version<br />
-            Profile Publication Date: @Model.PublishDate<br />
-            Profile License: @Model.License<br />
-        </p>
+    <h3>Next Steps</h3>
+    <h4>Review</h4>
+    <p style="margin-left:35px;">
+        The CESMII team will review your submission. 
+        If your submission is approved, your profile will be included in the CESMII Cloud Library and <a href="https://marketplace.cesmii.org">Smart Manufacturing Marketplace</a>.
+        However, if your submission is rejected, we will send you information about what changes you need to make.
+</p>
+    </div>
+
+<div>
+    <h4>Editing/Canceling</h4>
+    <p style="margin-left:35px;">
+        Once you submit a profile for publishing, you cannot make any further changes to it. 
+        However, if you want to edit the profile, you can click the "Cancel Publish" button in the Profile Library to cancel the submission. 
+        You can then edit the profile and submit it again for publishing at a later time.
+    </p>
+
+</div>
+
+<div>
+    <h4>Status</h4>
+    <p style="margin-left:35px;">To find out the current status of your submission, go to the Profile Library. 
+        The Profile Library allows you to access all the profiles that you are working on 
+        and their published status. By visiting the Profile Library, you can check the status 
+        of your submission, including whether it is still under review, has been rejected, or has been published.</p>
+</div>
+
+<div>
+    <br/>
     <br />
+    <p>Thank you for your support of the CESMII Smart Manufacturing Profile Designer!</p>
     <br />
+    <p>Sincerely,<br />
+        CESMII Support Team
+    </p>
 </div>

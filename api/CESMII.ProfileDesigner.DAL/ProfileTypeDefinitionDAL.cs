@@ -1262,7 +1262,7 @@
             var profileTypes = _repo.GetAll().Where(pt => pt.ProfileId == entity.ID).ToList();
             foreach(var pt in profileTypes)
             {
-                if (pt.BrowseName.StartsWith(oldNamespace))
+                if (pt.BrowseName != null && pt.BrowseName.StartsWith(oldNamespace))
                 {
                     pt.BrowseName = entity.Namespace + pt.BrowseName.Substring(oldNamespace.Length);
                 }

@@ -12,7 +12,7 @@ import { generateLogMessageString, getIconColorByProfileState, renderTitleBlock,
 import { AppSettings } from '../utils/appsettings'
 import { useLoadingContext, UpdateRecentFileList } from '../components/contexts/LoadingContext';
 import { isOwner } from './shared/ProfileRenderHelpers';
-import { isProfileValid, profileNew, saveProfile, toggleSearchFilterSelected, validate_All } from '../services/ProfileService';
+import { findSearchFilter, isProfileValid, profileNew, saveProfile, validate_All } from '../services/ProfileService';
 import ProfileEntityForm from './shared/ProfileEntity';
 import ProfileTypeDefinitionListGrid from './shared/ProfileTypeDefinitionListGrid';
 import ProfileActions from './shared/ProfileActions';
@@ -41,6 +41,7 @@ function ProfileEntity() {
     const [_searchCriteria, setSearchCriteria] = useState(null);
     const [_searchCriteriaChanged, setSearchCriteriaChanged] = useState(0);
     const [_defaultTab, setDefaultTab] = useState('general');
+    const [_forceReload, setForceReload] = useState(0); //increment this value to cause a re-get of the latest data.
 
     function initPageMode() {
         //if path contains new, then go into a new mode
@@ -62,7 +63,7 @@ function ProfileEntity() {
             //initialize spinner during loading
             setLoadingProps({ isLoading: true, message: null });
 
-            var result = null;
+            let result = null;
             try {
                 const data = { id: id };
                 const url = `profile/getbyid`;
@@ -124,6 +125,7 @@ function ProfileEntity() {
 
         //fetch our data
         // for view/edit modes
+        //this will execute on initial load and then anytime _forceReload increments - which happens on publish change.
         if ((id != null && id.toString() !== 'new')) {
             fetchData();
         }
@@ -135,7 +137,7 @@ function ProfileEntity() {
         return () => {
             console.log(generateLogMessageString('useEffect||Cleanup', CLASS_NAME));
         };
-    }, [id]);
+    }, [id, _forceReload]);
 
     //-------------------------------------------------------------------
     // Region: hook - trigger search criteria change to get the type definitions
@@ -158,8 +160,13 @@ function ProfileEntity() {
         if (id == null || id === "new") return;
 
         //assign profile id as filter
-        var criteria = JSON.parse(JSON.stringify(loadingProps.searchCriteria));
-        toggleSearchFilterSelected(criteria, AppSettings.SearchCriteriaCategory.Profile, parseInt(id));
+        let criteria = JSON.parse(JSON.stringify(loadingProps.searchCriteria));
+        //sometimes the cached version will not yet have this profile id. if that happens, add it by refreshing criteria list
+        const item = findSearchFilter(criteria, AppSettings.SearchCriteriaCategory.Profile, parseInt(id));
+        if (item == null) {
+            setLoadingProps({ refreshSearchCriteria: true });
+            return;
+        }
         setSearchCriteria(criteria);
         //trigger api to get data - unless in new mode
         setSearchCriteriaChanged(_searchCriteriaChanged + 1);
@@ -201,7 +208,7 @@ function ProfileEntity() {
 
     const validateForm = () => {
         console.log(generateLogMessageString(`validateForm`, CLASS_NAME));
-        var isValid = validate_All(_item);
+        const isValid = validate_All(_item);
         setIsValid(isValid);
         return isProfileValid(isValid);
     }
@@ -275,7 +282,7 @@ function ProfileEntity() {
         console.log(generateLogMessageString(`onPublishChange`, CLASS_NAME));
 
         //re-display current page to get updated status
-        history.push(`/profile/${_item.id}`);
+        setForceReload(_forceReload + 1);
     }
 
     // TBD: need loop to remove and add styles for "nav-item" CSS animations

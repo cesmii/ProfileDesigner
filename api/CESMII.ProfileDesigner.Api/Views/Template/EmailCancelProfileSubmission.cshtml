@@ -5,34 +5,39 @@
 }
 
 <div>
-    <h2>CANCEL Profile Submission</h2>
-    <p>We have received your request to cancel the profile submission for profile @Model.Namespace. Your may now edit your profile and submit it to be published at a later time.</p>
+    <p>We have received your request to cancel the Smart Manufacturing Profile submission for profile <b>@Model.Title</b>. Your may now edit your profile and submit it to be published at a later time.</p>
+    <p>Here are the details of your submission:</p>
+</div>
 
+    <div>
+        <h3>Profile: @Model.Title</h3>
+    <p style="margin-left:35px;">
+            Title: @Model.Title<br />
+            Description: @Model.Description<br />
+            Namespace: @Model.Namespace<br />
+            Version: @Model.Version<br />
+            Publication Date: @Model.PublishDate<br />
+            License: @Model.License<br />
+        </p>
+</div>
+<div>
+    <h3>Author and Organization</h3>
+    <p style="margin-left:35px;">
+        Author: @Model.Author.DisplayName [@Model.Author.Email]<br />
+        Organization: @Model.Author.Organization.Name
+    </p>
+    <br />
+</div>
+
+<div>
     <p>Thank you again for your support of the CESMII Profile Designer!</p>
+    <br/>
+    <br />
 
-    <p>Sincerely,<br/>
-    CESMII Support Team</p>
+    <p>
+        Sincerely,<br />
+        CESMII Support Team
+    </p>
     <br />
 </div>
 
-    <div>
-        <h2>Profile Author and Organization</h2>
-        <p>Author: @Model.Author.DisplayName [@Model.Author.Email]<br/>
-            Organization: @Model.Author.Organization.Name
-        </p>
-    <br />
-</div>
-
-    <div>
-        <h2>Profile Information</h2>
-        <p>
-            Profile Title: @Model.Title<br />
-            Profile Description: @Model.Description<br />
-            Profile Namespace: @Model.Namespace<br />
-            Profile Version: @Model.Version<br />
-            Profile Publication Date: @Model.PublishDate<br />
-            Profile License: @Model.License<br />
-        </p>
-    <br />
-    <br />
-</div>

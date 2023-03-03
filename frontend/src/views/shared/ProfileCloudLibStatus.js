@@ -202,7 +202,7 @@ function ProfileCloudLibStatus(props) {
             `You are about to submit your profile '${_publishProfileModal.item.namespace}' for publication. ` +
             `Once your profile is submitted, your profile will no longer be editable. ` +
             `After approval, the profile will appear in the CESMII Cloud Library and Marketplace. ` +
-            `The CESMII team will review your submission.To check on the status of your submission, visit the Profile Library.` ;
+            `The CESMII team will review your submission. To check on the status of your submission, visit the Profile Library.` ;
 
         const agreementMessage =
             `I have the right to distribute this profile under the '${_publishProfileModal.item.license}' license, ` +

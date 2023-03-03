@@ -50,7 +50,7 @@ function ProfileTypeDefinitionRow(props) { //props are item, showActions
             <>
                 <a href={`/type/extend/${props.item.id}/`} ><span alt="extend"><SVGIcon name="extend" /></span>Extend</a>
 
-                <TypeDefinitionActions item={props.item} activeAccount={props.activeAccount} onDeleteCallback={props.onDeleteCallback} showExtend={false} className='ml-2' />
+                <TypeDefinitionActions item={props.item} activeAccount={props.activeAccount} onDeleteCallback={props.onDeleteCallback} showExtend={false} className='ml-2' isReadOnly={props.item.isReadOnly} />
             </>
         );
     }

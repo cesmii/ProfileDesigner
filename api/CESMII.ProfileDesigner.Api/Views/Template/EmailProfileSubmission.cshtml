@@ -1,0 +1,68 @@
+﻿@using CESMII.ProfileDesigner.DAL.Models
+@model ProfileModel
+@{
+    Layout = "_EmailLayout";
+}
+
+<div>
+    
+    <p>Thank you for submitting your Smart Manufacturing Profile, <b>@Model.Title</b>, to the Clean Energy Smart Manufacturing Innovation Institute (CESMII) Cloud Library.</p>
+    <p>Here are the details of your submission:</p>
+</div>
+<div>
+    <h3>Profile: @Model.Title</h3>
+    <p style="margin-left:35px;">
+        Title: @Model.Title<br />
+        Description: @Model.Description<br />
+        Namespace: @Model.Namespace<br />
+        Version: @Model.Version<br />
+        Publication Date: @Model.PublishDate<br />
+        License: @Model.License<br />
+    </p>
+
+    <div>
+        <h3>Author and Organization</h3>
+        <p style="margin-left:35px;">
+            Author: @Model.Author.DisplayName [@Model.Author.Email]<br />
+            Organization: @Model.Author.Organization.Name
+        </p>
+    </div>
+</div>
+
+    <div>
+    <h3>Next Steps</h3>
+    <h4>Review</h4>
+    <p style="margin-left:35px;">
+        The CESMII team will review your submission. 
+        If your submission is approved, your profile will be included in the CESMII Cloud Library and <a href="https://marketplace.cesmii.org">Smart Manufacturing Marketplace</a>.
+        However, if your submission is rejected, we will send you information about what changes you need to make.
+</p>
+    </div>
+
+<div>
+    <h4>Editing/Canceling</h4>
+    <p style="margin-left:35px;">
+        Once you submit a profile for publishing, you cannot make any further changes to it. 
+        However, if you want to edit the profile, you can click the "Cancel Publish" button in the Profile Library to cancel the submission. 
+        You can then edit the profile and submit it again for publishing at a later time.
+    </p>
+
+</div>
+
+<div>
+    <h4>Status</h4>
+    <p style="margin-left:35px;">To find out the current status of your submission, go to the Profile Library. 
+        The Profile Library allows you to access all the profiles that you are working on 
+        and their published status. By visiting the Profile Library, you can check the status 
+        of your submission, including whether it is still under review, has been rejected, or has been published.</p>
+</div>
+
+<div>
+    <br/>
+    <br />
+    <p>Thank you for your support of the CESMII Smart Manufacturing Profile Designer!</p>
+    <br />
+    <p>Sincerely,<br />
+        CESMII Support Team
+    </p>
+</div>

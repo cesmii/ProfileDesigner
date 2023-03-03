@@ -398,7 +398,7 @@ namespace CESMII.OpcUa.NodeSetModel.Export.Smip
             }
             var childTypeDefinitionInfo = new ObjectTypeModelExportSmip { _model = _model.TypeDefinition }.ExportNode(library);
             childEquipmentTypeInfo.tiqModel.ChildTypeFqn = childTypeDefinitionInfo.tiqModel?.Fqn.ToArray();
-            childEquipmentTypeInfo.tiqModel.IsRequired = IsRequired(_model.ModelingRule);
+            childEquipmentTypeInfo.tiqModel.IsRequired = IsRequired(_model.ModellingRule);
             // document
             // max_number
             // min_number
@@ -618,7 +618,7 @@ namespace CESMII.OpcUa.NodeSetModel.Export.Smip
                     Document = variableInfo.tiqModel.Document,
                     Fqn = variableInfo.tiqModel.Fqn,
                     ChildTypeFqn = dataTypeInfo.tiqModel.Fqn.ToArray(),
-                    IsRequired = IsRequired(_model.ModelingRule),
+                    IsRequired = IsRequired(_model.ModellingRule),
                     // max_number
                     // min_number
                 };
@@ -636,7 +636,7 @@ namespace CESMII.OpcUa.NodeSetModel.Export.Smip
                 Fqn = variableInfo.tiqModel.Fqn,
 
                 DataType = dataTypeInfo.DataTypeName,
-                IsRequired = IsRequired(_model.ModelingRule),
+                IsRequired = IsRequired(_model.ModellingRule),
                 // TODO AttributeTypeFqn = GetSmipAttributeType(dataVariable.TypeDefinition),
                 //DefaultEnumerationValues =,
                 MeasurementUnitFqn = GetSmipMeasurementUnit(_model.EngineeringUnit),

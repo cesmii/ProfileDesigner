@@ -8,28 +8,8 @@
     border-bottom: 1px solid color("alto");
     //transition: all 200ms ease-in-out;
 
-    .col-avatar {
-        min-width: 36px;
-        width: 36px;
-        max-width: 36px;
-        height: 36px;
-        font-size: 34px;
-        font-weight: 200;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-right: 5px;
-        color: color("white");
-        background-color: color("cerulean");
-        border-radius: 4px;
-    }
-
-    .col.clickable:hover {
-        cursor: pointer;
-    }
-
     &.selectable .col-select {
-        margin-top:13px;
+        margin-top: 13px;
     }
     /*
     &.mine {

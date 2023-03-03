@@ -8,16 +8,16 @@ import { Button } from 'react-bootstrap';
 import { useMsal } from "@azure/msal-react";
 import axiosInstance from "../services/AxiosService";
 
-import { generateLogMessageString, renderTitleBlock, useQueryString } from '../utils/UtilityService'
+import { generateLogMessageString, getIconColorByProfileState, renderTitleBlock, useQueryString } from '../utils/UtilityService'
 import { AppSettings } from '../utils/appsettings'
 import { useLoadingContext, UpdateRecentFileList } from '../components/contexts/LoadingContext';
 import { isOwner } from './shared/ProfileRenderHelpers';
-import { isProfileValid, profileNew, saveProfile, toggleSearchFilterSelected, validate_All } from '../services/ProfileService';
+import { findSearchFilter, isProfileValid, profileNew, saveProfile, validate_All } from '../services/ProfileService';
 import ProfileEntityForm from './shared/ProfileEntity';
 import ProfileTypeDefinitionListGrid from './shared/ProfileTypeDefinitionListGrid';
 import ProfileActions from './shared/ProfileActions';
+import ProfileCloudLibStatus from './shared/ProfileCloudLibStatus'
 
-import color from '../components/Constants';
 import './styles/ProfileEntity.scss';
 
 const CLASS_NAME = "ProfileEntity";
@@ -35,13 +35,13 @@ function ProfileEntity() {
     const [_mode, setMode] = useState(initPageMode());
     const { loadingProps, setLoadingProps } = useLoadingContext();
     const [_item, setItem] = useState(null);
-    const [_isValid, setIsValid] = useState({ namespace: true, namespaceFormat: true, description: true, type: true, symbolicName: true });
-    const _iconName = 'folder-profile';
-    const _iconColor = color.shark;
+    const [_isValid, setIsValid] = useState({ namespace: true, namespaceFormat: true, description: true, type: true, symbolicName: true, licenseExpression: true });
+    const _iconName = AppSettings.IconMapper.Profile;
 
     const [_searchCriteria, setSearchCriteria] = useState(null);
     const [_searchCriteriaChanged, setSearchCriteriaChanged] = useState(0);
     const [_defaultTab, setDefaultTab] = useState('general');
+    const [_forceReload, setForceReload] = useState(0); //increment this value to cause a re-get of the latest data.
 
     function initPageMode() {
         //if path contains new, then go into a new mode
@@ -63,7 +63,7 @@ function ProfileEntity() {
             //initialize spinner during loading
             setLoadingProps({ isLoading: true, message: null });
 
-            var result = null;
+            let result = null;
             try {
                 const data = { id: id };
                 const url = `profile/getbyid`;
@@ -125,6 +125,7 @@ function ProfileEntity() {
 
         //fetch our data
         // for view/edit modes
+        //this will execute on initial load and then anytime _forceReload increments - which happens on publish change.
         if ((id != null && id.toString() !== 'new')) {
             fetchData();
         }
@@ -136,7 +137,7 @@ function ProfileEntity() {
         return () => {
             console.log(generateLogMessageString('useEffect||Cleanup', CLASS_NAME));
         };
-    }, [id]);
+    }, [id, _forceReload]);
 
     //-------------------------------------------------------------------
     // Region: hook - trigger search criteria change to get the type definitions
@@ -159,8 +160,18 @@ function ProfileEntity() {
         if (id == null || id === "new") return;
 
         //assign profile id as filter
-        var criteria = JSON.parse(JSON.stringify(loadingProps.searchCriteria));
-        toggleSearchFilterSelected(criteria, AppSettings.SearchCriteriaCategory.Profile, parseInt(id));
+        let criteria = JSON.parse(JSON.stringify(loadingProps.searchCriteria));
+
+        //sometimes the cached version will not yet have this profile id. if that happens, add it by refreshing criteria list
+        const item = findSearchFilter(criteria, AppSettings.SearchCriteriaCategory.Profile, parseInt(id));
+        if (item == null) {
+            setLoadingProps({ refreshSearchCriteria: true });
+            return;
+        }
+        else {
+            item.selected = true;
+        }
+
         setSearchCriteria(criteria);
         //trigger api to get data - unless in new mode
         setSearchCriteriaChanged(_searchCriteriaChanged + 1);
@@ -180,15 +191,29 @@ function ProfileEntity() {
     //-------------------------------------------------------------------
     //on validate handler from child form
     const onValidate = (isValid) => {
-        setIsValid({
-            namespace: isValid.namespace,
-            namespaceFormat: isValid.namespaceFormat
-        });
+        if (isValid.namespace != null) {
+            setIsValid(previous => (
+                {
+                    ...previous,
+                    namespace: isValid.namespace,
+                    namespaceFormat: isValid.namespaceFormat
+                })
+            );
+
+        }
+        if (isValid.licenseExpression != null) {
+            setIsValid(previous => (
+                {
+                    ...previous,
+                    licenseExpression: isValid.licenseExpression
+                })
+            );
+        }
     }
 
     const validateForm = () => {
         console.log(generateLogMessageString(`validateForm`, CLASS_NAME));
-        var isValid = validate_All(_item);
+        const isValid = validate_All(_item);
         setIsValid(isValid);
         return isProfileValid(isValid);
     }
@@ -224,7 +249,7 @@ function ProfileEntity() {
         console.log(generateLogMessageString('onSaveSuccess', CLASS_NAME));
         //hide a spinner, show a message
         setLoadingProps({
-            isLoading: false, message: null, inlineMessages: 
+            isLoading: false, message: null, inlineMessages:
                 [{ id: new Date().getTime(), severity: "success", body: `Item was saved`, isTimed: true }]
             , refreshProfileCount: true
             , refreshSearchCriteria: true
@@ -258,6 +283,13 @@ function ProfileEntity() {
         setSearchCriteriaChanged(_searchCriteriaChanged + 1);
     };
 
+    const onPublishChange = (success) => {
+        console.log(generateLogMessageString(`onPublishChange`, CLASS_NAME));
+
+        //re-display current page to get updated status
+        setForceReload(_forceReload + 1);
+    }
+
     // TBD: need loop to remove and add styles for "nav-item" CSS animations
     const tabListener = (eventKey) => {
     }
@@ -266,17 +298,22 @@ function ProfileEntity() {
     // Region: Render Helpers
     //-------------------------------------------------------------------
     const renderHeaderRow = (caption) => {
+        const iconColor = getIconColorByProfileState(_item?.profileState);
         return (
             <div className="row pb-3">
                 <div className="col-sm-7 mr-auto d-flex">
-                    {renderTitleBlock(caption, _iconName, _iconColor)}
+                    {renderTitleBlock(caption, _iconName, iconColor)}
                 </div>
                 <div className="col-sm-5 d-flex align-items-center justify-content-end">
+                    {(_item != null) &&
+                        <ProfileCloudLibStatus item={_item} activeAccount={_activeAccount} saveAndPublish={true} showButton={true} showStatus={false}
+                            onPublishProfileCallback={onPublishChange} onWithdrawProfileCallback={onPublishChange} />
+                    }
                     {(_mode.toLowerCase() !== "view") &&
                         <>
-                        <Button variant="text-solo" className="mx-1 btn-auto auto-width" href={`/profiles/library`} >Cancel</Button>
-                        <Button variant="secondary" type="button" className="mx-3 d-none d-lg-block" onClick={onSave} >Save</Button>
-                        <Button variant="icon-outline" type="button" className="mx-1 d-lg-none" onClick={onSave} title="Save" ><i className="material-icons">save</i></Button>
+                            <Button variant="text-solo" className="mx-1 btn-auto auto-width" href={`/profiles/library`} >Cancel</Button>
+                            <Button variant="secondary" type="button" className="mx-3 d-none d-lg-block" onClick={onSave} >Save</Button>
+                            <Button variant="icon-outline" type="button" className="mx-1 d-lg-none" onClick={onSave} title="Save" ><i className="material-icons">save</i></Button>
                         </>
                     }
                     {(_mode.toLowerCase() !== "new") &&
@@ -351,8 +388,15 @@ function ProfileEntity() {
                 <title>{_caption}</title>
             </Helmet>
             {renderHeaderRow(`Profile ${_name === '' ? '' : ' - ' + _name}`)}
+            {(_item != null && _item.profileState === AppSettings.ProfileStateEnum.CloudLibRejected &&
+                _item.cloudLibApprovalDescription != null &&
+                _item.cloudLibApprovalDescription !== '') &&
+                <div className="col-sm-12 d-flex" >
+                    <p className="alert alert-danger my-2 small-size w-100" >Publish Rejection Reason: {_item.cloudLibApprovalDescription}</p>
+                </div>
+            }
             {(_item != null && id !== "new") &&
-                renderTabbedView()  
+                renderTabbedView()
             }
             {(_item != null && id === "new") &&
                 renderNewView()

@@ -37,7 +37,6 @@ function ProfileTypeDefinitionListGrid(props) {
     });
     const [_pager, setPager] = useState({ currentPage: 1, pageSize: _profileTypeDefPreferences.pageSize, searchVal: null});
     const [_displayMode, setDisplayMode] = useState(_profileTypeDefPreferences.displayMode == null ? "list" : _profileTypeDefPreferences.displayMode);
-    const [_deleteModal, setDeleteModal] = useState({ show: false, item: null });
     const [_error, setError] = useState({ show: false, message: null, caption: null });
     const [_refreshData, setRefreshData] = useState(0);
     const [_itemCount, setItemCount] = useState(0);
@@ -104,6 +103,13 @@ function ProfileTypeDefinitionListGrid(props) {
         setDataRows({ ..._dataRows, all: copy });
         //bubble up to parent
         if (props.onGridRowSelect) props.onGridRowSelect(item);
+    };
+
+    const onDeleteCallback = (isSuccess) => {
+        console.log(generateLogMessageString(`onDeleteCallback`, CLASS_NAME));
+        if (isSuccess) {
+            setRefreshData(_refreshData + 1);
+        }
     };
 
     //-------------------------------------------------------------------
@@ -185,69 +191,6 @@ function ProfileTypeDefinitionListGrid(props) {
     //-------------------------------------------------------------------
     // Region: Delete event handlers
     //-------------------------------------------------------------------
-    // Delete ONE - from row
-    const onDeleteItemClick = (item) => {
-        console.log(generateLogMessageString(`onDeleteItemClick`, CLASS_NAME));
-        setDeleteModal({ show: true, item: item });
-    };
-
-    //on confirm click within the modal, this callback will then trigger the next step (ie call the API)
-    const onDeleteConfirm = () => {
-        console.log(generateLogMessageString(`onDeleteConfirm`, CLASS_NAME));
-        deleteItem(_deleteModal.item);
-        setDeleteModal({ show: false, item: null });
-    };
-
-    const deleteItem = (item) => {
-        console.log(generateLogMessageString(`deleteItem||Id:${item.id}`, CLASS_NAME));
-
-        //show a spinner
-        setLoadingProps({ isLoading: true, message: "" });
-
-        //perform delete call
-        var data = { id: item.id };
-        var url = `profiletypedefinition/delete`;
-        axiosInstance.post(url, data)  //api allows one or many
-            .then(result => {
-
-                if (result.data.isSuccess) {
-                    //hide a spinner, show a message
-                    setLoadingProps({
-                        isLoading: false, message: null, inlineMessages: [
-                            {
-                                id: new Date().getTime(), severity: "success", body: `Type definition was deleted`, isTimed: true
-                            }
-                        ],
-                        //get count from server...this will trigger that call on the side menu
-                        refreshTypeCount: true
-                    });
-                    //force re-load to show the imported nodesets in table
-                    setRefreshData(_refreshData + 1);
-                }
-                else {
-                    //update spinner, messages
-                    setError({ show: true, caption: 'Delete Item Error', message: `An error occurred deleting this item: ${result.data.message}` });
-                    setLoadingProps({isLoading: false, message: null});
-                }
-
-            })
-            .catch(error => {
-                //hide a spinner, show a message
-                setError({ show: true, caption: 'Delete Item Error', message: `An error occurred deleting this item.` });
-                setLoadingProps({ isLoading: false, message: null });
-
-                console.log(generateLogMessageString('deleteItem||error||' + JSON.stringify(error), CLASS_NAME, 'error'));
-                console.log(error);
-                //scroll back to top
-                window.scroll({
-                    top: 0,
-                    left: 0,
-                    behavior: 'smooth',
-                });
-            });
-
-    };
-
     //render error message as a modal to force user to say ok.
     const renderErrorMessage = () => {
 
@@ -277,7 +220,7 @@ function ProfileTypeDefinitionListGrid(props) {
 
         const mainBody = _dataRows.profileFilters.map((item) => {
             return (
-                <ProfileItemRow key={item.id} mode="simple" item={item} activeAccount={_activeAccount}
+                <ProfileItemRow key={item.id} mode="simple" item={item} activeAccount={_activeAccount} 
                     cssClass={`profile-list-item shaded rounded ${_dataRows.profileFilters.length > 1 ? 'mb-1' : ''} ${props.rowCssClass ?? ''}`} />)
             });
 
@@ -317,7 +260,7 @@ function ProfileTypeDefinitionListGrid(props) {
         }
         const mainBody = _dataRows.all.map((item) => {
             return (<ProfileTypeDefinitionRow key={item.id} item={item} activeAccount={_activeAccount} showActions={true}
-                cssClass={`profile-list-item ${props.rowCssClass ?? ''}`} onDeleteCallback={onDeleteItemClick} displayMode={_displayMode}
+                cssClass={`profile-list-item ${props.rowCssClass ?? ''}`} onDeleteCallback={onDeleteCallback} displayMode={_displayMode}
                 selectMode={props.selectMode} onRowSelect={onRowSelect} selectedItems={props.selectedItems} />)
         });
         if (_displayMode === "tile") {
@@ -338,32 +281,6 @@ function ProfileTypeDefinitionListGrid(props) {
         }
     }
 
-    //render the delete modal when show flag is set to true
-    //callbacks are tied to each button click to proceed or cancel
-    const renderDeleteConfirmation = () => {
-
-        if (!_deleteModal.show) return;
-
-        var message = `You are about to delete your type definition '${_deleteModal.item.name}'. This action cannot be undone. Are you sure?`;
-        var caption = `Delete Item`;
-
-        return (
-            <>
-                <ConfirmationModal showModal={_deleteModal.show} caption={caption} message={message}
-                    icon={{ name: "warning", color: color.trinidad }}
-                    confirm={{ caption: "Delete", callback: onDeleteConfirm, buttonVariant: "danger" }}
-                    cancel={{
-                        caption: "Cancel",
-                        callback: () => {
-                            console.log(generateLogMessageString(`onDeleteCancel`, CLASS_NAME));
-                            setDeleteModal({ show: false, item: null });
-                        },
-                        buttonVariant: null
-                    }} />
-            </>
-        );
-    };
-
     //-------------------------------------------------------------------
     // Region: Render final output
     //-------------------------------------------------------------------
@@ -382,7 +299,6 @@ function ProfileTypeDefinitionListGrid(props) {
                     {renderPagination()}
                 </div>
             </div>
-            {renderDeleteConfirmation()}
             {renderErrorMessage()}
         </>
     )

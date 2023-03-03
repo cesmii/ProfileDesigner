@@ -137,11 +137,7 @@
             modelBuilder.Entity<LookupDataTypeRanked>().ToTable("v_data_type_rank", "public"); 
 
             //NodeSet Tables
-            modelBuilder.Entity<StandardNodeSet>().ToTable("standard_nodeset", "public");
             modelBuilder.Entity<Profile>().ToTable("profile", "public");
-            //FK nodeset to lookup nodeset table
-            modelBuilder.Entity<Profile>()
-                .HasOne(r => r.StandardProfile).WithMany().HasForeignKey(r => r.StandardProfileID);
 
             modelBuilder.Entity<Profile>()
                 .HasMany(r => r.NodeSetFiles).WithMany(f => f.Profiles)
@@ -185,6 +181,19 @@
             modelBuilder.Entity<ImportProfileWarning>()
                 .HasOne(x => x.Profile).WithMany(x => x.ImportWarnings).HasForeignKey(x => x.ProfileId)
                 ;
+
+            //------------------------------------------------
+            //Special scenario - need to use this to call some stored procs
+            //  which return collections of data
+            //------------------------------------------------
+            modelBuilder.Entity<ProfileTypeDefinitionSimple>(e =>
+            {
+                e.HasNoKey();
+            });
+            modelBuilder.Entity<StoredProcedureCount>(e =>
+            {
+                e.HasNoKey();
+            });
 
         }
     }

@@ -24,15 +24,13 @@ namespace CESMII.ProfileDesigner.Opc.Ua.NodeSetDBCache
     public class UANodeSetDBCache : IUANodeSetCache
     {
         private readonly IDal<NodeSetFile, NodeSetFileModel> _dalNodeSetFile;
-        private readonly IDal<StandardNodeSet, StandardNodeSetModel> _dalStandardNodeSet;
         private readonly ICloudLibDal<CloudLibProfileModel> _cloudLibDal;
         private UserToken _userToken;
         private readonly ILogger _logger;
 
-        public UANodeSetDBCache(IDal<NodeSetFile, NodeSetFileModel> dalNodeSetFile, IDal<StandardNodeSet, StandardNodeSetModel> dalStandardNodeSet, ICloudLibDal<CloudLibProfileModel> cloudLibDal, ILogger<UANodeSetDBCache> logger)
+        public UANodeSetDBCache(IDal<NodeSetFile, NodeSetFileModel> dalNodeSetFile, ICloudLibDal<CloudLibProfileModel> cloudLibDal, ILogger<UANodeSetDBCache> logger)
         {
             _dalNodeSetFile = dalNodeSetFile;
-            _dalStandardNodeSet = dalStandardNodeSet;
             _cloudLibDal = cloudLibDal;
             _logger = logger;
         }
@@ -167,6 +165,16 @@ namespace CESMII.ProfileDesigner.Opc.Ua.NodeSetDBCache
         public bool AddNodeSet(UANodeSetImportResult results, string nodeSetXml, object authorId, bool requested)
         {
             bool WasNewSet = false;
+
+            //Fix: Error - Data at the root level is invalid. Line 1, position 1.
+            //Reference: https://stackoverflow.com/questions/17795167/xml-loaddata-data-at-the-root-level-is-invalid-line-1-position-1
+            string _byteOrderMarkUtf8 = Encoding.UTF8.GetString(Encoding.UTF8.GetPreamble());
+            if (nodeSetXml.StartsWith(_byteOrderMarkUtf8, StringComparison.Ordinal))
+            {
+                nodeSetXml = nodeSetXml.Remove(0, _byteOrderMarkUtf8.Length);
+            }
+            //end fix
+
             #region Comment Processing
             var doc = XElement.Load(new StringReader(nodeSetXml));
             var comments = doc.DescendantNodes().OfType<XComment>();
@@ -268,16 +276,7 @@ namespace CESMII.ProfileDesigner.Opc.Ua.NodeSetDBCache
                 {
                     tModel.NameVersion.CCacheId = myModel;
                     tModel.NewInThisImport = newInImport;
-                    
-                    var standardNodeSet = _dalStandardNodeSet
-                        .Where(
-                            sns => sns.Namespace == tModel.NameVersion.ModelUri && sns.PublishDate == tModel.NameVersion.PublicationDate,
-                            userToken)
-                        .Data?.FirstOrDefault();
-                    if (standardNodeSet != null)
-                    {
-                        tModel.NameVersion.UAStandardModelID = standardNodeSet?.ID;
-                    }
+                   
                 }
                 foreach (var model in results.Models)
                 {

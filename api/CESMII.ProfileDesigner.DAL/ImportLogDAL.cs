@@ -116,6 +116,34 @@
             return entity.ID;
         }
 
+        /// <summary>
+        /// Delete many import log items. Intended to clean up import log of old messages. Note this is a soft delete. 
+        /// </summary>
+        /// <param name="ids"></param>
+        /// <param name="userToken"></param>
+        /// <returns></returns>
+        public override async Task<int> DeleteManyAsync(List<int> ids, UserToken userToken)
+        {
+            var items = base.FindByCondition(userToken, x => ids.Contains(x.ID ?? 0));
+            if (!items.Any()) return 0;
+
+            try
+            {
+                _repo.StartTransaction();
+                foreach (var entity in items)
+                {
+                    entity.IsActive = false;
+                    await _repo.UpdateAsync(entity);
+                }
+                await _repo.CommitTransactionAsync();
+                return items.Count();
+            }
+            catch (Exception)
+            {
+                _repo.RollbackTransaction();
+                throw;
+            }
+        }
 
         protected override ImportLogModel MapToModel(ImportLog entity, bool verbose = true)
         {

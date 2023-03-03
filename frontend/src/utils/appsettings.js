@@ -92,14 +92,31 @@ export const AppSettings = {
         NodeSetXML: 'NodeSet Xml',
         CloudLib: 'Cloud Library'
     }
-    , ProfileLicenseEnum: {
-        0: 'MIT',
-        1: 'Apache 2.0',
-        2: 'Custom (see License URL)'
-    }
     , ProfileListMode: {
         Profile: 1,
         CloudLib: 2
+    }
+    , ProfileFilterTypeIds: {
+        Mine: 1,
+        BaseProfile: 2,
+        CloudLib: 3
+    }
+    , PublishProfileStatus: {
+        Pending: "PENDING",
+        Approved: "APPROVED",
+        Rejected: "REJECTED",
+        Canceled: "CANCELED",
+        Unknown: "UNKNOWN"
+    }
+    , ProfileStateEnum: {
+        Core: 1,
+        CloudLibPublished: 2,
+        CloudLibPending: 3,
+        CloudLibApproved: 4,
+        CloudLibRejected: 5,
+        CloudLibCanceled: 6,
+        Local: 7,
+        Unknown: 0
     }
     //MSAL (Authentication) Config
     , MsalConfig: {
@@ -144,7 +161,8 @@ export const AppSettings = {
         },
     }
     , MsalScopes: [process.env.REACT_APP_MSAL_SCOPE]  //tied to scope defined in app registration / scope, set in Azure AAD
-    //, AADUserRole: "cesmii.profiledesigner.user"
+    , AADAdminRole: "cesmii.profiledesigner.admin"
+    , IconMapper: { Profile: 'profile', TypeDefinition: 'cube', Attribute: 'puzzle-piece', Interface: 'key'}
 }
 
 export const LookupData = {

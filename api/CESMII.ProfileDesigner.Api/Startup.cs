@@ -1,44 +1,32 @@
-using System;
-using System.Text;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
+using CESMII.Common.CloudLibClient;
+using CESMII.Common.SelfServiceSignUp;
+using CESMII.Common.SelfServiceSignUp.Services;
+using CESMII.OpcUa.NodeSetImporter;
+using CESMII.ProfileDesigner.Api.Shared.Extensions;
+using CESMII.ProfileDesigner.Api.Shared.Utils;
+using CESMII.ProfileDesigner.Common;
+using CESMII.ProfileDesigner.Common.Enums;
+using CESMII.ProfileDesigner.Common.Utils;
+using CESMII.ProfileDesigner.DAL;
+using CESMII.ProfileDesigner.DAL.Models;
+using CESMII.ProfileDesigner.Data.Contexts;
+using CESMII.ProfileDesigner.Data.Entities;
+using CESMII.ProfileDesigner.Data.Repositories;
+using CESMII.ProfileDesigner.OpcUa;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
 using Microsoft.Identity.Web;
 using Microsoft.IdentityModel.Logging;
-
-using NLog;
-using NLog.Extensions.Logging;
-
-using CESMII.ProfileDesigner.Common;
-using CESMII.ProfileDesigner.Common.Utils;
-using CESMII.ProfileDesigner.Api.Shared.Utils;
-using CESMII.ProfileDesigner.Data.Contexts;
-using CESMII.ProfileDesigner.Data.Entities;
-using CESMII.ProfileDesigner.Data.Repositories;
-using CESMII.ProfileDesigner.DAL;
-using CESMII.ProfileDesigner.DAL.Models;
-using CESMII.ProfileDesigner.Common.Enums;
-using CESMII.ProfileDesigner.OpcUa;
-using CESMII.ProfileDesigner.Api.Shared.Extensions;
-using CESMII.Common.CloudLibClient;
+using Microsoft.OpenApi.Models;
 using Opc.Ua.Cloud.Library.Client;
-using System.IdentityModel.Tokens.Jwt;
-using CESMII.OpcUa.NodeSetImporter;
+using System;
+using System.Threading.Tasks;
 
 namespace CESMII.ProfileDesigner.Api
 {
@@ -83,8 +71,11 @@ namespace CESMII.ProfileDesigner.Api
             services.AddScoped<IRepository<ProfileTypeDefinitionAnalytic>, BaseRepo<ProfileTypeDefinitionAnalytic, ProfileDesignerPgContext>>();
             services.AddScoped<IRepository<ProfileTypeDefinitionFavorite>, BaseRepo<ProfileTypeDefinitionFavorite, ProfileDesignerPgContext>>();
 
+            //profile type def related / stored proc repo
+            services.AddScoped<IRepositoryStoredProcedure<ProfileTypeDefinitionSimple>, BaseRepoStoredProcedure<ProfileTypeDefinitionSimple, ProfileDesignerPgContext>>();
+            services.AddScoped<IStoredProcedureDal<ProfileTypeDefinitionSimpleModel>, ProfileTypeDefinitionRelatedDAL>();
+
             //NodeSet Related Tables
-            services.AddScoped<IRepository<StandardNodeSet>, BaseRepo<StandardNodeSet, ProfileDesignerPgContext>>();
             services.AddScoped<IRepository<Profile>, BaseRepo<Profile, ProfileDesignerPgContext>>();
             services.AddScoped<IRepository<NodeSetFile>, BaseRepo<NodeSetFile, ProfileDesignerPgContext>>();
 
@@ -105,7 +96,6 @@ namespace CESMII.ProfileDesigner.Api
             services.AddScoped<IDal<ProfileTypeDefinitionAnalytic, ProfileTypeDefinitionAnalyticModel>, ProfileTypeDefinitionAnalyticDAL>();
 
             //NodeSet related
-            services.AddScoped<IDal<StandardNodeSet, StandardNodeSetModel>, StandardNodeSetDAL>();
             services.AddScoped<IDal<Profile, ProfileModel>, ProfileDAL>();
             services.AddScoped<IDal<NodeSetFile, NodeSetFileModel>, NodeSetFileDAL>();
             services.AddScoped<ICloudLibDal<CloudLibProfileModel>, CloudLibDAL>();
@@ -114,10 +104,13 @@ namespace CESMII.ProfileDesigner.Api
 
             // Configuration, utils, one off objects
             services.AddSingleton<IConfiguration>(Configuration);
-            services.AddSingleton<ConfigUtil>();  //helper to allow us to bind to app settings data 
-            services.AddSingleton<MailRelayService>();  //helper for emailing
-            services.AddScoped<DAL.Utils.ProfileMapperUtil>();  //helper to allow us to modify profile data for front end 
+            services.AddSingleton<ConfigUtil>();  // helper to allow us to bind to app settings data 
+            services.AddScoped<DAL.Utils.ProfileMapperUtil>();  // helper to allow us to modify profile data for front end 
+            services.AddScoped<Utils.CloudLibraryUtil>();  // helper to allow controllers to do stuff related to CloudLibPublish 
             services.AddOpcUaImporter(Configuration);
+            services.AddSingleton<SelfSignUpAuthFilter>();               // Validator for self-sign up - authentiate API Connector username & password.
+            services.AddSingleton<SelfServiceSignUpNotifyController>();  // API Connector for Self-Service Sign-Up User Flow
+            services.AddSingleton<MailRelayService>();                   // helper for emailing (in CESMII.Common.SelfServiceSignUp)
             //services.AddSingleton<UACloudLibClient>(sp => new UACloudLibClient(configuration.GetSection("CloudLibrary")new UACloudLibClient.Options))
 
             services.AddControllers();
@@ -181,6 +174,8 @@ namespace CESMII.ProfileDesigner.Api
             services.AddHostedService<LongRunningService>();
             services.AddSingleton<BackgroundWorkerQueue>();
             services.AddScoped<Utils.ImportService>();
+
+            services.AddMvc(); //add this to permit emailing to bind models to view templates.
 
             services.AddHttpsRedirection(options =>
             {

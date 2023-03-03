@@ -1,3 +1,4 @@
+import color from "../components/Constants";
 import { SVGIcon } from "../components/SVGIcon";
 import { AppSettings } from "./appsettings";
 
@@ -208,22 +209,41 @@ export function getProfileTypeCaption(item) {
 
 //TBD - move to profile service file
 export function getTypeDefIconName(item) {
-    if (item == null || item.type == null) return 'profile';
+    if (item == null || item.type == null) return AppSettings.IconMapper.TypeDefinition;
     //TBD - eventually get icons specific for each type
     switch (item.type.name.replace(/\s/g,'').toLowerCase()) {
         case "namespace":
             return "folder-profile";
         case 'interface':
-            return 'key';
+            return AppSettings.IconMapper.Interface;
         case 'customdatatype':
             return 'customdatatype';
         case 'abstract':
         case 'structure':
         case 'class':
         default:
-            return 'profile';
+            return AppSettings.IconMapper.TypeDefinition;
     }
 }
+
+export const getIconColorByProfileState = (profileState) => {
+    if (profileState == null) return color.readOnly;
+
+    switch (profileState) {
+        case AppSettings.ProfileStateEnum.CloudLibPending:
+        //    iconColor = color.amber;
+        //    break;
+        case AppSettings.ProfileStateEnum.CloudLibRejected:
+        //    iconColor = color.cardinal;
+        //    break;
+        case AppSettings.ProfileStateEnum.Local:
+            return color.mine;
+        case AppSettings.ProfileStateEnum.CloudLibPublished:
+        case AppSettings.ProfileStateEnum.Core:
+        default:
+            return color.readOnly;
+    }
+};
 
 ///--------------------------------------------------------------------------
 /// Helper - scroll to top
@@ -391,7 +411,7 @@ export const renderTitleBlock = (caption, iconName, iconColor ) => {
     return (
         <div className="header-title-block d-flex mb-2">
             {(iconName != null && iconName !== "") &&
-                <span className="mr-3">
+                <span className="mr-2">
                     <SVGIcon name={iconName} size="36" fill={iconColor} alt={caption} />
                 </span>
             }
@@ -465,3 +485,15 @@ export const isInRole = (account, roleName) => {
 export function useQueryString(key) {
     return new URLSearchParams(window.location.search).get(key);
 }
+
+///--------------------------------------------------------------------------
+/// menu icon convenience code
+//--------------------------------------------------------------------------
+export function renderMenuIcon(iconName, alt) {
+    if (iconName == null || iconName === '') return null;
+    return (
+        <span className="mr-3" alt={`${alt == null ? iconName : alt}`}><SVGIcon name={iconName} size={24} /></span>
+    );
+}
+
+

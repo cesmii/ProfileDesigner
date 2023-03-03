@@ -780,13 +780,13 @@ function ProfileTypeDefinitionEntity() {
 
         //React-bootstrap bug if you launch modal, then the dropdowns don't work. Add onclick code to the drop down as a workaround - https://github.com/react-bootstrap/react-bootstrap/issues/5561
         return (
-            <TypeDefinitionActions item={_item} activeAccount={_activeAccount} onDeleteCallback={onDelete} showExtend={true} className='ml-2' />
+            <TypeDefinitionActions item={_item} activeAccount={_activeAccount} onDeleteCallback={onDelete} showExtend={true} className='ml-2' isReadOnly={_isReadOnly} />
         );
     }
 
     const renderButtons = () => {
-        var urlCancel = history.location.pathname.indexOf('/wizard/') > - 1 ? _navInfo.prev.href : '/types/library';
-        var captionCancel = history.location.pathname.indexOf('/wizard/') > - 1 ? 'Back' : 'Cancel';
+        const urlCancel = history.location.pathname.indexOf('/wizard/') > - 1 ? _navInfo.prev.href : '/types/library';
+        const captionCancel = history.location.pathname.indexOf('/wizard/') > - 1 ? 'Back' : 'Cancel';
         if (mode.toLowerCase() !== "view") {
             return (
                 <>

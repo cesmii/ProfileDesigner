@@ -31,7 +31,7 @@ function DependencyItemRow(props) { //props are item, showActions
     if (props.isHeader) {
         return (
             <div className={cssClass}>
-                <div className={`col-avatar font-weight-bold`} >Name</div>
+                <div className={`font-weight-bold`} >Name</div>
                 <div className="col-sm-3 left font-weight-bold" ></div>
                 <div className="col-sm-4 left font-weight-bold" >Profile</div>
                 <div className="col-sm-4 left font-weight-bold" >Description</div>

@@ -168,7 +168,7 @@ function TypeDefinitionActions(props) {
                     {/*{(props.currentUserId != null && props.currentUserId === item.authorId) &&*/}
                     {/*    <Dropdown.Item key="moreVert2" href={getTypeDefinitionNewUrl()} ><span className="mr-3" alt="extend"><SVGIcon name="extend" /></span>New Type Definition</Dropdown.Item>*/}
                     {/*}*/}
-                    {isOwner(props.item, props.activeAccount) &&
+                    {!props.isReadOnly &&
                         <>
                         <Dropdown.Item key="moreVert3" onClick={onDeleteItem} >{renderMenuIcon("delete")}Delete Type Definition</Dropdown.Item>
                         <Dropdown.Divider />

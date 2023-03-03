@@ -146,7 +146,7 @@ namespace CESMII.ProfileDesigner.Api.Utils
         /// log messages to it. 
         /// </summary>
         /// <returns></returns>
-        private IDal<ImportLog, ImportLogModel> GetImportLogDalIsolated()
+        public IDal<ImportLog, ImportLogModel> GetImportLogDalIsolated()
         {
             var connString = _configuration.GetConnectionString("ProfileDesignerDB");
             var options = new Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<Data.Contexts.ProfileDesignerPgContext>()

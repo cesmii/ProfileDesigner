@@ -1,10 +1,7 @@
 import React from 'react'
 
 //import { generateLogMessageString } from '../../utils/UtilityService'
-import { isOwner, renderLinkedName } from './ProfileRenderHelpers';
-import { getTypeDefIconName } from '../../utils/UtilityService';
-import { SVGIcon } from '../../components/SVGIcon'
-import color from '../../components/Constants'
+import { renderLinkedName, renderTypeIcon } from './ProfileRenderHelpers';
 import { getProfileCaption } from '../../services/ProfileService';
 
 //const CLASS_NAME = "DependencyItemRow";
@@ -18,14 +15,6 @@ function DependencyItemRow(props) { //props are item, showActions
     //-------------------------------------------------------------------
     // Region: Render helpers
     //-------------------------------------------------------------------
-    const renderIcon = () => {
-        if (props.item == null || props.item.type == null) return;
-
-        var iconName = getTypeDefIconName(props.item);
-        var iconColor = !isOwner(props.item, props.activeAccount) ? color.nevada : color.cornflower;
-
-        return (<span className="mr-2" ><SVGIcon name={iconName} fill={iconColor} alt={iconName} /></span>)
-    }
 
     //build the row
     //-------------------------------------------------------------------
@@ -35,16 +24,17 @@ function DependencyItemRow(props) { //props are item, showActions
     if (!props.isHeader && (props.item === null || props.item === {})) return null;
     if (!props.isHeader && props.item.name == null) return null;
 
-    var cssClass = "row " + props.cssClass + (props.isHeader ? " bottom header" : " center");
+    const cssClass = "row py-1 align-items-center " + props.cssClass + (props.isHeader ? " bottom header" : " center");
+    const avatarCss = `col-avatar mt-1 mr-2 rounded-circle avatar info elevated`;
 
     //header row - controlled by props flag
     if (props.isHeader) {
         return (
             <div className={cssClass}>
-                <div className="col col-x-small left pl-3" >&nbsp;</div>
-                <div className="col col-25 left" >Name</div>
-                <div className="col col-40 left" >Profile</div>
-                <div className="col left auto-size" >Description</div>
+                <div className={`col-avatar font-weight-bold`} >Name</div>
+                <div className="col-sm-3 left font-weight-bold" ></div>
+                <div className="col-sm-4 left font-weight-bold" >Profile</div>
+                <div className="col-sm-4 left font-weight-bold" >Description</div>
             </div>
         );
     }
@@ -52,10 +42,10 @@ function DependencyItemRow(props) { //props are item, showActions
     return (
         <>
             <div className={cssClass}>
-                <div className="col col-x-small left pl-3" >{renderIcon()}</div>
-                <div className="col col-25 left" >{renderLinkedName(props.item)}</div>
-                <div className="col col-40 left" >{getProfileCaption(props.item.profile)}</div>
-                <div className="col left auto-size" >{props.item.description}</div>
+                <div className={`${avatarCss}`} >{renderTypeIcon(props.item, props.activeAccount, 20)}</div>
+                <div className="col-sm-3 left" >{renderLinkedName(props.item)}</div>
+                <div className="col-sm-4 left" >{getProfileCaption(props.item.profile)}</div>
+                <div className="col-sm-4 left" >{props.item.description}</div>
             </div>
         </>
     );

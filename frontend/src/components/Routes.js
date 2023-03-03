@@ -26,9 +26,11 @@ import CloudLibList from '../views/CloudLibList'
 import CloudLibViewer from '../views/CloudLibViewer'
 import AdminUserEntity from '../views/admin/AdminUserEntity'
 import AdminUserList from '../views/admin/AdminUserList'
+import AdminCloudLibApprovalList from '../views/admin/AdminCloudLibApprovalList'
 import Login from '../views/Login'
 import NotAuthorized from '../views/NotAuthorized'
 import LoginSuccess from '../views/LoginSuccess'
+import { AppSettings } from '../utils/appsettings'
 //import LoginSuccess from '../views/LoginSuccess'
 
 //const CLASS_NAME = "Routes";
@@ -67,8 +69,9 @@ function Routes() {
             <WizardRoute path="/wizard/select-base-type" component={WizardSelectBaseType} />
             <WizardRoute path="/wizard/extend/:parentId/p=:profileId" component={ProfileTypeDefinitionEntity} />
             <WizardRoute path="/wizard/extend/:parentId" component={ProfileTypeDefinitionEntity} />
-            <AdminRoute path="/admin/user/list" component={AdminUserList} roles={['cesmii.profiledesigner.admin']}/>
-            <AdminRoute path="/admin/user/:id" component={AdminUserEntity} roles={['cesmii.profiledesigner.admin']} />
+            <AdminRoute path="/admin/user/list" component={AdminUserList} roles={[AppSettings.AADAdminRole]} />
+            <AdminRoute path="/admin/user/:id" component={AdminUserEntity} roles={[AppSettings.AADAdminRole]} />
+            <AdminRoute path="/admin/cloudlibrary/approval/list" component={AdminCloudLibApprovalList} roles={[AppSettings.AADAdminRole]} />
             <PublicFixedRoute path="/notpermitted" component={NotAuthorized} />
             <PublicFixedRoute path="/notauthorized" component={NotAuthorized} />
             <PublicFixedRoute component={PageNotFound} />

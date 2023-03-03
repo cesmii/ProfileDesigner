@@ -334,7 +334,8 @@
                 {
                     ID = entity.ID,
                     Namespace = entity.Namespace,
-                    StandardProfileID = entity.StandardProfileID,
+                    CloudLibraryId = entity.CloudLibraryId,
+                    CloudLibPendingApproval = entity.CloudLibPendingApproval,
                     Version = entity.Version,
                     PublishDate = entity.PublishDate,
                     AuthorId = entity.AuthorId,
@@ -1254,6 +1255,37 @@
                 await _repo.CommitTransactionAsync();
             }
 
+        }
+
+        internal void ChangeProfileNamespace(Profile entity, string oldNamespace)
+        {
+            var profileTypes = _repo.GetAll().Where(pt => pt.ProfileId == entity.ID).ToList();
+            foreach(var pt in profileTypes)
+            {
+                if (pt.BrowseName != null && pt.BrowseName.StartsWith(oldNamespace))
+                {
+                    pt.BrowseName = entity.Namespace + pt.BrowseName.Substring(oldNamespace.Length);
+                }
+                var attributesToRename = pt.Attributes;
+                foreach(var a in pt.Attributes)
+                {
+                    a.Namespace = entity.Namespace;
+                    a.BrowseName = a.BrowseName?.Replace(oldNamespace, entity.Namespace);
+                    a.EngUnitOpcNodeId = a.EngUnitOpcNodeId?.Replace(oldNamespace, entity.Namespace);
+                    a.EURangeOpcNodeId = a.EURangeOpcNodeId?.Replace(oldNamespace, entity.Namespace);
+                    if (!string.IsNullOrEmpty(a.DataVariableNodeIds))
+                    {
+                        a.DataVariableNodeIds = a.DataVariableNodeIds?.Replace(oldNamespace, entity.Namespace);
+                    }
+                }
+                foreach (var c in pt.Compositions)
+                {
+                    c.BrowseName = c.BrowseName?.Replace(oldNamespace, entity.Namespace);
+                    c.ReferenceId = c.ReferenceId?.Replace(oldNamespace, entity.Namespace);
+                }
+                _repo.Update(pt);
+            };
+            //_repo.SaveChangesAsync().Wait();
         }
 
         #endregion

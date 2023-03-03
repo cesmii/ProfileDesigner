@@ -118,8 +118,8 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
                         Description = parent.Description?.FirstOrDefault()?.Text,
                         RelatedProfileTypeDefinitionId = parentProfile.ID,
                         RelatedProfileTypeDefinition = parentProfile,
-                        RelatedIsRequired = ObjectModelImportProfile.GetModelingRuleForProfile((parent as InstanceModelBase)?.ModelingRule),
-                        RelatedModelingRule = (parent as InstanceModelBase)?.ModelingRule,
+                        RelatedIsRequired = ObjectModelImportProfile.GetModelingRuleForProfile((parent as InstanceModelBase)?.ModellingRule),
+                        RelatedModelingRule = (parent as InstanceModelBase)?.ModellingRule,
                         //OpcNodeId = NodeModelUtils.GetNodeIdIdentifier(child.NodeId),
                         //Namespace = opcObject.Namespace,
                         RelatedReferenceId = parentRef.Reference,
@@ -164,8 +164,8 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
                     Description = opcObject.Description?.FirstOrDefault()?.Text,
                     RelatedProfileTypeDefinitionId = objectProfile.ID,
                     RelatedProfileTypeDefinition = objectProfile,
-                    RelatedIsRequired = ObjectModelImportProfile.GetModelingRuleForProfile(opcObject.ModelingRule),
-                    RelatedModelingRule = opcObject.ModelingRule,
+                    RelatedIsRequired = ObjectModelImportProfile.GetModelingRuleForProfile(opcObject.ModellingRule),
+                    RelatedModelingRule = opcObject.ModellingRule,
                     //OpcNodeId = NodeModelUtils.GetNodeIdIdentifier(opcObject.NodeId),
                     //Namespace = opcObject.Namespace,
                     Profile = opcObject.CustomState as ProfileModel ?? dalContext.GetProfileForNamespace(opcObject.Namespace, opcObject.NodeSet.PublicationDate, opcObject.NodeSet.Version),
@@ -196,8 +196,8 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
                         Description = child.Description?.FirstOrDefault()?.Text,
                         RelatedProfileTypeDefinitionId = objectProfile.ID,
                         RelatedProfileTypeDefinition = objectProfile,
-                        RelatedIsRequired = ObjectModelImportProfile.GetModelingRuleForProfile((child as InstanceModelBase)?.ModelingRule),
-                        RelatedModelingRule = (child as InstanceModelBase)?.ModelingRule,
+                        RelatedIsRequired = ObjectModelImportProfile.GetModelingRuleForProfile((child as InstanceModelBase)?.ModellingRule),
+                        RelatedModelingRule = (child as InstanceModelBase)?.ModellingRule,
                         //OpcNodeId = NodeModelUtils.GetNodeIdIdentifier(child.NodeId),
                         //Namespace = opcObject.Namespace,
                         RelatedReferenceId = childRef.Reference,
@@ -235,8 +235,8 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
                     Description = uaMethod.Description?.FirstOrDefault()?.Text,
                     RelatedProfileTypeDefinitionId = methodProfileItem.ID,
                     RelatedProfileTypeDefinition = methodProfileItem,
-                    RelatedIsRequired = ObjectModelImportProfile.GetModelingRuleForProfile(uaMethod.ModelingRule),
-                    RelatedModelingRule = uaMethod.ModelingRule,
+                    RelatedIsRequired = ObjectModelImportProfile.GetModelingRuleForProfile(uaMethod.ModellingRule),
+                    RelatedModelingRule = uaMethod.ModellingRule,
                     //OpcNodeId = NodeModelUtils.GetNodeIdIdentifier(uaMethod.NodeId),
                     //Namespace = opcObject.Namespace,
                     Profile = uaMethod.CustomState as ProfileModel ?? dalContext.GetProfileForNamespace(uaMethod.Namespace, uaMethod.NodeSet.PublicationDate, uaMethod.NodeSet.Version),
@@ -439,8 +439,8 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
                     SymbolicName = _model.SymbolicName,
                     BrowseName = _model.BrowseName,
                     Namespace = NodeModelUtils.GetNamespaceFromNodeId(_model.NodeId),
-                    IsRequired = ObjectModelImportProfile.GetModelingRuleForProfile(_model.ModelingRule),
-                    ModelingRule = _model.ModelingRule,
+                    IsRequired = ObjectModelImportProfile.GetModelingRuleForProfile(_model.ModellingRule),
+                    ModelingRule = _model.ModellingRule,
                     IsArray = (_model.ValueRank ?? -1) != -1,
                     ValueRank = _model.ValueRank,
                     ArrayDimensions = _model.ArrayDimensions,
@@ -476,10 +476,10 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
                     attribute.EngUnit = engUnit;
                 }
                 attribute.EngUnitOpcNodeId = _model.EngUnitNodeId;
-                attribute.EngUnitModelingRule = _model.EngUnitModelingRule;
+                attribute.EngUnitModelingRule = _model.EngUnitModellingRule;
                 attribute.EngUnitAccessLevel = _model.EngUnitAccessLevel;
                 attribute.EURangeOpcNodeId = _model.EURangeNodeId;
-                attribute.EURangeModelingRule = _model.EURangeModelingRule;
+                attribute.EURangeModelingRule = _model.EURangeModellingRule;
                 attribute.EURangeAccessLevel = _model.EURangeAccessLevel;
 
                 attribute.MinValue = (decimal?)_model.MinValue;
@@ -518,7 +518,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
                     {
                         NodeId = dataVariable.NodeId,
                         IsProperty = dataVariableContainer.Properties.Contains(dataVariable),
-                        ModelingRule = dataVariable.ModelingRule,
+                        ModelingRule = dataVariable.ModellingRule,
                         Value = dataVariable.Value,
                         ValueRank = dataVariable.ValueRank,
                         ArrayDimensions = dataVariable.ArrayDimensions,
@@ -526,7 +526,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
                     };
                     dataVariableNodeIdMap.DataVariableNodeIdsByBrowseName.Add(dataVariable.BrowseName, map);
                 }
-                else if (!typeDataVariable.ModelingRule.Contains("Optional"))
+                else if (!typeDataVariable.ModellingRule.Contains("Optional"))
                 {
                     //throw new Exception($"Unable to resolve mandatory data variable {typeDataVariable} declared in type {typeDataVariable.Parent} by browse name.");
                 }

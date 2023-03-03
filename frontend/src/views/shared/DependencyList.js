@@ -85,7 +85,7 @@ function DependencyList(props) {
 
         return (
             <>
-                <div className="flex-grid attribute-list">
+                <div className="flex-grid attribute-list px-2">
                     {renderHeaderRow()}
                     {mainBody}
                 </div>

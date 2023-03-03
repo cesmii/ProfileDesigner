@@ -9,17 +9,18 @@
     using CESMII.ProfileDesigner.DAL.Models;
     using CESMII.ProfileDesigner.Data.Entities;
     using CESMII.ProfileDesigner.Data.Repositories;
+    using Microsoft.Extensions.DependencyInjection;
 
     public class ProfileDAL : TenantBaseDAL<Profile, ProfileModel>, IDal<Profile, ProfileModel>
     {
-        public ProfileDAL(IRepository<Profile> repo, IDal<NodeSetFile, NodeSetFileModel> nodeSetFileDAL, IDal<StandardNodeSet, StandardNodeSetModel> standardNodeSetDAL) : base(repo)
+        public ProfileDAL(IRepository<Profile> repo, IDal<NodeSetFile, NodeSetFileModel> nodeSetFileDAL, IServiceProvider sp) : base(repo)
         {
             // TODO clean up the dependencies: expand interface?
             _nodeSetFileDAL = nodeSetFileDAL as NodeSetFileDAL;
-            _standardNodeSetDAL = standardNodeSetDAL as StandardNodeSetDAL;
+            _serviceProvider = sp; 
         }
         private readonly NodeSetFileDAL _nodeSetFileDAL;
-        private readonly StandardNodeSetDAL _standardNodeSetDAL;
+        private readonly IServiceProvider _serviceProvider;
 
         public override async Task<int?> AddAsync(ProfileModel model, UserToken userToken)
         {
@@ -90,7 +91,7 @@
             //do filter on author id so that the user can only delete their stuff
             Profile entity = base.FindByCondition(userToken, x => x.ID == id && (x.AuthorId == userToken.UserId || userToken.UserId == -1)).FirstOrDefault();
             if (entity == null)
-               return 0;
+                return 0;
 
             //complex delete with many cascading implications, call stored proc which deletes all dependent objects 
             // in proper order, etc.
@@ -126,27 +127,13 @@
         {
             if (entity != null)
             {
-                ProfileLicenseEnum? profileLicense = null;
-                if (Enum.TryParse<ProfileLicenseEnum>(entity.License, true, out var parsed))
-                {
-                    profileLicense = parsed;
-                }
                 var result = new ProfileModel()
                 {
                     ID = entity.ID,
                     Namespace = entity.Namespace,
                     //TBD - may be able to do away with this field in model side.
-                    StandardProfileID = entity.StandardProfileID,
-                    StandardProfile = entity.StandardProfile == null ? null :
-                        new StandardNodeSetModel()
-                        {
-                            ID = entity.StandardProfile.ID,
-                            Filename = entity.StandardProfile.Filename,
-                            Namespace = entity.StandardProfile.Namespace,
-                            PublishDate = entity.StandardProfile.PublishDate,
-                            Version = entity.StandardProfile.Version,
-                            CloudLibraryId = entity.StandardProfile.CloudLibraryId,
-                        },
+                    CloudLibraryId = entity.CloudLibraryId,
+                    CloudLibPendingApproval = entity.CloudLibPendingApproval,
                     AuthorId = entity.AuthorId,
                     Author = MapToModelSimpleUser(entity.Author),
                     NodeSetFiles = verbose ? entity.NodeSetFiles.Select(nsf => _nodeSetFileDAL.MapToModelPublic(nsf, verbose)).ToList() : null,
@@ -154,7 +141,7 @@
                     PublishDate = entity.PublishDate,
                     // Cloud Library meta data
                     Title = entity.Title,
-                    License = profileLicense,
+                    License = entity.License,
                     LicenseUrl = entity.LicenseUrl,
                     CopyrightText = entity.CopyrightText,
                     ContributorName = entity.ContributorName,
@@ -167,7 +154,7 @@
                     ReleaseNotesUrl = entity.ReleaseNotesUrl,
                     TestSpecificationUrl = entity.TestSpecificationUrl,
                     SupportedLocales = entity.SupportedLocales?.ToList(),
-                    AdditionalProperties = entity.AdditionalProperties?.Select(p => new KeyValuePair<string, string>(p.Name ,p.Value))?.ToList(),
+                    AdditionalProperties = entity.AdditionalProperties?.Select(p => new AdditionalProperty { Name = p.Name, Value = p.Value })?.ToList(),
                 };
 
                 if (verbose)
@@ -197,18 +184,15 @@
         }
         protected override void MapToEntity(ref Profile entity, ProfileModel model, UserToken userToken)
         {
-            entity.Namespace = model.Namespace;
-            entity.StandardProfileID = model.StandardProfileID;
-
-            if (model.StandardProfile != null)
+            string oldNamespace = null;
+            if (entity.Namespace != model.Namespace)
             {
-                var entityStandardProfile =
-                    entity.StandardProfile
-                    ?? _standardNodeSetDAL.CheckForExisting(model.StandardProfile, userToken)
-                    ?? new StandardNodeSet();
-                _standardNodeSetDAL.MapToEntityPublic(ref entityStandardProfile, model.StandardProfile, userToken);
-                entity.StandardProfile = entityStandardProfile;
+                oldNamespace = entity.Namespace;
             }
+            entity.Namespace = model.Namespace;
+            entity.CloudLibraryId = model.CloudLibraryId;
+            entity.CloudLibPendingApproval = model.CloudLibPendingApproval;
+
             entity.AuthorId = model.AuthorId;
             entity.Version = model.Version;
             entity.PublishDate = model.PublishDate;
@@ -229,7 +213,7 @@
             entity.TestSpecificationUrl = model.TestSpecificationUrl;
             entity.SupportedLocales = model.SupportedLocales?.ToArray();
             var profile = entity;
-            entity.AdditionalProperties?.RemoveAll(eProp => model.AdditionalProperties?.Any(mProp => mProp.Key == eProp.Name) != true);
+            entity.AdditionalProperties?.RemoveAll(eProp => model.AdditionalProperties?.Any(mProp => mProp.Name == eProp.Name) != true);
             if (model.AdditionalProperties != null)
             {
                 //correct value cannot be null error occurring on import of nodeset where
@@ -240,17 +224,28 @@
                 }
                 foreach (var prop in model.AdditionalProperties)
                 {
-                    var eProp = entity.AdditionalProperties.FirstOrDefault(p => p.Name == prop.Key);
+                    var eProp = entity.AdditionalProperties.FirstOrDefault(p => p.Name == prop.Name);
                     if (eProp == null)
                     {
                         eProp = new UAProperty { Profile = profile, ProfileId = profile.ID };
                         entity.AdditionalProperties.Add(eProp);
                     }
-                    eProp.Name = prop.Key;
+                    eProp.Name = prop.Name;
                     eProp.Value = prop.Value;
                 }
             }
             MapToEntityNodeSetFiles(ref entity, model.NodeSetFiles, userToken);
+            if (oldNamespace != null)
+            {
+                ChangeProfileNamespace(entity, oldNamespace);
+            }
+        }
+
+        private void ChangeProfileNamespace(Profile entity, string oldNamespace)
+        {
+            // Obtain DAL on demand to avoid circular dependency at creation time
+            var profileTypeDefinitionDAL = _serviceProvider.GetService<IDal<ProfileTypeDefinition, ProfileTypeDefinitionModel>>() as ProfileTypeDefinitionDAL;
+            profileTypeDefinitionDAL.ChangeProfileNamespace(entity, oldNamespace);
         }
 
         protected void MapToEntityNodeSetFiles(ref Profile entity, List<NodeSetFileModel> files, UserToken userToken)

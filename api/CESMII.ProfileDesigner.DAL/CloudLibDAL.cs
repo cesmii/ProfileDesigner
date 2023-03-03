@@ -12,6 +12,8 @@
     using Opc.Ua.Cloud.Library.Client;
     using CESMII.ProfileDesigner.DAL.Models;
     using CESMII.ProfileDesigner.Common.Enums;
+    using System.Text.RegularExpressions;
+    using CESMII.ProfileDesigner.Data.Entities;
 
     /// <summary>
     /// Most lookup data is contained in this single entity and differntiated by a lookup type. 
@@ -21,19 +23,23 @@
         protected bool _disposed = false;
         protected static readonly Logger _logger = LogManager.GetCurrentClassLogger();
         private readonly ICloudLibWrapper _cloudLib;
+        private readonly IDal<User, UserModel> _dalUser;
+
         //private readonly MarketplaceItemConfig _config;
         //private readonly LookupItemModel _smItemType;
 
         //supporting data
         //protected List<ImageItemModel> _images;
 
-        public CloudLibDAL(ICloudLibWrapper cloudLib
+        public CloudLibDAL(ICloudLibWrapper cloudLib,
+            UserDAL dalUser
             //IDal<LookupItem, LookupItemModel> dalLookup,
             //IDal<ImageItem, ImageItemModel> dalImages,
             //ConfigUtil configUtil
             )
         {
             _cloudLib = cloudLib;
+            _dalUser = dalUser;
 
             //init some stuff we will use during the mapping methods
             //_config = configUtil.MarketplaceSettings.SmProfile;
@@ -52,8 +58,9 @@
             //    , null, null, false, false).Data;
         }
 
-        public async Task<CloudLibProfileModel> GetById(string id) {
-            var entity = await _cloudLib.DownloadAsync(id);
+        public async Task<CloudLibProfileModel> GetById(string id)
+        {
+            var entity = await _cloudLib.GetAsync(id);
             if (entity == null) return null;
             return MapToModelNamespace(entity);
         }
@@ -69,6 +76,13 @@
             //other data in this entity.
             var result = MapToModelNamespace(entity);
             return result;
+        }
+
+        public async Task<string> UploadAsync(CloudLibProfileModel profile, string nodeSetXml)
+        {
+            var uaNamespace = MapToNamespace(profile, nodeSetXml);
+            var error = await _cloudLib.UploadAsync(uaNamespace);
+            return error;
         }
 
         public async Task<CloudLibProfileModel> GetAsync(string namespaceUri, DateTime? publicationDate, bool exactMatch)
@@ -94,82 +108,127 @@
                 Edges = MapToModelsNodesetResult(matches.Edges),
             };
         }
-    
 
-    protected List<GraphQlNodeAndCursor<CloudLibProfileModel>> MapToModelsNodesetResult(List<GraphQlNodeAndCursor<Nodeset>> entities)
-    {
-        var result = new List<GraphQlNodeAndCursor<CloudLibProfileModel>>();
-
-        foreach (var item in entities)
+        public async Task<GraphQlResult<CloudLibProfileModel>> GetNodeSetsPendingApprovalAsync(int limit, string cursor, bool pageBackwards, AdditionalProperty additionalProperty)
         {
-            result.Add(MapToModelNodesetResult(item));
+            Opc.Ua.Cloud.Library.Client.UAProperty uaProp = null;
+            if (additionalProperty != null)
+            {
+                uaProp = new() 
+                {
+                    Name = additionalProperty.Name,
+                    Value = additionalProperty.Value,
+                };
+            }
+            var matches = await _cloudLib.GetNodeSetsPendingApprovalAsync(limit, cursor, pageBackwards, prop: uaProp);
+            if (matches == null) return new GraphQlResult<CloudLibProfileModel>();
+
+            //TBD - exclude some nodesets which are core nodesets - list defined in appSettings
+
+            return new GraphQlResult<CloudLibProfileModel>(matches)
+            {
+                Edges = MapToModelsNodesetResult(matches.Edges),
+            };
         }
-        return result;
-    }
 
-    /// <summary>
-    /// This is called when searching a collection of items. 
-    /// </summary>
-    /// <param name="entity"></param>
-    /// <returns></returns>
-    protected GraphQlNodeAndCursor<CloudLibProfileModel> MapToModelNodesetResult(GraphQlNodeAndCursor<Nodeset> entityAndCursor)
-    {
-        if (entityAndCursor != null && entityAndCursor.Node != null)
+        public async Task<CloudLibProfileModel> UpdateApprovalStatusAsync(string cloudLibraryId, string newStatus, string statusInfo)
         {
+            var uaNamespace = await _cloudLib.UpdateApprovalStatusAsync(cloudLibraryId, newStatus, statusInfo);
+
+            var cloudLibProfile = MapToModelNamespace(uaNamespace);
+
+            return cloudLibProfile;
+        }
+
+
+        protected List<GraphQlNodeAndCursor<CloudLibProfileModel>> MapToModelsNodesetResult(List<GraphQlNodeAndCursor<Nodeset>> entities)
+        {
+            var result = new List<GraphQlNodeAndCursor<CloudLibProfileModel>>();
+
+            foreach (var item in entities)
+            {
+                result.Add(MapToModelNodesetResult(item));
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// This is called when searching a collection of items. 
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        protected GraphQlNodeAndCursor<CloudLibProfileModel> MapToModelNodesetResult(GraphQlNodeAndCursor<Nodeset> entityAndCursor)
+        {
+            if (entityAndCursor != null && entityAndCursor.Node != null)
+            {
                 var entity = entityAndCursor.Node;
-                //map results to a format that is common with marketplace items
+
+                int? userId = null;
+                UserSimpleModel user = null;
+                try
+                {
+                    var userInfoProp = entity.Metadata?.AdditionalProperties?.FirstOrDefault(p => p.Name == ICloudLibDal<CloudLibProfileModel>.strCESMIIUserInfo);
+
+                    if (!string.IsNullOrEmpty(userInfoProp?.Value))
+                    {
+                        var userIdString = Regex.Replace(userInfoProp?.Value, ".*PD", "");
+                        if (int.TryParse(userIdString, out var userId2))
+                        {
+                            var userModel = _dalUser.GetById(userId2, null);
+                            if (userModel != null)
+                            {
+                                user = new UserSimpleModel { ID = userModel.ID, ObjectIdAAD = userModel.ObjectIdAAD, DisplayName = userModel.DisplayName };
+                                userId = user.ID;
+                            }
+                        }
+                    }
+                }
+                catch (Exception)
+                {
+                    // ignore
+                }
+
                 return new GraphQlNodeAndCursor<CloudLibProfileModel>()
                 {
                     Cursor = entityAndCursor.Cursor,
                     Node = new CloudLibProfileModel
                     {
                         ID = null,
+                        AuthorId = userId,
+                        Author = user,
                         CloudLibraryId = entity.Identifier.ToString(),
-                        ContributorName = entity.Metadata?.Contributor?.Name, // TODO reconcile this with MarketPlace PublishedModel?
-                                                                              //TBD
-                                                                              //Description = "Description..." + entity.Title,
+                        ContributorName = entity.Metadata?.Contributor?.Name,
                         Description = entity.Metadata.Description,
-                        //(string.IsNullOrEmpty(entity.Metadata.Description) ? "" : $"<p>{entity.Metadata.Description}</p>") +
-                        //(entity.Metadata.DocumentationUrl == null ? "" : $"<p><a href='{entity.Metadata.DocumentationUrl.ToString()}' target='_blank' rel='noreferrer' >Documentation: {entity.Metadata.DocumentationUrl.ToString()}</a></p>") +
-                        //(entity.Metadata.ReleaseNotesUrl == null ? "" : $"<p><a href='{entity.Metadata.ReleaseNotesUrl.ToString()}' target='_blank' rel='noreferrer' >Release Notes: {entity.Metadata.ReleaseNotesUrl.ToString()}</a></p>") +
-                        //(entity.Metadata.LicenseUrl == null ? "" : $"<p><a href='{entity.Metadata.LicenseUrl.ToString()}' target='_blank' rel='noreferrer' >License Information: {entity.Metadata.LicenseUrl.ToString()}</a></p>") +
-                        //(entity.Metadata.TestSpecificationUrl == null ? "" : $"<p><a href='{entity.Metadata.TestSpecificationUrl.ToString()}' target='_blank' rel='noreferrer' >Test Specification: {entity.Metadata.TestSpecificationUrl.ToString()}</a></p>") +
-                        //(entity.Metadata.PurchasingInformationUrl == null ? "" : $"<p><a href='{entity.Metadata.PurchasingInformationUrl.ToString()}' target='_blank' rel='noreferrer' >Purchasing Information: {entity.Metadata.PurchasingInformationUrl.ToString()}</a></p>") +
-                        //(string.IsNullOrEmpty(entity.Metadata.CopyrightText) ? "" : $"<p>{entity.Metadata.CopyrightText}</p>"),
                         Title = entity.Metadata?.Title,
                         Namespace = entity.NamespaceUri?.OriginalString,
                         PublishDate = entity.PublicationDate,
-                        //Type = _smItemType,
                         Version = entity.Version,
-                        //IsFeatured = false,
-                        //ImagePortrait = _images.FirstOrDefault(x => x.ID.Equals(_config.DefaultImageIdPortrait)),
-                        ////ImageSquare = _images.FirstOrDefault(x => x.ID.Equals(_config.DefaultImageIdSquare)),
-                        //ImageLandscape = _images.FirstOrDefault(x => x.ID.Equals(_config.DefaultImageIdLandscape))
-
                         Keywords = entity.Metadata.Keywords?.ToList(),
                         DocumentationUrl = entity.Metadata.DocumentationUrl?.OriginalString,
-                        AdditionalProperties = entity.Metadata.AdditionalProperties?.Select(p => new KeyValuePair<string, string>(p.Name, p.Value))?.ToList(),
+                        AdditionalProperties = entity.Metadata.AdditionalProperties?.Select(p => new AdditionalProperty { Name = p.Name, Value = p.Value })?.ToList(),
                         CategoryName = entity.Metadata.Category?.Name,
                         CopyrightText = entity.Metadata.CopyrightText,
                         IconUrl = entity.Metadata.IconUrl?.OriginalString,
-                        License = (ProfileLicenseEnum) entity.Metadata.License,
+                        License = entity.Metadata.License,
                         LicenseUrl = entity.Metadata.LicenseUrl?.OriginalString,
                         PurchasingInformationUrl = entity.Metadata.PurchasingInformationUrl?.OriginalString,
                         ReleaseNotesUrl = entity.Metadata.ReleaseNotesUrl?.OriginalString,
                         TestSpecificationUrl = entity.Metadata.TestSpecificationUrl?.OriginalString,
                         SupportedLocales = entity.Metadata.SupportedLocales?.ToList(),
+                        CloudLibApprovalStatus = entity.Metadata.ApprovalStatus,
+                        CloudLibApprovalDescription = entity.Metadata.ApprovalInformation,
                     }
-            };
+                };
+            }
+            else
+            {
+                return null;
+            }
+
         }
-        else
-        {
-            return null;
-        }
-
-    }
 
 
-    protected List<CloudLibProfileModel> MapToModelsNodesetResult(List<UANodesetResult> entities)
+        protected List<CloudLibProfileModel> MapToModelsNodesetResult(List<UANodesetResult> entities)
         {
             var result = new List<CloudLibProfileModel>();
 
@@ -189,11 +248,6 @@
         {
             if (entity != null)
             {
-                ProfileLicenseEnum? profileLicense = null;
-                if (Enum.TryParse<ProfileLicenseEnum>(entity.License, out var parsed))
-                {
-                    profileLicense = parsed;
-                }
                 //map results to a format that is common with marketplace items
                 return new CloudLibProfileModel()
                 {
@@ -206,7 +260,7 @@
                     //TBD
                     //Description = "Description..." + entity.Title,
                     Title = entity.Title,
-                    License = profileLicense,
+                    License = entity.License,
                     LicenseUrl = entity.LicenseUrl?.OriginalString,
                     CopyrightText = entity.CopyrightText,
                     ContributorName = entity.Contributor, // TODO reconcile this with MarketPlace PublishedModel?
@@ -219,7 +273,7 @@
                     ReleaseNotesUrl = entity.ReleaseNotesUrl?.OriginalString,
                     TestSpecificationUrl = entity.TestSpecificationUrl?.OriginalString,
                     SupportedLocales = entity.SupportedLocales?.ToList(),
-                    AdditionalProperties = entity.AdditionalProperties?.Select(p => new KeyValuePair<string, string>(p.Name, p.Value))?.ToList(),
+                    AdditionalProperties = entity.AdditionalProperties?.Select(p => new AdditionalProperty { Name = p.Name, Value = p.Value })?.ToList(),
 
                     //IsFeatured = false,
                     //ImagePortrait = _images.FirstOrDefault(x => x.ID.Equals(_config.DefaultImageIdPortrait)),
@@ -256,7 +310,7 @@
                     //TBD
                     //Description = "Description..." + entity.Title,
                     Title = entity.Title,
-                    License = (ProfileLicenseEnum) entity.License,
+                    License = entity.License,
                     LicenseUrl = entity.LicenseUrl?.OriginalString,
                     CopyrightText = entity.CopyrightText,
                     ContributorName = entity.Contributor?.Name, // TODO reconcile this with MarketPlace PublishedModel?
@@ -269,8 +323,9 @@
                     ReleaseNotesUrl = entity.ReleaseNotesUrl?.OriginalString,
                     TestSpecificationUrl = entity.TestSpecificationUrl?.OriginalString,
                     SupportedLocales = entity.SupportedLocales?.ToList(),
-                    AdditionalProperties = entity.AdditionalProperties?.Select(p => new KeyValuePair<string, string>(p.Name, p.Value))?.ToList(),
-
+                    AdditionalProperties = entity.AdditionalProperties?.Select(p => new AdditionalProperty { Name = p.Name, Value = p.Value })?.ToList(),
+                    CloudLibApprovalStatus = entity.ApprovalStatus,
+                    CloudLibApprovalDescription = entity.ApprovalInformation,
                     //IsFeatured = false,
                     //ImagePortrait = _images.FirstOrDefault(x => x.ID.Equals(_config.DefaultImageIdPortrait)),
                     ////ImageSquare = _images.FirstOrDefault(x => x.ID.Equals(_config.DefaultImageIdSquare)),
@@ -286,6 +341,36 @@
 
         }
 
+        protected UANameSpace MapToNamespace(CloudLibProfileModel model, string nodeSetXml)
+        {
+            UANameSpace uaNamespace = new()
+            {
+                Title = model.Title,
+                Description = model.Description,
+                License = model.License, // TODO change to string
+                LicenseUrl =  !string.IsNullOrEmpty(model.LicenseUrl) ? new Uri(model.LicenseUrl) : null,
+                Category = new Category { Name = model.CategoryName },
+                Contributor = new Organisation { Name = model.ContributorName },
+                CopyrightText = model.CopyrightText,
+                DocumentationUrl = !string.IsNullOrEmpty(model.DocumentationUrl) ? new Uri(model.DocumentationUrl) : null,
+                IconUrl = !string.IsNullOrEmpty(model.IconUrl) ? new Uri(model.IconUrl) : null,
+                PurchasingInformationUrl = !string.IsNullOrEmpty(model.PurchasingInformationUrl) ? new Uri(model.PurchasingInformationUrl) : null,
+                Keywords = model.Keywords?.ToArray(),
+                ReleaseNotesUrl = !string.IsNullOrEmpty(model.ReleaseNotesUrl) ? new Uri(model.ReleaseNotesUrl) : null,
+                TestSpecificationUrl = !string.IsNullOrEmpty(model.TestSpecificationUrl) ? new Uri(model.TestSpecificationUrl) : null,
+                SupportedLocales = model.SupportedLocales?.ToArray(),
+                AdditionalProperties = model.AdditionalProperties?.Select(kv => new Opc.Ua.Cloud.Library.Client.UAProperty { Name = kv.Name, Value = kv.Value }).ToArray(),
+                Nodeset = new Nodeset
+                {
+                    NamespaceUri = !string.IsNullOrEmpty(model.Namespace) ? new Uri(model.Namespace) : null,
+                    PublicationDate = model.PublishDate ?? default,
+                    Version = model.Version,
+                    NodesetXml = nodeSetXml,
+                },
+            };
+            return uaNamespace;
+        }
+
         public virtual void Dispose()
         {
             if (_disposed) return;
@@ -293,5 +378,6 @@
             //set flag so we only run dispose once.
             _disposed = true;
         }
+
     }
 }

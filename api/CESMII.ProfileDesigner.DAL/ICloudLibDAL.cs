@@ -18,6 +18,7 @@
         /// <param name="id"></param>
         /// <returns></returns>
         Task<TModel> DownloadAsync(string id);
+        Task<string> UploadAsync(TModel profile, string nodeSetXml);
         /// <summary>
         /// Download the nodeset xml portion of the CloudLib profile
         /// </summary>
@@ -26,7 +27,13 @@
         Task<TModel> GetAsync(string namespaceUri, DateTime? publicationDate, bool exactMatch);
 
         Task<GraphQlResult<TModel>> Where(int limit, string cursor, bool beforeCursor, List<string> keywords, List<string> exclude = null);
-
+        Task<GraphQlResult<CloudLibProfileModel>> GetNodeSetsPendingApprovalAsync(int limit, string cursor, bool pageBackwards, AdditionalProperty additionalProperty);
+        Task<CloudLibProfileModel> UpdateApprovalStatusAsync(string cloudLibraryId, string newStatus, string statusInfo);
+        /// <summary>
+        /// Name of the "AdditionalProperty" that is used to keep user info in the cloud library
+        /// </summary>
+        // TODO hide the need for this in a method?
+        public const string strCESMIIUserInfo = "CESMIIUserInfo";
     }
 
 

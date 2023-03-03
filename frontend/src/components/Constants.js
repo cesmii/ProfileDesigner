@@ -4,6 +4,8 @@ const color = {
     textSecondary: "#848484",
     subHeadingBg: "#D0ECFF",
     link: "#2D76A7",
+    mine: "#4084EF",
+    readOnly: "#23201F",
     mauve: "#C271BF",
     mauveBg: "#FFD0FD",
     lightBlueBg: "#F3FAFF",

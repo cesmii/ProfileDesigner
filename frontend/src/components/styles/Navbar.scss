@@ -7,6 +7,10 @@ header {
     border-bottom: 1px solid color("blue-8");
     align-items: center;
 
+    nav {
+        //color: color("white");
+    }
+
     .navbar-brand {
         color: color("white");
 
@@ -23,4 +27,50 @@ header {
     @media (min-width: 768px) {
         height: $navbarHeight;
     }
+    //nav link overrides
+    .nav-link {
+        font-family: $font-family-base;
+        color: color('white') !important;
+        opacity: 0.9;
+
+        &:hover {
+            opacity: 0.75;
+        }
+
+        &.active {
+            font-weight: 500;
+            opacity: 1.0;
+            @include background-opacity(color("white"), 0.2);
+            border-radius: 3rem;
+        }
+    }
+
+    .dropdown-toggle {
+        color: color('white') !important;
+        opacity: 0.9;
+    }
+    //nav link overrides
+    .nav-link {
+        font-family: $font-family-base;
+        color: color('white') !important;
+        opacity: 0.9;
+
+        &:hover {
+            opacity: 0.75;
+        }
+
+        &.active {
+            font-weight: 500;
+            opacity: 1.0;
+            @include background-opacity(color("white"), 0.2);
+            border-radius: 3rem;
+        }
+    }
+
+    .dropdown-toggle {
+        color: color('white') !important;
+        opacity: 0.9;
+    }
 }
+
+

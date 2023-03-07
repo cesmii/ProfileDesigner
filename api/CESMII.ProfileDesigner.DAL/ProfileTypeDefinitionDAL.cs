@@ -746,6 +746,8 @@
                         current.MinimumSamplingInterval = source.MinimumSamplingInterval;
                         current.MinValue = source.MinValue;
                         current.MaxValue = source.MaxValue;
+                        current.InstrumentMinValue = source.InstrumentMinValue;
+                        current.InstrumentMaxValue = source.InstrumentMaxValue;
                         current.DataTypeId = source.DataType?.ID != 0 ? source.DataType.ID : null;
                         current.DataVariableNodeIds = source.DataVariableNodeIds;
                         var dataType = current.DataType;
@@ -852,6 +854,8 @@
                             UpdatedById = userToken.UserId,
                             MinValue = attr.MinValue,
                             MaxValue = attr.MaxValue,
+                            InstrumentMinValue = attr.InstrumentMinValue,
+                            InstrumentMaxValue = attr.InstrumentMaxValue,
                             DataTypeId = attr.DataType.ID,
                             DataType = dataType,
                             DataVariableNodeIds = attr.DataVariableNodeIds,

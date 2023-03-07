@@ -973,6 +973,7 @@ select
 	--lu.name, 
 	--ptd.*, 
 	dt.*, 
+    baseDt.id as base_data_type_id,
 	COALESCE(a.usage_count, 0) + COALESCE(dtr.manual_rank, 0) as popularity_index,
 	--create a tiered system to distinguish between very popular and mildly popular and the others
 	CASE 
@@ -985,6 +986,7 @@ select
 from public.data_type dt
 left outer join public.data_type_rank dtr on dtr.data_type_id = dt.id
 left outer join public.profile_type_definition ptd on ptd.id = dt.custom_type_id
+left outer join public.data_type baseDt on ptd.id = baseDt.custom_type_id
 --left outer join public.lookup lu on lu.id = ptd.type_id
 left outer join (
 	SELECT data_type_id, count(*) as usage_count 
@@ -1305,7 +1307,7 @@ begin
 		JOIN public.profile p on p.id = t.profile_id
 		JOIN descendant d ON t.parent_id = d.id
 		WHERE
-			(p.owner_id IS NULL AND p.cloud_library_id IS NOT NULL) --root nodesets
+			(p.owner_id IS NULL) --root nodesets
 			OR (p.owner_id = _ownerId)  --my nodesets or nodesets I imported
 	)
 
@@ -1397,7 +1399,7 @@ begin
 		JOIN public.profile_composition c on c.profile_type_definition_id = t.id AND c.composition_id = _id
 		JOIN public.profile p ON p.id = t.profile_id
 		WHERE 
-			(p.owner_id IS NULL AND p.cloud_library_id IS NOT NULL) --root nodesets
+			(p.owner_id IS NULL) --root nodesets
 			OR (p.owner_id = _ownerId)  --my nodesets or nodesets I imported
 		
 		UNION
@@ -1408,7 +1410,7 @@ begin
 		JOIN public.profile_interface i on i.profile_type_definition_id = t.id AND i.interface_id = _id
 		JOIN public.profile p ON p.id = t.profile_id
 		WHERE 
-			(p.owner_id IS NULL AND p.cloud_library_id IS NOT NULL) --root nodesets
+			(p.owner_id IS NULL) --root nodesets
 			OR (p.owner_id = _ownerId)  --my nodesets or nodesets I imported
 		
 		UNION

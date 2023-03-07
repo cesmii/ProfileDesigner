@@ -39,6 +39,12 @@
 
     public class LookupDataTypeRankedModel : LookupDataTypeModel
     {
+        /// <summary>
+        /// Parent (base type) of the data type
+        /// FK to data type table.
+        /// </summary>
+        public int? BaseDataTypeId { get; set; }
+
         public int PopularityLevel { get; set; }
         public int PopularityIndex { get; set; }
         public int UsageCount { get; set; }

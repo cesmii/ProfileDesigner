@@ -184,6 +184,8 @@
 
         public LookupItemModel Type { get; set; }
 
+        public int? VariableDataTypeId { get; set; }
+
         /// <summary>
         /// Only used when returning a list of descendants or ancestors and we need to know
         /// how items relate to one another. If item is level 0, then its parent is -1, grandparent -2, child 1, etc. 
@@ -226,5 +228,12 @@
         public List<ProfileAttributeModel> ProfileAttributes { get; set; }
     }
 
+    /// <summary>
+    /// When retrieving an variable type we must also get the permissible data types. 
+    /// </summary>
+    public class ProfileTypeDefinitionSimpleWithDataTypesModel : ProfileTypeDefinitionSimpleModel
+    {
+        public List<ProfileTypeDefinitionSimpleModel> DataTypes { get; set; }
+    }
 
 }

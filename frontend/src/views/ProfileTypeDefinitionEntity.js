@@ -14,6 +14,7 @@ import { useLoadingContext, UpdateRecentFileList } from "../components/contexts/
 import { useWizardContext } from '../components/contexts/WizardContext';
 import { AppSettings } from '../utils/appsettings';
 import { generateLogMessageString, getTypeDefIconName, getProfileTypeCaption, validate_NoSpecialCharacters, getIconColorByProfileState } from '../utils/UtilityService'
+import { renderDataTypeUIShared, onChangeDataTypeShared } from '../services/AttributesService';
 import AttributeList from './shared/AttributeList';
 import DependencyList from './shared/DependencyList';
 import ProfileBreadcrumbs from './shared/ProfileBreadcrumbs';
@@ -52,6 +53,7 @@ function ProfileTypeDefinitionEntity() {
     const [mode, setMode] = useState(initPageMode());
     const [_item, setItem] = useState({});
     const [isLoading, setIsLoading] = useState(true);
+    const [_lookupDataTypes, setLookupDataTypes] = useState([]);
     const [_isReadOnly, setIsReadOnly] = useState(true);
     const [_isValid, setIsValid] = useState({ name: true, profile: true, description: true, type: true, symbolicName: true });
     //const [_lookupProfiles, setLookupProfiles] = useState([]);
@@ -295,6 +297,35 @@ function ProfileTypeDefinitionEntity() {
 
     }, [id, parentId]);
 
+    //-------------------------------------------------------------------
+    // Region: Hooks - load lookup data static from context. if not present, trigger a fetch of this data. 
+    //-------------------------------------------------------------------
+    useEffect(() => {
+        async function initLookupData() {
+
+            //if data not there, but loading in progress.  
+            if (loadingProps.lookupDataStatic == null && loadingProps.refreshLookupData) {
+                //do nothing, the loading effect will inform when complete
+                return;
+            }
+            //if data not there, but loading NOT in progress.  
+            else if (loadingProps.lookupDataStatic == null) {
+                //trigger get of data
+                setLoadingProps({ refreshLookupData: true });
+                return;
+            }
+
+            //get from local storage and keep local to the component lifecycle
+            setLookupDataTypes(loadingProps.lookupDataStatic.dataTypes);
+        }
+
+        initLookupData();
+
+        //this will execute on unmount
+        return () => {
+            console.log(generateLogMessageString('useEffect||Cleanup', CLASS_NAME));
+        };
+    }, [loadingProps.lookupDataStatic, loadingProps.lookupDataRefreshed]);
 
     //-------------------------------------------------------------------
     //
@@ -690,6 +721,13 @@ function ProfileTypeDefinitionEntity() {
         }
     };
 
+    //onchange data type
+    const onChangeDataType = (e) => {
+        const data = onChangeDataTypeShared(e.value, _item, null, _lookupDataTypes);
+        setItem(JSON.parse(JSON.stringify(data.item)));
+    }
+
+
     //-------------------------------------------------------------------
     // Region: Render Helpers
     //-------------------------------------------------------------------
@@ -768,6 +806,27 @@ function ProfileTypeDefinitionEntity() {
                 </div>
             </div>
         );
+    };
+
+    const renderVariableDataType = () => {
+
+        if (_isReadOnly) {
+
+            return (
+                <div className="col-md-12">
+                    <Form.Group>
+                        <Form.Label htmlFor="type">Data Type of the Variable</Form.Label>
+                        <Form.Control id="type" type="" value={_item.variableDataType != null ? _item.variableDataType.name : ""} readOnly={_isReadOnly} />
+                    </Form.Group>
+                </div>
+            );
+        }
+        else {
+            return (
+                <div className="col-md-12">
+                    {renderDataTypeUIShared(_item, _lookupDataTypes, null, _isValid, true, onChangeDataType)}
+                </div>);
+        }
     };
 
     //renderProfileEntity as a modal to force user to say ok.
@@ -863,14 +922,7 @@ function ProfileTypeDefinitionEntity() {
                                 value={_item.description == null ? '' : _item.description} onBlur={validateForm_description} onChange={onChange} readOnly={mode === "view"} />
                         </Form.Group>
                     </div>
-                    {_item.type.id === AppSettings.ProfileTypeDefaults.VariableTypeId &&
-                        <div className="col-md-12">
-                            <Form.Group>
-                                <Form.Label htmlFor="type">Data Type of the Variable</Form.Label>
-                                <Form.Control id="type" type="" value={_item.variableDataType != null ? _item.variableDataType.name : ""} readOnly={_isReadOnly} />
-                            </Form.Group>
-                        </div>
-                    }
+                    {renderVariableDataType()}
                 </div>
             </>
 

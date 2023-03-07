@@ -165,17 +165,17 @@ export const onChangeDataTypeShared = (val, item, settings, lookupDataTypes) => 
     //set data type and update state
     item.dataType = lookupItem != null ? lookupItem :
         { id: -1, name: '', customTypeId: null, customType: null };
-
-    settings = {
-        ...settings,
-        useMinMax: useMinMax,
-        useEngUnit: useEngUnit,
-        //showComposition: isComposition,
-        //showInterface: isInterface,
-        isCustomType: isCustom,
-        //showDescription: !isInterface
+    if (settings != null) {
+        settings = {
+            ...settings,
+            useMinMax: useMinMax,
+            useEngUnit: useEngUnit,
+            //showComposition: isComposition,
+            //showInterface: isInterface,
+            isCustomType: isCustom,
+            //showDescription: !isInterface
+        }
     }
-
     return { item: item, settings: settings };
 };
 
@@ -430,8 +430,8 @@ export const renderDataTypeUIShared = (editItem, lookupDataTypes, typeDef, isVal
 
     //map value bind to structure the control accepts
     const selValue = {
-        label: editItem.dataType.id == null || editItem.dataType.id.toString() === "-1" ?
-            "Select" : editItem.dataType.name, value: editItem.dataType.id
+        label: editItem.dataType?.id == null || editItem.dataType.id.toString() === "-1" ?
+            "Select" : editItem.dataType.name, value: editItem.dataType?.id
     };
 
     return renderSelectGroupByUI(

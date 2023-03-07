@@ -112,6 +112,7 @@
                     ManualRank = entity.ManualRank,
                     UsageCount = entity.UsageCount,
                     PopularityLevel = entity.PopularityLevel,
+                    BaseDataTypeId = entity.BaseDataTypeId,
                 };
             }
             else

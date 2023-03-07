@@ -58,7 +58,7 @@ function ProfileTypeDefinitionEntity() {
     //used in popup profile add/edit ui. Default to new version
     const [_profileEntityModal, setProfileEntityModal] = useState({ show: false, item: null, autoSave: false  });
     const _profileNew = { id: 0, namespace: '', version: null, publishDate: null, authorId: null };
-    const [_lookupRelated, setLookupRelated] = useState({ compositions: [], interfaces: [] });
+    const [_lookupRelated, setLookupRelated] = useState({ compositions: [], interfaces: [], variableTypes: [] });
 
     const { wizardProps, setWizardProps } = useWizardContext();
     var _navInfo = history.location.pathname.indexOf('/wizard/') === - 1 ? null : getWizardNavInfo(wizardProps.mode, 'ExtendBaseType');
@@ -232,7 +232,11 @@ function ProfileTypeDefinitionEntity() {
         async function fetchLookupProfileTypeDefs(lookupId, isExtend) {
 
             //placeholder vals while we load
-            setLookupRelated({ ..._lookupRelated, compositions: [{ id: -1, name: 'Loading...', profile: { id: -1, title: '', namespace: '', version: '', publishDate: '' } }] });
+            setLookupRelated({
+                ..._lookupRelated,
+                compositions: [{ id: -1, name: 'Loading...', profile: { id: -1, title: '', namespace: '', version: '', publishDate: '' } },],
+                variableTypes: [{ id: -1, name: 'Loading...', profile: { id: -1, title: '', namespace: '', version: '', publishDate: '' } },]
+            });
 
             //Filter out anything
             //where the profile is neither a descendant or a parent/grandparent, etc. of the profile we 
@@ -254,13 +258,15 @@ function ProfileTypeDefinitionEntity() {
                     //TBD - handle paged data scenario, do a predictive search look up
                     setLookupRelated({
                         compositions: result.data.compositions,
-                        interfaces: result.data.interfaces
+                        interfaces: result.data.interfaces,
+                        variableTypes: result.data.variableTypes,
                     });
                 } else {
                     console.warn(generateLogMessageString(`useEffect||fetchLookupProfileTypeDefs||error||status:${result.status}`, CLASS_NAME));
                     setLookupRelated({
                         ..._lookupRelated,
-                        compositions: [{ id: -1, name: 'Error loading composition data...', profile: { id: -1, title: '', namespace: '', version: '', publishDate: '' } }]
+                        compositions: [{ id: -1, name: 'Error loading composition data...', profile: { id: -1, title: '', namespace: '', version: '', publishDate: '' } }],
+                        variableTypes: [{ id: -1, name: 'Error loading variable type data...', profile: { id: -1, title: '', namespace: '', version: '', publishDate: '' } }]
                     });
                 }
             }).catch(e => {
@@ -273,7 +279,8 @@ function ProfileTypeDefinitionEntity() {
                 }
                 setLookupRelated({
                     ..._lookupRelated,
-                    compositions: [{ id: -1, name: 'Error loading composition data...', profile: { id: -1, title: '', namespace: '', version: '', publishDate: '' } }]
+                    compositions: [{ id: -1, name: 'Error loading composition data...', profile: { id: -1, title: '', namespace: '', version: '', publishDate: '' } }],
+                    variableTypes: [{ id: -1, name: 'Error loading variable type data...', profile: { id: -1, title: '', namespace: '', version: '', publishDate: '' } }]
                 });
             });
         }
@@ -349,18 +356,18 @@ function ProfileTypeDefinitionEntity() {
         setIsValid({ ..._isValid, symbolicName: isValid });
     };
 
-     ////update state for when search click happens
-     const validateForm = () => {
+    ////update state for when search click happens
+    const validateForm = () => {
         console.log(generateLogMessageString(`validateForm`, CLASS_NAME));
 
         _isValid.name = _item.name != null && _item.name.trim().length > 0;
         _isValid.profile = _item.profile != null && _item.profile.id !== -1 && _item.profile.id !== "-1";
         _isValid.description = true; //item.description != null && item.description.trim().length > 0;
         _isValid.type = _item.type != null && _item.type.id !== -1 && _item.type.id !== "-1";
-         _isValid.symbolicName = validate_NoSpecialCharacters(_item.symbolicName);
+        _isValid.symbolicName = validate_NoSpecialCharacters(_item.symbolicName);
 
-         setIsValid(JSON.parse(JSON.stringify(_isValid)));
-         return (_isValid.name && _isValid.profile && _isValid.description && _isValid.type && _isValid.symbolicName);
+        setIsValid(JSON.parse(JSON.stringify(_isValid)));
+        return (_isValid.name && _isValid.profile && _isValid.description && _isValid.type && _isValid.symbolicName);
     }
 
     //-------------------------------------------------------------------
@@ -380,7 +387,7 @@ function ProfileTypeDefinitionEntity() {
             //otherwise, return and have user correct the other required items. 
             //alert("validation failed");
             return;
-        } 
+        }
 
         //show a spinner
         setLoadingProps({ isLoading: true, message: "" });
@@ -560,7 +567,7 @@ function ProfileTypeDefinitionEntity() {
         if (itemCopy.profileAttributes == null) itemCopy.profileAttributes = [];
         // doing the JSON copy stuff here to break up the object reference
         itemCopy.profileAttributes.push(JSON.parse(JSON.stringify(row)));
-        
+
         setItem(JSON.parse(JSON.stringify(itemCopy)));
         return {
             profileAttributes: itemCopy.profileAttributes, extendedProfileAttributes: itemCopy.extendedProfileAttributes
@@ -797,7 +804,7 @@ function ProfileTypeDefinitionEntity() {
             );
         }
     }
-    
+
     const renderCommonSection = () => {
 
         const iconName = mode.toLowerCase() === "extend" ? "extend" : getTypeDefIconName(_item);
@@ -832,7 +839,7 @@ function ProfileTypeDefinitionEntity() {
                 <div className="row">
                     {(mode.toLowerCase() !== "view") &&
                         <div className="col-md-8">
-                        <Form.Label htmlFor="name" >Name</Form.Label>
+                            <Form.Label htmlFor="name" >Name</Form.Label>
                             {!_isValid.name &&
                                 <span className="ml-2 d-inline invalid-field-message">Required</span>
                             }
@@ -856,6 +863,14 @@ function ProfileTypeDefinitionEntity() {
                                 value={_item.description == null ? '' : _item.description} onBlur={validateForm_description} onChange={onChange} readOnly={mode === "view"} />
                         </Form.Group>
                     </div>
+                    {_item.type.id === AppSettings.ProfileTypeDefaults.VariableTypeId &&
+                        <div className="col-md-12">
+                            <Form.Group>
+                                <Form.Label htmlFor="type">Data Type of the Variable</Form.Label>
+                                <Form.Control id="type" type="" value={_item.variableDataType != null ? _item.variableDataType.name : ""} readOnly={_isReadOnly} />
+                            </Form.Group>
+                        </div>
+                    }
                 </div>
             </>
 
@@ -948,7 +963,7 @@ function ProfileTypeDefinitionEntity() {
 
     // TBD: need loop to remove and add styles for "nav-item" CSS animations
     const tabListener = (eventKey) => {
-      }
+    }
 
 
     //-------------------------------------------------------------------

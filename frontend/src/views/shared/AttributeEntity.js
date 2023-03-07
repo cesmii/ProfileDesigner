@@ -30,8 +30,8 @@ function AttributeEntity(props) { //props are item, showActions
         const showComposition = _editItem.attributeType?.id === AppSettings.AttributeTypeDefaults.CompositionId;
         const showInterface = _editItem.attributeType?.id === AppSettings.AttributeTypeDefaults.InterfaceId;
         const showEnumeration = _editItem.attributeType?.id === AppSettings.AttributeTypeDefaults.EnumerationId;
-        const showDataVariable = lookupItem != null && lookupItem.id === AppSettings.AttributeTypeDefaults.DataVariableId;
-        const showProperty = lookupItem != null && lookupItem.id === AppSettings.AttributeTypeDefaults.PropertyId;
+        const showDataVariable = _editItem.id === AppSettings.AttributeTypeDefaults.DataVariableId;
+        const showProperty = _editItem.id === AppSettings.AttributeTypeDefaults.PropertyId;
 
         if (props.lookupDataTypes == null || props.lookupDataTypes.length === 0) {
             return {

@@ -6,6 +6,49 @@
 --	Remove standard nodeset table
 ---------------------------------------------------------------------
 
+ALTER TABLE public.profile_attribute
+	ADD COLUMN instrument_range_nodeid character varying(256) NULL,
+	ADD COLUMN instrument_range_modeling_rule character varying(256) NULL,
+	ADD COLUMN instrument_range_access_level integer NULL;
+
+DROP VIEW IF EXISTS public.v_data_type_rank;
+
+CREATE VIEW public.v_data_type_rank
+AS
+select 
+	--lu.name, 
+	--ptd.*, 
+	dt.*, 
+    baseDt.id as base_data_type_id,
+	COALESCE(a.usage_count, 0) + COALESCE(dtr.manual_rank, 0) as popularity_index,
+	--create a tiered system to distinguish between very popular and mildly popular and the others
+	CASE 
+		WHEN COALESCE(a.usage_count, 0) + COALESCE(dtr.manual_rank, 0) > 40 THEN 3
+		WHEN COALESCE(a.usage_count, 0) + COALESCE(dtr.manual_rank, 0) > 20 THEN 2
+		WHEN COALESCE(a.usage_count, 0) + COALESCE(dtr.manual_rank, 0) > 10 THEN 1
+		ELSE 0 END as popularity_level,
+	COALESCE(a.usage_count, 0) as usage_count, 
+	COALESCE(dtr.manual_rank, 0) as manual_rank
+from public.data_type dt
+left outer join public.data_type_rank dtr on dtr.data_type_id = dt.id
+left outer join public.profile_type_definition ptd on ptd.id = dt.custom_type_id
+left outer join public.data_type baseDt on ptd.id = baseDt.custom_type_id
+--left outer join public.lookup lu on lu.id = ptd.type_id
+left outer join (
+	SELECT data_type_id, count(*) as usage_count 
+	from public.profile_attribute 
+	group by data_type_id
+) a on a.data_type_id = dt.id
+--order by 
+-- 	 COALESCE(a.usage_count, 0) + COALESCE(dtr.manual_rank, 0) desc
+-- 	,COALESCE(a.usage_count, 0) desc 
+--	,dt.display_order
+--	,dt.name
+;
+
+ALTER VIEW public.v_data_type_rank
+    OWNER to profiledesigner;
+
 /*---------------------------------------------------------
 	Stored Procedures / Functions: 
 		get all ancestors for a type definition
@@ -42,7 +85,7 @@ returns table (
 	parent_id integer, 
 	type_id integer, 
 	type_name character varying(256), 
-  variable_data_type_id integer,
+        variable_data_type_id integer,
 	profile_id integer, 
 	profile_author_id integer, 
 	profile_namespace character varying(400), 
@@ -114,7 +157,7 @@ begin
 		 ELSE 0 END)
 	;
 end; $$ 
-
+;
 /*
 --test - Execute the function
 SELECT * FROM public.fn_profile_type_definition_get_descendants(13603, 40, true) d
@@ -137,7 +180,6 @@ LIMIT 10 OFFSET 10;
 /*---------------------------------------------------------
 	Function: fn_profile_type_definition_get_dependencies
 ---------------------------------------------------------*/
-;
 drop function if exists fn_profile_type_definition_get_dependencies; 
 create function fn_profile_type_definition_get_dependencies (
    IN _id int, _ownerId int, _limitByType boolean, _excludeAbstract boolean
@@ -161,7 +203,7 @@ returns table (
 	parent_id integer, 
 	type_id integer, 
 	type_name character varying(256), 
-  variable_data_type_id integer,
+        variable_data_type_id integer,
 	profile_id integer, 
 	profile_author_id integer, 
 	profile_namespace character varying(400), 
@@ -299,7 +341,7 @@ returns table (
 	parent_id integer, 
 	type_id integer, 
 	type_name character varying(256), 
-  variable_data_type_id integer,
+        variable_data_type_id integer,
 	profile_id integer, 
 	profile_author_id integer, 
 	profile_namespace character varying(400), 
@@ -377,41 +419,4 @@ ORDER BY d.level, d.name
 LIMIT 10 OFFSET 10;
 
 */
-
-DROP VIEW IF EXISTS public.v_data_type_rank;
-
-CREATE VIEW public.v_data_type_rank
-AS
-select 
-	--lu.name, 
-	--ptd.*, 
-	dt.*, 
-    baseDt.id as base_data_type_id,
-	COALESCE(a.usage_count, 0) + COALESCE(dtr.manual_rank, 0) as popularity_index,
-	--create a tiered system to distinguish between very popular and mildly popular and the others
-	CASE 
-		WHEN COALESCE(a.usage_count, 0) + COALESCE(dtr.manual_rank, 0) > 40 THEN 3
-		WHEN COALESCE(a.usage_count, 0) + COALESCE(dtr.manual_rank, 0) > 20 THEN 2
-		WHEN COALESCE(a.usage_count, 0) + COALESCE(dtr.manual_rank, 0) > 10 THEN 1
-		ELSE 0 END as popularity_level,
-	COALESCE(a.usage_count, 0) as usage_count, 
-	COALESCE(dtr.manual_rank, 0) as manual_rank
-from public.data_type dt
-left outer join public.data_type_rank dtr on dtr.data_type_id = dt.id
-left outer join public.profile_type_definition ptd on ptd.id = dt.custom_type_id
-left outer join public.data_type baseDt on ptd.id = baseDt.custom_type_id
---left outer join public.lookup lu on lu.id = ptd.type_id
-left outer join (
-	SELECT data_type_id, count(*) as usage_count 
-	from public.profile_attribute 
-	group by data_type_id
-) a on a.data_type_id = dt.id
---order by 
--- 	 COALESCE(a.usage_count, 0) + COALESCE(dtr.manual_rank, 0) desc
--- 	,COALESCE(a.usage_count, 0) desc 
---	,dt.display_order
---	,dt.name
 ;
-
-ALTER VIEW public.v_data_type_rank
-    OWNER to profiledesigner;

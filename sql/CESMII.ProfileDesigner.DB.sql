@@ -838,8 +838,13 @@ CREATE TABLE public.profile_attribute
     display_name character varying(256) COLLATE pg_catalog."default" NULL,
     min_value numeric NULL,
     max_value numeric NULL,
+
 	instrument_min_value numeric NULL,
 	instrument_max_value numeric NULL,
+	instrument_range_nodeid character varying(256) NULL,
+	instrument_range_modeling_rule character varying(256) NULL,
+	instrument_range_access_level integer NULL,
+	
 	eng_unit_id integer NULL,
 	eng_unit_nodeid character varying(256) NULL,
 	eng_unit_modeling_rule character varying(256) NULL,
@@ -1276,6 +1281,7 @@ returns table (
 	parent_id integer, 
 	type_id integer, 
 	type_name character varying(256), 
+        variable_data_type_id integer,
 	profile_id integer, 
 	profile_author_id integer, 
 	profile_namespace character varying(400), 
@@ -1320,6 +1326,7 @@ begin
 			t.parent_id,
 			t.type_id,
 			l.name as type_name,
+			t.variable_data_type_id,
 			p.id as profile_id,
 			p.author_id as profile_author_id,
 			p.namespace as profile_namespace,
@@ -1374,6 +1381,7 @@ returns table (
 	parent_id integer, 
 	type_id integer, 
 	type_name character varying(256), 
+        variable_data_type_id integer,
 	profile_id integer, 
 	profile_author_id integer, 
 	profile_namespace character varying(400), 
@@ -1420,7 +1428,7 @@ begin
 		FROM public.profile_type_definition t 
 		JOIN public.profile p ON p.id = t.profile_id
 		WHERE 
-			((p.owner_id IS NULL AND p.cloud_library_id IS NOT NULL) --root nodesets
+			((p.owner_id IS NULL) --root nodesets
 			OR (p.owner_id = _ownerId)) AND  --my nodesets or nodesets I imported
 			t.id IN (
 			SELECT distinct(t.id) -- , t.name, a.name, d.* 
@@ -1441,6 +1449,7 @@ begin
 			t.parent_id,
 			t.type_id,
 			l.name as type_name,
+			t.variable_data_type_id,
 			p.id as profile_id,
 			p.author_id as profile_author_id,
 			p.namespace as profile_namespace,
@@ -1495,6 +1504,7 @@ returns table (
 	parent_id integer, 
 	type_id integer, 
 	type_name character varying(256), 
+        variable_data_type_id integer,
 	profile_id integer, 
 	profile_author_id integer, 
 	profile_namespace character varying(400), 
@@ -1539,6 +1549,7 @@ begin
 			t.parent_id,
 			t.type_id,
 			l.name as type_name,
+			t.variable_data_type_id,
 			p.id as profile_id,
 			p.author_id as profile_author_id,
 			p.namespace as profile_namespace,

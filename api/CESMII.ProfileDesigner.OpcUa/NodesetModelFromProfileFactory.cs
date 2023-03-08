@@ -523,14 +523,19 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
                 variableModel.EngUnitNodeId = attribute.EngUnitOpcNodeId;
                 variableModel.EngUnitModellingRule = attribute.EngUnitModelingRule;
                 variableModel.EngUnitAccessLevel = attribute.EngUnitAccessLevel;
+
+                variableModel.MinValue = (double?)attribute.MinValue;
+                variableModel.MaxValue = (double?)attribute.MaxValue;
                 variableModel.EURangeNodeId = attribute.EURangeOpcNodeId;
                 variableModel.EURangeModellingRule = attribute.EURangeModelingRule;
                 variableModel.EURangeAccessLevel = attribute.EURangeAccessLevel;
 
-                variableModel.MinValue = (double?)attribute.MinValue;
-                variableModel.MaxValue = (double?)attribute.MaxValue;
                 variableModel.InstrumentMinValue = (double?)attribute.InstrumentMinValue;
                 variableModel.InstrumentMaxValue = (double?)attribute.InstrumentMaxValue;
+                variableModel.InstrumentRangeNodeId = attribute.InstrumentRangeOpcNodeId;
+                variableModel.InstrumentRangeModellingRule = attribute.InstrumentRangeModelingRule;
+                variableModel.InstrumentRangeAccessLevel = attribute.InstrumentRangeAccessLevel;
+
                 variableModel.Value = attribute.AdditionalData;
                 variableModel.MinimumSamplingInterval = attribute.MinimumSamplingInterval;
 

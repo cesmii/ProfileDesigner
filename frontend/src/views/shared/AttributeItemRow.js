@@ -6,7 +6,10 @@ import { SVGIcon, SVGCheckIcon } from '../../components/SVGIcon'
 import color from '../../components/Constants'
 import { generateLogMessageString, convertToNumeric, toInt, onChangeNumericKeysOnly} from '../../utils/UtilityService'
 import ConfirmationModal from '../../components/ConfirmationModal';
-import { validate_name, validate_nameDuplicate, validate_dataType, validate_All, onChangeDataTypeShared, renderAttributeIcon, onChangeAttributeTypeShared, validate_attributeType, validate_enumValueDuplicate, validate_enumValueNumeric, onChangeCompositionShared, renderDataTypeUIShared, renderCompositionSelectUIShared } from '../../services/AttributesService';
+import {
+    validate_name, validate_nameDuplicate, validate_dataType, validate_All, onChangeDataTypeShared, renderAttributeIcon, onChangeAttributeTypeShared, validate_attributeType, validate_enumValueDuplicate, validate_enumValueNumeric, onChangeCompositionShared, renderDataTypeUIShared, renderCompositionSelectUIShared,
+    onChangeVariableTypeShared, renderVariableTypeUIShared, validate_variableType, getPermittedDataTypes,
+} from '../../services/AttributesService';
 import { AppSettings } from '../../utils/appsettings'
 
 const CLASS_NAME = "AttributeItemRow";
@@ -52,23 +55,28 @@ function AttributeItemRow(props) { //props are item, showActions
     const initEditSettings = () => {
         if (props.isHeader) return null;
 
+        const isDataVariable = _editItem.attributeType?.id === AppSettings.AttributeTypeDefaults.DataVariableId;
+
         if (props.lookupDataTypes == null || props.lookupDataTypes.length === 0) {
             return {
                 useMinMax: true,
                 useEngUnit: true,
-                isCustomDataType: _editItem.dataType.isCustom
+                isCustomDataType: _editItem.dataType.isCustom,
+                showVariableType: isDataVariable
             };
         }
         const lookupItem = props.lookupDataTypes.find(dt => { return dt.val === _editItem.dataType.id; });
         return {
             useMinMax: lookupItem != null && lookupItem.useMinMax,
             useEngUnit: lookupItem != null && lookupItem.useEngUnit,
-            isCustomDataType: _editItem.dataType.isCustom
+            isCustomDataType: _editItem.dataType.isCustom,
+            showVariableType: isDataVariable
         };
     };
 
     const [_isEditMode, setIsEditMode] = useState(false);
     const [_editItem, setEditItem] = useState(JSON.parse(JSON.stringify(props.item)));
+    const [_originalItem, setOriginalItem] = useState(null);
     const [_isValid, setIsValid] = useState({
         name: true,
         nameDuplicate: true,
@@ -76,6 +84,7 @@ function AttributeItemRow(props) { //props are item, showActions
         attributeType: true,
         composition: true,
         structure: true,
+        variableType: true,
         minMax: true,
         minIsNumeric: true,
         maxIsNumeric: true,
@@ -83,6 +92,7 @@ function AttributeItemRow(props) { //props are item, showActions
         enumValue: true,
         enumValueDuplicate: true
     });
+    const [_permittedDataTypes, setPermittedDataTypes] = useState(props.lookupDataTypes);
     const [_editSettings, setEditSettings] = useState(initEditSettings());
 
     // Confirm Modals
@@ -102,6 +112,21 @@ function AttributeItemRow(props) { //props are item, showActions
         };
     }, [props.item]);
 
+    useEffect(() => {
+        setPermittedDataTypes(props.lookupDataTypes);
+    }, [props.lookupDataTypes]);
+
+    useEffect(() => {
+        if (_isEditMode) {
+            const newPermittedDataTypes = getPermittedDataTypes(_editItem, props.lookupDataTypes, props.lookupVariableTypes);
+            if (newPermittedDataTypes != null) {
+                setPermittedDataTypes(newPermittedDataTypes)
+            }
+            else {
+                setPermittedDataTypes(props.lookupDataTypes);
+            }
+        }
+    }, [_editItem, _isEditMode]);
 
     //-------------------------------------------------------------------
     // Region: Validation
@@ -114,8 +139,13 @@ function AttributeItemRow(props) { //props are item, showActions
     };
 
     const validateForm_dataType = (e) => {
-        const dataType = props.lookupDataTypes.find(dt => { return dt.id === parseInt(e.target.value); });
-        setIsValid({ ..._isValid, dataType: validate_dataType(dataType) });
+        const dataType = _permittedDataTypes.find(dt => { return dt.id === _editItem.dataType.id; });
+        setIsValid({ ..._isValid, dataType: validate_dataType(dataType, _permittedDataTypes) });
+    };
+    const validateForm_variableType = (e) => {
+        // OnBlur does not provide the value of the selected item
+        //const variableType = props.lookupVariableTypes.find(vt => { return vt.id === parseInt(e.target.value); });
+        //setIsValid({ ..._isValid, variableType: validate_variableType(variableType) });
     };
 
     const validateForm_attributeType = (e) => {
@@ -144,7 +174,7 @@ function AttributeItemRow(props) { //props are item, showActions
     const validateForm = () => {
         console.log(generateLogMessageString(`validateForm`, CLASS_NAME));
 
-        const isValid = validate_All(_editItem, _editSettings, props.allAttributes);
+        const isValid = validate_All(_editItem, _editSettings, props.allAttributes, _permittedDataTypes);
 
         setIsValid(JSON.parse(JSON.stringify(isValid)));
         return (isValid.name && isValid.nameDuplicate && isValid.dataType && isValid.attributeType
@@ -199,6 +229,7 @@ function AttributeItemRow(props) { //props are item, showActions
     const onEditClick = (e) => {
         console.log(generateLogMessageString(`onEditClick||id:${_editItem.id}`, CLASS_NAME));
         setEditItem(JSON.parse(JSON.stringify(_editItem)));
+        setOriginalItem(JSON.parse(JSON.stringify(_editItem)));
         setIsEditMode(true);
     };
 
@@ -224,7 +255,9 @@ function AttributeItemRow(props) { //props are item, showActions
 
     const onCancelUpdateClick = (e) => {
         console.log(generateLogMessageString(`onCancelUpdateClick||id:${_editItem.id}`, CLASS_NAME));
-        setEditItem(JSON.parse(JSON.stringify(_editItem)));
+        if (_originalItem != null) {
+            setEditItem(JSON.parse(JSON.stringify(_originalItem)));
+        }
         setIsEditMode(false);
     };
 
@@ -249,8 +282,7 @@ function AttributeItemRow(props) { //props are item, showActions
 
     //attribute edit ui - change data type
     const onChangeDataType = (e) => {
-        //var data = onChangeDataTypeShared(e.target.value, _editItem, _editSettings, props.lookupDataTypes);
-        const data = onChangeDataTypeShared(e.value, _editItem, _editSettings, props.lookupDataTypes);
+        const data = onChangeDataTypeShared(e.value, _editItem, _editSettings, _permittedDataTypes);
 
         //replace add settings (updated in shared method)
         setEditSettings(JSON.parse(JSON.stringify(data.settings)));
@@ -265,6 +297,15 @@ function AttributeItemRow(props) { //props are item, showActions
         setEditSettings(JSON.parse(JSON.stringify(data.settings)));
         //update state - after changes made in shared method
         setEditItem(JSON.parse(JSON.stringify(data.item)));
+
+        onChangeVariableTypeShared(_editItem.variableTypeDefinition?.id, _editItem, props.lookupVariableTypes, props.lookupDataTypes);
+    }
+
+    const onChangeVariableType = (e) => {
+        onChangeVariableTypeShared(e?.value, _editItem, props.lookupVariableTypes, props.lookupDataTypes);
+
+        //update state - after changes made in shared method
+        setEditItem(JSON.parse(JSON.stringify(_editItem)));
     }
 
     //attribute add ui - change composition ddl
@@ -498,7 +539,7 @@ function AttributeItemRow(props) { //props are item, showActions
     
     //render editable input for data type
     const renderDataTypeUI = () => {
-        return renderDataTypeUIShared(_editItem, props.lookupDataTypes, null, _isValid.dataType, false, onChangeDataType, validateForm_dataType);
+        return renderDataTypeUIShared(_editItem, _permittedDataTypes, null, _isValid.dataType, false, onChangeDataType, validateForm_dataType);
     };
 
     ////render editable input for data type
@@ -569,6 +610,7 @@ function AttributeItemRow(props) { //props are item, showActions
         const selectedId = _editItem.attributeType == null ? "-1" : _editItem.attributeType.id;
 
         return (
+            <div>
             <Form.Group className="flex-grow-1 align-self-center" >
                 <Form.Control id="attributeType" as="select" value={selectedId} aria-label="Attribute Type"
                     onChange={onChangeAttributeType} onBlur={validateForm_attributeType}
@@ -576,7 +618,9 @@ function AttributeItemRow(props) { //props are item, showActions
                     <option key="-1|Select One" value="-1" >Select</option>
                     {options}
                 </Form.Control>
-            </Form.Group>
+                </Form.Group>
+                {renderVariableTypeUI()}
+            </div>
         );
     };
 
@@ -587,13 +631,23 @@ function AttributeItemRow(props) { //props are item, showActions
             if (_editItem.attributeType == null || _editItem.attributeType.id.toString() === "-1") return "";
             const selItem = (props.lookupAttributeTypes == null || props.lookupAttributeTypes.length === 0) ? null :
                 props.lookupAttributeTypes.find(x => { return x.id === _editItem.attributeType.id });
-            return selItem == null ? _editItem.attributeType.name : selItem.name;
+
+            var attributeType = selItem == null ? _editItem.attributeType.name : selItem.name;
+
+            if (_editSettings.showVariableType && _editItem.variableTypeDefinition != null) {
+                return (<div>{attributeType}: <a href={`/type/${_editItem.variableTypeDefinition.id}`}>{_editItem.variableTypeDefinition.name}</a></div>);
+            }
+            return attributeType;
         }
         //edit mode
         else {
             return renderAttributeTypeUI();
         }
-    };
+};
+
+    const renderVariableTypeUI = () => {
+        return renderVariableTypeUIShared(_editItem, props.lookupVariableTypes, _editSettings, _isValid.variableType, true, onChangeVariableType, validateForm_variableType);
+    }
 
     //render the description ui
     const renderDescriptionUI = () => {

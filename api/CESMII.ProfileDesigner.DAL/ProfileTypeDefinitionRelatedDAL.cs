@@ -36,7 +36,8 @@
                     Author = new UserSimpleModel() { ID = entity.AuthorId },
                     OpcNodeId = entity.OpcNodeId,
                     IsAbstract = entity.IsAbstract,
-                    Level = entity.Level
+                    Level = entity.Level,
+                    VariableDataTypeId = entity.VariableDataTypeId,
                 };
             }
             else

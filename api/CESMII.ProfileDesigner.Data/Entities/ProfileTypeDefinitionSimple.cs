@@ -34,6 +34,9 @@
         [Column(name: "type_name")]
         public string TypeName { get; set; }
 
+        [Column(name: "variable_data_type_id")]
+        public int? VariableDataTypeId { get; set; }
+
         [Column(name: "profile_id")]
         public int ProfileId { get; set; }
 

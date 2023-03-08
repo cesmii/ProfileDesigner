@@ -25,7 +25,7 @@
 		<PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="6.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="6.0.0" />
-		<PackageReference Include="CESMII.OpcUa.NodeSetImporter" Version="1.0.9" />
+		<PackageReference Include="CESMII.OpcUa.NodeSetImporter" Version="1.0.10" />
 	</ItemGroup>
 
 	<ItemGroup>

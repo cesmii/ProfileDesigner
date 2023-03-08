@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { renderProfileAvatarBgCss, renderProfileIcon, renderProfilePublishStatus } from './ProfileRenderHelpers';
+import { renderProfileAvatarBgCss, renderProfileIcon } from './ProfileRenderHelpers';
 import { formatDateUtc } from '../../utils/UtilityService';
 import { getProfileCaption } from '../../services/ProfileService'
 import { SVGIcon } from '../../components/SVGIcon';
@@ -170,7 +170,7 @@ function ProfileItemRow(props) { //props are item, showActions
                             <p className="my-0 d-flex align-items-center">
                                 {renderTitleNamespace()}
                             </p>
-                            {(props.item.title != null && props.item.title != '') &&
+                            {(props.item.title != null && props.item.title !== '') &&
                                 <p className="my-0 small-size" >Namespace: {props.item.namespace}</p>
                             }
                             {props.item.version != null &&

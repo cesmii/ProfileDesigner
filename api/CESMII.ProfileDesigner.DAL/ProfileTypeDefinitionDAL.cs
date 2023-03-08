@@ -421,14 +421,19 @@
                 EngUnitOpcNodeId = item.EngUnitOpcNodeId,
                 EngUnitModelingRule = item.EngUnitModelingRule,
                 EngUnitAccessLevel = item.EngUnitAccessLevel,
+                MinimumSamplingInterval = item.MinimumSamplingInterval,
+
+                MinValue = item.MinValue,
+                MaxValue = item.MaxValue,
                 EURangeOpcNodeId = item.EURangeOpcNodeId,
                 EURangeModelingRule = item.EURangeModelingRule,
                 EURangeAccessLevel = item.EURangeAccessLevel,
-                MinimumSamplingInterval = item.MinimumSamplingInterval,
-                MinValue = item.MinValue,
-                MaxValue = item.MaxValue,
+
                 InstrumentMinValue = item.InstrumentMinValue,
                 InstrumentMaxValue = item.InstrumentMaxValue,
+                InstrumentRangeOpcNodeId = item.InstrumentRangeOpcNodeId,
+                InstrumentRangeModelingRule = item.InstrumentRangeModelingRule,
+                InstrumentRangeAccessLevel = item.InstrumentRangeAccessLevel,
                 EnumValue = item.EnumValue,
                 IsRequired = item.IsRequired,
                 ModelingRule = item.ModelingRule,
@@ -744,8 +749,19 @@
                         current.EURangeModelingRule = source.EURangeModelingRule;
                         current.EURangeAccessLevel = source.EURangeAccessLevel;
                         current.MinimumSamplingInterval = source.MinimumSamplingInterval;
+
                         current.MinValue = source.MinValue;
                         current.MaxValue = source.MaxValue;
+                        current.EURangeOpcNodeId = source.EURangeOpcNodeId;
+                        current.EURangeModelingRule = source.EURangeModelingRule;
+                        current.EURangeAccessLevel = source.EURangeAccessLevel;
+
+                        current.InstrumentMinValue = source.InstrumentMinValue;
+                        current.InstrumentMaxValue = source.InstrumentMaxValue;
+                        current.InstrumentRangeOpcNodeId = source.InstrumentRangeOpcNodeId;
+                        current.InstrumentRangeModelingRule = source.InstrumentRangeModelingRule;
+                        current.InstrumentRangeAccessLevel = source.InstrumentRangeAccessLevel;
+
                         current.DataTypeId = source.DataType?.ID != 0 ? source.DataType.ID : null;
                         current.DataVariableNodeIds = source.DataVariableNodeIds;
                         var dataType = current.DataType;
@@ -850,8 +866,19 @@
                             CreatedById = userToken.UserId,
                             Updated = DateTime.UtcNow,
                             UpdatedById = userToken.UserId,
+
                             MinValue = attr.MinValue,
                             MaxValue = attr.MaxValue,
+                            EURangeOpcNodeId = attr.EURangeOpcNodeId,
+                            EURangeModelingRule = attr.EURangeModelingRule,
+                            EURangeAccessLevel = attr.EURangeAccessLevel,
+
+                            InstrumentMinValue = attr.InstrumentMinValue,
+                            InstrumentMaxValue = attr.InstrumentMaxValue,
+                            InstrumentRangeOpcNodeId = attr.InstrumentRangeOpcNodeId,
+                            InstrumentRangeModelingRule = attr.InstrumentRangeModelingRule,
+                            InstrumentRangeAccessLevel = attr.InstrumentRangeAccessLevel,
+
                             DataTypeId = attr.DataType.ID,
                             DataType = dataType,
                             DataVariableNodeIds = attr.DataVariableNodeIds,
@@ -870,9 +897,6 @@
                             EngUnitOpcNodeId = attr.EngUnitOpcNodeId,
                             EngUnitModelingRule = attr.EngUnitModelingRule,
                             EngUnitAccessLevel = attr.EngUnitAccessLevel,
-                            EURangeOpcNodeId = attr.EURangeOpcNodeId,
-                            EURangeModelingRule = attr.EURangeModelingRule,
-                            EURangeAccessLevel = attr.EURangeAccessLevel,
                             MinimumSamplingInterval = attr.MinimumSamplingInterval,
 
                             AccessLevel = attr.AccessLevel,

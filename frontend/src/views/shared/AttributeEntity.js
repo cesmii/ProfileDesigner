@@ -6,7 +6,7 @@ import Button from 'react-bootstrap/Button'
 import { generateLogMessageString, onChangeNumericKeysOnly, validateNumeric, convertToNumeric, toInt } from '../../utils/UtilityService'
 import { AppSettings } from '../../utils/appsettings';
 import {
-    validate_name, validate_nameDuplicate, validate_dataType, validate_minMax, validate_engUnit, validate_All,
+    validate_name, validate_nameDuplicate, validate_dataType, validate_minMax, validate_engUnit, validate_All, 
     onChangeDataTypeShared, renderAttributeIcon, validate_attributeType, onChangeAttributeTypeShared, validate_enumValueDuplicate, validate_enumValueNumeric, onChangeInterfaceShared, onChangeCompositionShared, onChangeEngUnitShared, validate_symbolicName, renderDataTypeUIShared, renderEngUnitUIShared, renderCompositionSelectUIShared
 } from '../../services/AttributesService';
 
@@ -30,6 +30,8 @@ function AttributeEntity(props) { //props are item, showActions
         const showComposition = _editItem.attributeType?.id === AppSettings.AttributeTypeDefaults.CompositionId;
         const showInterface = _editItem.attributeType?.id === AppSettings.AttributeTypeDefaults.InterfaceId;
         const showEnumeration = _editItem.attributeType?.id === AppSettings.AttributeTypeDefaults.EnumerationId;
+        const showDataVariable = _editItem.id === AppSettings.AttributeTypeDefaults.DataVariableId;
+        const showProperty = _editItem.id === AppSettings.AttributeTypeDefaults.PropertyId;
 
         if (props.lookupDataTypes == null || props.lookupDataTypes.length === 0) {
             return {
@@ -39,7 +41,9 @@ function AttributeEntity(props) { //props are item, showActions
                 changeAttributeType: changeAttributeType,
                 showComposition: showComposition,
                 showInterface: showInterface,
-                showEnumeration: showEnumeration
+                showEnumeration: showEnumeration,
+                showVariableType: showDataVariable,
+                showProperty: showProperty
             };
         }
         const lookupItem = props.lookupDataTypes.find(dt => { return dt.id === _editItem.dataType.id; });
@@ -51,7 +55,9 @@ function AttributeEntity(props) { //props are item, showActions
             changeAttributeType: changeAttributeType,
             showComposition: showComposition,
             showInterface: showInterface,
-            showEnumeration: showEnumeration
+            showEnumeration: showEnumeration,
+            showVariableType: showDataVariable || showProperty,
+            showProperty: showProperty
         };
     };
 
@@ -88,7 +94,7 @@ function AttributeEntity(props) { //props are item, showActions
 
     const validateForm_dataType = (e) => {
         const dataType = props.lookupDataTypes.find(dt => { return dt.id === parseInt(e.target.value); });
-        setIsValid({ ..._isValid, dataType: validate_dataType(dataType) });
+        setIsValid({ ..._isValid, dataType: validate_dataType(dataType, props.lookupDataTypes) }); // Currently no edit under this entity. If Variable Type becomes editable, need to call getPermittedDataTypes to limit data types etc.
     };
 
     const validateForm_attributeType = (e) => {
@@ -141,7 +147,7 @@ function AttributeEntity(props) { //props are item, showActions
     const validateForm = () => {
         console.log(generateLogMessageString(`validateForm`, CLASS_NAME));
 
-        const isValid = validate_All(_editItem, _editSettings, props.allAttributes);
+        const isValid = validate_All(_editItem, _editSettings, props.allAttributes, props.lookupDataTypes); // pass permitted datatypes when editing variable types
 
         setIsValid(JSON.parse(JSON.stringify(isValid)));
         return (isValid.name && isValid.nameDuplicate && isValid.minMax && isValid.dataType && isValid.attributeType && isValid.engUnit

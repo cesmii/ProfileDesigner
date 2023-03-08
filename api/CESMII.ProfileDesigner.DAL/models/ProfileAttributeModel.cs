@@ -25,6 +25,9 @@
         public decimal? MaxValue { get; set; }
         public decimal? InstrumentMinValue { get; set; }
         public decimal? InstrumentMaxValue { get; set; }
+        public string InstrumentRangeOpcNodeId { get; set; }
+        public string InstrumentRangeModelingRule { get; set; }
+        public uint? InstrumentRangeAccessLevel { get; set; }
 
         /// <summary>
         /// Value of an enum field for AttributeType AttributeTypeIdEnum.EnumField, and the field order for AttributeType AttributeTypeIdEnum.StructureField)

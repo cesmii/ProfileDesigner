@@ -478,14 +478,18 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
                 attribute.EngUnitOpcNodeId = _model.EngUnitNodeId;
                 attribute.EngUnitModelingRule = _model.EngUnitModellingRule;
                 attribute.EngUnitAccessLevel = _model.EngUnitAccessLevel;
+
+                attribute.MinValue = (decimal?)_model.MinValue;
+                attribute.MaxValue = (decimal?)_model.MaxValue;
                 attribute.EURangeOpcNodeId = _model.EURangeNodeId;
                 attribute.EURangeModelingRule = _model.EURangeModellingRule;
                 attribute.EURangeAccessLevel = _model.EURangeAccessLevel;
 
-                attribute.MinValue = (decimal?)_model.MinValue;
-                attribute.MaxValue = (decimal?)_model.MaxValue;
                 attribute.InstrumentMinValue = (decimal?)_model.InstrumentMinValue;
                 attribute.InstrumentMaxValue = (decimal?)_model.InstrumentMaxValue;
+                attribute.InstrumentRangeOpcNodeId = _model.InstrumentRangeNodeId;
+                attribute.InstrumentRangeModelingRule = _model.InstrumentRangeModellingRule;
+                attribute.InstrumentRangeAccessLevel = _model.InstrumentRangeAccessLevel;
 
                 if (profileItem.Attributes == null)
                 {

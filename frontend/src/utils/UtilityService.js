@@ -207,6 +207,57 @@ export function getProfileTypeCaption(item) {
     }
 }
 
+
+///--------------------------------------------------------------------------
+/// Gets the data types permitted for a variable type
+//--------------------------------------------------------------------------
+export const getPermittedDataTypesForVariableTypeById = (variableTypeId, lookupDataTypes) => {
+    if (variableTypeId != null) {
+        var vtDataType = lookupDataTypes.find(dt => { return dt.customTypeId === variableTypeId });
+        if (vtDataType != null) {
+            const permittedDataTypes = getDerivedDataTypes(vtDataType, lookupDataTypes);
+            return permittedDataTypes;
+        }
+    }
+    return null;
+}
+
+///--------------------------------------------------------------------------
+/// Gets all data types derived from a data type (from for example loadingProps.lookupDataStatic.dataTypes), including the data type itself
+//--------------------------------------------------------------------------
+export const getDerivedDataTypes = (dataType, lookupDataTypes) => {
+    const derivedDataTypes = lookupDataTypes.filter((dt) => {
+        if (isDerivedFromDataType(dt, dataType, lookupDataTypes)) {
+            return dt;
+        }
+        return null;
+    });
+    return derivedDataTypes;
+}
+
+///--------------------------------------------------------------------------
+/// Determines if a data type (from for example loadingProps.lookupDataStatic.dataTypes) is derived from another data type
+//--------------------------------------------------------------------------
+export const isDerivedFromDataType = (dataType, baseDataType, lookupDataTypes) => {
+    var dtCurrent = dataType;
+    do {
+        if (dtCurrent.id == baseDataType.id) {
+            return true;
+        }
+        if (dtCurrent.baseDataTypeId == null) {
+            break;
+        }
+        var dtBase = lookupDataTypes.find(dt => { return dt.id == dtCurrent.baseDataTypeId; });
+        if (dtBase == dtCurrent) {
+            // avoid infinite loop if data is bad
+            break;
+        }
+        dtCurrent = dtBase;
+    }
+    while (dtCurrent != null);
+    return false;
+}
+
 //TBD - move to profile service file
 export function getTypeDefIconName(item) {
     if (item == null || item.type == null) return AppSettings.IconMapper.TypeDefinition;

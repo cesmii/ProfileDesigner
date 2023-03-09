@@ -13,8 +13,8 @@ import Nav from 'react-bootstrap/Nav'
 import { useLoadingContext, UpdateRecentFileList } from "../components/contexts/LoadingContext";
 import { useWizardContext } from '../components/contexts/WizardContext';
 import { AppSettings } from '../utils/appsettings';
-import { generateLogMessageString, getTypeDefIconName, getProfileTypeCaption, validate_NoSpecialCharacters, getIconColorByProfileState } from '../utils/UtilityService'
-import { renderDataTypeUIShared, onChangeDataTypeShared } from '../services/AttributesService';
+import { generateLogMessageString, getTypeDefIconName, getProfileTypeCaption, validate_NoSpecialCharacters, getIconColorByProfileState, isDerivedFromDataType, getPermittedDataTypesForVariableTypeById } from '../utils/UtilityService'
+import { renderDataTypeUIShared } from '../services/AttributesService';
 import AttributeList from './shared/AttributeList';
 import DependencyList from './shared/DependencyList';
 import ProfileBreadcrumbs from './shared/ProfileBreadcrumbs';
@@ -54,8 +54,9 @@ function ProfileTypeDefinitionEntity() {
     const [_item, setItem] = useState({});
     const [isLoading, setIsLoading] = useState(true);
     const [_lookupDataTypes, setLookupDataTypes] = useState([]);
+    const [_permittedDataTypes, setPermittedDataTypes] = useState(null);
     const [_isReadOnly, setIsReadOnly] = useState(true);
-    const [_isValid, setIsValid] = useState({ name: true, profile: true, description: true, type: true, symbolicName: true });
+    const [_isValid, setIsValid] = useState({ name: true, profile: true, description: true, type: true, symbolicName: true, variableDataType: true });
     //const [_lookupProfiles, setLookupProfiles] = useState([]);
     //used in popup profile add/edit ui. Default to new version
     const [_profileEntityModal, setProfileEntityModal] = useState({ show: false, item: null, autoSave: false  });
@@ -224,6 +225,19 @@ function ProfileTypeDefinitionEntity() {
         };
     }, [id, parentId, profileId ]);
 
+    useEffect(() => {
+        setPermittedDataTypes(_lookupDataTypes);
+    }, [_lookupDataTypes]);
+
+    useEffect(() => {
+        const newPermittedDataTypes = getPermittedDataTypesForVariableTypeById(_item.parent?.variableDataTypeId, _lookupDataTypes);
+        if (newPermittedDataTypes != null) {
+            setPermittedDataTypes(newPermittedDataTypes)
+        }
+        else {
+            setPermittedDataTypes(_lookupDataTypes);
+        }
+    }, [_item]);
 
     //-------------------------------------------------------------------
     // Region: Hooks - When composition data type is chosen, go get a list of profiles
@@ -387,6 +401,21 @@ function ProfileTypeDefinitionEntity() {
         setIsValid({ ..._isValid, symbolicName: isValid });
     };
 
+    const validateForm_variableDataType = (e) => {
+
+        var isValid = validate_variableDataType(_item.variableDataType);
+        setIsValid({ ..._isValid, variableDataType: isValid });
+    };
+
+    const validate_variableDataType = (vdt) => {
+        var lookupDataType = _lookupDataTypes.find(dt => { return dt.customTypeId.toString() === vdt.id?.toString(); });
+        var baseVTDataType = _lookupDataTypes.find(dt => { return dt.customTypeId.toString() === _item.parent?.variableDataTypeId?.toString(); })
+        if (lookupDataType != null && baseVTDataType != null) {
+            return isDerivedFromDataType(lookupDataType, baseVTDataType, _lookupDataTypes);
+        }
+        return lookupDataType == baseVTDataType; // ok if both are null or if they are identical
+    }
+
     ////update state for when search click happens
     const validateForm = () => {
         console.log(generateLogMessageString(`validateForm`, CLASS_NAME));
@@ -396,9 +425,10 @@ function ProfileTypeDefinitionEntity() {
         _isValid.description = true; //item.description != null && item.description.trim().length > 0;
         _isValid.type = _item.type != null && _item.type.id !== -1 && _item.type.id !== "-1";
         _isValid.symbolicName = validate_NoSpecialCharacters(_item.symbolicName);
+        _isValid.variableDataType = validate_variableDataType(_item.variableDataType);
 
         setIsValid(JSON.parse(JSON.stringify(_isValid)));
-        return (_isValid.name && _isValid.profile && _isValid.description && _isValid.type && _isValid.symbolicName);
+        return (_isValid.name && _isValid.profile && _isValid.description && _isValid.type && _isValid.symbolicName && _isValid.variableDataType);
     }
 
     //-------------------------------------------------------------------
@@ -722,9 +752,14 @@ function ProfileTypeDefinitionEntity() {
     };
 
     //onchange data type
-    const onChangeDataType = (e) => {
-        const data = onChangeDataTypeShared(e.value, _item, null, _lookupDataTypes);
-        setItem(JSON.parse(JSON.stringify(data.item)));
+    const onChangeVariableDataType = (e) => {
+        var lookupItem = _lookupDataTypes.find(dt => { return dt.id.toString() === e.value.toString(); });
+
+        _item.variableDataType = 
+            lookupItem != null ?
+            { id: lookupItem.customTypeId, name: lookupItem.name }
+            : { id: -1, name: '' };
+        setItem(JSON.parse(JSON.stringify(_item)));
     }
 
 
@@ -809,7 +844,9 @@ function ProfileTypeDefinitionEntity() {
     };
 
     const renderVariableDataType = () => {
-
+        if (_item.typeId !== AppSettings.ProfileTypeDefaults.VariableTypeId) {
+            return null;
+        }
         if (_isReadOnly) {
 
             return (
@@ -824,10 +861,15 @@ function ProfileTypeDefinitionEntity() {
         else {
             return (
                 <div className="col-md-12">
-                    {renderDataTypeUIShared(_item, _lookupDataTypes, null, _isValid, true, onChangeDataType)}
+                    {renderVariableDataTypeUI()}
                 </div>);
         }
     };
+
+    const renderVariableDataTypeUI = () => {
+        var lookupItem = _lookupDataTypes.find(dt => { return dt.customTypeId.toString() === _item.variableDataType?.id?.toString(); });
+        return renderDataTypeUIShared(lookupItem, _permittedDataTypes, null, _isValid.variableDataType, true, "Data Type of the Variable", onChangeVariableDataType, validateForm_variableDataType)
+    }
 
     //renderProfileEntity as a modal to force user to say ok.
     const renderProfileModal = () => {

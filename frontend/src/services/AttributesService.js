@@ -42,9 +42,9 @@ export const validate_nameDuplicate = (val, item, allAttributes) => {
 };
 
 export const validate_dataType = (val, permittedDataTypes) => {
-    if (val == null || val.id.toString() == "-1")
+    if (val == null || val.id.toString() === "-1")
         return false;
-    var match = permittedDataTypes.find(dt => dt.id.toString() == val.id.toString());
+    const match = permittedDataTypes.find(dt => dt.id.toString() === val.id.toString());
     return match != null;
 };
 export const validate_variableType = (val) => {
@@ -94,7 +94,9 @@ export const validate_All = (item, editSettings, allAttributes, permittedDataTyp
     var result = {
         name: validate_name(item.name, item),
         nameDuplicate: validate_nameDuplicate(item.name, item, allAttributes),
+        //certain attr types do not require data type and therefore are true
         dataType: item.attributeType?.id === AppSettings.AttributeTypeDefaults.InterfaceId ||
+            item.attributeType?.id === AppSettings.AttributeTypeDefaults.CompositionId ||
             item.attributeType?.id === AppSettings.AttributeTypeDefaults.EnumerationId || isValidDataType,
         composition: item.attributeType?.id !== AppSettings.AttributeTypeDefaults.CompositionId || 
             (item.composition != null && item.compositionId > 0),
@@ -209,21 +211,21 @@ export const onChangeVariableTypeShared = (val, item, lookupVariableTypes, looku
 
 export const getPermittedDataTypes = (item, lookupDataTypes,lookupVariableTypes) => {
     if (item.variableTypeDefinition != null) {
-        var match = lookupVariableTypes.find(vt => { return vt.id.toString() === item.variableTypeDefinition.id?.toString(); });
+        const match = lookupVariableTypes.find(vt => { return vt.id.toString() === item.variableTypeDefinition.id?.toString(); });
         if (match != null) {
-            var vtDataTypeId = match.variableDataTypeId;
-            var vtDataType = lookupDataTypes.find(dt => { return dt.customTypeId === vtDataTypeId });
+            const vtDataTypeId = match.variableDataTypeId;
+            const vtDataType = lookupDataTypes.find(dt => { return dt.customTypeId === vtDataTypeId });
             if (vtDataType != null) {
                 const permissableDataTypes = lookupDataTypes.filter((dt) => {
-                    var dtCurrent = dt;
+                    let dtCurrent = dt;
                     do {
-                        if (dtCurrent.id == vtDataType.id) {
+                        if (dtCurrent.id === vtDataType.id) {
                             return dt;
                         }
                         if (dtCurrent.baseDataTypeId == null) {
                             break;
                         }
-                        dtCurrent = lookupDataTypes.find(dt => { return dt.id == dtCurrent.baseDataTypeId; });
+                        dtCurrent = lookupDataTypes.find(dt => { return dt.id === dtCurrent.baseDataTypeId; });
                     }
                     while (dtCurrent != null);
                     return null;

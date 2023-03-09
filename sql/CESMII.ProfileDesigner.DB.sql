@@ -990,7 +990,7 @@ select
 	COALESCE(dtr.manual_rank, 0) as manual_rank
 from public.data_type dt
 left outer join public.data_type_rank dtr on dtr.data_type_id = dt.id
-left outer join public.profile_type_definition ptd on ptd.id = dt.custom_type_id
+left outer join public.profile_type_definition ptd on ptd.parent_id = dt.custom_type_id
 left outer join public.data_type baseDt on ptd.id = baseDt.custom_type_id
 --left outer join public.lookup lu on lu.id = ptd.type_id
 left outer join (

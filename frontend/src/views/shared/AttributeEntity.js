@@ -484,8 +484,10 @@ function AttributeEntity(props) { //props are item, showActions
     };
 
     //render data type ui
+    const renderDataType = () => {
+        return renderDataTypeUIShared(_editItem.dataType, props.lookupDataTypes, null, _isValid.dataType, true, null, onChangeDataType, validateForm_dataType);
     const renderDataTypeUI = () => {
-        return renderDataTypeUIShared(_editItem, props.lookupDataTypes, null, _isValid.dataType, true, onChangeDataType, validateForm_dataType);
+        return renderDataTypeUIShared(_editItem_dataType, props.lookupDataTypes, null, _isValid.dataType, true, onChangeDataType, validateForm_dataType);
         //if (props.lookupDataTypes == null || props.lookupDataTypes.length === 0) return;
 
         //var isReadOnly = props.readOnly || _editItem.interface != null;

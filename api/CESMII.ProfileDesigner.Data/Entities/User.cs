@@ -33,6 +33,15 @@
         [Column(name: "email_address")]
         public string EmailAddress { get; set; }
 
+        /// <summary>
+        /// These fields are retrieved during the self-service sign-up process,
+        /// where they get stored and processed when a user logs in. At that time,
+        /// we synch up the organization information (organization_id, etc.)
+        /// </summary>
+        [Column(name: "sssu_organization")]
+        public string? Oranization_Name { get; set; }
+        [Column(name: "sssu_cesmii_member")]
+        public bool? CesmiiMember { get; set; }
         public virtual Organization Organization { get; set; }
     }
 

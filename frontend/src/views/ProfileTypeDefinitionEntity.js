@@ -63,7 +63,7 @@ function ProfileTypeDefinitionEntity() {
     const [_lookupRelated, setLookupRelated] = useState({ compositions: [], interfaces: [], variableTypes: [] });
 
     const { wizardProps, setWizardProps } = useWizardContext();
-    var _navInfo = history.location.pathname.indexOf('/wizard/') === - 1 ? null : getWizardNavInfo(wizardProps.mode, 'ExtendBaseType');
+    const _navInfo = history.location.pathname.indexOf('/wizard/') === - 1 ? null : getWizardNavInfo(wizardProps.mode, 'ExtendBaseType');
     const _currentPage = history.location.pathname.indexOf('/wizard/') === - 1 ? null : WizardSettings.panels.find(p => { return p.id === 'ExtendBaseType'; });
     
     //-------------------------------------------------------------------
@@ -813,19 +813,17 @@ function ProfileTypeDefinitionEntity() {
         if (_isReadOnly) {
 
             return (
-                <div className="col-md-12">
-                    <Form.Group>
-                        <Form.Label htmlFor="type">Data Type of the Variable</Form.Label>
-                        <Form.Control id="type" type="" value={_item.variableDataType != null ? _item.variableDataType.name : ""} readOnly={_isReadOnly} />
-                    </Form.Group>
-                </div>
+                <Form.Group>
+                    <Form.Label htmlFor="type">Data Type of the Variable</Form.Label>
+                    <Form.Control id="type" type="" value={_item.variableDataType != null ? _item.variableDataType.name : ""} readOnly={_isReadOnly} />
+                </Form.Group>
             );
         }
         else {
+            //set isValid === true always - not required here...
             return (
-                <div className="col-md-12">
-                    {renderDataTypeUIShared(_item, _lookupDataTypes, null, _isValid, true, onChangeDataType)}
-                </div>);
+                renderDataTypeUIShared(_item, _lookupDataTypes, null, true, true, onChangeDataType)
+            );
         }
     };
 
@@ -897,7 +895,7 @@ function ProfileTypeDefinitionEntity() {
                 {renderProfile()}
                 <div className="row">
                     {(mode.toLowerCase() !== "view") &&
-                        <div className="col-md-8">
+                        <div className="col-lg-5 col-md-6">
                             <Form.Label htmlFor="name" >Name</Form.Label>
                             {!_isValid.name &&
                                 <span className="ml-2 d-inline invalid-field-message">Required</span>
@@ -910,7 +908,10 @@ function ProfileTypeDefinitionEntity() {
                             </div>
                         </div>
                     }
-                    <div className="col-md-4">
+                    <div className="col-lg-4 col-md-6">
+                        {renderVariableDataType()}
+                    </div>
+                    <div className="col-lg-3 col-md-6">
                         {renderProfileDefType()}
                     </div>
                 </div>
@@ -922,7 +923,6 @@ function ProfileTypeDefinitionEntity() {
                                 value={_item.description == null ? '' : _item.description} onBlur={validateForm_description} onChange={onChange} readOnly={mode === "view"} />
                         </Form.Group>
                     </div>
-                    {renderVariableDataType()}
                 </div>
             </>
 

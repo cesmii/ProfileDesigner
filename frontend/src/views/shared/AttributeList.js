@@ -975,22 +975,22 @@ function AttributeList(props) {
                 </div>
                 <div className="py-2 px-4 hl-blue">
                     <div className="row" >
-                        <div className="col-sm-5" >{renderAttributeTypeUI()}</div>
-                        {(!_addSettings.showInterface && !_addSettings.showComposition && !_addSettings.showEnumeration) &&
-                            <div className="col-sm-6" >{renderVariableTypeUI()}</div>
+                        <div className="col-sm-4" >{renderAttributeTypeUI()}</div>
+                        {(_addSettings.showVariableType) &&
+                            <div className="col-sm-4" >{renderVariableTypeUI()}</div>
                         }
-                        {(!_addSettings.showInterface && !_addSettings.showComposition && !_addSettings.showEnumeration) &&
-                            <div className="col-sm-6" >{renderDataTypeUI()}</div>
+                        {(_addSettings.showVariableType || _addSettings.showProperty) &&
+                            <div className={`col-sm-${_addSettings.showVariableType ? '3' :'7'}`} >{renderDataTypeUI()}</div>
                         }
                         {_addSettings.showEnumeration &&
                             <div className="col-sm-3" >{renderEnumValueUI()}</div>
                         }
                         {_addSettings.showComposition &&
-                            <div className="col-sm-6" >{renderCompositionUI()}</div>
+                            <div className="col-sm-7" >{renderCompositionUI()}</div>
                         }
                         {_addSettings.showInterface &&
                             <>
-                            <div className="col-md-6 col-sm-5" >
+                            <div className="col-md-7 col-sm-6" >
                                 {renderInterfaceUI()}
                             </div>
                             <div className="col-sm-1 align-items-end align-self-end" >
@@ -1001,7 +1001,7 @@ function AttributeList(props) {
                     </div>
                     {!_addSettings.showInterface &&
                         <div className="row" >
-                        <div className="col-sm-5" >
+                        <div className="col-sm-4" >
                                 <Form.Group className="">
                                     <Form.Label>Name</Form.Label>
                                     {!_isValid.name &&
@@ -1019,7 +1019,7 @@ function AttributeList(props) {
                                         onChange={onChange} className={(!_isValid.name || !_isValid.nameDuplicate ? 'invalid-field' : '')} />
                                 </Form.Group>
                             </div>
-                        <div className="col-md-6 col-sm-5" >
+                        <div className="col-md-7 col-sm-6" >
                                 {renderDescription()}
                             </div>
                         <div className="col-sm-1 align-items-end align-self-end" >

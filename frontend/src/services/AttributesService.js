@@ -4,7 +4,7 @@ import Select from 'react-select';
 import { SVGIcon } from '../components/SVGIcon'
 import color from '../components/Constants'
 import { AppSettings } from '../utils/appsettings';
-import { getUserPreferences, setUserPreferences, convertToNumeric, validateNumeric, validate_NoSpecialCharacters } from '../utils/UtilityService';
+import { getUserPreferences, setUserPreferences, convertToNumeric, validateNumeric, validate_NoSpecialCharacters, getPermittedDataTypesForVariableTypeById } from '../utils/UtilityService';
 import { getProfileCaption } from './ProfileService';
 
 //const CLASS_NAME = "AttributeService";
@@ -207,29 +207,11 @@ export const onChangeVariableTypeShared = (val, item, lookupVariableTypes, looku
     }
 };
 
-export const getPermittedDataTypes = (item, lookupDataTypes,lookupVariableTypes) => {
-    if (item.variableTypeDefinition != null) {
-        var match = lookupVariableTypes.find(vt => { return vt.id.toString() === item.variableTypeDefinition.id?.toString(); });
-        if (match != null) {
-            var vtDataTypeId = match.variableDataTypeId;
-            var vtDataType = lookupDataTypes.find(dt => { return dt.customTypeId === vtDataTypeId });
-            if (vtDataType != null) {
-                const permissableDataTypes = lookupDataTypes.filter((dt) => {
-                    var dtCurrent = dt;
-                    do {
-                        if (dtCurrent.id == vtDataType.id) {
-                            return dt;
-                        }
-                        if (dtCurrent.baseDataTypeId == null) {
-                            break;
-                        }
-                        dtCurrent = lookupDataTypes.find(dt => { return dt.id == dtCurrent.baseDataTypeId; });
-                    }
-                    while (dtCurrent != null);
-                    return null;
-                });
-                return permissableDataTypes;
-            }
+export const getPermittedDataTypesForAttribute = (attributeItem, lookupDataTypes, lookupVariableTypes) => {
+    if (attributeItem.variableTypeDefinition != null) {
+        var variableType = lookupVariableTypes.find(vt => { return vt.id.toString() === attributeItem.variableTypeDefinition.id?.toString(); });
+        if (variableType != null) {
+            return getPermittedDataTypesForVariableTypeById(variableType?.variableDataTypeId, lookupDataTypes);
         }
         return null;
     }
@@ -424,21 +406,21 @@ const buildSelectOptionsByVariabletype = (lookupItems) => {
 //-------------------------------------------------------------------
 // Region: Render Common data type drop down list
 //-------------------------------------------------------------------
-export const renderDataTypeUIShared = (editItem, lookupDataTypes, typeDef, isValid, showLabel, onChangeCallback, onBlurCallback) => {
+export const renderDataTypeUIShared = (dataType, lookupDataTypes, typeDef, isValid, showLabel, labelOverride, onChangeCallback, onBlurCallback) => {
     if (lookupDataTypes == null || lookupDataTypes.length === 0) return;
     const options = buildSelectOptionsByDatatype(lookupDataTypes, typeDef?.type);
 
     //map value bind to structure the control accepts
     const selValue = {
-        label: editItem.dataType?.id == null || editItem.dataType.id.toString() === "-1" ?
-            "Select" : editItem.dataType.name, value: editItem.dataType?.id
+        label: dataType?.id == null || dataType.id.toString() === "-1" ?
+            "Select" : dataType.name, value: dataType?.id
     };
 
     return renderSelectGroupByUI(
         options,
         selValue,
         'ddlDatatype',
-        `Data Type`,
+        labelOverride != null ? labelOverride : `Data Type`,
         isValid,
         showLabel,
         onChangeCallback,

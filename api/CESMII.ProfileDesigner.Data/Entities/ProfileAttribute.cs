@@ -60,9 +60,15 @@
 
         [Column(name: "instrument_min_value")]
         public decimal? InstrumentMinValue { get; set; }
-
         [Column(name: "instrument_max_value")]
         public decimal? InstrumentMaxValue { get; set; }
+        [Column(name: "instrument_range_nodeid")]
+        public string InstrumentRangeOpcNodeId { get; set; }
+        [Column(name: "instrument_range_modeling_rule")]
+        public string InstrumentRangeModelingRule { get; set; }
+        [Column(name: "instrument_range_access_level")]
+        public uint? InstrumentRangeAccessLevel { get; set; }
+
 
         [Column(name: "enum_value")]
         public long? EnumValue { get; set; }

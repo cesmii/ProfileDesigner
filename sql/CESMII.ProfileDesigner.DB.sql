@@ -838,8 +838,13 @@ CREATE TABLE public.profile_attribute
     display_name character varying(256) COLLATE pg_catalog."default" NULL,
     min_value numeric NULL,
     max_value numeric NULL,
+
 	instrument_min_value numeric NULL,
 	instrument_max_value numeric NULL,
+	instrument_range_nodeid character varying(256) NULL,
+	instrument_range_modeling_rule character varying(256) NULL,
+	instrument_range_access_level integer NULL,
+	
 	eng_unit_id integer NULL,
 	eng_unit_nodeid character varying(256) NULL,
 	eng_unit_modeling_rule character varying(256) NULL,
@@ -973,6 +978,7 @@ select
 	--lu.name, 
 	--ptd.*, 
 	dt.*, 
+    baseDt.id as base_data_type_id,
 	COALESCE(a.usage_count, 0) + COALESCE(dtr.manual_rank, 0) as popularity_index,
 	--create a tiered system to distinguish between very popular and mildly popular and the others
 	CASE 
@@ -984,7 +990,8 @@ select
 	COALESCE(dtr.manual_rank, 0) as manual_rank
 from public.data_type dt
 left outer join public.data_type_rank dtr on dtr.data_type_id = dt.id
-left outer join public.profile_type_definition ptd on ptd.id = dt.custom_type_id
+left outer join public.profile_type_definition ptd on ptd.parent_id = dt.custom_type_id
+left outer join public.data_type baseDt on ptd.id = baseDt.custom_type_id
 --left outer join public.lookup lu on lu.id = ptd.type_id
 left outer join (
 	SELECT data_type_id, count(*) as usage_count 
@@ -1274,6 +1281,7 @@ returns table (
 	parent_id integer, 
 	type_id integer, 
 	type_name character varying(256), 
+        variable_data_type_id integer,
 	profile_id integer, 
 	profile_author_id integer, 
 	profile_namespace character varying(400), 
@@ -1305,7 +1313,7 @@ begin
 		JOIN public.profile p on p.id = t.profile_id
 		JOIN descendant d ON t.parent_id = d.id
 		WHERE
-			(p.owner_id IS NULL AND p.cloud_library_id IS NOT NULL) --root nodesets
+			(p.owner_id IS NULL) --root nodesets
 			OR (p.owner_id = _ownerId)  --my nodesets or nodesets I imported
 	)
 
@@ -1318,6 +1326,7 @@ begin
 			t.parent_id,
 			t.type_id,
 			l.name as type_name,
+			t.variable_data_type_id,
 			p.id as profile_id,
 			p.author_id as profile_author_id,
 			p.namespace as profile_namespace,
@@ -1372,6 +1381,7 @@ returns table (
 	parent_id integer, 
 	type_id integer, 
 	type_name character varying(256), 
+        variable_data_type_id integer,
 	profile_id integer, 
 	profile_author_id integer, 
 	profile_namespace character varying(400), 
@@ -1397,7 +1407,7 @@ begin
 		JOIN public.profile_composition c on c.profile_type_definition_id = t.id AND c.composition_id = _id
 		JOIN public.profile p ON p.id = t.profile_id
 		WHERE 
-			(p.owner_id IS NULL AND p.cloud_library_id IS NOT NULL) --root nodesets
+			(p.owner_id IS NULL) --root nodesets
 			OR (p.owner_id = _ownerId)  --my nodesets or nodesets I imported
 		
 		UNION
@@ -1408,7 +1418,7 @@ begin
 		JOIN public.profile_interface i on i.profile_type_definition_id = t.id AND i.interface_id = _id
 		JOIN public.profile p ON p.id = t.profile_id
 		WHERE 
-			(p.owner_id IS NULL AND p.cloud_library_id IS NOT NULL) --root nodesets
+			(p.owner_id IS NULL) --root nodesets
 			OR (p.owner_id = _ownerId)  --my nodesets or nodesets I imported
 		
 		UNION
@@ -1418,7 +1428,7 @@ begin
 		FROM public.profile_type_definition t 
 		JOIN public.profile p ON p.id = t.profile_id
 		WHERE 
-			((p.owner_id IS NULL AND p.cloud_library_id IS NOT NULL) --root nodesets
+			((p.owner_id IS NULL) --root nodesets
 			OR (p.owner_id = _ownerId)) AND  --my nodesets or nodesets I imported
 			t.id IN (
 			SELECT distinct(t.id) -- , t.name, a.name, d.* 
@@ -1439,6 +1449,7 @@ begin
 			t.parent_id,
 			t.type_id,
 			l.name as type_name,
+			t.variable_data_type_id,
 			p.id as profile_id,
 			p.author_id as profile_author_id,
 			p.namespace as profile_namespace,
@@ -1493,6 +1504,7 @@ returns table (
 	parent_id integer, 
 	type_id integer, 
 	type_name character varying(256), 
+        variable_data_type_id integer,
 	profile_id integer, 
 	profile_author_id integer, 
 	profile_namespace character varying(400), 
@@ -1537,6 +1549,7 @@ begin
 			t.parent_id,
 			t.type_id,
 			l.name as type_name,
+			t.variable_data_type_id,
 			p.id as profile_id,
 			p.author_id as profile_author_id,
 			p.namespace as profile_namespace,

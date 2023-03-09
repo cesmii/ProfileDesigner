@@ -7,6 +7,7 @@
     {
         public List<ProfileTypeDefinitionSimpleModel> Compositions { get; set; }
         public List<ProfileTypeDefinitionModel> Interfaces { get; set; }
+        public List<ProfileTypeDefinitionSimpleModel> VariableTypes { get; set; }
     }
 
 }

@@ -55,6 +55,7 @@ function AttributeList(props) {
         name: true,
         nameDuplicate: true,
         dataType: true,
+        variableType: true,
         attributeType: true,
         composition: true,
         structure: true,

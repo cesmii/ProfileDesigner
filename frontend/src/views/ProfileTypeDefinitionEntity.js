@@ -858,7 +858,8 @@ function ProfileTypeDefinitionEntity() {
         }
         else {
             return (
-                {renderVariableDataTypeUI()}
+                renderVariableDataTypeUI()
+            );
         }
     };
 

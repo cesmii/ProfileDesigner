@@ -4,7 +4,7 @@ import Select from 'react-select';
 import { SVGIcon } from '../components/SVGIcon'
 import color from '../components/Constants'
 import { AppSettings } from '../utils/appsettings';
-import { getUserPreferences, setUserPreferences, convertToNumeric, validateNumeric, validate_NoSpecialCharacters } from '../utils/UtilityService';
+import { getUserPreferences, setUserPreferences, convertToNumeric, validateNumeric, validate_NoSpecialCharacters, getPermittedDataTypesForVariableTypeById } from '../utils/UtilityService';
 import { getProfileCaption } from './ProfileService';
 
 //const CLASS_NAME = "AttributeService";
@@ -41,8 +41,14 @@ export const validate_nameDuplicate = (val, item, allAttributes) => {
         (allAttributes.find((a) => { return a.id !== item.id && a.name.toLowerCase() === val.toLowerCase() }) == null);
 };
 
-export const validate_dataType = (val) => {
-    return val != null && val.id.toString() !== "-1";
+export const validate_dataType = (val, permittedDataTypes) => {
+    if (val == null || val.id.toString() == "-1")
+        return false;
+    var match = permittedDataTypes.find(dt => dt.id.toString() == val.id.toString());
+    return match != null;
+};
+export const validate_variableType = (val) => {
+    return true; // val != null && val.id.toString() !== "-1";
 };
 
 export const validate_attributeType = (dataType, val) => {
@@ -83,15 +89,17 @@ export const validate_symbolicName = (val) => {
 
 
 //validate all - call from button click
-export const validate_All = (item, editSettings, allAttributes) => {
+export const validate_All = (item, editSettings, allAttributes, permittedDataTypes) => {
+    const isValidDataType = validate_dataType(item.dataType, permittedDataTypes);
     var result = {
         name: validate_name(item.name, item),
         nameDuplicate: validate_nameDuplicate(item.name, item, allAttributes),
         dataType: item.attributeType?.id === AppSettings.AttributeTypeDefaults.InterfaceId ||
-            item.attributeType?.id === AppSettings.AttributeTypeDefaults.EnumerationId || validate_dataType(item.dataType),
+            item.attributeType?.id === AppSettings.AttributeTypeDefaults.EnumerationId || isValidDataType,
         composition: item.attributeType?.id !== AppSettings.AttributeTypeDefaults.CompositionId || 
             (item.composition != null && item.compositionId > 0),
-        structure: item.attributeType?.id !== AppSettings.AttributeTypeDefaults.StructureId || validate_dataType(item.dataType),
+        variableType: validate_variableType(item.variableTypeDefinition),
+        structure: item.attributeType?.id !== AppSettings.AttributeTypeDefaults.StructureId || isValidDataType,
         attributeType: validate_attributeType(item.dataType, item.attributeType == null ? null : item.attributeType.id), //can be null if composition
         symbolicName: validate_symbolicName(item.symbolicName),
         minMax: validate_minMax(item.minValue, item.maxValue, item.dataType, editSettings),
@@ -157,19 +165,57 @@ export const onChangeDataTypeShared = (val, item, settings, lookupDataTypes) => 
     //set data type and update state
     item.dataType = lookupItem != null ? lookupItem :
         { id: -1, name: '', customTypeId: null, customType: null };
-
-    settings = {
-        ...settings,
-        useMinMax: useMinMax,
-        useEngUnit: useEngUnit,
-        //showComposition: isComposition,
-        //showInterface: isInterface,
-        isCustomType: isCustom,
-        //showDescription: !isInterface
+    if (settings != null) {
+        settings = {
+            ...settings,
+            useMinMax: useMinMax,
+            useEngUnit: useEngUnit,
+            //showComposition: isComposition,
+            //showInterface: isInterface,
+            isCustomType: isCustom,
+            //showDescription: !isInterface
+        }
     }
-
     return { item: item, settings: settings };
 };
+
+//-------------------------------------------------------------------
+// onChangeDataType: on change of data type, update item and settings values. 
+//      Shared by attributeList.add, attributeItemRow inline edit and
+//      attributeEntity edit 
+//-------------------------------------------------------------------
+export const onChangeVariableTypeShared = (val, item, lookupVariableTypes, lookupDataTypes) => {
+    //e can be e.target.value or e.value - two different controls
+
+    var match = lookupVariableTypes.find(vt => { return vt.id.toString() === val?.toString(); });
+
+    //set variable type and update state
+
+    //change item ref variable
+    if (match == null) {
+        item.variableTypeDefinition = null;
+        item.variableTypeDefinitionId = null;
+        return null;
+    }
+    else {
+        item.variableTypeDefinition = {};
+        item.variableTypeDefinitionId = match.id;
+        item.variableTypeDefinition.id = match.id;
+        item.variableTypeDefinition.name = match.name;
+        item.variableTypeDefinition.browseName = match.browseName; //this becomes critical for adding on server side in new scenario
+        return null;
+    }
+};
+
+export const getPermittedDataTypesForAttribute = (attributeItem, lookupDataTypes, lookupVariableTypes) => {
+    if (attributeItem.variableTypeDefinition != null) {
+        var variableType = lookupVariableTypes.find(vt => { return vt.id.toString() === attributeItem.variableTypeDefinition.id?.toString(); });
+        if (variableType != null) {
+            return getPermittedDataTypesForVariableTypeById(variableType?.variableDataTypeId, lookupDataTypes);
+        }
+        return null;
+    }
+}
 
 //-------------------------------------------------------------------
 // onChangeAttributeTypeShared
@@ -182,6 +228,8 @@ export const onChangeAttributeTypeShared = (e, item, settings, lookupAttributeTy
     var isStructure = false;
     var isInterface = false;
     var isEnumeration = false;
+    var isDataVariable = false;
+    var isProperty = false;
 
     var lookupItem = lookupAttributeTypes.find(dt => { return dt.id.toString() === e.target.value; });
     if (e.target.value == null || e.target.value.toString() === "-1") {
@@ -191,6 +239,8 @@ export const onChangeAttributeTypeShared = (e, item, settings, lookupAttributeTy
         isStructure = lookupItem != null && lookupItem.id === AppSettings.AttributeTypeDefaults.StructureId;
         isInterface = lookupItem != null && lookupItem.id === AppSettings.AttributeTypeDefaults.InterfaceId;
         isEnumeration = lookupItem != null && lookupItem.id === AppSettings.AttributeTypeDefaults.EnumerationId;
+        isDataVariable = lookupItem != null && lookupItem.id === AppSettings.AttributeTypeDefaults.DataVariableId;
+        isProperty = lookupItem != null && lookupItem.id === AppSettings.AttributeTypeDefaults.PropertyId;
     }
 
     //reset composition, interface object anytime this changes
@@ -226,7 +276,9 @@ export const onChangeAttributeTypeShared = (e, item, settings, lookupAttributeTy
         showStructure: isStructure,
         showInterface: isInterface,
         showDescription: !isInterface,
-        showEnumeration: isEnumeration
+        showEnumeration: isEnumeration,
+        showVariableType: isDataVariable,
+        showProperty: isProperty
     }
 
     return { item: item, settings: settings };
@@ -318,23 +370,57 @@ export const renderAttributeIcon = (item, readOnly) => {
 }
 
 //-------------------------------------------------------------------
+// Region: Render Common variable type drop down list
+//-------------------------------------------------------------------
+export const renderVariableTypeUIShared = (editItem, lookupVariableTypes, settings, isValid, showLabel, onChangeCallback, onBlurCallback) => {
+    if (lookupVariableTypes == null || lookupVariableTypes.length === 0 || !settings.showVariableType) return;
+    const options = buildSelectOptionsByVariabletype(lookupVariableTypes);
+
+    //map value bind to structure the control accepts
+    const selValue = {
+        label: editItem === {} || editItem.variableTypeDefinitionId == null || editItem.variableTypeDefinitionId.toString() === "-1" ?
+            "Select" : editItem.variableTypeDefinition?.name, value : editItem.variableTypeDefinitionId?.id
+    };
+
+    return renderSelectGroupByUI(
+        options,
+        selValue,
+        'typeDefinitionId',
+        `Data Variable Type`,
+        isValid,
+        showLabel,
+        onChangeCallback,
+        onBlurCallback,
+        true
+    );
+};
+
+const buildSelectOptionsByVariabletype = (lookupItems) => {
+    if (lookupItems == null || lookupItems.length === 0) return null;
+
+    //this data is ordered by popularity - a combo of usage count and a manual rank count. Everytime
+    //we hit a new popularity level, add a grouping row separator
+    return buildSelectOptionsByPopularity(lookupItems, "name");
+}
+
+//-------------------------------------------------------------------
 // Region: Render Common data type drop down list
 //-------------------------------------------------------------------
-export const renderDataTypeUIShared = (editItem, lookupDataTypes, typeDef, isValid, showLabel, onChangeCallback, onBlurCallback) => {
+export const renderDataTypeUIShared = (dataType, lookupDataTypes, typeDef, isValid, showLabel, labelOverride, onChangeCallback, onBlurCallback) => {
     if (lookupDataTypes == null || lookupDataTypes.length === 0) return;
     const options = buildSelectOptionsByDatatype(lookupDataTypes, typeDef?.type);
 
     //map value bind to structure the control accepts
     const selValue = {
-        label: editItem.dataType.id == null || editItem.dataType.id.toString() === "-1" ?
-            "Select" : editItem.dataType.name, value: editItem.dataType.id
+        label: dataType?.id == null || dataType.id.toString() === "-1" ?
+            "Select" : dataType.name, value: dataType?.id
     };
 
     return renderSelectGroupByUI(
         options,
         selValue,
         'ddlDatatype',
-        `Data Type`,
+        labelOverride != null ? labelOverride : `Data Type`,
         isValid,
         showLabel,
         onChangeCallback,
@@ -485,7 +571,8 @@ const renderSelectGroupByUI = (
     isValid,
     showLabel,
     onChangeCallback,
-    onBlurCallback
+    onBlurCallback,
+    isClearable
 ) => {
 
     const styleCustom = {
@@ -520,6 +607,7 @@ const renderSelectGroupByUI = (
                 onChange={onChangeCallback}
                 onBlur={onBlurCallback}
                 options={options}
+                isClearable={isClearable}
             />
         </Form.Group>
     )

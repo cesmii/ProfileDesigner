@@ -324,6 +324,28 @@ namespace CESMII.ProfileDesigner.DAL.Utils
             return result;
         }
 
+        public List<ProfileTypeDefinitionSimpleModel> BuildVariableTypeLookup(UserToken userToken)
+        {
+            //CHANGE: 
+            //A composition can depend on a type def and that type def can depend on that composition - either directly or indirectly
+            //Customer type can have list of orders type. Order can have a customer type. 
+            //Recursive - Parent-child are types pointing to themselves so that should be permitted.  
+            //compositions can only derive from BaseObjectType - get BaseObjectType profile's dependencies and trim down the
+            //list of the compositions if any of these are in the final dependencies list
+            var compRoot = _dal.GetByFunc(
+                x => x.Name.ToLower().Equals(_config.ProfilesSettings.ReservedProfileNames.VariableTypeRootProfileName.ToLower()),
+                userToken, false);
+            var orderBys = new List<OrderBySimple>() {
+                new OrderBySimple() { FieldName = "profile_namespace" } ,
+                new OrderBySimple() { FieldName = "profile_title" } ,
+                new OrderBySimple() { FieldName = "profile_version" } ,
+                new OrderBySimple() { FieldName = "profile_publish_date" } ,
+                new OrderBySimple() { FieldName = "name" }
+            };
+            var result = this.GetDescendants(compRoot.ID.Value, userToken, true, true, orderBys).Data;
+            return result;
+        }
+
 
         /// <summary>
         /// 
@@ -433,7 +455,8 @@ namespace CESMII.ProfileDesigner.DAL.Utils
                     Author = item.Author,
                     OpcNodeId = item.OpcNodeId,
                     IsAbstract = item.IsAbstract,
-                    Level = level
+                    Level = level,
+                    VariableDataTypeId = item.VariableDataType?.ID,
                 };
             }
             else

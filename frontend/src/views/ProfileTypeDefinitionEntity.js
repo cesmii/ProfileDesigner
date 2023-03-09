@@ -13,7 +13,8 @@ import Nav from 'react-bootstrap/Nav'
 import { useLoadingContext, UpdateRecentFileList } from "../components/contexts/LoadingContext";
 import { useWizardContext } from '../components/contexts/WizardContext';
 import { AppSettings } from '../utils/appsettings';
-import { generateLogMessageString, getTypeDefIconName, getProfileTypeCaption, validate_NoSpecialCharacters, getIconColorByProfileState } from '../utils/UtilityService'
+import { generateLogMessageString, getTypeDefIconName, getProfileTypeCaption, validate_NoSpecialCharacters, getIconColorByProfileState, isDerivedFromDataType, getPermittedDataTypesForVariableTypeById } from '../utils/UtilityService'
+import { renderDataTypeUIShared } from '../services/AttributesService';
 import AttributeList from './shared/AttributeList';
 import DependencyList from './shared/DependencyList';
 import ProfileBreadcrumbs from './shared/ProfileBreadcrumbs';
@@ -52,13 +53,15 @@ function ProfileTypeDefinitionEntity() {
     const [mode, setMode] = useState(initPageMode());
     const [_item, setItem] = useState({});
     const [isLoading, setIsLoading] = useState(true);
+    const [_lookupDataTypes, setLookupDataTypes] = useState([]);
+    const [_permittedDataTypes, setPermittedDataTypes] = useState(null);
     const [_isReadOnly, setIsReadOnly] = useState(true);
-    const [_isValid, setIsValid] = useState({ name: true, profile: true, description: true, type: true, symbolicName: true });
+    const [_isValid, setIsValid] = useState({ name: true, profile: true, description: true, type: true, symbolicName: true, variableDataType: true });
     //const [_lookupProfiles, setLookupProfiles] = useState([]);
     //used in popup profile add/edit ui. Default to new version
     const [_profileEntityModal, setProfileEntityModal] = useState({ show: false, item: null, autoSave: false  });
     const _profileNew = { id: 0, namespace: '', version: null, publishDate: null, authorId: null };
-    const [_lookupRelated, setLookupRelated] = useState({ compositions: [], interfaces: [] });
+    const [_lookupRelated, setLookupRelated] = useState({ compositions: [], interfaces: [], variableTypes: [] });
 
     const { wizardProps, setWizardProps } = useWizardContext();
     var _navInfo = history.location.pathname.indexOf('/wizard/') === - 1 ? null : getWizardNavInfo(wizardProps.mode, 'ExtendBaseType');
@@ -222,6 +225,19 @@ function ProfileTypeDefinitionEntity() {
         };
     }, [id, parentId, profileId ]);
 
+    useEffect(() => {
+        setPermittedDataTypes(_lookupDataTypes);
+    }, [_lookupDataTypes]);
+
+    useEffect(() => {
+        const newPermittedDataTypes = getPermittedDataTypesForVariableTypeById(_item.parent?.variableDataTypeId, _lookupDataTypes);
+        if (newPermittedDataTypes != null) {
+            setPermittedDataTypes(newPermittedDataTypes)
+        }
+        else {
+            setPermittedDataTypes(_lookupDataTypes);
+        }
+    }, [_item]);
 
     //-------------------------------------------------------------------
     // Region: Hooks - When composition data type is chosen, go get a list of profiles
@@ -232,7 +248,11 @@ function ProfileTypeDefinitionEntity() {
         async function fetchLookupProfileTypeDefs(lookupId, isExtend) {
 
             //placeholder vals while we load
-            setLookupRelated({ ..._lookupRelated, compositions: [{ id: -1, name: 'Loading...', profile: { id: -1, title: '', namespace: '', version: '', publishDate: '' } }] });
+            setLookupRelated({
+                ..._lookupRelated,
+                compositions: [{ id: -1, name: 'Loading...', profile: { id: -1, title: '', namespace: '', version: '', publishDate: '' } },],
+                variableTypes: [{ id: -1, name: 'Loading...', profile: { id: -1, title: '', namespace: '', version: '', publishDate: '' } },]
+            });
 
             //Filter out anything
             //where the profile is neither a descendant or a parent/grandparent, etc. of the profile we 
@@ -254,13 +274,15 @@ function ProfileTypeDefinitionEntity() {
                     //TBD - handle paged data scenario, do a predictive search look up
                     setLookupRelated({
                         compositions: result.data.compositions,
-                        interfaces: result.data.interfaces
+                        interfaces: result.data.interfaces,
+                        variableTypes: result.data.variableTypes,
                     });
                 } else {
                     console.warn(generateLogMessageString(`useEffect||fetchLookupProfileTypeDefs||error||status:${result.status}`, CLASS_NAME));
                     setLookupRelated({
                         ..._lookupRelated,
-                        compositions: [{ id: -1, name: 'Error loading composition data...', profile: { id: -1, title: '', namespace: '', version: '', publishDate: '' } }]
+                        compositions: [{ id: -1, name: 'Error loading composition data...', profile: { id: -1, title: '', namespace: '', version: '', publishDate: '' } }],
+                        variableTypes: [{ id: -1, name: 'Error loading variable type data...', profile: { id: -1, title: '', namespace: '', version: '', publishDate: '' } }]
                     });
                 }
             }).catch(e => {
@@ -273,7 +295,8 @@ function ProfileTypeDefinitionEntity() {
                 }
                 setLookupRelated({
                     ..._lookupRelated,
-                    compositions: [{ id: -1, name: 'Error loading composition data...', profile: { id: -1, title: '', namespace: '', version: '', publishDate: '' } }]
+                    compositions: [{ id: -1, name: 'Error loading composition data...', profile: { id: -1, title: '', namespace: '', version: '', publishDate: '' } }],
+                    variableTypes: [{ id: -1, name: 'Error loading variable type data...', profile: { id: -1, title: '', namespace: '', version: '', publishDate: '' } }]
                 });
             });
         }
@@ -288,6 +311,35 @@ function ProfileTypeDefinitionEntity() {
 
     }, [id, parentId]);
 
+    //-------------------------------------------------------------------
+    // Region: Hooks - load lookup data static from context. if not present, trigger a fetch of this data. 
+    //-------------------------------------------------------------------
+    useEffect(() => {
+        async function initLookupData() {
+
+            //if data not there, but loading in progress.  
+            if (loadingProps.lookupDataStatic == null && loadingProps.refreshLookupData) {
+                //do nothing, the loading effect will inform when complete
+                return;
+            }
+            //if data not there, but loading NOT in progress.  
+            else if (loadingProps.lookupDataStatic == null) {
+                //trigger get of data
+                setLoadingProps({ refreshLookupData: true });
+                return;
+            }
+
+            //get from local storage and keep local to the component lifecycle
+            setLookupDataTypes(loadingProps.lookupDataStatic.dataTypes);
+        }
+
+        initLookupData();
+
+        //this will execute on unmount
+        return () => {
+            console.log(generateLogMessageString('useEffect||Cleanup', CLASS_NAME));
+        };
+    }, [loadingProps.lookupDataStatic, loadingProps.lookupDataRefreshed]);
 
     //-------------------------------------------------------------------
     //
@@ -349,18 +401,34 @@ function ProfileTypeDefinitionEntity() {
         setIsValid({ ..._isValid, symbolicName: isValid });
     };
 
-     ////update state for when search click happens
-     const validateForm = () => {
+    const validateForm_variableDataType = (e) => {
+
+        var isValid = validate_variableDataType(_item.variableDataType);
+        setIsValid({ ..._isValid, variableDataType: isValid });
+    };
+
+    const validate_variableDataType = (vdt) => {
+        var lookupDataType = _lookupDataTypes.find(dt => { return dt.customTypeId.toString() === vdt.id?.toString(); });
+        var baseVTDataType = _lookupDataTypes.find(dt => { return dt.customTypeId.toString() === _item.parent?.variableDataTypeId?.toString(); })
+        if (lookupDataType != null && baseVTDataType != null) {
+            return isDerivedFromDataType(lookupDataType, baseVTDataType, _lookupDataTypes);
+        }
+        return lookupDataType == baseVTDataType; // ok if both are null or if they are identical
+    }
+
+    ////update state for when search click happens
+    const validateForm = () => {
         console.log(generateLogMessageString(`validateForm`, CLASS_NAME));
 
         _isValid.name = _item.name != null && _item.name.trim().length > 0;
         _isValid.profile = _item.profile != null && _item.profile.id !== -1 && _item.profile.id !== "-1";
         _isValid.description = true; //item.description != null && item.description.trim().length > 0;
         _isValid.type = _item.type != null && _item.type.id !== -1 && _item.type.id !== "-1";
-         _isValid.symbolicName = validate_NoSpecialCharacters(_item.symbolicName);
+        _isValid.symbolicName = validate_NoSpecialCharacters(_item.symbolicName);
+        _isValid.variableDataType = validate_variableDataType(_item.variableDataType);
 
-         setIsValid(JSON.parse(JSON.stringify(_isValid)));
-         return (_isValid.name && _isValid.profile && _isValid.description && _isValid.type && _isValid.symbolicName);
+        setIsValid(JSON.parse(JSON.stringify(_isValid)));
+        return (_isValid.name && _isValid.profile && _isValid.description && _isValid.type && _isValid.symbolicName && _isValid.variableDataType);
     }
 
     //-------------------------------------------------------------------
@@ -380,7 +448,7 @@ function ProfileTypeDefinitionEntity() {
             //otherwise, return and have user correct the other required items. 
             //alert("validation failed");
             return;
-        } 
+        }
 
         //show a spinner
         setLoadingProps({ isLoading: true, message: "" });
@@ -560,7 +628,7 @@ function ProfileTypeDefinitionEntity() {
         if (itemCopy.profileAttributes == null) itemCopy.profileAttributes = [];
         // doing the JSON copy stuff here to break up the object reference
         itemCopy.profileAttributes.push(JSON.parse(JSON.stringify(row)));
-        
+
         setItem(JSON.parse(JSON.stringify(itemCopy)));
         return {
             profileAttributes: itemCopy.profileAttributes, extendedProfileAttributes: itemCopy.extendedProfileAttributes
@@ -683,6 +751,18 @@ function ProfileTypeDefinitionEntity() {
         }
     };
 
+    //onchange data type
+    const onChangeVariableDataType = (e) => {
+        var lookupItem = _lookupDataTypes.find(dt => { return dt.id.toString() === e.value.toString(); });
+
+        _item.variableDataType = 
+            lookupItem != null ?
+            { id: lookupItem.customTypeId, name: lookupItem.name }
+            : { id: -1, name: '' };
+        setItem(JSON.parse(JSON.stringify(_item)));
+    }
+
+
     //-------------------------------------------------------------------
     // Region: Render Helpers
     //-------------------------------------------------------------------
@@ -763,6 +843,34 @@ function ProfileTypeDefinitionEntity() {
         );
     };
 
+    const renderVariableDataType = () => {
+        if (_item.typeId !== AppSettings.ProfileTypeDefaults.VariableTypeId) {
+            return null;
+        }
+        if (_isReadOnly) {
+
+            return (
+                <div className="col-md-12">
+                    <Form.Group>
+                        <Form.Label htmlFor="type">Data Type of the Variable</Form.Label>
+                        <Form.Control id="type" type="" value={_item.variableDataType != null ? _item.variableDataType.name : ""} readOnly={_isReadOnly} />
+                    </Form.Group>
+                </div>
+            );
+        }
+        else {
+            return (
+                <div className="col-md-12">
+                    {renderVariableDataTypeUI()}
+                </div>);
+        }
+    };
+
+    const renderVariableDataTypeUI = () => {
+        var lookupItem = _lookupDataTypes.find(dt => { return dt.customTypeId.toString() === _item.variableDataType?.id?.toString(); });
+        return renderDataTypeUIShared(lookupItem, _permittedDataTypes, null, _isValid.variableDataType, true, "Data Type of the Variable", onChangeVariableDataType, validateForm_variableDataType)
+    }
+
     //renderProfileEntity as a modal to force user to say ok.
     const renderProfileModal = () => {
 
@@ -797,7 +905,7 @@ function ProfileTypeDefinitionEntity() {
             );
         }
     }
-    
+
     const renderCommonSection = () => {
 
         const iconName = mode.toLowerCase() === "extend" ? "extend" : getTypeDefIconName(_item);
@@ -832,7 +940,7 @@ function ProfileTypeDefinitionEntity() {
                 <div className="row">
                     {(mode.toLowerCase() !== "view") &&
                         <div className="col-md-8">
-                        <Form.Label htmlFor="name" >Name</Form.Label>
+                            <Form.Label htmlFor="name" >Name</Form.Label>
                             {!_isValid.name &&
                                 <span className="ml-2 d-inline invalid-field-message">Required</span>
                             }
@@ -856,6 +964,7 @@ function ProfileTypeDefinitionEntity() {
                                 value={_item.description == null ? '' : _item.description} onBlur={validateForm_description} onChange={onChange} readOnly={mode === "view"} />
                         </Form.Group>
                     </div>
+                    {renderVariableDataType()}
                 </div>
             </>
 
@@ -948,7 +1057,7 @@ function ProfileTypeDefinitionEntity() {
 
     // TBD: need loop to remove and add styles for "nav-item" CSS animations
     const tabListener = (eventKey) => {
-      }
+    }
 
 
     //-------------------------------------------------------------------

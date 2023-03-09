@@ -53,6 +53,8 @@
 
     public class LookupDataTypeRanked : LookupDataTypeBase
     {
+        [Column(name: "base_data_type_id")]
+        public int? BaseDataTypeId { get; set; }
         [Column(name: "popularity_level")]
         public int PopularityLevel { get; set; }
 

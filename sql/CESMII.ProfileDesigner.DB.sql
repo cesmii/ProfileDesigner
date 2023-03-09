@@ -139,6 +139,8 @@ CREATE TABLE public.user
     email_address character varying(320) COLLATE pg_catalog."default" NULL,
     --is_active boolean NOT NULL,
     date_joined timestamp with time zone NOT NULL,
+    sssu_organization character varying (128) NULL,
+    sssu_cesmii_member boolean NULL,
     --registration_complete timestamp with time zone,
     --CONSTRAINT user_username_key UNIQUE (username),
     CONSTRAINT user_id_fk_org_id FOREIGN KEY (organization_id)

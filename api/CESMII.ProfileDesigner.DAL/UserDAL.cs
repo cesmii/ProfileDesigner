@@ -175,6 +175,8 @@
                     Created = entity.Created,
                     LastLogin = entity.LastLogin,
                     Email = entity.EmailAddress,
+                    SelfServiceSignUp_Organization_Name = entity.Oranization_Name,
+                    SelfServiceSignUp_IsCesmiiMember = entity.CesmiiMember,
                 };
             }
             else
@@ -191,6 +193,9 @@
             entity.DisplayName = model.DisplayName;
             entity.OrganizationId = model.Organization?.ID;
             entity.EmailAddress = model.Email;
+
+            entity.Oranization_Name = model.SelfServiceSignUp_Organization_Name;
+            entity.CesmiiMember = model.SelfServiceSignUp_IsCesmiiMember;
 
             //AAD - no longer needed
             //handle update of user permissions

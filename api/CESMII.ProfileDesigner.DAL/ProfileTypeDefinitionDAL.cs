@@ -370,7 +370,8 @@
                     Type = entity.ProfileType != null ?
                         new LookupItemModel { ID = entity.ProfileType.ID, Name = entity.ProfileType.Name, TypeId = (int)LookupTypeEnum.ProfileType }
                         : new LookupItemModel { ID = entity.ProfileTypeId }, // CODE REVIEW: ist the Name required anywhere? Should we do a lookup here?
-                    Author = MapToModelSimpleUser(entity.Author)
+                    Author = MapToModelSimpleUser(entity.Author),
+                    VariableDataTypeId = entity.VariableDataTypeId,
                 };
             }
             else
@@ -657,7 +658,7 @@
                 }
             }
 
-            entity.VariableDataTypeId = model.VariableDataType?.ID != 0 ? model.VariableDataType?.ID : null;
+            entity.VariableDataTypeId = (model.VariableDataType?.ID??0) != 0 ? model.VariableDataType.ID : null;
             if (model.VariableDataType != null)
             {
                 var variableDataTypeEntity = entity.VariableDataType;
@@ -1131,6 +1132,7 @@
                         throw new Exception();
                     }
                     profileType.VariableDataType = newVariableType;
+                    profileType.VariableDataTypeId = newVariableType?.ID;
                     _repo.Update(profileType);
                 }
 

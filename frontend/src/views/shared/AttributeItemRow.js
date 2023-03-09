@@ -8,7 +8,7 @@ import { generateLogMessageString, convertToNumeric, toInt, onChangeNumericKeysO
 import ConfirmationModal from '../../components/ConfirmationModal';
 import {
     validate_name, validate_nameDuplicate, validate_dataType, validate_All, onChangeDataTypeShared, renderAttributeIcon, onChangeAttributeTypeShared, validate_attributeType, validate_enumValueDuplicate, validate_enumValueNumeric, onChangeCompositionShared, renderDataTypeUIShared, renderCompositionSelectUIShared,
-    onChangeVariableTypeShared, renderVariableTypeUIShared, validate_variableType, getPermittedDataTypes,
+    onChangeVariableTypeShared, renderVariableTypeUIShared, getPermittedDataTypesForAttribute,
 } from '../../services/AttributesService';
 import { AppSettings } from '../../utils/appsettings'
 
@@ -119,7 +119,7 @@ function AttributeItemRow(props) { //props are item, showActions
 
     useEffect(() => {
         if (_isEditMode) {
-            const newPermittedDataTypes = getPermittedDataTypes(_editItem, props.lookupDataTypes, props.lookupVariableTypes);
+            const newPermittedDataTypes = getPermittedDataTypesForAttribute(_editItem, props.lookupDataTypes, props.lookupVariableTypes);
             if (newPermittedDataTypes != null) {
                 setPermittedDataTypes(newPermittedDataTypes)
             }
@@ -540,7 +540,7 @@ function AttributeItemRow(props) { //props are item, showActions
     
     //render editable input for data type
     const renderDataTypeUI = () => {
-        return renderDataTypeUIShared(_editItem, _permittedDataTypes, null, _isValid.dataType, false, onChangeDataType, validateForm_dataType);
+        return renderDataTypeUIShared(_editItem.dataType, _permittedDataTypes, null, _isValid.dataType, false, null, onChangeDataType, validateForm_dataType);
     };
 
     ////render editable input for data type

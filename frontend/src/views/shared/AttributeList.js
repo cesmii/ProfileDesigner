@@ -12,7 +12,7 @@ import { generateLogMessageString, pageDataRows, convertToNumeric, toInt, onChan
 import {
     getAttributesPreferences, setAttributesPageSize, attributeNew, validate_All, validate_nameDuplicate,
     validate_name, onChangeDataTypeShared, onChangeAttributeTypeShared, validate_attributeType, validate_enumValueDuplicate, validate_enumValueNumeric, onChangeInterfaceShared, onChangeCompositionShared, renderDataTypeUIShared, renderCompositionSelectUIShared, renderInterfaceSelectUIShared,
-    renderVariableTypeUIShared, getPermittedDataTypes, onChangeVariableTypeShared
+    renderVariableTypeUIShared, getPermittedDataTypesForAttribute, onChangeVariableTypeShared
 } from '../../services/AttributesService';
 import AttributeItemRow from './AttributeItemRow';
 import AttributeSlideOut from './AttributeSlideOut';
@@ -224,7 +224,7 @@ function AttributeList(props) {
     }, [_lookupDataTypes]);
 
     useEffect(() => {
-        const newPermittedDataTypes = getPermittedDataTypes(_addItem, _lookupDataTypes, _lookupVariableTypes);
+        const newPermittedDataTypes = getPermittedDataTypesForAttribute(_addItem, _lookupDataTypes, _lookupVariableTypes);
         if (newPermittedDataTypes != null) {
             setPermittedDataTypes(newPermittedDataTypes)
         }
@@ -800,7 +800,7 @@ function AttributeList(props) {
     };
 
     const renderDataTypeUI = () => {
-        return renderDataTypeUIShared(_addItem, _permittedDataTypes, props.typeDefinition.type, _isValid.dataType, true, onChangeDataType);
+        return renderDataTypeUIShared(_addItem.dataType, _permittedDataTypes, props.typeDefinition.type, _isValid.dataType, true, null, onChangeDataType);
     };
 
     const renderAttributeTypeUI = () => {

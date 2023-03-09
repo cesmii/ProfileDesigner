@@ -455,7 +455,8 @@ namespace CESMII.ProfileDesigner.DAL.Utils
                     Author = item.Author,
                     OpcNodeId = item.OpcNodeId,
                     IsAbstract = item.IsAbstract,
-                    Level = level
+                    Level = level,
+                    VariableDataTypeId = item.VariableDataType?.ID,
                 };
             }
             else

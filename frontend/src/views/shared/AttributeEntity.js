@@ -7,7 +7,7 @@ import { generateLogMessageString, onChangeNumericKeysOnly, validateNumeric, con
 import { AppSettings } from '../../utils/appsettings';
 import {
     validate_name, validate_nameDuplicate, validate_dataType, validate_minMax, validate_engUnit, validate_All, 
-    onChangeDataTypeShared, renderAttributeIcon, validate_attributeType, onChangeAttributeTypeShared, validate_enumValueDuplicate, validate_enumValueNumeric, onChangeInterfaceShared, onChangeCompositionShared, onChangeEngUnitShared, validate_symbolicName, renderDataTypeUIShared, renderEngUnitUIShared, renderCompositionSelectUIShared
+    onChangeDataTypeShared, renderAttributeIcon, validate_attributeType, onChangeAttributeTypeShared, validate_enumValueDuplicate, validate_enumValueNumeric, onChangeInterfaceShared, onChangeCompositionShared, onChangeEngUnitShared, validate_symbolicName, renderDataTypeUIShared, renderEngUnitUIShared, renderCompositionSelectUIShared, renderVariableTypeUIShared, onChangeVariableTypeShared
 } from '../../services/AttributesService';
 
 const CLASS_NAME = "AttributeEntity";
@@ -30,8 +30,8 @@ function AttributeEntity(props) { //props are item, showActions
         const showComposition = _editItem.attributeType?.id === AppSettings.AttributeTypeDefaults.CompositionId;
         const showInterface = _editItem.attributeType?.id === AppSettings.AttributeTypeDefaults.InterfaceId;
         const showEnumeration = _editItem.attributeType?.id === AppSettings.AttributeTypeDefaults.EnumerationId;
-        const showDataVariable = _editItem.id === AppSettings.AttributeTypeDefaults.DataVariableId;
-        const showProperty = _editItem.id === AppSettings.AttributeTypeDefaults.PropertyId;
+        const showVariableType = _editItem.attributeType?.id === AppSettings.AttributeTypeDefaults.DataVariableId;
+        const showProperty = _editItem.attributeType?.id === AppSettings.AttributeTypeDefaults.PropertyId;
 
         if (props.lookupDataTypes == null || props.lookupDataTypes.length === 0) {
             return {
@@ -42,7 +42,7 @@ function AttributeEntity(props) { //props are item, showActions
                 showComposition: showComposition,
                 showInterface: showInterface,
                 showEnumeration: showEnumeration,
-                showVariableType: showDataVariable,
+                showVariableType: showVariableType,
                 showProperty: showProperty
             };
         }
@@ -56,7 +56,7 @@ function AttributeEntity(props) { //props are item, showActions
             showComposition: showComposition,
             showInterface: showInterface,
             showEnumeration: showEnumeration,
-            showVariableType: showDataVariable || showProperty,
+            showVariableType: showVariableType,
             showProperty: showProperty
         };
     };
@@ -66,6 +66,7 @@ function AttributeEntity(props) { //props are item, showActions
         name: true,
         nameDuplicate: true,
         dataType: true,
+        variableType: true,
         attributeType: true,
         composition: true,
         interface: true,
@@ -207,6 +208,13 @@ function AttributeEntity(props) { //props are item, showActions
         setEditSettings(JSON.parse(JSON.stringify(data.settings)));
         //update state - after changes made in shared method
         setEditItem(JSON.parse(JSON.stringify(data.item)));
+    }
+
+    const onChangeVariableType = (e) => {
+        onChangeVariableTypeShared(e?.value, _editItem, props.lookupVariableTypes, props.lookupDataTypes);
+
+        //replace add settings (updated in shared method)
+        setEditItem(JSON.parse(JSON.stringify(_editItem)));
     }
 
     //onchange attribute type
@@ -476,7 +484,7 @@ function AttributeEntity(props) { //props are item, showActions
     };
 
     //render data type ui
-    const renderDataType = () => {
+    const renderDataTypeUI = () => {
         return renderDataTypeUIShared(_editItem, props.lookupDataTypes, null, _isValid.dataType, true, onChangeDataType, validateForm_dataType);
         //if (props.lookupDataTypes == null || props.lookupDataTypes.length === 0) return;
 
@@ -515,6 +523,10 @@ function AttributeEntity(props) { //props are item, showActions
         //        }
         //    </Form.Group>
         //);
+    };
+
+    const renderVariableTypeUI = () => {
+        return renderVariableTypeUIShared(_editItem, props.lookupVariableTypes, _editSettings, _isValid.variableType, true, onChangeVariableType);
     };
 
     //render attr type ui
@@ -797,10 +809,11 @@ function AttributeEntity(props) { //props are item, showActions
                 <div className="col-sm-12 col-md-6" >
                     {renderAttributeType()}
                 </div>
-                {(!_editSettings.showInterface && !_editSettings.showComposition && !_editSettings.showEnumeration) &&
-                    <div className="col-sm-12 col-md-6" >
-                        {renderDataType()}
-                    </div>
+                {(_editSettings.showVariableType) &&
+                    <div className="col-sm-12 col-md-6" >{renderVariableTypeUI()}</div>
+                }
+                {(_editSettings.showVariableType || _editSettings.showProperty) &&
+                    <div className={`col-sm-12 col-md-6`} >{renderDataTypeUI()}</div>
                 }
                 {_editSettings.showEnumeration &&
                     <div className="col-6" >{renderEnumValue()}</div>

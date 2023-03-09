@@ -81,6 +81,7 @@ function AttributeItemRow(props) { //props are item, showActions
         name: true,
         nameDuplicate: true,
         dataType: true,
+        variableType: true,
         attributeType: true,
         composition: true,
         structure: true,
@@ -393,7 +394,7 @@ function AttributeItemRow(props) { //props are item, showActions
 
         const isReadOnly = (render_CheckReadOnly());
 
-        const tip = !_isValid.enumValue ? 'Integer > 0 required.' : '';
+        let tip = !_isValid.enumValue ? 'Integer > 0 required.' : '';
         tip = !_isValid.enumValueIsNumeric ? tip + ' Integer required.' : tip;
         return (
             <Form.Group className="form-inline">

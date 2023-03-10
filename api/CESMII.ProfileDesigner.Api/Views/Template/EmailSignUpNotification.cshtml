@@ -1,0 +1,79 @@
+﻿@using CESMII.Common.SelfServiceSignUp.Models
+@model SubmitInputModel
+@{
+    Layout = "_EmailLayout";
+}
+
+<div>
+    
+    <p>A new user named, <b>@Model.displayName</b> has signed-up as a Clean Energy Smart Manufacturing Innovation Institute (CESMII) user.</p>
+    <p>Here are the details of the new user:</p>
+</div>
+<div>
+    <h3>Standard User Attributes</h3>
+    <p style="margin-left:35px;">
+        @if (Model.displayName != null)
+        {
+            <div style="margin-left:35px;">
+                Display Name: @Model.displayName<br />
+
+            </div>
+        }
+        @if (Model.givenName != null)
+        {
+            <div style="margin-left:35px;">
+                Given Name: @Model.givenName<br />
+            </div>
+        }
+        @if (Model.surName != null)
+        {
+            <div style="margin-left:35px;">
+                Surname: @Model.surName<br />
+            </div>
+        }
+        @if (Model.email != null)
+        {
+            <div style="margin-left:35px;">
+            Email Address: @Model.email<br />
+            </div>
+        }
+        @if (Model.phoneNumber != null)
+        {
+            <div style="margin-left:35px;">
+                Phone Number: @Model.phoneNumber<br />
+            </div>
+        }
+        <br/>
+    </p>
+
+    <div>
+        <h3>Custom User Attributes</h3>
+        <p style="margin-left:35px;">
+            @if (Model.Organization != null)
+            {
+                <div style="margin-left:35px;">
+                    Organization: @Model.Organization<br />
+                </div>
+            }
+            @if (Model.CESMIIMember != null)
+            {
+                <div style="margin-left:35px;">
+                    CESMII Member: @Model.CESMIIMember
+                </div>
+            }
+        </p>
+    </div>
+</div>
+
+
+<div>
+    <br/>
+    <br />
+    <p>Thank you for your support of the CESMII Smart Manufacturing Profile Designer!</p>
+    <br />
+    <p>Sincerely,<br />
+        The Automated Self-Service Sign-Up System
+    </p>
+    <br />
+    <br />
+</div>

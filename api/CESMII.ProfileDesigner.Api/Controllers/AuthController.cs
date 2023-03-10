@@ -74,7 +74,7 @@
             // If Azure id not found, search by email address.
             if (!bFound)
             {
-                var listMatchEmailAddress = _dalUser.Where(x => x.EmailAddress.ToLower().Equals(userAAD.Email), null).Data;
+                var listMatchEmailAddress = _dalUser.Where(x => x.EmailAddress.ToLower().Equals(userAAD.Email.ToLower()), null).Data;
                 if (listMatchEmailAddress.Count == 0)
                 {
                     // First time we are encountering this user.

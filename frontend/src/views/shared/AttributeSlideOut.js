@@ -66,13 +66,15 @@ function AttributeSlideOut(props) { //props are item, showActions
 
                 <div className="col-sm-12">
                     {(props.item != null && !props.showDetail) &&
-                        <AttributeList typeDefinition={props.item} profileAttributes={props.item.profileAttributes} extendedProfileAttributes={props.item.extendedProfileAttributes} readOnly={true} isPopout={true}
+                        <AttributeList typeDefinition={props.item} profileAttributes={props.item.profileAttributes}
+                            extendedProfileAttributes={props.item.extendedProfileAttributes} readOnly={true} isPopout={true}
                             activeAccount={props.activeAccount} />
 
                     }
                     {(props.item != null && props.showDetail) &&
                         <AttributeEntity item={props.item} allAttributes={props.allAttributes} readOnly={props.readOnly}
-                        onUpdate={onUpdate} lookupDataTypes={props.lookupDataTypes} lookupAttributeTypes={props.lookupAttributeTypes}
+                        onUpdate={onUpdate} lookupDataTypes={props.lookupDataTypes} lookupVariableTypes={props.lookupVariableTypes}
+                        lookupAttributeTypes={props.lookupAttributeTypes}
                         lookupCompositions={props.lookupCompositions} lookupInterfaces={props.lookupInterfaces}
                         lookupEngUnits={props.lookupEngUnits} onClosePanel={props.onClosePanel} />
             }

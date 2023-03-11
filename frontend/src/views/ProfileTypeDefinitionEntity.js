@@ -408,7 +408,7 @@ function ProfileTypeDefinitionEntity() {
     };
 
     const validate_variableDataType = (vdt) => {
-        var lookupDataType = _lookupDataTypes.find(dt => { return dt.customTypeId.toString() === vdt.id?.toString(); });
+        var lookupDataType = _lookupDataTypes.find(dt => { return dt.customTypeId.toString() === vdt?.id?.toString(); });
         var baseVTDataType = _lookupDataTypes.find(dt => { return dt.customTypeId.toString() === _item.parent?.variableDataTypeId?.toString(); })
         if (lookupDataType != null && baseVTDataType != null) {
             return isDerivedFromDataType(lookupDataType, baseVTDataType, _lookupDataTypes);

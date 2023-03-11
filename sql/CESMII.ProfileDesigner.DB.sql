@@ -663,15 +663,17 @@ CREATE TABLE public.profile_composition
     profile_type_definition_id integer NOT NULL,
     composition_id integer NOT NULL,
     name character varying(256) COLLATE pg_catalog."default" NOT NULL,
-	opc_browse_name character varying(256) NULL,
-    -- Compositions don't have nodeids, compare on opc_browse_name
+	  opc_browse_name character varying(256) NULL,
     --opc_node_id character varying(256) NULL, 
+    --symbolic_name character varying(256) COLLATE pg_catalog."default" NULL,
+    --metatags varchar NULL,
+    --document_url character varying(512) COLLATE pg_catalog."default" NULL,
     --namespace character varying(512) COLLATE pg_catalog."default" NULL,
     is_required boolean NULL,
-	modeling_rule character varying(256) NULL,
+	  modeling_rule character varying(256) NULL,
     is_event boolean NULL,
-	reference_id character varying(256) NULL,
-	reference_is_inverse boolean NULL,
+	  reference_id character varying(256) NULL,
+	  reference_is_inverse boolean NULL,
     description character varying COLLATE pg_catalog."default" NULL,
     CONSTRAINT profile_composition_id_fk_id FOREIGN KEY (composition_id)
         REFERENCES public.profile_type_definition (id) MATCH SIMPLE
@@ -990,8 +992,8 @@ select
 	COALESCE(dtr.manual_rank, 0) as manual_rank
 from public.data_type dt
 left outer join public.data_type_rank dtr on dtr.data_type_id = dt.id
-left outer join public.profile_type_definition ptd on ptd.parent_id = dt.custom_type_id
-left outer join public.data_type baseDt on ptd.id = baseDt.custom_type_id
+left outer join public.profile_type_definition ptd on ptd.id = dt.custom_type_id
+left outer join public.data_type baseDt on ptd.parent_id = baseDt.custom_type_id
 --left outer join public.lookup lu on lu.id = ptd.type_id
 left outer join (
 	SELECT data_type_id, count(*) as usage_count 

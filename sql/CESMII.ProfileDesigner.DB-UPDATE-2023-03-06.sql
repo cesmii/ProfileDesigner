@@ -11,6 +11,13 @@ ALTER TABLE public.profile_attribute
 	ADD COLUMN instrument_range_modeling_rule character varying(256) NULL,
 	ADD COLUMN instrument_range_access_level integer NULL;
 
+--ALTER TABLE public.profile_composition
+--  ADD COLUMN opc_node_id character varying(256) NULL,
+--  ADD COLUMN symbolic_name character varying(256) COLLATE pg_catalog."default" NULL,
+--  ADD COLUMN metatags varchar NULL,
+--  ADD COLUMN document_url character varying(512) COLLATE pg_catalog."default" NULL;
+
+
 DROP VIEW IF EXISTS public.v_data_type_rank;
 
 CREATE VIEW public.v_data_type_rank
@@ -31,8 +38,8 @@ select
 	COALESCE(dtr.manual_rank, 0) as manual_rank
 from public.data_type dt
 left outer join public.data_type_rank dtr on dtr.data_type_id = dt.id
-left outer join public.profile_type_definition ptd on ptd.parent_id = dt.custom_type_id
-left outer join public.data_type baseDt on ptd.id = baseDt.custom_type_id
+left outer join public.profile_type_definition ptd on ptd.id = dt.custom_type_id
+left outer join public.data_type baseDt on ptd.parent_id = baseDt.custom_type_id
 --left outer join public.lookup lu on lu.id = ptd.type_id
 left outer join (
 	SELECT data_type_id, count(*) as usage_count 

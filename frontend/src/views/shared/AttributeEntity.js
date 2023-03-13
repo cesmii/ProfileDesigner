@@ -574,7 +574,10 @@ function AttributeEntity(props) { //props are item, showActions
 
     //render the is array ui
     const renderIsArray = () => {
-        const isReadOnly = (props.readOnly || _editItem._itemType == null || _editItem._itemType === "extended" || _editItem.interface != null);
+        if (_editItem.composition != null) return null; //hide if this is a composition
+
+        const isReadOnly = (props.readOnly || _editItem._itemType == null || _editItem._itemType === "extended"
+            || _editItem.interface != null);
 
         return (
             <Form.Group className="flex-grow-1 align-self-center">

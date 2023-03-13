@@ -42,9 +42,9 @@ export const validate_nameDuplicate = (val, item, allAttributes) => {
 };
 
 export const validate_dataType = (val, permittedDataTypes) => {
-    if (val == null || val.id.toString() == "-1")
+    if (val == null || val.id.toString() === "-1")
         return false;
-    var match = permittedDataTypes.find(dt => dt.id.toString() == val.id.toString());
+    const match = permittedDataTypes.find(dt => dt.id.toString() === val.id.toString());
     return match != null;
 };
 export const validate_variableType = (val) => {
@@ -94,7 +94,9 @@ export const validate_All = (item, editSettings, allAttributes, permittedDataTyp
     var result = {
         name: validate_name(item.name, item),
         nameDuplicate: validate_nameDuplicate(item.name, item, allAttributes),
+        //certain attr types do not require data type and therefore are true
         dataType: item.attributeType?.id === AppSettings.AttributeTypeDefaults.InterfaceId ||
+            item.attributeType?.id === AppSettings.AttributeTypeDefaults.CompositionId ||
             item.attributeType?.id === AppSettings.AttributeTypeDefaults.EnumerationId || isValidDataType,
         composition: item.attributeType?.id !== AppSettings.AttributeTypeDefaults.CompositionId || 
             (item.composition != null && item.compositionId > 0),

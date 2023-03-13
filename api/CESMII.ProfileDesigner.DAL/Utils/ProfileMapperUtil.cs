@@ -554,6 +554,7 @@ namespace CESMII.ProfileDesigner.DAL.Utils
                     BrowseName = comp.BrowseName,
                     SymbolicName = comp.SymbolicName,
                     Description = comp.Description,
+                    IsRequired = comp.RelatedIsRequired,
                     TypeDefinitionId = item.ID,
                     //TypeDefinition = item, // Results in cycle during serialization
                     // No VariableTypeDefinition for compositions
@@ -626,11 +627,11 @@ namespace CESMII.ProfileDesigner.DAL.Utils
                     Name = a.Name,
                     SymbolicName = a.SymbolicName,
                     Description = a.Description,
-                    BrowseName = a.Composition.BrowseName,
-                    RelatedName = a.Composition.Name,
-                    RelatedDescription = a.Composition.Description,
-                    RelatedIsRequired = a.Composition.RelatedIsRequired,
-                    RelatedModelingRule = a.Composition.RelatedModelingRule,
+                    BrowseName = a.BrowseName,
+                    RelatedName = a.Name,
+                    RelatedDescription = a.Description,
+                    RelatedIsRequired = a.IsRequired,
+                    RelatedModelingRule = a.ModelingRule,
                     Author = a.Composition.Author
                 });
             }

@@ -296,23 +296,23 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 return BadRequest($"Invalid model (null)");
             }
 
-            var profile = _dal.GetById(model.ID, base.DalUserToken);
+            var typeDef = _dal.GetById(model.ID, base.DalUserToken);
 
-            if (profile == null)
+            if (typeDef == null)
             {
                 _logger.LogWarning($"ProfileTypeDefinitionController|GetProfileExplorer|No records found matching this ID: {model.ID}");
                 return BadRequest($"No records found matching this ID: {model.ID}");
             }
 
             //Build the explorer...
-            var dependencies = _profileUtils.GenerateDependencies(profile, base.DalUserToken);
+            var dependencies = _profileUtils.GenerateDependencies(typeDef, base.DalUserToken);
 
-            var treeview = _profileUtils.GenerateAncestoryTree(profile, base.DalUserToken, true);
+            var treeview = _profileUtils.GenerateAncestoryTree(typeDef, base.DalUserToken, true);
 
             // note interfaces, compositions already accounted for in profile object
             var result = new ProfileExplorerModel()
             {
-                Profile = profile,
+                TypeDefinition = typeDef,
                 Dependencies = dependencies,
                 Tree = treeview
             };

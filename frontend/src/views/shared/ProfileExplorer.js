@@ -145,7 +145,7 @@ function ProfileExplorer(props) {
 
             //set state on fetch of data
             setItems({
-                item: result.data.profile,
+                item: result.data.typeDefinition,
                 all: { inheritanceTree: tree, compositions: compositions, dependencies: dependencies, interfaces: interfaces },
                 filtered: { inheritanceTree: tree, compositions: compositions, dependencies: dependencies, interfaces: interfaces }
             });

@@ -550,14 +550,14 @@
                     BrowseName = i.BrowseName,
                     Profile = composingModel.Profile,
 
-                    RelatedIsRequired = i.IsRequired,
-                    RelatedModelingRule = i.ModelingRule,
+                    IsRequired = i.IsRequired,
+                    ModelingRule = i.ModelingRule,
                     RelatedIsEvent = i.IsEvent,
                     Description = i.Description,
                     RelatedProfileTypeDefinitionId = i.Composition.ID,
                     RelatedProfileTypeDefinition = this.MapToModel(i.Composition, false),
-                    RelatedName = i.Composition.Name,
-                    RelatedDescription = i.Composition.Description,
+                    //RelatedName = i.Composition.Name,
+                    //RelatedDescription = i.Composition.Description,
                     RelatedReferenceId = i.ReferenceId,
                     RelatedReferenceIsInverse = i.ReferenceIsInverse,
                     Type = i.Composition.ProfileType != null ? new LookupItemModel { ID = i.Composition.ProfileType.ID, Name = i.Composition.ProfileType.Name } : new LookupItemModel { ID = i.Composition.ProfileTypeId },
@@ -1052,8 +1052,8 @@
             }
             composition.Name = source.Name;
             composition.BrowseName = source.BrowseName;
-            composition.IsRequired = source.RelatedIsRequired;
-            composition.ModelingRule = source.RelatedModelingRule;
+            composition.IsRequired = source.IsRequired;
+            composition.ModelingRule = source.ModelingRule;
             composition.IsEvent = source.RelatedIsEvent;
             composition.ReferenceId = source.RelatedReferenceId;
             composition.ReferenceIsInverse = source.RelatedReferenceIsInverse;

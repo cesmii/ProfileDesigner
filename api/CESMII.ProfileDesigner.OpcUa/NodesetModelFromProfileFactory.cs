@@ -377,7 +377,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
                 objectProfile = dalContext.GetProfileItemById(objectTypeRelated.RelatedProfileTypeDefinitionId);
             }
             var objectOrTypeModel = Create(objectProfile, opcContext, dalContext);
-            var modelingRule = GetModelingRuleFromProfile(objectTypeRelated.RelatedIsRequired, objectTypeRelated.RelatedModelingRule);
+            var modelingRule = GetModelingRuleFromProfile(objectTypeRelated.IsRequired, objectTypeRelated.ModelingRule);
             if (string.IsNullOrEmpty(objectTypeRelated.OpcNodeId))
             {
                 if (objectOrTypeModel is InstanceModelBase instanceModel)

@@ -66,18 +66,18 @@ export function getTypeDefEntityLink(item) {
 // getProfileTypePreferences, setProfileTypePageSize - get/set commonly shared user preferences for a profile type def (ie page size)
 //-------------------------------------------------------------------
 export function getTypeDefPreferences() {
-    var item = getUserPreferences();
+    const item = getUserPreferences();
     return item.typeDefPreferences;
 }
 
 export function setProfileTypePageSize(val) {
-    var item = getUserPreferences();
+    const item = getUserPreferences();
     item.typeDefPreferences.pageSize = val;
     setUserPreferences(item);
 }
 
 export function setProfileTypeDisplayMode(val) {
-    var item = getUserPreferences();
+    const item = getUserPreferences();
     item.typeDefPreferences.displayMode = val;
     setUserPreferences(item);
 }
@@ -86,12 +86,12 @@ export function setProfileTypeDisplayMode(val) {
 // getProfilePreferences, setProfilePageSize - get/set commonly shared user preferences for a profile (ie page size)
 //-------------------------------------------------------------------
 export function getProfilePreferences() {
-    var item = getUserPreferences();
+    const item = getUserPreferences();
     return item.profilePreferences;
 }
 
 export function setProfilePageSize(val) {
-    var item = getUserPreferences();
+    const item = getUserPreferences();
     item.profilePreferences.pageSize = val;
     setUserPreferences(item);
 }

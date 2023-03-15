@@ -200,17 +200,58 @@
 
     public class ProfileTypeDefinitionRelatedModel : ProfileTypeDefinitionSimpleModel
     {
+        public bool? IsRequired { get; set; }
+
+        public string ModelingRule { get; set; }
+
         public int? RelatedProfileTypeDefinitionId { get; set; }
         [JsonIgnore]
         [Newtonsoft.Json.JsonIgnore]
         public ProfileTypeDefinitionModel RelatedProfileTypeDefinition{ get;set;}
 
-        public string RelatedName { get; set; }
+        /// <summary>
+        /// This is the composition's profile type definition name
+        /// </summary>
+        /// <remarks>
+        /// Note the profile_composition will have its own name specific to this profile_composition.
+        /// Still used by front end. This avoids infinte recursion in the JSON structure. 
+        /// </remarks>
+        public string RelatedName { 
+            get 
+            {
+                return RelatedProfileTypeDefinition?.Name;
+            } 
+        }
 
-        public string RelatedDescription { get; set; }
+        /// <summary>
+        /// This is the composition's profile type definition description.
+        /// </summary>
+        /// <remarks>
+        /// Note the profile_composition can have its own description specific to this profile_composition.
+        /// </remarks>
+        public string RelatedDescription {
+            get
+            {
+                return RelatedProfileTypeDefinition?.Description;
+            }
+        }
 
-        public bool? RelatedIsRequired { get; set; }
-        public string RelatedModelingRule { get; set; }
+        [Obsolete("Warning - use IsRequired rather than RelatedIsRequired. Reserve Related to mean the related type definition.")]
+        public bool? RelatedIsRequired {
+            get
+            {
+                return IsRequired;
+            }
+        }
+
+        [Obsolete("Warning - use ModelingRule rather than RelatedModelingRule. Reserve Related to mean the related type definition.")]
+        public string RelatedModelingRule {
+            get
+            {
+                return ModelingRule;
+            }
+        }
+
         public bool? RelatedIsEvent { get; set; }
         /// <summary>
         /// Captures the id of custom references

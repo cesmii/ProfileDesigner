@@ -335,16 +335,22 @@ export const onChangeCompositionShared = (match, item) => {
     if (match == null) {
         item.composition = null;
         item.compositionId = null;
+        item.browseName = null;
+        item.symbolicName = null;
     }
     else {
         item.composition = {};
         item.compositionId = match.id;
         item.composition.id = match.id;
         item.composition.name = match.name;
-        item.composition.browseName = match.browseName; //this becomes critical for adding on server side in new scenario
+        item.composition.description = match.description;
+        item.composition.browseName = match.browseName; 
         //this is what is used downstream. 
         item.composition.relatedProfileTypeDefinitionId = item.composition.id;
         item.composition.relatedName = item.composition.name;
+        //copy some values into the profile_composition data record
+        item.browseName = match.browseName; //this becomes critical for adding on server side in new scenario
+        item.symbolicName = match.symbolicName;
     }
 }
 

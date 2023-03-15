@@ -4231,11 +4231,11 @@ namespace MyNamespace
         [Newtonsoft.Json.JsonProperty("relatedDescription", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string RelatedDescription { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("relatedIsRequired", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool? RelatedIsRequired { get; set; }
+        [Newtonsoft.Json.JsonProperty("isRequired", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? IsRequired { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("relatedModelingRule", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string RelatedModelingRule { get; set; }
+        [Newtonsoft.Json.JsonProperty("modelingRule", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string ModelingRule { get; set; }
 
         [Newtonsoft.Json.JsonProperty("relatedIsEvent", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool? RelatedIsEvent { get; set; }

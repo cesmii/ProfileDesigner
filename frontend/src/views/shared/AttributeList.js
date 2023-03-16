@@ -219,10 +219,16 @@ function AttributeList(props) {
         };
     }, [props.typeDefinition?.typeId, loadingProps.lookupDataRefreshed]);
 
+    //-------------------------------------------------------------------
+    // Region: hooks
+    //-------------------------------------------------------------------
     useEffect(() => {
         setPermittedDataTypes(_lookupDataTypes);
     }, [_lookupDataTypes]);
 
+    //-------------------------------------------------------------------
+    // Region: hooks
+    //-------------------------------------------------------------------
     useEffect(() => {
         const newPermittedDataTypes = getPermittedDataTypesForAttribute(_addItem, _lookupDataTypes, _lookupVariableTypes);
         if (newPermittedDataTypes != null) {
@@ -528,7 +534,7 @@ function AttributeList(props) {
 
     //attribute add ui - change data type
     const onChangeAttributeType = (e) => {
-        const data = onChangeAttributeTypeShared(e, _addItem, _addSettings, _lookupAttributeTypes, _lookupDataTypes);
+        const data = onChangeAttributeTypeShared(e, _addItem, _addSettings, _lookupAttributeTypes, _lookupDataTypes, _lookupVariableTypes);
         //replace settings (updated in shared method)
         setAddSettings(JSON.parse(JSON.stringify(data.settings)));
         //update state - after changes made in shared method
@@ -1042,7 +1048,7 @@ function AttributeList(props) {
             {renderGrid()}
             {renderPagination()}
             <AttributeSlideOut isOpen={_slideOut.isOpen} item={_slideOut.item} onClosePanel={toggleSlideOutCustomType} readOnly={_slideOut.readOnly}
-                showDetail={_slideOut.showDetail} lookupDataTypes={_lookupDataTypes} lookupAttributeTypes={_lookupAttributeTypes}
+                showDetail={_slideOut.showDetail} lookupDataTypes={_lookupDataTypes} lookupAttributeTypes={_lookupAttributeTypes} lookupVariableTypes={_lookupVariableTypes}
                 allAttributes={_allAttributes.all} lookupCompositions={_lookupCompositions} lookupInterfaces={_lookupInterfaces}
                 lookupEngUnits={_lookupEngUnits} onUpdate={onAttributeUpdate} activeAccount={props.activeAccount}
             />

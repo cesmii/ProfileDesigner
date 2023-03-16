@@ -9,6 +9,8 @@ import { getProfileCaption } from './ProfileService';
 
 //const CLASS_NAME = "AttributeService";
 
+const _dataTypeInit = { id: -1, name: '', customTypeId: null, customType: null };
+
 export const attributeNew = {
     id: null, name: '', dataType: { id: -1, name: '', customTypeId: null, customType: null }
             , attributeType: { id: -1, name: '', customTypeId: null, customType: null }
@@ -189,25 +191,32 @@ export const onChangeDataTypeShared = (val, item, settings, lookupDataTypes) => 
 export const onChangeVariableTypeShared = (val, item, lookupVariableTypes, lookupDataTypes) => {
     //e can be e.target.value or e.value - two different controls
 
-    var match = lookupVariableTypes.find(vt => { return vt.id.toString() === val?.toString(); });
+    const match = lookupVariableTypes.find(vt => { return vt.id.toString() === val?.toString(); });
 
     //set variable type and update state
-
     //change item ref variable
-    if (match == null) {
+    setVariableType(item, match);
+    //reset data type value to force new selection
+    item.dataType = _dataTypeInit;
+};
+
+const setVariableType = (item, val) => {
+    //set variable type, item ref variable
+    if (val == null) {
         item.variableTypeDefinition = null;
         item.variableTypeDefinitionId = null;
         return null;
     }
     else {
         item.variableTypeDefinition = {};
-        item.variableTypeDefinitionId = match.id;
-        item.variableTypeDefinition.id = match.id;
-        item.variableTypeDefinition.name = match.name;
-        item.variableTypeDefinition.browseName = match.browseName; //this becomes critical for adding on server side in new scenario
+        item.variableTypeDefinitionId = val.id;
+        item.variableTypeDefinition.id = val.id;
+        item.variableTypeDefinition.name = val.name;
+        item.variableTypeDefinition.browseName = val.browseName; //this becomes critical for adding on server side in new scenario
         return null;
     }
 };
+
 
 export const getPermittedDataTypesForAttribute = (attributeItem, lookupDataTypes, lookupVariableTypes) => {
     if (attributeItem.variableTypeDefinition != null) {
@@ -224,7 +233,7 @@ export const getPermittedDataTypesForAttribute = (attributeItem, lookupDataTypes
 //      Shared by attributeList.add, attributeItemRow inline edit and
 //      attributeEntity edit 
 //-------------------------------------------------------------------
-export const onChangeAttributeTypeShared = (e, item, settings, lookupAttributeTypes, lookupDataTypes) => {
+export const onChangeAttributeTypeShared = (e, item, settings, lookupAttributeTypes, lookupDataTypes, lookupVariableTypes) => {
 
     var isComposition = false;
     var isStructure = false;
@@ -268,8 +277,15 @@ export const onChangeAttributeTypeShared = (e, item, settings, lookupAttributeTy
         dataTypeInt = dataTypeInt == null ? lookupDataTypes.find(dt => { return dt.name.toLowerCase().indexOf("int32") === 0 }) : dataTypeInt;
         item.dataType = dataTypeInt;
     }
+    //set variable data type field default to BaseDataVariableType
+    else if (lookupItem != null && isDataVariable) {
+        const varTypeDefault = lookupVariableTypes.find(x => { return x.name?.toLowerCase().indexOf("basedatavariabletype") === 0 });
+        setVariableType(item, varTypeDefault);
+        //init data type
+        item.dataType = _dataTypeInit;
+    }
     else { //reset to select one...
-        item.dataType = { id: -1, name: '', customTypeId: null, customType: null };
+        item.dataType = _dataTypeInit;
     }
 
     settings = {

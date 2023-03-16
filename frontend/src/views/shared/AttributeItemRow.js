@@ -292,7 +292,7 @@ function AttributeItemRow(props) { //props are item, showActions
     }
 
     const onChangeAttributeType = (e) => {
-        const data = onChangeAttributeTypeShared(e, _editItem, _editSettings, props.lookupAttributeTypes, props.lookupDataTypes);
+        const data = onChangeAttributeTypeShared(e, _editItem, _editSettings, props.lookupAttributeTypes, props.lookupDataTypes, props.lookupVariableTypes);
 
         //replace settings (updated in shared method)
         setEditSettings(JSON.parse(JSON.stringify(data.settings)));

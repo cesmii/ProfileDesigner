@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
 
@@ -7,7 +7,7 @@ import { generateLogMessageString, onChangeNumericKeysOnly, validateNumeric, con
 import { AppSettings } from '../../utils/appsettings';
 import {
     validate_name, validate_nameDuplicate, validate_dataType, validate_minMax, validate_engUnit, validate_All, 
-    onChangeDataTypeShared, renderAttributeIcon, validate_attributeType, onChangeAttributeTypeShared, validate_enumValueDuplicate, validate_enumValueNumeric, onChangeInterfaceShared, onChangeCompositionShared, onChangeEngUnitShared, validate_symbolicName, renderDataTypeUIShared, renderEngUnitUIShared, renderCompositionSelectUIShared, renderVariableTypeUIShared, onChangeVariableTypeShared
+    onChangeDataTypeShared, renderAttributeIcon, validate_attributeType, onChangeAttributeTypeShared, validate_enumValueDuplicate, validate_enumValueNumeric, onChangeInterfaceShared, onChangeCompositionShared, onChangeEngUnitShared, validate_symbolicName, renderDataTypeUIShared, renderEngUnitUIShared, renderCompositionSelectUIShared, renderVariableTypeUIShared, onChangeVariableTypeShared, getPermittedDataTypesForAttribute
 } from '../../services/AttributesService';
 
 const CLASS_NAME = "AttributeEntity";
@@ -82,6 +82,27 @@ function AttributeEntity(props) { //props are item, showActions
         enumValueDuplicate: true
     });
     const [_editSettings, setEditSettings] = useState(initEditSettings());
+    const [_permittedDataTypes, setPermittedDataTypes] = useState(null);
+
+    //-------------------------------------------------------------------
+    // Region: hooks
+    //-------------------------------------------------------------------
+    useEffect(() => {
+        setPermittedDataTypes(props.lookupDataTypes);
+    }, [props.lookupDataTypes]);
+
+    //-------------------------------------------------------------------
+    // Region: hooks
+    //-------------------------------------------------------------------
+    useEffect(() => {
+        const newPermittedDataTypes = getPermittedDataTypesForAttribute(_editItem, props.lookupDataTypes, props.lookupVariableTypes);
+        if (newPermittedDataTypes != null) {
+            setPermittedDataTypes(newPermittedDataTypes)
+        }
+        else {
+            setPermittedDataTypes(props.lookupDataTypes);
+        }
+    }, [_editItem]);
 
     //-------------------------------------------------------------------
     // Region: Validation
@@ -148,7 +169,7 @@ function AttributeEntity(props) { //props are item, showActions
     const validateForm = () => {
         console.log(generateLogMessageString(`validateForm`, CLASS_NAME));
 
-        const isValid = validate_All(_editItem, _editSettings, props.allAttributes, props.lookupDataTypes); // pass permitted datatypes when editing variable types
+        const isValid = validate_All(_editItem, _editSettings, props.allAttributes, _permittedDataTypes); // pass permitted datatypes when editing variable types
 
         setIsValid(JSON.parse(JSON.stringify(isValid)));
         return (isValid.name && isValid.nameDuplicate && isValid.minMax && isValid.dataType && isValid.attributeType && isValid.engUnit
@@ -202,7 +223,7 @@ function AttributeEntity(props) { //props are item, showActions
 
     //onchange data type
     const onChangeDataType = (e) => {
-        const data = onChangeDataTypeShared(e.value, _editItem, _editSettings, props.lookupDataTypes);
+        const data = onChangeDataTypeShared(e.value, _editItem, _editSettings, _permittedDataTypes);
 
         //replace add settings (updated in shared method)
         setEditSettings(JSON.parse(JSON.stringify(data.settings)));
@@ -219,7 +240,7 @@ function AttributeEntity(props) { //props are item, showActions
 
     //onchange attribute type
     const onChangeAttributeType = (e) => {
-        const data = onChangeAttributeTypeShared(e, _editItem, _editSettings, props.lookupAttributeTypes, props.lookupDataTypes);
+        const data = onChangeAttributeTypeShared(e, _editItem, _editSettings, props.lookupAttributeTypes, props.lookupDataTypes, props.lookupVariableTypes);
 
         //replace settings (updated in shared method)
         setEditSettings(JSON.parse(JSON.stringify(data.settings)));
@@ -485,44 +506,7 @@ function AttributeEntity(props) { //props are item, showActions
 
     //render data type ui
     const renderDataTypeUI = () => {
-        return renderDataTypeUIShared(_editItem.dataType, props.lookupDataTypes, null, _isValid.dataType, true, onChangeDataType, validateForm_dataType);
-        //if (props.lookupDataTypes == null || props.lookupDataTypes.length === 0) return;
-
-        //var isReadOnly = props.readOnly || _editItem.interface != null;
-
-        //const options = renderDataTypeSelectOptions(props.lookupDataTypes, null, false);
-
-        ////grab the associated caption when showing in read only mode
-        //var selectedText = "";
-        //if (_editItem.dataType == null || _editItem.dataType.id.toString() === "-1") selectedText = "";
-        //else {
-        //    var selItem = (props.lookupDataTypes == null || props.lookupDataTypes.length === 0) ? null :
-        //        props.lookupDataTypes.find(x => { return x.id === _editItem.dataType.id });
-        //    selectedText = selItem == null ? _editItem.dataType.name : selItem.name;
-        //}
-
-        //return (
-        //    <Form.Group>
-        //        <Form.Label className="mb-0" >Data Type</Form.Label>
-        //        {
-        //            !_isValid.dataType &&
-        //            <span className="invalid-field-message inline">
-        //                Required
-        //            </span>
-        //        }
-
-        //        {isReadOnly ?
-        //            <Form.Control id="dataType" value={selectedText} readOnly={isReadOnly} />
-        //            :
-        //            <Form.Control id="dataType" as="select" value={_editItem.dataType.id}
-        //                onChange={onChangeDataType} onBlur={validateForm_dataType}
-        //                className={(!_isValid.dataType ? 'invalid-field minimal pr-5' : 'minimal pr-5')} >
-        //                <option key="-1|Select One" value="-1" >Select</option>
-        //                {options}
-        //            </Form.Control>
-        //        }
-        //    </Form.Group>
-        //);
+        return renderDataTypeUIShared(_editItem.dataType, _permittedDataTypes, null, _isValid.dataType, true, null, onChangeDataType);
     };
 
     const renderVariableTypeUI = () => {

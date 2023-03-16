@@ -234,14 +234,14 @@ function ProfileCloudLibStatus(props) {
         let caption = `Cancel Publish Request`;
 
         let message =
-            `You are about to cancel the request to publish profile '${_withdrawProfileModal.item.namespace}'. ` +
-            `This will remove the pending submission from the Cloud Library. ` +
-            `The profile will become editable again and allow you to resubmit at a later time.`;
+            `You are about to cancel the request to publish profile '${_withdrawProfileModal.item.title}', [${_withdrawProfileModal.item.namespace}], ` +
+            `which will remove the pending submission from the Cloud Library. ` +
+            `The profile will become editable again and allow you to resubmit the profile at a later time.`;
 
         return (
             <>
                 <ConfirmationModal showModal={_withdrawProfileModal.show} caption={caption} message={message}
-                    icon={{ name: "warning", color: color.amber }}
+                    icon={{ name: "undo", color: color.amber }}
                     confirm={{ caption: "Yes", callback: onWithdrawProfileConfirm, buttonVariant: "secondary" }}
                     cancel={{
                         caption: "Cancel",
@@ -302,7 +302,7 @@ function ProfileCloudLibStatus(props) {
                             {renderProfilePublishStatus(props.item, '', '', 'mr-1')}
                         </Dropdown.Toggle>
                         <Dropdown.Menu>
-                            <Dropdown.Item key="moreVert1" onClick={onWithdrawProfile} >{renderMenuIcon("undo")}Cancel Publish</Dropdown.Item>
+                            <Dropdown.Item key="moreVert1" onClick={onWithdrawProfile} >{renderMenuIcon("undo")}Cancel Publish Request</Dropdown.Item>
                         </Dropdown.Menu>
                     </Dropdown>
                 </div>

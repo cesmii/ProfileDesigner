@@ -80,7 +80,7 @@ function AdminCloudLibApprovalModal(props) { //props are item and config.callbac
                     </p>
                     <Form className={`header-search-block mx-3"`}>
                         <Form.Group className="mb-1">
-                            <Form.Label>Reason*</Form.Label>
+                            <Form.Label>Reviewer Comments*</Form.Label>
                             {!_isValid.description &&
                                 <span className="invalid-field-message inline">
                                     Required

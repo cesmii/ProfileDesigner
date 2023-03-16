@@ -13,7 +13,7 @@ import Nav from 'react-bootstrap/Nav'
 import { useLoadingContext, UpdateRecentFileList } from "../components/contexts/LoadingContext";
 import { useWizardContext } from '../components/contexts/WizardContext';
 import { AppSettings } from '../utils/appsettings';
-import { generateLogMessageString, getTypeDefIconName, getProfileTypeCaption, validate_NoSpecialCharacters, getIconColorByProfileState, isDerivedFromDataType, getPermittedDataTypesForVariableTypeById } from '../utils/UtilityService'
+import { generateLogMessageString, getTypeDefIconName, getProfileTypeCaption, getIconColorByProfileState, isDerivedFromDataType, getPermittedDataTypesForVariableTypeById } from '../utils/UtilityService'
 import { renderDataTypeUIShared } from '../services/AttributesService';
 import AttributeList from './shared/AttributeList';
 import DependencyList from './shared/DependencyList';
@@ -397,8 +397,12 @@ function ProfileTypeDefinitionEntity() {
     };
 
     const validateForm_symbolicName = (e) => {
-        const isValid = validate_NoSpecialCharacters(e.target.value);
-        setIsValid({ ..._isValid, symbolicName: isValid });
+        setIsValid({ ..._isValid, symbolicName: validate_symbolicName(e.target.value) });
+    };
+
+    const validate_symbolicName = (val) => {
+        const format = /[ `!@#$%^&*()+\-=[\]{};':"\\|,.<>/?~(0-9)]/;  //includes a space, underscore allowed
+        return val == null || val.length === 0 || !format.test(val);
     };
 
     const validateForm_variableDataType = (e) => {
@@ -423,7 +427,7 @@ function ProfileTypeDefinitionEntity() {
         _isValid.profile = _item.profile != null && _item.profile.id !== -1 && _item.profile.id !== "-1";
         _isValid.description = true; //item.description != null && item.description.trim().length > 0;
         _isValid.type = _item.type != null && _item.type.id !== -1 && _item.type.id !== "-1";
-        _isValid.symbolicName = validate_NoSpecialCharacters(_item.symbolicName);
+        _isValid.symbolicName = validate_symbolicName(_item.symbolicName);
         _isValid.variableDataType = validate_variableDataType(_item.variableDataType);
 
         setIsValid(JSON.parse(JSON.stringify(_isValid)));

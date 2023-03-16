@@ -239,16 +239,16 @@ export const getDerivedDataTypes = (dataType, lookupDataTypes) => {
 /// Determines if a data type (from for example loadingProps.lookupDataStatic.dataTypes) is derived from another data type
 //--------------------------------------------------------------------------
 export const isDerivedFromDataType = (dataType, baseDataType, lookupDataTypes) => {
-    var dtCurrent = dataType;
+    let dtCurrent = dataType;
     do {
-        if (dtCurrent.id == baseDataType.id) {
+        if (dtCurrent.id === baseDataType.id) {
             return true;
         }
         if (dtCurrent.baseDataTypeId == null) {
             break;
         }
-        var dtBase = lookupDataTypes.find(dt => { return dt.id == dtCurrent.baseDataTypeId; });
-        if (dtBase == dtCurrent) {
+        let dtBase = lookupDataTypes.find(dt => { return dt.id === dtCurrent.baseDataTypeId; });
+        if (dtBase === dtCurrent) {
             // avoid infinite loop if data is bad
             break;
         }
@@ -282,11 +282,7 @@ export const getIconColorByProfileState = (profileState) => {
 
     switch (profileState) {
         case AppSettings.ProfileStateEnum.CloudLibPending:
-        //    iconColor = color.amber;
-        //    break;
         case AppSettings.ProfileStateEnum.CloudLibRejected:
-        //    iconColor = color.cardinal;
-        //    break;
         case AppSettings.ProfileStateEnum.Local:
             return color.mine;
         case AppSettings.ProfileStateEnum.CloudLibPublished:
@@ -390,7 +386,7 @@ export function validateNumeric(dataType, val) {
 export const validate_namespaceFormat = (val) => {
     if (val == null || val.length === 0) return true;
 
-    var format = /((([A-Za-z]{3,9}:(?:\/\/)?)(?:[-;:&=+$,\w]+@)?[A-Za-z0-9.-]+|(?:www\.|[-;:&=+$,\w]+@)[A-Za-z0-9.-]+)((?:\/[+~%/.\w\-_]*)?\??(?:[-+=&;%@.\w_]*)#?(?:[.!/\\\w]*))?)/;
+    const format = /((([A-Za-z]{3,9}:(?:\/\/)?)(?:[-;:&=+$,\w]+@)?[A-Za-z0-9.-]+|(?:www\.|[-;:&=+$,\w]+@)[A-Za-z0-9.-]+)((?:\/[+~%/.\w\-_]*)?\??(?:[-+=&;%@.\w_]*)#?(?:[.!/\\\w]*))?)/;
     return format.test(val);
 };
 
@@ -400,7 +396,7 @@ export const validate_namespaceFormat = (val) => {
 export const validate_NoSpecialCharacters = (val) => {
     if (val == null || val.length === 0) return true;
 
-    var format = /[ `!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?~(0-9)]/;  //includes a space
+    const format = /[ `!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?~(0-9)]/;  //includes a space
     return !format.test(val);
 };
 

@@ -253,23 +253,43 @@ function AdminCloudLibApprovalList() {
 
         if (!_approvalModal.show) return;
 
-        const caption = `${_approvalModal.approveState === AppSettings.ProfileStateEnum.CloudLibApproved ? 'Approve Publish Profile' :
-            _approvalModal.approveState === AppSettings.ProfileStateEnum.CloudLibRejected ? 'Reject Publish Profile' :
-            _approvalModal.approveState === AppSettings.ProfileStateEnum.CloudLibCanceled ? 'Remove Publish Profile' : 
-            _approvalModal.approveState === AppSettings.ProfileStateEnum.CloudLibPending ? 'Set To Pending Profile' : 'Change Approval Status'}`;
+        const caption = `${_approvalModal.approveState === AppSettings.ProfileStateEnum.CloudLibApproved ? 'Approve Profile' :
+            _approvalModal.approveState === AppSettings.ProfileStateEnum.CloudLibRejected ? 'Reject Profile' :
+            _approvalModal.approveState === AppSettings.ProfileStateEnum.CloudLibCanceled ? 'Cancel Publish Request' : 
+            _approvalModal.approveState === AppSettings.ProfileStateEnum.CloudLibPending ? 'Return to Pending Queue' : 'Change Approval Status'}`;
         const btnOkCaption = `${_approvalModal.approveState === AppSettings.ProfileStateEnum.CloudLibApproved ? 'Approve' :
-            _approvalModal.approveState === AppSettings.ProfileStateEnum.CloudLibRejected ? 'Reject' :
-                _approvalModal.approveState === AppSettings.ProfileStateEnum.CloudLibCanceled ? 'Remove' : 
-                _approvalModal.approveState === AppSettings.ProfileStateEnum.CloudLibPending ? 'Set Pending' : 'Yes'}`;
-        const message = `You are about to change status for '${_approvalModal.item.title}'. This action cannot be undone. Are you sure?`;
+            _approvalModal.approveState === AppSettings.ProfileStateEnum.CloudLibRejected ? 'Reject' : 
+            _approvalModal.approveState === AppSettings.ProfileStateEnum.CloudLibCanceled ? 'Cancel Publish Request' : 
+            _approvalModal.approveState === AppSettings.ProfileStateEnum.CloudLibPending ? 'Requeue' : 'Yes'}`;
+
+        const strCanUndo = `You are changing the status for '${_approvalModal.item.title}'. The author is notified of this change and your reviewer comments (below) will be included with the notification message. This action CAN be undone. Are you sure?`;
+        const strCannotUndo = `You are changing status for '${_approvalModal.item.title}'. The author is notified of this change and your reviewer comments (below) will be included with the notification message. This action CANNOT be undone. Are you sure?`;
+        const message = `${_approvalModal.approveState === AppSettings.ProfileStateEnum.CloudLibApproved ? strCannotUndo :
+            _approvalModal.approveState === AppSettings.ProfileStateEnum.CloudLibRejected ? strCanUndo :
+            _approvalModal.approveState === AppSettings.ProfileStateEnum.CloudLibCanceled ? strCannotUndo :
+            _approvalModal.approveState === AppSettings.ProfileStateEnum.CloudLibPending ? strCanUndo : strCannotUndo}`;
+
+        // const strIcon = "warning";
+        const strIcon = `${_approvalModal.approveState === AppSettings.ProfileStateEnum.CloudLibApproved ? "check" :
+            _approvalModal.approveState === AppSettings.ProfileStateEnum.CloudLibRejected ? "close" :
+            _approvalModal.approveState === AppSettings.ProfileStateEnum.CloudLibCanceled ? "undo" :
+            _approvalModal.approveState === AppSettings.ProfileStateEnum.CloudLibPending ? "cloud-upload" : "warning"}`;
+
+        // const colorIcon = color.apple;
+        const colorIcon = `${_approvalModal.approveState === AppSettings.ProfileStateEnum.CloudLibApproved ? color.apple :
+            _approvalModal.approveState === AppSettings.ProfileStateEnum.CloudLibRejected ? color.cardinal :
+            _approvalModal.approveState === AppSettings.ProfileStateEnum.CloudLibCanceled ? color.cardinal :
+            _approvalModal.approveState === AppSettings.ProfileStateEnum.CloudLibPending ? color.amber : color.amber}`;
+
+        const btnCancelCaption = `${_approvalModal.approveState === AppSettings.ProfileStateEnum.CloudLibCanceled ? "Close" : "Cancel" }`;
 
         return (
             <>
                 <AdminCloudLibApprovalModal item={_approvalModal.item} showModal={_approvalModal.show} caption={caption} message={message}
-                    icon={{ name: "warning", color: color.amber }}
+                    icon={{ name: strIcon, color: colorIcon }}
                     confirm={{ caption: btnOkCaption, callback: onApprovalConfirm, buttonVariant: "primary" }}
                     cancel={{
-                        caption: "Cancel",
+                        caption: btnCancelCaption,
                         callback: () => {
                             console.log(generateLogMessageString(`onChangeApprovalCancel`, CLASS_NAME));
                             setApprovalModal({ show: false, item: null, approveState: AppSettings.ProfileStateEnum.Unknown });

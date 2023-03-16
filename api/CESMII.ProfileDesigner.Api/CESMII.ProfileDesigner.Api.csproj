@@ -27,8 +27,6 @@
 	  <None Include="Views\Shared\_EmailLayout.cshtml" />
 	  <None Include="Views\Shared\_Footer.cshtml" />
 	  <None Include="Views\Shared\_Head.cshtml" />
-	  <None Include="Views\Template\EmailCancelProfileSubmission.cshtml" />
-	  <None Include="Views\Template\EmailProfileSubmission.cshtml" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -69,8 +67,23 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Update="Views\Template\EmailApprovedProfileSubmission.cshtml">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Content>
+    <Content Update="Views\Template\EmailCancelProfileSubmission.cshtml">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Content>
+    <Content Update="Views\Template\EmailProfileSubmission.cshtml">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Content>
+    <Content Update="Views\Template\EmailStatusChangeProfileSubmission.cshtml">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Content>
     <Content Update="NLog.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="Views\Template\EmailRejectedProfileSubmission.cshtml">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
 

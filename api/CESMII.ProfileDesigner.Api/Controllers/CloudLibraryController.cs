@@ -112,14 +112,38 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 return BadRequest($"Approval update failed.");
             }
 
-            //Todo: Get the authoring user - from author field or additional properties. 
-            //      Then notify them that the status has changed to approved, rejected, etc.
-            //      if rejected, include reason in email. 
-            //      if approved, explain that this profile is now a part of the Cloud Library and cannot
-            //         be edited or removed. 
-            //      They can publish a new version if needed.  
-            //notify author that their profile publish status has changed. 
-            //await _cloudLibUtil.EmailStatusNotification(profile, LocalUser);
+            ///
+            ///  When a profile status changes, send an email to notify the author.
+            ///
+            
+            var profilelist = _dalProfile.Where(x => x.CloudLibraryId.Equals(model.ID), // Get the profile, using the cloud library id.
+                    base.DalUserToken, null, null, false, true).Data;
+
+            if (profilelist != null && profilelist.Count > 0)
+            {
+                var profile = profilelist.FirstOrDefault();
+                
+                int idUser = (int)profile.AuthorId;  // Get the authoring user
+                UserModel umAuthor = _dalUser.GetById(idUser, new UserToken());
+
+                string strNewStatus = model.ApproveState == ProfileStateEnum.CloudLibCancelled ? "Cancel Profile Submission and Remove from Submission Queue" :
+                                      model.ApproveState == ProfileStateEnum.CloudLibPending ? "Remain in Submission Queue as Pending Submission" :
+                                      model.ApproveState.ToString();
+                SubmittedProfileModel SubmittedProfile = new SubmittedProfileModel(profile, model, strNewStatus);
+
+                if (model.ApproveState == ProfileStateEnum.CloudLibApproved)
+                {
+                    await _cloudLibUtil.EmailApprovedNotification(this, profile, SubmittedProfile, umAuthor);   // APPROVED! -- Notify the user.
+                }
+                else if (model.ApproveState == ProfileStateEnum.CloudLibRejected)
+                {
+                    await _cloudLibUtil.EmailRejectedNotification(this, profile, SubmittedProfile, umAuthor);   // REJECTED! -- Notify the user.
+                }
+                else
+                {
+                    await _cloudLibUtil.EmailStatusChanged(this, profile, SubmittedProfile, umAuthor);          // Something else -- Notify the user.
+                }
+            }
 
             return Ok(approvedNodeSet);
         }

@@ -543,4 +543,13 @@ export function renderMenuIcon(iconName, alt) {
     );
 }
 
+///--------------------------------------------------------------------------
+/// menu icon convenience code
+//--------------------------------------------------------------------------
+export function renderMenuColorIcon(iconName, alt, colorFill) {
+    if (iconName == null || iconName === '') return null;
+    return (
+        <span className="mr-3" alt={`${alt == null ? iconName : alt}`}><SVGIcon name={iconName} fill={colorFill} size={24} /></span>
+    );
+}
 

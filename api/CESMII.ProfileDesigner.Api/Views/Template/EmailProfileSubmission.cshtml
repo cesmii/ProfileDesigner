@@ -5,64 +5,71 @@
 }
 
 <div>
-    
-    <p>Thank you for submitting your Smart Manufacturing Profile, <b>@Model.Title</b>, to the Clean Energy Smart Manufacturing Innovation Institute (CESMII) Cloud Library.</p>
+    <p>
+        Thank you for using the <a href="https://profiledesigner.cesmii.net" />CESMII Smart Manufacturing Profile&trade; Designer</a>
+        to submit for publication your Smart Manufacturing Profile&trade;, <b>@Model.Title</b>,
+        in the Clean Energy Smart Manufacturing Innovation Institute (CESMII) Cloud Library. 
+        CESMII can help publicize your profile to the world through the <a href="https://marketplace.cesmii.net">CESMII Smart Manufacturing Marketplace</a>.
+    </p>
+    <br />
     <p>Here are the details of your submission:</p>
 </div>
 <div>
     <h3>Profile: @Model.Title</h3>
-    <p style="margin-left:35px;">
-        Title: @Model.Title<br />
+    <p style="margin-left:20px;">
         Description: @Model.Description<br />
         Namespace: @Model.Namespace<br />
         Version: @Model.Version<br />
         Publication Date: @Model.PublishDate<br />
         License: @Model.License<br />
     </p>
-
-    <div>
-        <h3>Author and Organization</h3>
-        <p style="margin-left:35px;">
-            Author: @Model.Author.DisplayName [@Model.Author.Email]<br />
-            Organization: @Model.Author.Organization.Name
-        </p>
-    </div>
 </div>
 
-    <div>
-    <h3>Next Steps</h3>
-    <h4>Review</h4>
-    <p style="margin-left:35px;">
-        The CESMII team will review your submission. 
-        If your submission is approved, your profile will be included in the CESMII Cloud Library and <a href="https://marketplace.cesmii.org">Smart Manufacturing Marketplace</a>.
-        However, if your submission is rejected, we will send you information about what changes you need to make.
-</p>
-    </div>
-
 <div>
-    <h4>Editing/Canceling</h4>
-    <p style="margin-left:35px;">
-        Once you submit a profile for publishing, you cannot make any further changes to it. 
-        However, if you want to edit the profile, you can click the "Cancel Publish" button in the Profile Library to cancel the submission. 
-        You can then edit the profile and submit it again for publishing at a later time.
+    <h3>Author and Organization</h3>
+    <p style="margin-left:20px;">
+        Author: @Model.Author.DisplayName [@Model.Author.Email]<br />
+        Organization: @(Model.Author.Organization == null ? "" : Model.Author.Organization.Name == null ? "" : Model.Author.Organization.Name)
     </p>
-
 </div>
 
 <div>
+    <h3>Next Steps</h3>
     <h4>Status</h4>
-    <p style="margin-left:35px;">To find out the current status of your submission, go to the Profile Library. 
-        The Profile Library allows you to access all the profiles that you are working on 
-        and their published status. By visiting the Profile Library, you can check the status 
-        of your submission, including whether it is still under review, has been rejected, or has been published.</p>
+    <p style="margin-left:20px;">
+        To find out the current status of your submission, go to the <a href="https://profiledesigner.cesmii.net/profiles/library" />CESMII Profile Library</a>.
+        The Profile Library allows you to access all the profiles that you are working on.
+        It also shows you the submission status, including whether a profile is still under review, has been rejected, or has been published.
+    </p>
 </div>
 
 <div>
-    <br/>
+    <h4>Cancel Publish</h4>
+    <p style="margin-left:20px;">
+        Once you submit a profile for publishing, you cannot make any further changes to it.
+        To edit your profile, click the "Cancel Publish" button in the <a href="https://profiledesigner.cesmii.net/profiles/library" />CESMII Profile Library</a>.
+        Once this is done, you can edit the profile and submit it again for publishing at a later time.
+        You can do this as often as you need to, up until the time that we accept a profile for publication.
+    </p>
+</div>
+
+<div>
+    <h4>Submission Review</h4>
+    <p style="margin-left:20px;">
+        The CESMII team will review your submission. 
+        If your submission is approved, your profile will be included in the CESMII Cloud Library and <a href="https://marketplace.cesmii.net">CESMII Smart Manufacturing Marketplace</a>.
+        If your submission is rejected, we will send you information about why we rejected your profile submission so that you can edit and resubmit after you have addressed any issues.
+</p>
+</div>
+<div>
     <br />
-    <p>Thank you for your support of the CESMII Smart Manufacturing Profile Designer!</p>
     <br />
-    <p>Sincerely,<br />
+    <p>Thank you for your support of the <a href="https://profiledesigner.cesmii.net" />CESMII Smart Manufacturing Profile&trade; Designer</a>!</p>
+    <br />
+    <br />
+    <p>
+        Sincerely,<br />
         CESMII Support Team
     </p>
+    <br />
 </div>

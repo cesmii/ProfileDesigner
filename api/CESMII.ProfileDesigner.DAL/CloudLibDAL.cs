@@ -1,19 +1,19 @@
 ﻿namespace CESMII.ProfileDesigner.DAL
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Threading.Tasks;
+    using CESMII.Common.CloudLibClient;
+    using CESMII.ProfileDesigner.DAL.Models;
+    using CESMII.ProfileDesigner.Data.Entities;
 
     using NLog;
 
-    using CESMII.Common.CloudLibClient;
-
     using Opc.Ua.Cloud.Library.Client;
-    using CESMII.ProfileDesigner.DAL.Models;
-    using CESMII.ProfileDesigner.Common.Enums;
+
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
     using System.Text.RegularExpressions;
-    using CESMII.ProfileDesigner.Data.Entities;
+    using System.Threading.Tasks;
 
     /// <summary>
     /// Most lookup data is contained in this single entity and differntiated by a lookup type. 
@@ -80,6 +80,11 @@
 
         public async Task<string> UploadAsync(CloudLibProfileModel profile, string nodeSetXml)
         {
+            // Check for valid (or null) URIs among the seven URIs defined in CloudLibProfileModel
+            string strUriErrors = ValidateModelUriValues(profile);
+            if (!string.IsNullOrEmpty(strUriErrors))
+                throw new Exception($"Invalid URI: The format of the URI could not be determined: {strUriErrors}");
+
             var uaNamespace = MapToNamespace(profile, nodeSetXml);
             var error = await _cloudLib.UploadAsync(uaNamespace);
             return error;
@@ -343,6 +348,7 @@
 
         protected UANameSpace MapToNamespace(CloudLibProfileModel model, string nodeSetXml)
         {
+
             UANameSpace uaNamespace = new()
             {
                 Title = model.Title,
@@ -369,6 +375,89 @@
                 },
             };
             return uaNamespace;
+        }
+
+        /// <summary>
+        /// ValidateModelUriValues - Attempt to create each of the seven types of URI's, 
+        /// to simplify the process of finding the broken one(s).
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        protected string ValidateModelUriValues(CloudLibProfileModel model)
+        {
+            StringBuilder sb = new StringBuilder();
+            string strSep = "";
+
+            try
+            {
+                var LicenseUrl = !string.IsNullOrEmpty(model.LicenseUrl) ? new Uri(model.LicenseUrl) : null;
+            }
+            catch
+            {
+                sb.Append("LicenseUrl");
+                strSep = ", ";
+            }
+
+            try
+            {
+                var DocumentationUrl = !string.IsNullOrEmpty(model.DocumentationUrl) ? new Uri(model.DocumentationUrl) : null;
+            }
+            catch
+            {
+                sb.Append($"{strSep}DocumentationUrl");
+                strSep = ", ";
+            }
+
+            try
+            {
+                var IconUrl = !string.IsNullOrEmpty(model.IconUrl) ? new Uri(model.IconUrl) : null;
+            }
+            catch
+            {
+                sb.Append($"{strSep}IconUrl");
+                strSep = ", ";
+            }
+            try
+            {
+                var PurchasingInformationUrl = !string.IsNullOrEmpty(model.PurchasingInformationUrl) ? new Uri(model.PurchasingInformationUrl) : null;
+            }
+            catch
+            {
+                sb.Append($"{strSep}PurchasingInformationUrl");
+                strSep = ", ";
+            }
+            try
+            {
+                var ReleaseNotesUrl = !string.IsNullOrEmpty(model.ReleaseNotesUrl) ? new Uri(model.ReleaseNotesUrl) : null;
+            }
+            catch
+            {
+                sb.Append($"{strSep}ReleaseNotesUrl");
+                strSep = ", ";
+            }
+            try
+            {
+                var TestSpecificationUrl = !string.IsNullOrEmpty(model.TestSpecificationUrl) ? new Uri(model.TestSpecificationUrl) : null;
+            }
+            catch
+            {
+                sb.Append($"{strSep}TestSpecificationUrl");
+                strSep = ", ";
+            }
+            try
+            {
+                var NamespaceUri = !string.IsNullOrEmpty(model.Namespace) ? new Uri(model.Namespace) : null;
+            }
+            catch
+            {
+                sb.Append($"{strSep}NamespaceUri");
+                strSep = ", ";
+            }
+
+            if (sb.Length == 0)
+                return string.Empty;
+            else
+                return sb.ToString();
         }
 
         public virtual void Dispose()

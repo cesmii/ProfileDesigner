@@ -506,9 +506,14 @@ function AttributeItemRow(props) { //props are item, showActions
 
     //render the attribute name, append some stuff for certain types of attributes
     const renderNameUI = () => {
+        //adding empty label for alignment purposes
         return (
             <>
-                <Form.Group className="flex-grow-1 align-self-center">
+                <Form.Group className="flex-grow-1">
+                    {(_editItem.attributeType?.id !== AppSettings.AttributeTypeDefaults.EnumerationId &&
+                        (_editItem.attributeType?.id !== AppSettings.AttributeTypeDefaults.PropertyId)) &&
+                        <label></label>
+                    }
                     <Form.Control id="name" type="" placeholder="Enter a name" value={_editItem.name} aria-label="Name"
                     onChange={onChange} onBlur={validateForm_name}
                     className={(!_isValid.name || !_isValid.nameDuplicate ? 'invalid-field' : '')} />
@@ -596,7 +601,12 @@ function AttributeItemRow(props) { //props are item, showActions
         }
         //edit mode
         else {
-            return renderDataTypeUI();
+            return (
+                <>
+                    {renderVariableTypeUI()}
+                    {renderDataTypeUI()}
+                </>
+            )
         }
     };
 
@@ -612,7 +622,11 @@ function AttributeItemRow(props) { //props are item, showActions
 
         return (
             <div>
-            <Form.Group className="flex-grow-1 align-self-center" >
+                <Form.Group className="flex-grow-1" >
+                {(_editItem.attributeType?.id !== AppSettings.AttributeTypeDefaults.EnumerationId &&
+                    (_editItem.attributeType?.id !== AppSettings.AttributeTypeDefaults.PropertyId)) &&
+                    <label></label>
+                }
                 <Form.Control id="attributeType" as="select" value={selectedId} aria-label="Attribute Type"
                     onChange={onChangeAttributeType} onBlur={validateForm_attributeType}
                     className={(!_isValid.attributeType ? 'invalid-field minimal pr-5' : 'minimal pr-5')} >
@@ -620,7 +634,6 @@ function AttributeItemRow(props) { //props are item, showActions
                     {options}
                 </Form.Control>
                 </Form.Group>
-                {renderVariableTypeUI()}
             </div>
         );
     };
@@ -875,9 +888,9 @@ function AttributeItemRow(props) { //props are item, showActions
                 <td className="pl-1 col-icon" >{renderAttributeIcon(_editItem, props.readOnly)}</td>
                 <td className="px-2" >
                     <div className={`row ${_isEditMode ? "mt-2" : ""}`} >
-                        <div className="col-sm-5 align-self-center" >{renderName()}</div>
+                        <div className={`col-sm-5 align-self-${_isEditMode ? 'start' : 'center'}`} >{renderName()}</div>
 
-                        <div className="col-sm-4 align-self-center" >
+                        <div className={`col-sm-4 align-self-${_isEditMode ? 'start' : 'center'}`} >
                             {(!_editSettings.showInterface &&
                                 _editItem.attributeType?.id !== AppSettings.AttributeTypeDefaults.EnumerationId &&
                                 _editItem.attributeType?.id !== AppSettings.AttributeTypeDefaults.CompositionId ) &&
@@ -890,7 +903,7 @@ function AttributeItemRow(props) { //props are item, showActions
                                 renderComposition()
                             }
                         </div>
-                        <div className="col-sm-3 align-self-center" >{renderAttributeType()}</div>
+                        <div className={`col-sm-3 align-self-${_isEditMode ? 'start' : 'center'}`} >{renderAttributeType()}</div>
                         {(!props.isPopout) &&
                             <div className={`col-sm-12 d-none d-md-block text-muted ${_editItem.description != null && _editItem.description !== '' ? "mt-1" : ""}`} >{renderDescription()}</div>
                         }

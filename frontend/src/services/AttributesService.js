@@ -374,7 +374,7 @@ export const onChangeCompositionShared = (match, item) => {
 //-------------------------------------------------------------------
 // Region: Shared render methods
 //-------------------------------------------------------------------
-export const renderAttributeIcon = (item, readOnly) => {
+export const renderAttributeIcon = (item, readOnly, className = '') => {
     //simplify icons
     //set up color properly
     const iconColor = readOnly ? color.nevada : color.mine;
@@ -387,7 +387,7 @@ export const renderAttributeIcon = (item, readOnly) => {
     if (item.interface != null) iconName = AppSettings.IconMapper.Interface;
 
     return (
-        <span className="mr-2">
+        <span className={`mr-2 ${className}`}>
             <SVGIcon name={iconName} size="20" fill={iconColor} />
         </span>
     );
@@ -641,7 +641,7 @@ const renderSelectGroupByUI = (
 //-------------------------------------------------------------------
 // Region: Render Common eng unit drop down list
 //-------------------------------------------------------------------
-export const renderEngUnitUIShared = (editItem, lookupEngUnits, onChangeCallback, onBlurCallback) => {
+export const renderEngUnitUIShared = (editItem, lookupEngUnits, isValid, onChangeCallback, onBlurCallback) => {
     if (lookupEngUnits == null || lookupEngUnits.length === 0) return;
 
     const options = buildSelectOptionsByPopularity(lookupEngUnits, "displayName");
@@ -658,7 +658,7 @@ export const renderEngUnitUIShared = (editItem, lookupEngUnits, onChangeCallback
         selValue,
         'engUnit',
         `Eng Unit`,
-        null,
+        isValid,
         true,
         onChangeCallback,
         onBlurCallback

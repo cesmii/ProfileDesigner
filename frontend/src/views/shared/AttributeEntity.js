@@ -333,8 +333,8 @@ function AttributeEntity(props) { //props are item, showActions
     const renderNameUI = () => {
         return (
             <Form.Group className="flex-grow-1 align-self-center">
-                {renderAttributeIcon(_editItem)}
-                <Form.Label className="mb-0" >Name</Form.Label>
+                {renderAttributeIcon(_editItem, false, 'd-inline-block mb-1')}
+                <Form.Label className="mb-1" >Name</Form.Label>
                 {!_isValid.name &&
                     <span className="invalid-field-message inline">
                         Required
@@ -359,7 +359,7 @@ function AttributeEntity(props) { //props are item, showActions
             if (_editItem.interface != null) {
                 return (
                     <>
-                        {renderAttributeIcon(_editItem)}
+                        {renderAttributeIcon(_editItem, props.readOnly)}
                         {_editItem.name} [<a href={`/type/${_editItem.interface.id}`} >{_editItem.interface.name}</a>]
                     </>
                 );
@@ -367,7 +367,7 @@ function AttributeEntity(props) { //props are item, showActions
             //simple scenario
             return (
                 <>
-                    {renderAttributeIcon(_editItem)}
+                    {renderAttributeIcon(_editItem, props.readOnly)}
                     {_editItem.name}
                 </>
             );
@@ -702,7 +702,7 @@ function AttributeEntity(props) { //props are item, showActions
         const isReadOnly = (render_CheckReadOnly());
 
         if (!isReadOnly) {
-            return renderEngUnitUIShared(_editItem, props.lookupEngUnits, onChangeEngUnit, validateForm_engUnit);
+            return renderEngUnitUIShared(_editItem, props.lookupEngUnits, _isValid.engUnit, onChangeEngUnit, validateForm_engUnit);
         }
         else {
             //grab the associated caption when showing in read only mode
@@ -723,37 +723,6 @@ function AttributeEntity(props) { //props are item, showActions
                 </Form.Group>
             );
         }
-
-        //const options = props.lookupEngUnits.map((item) => {
-        //    return (<option key={item.id} value={item.id} title={item.description} >{item.displayName}</option>)
-        //});
-
-        ////grab the associated caption when showing in read only mode
-        //var selectedText = "";
-        //var tip = "";
-        //if (_editItem.engUnit == null || _editItem.engUnit.id.toString() === "-1") selectedText = "";
-        //else {
-        //    var selItem = (props.lookupEngUnits == null || props.lookupEngUnits.length === 0) ? null :
-        //        props.lookupEngUnits.find(x => { return x.id === _editItem.engUnit.id });
-        //    selectedText = selItem == null ? _editItem.engUnit.displayName : selItem.displayName;
-        //    tip = selItem == null ? _editItem.engUnit.description : selItem.description;
-        //}
-
-        //return (
-        //    <Form.Group className="flex-grow-1" >
-        //        <Form.Label className="mb-0" >Eng Unit</Form.Label>
-        //        {isReadOnly ?
-        //            <Form.Control id="engUnit" value={selectedText} readOnly={isReadOnly} title={tip} />
-        //            :
-        //            <Form.Control id="engUnit" as="select" value={_editItem.engUnit == null ? "-1" : _editItem.engUnit.id} readOnly={isReadOnly}
-        //                onChange={onChangeEngUnit} onBlur={validateForm_engUnit}
-        //                className="minimal pr-5" >
-        //                <option key="-1|Select One" value="-1" >Select</option>
-        //                {options}
-        //            </Form.Control>
-        //        }
-        //    </Form.Group>
-        //);
     };
 
     //render the actions col. in edit mode, we swap out the icons

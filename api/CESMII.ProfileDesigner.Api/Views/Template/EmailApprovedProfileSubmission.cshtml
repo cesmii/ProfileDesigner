@@ -1,0 +1,64 @@
+﻿@using CESMII.ProfileDesigner.Api.Shared.Models
+@model SubmittedProfileModel
+@{
+    Layout = "_EmailLayout";
+}
+
+<div>
+    <p>Your profile has been APPROVED for inclusion in the CESMII Cloud Library. Your profile will help you and your organization by participating in CESMII's mission of enabling 
+        frictionless movement of information between real-time operations and the people and systems that create value in and across manufacturing organizations.
+    </p>
+    <p style="margin-left:20px;"><b>Reviewer Comments:</b> @Model.strReason</p>
+</div>
+<div>
+    <h3>Profile: @Model.Title</h3>
+    <p style="margin-left:20px;">
+        Description: @Model.Description<br />
+        Namespace: @Model.Namespace<br />
+        Version: @Model.Version<br />
+        Publication Date: @Model.PublishDate<br />
+        License: @Model.License<br />
+    </p>
+
+    <div>
+        <h3>Author and Organization</h3>
+        <p style="margin-left:20px;">
+            Author: @Model.Author.DisplayName [@Model.Author.Email]<br />
+            Organization: @(Model.Author.Organization == null ? "" : Model.Author.Organization.Name == null ? "" : Model.Author.Organization.Name)
+        </p>
+    </div>
+</div>
+
+    <div>
+    <h3>Next Steps</h3>
+    <p style="margin-left:20px;">
+        Now that your Smart Manufacturing Profile(tm) has been accepted into the CESMII Cloud Library, it has become part of a larger body of public, published standards that 
+        CESMII makes available as part of its <a href="https://marketplace.cesmii.net">CESMII Smart Manufacturing Marketplace</a>. This set of standards provides a foundation for you 
+        and your organization to enable connections between your work and the work of countless other experts in the industry. You, your organization, and all stakeholders in 
+        your organization will see future benefits because of the work that you have done.
+    </p>
+    </div>
+
+<div>
+    <p style="margin-left:20px;">
+        Once a profile has been published and shared with the world, others can build on your profile. It is essential for everyone's success that you consider this version
+        of your profile to be complete and static. Three fields play an important role in identifying your published profile to the outwide world: namespace, publication date, 
+        and version number. (Version number is informational; we recommend using a new version number with a new publication date.)
+    </p>
+
+    <p style="margin-left:20px;">
+        When the time comes to publish an updated version of an existing profile, you will most likely keep the namespace the same and use a new publication date and new
+        version number to make it clear that you are providing something new. When you are ready to enhance your published profile, visit the 
+        <a href="https://profiledesigner.cesmii.net" />CESMII Smart Manufacturing Profile&trade; Designer</a> to work on and submit your updated profile.
+    </p>
+</div>
+
+<div>
+    <br/>
+    <p>Thank you for your support of the <a href="https://profiledesigner.cesmii.net" />CESMII Smart Manufacturing Profile&trade; Designer</a>!</p>
+    <br />
+    <p>Sincerely,<br />
+        CESMII Support Team
+    </p>
+    <br />
+</div>

@@ -13,6 +13,7 @@ using CESMII.ProfileDesigner.Api.Controllers;
 using CESMII.ProfileDesigner.Api.Shared.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using CESMII.ProfileDesigner.Api.Models;
+using CESMII.ProfileDesigner.Api.Shared.Models;
 
 namespace CESMII.ProfileDesigner.Api.Utils
 {
@@ -90,6 +91,72 @@ namespace CESMII.ProfileDesigner.Api.Utils
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"Failed to send email notification for cancellation request {profile.ID} for user {user.ID}");
+            }
+        }
+
+        /// <summary>
+        /// Email a notification for APPROVED profile submission
+        /// </summary>
+        /// <param name="profile"></param>
+        /// <param name="user"></param>
+        public async Task EmailApprovedNotification(CloudLibraryController controller, ProfileModel profile, SubmittedProfileModel submittedprofile, UserModel user)
+        {
+            // Send email to notify recipient that we have approved their profile submission
+            try
+            {
+                var strSubject = PROFILEINFO_SUBJECT.Replace("{{Type}}", "*Approved* Profile Submission");
+                var emailInfo = new EmailDataModel(profile, user, strSubject);
+                string strViewName = "~/Views/Template/EmailApprovedProfileSubmission.cshtml";
+                string strBody = await controller.RenderViewAsync(strViewName, submittedprofile);
+                await SendEmailNotification(emailInfo, strBody);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Failed to send email notification for approved profile {profile.ID} for user {user.ID}");
+            }
+        }
+
+        /// <summary>
+        /// Email a notification for REJECTED profile submission
+        /// </summary>
+        /// <param name="profile"></param>
+        /// <param name="user"></param>
+        public async Task EmailRejectedNotification(CloudLibraryController controller, ProfileModel profile, SubmittedProfileModel submittedprofile, UserModel user)
+        {
+            // Send email to notify recipient that we have rejected their profile submission
+            try
+            {
+                var strSubject = PROFILEINFO_SUBJECT.Replace("{{Type}}", "*Rejected* Profile Submission");
+                var emailInfo = new EmailDataModel(profile, user, strSubject);
+                string strViewName = "~/Views/Template/EmailRejectedProfileSubmission.cshtml";
+                string strBody = await controller.RenderViewAsync(strViewName, submittedprofile);
+                await SendEmailNotification(emailInfo, strBody);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Failed to send email notification for rejected profile {profile.ID} for user {user.ID}");
+            }
+        }
+
+        /// <summary>
+        /// Email a notification for all other status changes
+        /// </summary>
+        /// <param name="profile"></param>
+        /// <param name="user"></param>
+        public async Task EmailStatusChanged(CloudLibraryController controller, ProfileModel profile, SubmittedProfileModel submittedprofile, UserModel user)
+        {
+            // Send email to notify recipient that we have rejected their profile submission
+            try
+            {
+                var strSubject = PROFILEINFO_SUBJECT.Replace("{{Type}}", "*Update* Profile Submission");
+                var emailInfo = new EmailDataModel(profile, user, strSubject);
+                string strViewName = "~/Views/Template/EmailStatusChangeProfileSubmission.cshtml";
+                string strBody = await controller.RenderViewAsync(strViewName, submittedprofile);
+                await SendEmailNotification(emailInfo, strBody);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Failed to send email notification for rejected profile {profile.ID} for user {user.ID}");
             }
         }
 

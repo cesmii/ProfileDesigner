@@ -8,7 +8,6 @@
     using Microsoft.Extensions.Configuration;
 
     using CESMII.ProfileDesigner.Data.Entities;
-    using System.Collections.Generic;
 
     //static class CacheCounters
     //{
@@ -143,7 +142,12 @@
         }
         public async Task<int> AddAsync(TEntity entity)
         {
-            await _context.Set<TEntity>().AddAsync(entity);
+            var entry = _context.Entry(entity);
+            if (entry?.State == EntityState.Detached)
+            {
+                // Only add if not already tracked
+                await _context.Set<TEntity>().AddAsync(entity);
+            }
             if (_context.Database.CurrentTransaction != null) return 0;
             return await _context.SaveChangesAsync();
         }

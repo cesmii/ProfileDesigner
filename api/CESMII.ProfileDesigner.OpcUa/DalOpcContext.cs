@@ -15,6 +15,7 @@ namespace CESMII.ProfileDesigner.OpcUa
     using System.Linq;
     using System.Threading.Tasks;
     using global::Opc.Ua.Export;
+    using CESMII.ProfileDesigner.DAL.Utils;
 
     public class DalOpcContext : 
 #if NODESETDBTEST
@@ -157,7 +158,7 @@ namespace CESMII.ProfileDesigner.OpcUa
 
         public ProfileTypeDefinitionSimpleModel MapToModelProfileSimple(ProfileTypeDefinitionModel profileTypeDef)
         {
-            return _importer._profileUtils.MapToModelProfileSimple(profileTypeDef);
+            return ProfileMapperUtil.MapToModelProfileSimple(profileTypeDef);
         }
 
         public ProfileModel GetProfileForNamespace(string uaNamespace, DateTime? publicationDate, string version)

@@ -105,6 +105,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
                 var parentProfile = parent.ImportProfileItem(dalContext);
                 if (parentProfile != null)
                 {
+                    // Add reference as composition with RelatedReferenceIsInverse = true
                     if (profileItem.Compositions == null)
                     {
                         profileItem.Compositions = new List<ProfileTypeDefinitionRelatedModel>();
@@ -150,6 +151,14 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
             }
             foreach (var opcObject in this._model.Objects)
             {
+                if (_model.OtherReferencedNodes.Any(nr => nr.Node == opcObject 
+                    && nr.Reference != "nsu=http://opcfoundation.org/UA/;i=47" 
+                    && nr.ReferenceType.HasBaseType("nsu=http://opcfoundation.org/UA/;i=47")))
+                {
+                    // There is a derived reference in OtherReferencedNodes that will be imported later: ignore this one
+                    continue;
+                }
+
                 var objectProfile = opcObject.ImportProfileItem(dalContext);
                 if (profileItem.Compositions == null)
                 {
@@ -260,6 +269,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
                     RelatedProfileTypeDefinitionId = eventProfileItem.ID,
                     RelatedProfileTypeDefinition = eventProfileItem,
                     RelatedIsEvent = true,
+                    RelatedReferenceId = "nsu=http://opcfoundation.org/UA/;i=41",
                     //IsRequired = ObjectModelImportProfile.GetModelingRuleForProfile(uaEvent.ModelingRule),
                     //ModelingRule = uaEvent.ModelingRule,
                     //OpcNodeId = NodeModelUtils.GetNodeIdIdentifier(uaEvent.NodeId),

@@ -431,6 +431,13 @@ namespace CESMII.ProfileDesigner.OpcUa
                 throw ex;
             }
 
+            if (nodeSet.Models.Length > 1)
+            {
+                var ex = new Exception($"Nodeset: multiple model entries not supported.");
+                Logger.LogError(ex.Message);
+                throw ex;
+            }
+
             var firstModel = nodeSet.Models.FirstOrDefault();
             if (firstModel.ModelUri != profile.Namespace)
             {

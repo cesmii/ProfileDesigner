@@ -427,7 +427,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             result.SymbolicName = null;
             result.DocumentUrl = null;
             result.Name = isExtend ? "[Extend]" : "[New]"; //name useful in ancestory tree. After that is built, we clear name.
-            result.Parent = _profileUtils.MapToModelProfileSimple(parent);
+            result.Parent = ProfileMapperUtil.MapToModelProfileSimple(parent);
             result.AuthorId = LocalUser.ID;
             result.Author = new UserSimpleModel()
             {

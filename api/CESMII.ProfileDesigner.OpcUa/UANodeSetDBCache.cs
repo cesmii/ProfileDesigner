@@ -6,6 +6,7 @@
  */
 using CESMII.OpcUa.NodeSetImporter;
 using CESMII.OpcUa.NodeSetModel;
+using CESMII.OpcUa.NodeSetModel.Opc.Extensions;
 using CESMII.ProfileDesigner.DAL;
 using CESMII.ProfileDesigner.DAL.Models;
 using CESMII.ProfileDesigner.Data.Entities;
@@ -258,7 +259,7 @@ namespace CESMII.ProfileDesigner.Opc.Ua.NodeSetDBCache
                             ID = cacheId,
                             FileName = ns.ModelUri,
                             Version = ns.Version,
-                            PublicationDate = ns.PublicationDate,
+                            PublicationDate = ns.GetNormalizedPublicationDate(),
                             // TODO clean up the dependency
                             AuthorId = authorToken?.UserId,
                             FileCache = nodeSetXml

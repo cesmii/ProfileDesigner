@@ -355,6 +355,10 @@ export const onChangeCompositionShared = (match, item) => {
         item.symbolicName = null;
     }
     else {
+        // Preserve the intermediate object so we can find and update it in the backend
+        const intermediateObjectId = item.composition?.intermediateObjectId;
+        const intermediateObjectName = item.composition?.intermediateObjectName;
+
         item.composition = {};
         item.compositionId = match.id;
         item.composition.id = match.id;
@@ -364,6 +368,8 @@ export const onChangeCompositionShared = (match, item) => {
         //this is what is used downstream. 
         item.composition.relatedProfileTypeDefinitionId = item.composition.id;
         item.composition.relatedName = item.composition.name;
+        item.composition.intermediateObjectId = intermediateObjectId;
+        item.composition.intermediateObjectName = intermediateObjectName;
         //copy some values into the profile_composition data record
         item.browseName = match.browseName; //this becomes critical for adding on server side in new scenario
         item.symbolicName = match.symbolicName;

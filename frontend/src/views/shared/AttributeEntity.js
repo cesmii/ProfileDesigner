@@ -436,6 +436,31 @@ function AttributeEntity(props) { //props are item, showActions
         }
     };
 
+    const renderCompositionObject = () => {
+        if (!_editSettings.showComposition) return;
+
+        const isReadOnly = props.readOnly;
+
+        let compObject = null;
+        if (_editItem.composition != null && _editItem.composition.intermediateObjectName != null) {
+            compObject = (<a href={`type/${_editItem.composition.intermediateObjectId}`}> {_editItem.composition.intermediateObjectName} </a >);
+        }
+        else {
+            return null;
+        }
+        return (
+            <Form.Group>
+                <Form.Label>Composition Object</Form.Label>
+                <Form.Text>
+                    <div><a href={`/type/${_editItem.composition.intermediateObjectId}`}>
+                        {_editItem.composition.intermediateObjectName}
+                    </a>
+                    </div>
+                </Form.Text>
+            </Form.Group>
+        )
+    };
+
     //only show this for one data type
     const renderInterface = () => {
         if (!_editSettings.showInterface) return;
@@ -776,6 +801,9 @@ function AttributeEntity(props) { //props are item, showActions
                 }
                 {_editSettings.showComposition &&
                     <div className="col-sm-12 col-md-6" >{renderComposition()}</div>
+                }
+                {_editSettings.showComposition &&
+                    <div className="col-sm-12 col-md-6" >{renderCompositionObject()}</div>
                 }
                 {_editSettings.showInterface &&
                     <div className="col-sm-12 col-md-6" >{renderInterface()}</div>

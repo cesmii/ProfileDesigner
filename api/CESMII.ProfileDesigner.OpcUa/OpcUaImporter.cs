@@ -61,6 +61,14 @@ namespace CESMII.ProfileDesigner.OpcUa
             )
         {
             _dal = dal;
+            if (_dal is ProfileTypeDefinitionDAL dalClass)
+            {
+                dalClass.GenerateIntermediateCompositionObjects = false;
+            }
+            else
+            {
+                logger.LogError($"Importer: ProfileTypeDefinitionDAL not of expected type. Import/export may be incorrect.");
+            }
             _dtDal = dtDal;
             _euDal = euDal;
             this.Logger = new LoggerCapture(logger);

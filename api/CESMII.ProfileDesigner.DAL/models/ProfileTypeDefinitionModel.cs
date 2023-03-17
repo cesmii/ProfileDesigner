@@ -172,7 +172,8 @@
         public string Name { get; set; }
         public string BrowseName { get; set; }
         public string SymbolicName { get; set; }
-
+        public string DocumentationUrl { get; set; }
+        public List<string> MetaTags { get; set; }
 
         public int? ProfileId { get; set; }
 
@@ -208,6 +209,11 @@
         [JsonIgnore]
         [Newtonsoft.Json.JsonIgnore]
         public ProfileTypeDefinitionModel RelatedProfileTypeDefinition{ get;set;}
+        public int? IntermediateObjectId { get; set; }
+        public string IntermediateObjectName { get; set; }
+        [JsonIgnore]
+        [Newtonsoft.Json.JsonIgnore]
+        public ProfileTypeDefinitionModel IntermediateObject { get; set; }
 
         /// <summary>
         /// This is the composition's profile type definition name

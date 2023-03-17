@@ -438,7 +438,7 @@ namespace CESMII.ProfileDesigner.DAL.Utils
             return result.OrderBy(a => a.Name).ToList(); 
         }
 
-        public ProfileTypeDefinitionSimpleModel MapToModelProfileSimple(ProfileTypeDefinitionModel item, int level = 0)
+        public static ProfileTypeDefinitionSimpleModel MapToModelProfileSimple(ProfileTypeDefinitionModel item, int level = 0)
         {
             if (item != null)
             {
@@ -451,6 +451,7 @@ namespace CESMII.ProfileDesigner.DAL.Utils
                     Profile = item.Profile,
                     ProfileTypeDefinition = item,
                     Description = item.Description,
+                    SymbolicName = item.SymbolicName,                     
                     Type = item.Type ?? new LookupItemModel { ID = item.TypeId, LookupType = LookupTypeEnum.ProfileType },
                     Author = item.Author,
                     OpcNodeId = item.OpcNodeId,
@@ -475,6 +476,7 @@ namespace CESMII.ProfileDesigner.DAL.Utils
                     ID = item.ID,
                     Name = item.Name,
                     BrowseName = item.BrowseName,
+                    SymbolicName = item.SymbolicName,
                     /*Namespace = item.Profile.Namespace,*/
                     Profile = new ProfileModel() { ID = item.Profile.ID, Namespace = item.Profile.Namespace, Version = item.Profile.Version },
                     Description = item.Description,
@@ -551,6 +553,7 @@ namespace CESMII.ProfileDesigner.DAL.Utils
                     CompositionId = comp.RelatedProfileTypeDefinitionId,
                     ID = comp.ID,
                     Name = comp.Name,
+                    OpcNodeId = comp.OpcNodeId,
                     BrowseName = comp.BrowseName,
                     SymbolicName = comp.SymbolicName,
                     Description = comp.Description,
@@ -628,7 +631,11 @@ namespace CESMII.ProfileDesigner.DAL.Utils
                     RelatedProfileTypeDefinition = new ProfileTypeDefinitionModel() { ID = a.CompositionId.Value,  
                         Name = a.Composition.Name, Description = a.Composition.Description 
                     },
+                    IntermediateObject = a.Composition.IntermediateObject,
+                    IntermediateObjectId = a.Composition.IntermediateObjectId,
+                    IntermediateObjectName = a.Composition.IntermediateObjectName,
                     Name = a.Name,
+                    OpcNodeId = a.OpcNodeId,
                     SymbolicName = a.SymbolicName,
                     Description = a.Description,
                     BrowseName = a.BrowseName,
@@ -638,6 +645,11 @@ namespace CESMII.ProfileDesigner.DAL.Utils
                 });
             }
             return result;
+        }
+
+        internal static bool IsHasComponentReference(string relatedReferenceId)
+        {
+            return string.IsNullOrEmpty(relatedReferenceId) || relatedReferenceId == "nsu=http://opcfoundation.org/UA/;i=47";
         }
 
         #endregion

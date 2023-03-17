@@ -6,6 +6,7 @@ namespace CESMII.ProfileDesigner.OpcUa
     using CESMII.OpcUa.NodeSetModel;
     using CESMII.OpcUa.NodeSetModel.Factory.Opc;
     using CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile;
+    using CESMII.OpcUa.NodeSetModel.Opc.Extensions;
 #if NODESETDBTEST
     using Microsoft.EntityFrameworkCore;
 #endif
@@ -186,7 +187,7 @@ namespace CESMII.ProfileDesigner.OpcUa
         {
             if (!_nodesetModels.TryGetValue(model.ModelUri, out var nodesetModel))
             {
-                var profile = GetProfileForNamespace(model.ModelUri, model.PublicationDateSpecified ? model.PublicationDate : null, model.Version);
+                var profile = GetProfileForNamespace(model.ModelUri, model.GetNormalizedPublicationDate(), model.Version);
 #if NODESETDBTEST
                 var existingNodeSet = GetMatchingOrHigherNodeSetAsync(model.ModelUri, model.PublicationDateSpecified ? model.PublicationDate : null).Result;
                 if (existingNodeSet != null)
@@ -216,7 +217,7 @@ namespace CESMII.ProfileDesigner.OpcUa
                 }
                 if (model.PublicationDateSpecified && model.PublicationDate.Kind != DateTimeKind.Utc)
                 {
-                    model.PublicationDate = DateTime.SpecifyKind(model.PublicationDate, DateTimeKind.Utc);
+                    model.PublicationDate = model.GetNormalizedPublicationDate();
                 }
 
                 nodesetModel = base.GetOrAddNodesetModel(model, createNew);

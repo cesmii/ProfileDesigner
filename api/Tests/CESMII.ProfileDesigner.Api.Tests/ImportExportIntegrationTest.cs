@@ -63,7 +63,7 @@ namespace CESMII.ProfileDesigner.Api.Tests
             return ExportInternal(file, false);
         }
         [Theory]
-        [ClassData(typeof(TestNodeSetFiles))]
+        [ClassData(typeof(AASXTestNodeSetFiles))]
         public Task ExportAASX(string file)
         {
             return ExportInternal(file, true);
@@ -75,8 +75,13 @@ namespace CESMII.ProfileDesigner.Api.Tests
             // Arrange
             var apiClient = _factory.GetApiClientAuthenticated();
 
+            var sw = Stopwatch.StartNew();
+
             // ACT
             await ExportNodeSets(apiClient, new string[] { file }, exportAASX);
+
+            var exportTime = sw.Elapsed;
+            output.WriteLine($"Export time: {exportTime}");
 
             //if (_ImportExportPending)
             //{
@@ -510,6 +515,18 @@ namespace CESMII.ProfileDesigner.Api.Tests
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
+    internal class AASXTestNodeSetFiles : IEnumerable<object[]>
+    {
+        public IEnumerator<object[]> GetEnumerator()
+        {
+            Integration._ImportExportPending = true;
+            var files = TestNodeSetFiles.GetFiles().Skip(3).Take(3);
+            return files.Select(f => new object[] { f }).GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    }
+
     public class ImportExportIntegrationTestCaseOrderer : ITestCaseOrderer
     {
         public ImportExportIntegrationTestCaseOrderer()

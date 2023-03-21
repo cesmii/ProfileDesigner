@@ -101,9 +101,11 @@ namespace CESMII.ProfileDesigner.Api.Tests
             this.output = output;
         }
 
+#pragma warning disable xUnit1026  // Stop warnings related to parameters not used in test cases. 
+
         [Theory]
         [MemberData(nameof(TestKeywords))]
-        public async Task CloudLibraryCombo(string query, int expectedCount, int expectedNotLocal, int expectedPlusLocal) // , int expectedNotLocalPlusLocal)
+        public async Task CloudLibraryCombo(string query, int expectedCount, int expectedNotLocal, int expectedPlusLocal, int expectedNotLocalPlusLocal)
         {
             // Arrange
             var apiClient = _factory.GetApiClientAuthenticated();
@@ -125,7 +127,6 @@ namespace CESMII.ProfileDesigner.Api.Tests
             Assert.Equal(expectedPlusLocal, cloudPlusLocal.Count);
         }
 
-#pragma warning disable xUnit1026  // Stop warnings related to parameters not used in test cases. 
 
         [Theory]
         [MemberData(nameof(TestKeywords))]

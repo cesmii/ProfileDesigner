@@ -34,6 +34,15 @@
             return Ok(new ResultMessageModel() { IsSuccess = true, Message = $"On AAD Login, profile designer user {user.ObjectIdAAD} was initialized." });
         }
 
+
+        [Authorize]
+        [HttpPost, Route("QueryCurrentOrganization")]
+        public IActionResult QueryCurrentOrganization()
+        {
+            string strOrgName = LocalUser.Organization?.Name;
+            return Ok(new ResultMessageModel() { IsSuccess = true, Message = strOrgName });
+        }
+
         /// <summary>
         /// On successful Azure AD login, front end will call this to initialize the user in our DB (if not already there).
         /// Once this happens, then subsequent calls will expect user record is already and just ask for id. We won't have multiple 

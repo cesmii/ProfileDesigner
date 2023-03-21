@@ -11,6 +11,7 @@
     using CESMII.ProfileDesigner.Common.Enums;
     using CESMII.ProfileDesigner.Common.Utils;
     using CESMII.ProfileDesigner.DAL;
+    using CESMII.ProfileDesigner.DAL.Models;
 
     public class UserAzureADMapping
     {
@@ -29,14 +30,17 @@
             //maintained user id. In that table, there is an Azure object id which maps us to Azure.
             if (context.User != null && context.User.Identity.IsAuthenticated)
             {
-                var oId = GetAppUserId(context.User, logger, dalUser);
+                var u = GetAppUser(context.User, logger, dalUser);
 
-                if (oId.HasValue)
+                if (u != null)
                 {
                     var permission = EnumUtils.GetEnumDescription(PermissionEnum.UserAzureADMapped);
+                    string strOrg = u.Organization?.Name?.ToString();  // ToDo: Test this.
+
                     var claims = new List<Claim>()
                     {
-                        new Claim(permission, oId.Value.ToString())
+                        new Claim($"{permission}", u.ID.Value.ToString()),  // key = UserAzureADMapped
+                        new Claim($"{permission}_org", strOrg)              // key = UserAzureADMapped_org
                     };
 
                     var appIdentity = new ClaimsIdentity(claims);
@@ -48,7 +52,7 @@
         }
 
 
-        protected int? GetAppUserId(ClaimsPrincipal user, ILogger<UserAzureADMapping> logger, UserDAL dalUser)
+        protected UserModel GetAppUser(ClaimsPrincipal user, ILogger<UserAzureADMapping> logger, UserDAL dalUser)
         {
             //Get Object id from user.identity. Then try and lookup in the local db to get the local id associated with 
             //that Azure object id. If not present yet, the onAADLogin endpoint will add it there. 
@@ -57,7 +61,7 @@
             switch (matches.Count)
             {
                 case 1:
-                    return matches[0].ID.Value;
+                    return matches[0];   // return a UserModel for the specified user.
                 case 0:
                     return null;
                 default:
@@ -66,7 +70,4 @@
             }
         }
     }
-
-
-
 }

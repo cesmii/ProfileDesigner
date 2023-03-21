@@ -35,7 +35,9 @@
                 if (u != null)
                 {
                     var permission = EnumUtils.GetEnumDescription(PermissionEnum.UserAzureADMapped);
-                    string strOrg = u.Organization?.Name?.ToString();  // ToDo: Test this.
+                    string strOrg = (u.Organization == null) ? "" : 
+                                    (u.Organization.Name == null) ? "" : 
+                                    u.Organization.Name.ToString();
 
                     var claims = new List<Claim>()
                     {

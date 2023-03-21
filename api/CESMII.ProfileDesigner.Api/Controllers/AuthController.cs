@@ -39,7 +39,9 @@
         [HttpPost, Route("QueryCurrentOrganization")]
         public IActionResult QueryCurrentOrganization()
         {
-            string strOrgName = LocalUser.Organization?.Name;
+            string strOrgName = (LocalUser.Organization == null) ? "" :
+                                (LocalUser.Organization.Name == null) ? "" :
+                                LocalUser.Organization.Name;
             return Ok(new ResultMessageModel() { IsSuccess = true, Message = strOrgName });
         }
 

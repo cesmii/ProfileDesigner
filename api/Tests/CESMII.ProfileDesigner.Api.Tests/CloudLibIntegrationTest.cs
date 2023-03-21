@@ -103,7 +103,7 @@ namespace CESMII.ProfileDesigner.Api.Tests
 
         [Theory]
         [MemberData(nameof(TestKeywords))]
-        public async Task CloudLibraryCombo(string query, int expectedCount, int expectedNotLocal, int expectedPlusLocal, int expectedNotLocalPlusLocal)
+        public async Task CloudLibraryCombo(string query, int expectedCount, int expectedNotLocal, int expectedPlusLocal) // , int expectedNotLocalPlusLocal)
         {
             // Arrange
             var apiClient = _factory.GetApiClientAuthenticated();

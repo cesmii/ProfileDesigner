@@ -13,6 +13,8 @@ import Color from './Constants'
 import './styles/Navbar.scss'
 import { AppSettings } from '../utils/appsettings';
 import { doLogout, useLoginStatus } from './OnLoginHandler';
+import { useLoadingContext} from '../components/contexts/LoadingContext';
+
 
 //const CLASS_NAME = "Navbar";
 
@@ -25,6 +27,7 @@ function Navbar() {
     const { instance, inProgress } = useMsal();
     const _activeAccount = instance.getActiveAccount();
     const { isAuthenticated, isAuthorized } = useLoginStatus(null, null /*[AppSettings.AADUserRole]*/);
+    const { setLoadingProps } = useLoadingContext();
 
     //-------------------------------------------------------------------
     // Region: Hooks
@@ -34,7 +37,8 @@ function Navbar() {
     // Region: event handlers
     //-------------------------------------------------------------------
     const onLogoutClick = (e) => {
-        doLogout(history, instance, '/login',true, true);
+        doLogout(history, instance, '/login', true, true);
+        setLoadingProps({ organizationName: null});
         e.preventDefault();
     }
 

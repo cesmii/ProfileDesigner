@@ -44,9 +44,7 @@
         {
             ProfileTypeDefinitionAnalytic entity = _repo.FindByCondition(x => x.ID == model.ID)
                 .FirstOrDefault();
-            //we don't need or want to cause an update to profile type def entity
-            //the ProfileTypeDefinitionId field preserves the relationship.
-            entity.ProfileTypeDefinition = null;  
+
             this.MapToEntity(ref entity, model, userToken);
 
             await _repo.UpdateAsync(entity);

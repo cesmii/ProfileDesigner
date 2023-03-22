@@ -64,6 +64,21 @@
         }
 
         /// <summary>
+        /// Get item by id - asynchronously
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public override async Task<ProfileTypeDefinitionModel> GetByIdAsync(int id, UserToken userToken)
+        {
+            var entity = await base.FindByCondition(userToken, x => x.ID == id)
+                .Include(p => p.ProfileType)
+                .Include(p => p.Attributes)
+                .FirstOrDefaultAsync();
+
+            return MapToModel(entity, true);
+        }
+
+        /// <summary>
         /// Get all 
         /// </summary>
         /// <returns></returns>

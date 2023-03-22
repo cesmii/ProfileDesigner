@@ -52,7 +52,7 @@
             {
                 if (_dalUserToken != null) return _dalUserToken;
 
-                _dalUserToken = User.GetDalUserToken(LocalUser.ID.Value);
+                _dalUserToken = (LocalUser.ID == null) ? null : User.GetDalUserToken(LocalUser.ID.Value);
                 return _dalUserToken;
             }
         }

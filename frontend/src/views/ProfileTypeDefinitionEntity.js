@@ -890,7 +890,9 @@ function ProfileTypeDefinitionEntity() {
         }
         else {
             return (
-                renderVariableDataTypeUI()
+                <div className="col-lg-4 col-md-6">
+                    {renderVariableDataTypeUI()}
+                </div>
             );
         }
     };

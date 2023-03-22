@@ -47,9 +47,13 @@ namespace CESMII.ProfileDesigner.Api
         {
             var connectionStringProfileDesigner = Configuration.GetConnectionString("ProfileDesignerDB");
             //PostgreSql context
+#if DEBUG
             services.AddDbContext<ProfileDesignerPgContext>(options =>
                     options.UseNpgsql(connectionStringProfileDesigner).EnableSensitiveDataLogging());
-
+#else
+            services.AddDbContext<ProfileDesignerPgContext>(options =>
+                    options.UseNpgsql(connectionStringProfileDesigner));
+#endif
 
             //set variables used in nLog.config
             NLog.LogManager.Configuration.Variables["connectionString"] = connectionStringProfileDesigner;

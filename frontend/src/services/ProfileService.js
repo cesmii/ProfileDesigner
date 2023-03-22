@@ -1,3 +1,4 @@
+
 import { getUserPreferences, setUserPreferences, generateLogMessageString, concatenateField, validate_Required, validate_namespaceFormat } from '../utils/UtilityService';
 import axiosInstance from './AxiosService';
 
@@ -6,7 +7,6 @@ const CLASS_NAME = "ProfileService";
 //-------------------------------------------------------------------
 // Region: Common / Helper Profile Methods
 //-------------------------------------------------------------------
-//export const profileNew  = { id: 0, namespace: '', version: null, publishDate: null, authorId: null, author: null }
 export const profileNew  = { id: 0, namespace: '', version: null, publishDate: null, authorId: null }
 
 //-------------------------------------------------------------------

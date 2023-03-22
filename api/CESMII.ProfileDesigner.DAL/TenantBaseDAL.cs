@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
+    using Microsoft.EntityFrameworkCore;
 
     using NLog;
 
@@ -16,6 +17,18 @@
     {
         protected TenantBaseDAL(IRepository<TEntity> repo): base(repo)
         {
+        }
+
+        /// <summary>
+        /// Get item by id - asynchronously
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public override async Task<TModel> GetByIdAsync(int id, UserToken userToken)
+        {
+            var entity = await _repo.FindByCondition(u => u.ID == id && (u.OwnerId == null || u.OwnerId == userToken.UserId)).FirstOrDefaultAsync();
+            var result = MapToModel(entity);
+            return result;
         }
 
         /// <summary>

@@ -57,7 +57,7 @@ namespace CESMII.ProfileDesigner.Api.Utils
         /// <param name="user"></param>
         public async Task EmailPublishNotification(ProfileController controller, ProfileModel profile, UserModel user)
         {
-            // Send email to notify recipient that we have received the cancel publish request
+            // Send email to notify recipient that we have received the publish request
             try
             {
                 var strSubject = PROFILEINFO_SUBJECT.Replace("{{Type}}", "Profile Submission");
@@ -68,7 +68,7 @@ namespace CESMII.ProfileDesigner.Api.Utils
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Failed to send email notification for cancellation request {profile.ID} for user {user.ID}");
+                _logger.LogError(ex, $"Failed to send email notification for publish request {profile.ID} for user {user.ID}");
             }
         }
 
@@ -145,7 +145,7 @@ namespace CESMII.ProfileDesigner.Api.Utils
         /// <param name="user"></param>
         public async Task EmailStatusChanged(CloudLibraryController controller, ProfileModel profile, SubmittedProfileModel submittedprofile, UserModel user)
         {
-            // Send email to notify recipient that we have rejected their profile submission
+            // Send email to notify recipient that we have changed the status of their profile
             try
             {
                 var strSubject = PROFILEINFO_SUBJECT.Replace("{{Type}}", "*Update* Profile Submission");
@@ -156,7 +156,7 @@ namespace CESMII.ProfileDesigner.Api.Utils
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Failed to send email notification for rejected profile {profile.ID} for user {user.ID}");
+                _logger.LogError(ex, $"Failed to send email status change for profile {profile.ID} for user {user.ID}");
             }
         }
 

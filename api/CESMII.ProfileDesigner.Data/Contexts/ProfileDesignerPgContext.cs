@@ -100,18 +100,16 @@
             //------------------------------------------------
             // Profile analytic Join Table
             //------------------------------------------------
-            modelBuilder.Entity<ProfileTypeDefinitionAnalytic>()
-                .ToTable("profile_type_definition_user_analytics", "public");
             modelBuilder.Entity<ProfileTypeDefinitionAnalytic>().ToTable("profile_type_definition_user_analytics", "public")
                 .HasOne(p => p.ProfileTypeDefinition).WithOne(p => p.Analytics) //.HasForeignKey(p => p.ProfileTypeDefinitionId)
-                .OnDelete(DeleteBehavior.Cascade);
+                ;
 
             //------------------------------------------------
             // Profile favorite Join Table
             //------------------------------------------------
             modelBuilder.Entity<ProfileTypeDefinitionFavorite>().ToTable("profile_type_definition_user_favorite", "public")
                 .HasOne(p => p.ProfileTypeDefinition).WithOne(p => p.Favorite) //.HasForeignKey(p => p.ProfileTypeDefinitionId)
-                .OnDelete(DeleteBehavior.Cascade);
+                ;
 
             //------------------------------------------------
             // Engineering Unit

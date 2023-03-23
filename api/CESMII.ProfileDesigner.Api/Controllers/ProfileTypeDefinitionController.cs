@@ -51,7 +51,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         [HttpPost, Route("GetByID")]
         [ProducesResponseType(200, Type = typeof(ProfileTypeDefinitionModel))]
         [ProducesResponseType(400)]
-        public IActionResult GetByID([FromBody] IdIntModel model)
+        public async Task<IActionResult> GetByID([FromBody] IdIntModel model)
         {
             if (model == null)
             {
@@ -59,25 +59,35 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 return BadRequest($"Invalid model (null)");
             }
 
-            var result = this.GetItem(model.ID);
+            //  FIX: 
+            //  Error:A second operation was started on this context instance before a previous operation completed.
+            //  This is usually caused by different threads concurrently using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913."
+            //  Approach is to add await to getItem calls to ensure this completes prior to starting analytics calls. 
+            var result = await this.GetItem(model.ID);
             if (result == null)
             {
                 _logger.LogWarning($"ProfileTypeDefinitionController|GetById|No records found matching this ID: {model.ID}");
                 return BadRequest($"No records found matching this ID: {model.ID}");
             }
 
-            //increment page visit count for this item
-            var analytic = _dalAnalytics.Where(x => x.ProfileTypeDefinitionId == model.ID, base.DalUserToken,  null, null, false).Data.FirstOrDefault();
-            if (analytic == null)
+            try
             {
-                _dalAnalytics.AddAsync(new ProfileTypeDefinitionAnalyticModel() {ProfileTypeDefinitionId = model.ID, PageVisitCount = 1}, base.DalUserToken);
+                //increment page visit count for this item
+                var analytic = _dalAnalytics.Where(x => x.ProfileTypeDefinitionId == model.ID, base.DalUserToken, null, null, false).Data.FirstOrDefault();
+                if (analytic == null)
+                {
+                    await _dalAnalytics.AddAsync(new ProfileTypeDefinitionAnalyticModel() { ProfileTypeDefinitionId = model.ID, PageVisitCount = 1 }, base.DalUserToken);
+                }
+                else
+                {
+                    analytic.PageVisitCount += 1;
+                    await _dalAnalytics.UpdateAsync(analytic, null);
+                }
             }
-            else
+            catch (Exception ex)
             {
-                analytic.PageVisitCount += 1;
-                _dalAnalytics.UpdateAsync(analytic, null);
+                _logger.LogCritical(ex, "Error saving analytics data on GetByID call");
             }
-
             return Ok(result);
         }
 
@@ -615,7 +625,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         public async Task<IActionResult> Delete([FromBody] IdIntModel model)
         {
             //check for dependencies - if other profile types depend on this, it cannot be deleted. 
-            var item = GetItem(model.ID);
+            var item = await GetItem(model.ID);
             if (item.Dependencies != null && item.Dependencies.Count > 0)
             {
                 _logger.LogWarning($"ProfileTypeDefinitionController|Delete|Could not delete type definition because other type definitions depend on it. Id:{model.ID}.");
@@ -635,9 +645,9 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             return Ok(new ResultMessageModel() { IsSuccess = true, Message = "Item was deleted." });
         }
 
-        private ProfileTypeDefinitionModel GetItem(int id)
+        private async Task<ProfileTypeDefinitionModel>  GetItem(int id)
         {
-            var result = _dal.GetById(id, base.DalUserToken);
+            var result = await _dal.GetByIdAsync(id, base.DalUserToken);
             if (result == null) return null;
             //return dependencies, ancestory for this profile as part of this response to reduce volume of calls for a profile. 
             result.Dependencies = _profileUtils.GenerateDependencies(result, base.DalUserToken);

@@ -7,7 +7,7 @@ import axiosInstance from "../../services/AxiosService";
 
 import { AppSettings } from '../../utils/appsettings'
 import { generateLogMessageString } from '../../utils/UtilityService'
-import { filterProfiles, getTypeDefEntityLink } from '../../services/ProfileService';
+import { filterProfiles, getProfileCaption, getTypeDefEntityLink } from '../../services/ProfileService';
 import { renderTypeIcon, renderLinkedName } from './ProfileRenderHelpers';
 
 import { SVGIcon } from '../../components/SVGIcon'
@@ -36,6 +36,7 @@ function ProfileExplorer(props) {
     });
     const [_toggleStates, setToggleStates] = useState({ inheritanceTree: true, compositions: false, dependencies: false, interfaces: false });
     const [_filterVal, setFilterVal] = useState('');
+    const [_loading, setIsLoading] = useState(null);
 
     //-------------------------------------------------------------------
     // Region: Event Handling of child component events
@@ -123,8 +124,10 @@ function ProfileExplorer(props) {
 
             var result = null;
             try {
+                setIsLoading(true);
                 const data = { id: props.currentProfileId };
                 result = await axiosInstance.post(url, data);
+                setIsLoading(false);
             }
             catch (err) {
                 var msg = 'An error occurred retrieving the profile explorer.';
@@ -134,6 +137,7 @@ function ProfileExplorer(props) {
                     msg += ' Profile Explorer: This profile was not found.';
                 }
                 console.log(generateLogMessageString(`useEffect||fetchData||error||${msg}`, CLASS_NAME, 'error'));
+                setIsLoading(null);
             }
 
             if (result == null) return;
@@ -216,7 +220,7 @@ function ProfileExplorer(props) {
         childCount++;
 
         return (
-            <li id={key} key={key} className={cssClass} >
+            <li id={key} key={key} className={cssClass} title={getProfileCaption(p.profile)} >
                 <div style={{ paddingLeft: padding }}
                     className={`hierarchy-link d-flex pr-3`} >
                     {renderTypeIcon(p, props.activeAccount, 18, 'mr-2')}
@@ -343,11 +347,10 @@ function ProfileExplorer(props) {
 
     //render the main area
     const renderExplorer = () => {
-        if (_items == null) {
+        if (_items == null) return null; 
+        else if (_loading === true) {
             return (
-                <div className="alert alert-info-custom mt-2 mb-2">
-                    {/* <div className="text-center small" >There are no matching items.</div> */}
-                </div>
+                <div className="mt-2 mb-2 text-center">loading profile explorer...</div>
             )
         }
         return (

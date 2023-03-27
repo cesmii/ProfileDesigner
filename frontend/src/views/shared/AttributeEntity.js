@@ -32,6 +32,7 @@ function AttributeEntity(props) { //props are item, showActions
         const showEnumeration = _editItem.attributeType?.id === AppSettings.AttributeTypeDefaults.EnumerationId;
         const showVariableType = _editItem.attributeType?.id === AppSettings.AttributeTypeDefaults.DataVariableId;
         const showProperty = _editItem.attributeType?.id === AppSettings.AttributeTypeDefaults.PropertyId;
+        const showStructure = _editItem.attributeType?.id === AppSettings.AttributeTypeDefaults.StructureId;
 
         if (props.lookupDataTypes == null || props.lookupDataTypes.length === 0) {
             return {
@@ -43,7 +44,8 @@ function AttributeEntity(props) { //props are item, showActions
                 showInterface: showInterface,
                 showEnumeration: showEnumeration,
                 showVariableType: showVariableType,
-                showProperty: showProperty
+                showProperty: showProperty,
+                showStructure: showStructure
             };
         }
         const lookupItem = props.lookupDataTypes.find(dt => { return dt.id === _editItem.dataType.id; });
@@ -57,7 +59,8 @@ function AttributeEntity(props) { //props are item, showActions
             showInterface: showInterface,
             showEnumeration: showEnumeration,
             showVariableType: showVariableType,
-            showProperty: showProperty
+            showProperty: showProperty,
+            showStructure: showStructure
         };
     };
 
@@ -439,7 +442,7 @@ function AttributeEntity(props) { //props are item, showActions
     const renderCompositionObject = () => {
         if (!_editSettings.showComposition) return;
 
-        const isReadOnly = props.readOnly;
+        //const isReadOnly = props.readOnly;
 
         let compObject = null;
         if (_editItem.composition != null && _editItem.composition.intermediateObjectName != null) {
@@ -531,6 +534,16 @@ function AttributeEntity(props) { //props are item, showActions
 
     //render data type ui
     const renderDataTypeUI = () => {
+        const isReadOnly = (props.readOnly || _editItem._itemType == null || _editItem._itemType === "extended" || _editItem.interface != null);
+
+        if (isReadOnly) {
+            return (
+                <Form.Group>
+                    <Form.Label className="mb-0" >Data Type</Form.Label>
+                    <Form.Control id="dataType" value={_editItem.dataType.name} readOnly={isReadOnly} />
+                </Form.Group>
+            );
+        }
         return renderDataTypeUIShared(_editItem.dataType, _permittedDataTypes, null, _isValid.dataType, true, null, onChangeDataType);
     };
 
@@ -793,7 +806,7 @@ function AttributeEntity(props) { //props are item, showActions
                 {(_editSettings.showVariableType) &&
                     <div className="col-sm-12 col-md-6" >{renderVariableTypeUI()}</div>
                 }
-                {(_editSettings.showVariableType || _editSettings.showProperty) &&
+                {(_editSettings.showVariableType || _editSettings.showProperty || _editSettings.showStructure) &&
                     <div className={`col-sm-12 col-md-6`} >{renderDataTypeUI()}</div>
                 }
                 {_editSettings.showEnumeration &&

@@ -48,7 +48,7 @@ function AttributeList(props) {
     const [_lookupVariableTypes, setLookupVariableTypes] = useState([]);
     const [_lookupAttributeTypes, setLookupAttributeTypes] = useState([]);
     const [_addSettings, setAddSettings] = useState({
-        useMinMax: true, useEngUnit: true, showComposition: false, /*showStructure: false,*/ showInterface: false, showEnumeration: false,
+        useMinMax: true, useEngUnit: true, showComposition: false, showStructure: false, showInterface: false, showEnumeration: false,
         isCustomDataType: false, showDescription: true, showVariableType: false, showProperty: false,
     });
     const [_isValid, setIsValid] = useState({
@@ -986,7 +986,7 @@ function AttributeList(props) {
                         {(_addSettings.showVariableType) &&
                             <div className="col-sm-4" >{renderVariableTypeUI()}</div>
                         }
-                        {(_addSettings.showVariableType || _addSettings.showProperty) &&
+                        {(_addSettings.showVariableType || _addSettings.showProperty || _addSettings.showStructure) &&
                             <div className={`col-sm-${_addSettings.showVariableType ? '3' :'7'}`} >{renderDataTypeUI()}</div>
                         }
                         {_addSettings.showEnumeration &&

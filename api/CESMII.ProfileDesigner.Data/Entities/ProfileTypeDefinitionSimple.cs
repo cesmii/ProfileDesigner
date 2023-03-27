@@ -43,6 +43,9 @@
         [Column(name: "profile_author_id")]
         public int? AuthorId { get; set; }
 
+        [Column(name: "profile_author_objectid_aad")]
+        public string AuthorObjectIdAAD { get; set; }
+
         [Column(name: "profile_namespace")]
         public string ProfileNamespace { get; set; }
 

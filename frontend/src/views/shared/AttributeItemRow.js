@@ -511,7 +511,8 @@ function AttributeItemRow(props) { //props are item, showActions
             <>
                 <Form.Group className="flex-grow-1">
                     {(_editItem.attributeType?.id !== AppSettings.AttributeTypeDefaults.EnumerationId &&
-                        (_editItem.attributeType?.id !== AppSettings.AttributeTypeDefaults.PropertyId)) &&
+                        _editItem.attributeType?.id !== AppSettings.AttributeTypeDefaults.PropertyId &&
+                        _editItem.attributeType?.id !== AppSettings.AttributeTypeDefaults.StructureId) &&
                         <label></label>
                     }
                     <Form.Control id="name" type="" placeholder="Enter a name" value={_editItem.name} aria-label="Name"
@@ -624,7 +625,8 @@ function AttributeItemRow(props) { //props are item, showActions
             <div>
                 <Form.Group className="flex-grow-1" >
                 {(_editItem.attributeType?.id !== AppSettings.AttributeTypeDefaults.EnumerationId &&
-                    (_editItem.attributeType?.id !== AppSettings.AttributeTypeDefaults.PropertyId)) &&
+                        _editItem.attributeType?.id !== AppSettings.AttributeTypeDefaults.PropertyId &&
+                        _editItem.attributeType?.id !== AppSettings.AttributeTypeDefaults.StructureId) &&
                     <label></label>
                 }
                 <Form.Control id="attributeType" as="select" value={selectedId} aria-label="Attribute Type"

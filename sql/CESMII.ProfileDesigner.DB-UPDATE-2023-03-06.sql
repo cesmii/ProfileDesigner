@@ -4,6 +4,7 @@
 --	Who: MarkusH
 --	Details:
 --	Remove standard nodeset table
+--  functions - Add object id aad to returned result to determine ownership
 ---------------------------------------------------------------------
 
 ALTER TABLE public.profile_attribute
@@ -58,10 +59,55 @@ ALTER VIEW public.v_data_type_rank
 
 /*---------------------------------------------------------
 	Stored Procedures / Functions: 
+		determine profile ownership - do as a function to ensure same rules in all uses
 		get all ancestors for a type definition
 		get all descendants for a type definition
 		get all dependents for a type definition (uses get all descendants)
 ---------------------------------------------------------*/
+/*---------------------------------------------------------
+	Function: fn_profile_get_owner
+---------------------------------------------------------*/
+drop function if exists fn_profile_get_owner; 
+create function fn_profile_get_owner (
+   IN _id int, _ownerId int) 
+/*
+	Function: fn_profile_get_owner
+	Who: scoxen
+	When: 2023-03-27
+	Description: 
+	Determine if this profile is owned by this ownerId. 
+	Return user
+*/
+returns table ( 
+	id integer, 
+	objectid_aad character varying(100) 
+) 
+language plpgsql
+as $$
+declare 
+-- variable declaration
+begin
+	-- body
+	return query
+		SELECT u.id, u.objectid_aad  
+		FROM public.profile p
+		--determine ownership
+		--has no cloudlibraryid and author id = passed in user id - owned by user
+		--has cloudlibraryid and cloud library pending approval is true - owned by user
+		--note Cloud library fields are managed and maintained by the API updating its values based on current
+		--Cloud Lib (separate system). If there was any mismatch in values between this and CloudLib, it would be uncommon and updated through 
+		--the normal course of visiting pages within the application.
+		LEFT OUTER JOIN public.user u ON u.id = p.author_id AND
+			(p.cloud_library_id IS NULL OR
+			(p.cloud_library_id IS NOT NULL AND 
+				COALESCE(p.cloud_library_pending_approval, FALSE) IS TRUE))
+		WHERE 
+			 p.id = _id AND
+			(p.owner_id IS NULL --root nodesets
+			 OR p.owner_id = _ownerId)  --my nodesets or nodesets I imported
+	;
+end; $$ 
+;
 
 /*---------------------------------------------------------
 	Function: fn_profile_type_definition_get_descendants
@@ -92,9 +138,10 @@ returns table (
 	parent_id integer, 
 	type_id integer, 
 	type_name character varying(256), 
-        variable_data_type_id integer,
+    variable_data_type_id integer,
 	profile_id integer, 
 	profile_author_id integer, 
+	profile_author_objectid_aad character varying(100), 
 	profile_namespace character varying(400), 
 	profile_owner_id integer, 
 	profile_publish_date timestamp with time zone, 
@@ -139,7 +186,8 @@ begin
 			l.name as type_name,
 			t.variable_data_type_id,
 			p.id as profile_id,
-			p.author_id as profile_author_id,
+			u.id as profile_author_id,
+			u.objectid_aad as profile_author_objectid_aad,
 			p.namespace as profile_namespace,
 			p.owner_id as profile_owner_id,
 			p.publish_date as profile_publish_date,
@@ -151,6 +199,8 @@ begin
 		AND t.id <> _id
 	JOIN public.profile p ON p.id = t.profile_id
 	JOIN public.lookup l ON l.id = t.type_id
+	--determine ownership
+	LEFT OUTER JOIN public.fn_profile_get_owner(p.id, _ownerId) u on  u.id = p.author_id
 	WHERE 
 	--rule: always exclude object and method
 	l.id NOT IN (11, 20)   
@@ -210,9 +260,10 @@ returns table (
 	parent_id integer, 
 	type_id integer, 
 	type_name character varying(256), 
-        variable_data_type_id integer,
+    variable_data_type_id integer,
 	profile_id integer, 
 	profile_author_id integer, 
+	profile_author_objectid_aad character varying(100), 
 	profile_namespace character varying(400), 
 	profile_owner_id integer, 
 	profile_publish_date timestamp with time zone, 
@@ -269,7 +320,29 @@ begin
 
 	)
 
-	SELECT  d.id,
+	--adding extra wrapping sql statement to get the distinct values
+	--a type def could be a dependency in multiple scenarios
+	SELECT
+			dFinal.id,
+			dFinal.browse_name,
+			dFinal.description,
+			dFinal.is_abstract,
+			dFinal.name,
+			dFinal.opc_node_id,
+			dFinal.parent_id,
+			dFinal.type_id,
+			dFinal.type_name,
+			dFinal.variable_data_type_id,
+			dFinal.profile_id,
+			dFinal.profile_author_id,
+			dFinal.profile_author_objectid_aad,
+			dFinal.profile_namespace,
+			dFinal.profile_owner_id,
+			dFinal.profile_publish_date,
+			dFinal.profile_title,
+			dFinal.profile_version,
+			min(dFinal.level) as level
+	FROM (SELECT  d.id,
 			t.browse_name,
 			t.description,
 			t.is_abstract,
@@ -280,7 +353,8 @@ begin
 			l.name as type_name,
 			t.variable_data_type_id,
 			p.id as profile_id,
-			p.author_id as profile_author_id,
+			u.id as profile_author_id,
+			u.objectid_aad as profile_author_objectid_aad,
 			p.namespace as profile_namespace,
 			p.owner_id as profile_owner_id,
 			p.publish_date as profile_publish_date,
@@ -291,6 +365,8 @@ begin
 	JOIN public.profile_type_definition t ON d.id = t.id AND t.id <> _id
 	JOIN public.profile p ON p.id = t.profile_id
 	JOIN public.lookup l ON l.id = t.type_id
+	--determine ownership
+	LEFT OUTER JOIN public.fn_profile_get_owner(p.id, _ownerId) u on  u.id = p.author_id
 	WHERE 
 	--rule: always exclude object and method
 	l.id NOT IN (11, 20)   
@@ -304,6 +380,26 @@ begin
 		 ELSE 0 END)
 	UNION 
 	SELECT * FROM public.fn_profile_type_definition_get_descendants(_id, _ownerId, _limitByType, _excludeAbstract)
+	) as dFinal
+	group by 
+			dFinal.id,
+			dFinal.browse_name,
+			dFinal.description,
+			dFinal.is_abstract,
+			dFinal.name,
+			dFinal.opc_node_id,
+			dFinal.parent_id,
+			dFinal.type_id,
+			dFinal.type_name,
+			dFinal.variable_data_type_id,
+			dFinal.profile_id,
+			dFinal.profile_author_id,
+			dFinal.profile_author_objectid_aad,
+			dFinal.profile_namespace,
+			dFinal.profile_owner_id,
+			dFinal.profile_publish_date,
+			dFinal.profile_title,
+			dFinal.profile_version	
 	;
 end; $$ 
 ;
@@ -348,9 +444,10 @@ returns table (
 	parent_id integer, 
 	type_id integer, 
 	type_name character varying(256), 
-        variable_data_type_id integer,
+    variable_data_type_id integer,
 	profile_id integer, 
 	profile_author_id integer, 
+	profile_author_objectid_aad character varying(100), 
 	profile_namespace character varying(400), 
 	profile_owner_id integer, 
 	profile_publish_date timestamp with time zone, 
@@ -395,7 +492,8 @@ begin
 			l.name as type_name,
 			t.variable_data_type_id,
 			p.id as profile_id,
-			p.author_id as profile_author_id,
+			u.id as profile_author_id,
+			u.objectid_aad as profile_author_objectid_aad,
 			p.namespace as profile_namespace,
 			p.owner_id as profile_owner_id,
 			p.publish_date as profile_publish_date,
@@ -406,6 +504,8 @@ begin
 	JOIN public.profile_type_definition t ON d.id = t.id --AND t.id <> _id --include item itself
 	JOIN public.profile p ON p.id = t.profile_id
 	JOIN public.lookup l ON l.id = t.type_id
+	--determine ownership
+	LEFT OUTER JOIN public.fn_profile_get_owner(p.id, _ownerId) u on  u.id = p.author_id
 	order by d.level, t.name
 	;
 end; $$ 

@@ -117,14 +117,18 @@ namespace CESMII.ProfileDesigner.DAL.Utils
             {
                 var siblings = _dal.Where(p => !ProfileMapperUtil.ExcludedProfileTypes.Contains(p.ProfileTypeId) /*p.ProfileTypeId != (int)ProfileItemTypeEnum.Object*/ && typeDef.Parent != null &&
                                             p.ParentId.Equals(typeDef.Parent.ID) &&
+                                            p.ProfileTypeId.Equals(typeDef.TypeId) &&  //only get siblings of same type
                                             p.ID != typeDef.ID, userToken, null, null, false).Data
                     .Select(s => MapToModelProfileAncestory(s, 1));
 
                 if (lineage.Count == 1) result = result.Concat(siblings).ToList();
                 else if (finalParent != null)
                 {
-                    //append siblings to final parent
-                    finalParent.Children = finalParent.Children.Concat(siblings).ToList();
+                    //append siblings to final parent, sort by name
+                    finalParent.Children = finalParent.Children.Concat(siblings)
+                        .OrderBy(x => x.Name)
+                        .ThenBy(x => x.Profile.Namespace)
+                        .ToList();
                 }
             }
             return result;
@@ -194,12 +198,12 @@ namespace CESMII.ProfileDesigner.DAL.Utils
         {
             var fnName = "public.fn_profile_type_definition_get_dependencies";
             var orderBys = new List<OrderBySimple>() {
-                new OrderBySimple() { FieldName = "level" },
+                new OrderBySimple() { FieldName = "name" },
                 new OrderBySimple() { FieldName = "profile_title" } ,
                 new OrderBySimple() { FieldName = "profile_namespace" } ,
                 new OrderBySimple() { FieldName = "profile_version" } ,
                 new OrderBySimple() { FieldName = "profile_publish_date" } ,
-                new OrderBySimple() { FieldName = "name" }
+                new OrderBySimple() { FieldName = "level" }
             };
             //TBD - pass in paging to this.
             return _dalRelated.GetItemsPaged(fnName, null, null, false, orderBys, id, userToken.UserId, false, false);
@@ -416,7 +420,13 @@ namespace CESMII.ProfileDesigner.DAL.Utils
                     Profile = new ProfileModel() { ID = item.Profile.ID, Namespace = item.Profile.Namespace, Version = item.Profile.Version },
                     Description = item.Description,
                     Type = item.Type,
-                    Author = item.Author,
+                    //establish ownership
+                    Author = item.Profile == null || 
+                             item.Profile.ProfileState == ProfileStateEnum.CloudLibApproved ||
+                             item.Profile.ProfileState == ProfileStateEnum.Core ||  
+                             item.Profile.ProfileState == ProfileStateEnum.CloudLibPublished ||  
+                             item.Profile.ProfileState == ProfileStateEnum.Unknown ? 
+                             null : item.Author,
                     OpcNodeId = item.OpcNodeId,
                     IsAbstract = item.IsAbstract,
                     Level = level

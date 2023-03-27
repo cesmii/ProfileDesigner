@@ -33,7 +33,7 @@
                     Profile = new ProfileModel() { ID = entity.ProfileId, Namespace = entity.ProfileNamespace, Version = entity.ProfileVersion },
                     Description = entity.Description,
                     Type = new LookupItemModel() { ID = entity.TypeId, Name = entity.TypeName } ,
-                    Author = new UserSimpleModel() { ID = entity.AuthorId },
+                    Author = new UserSimpleModel() { ID = entity.AuthorId, ObjectIdAAD = entity.AuthorObjectIdAAD },
                     OpcNodeId = entity.OpcNodeId,
                     IsAbstract = entity.IsAbstract,
                     Level = entity.Level,

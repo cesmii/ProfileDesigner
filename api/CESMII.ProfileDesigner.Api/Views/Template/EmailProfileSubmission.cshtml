@@ -19,7 +19,7 @@
     <p style="margin-left:20px;">
         Description: @Model.Description<br />
         Namespace: @Model.Namespace<br />
-        Version: @Model.Version<br />
+        Version: @(Model.Version == null ? "" : Model.Version)<br />
         Publication Date: @Model.PublishDate<br />
         License: @Model.License<br />
     </p>

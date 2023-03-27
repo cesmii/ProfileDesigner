@@ -8,14 +8,17 @@
     <p>Your profile has been APPROVED for inclusion in the CESMII Cloud Library. Your profile will help you and your organization by participating in CESMII's mission of enabling 
         frictionless movement of information between real-time operations and the people and systems that create value in and across manufacturing organizations.
     </p>
-    <p style="margin-left:20px;"><b>Reviewer Comments:</b> @Model.strReason</p>
+    @if (Model.strReason != null)
+    {
+        <p style="margin-left:20px;"><b>Reviewer Comments:</b> @Model.strReason</p>
+    }
 </div>
 <div>
     <h3>Profile: @Model.Title</h3>
     <p style="margin-left:20px;">
         Description: @Model.Description<br />
         Namespace: @Model.Namespace<br />
-        Version: @Model.Version<br />
+        Version: @(Model.Version == null ? "" : Model.Version)<br />
         Publication Date: @Model.PublishDate<br />
         License: @Model.License<br />
     </p>

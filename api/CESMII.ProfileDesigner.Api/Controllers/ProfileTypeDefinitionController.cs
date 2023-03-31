@@ -191,8 +191,8 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             }
 
             //Part 2 - Filter on Profile - Typedefs associated with a specific profile - none, one or many
-            var filterProfiles = model.Filters?.Find(c => c.ID.Value == (int)SearchCriteriaCategoryEnum.Profile)
-                .Items.Where(x => x.Selected).ToList();
+            var filterProfiles = model.Filters?.Find(c => c.ID.Value == (int)SearchCriteriaCategoryEnum.Profile)?
+                .Items?.Where(x => x.Selected).ToList();
             if (filterProfiles != null && filterProfiles.Any())
             {
                 Expression<Func<ProfileTypeDefinition, bool>> predProfile = null;

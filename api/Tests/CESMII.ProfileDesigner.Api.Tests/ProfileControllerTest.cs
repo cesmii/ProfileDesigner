@@ -3,18 +3,27 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Linq;
 
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Configuration;
+
 using Xunit;
 using Xunit.Abstractions;
-using Xunit.Sdk;
 
-using Newtonsoft.Json;
 using CESMII.ProfileDesigner.Common.Enums;
+using CESMII.ProfileDesigner.DAL.Models;
+using CESMII.ProfileDesigner.Data.Repositories;
+using CESMII.ProfileDesigner.Data.Entities;
+using CESMII.ProfileDesigner.Data.Contexts;
 
 namespace CESMII.ProfileDesigner.Api.Tests.Integration
 {
     [TestCaseOrderer("CESMII.ProfileDesigner.Api.Tests.Integration.ProfileControllerTestCaseOrderer", "CESMII.ProfileDesigner.Api.Tests.Integration")]
     public class ProfileControllerTest : ControllerTestBase
     {
+        private readonly ServiceProvider _serviceProvider;
+        //for some tests, tie together a common guid so we can delete the created items at end of test. 
+        private Guid _guidCommon = Guid.NewGuid();
+
         #region API constants
         private const string URL_ADD = "/api/profile/add";
         private const string URL_LIBRARY = "/api/profile/library";
@@ -28,39 +37,57 @@ namespace CESMII.ProfileDesigner.Api.Tests.Integration
 
         #region data naming constants
         private const string NAMESPACE_PATTERN = "https://CESMII.ProfileDesigner.Api.Test.org/";
-        private const string TITLE_PATTERN = "CESMII.ProfileDesigner.Api.Test.";
-        private const string CATEGORY_PATTERN = "test";
+        private const string NAMESPACE_CLOUD_PATTERN = "https://CloudLibrary.Mock.org/";
+        private const string TITLE_PATTERN = "CESMII.ProfileDesigner.Api.Tests.Integration";
+        private const string CATEGORY_PATTERN = "category-test";
         private const string VERSION_PATTERN = "1.0.0.";
         private const int CORE_NODESET_COUNT = 5;  // ua, ua/di, ua/robotics, fdi5, fdi7
         #endregion
 
-        public ProfileControllerTest(CustomWebApplicationFactory<CESMII.ProfileDesigner.Api.Startup> factory, ITestOutputHelper output):
+        public ProfileControllerTest(
+            CustomWebApplicationFactory<Api.Startup> factory, 
+            ITestOutputHelper output):
             base(factory, output)
         {
+            var services = new ServiceCollection();
+
+            //wire up db context to be used by repo
+            base.InitDBContext(services);
+            
+            // DI - directly inject repo so we can add some test data directly and then have API test against it.
+            // when running search tests. 
+            services.AddSingleton< IConfiguration>(factory.Configuration);
+            services.AddScoped<IRepository<Profile>, BaseRepo<Profile, ProfileDesignerPgContext>>();
+            //need to get user id of test user when we add profile
+            services.AddScoped<IRepository<User>, BaseRepo<User, ProfileDesignerPgContext>>();
+            
+            _serviceProvider = services.BuildServiceProvider();
         }
 
 #pragma warning disable xUnit1026  // Stop warnings related to parameters not used in test cases. 
 
-        /// <summary>
-        /// Delete most of the nodesets created from other integration tests except
-        /// ua, ua/di, fdi v5, fdi v7, robotics
-        /// </summary>
-        /// <remarks>This is somewhat a prep activity. run this as first test to allow downstream tests in here to 
-        /// have accurate counts.
-        /// Leaving it as a test for now because it exercises delete many endpoint.</remarks>
-        /// <param name="model"></param>
-        /// <returns></returns>
-        [Fact]
-        public async Task A_DeleteMany()
+        [Theory]
+        [InlineData(NAMESPACE_CLOUD_PATTERN, 8, 8, 2)]
+        [InlineData(NAMESPACE_PATTERN, 4, 6, 4)]
+        [InlineData(CATEGORY_PATTERN, 0, 5, 5)]
+        public async Task DeleteMany(string query, int expectedCount, int numItemsToAdd, int numCloudItemsToAdd)
         {
             // ARRANGE
             //get api client
             var apiClient = base.ApiClient;
+
+            //add some test rows to search against
+            await InsertMockEntitiesForSearchTests(numItemsToAdd, false);
+            await InsertMockEntitiesForSearchTests(numCloudItemsToAdd, true);
+
             //get stock filter
             var filter = base.ProfileFilter;
             filter.Take = 1000;  //make sure we get all items
+            filter.Query = query;
 
-            List<Shared.Models.IdIntModel> model = await GetItemsToDelete(apiClient, filter);
+            //get a partial list of items to delete, convert to list of ids
+            var matches = (await apiClient.ApiGetManyAsync<ProfileModel>(URL_LIBRARY, filter)).Data;
+            var model = matches.Select(y => new Shared.Models.IdIntModel() { ID = y.ID.Value }).ToList();
 
             // ACT
             //delete the items
@@ -70,9 +97,12 @@ namespace CESMII.ProfileDesigner.Api.Tests.Integration
             Assert.True(result.IsSuccess);
             Assert.Contains("deleted", result.Message.ToLower());
 
-            //Try to get the remaining items and should equal 5
-            var itemsRemaining = (await apiClient.ApiGetManyAsync<DAL.Models.ProfileModel>(URL_LIBRARY, filter)).Data;
-            Assert.Equal(5, itemsRemaining.Count);
+            //Try to get the remaining items and should equal expected count,
+            //always add the extra where clause after the fact of _guidCommon in case another test is adding stuff in parallel. 
+            filter.Query = _guidCommon.ToString();
+            var itemsRemaining = (await apiClient.ApiGetManyAsync<ProfileModel>(URL_LIBRARY, filter)).Data
+                .Where(x => x.Keywords != null && string.Join(",", x.Keywords).ToLower().Contains(_guidCommon.ToString())).ToList();
+            Assert.Equal(expectedCount, itemsRemaining.Count);
         }
 
         /// <summary>
@@ -82,17 +112,19 @@ namespace CESMII.ProfileDesigner.Api.Tests.Integration
         /// <returns></returns>
         [Theory]
         [MemberData(nameof(ProfileControllerTestData))]
-        public async Task AddItem_GetItem(DAL.Models.ProfileModel model)
+        public async Task AddItem_GetItem(ProfileModel model)
         {
             // ARRANGE
             //get api client
             var apiClient = base.ApiClient;
+            //update guid common so we can delete after test. memberData cannot inject module level _guidCommon value (its static). 
+            _guidCommon = Guid.Parse(model.Keywords.FirstOrDefault());
 
             // ACT
             //add an item
             var resultAdd = await apiClient.ApiExecuteAsync<Shared.Models.ResultMessageWithDataModel>(URL_ADD, model);
             var modelGet = new Shared.Models.IdIntModel() { ID = (int)resultAdd.Data };
-            var resultGet = await apiClient.ApiGetItemAsync<DAL.Models.ProfileModel>(URL_GETBYID, modelGet);
+            var resultGet = await apiClient.ApiGetItemAsync<ProfileModel>(URL_GETBYID, modelGet);
 
             //ASSERT - Add
             Assert.True(resultAdd.IsSuccess);
@@ -112,7 +144,7 @@ namespace CESMII.ProfileDesigner.Api.Tests.Integration
 
         [Theory]
         [MemberData(nameof(ProfileControllerTestData))]
-        public async Task DeleteItem(DAL.Models.ProfileModel model)
+        public async Task DeleteItem(ProfileModel model)
         {
             // ARRANGE
             //get api client
@@ -130,17 +162,17 @@ namespace CESMII.ProfileDesigner.Api.Tests.Integration
             Assert.Contains("item was deleted", result.Message.ToLower());
             //Try to get the item and should throw bad request
             await Assert.ThrowsAsync<MyNamespace.ApiException>(
-                async () => await apiClient.ApiGetItemAsync<DAL.Models.ProfileModel>(URL_GETBYID, modelDelete));
+                async () => await apiClient.ApiGetItemAsync<ProfileModel>(URL_GETBYID, modelDelete));
         }
 
         [Theory]
-        [InlineData(null, 13, 8)]
-        [InlineData("/ua/", 3, 4)]
-        [InlineData("/di/", 1, 4)]
-        [InlineData("/fdi", 2, 4)]
-        [InlineData(NAMESPACE_PATTERN, 7, 7)]
-        [InlineData(TITLE_PATTERN, 14, 14)]
-        public async Task GetLibrary(string query, int expectedCount, int rowsToAdd)
+        [InlineData(CATEGORY_PATTERN, 10, 8, 2)]
+        [InlineData(NAMESPACE_CLOUD_PATTERN, 2, 4, 2)]
+        [InlineData(NAMESPACE_PATTERN, 7, 7, 2)]
+        [InlineData(TITLE_PATTERN, 16, 14, 2)]
+        [InlineData("zzzz", 0, 10, 10)]
+        [InlineData("yyyy", 0, 10, 10)]
+        public async Task GetLibrary(string query, int expectedCount, int numItemsToAdd, int numCloudItemsToAdd)
         {
             // ARRANGE
             //get api client
@@ -150,28 +182,28 @@ namespace CESMII.ProfileDesigner.Api.Tests.Integration
             //apply specifics to filter
             filter.Query = query;
 
-            //import nodesets from cloudlib
-            await ImportCloudLibItemsForSearchTests();
-
             //add some test rows to search against
-            await InsertProfilesForSearchTests(Guid.NewGuid(), rowsToAdd);
+            await InsertMockEntitiesForSearchTests(numItemsToAdd, false);
+            await InsertMockEntitiesForSearchTests(numCloudItemsToAdd, true);
 
             // ACT
             //get the list of items
-            var items = (await apiClient.ApiGetManyAsync<DAL.Models.ProfileModel>(URL_LIBRARY, filter)).Data;
+            //always add the extra where clause after the fact of _guidCommon in case another test is adding stuff in parallel. 
+            var items = (await apiClient.ApiGetManyAsync<ProfileModel>(URL_LIBRARY, filter)).Data
+                .Where(x => x.Keywords != null && string.Join(",", x.Keywords).ToLower().Contains(_guidCommon.ToString())).ToList();
 
             //ASSERT
             Assert.Equal(expectedCount, items.Count);
         }
 
         [Theory]
-        [InlineData(null, 8, 8)]
-        [InlineData("/ua/", 0, 4)]
-        [InlineData("/di/", 0, 4)]
-        [InlineData("/fdi", 0, 4)]
-        [InlineData(NAMESPACE_PATTERN, 7, 7)]
-        [InlineData(TITLE_PATTERN, 14, 14)]
-        public async Task GetLibraryMine(string query, int expectedCount, int rowsToAdd)
+        [InlineData(CATEGORY_PATTERN, 8, 8, 4)]
+        [InlineData(NAMESPACE_CLOUD_PATTERN, 0, 4, 5)]
+        [InlineData(NAMESPACE_PATTERN, 7, 7, 2)]
+        [InlineData(TITLE_PATTERN, 14, 14, 6)]
+        [InlineData("zzzz", 0, 10, 10)]
+        [InlineData("yyyy", 0, 10, 10)]
+        public async Task GetLibraryMine(string query, int expectedCount, int numItemsToAdd, int numCloudItemsToAdd)
         {
             // ARRANGE
             //get api client
@@ -187,55 +219,57 @@ namespace CESMII.ProfileDesigner.Api.Tests.Integration
             //apply specifics to filter
             filter.Query = query;
 
-            //import nodesets from cloudlib
-            await ImportCloudLibItemsForSearchTests();
-
             //add some test rows to search against
-            await InsertProfilesForSearchTests(Guid.NewGuid(), rowsToAdd);
+            var guidCommon = Guid.NewGuid();
+            await InsertMockEntitiesForSearchTests(numItemsToAdd, false);
+            await InsertMockEntitiesForSearchTests(numCloudItemsToAdd, true);
 
             // ACT
             //get the list of items
-            var items = (await apiClient.ApiGetManyAsync<DAL.Models.ProfileModel>(URL_LIBRARY, filter)).Data;
+            //always add the extra where clause after the fact of _guidCommon in case another test is adding stuff in parallel. 
+            var items = (await apiClient.ApiGetManyAsync<ProfileModel>(URL_LIBRARY, filter)).Data
+                .Where(x => x.Keywords != null && string.Join(",", x.Keywords).ToLower().Contains(_guidCommon.ToString())).ToList();
 
             //ASSERT
             Assert.Equal(expectedCount, items.Count);
         }
 
         #region Helper Methods
-        private async Task ImportCloudLibItemsForSearchTests()
-        {
-            //get api client
-            var apiClient = base.ApiClient;
+        //private async Task ImportCloudLibItemsForSearchTests()
+        //{
+        //    //get api client
+        //    var apiClient = base.ApiClient;
 
-            //get cloud lib items of interest (ua, ua/di, ua/robotics, /fdi5, /fdi7 )
-            //mock only accepts certain search query combinations
-            var filter = base.CloudLibFilter;
-            filter.Query = null;
-            filter.Take = 100;
-            filter.PageBackwards = false;
-            filter.Cursor = null;
-            var items = (await apiClient.ApiGetManyAsync<DAL.Models.CloudLibProfileModel>(URL_CLOUD_LIBRARY, base.CloudLibFilter)).Data;
+        //    //get cloud lib items of interest (ua, ua/di, ua/robotics, /fdi5, /fdi7 )
+        //    //mock only accepts certain search query combinations
+        //    var filter = base.CloudLibFilter;
+        //    filter.Query = null;
+        //    filter.Take = 100;
+        //    filter.PageBackwards = false;
+        //    filter.Cursor = null;
+        //    var items = (await apiClient.ApiGetManyAsync<CloudLibProfileModel>(URL_CLOUD_LIBRARY, base.CloudLibFilter)).Data;
 
-            //get list of cloud lib ids to import
-            //TODO: namespace of mocks is not actual namespaces...
-            var model = items
-                .Where(x =>
-                        (x.Namespace.ToLower().Equals("http://opcfoundation.org/ua/") & (!string.IsNullOrEmpty(x.Version) && x.Version.Equals("1.05.02"))) ||
-                        (x.Namespace.ToLower().Equals("http://opcfoundation.org/ua/di/") & (!string.IsNullOrEmpty(x.Version) && x.Version.Equals("1.04.0"))) ||
-                        (x.Namespace.ToLower().Equals("http://opcfoundation.org/ua/robotics/") & (!string.IsNullOrEmpty(x.Version) && x.Version.Equals("1.01.2"))) ||
-                        (x.Namespace.ToLower().Equals("http://fdi-cooperation.com/opcua/fdi5/")) ||
-                        (x.Namespace.ToLower().Equals("http://fdi-cooperation.com/opcua/fdi7/"))
-                      )
+        //    //get list of cloud lib ids to import
+        //    //TODO: namespace of mocks is not actual namespaces...
+        //    var model = items
+        //        .Where(x =>
+        //                (x.Namespace.ToLower().Equals("http://opcfoundation.org/ua/") & (!string.IsNullOrEmpty(x.Version) && x.Version.Equals("1.05.02"))) ||
+        //                (x.Namespace.ToLower().Equals("http://opcfoundation.org/ua/di/") & (!string.IsNullOrEmpty(x.Version) && x.Version.Equals("1.04.0"))) ||
+        //                (x.Namespace.ToLower().Equals("http://opcfoundation.org/ua/robotics/") & (!string.IsNullOrEmpty(x.Version) && x.Version.Equals("1.01.2"))) ||
+        //                (x.Namespace.ToLower().Equals("http://fdi-cooperation.com/opcua/fdi5/")) ||
+        //                (x.Namespace.ToLower().Equals("http://fdi-cooperation.com/opcua/fdi7/"))
+        //              )
 
-                .Select(y => new Shared.Models.IdStringModel() { ID = y.CloudLibraryId }).ToList();
-            //run the import
-            var result = await apiClient.ApiExecuteAsync<Shared.Models.ResultMessageWithDataModel>(URL_CLOUD_IMPORT, model);
+        //        .Select(y => new Shared.Models.IdStringModel() { ID = y.CloudLibraryId }).ToList();
+        //    //run the import
+        //    var result = await apiClient.ApiExecuteAsync<Shared.Models.ResultMessageWithDataModel>(URL_CLOUD_IMPORT, model);
 
-            //wait for import to complete before proceeding
-            await base.PollImportStatus((int)result.Data);
-        }
+        //    //wait for import to complete before proceeding
+        //    await base.PollImportStatus((int)result.Data);
+        //}
 
-        private async Task InsertProfilesForSearchTests(Guid uuidCommon, int upperBound = 10)
+        /*
+        private async Task InsertMockProfilesForSearchTests(int upperBound = 10)
         {
             //get api client
             var apiClient = base.ApiClient;
@@ -243,9 +277,28 @@ namespace CESMII.ProfileDesigner.Api.Tests.Integration
             //get items, loop over and add
             for (int i = 1; i <= upperBound; i++)
             {
-                var uuid = System.Guid.NewGuid().ToString();
-                var model = CreateNewItemModel(i, $"{uuidCommon.ToString()}-{uuid}");
+                var uuid = Guid.NewGuid();
+                var model = CreateNewItemModel(i, _guidCommon, uuid);
                 await apiClient.ApiExecuteAsync<Shared.Models.ResultMessageWithDataModel>(URL_ADD, model);
+            }
+        }
+        */
+
+        private async Task InsertMockEntitiesForSearchTests(int upperBound, bool isCloudEntity)
+        {
+            using (var scope = _serviceProvider.CreateScope())
+            {
+                var repo = scope.ServiceProvider.GetService<IRepository<Profile>>();
+                var repoUser = scope.ServiceProvider.GetService<IRepository<User>>();
+                var user = GetTestUser(repoUser);
+
+                //get items, loop over and add
+                for (int i = 1; i <= upperBound; i++)
+                {
+                    var uuid = Guid.NewGuid();
+                    var entity = CreateNewEntity(i, _guidCommon, uuid, user, isCloudEntity ? i.ToString() : null);
+                    await repo.AddAsync(entity);
+                }
             }
         }
 
@@ -262,14 +315,13 @@ namespace CESMII.ProfileDesigner.Api.Tests.Integration
             //get api client
             var apiClient = base.ApiClient;
             //get stock filter
-            var filter = base.StockFilter;
-                (_filterPayload);
+            var filter = base.ProfileFilter;
             //apply specifics to filter
             filter.Query = ns;
 
             // ACT
             //get the list of items
-            var items = (await apiClient.ApiGetManyAsync<DAL.Models.ProfileModel>(URL_LIBRARY, filter)).Data;
+            var items = (await apiClient.ApiGetManyAsync<ProfileModel>(URL_LIBRARY, filter)).Data;
 
             //get first item in list
             if (items.Count == 0) throw new System.InvalidOperationException($"Item not found: {ns}");
@@ -277,6 +329,7 @@ namespace CESMII.ProfileDesigner.Api.Tests.Integration
         }
         */
 
+        /*
         /// <summary>
         /// Delete most of the nodesets created from other integration tests except
         /// ua, ua/di, fdi v5, fdi v7, robotics
@@ -285,7 +338,7 @@ namespace CESMII.ProfileDesigner.Api.Tests.Integration
         {
             filter.Take = 10000;
             //get the list of items, filter out some to preserve
-            var items = (await apiClient.ApiGetManyAsync<DAL.Models.ProfileModel>(URL_LIBRARY, filter)).Data
+            var items = (await apiClient.ApiGetManyAsync<ProfileModel>(URL_LIBRARY, filter)).Data
                 .Where(x =>
                         (!x.Namespace.ToLower().Equals("http://opcfoundation.org/ua/") & (string.IsNullOrEmpty(x.Version) || !x.Version.Equals("1.05.02"))) &&
                         (!x.Namespace.ToLower().Equals("http://opcfoundation.org/ua/di/") & (string.IsNullOrEmpty(x.Version) || !x.Version.Equals("1.04.0"))) &&
@@ -297,19 +350,72 @@ namespace CESMII.ProfileDesigner.Api.Tests.Integration
 
             return items.Select(y => new Shared.Models.IdIntModel() { ID = y.ID.Value }).ToList();
         }
+        */
 
-        private static DAL.Models.ProfileModel CreateNewItemModel(int i, string uuid)
+        private static ProfileModel CreateNewItemModel(int i, Guid guidCommon, Guid uuid, string cloudLibraryId = null)
         {
-            return new DAL.Models.ProfileModel()
+            var entity = CreateNewEntity(i, guidCommon, uuid, null, cloudLibraryId);
+            return new ProfileModel()
             {
-                Namespace = $"{NAMESPACE_PATTERN}{i}/{uuid}",
+                Namespace = entity.Namespace,
+                Title = entity.Title,
+                Version = entity.Version,
+                CategoryName = entity.CategoryName,
+                PublishDate = entity.PublishDate,
+                License = entity.License,
+                Description = entity.Description,
+                CloudLibraryId = entity.CloudLibraryId, 
+                Keywords = entity.Keywords?.ToList()
+            };
+        }
+
+        /// <summary>
+        /// This is used to create a row directly into DB. Bypasses everything except baseRepo
+        /// </summary>
+        /// <param name="i"></param>
+        /// <param name="uuid"></param>
+        /// <param name="user"></param>
+        /// <param name="cloudLibraryId"></param>
+        /// <returns></returns>
+        private static Profile CreateNewEntity(int i, Guid guidCommon, Guid uuid, User user, string cloudLibraryId = null)
+        {
+            var namespacePattern = string.IsNullOrEmpty(cloudLibraryId) ? NAMESPACE_PATTERN : NAMESPACE_CLOUD_PATTERN;
+            var dt = DateTime.SpecifyKind(new DateTime(DateTime.Now.Year, 1, i), DateTimeKind.Utc);
+            return new Profile()
+            {
+                Namespace = $"{namespacePattern}{i}/{uuid}",
                 Title = $"{TITLE_PATTERN}{i}",
                 Version = $"{VERSION_PATTERN}{i}",
                 CategoryName = $"{CATEGORY_PATTERN}",
-                PublishDate = new System.DateTime(System.DateTime.Now.Year, 1, i),
+                PublishDate = dt,
                 License = (i % 3 == 0 ? "Other" : (i % 2 == 0) ? "Custom" : "MIT"),
-                Description = (i % 3 == 0 ? "Unique description for 3" : (i % 2 == 0) ? "Unique description for 2" : "Common description")
+                Description = (i % 3 == 0 ? "Unique description for 3" : (i % 2 == 0) ? "Unique description for 2" : "Common description"),
+                CloudLibraryId = cloudLibraryId, 
+                AuthorId = user?.ID,
+                //set some owners to null
+                OwnerId = (user != null && i % 2 == 0) ? user.ID : null,
+                Keywords = new string[] { guidCommon.ToString() }
             };
+        }
+
+        /// <summary>
+        /// Delete profiles created during each test
+        /// User <_guidCommon> as way to find items to delete 
+        /// </summary>
+        /// <returns></returns>
+        private async Task CleanupProfiles()
+        {
+            using (var scope = _serviceProvider.CreateScope())
+            {
+                var repo = scope.ServiceProvider.GetService<IRepository<Profile>>();
+                var items = repo.FindByCondition(x => 
+                    x.Keywords != null && string.Join(",", x.Keywords).ToLower().Contains(_guidCommon.ToString())).ToList();
+                foreach (var item in items)
+                { 
+                    await repo.DeleteAsync(item);
+                }
+                await repo.SaveChangesAsync();
+            }
         }
         #endregion
 
@@ -319,8 +425,8 @@ namespace CESMII.ProfileDesigner.Api.Tests.Integration
             var result = new List<object[]>();
             for (int i = 1; i <= 10; i++)
             {
-                var uuid = System.Guid.NewGuid().ToString();
-                result.Add(new object[] { CreateNewItemModel(i, uuid) });
+                var uuid = Guid.NewGuid();
+                result.Add(new object[] { CreateNewItemModel(i, uuid, uuid) });
             }
             return result;
         }
@@ -333,13 +439,14 @@ namespace CESMII.ProfileDesigner.Api.Tests.Integration
         /// <remarks>this will run after each test. So, if AddItem has 10 iterations of data, this will run once for each iteration.</remarks>
         public override void Dispose()
         {
-            //get stock filter
-            var filter = base.ProfileFilter;
-            //do clean up here - get list of items to delete and then perform delete
-            Task<List<Shared.Models.IdIntModel>> model = GetItemsToDelete(base.ApiClient, filter);
-            model.Wait();
-            //delete the items
-            base.ApiClient.ApiExecuteAsync<Shared.Models.ResultMessageModel>(URL_DELETE_MANY, model.Result).Wait();
+            ////get stock filter
+            //var filter = base.ProfileFilter;
+            ////do clean up here - get list of items to delete and then perform delete
+            //Task<List<Shared.Models.IdIntModel>> model = GetItemsToDelete(base.ApiClient, filter);
+            //model.Wait();
+            ////delete the items
+            //base.ApiClient.ApiExecuteAsync<Shared.Models.ResultMessageModel>(URL_DELETE_MANY, model.Result).Wait();
+            CleanupProfiles();
         }
 
     }

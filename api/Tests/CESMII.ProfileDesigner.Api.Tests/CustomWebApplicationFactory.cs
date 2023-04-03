@@ -9,7 +9,6 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using CESMII.ProfileDesigner.Api.Controllers;
 using CESMII.Common.CloudLibClient;
-using CESMII.ProfileDesigner.Data.Entities;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
@@ -32,6 +31,24 @@ namespace CESMII.ProfileDesigner.Api.Tests
         : WebApplicationFactory<TStartup> where TStartup : class
     {
 
+        private IConfiguration _configuration;
+        public IConfiguration Configuration { 
+            get 
+            {
+                if (_configuration == null)
+                {
+                    //wire up access to appSettings.json file
+                    _configuration = new ConfigurationBuilder()
+                                .SetBasePath(AppContext.BaseDirectory)
+                                .AddJsonFile(path: "appsettings.json", optional: false, reloadOnChange: true)
+                                .AddJsonFile(path: "appsettings.staging.json", optional: false, reloadOnChange: true)
+                                .AddJsonFile(path: "appsettings.development.json", optional: false, reloadOnChange: true)
+                               .Build();
+                }
+                return _configuration; 
+            } 
+        }
+
         protected override IHostBuilder CreateHostBuilder()
         {
             return base.CreateHostBuilder()
@@ -41,7 +58,8 @@ namespace CESMII.ProfileDesigner.Api.Tests
                         .AddInMemoryCollection(new Dictionary<string, string>
                         {
                             { "ConnectionStrings:ProfileDesignerDB", "Server=localhost;Username=profiledesigner;Database=profile_designer_local_test;Port=5432;Password=cesmii;SSLMode=Prefer;Include Error Detail=true" },
-                        }))
+                        }).Build())
+                        
             ;
         }
         protected override void ConfigureWebHost(IWebHostBuilder builder)

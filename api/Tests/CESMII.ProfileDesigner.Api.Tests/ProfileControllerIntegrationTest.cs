@@ -18,7 +18,7 @@ using CESMII.ProfileDesigner.Data.Contexts;
 namespace CESMII.ProfileDesigner.Api.Tests.Integration
 {
     [TestCaseOrderer("CESMII.ProfileDesigner.Api.Tests.Integration.ProfileControllerTestCaseOrderer", "CESMII.ProfileDesigner.Api.Tests.Integration")]
-    public class ProfileControllerTest : ControllerTestBase
+    public class ProfileControllerIntegrationTest : ControllerTestBase
     {
         private readonly ServiceProvider _serviceProvider;
         //for some tests, tie together a common guid so we can delete the created items at end of test. 
@@ -44,7 +44,7 @@ namespace CESMII.ProfileDesigner.Api.Tests.Integration
         private const int CORE_NODESET_COUNT = 5;  // ua, ua/di, ua/robotics, fdi5, fdi7
         #endregion
 
-        public ProfileControllerTest(
+        public ProfileControllerIntegrationTest(
             CustomWebApplicationFactory<Api.Startup> factory, 
             ITestOutputHelper output):
             base(factory, output)
@@ -446,7 +446,7 @@ namespace CESMII.ProfileDesigner.Api.Tests.Integration
             //model.Wait();
             ////delete the items
             //base.ApiClient.ApiExecuteAsync<Shared.Models.ResultMessageModel>(URL_DELETE_MANY, model.Result).Wait();
-            CleanupProfiles();
+            CleanupProfiles().Wait();
         }
 
     }

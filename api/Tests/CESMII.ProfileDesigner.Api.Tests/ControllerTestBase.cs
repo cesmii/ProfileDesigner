@@ -131,7 +131,7 @@ namespace CESMII.ProfileDesigner.Api.Tests
         /// <param name="services"></param>
         protected void InitDBContext(ServiceCollection services)
         {
-            var connectionStringProfileDesigner = _factory.Configuration.GetConnectionString("ProfileDesignerDB");
+            var connectionStringProfileDesigner = _factory.Config.GetConnectionString("ProfileDesignerDB");
             services.AddDbContext<ProfileDesignerPgContext>(options =>
                     options.UseNpgsql(connectionStringProfileDesigner));
         }

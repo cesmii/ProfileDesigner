@@ -56,7 +56,7 @@ namespace CESMII.ProfileDesigner.Api.Tests.Integration
             
             // DI - directly inject repo so we can add some test data directly and then have API test against it.
             // when running search tests. 
-            services.AddSingleton< IConfiguration>(factory.Configuration);
+            services.AddSingleton< IConfiguration>(factory.Config);
             services.AddScoped<IRepository<Profile>, BaseRepo<Profile, ProfileDesignerPgContext>>();
             //need to get user id of test user when we add profile
             services.AddScoped<IRepository<User>, BaseRepo<User, ProfileDesignerPgContext>>();
@@ -296,7 +296,7 @@ namespace CESMII.ProfileDesigner.Api.Tests.Integration
                 for (int i = 1; i <= upperBound; i++)
                 {
                     var uuid = Guid.NewGuid();
-                    var entity = CreateNewEntity(i, _guidCommon, uuid, user, isCloudEntity ? i.ToString() : null);
+                    var entity = CreateEntity(i, _guidCommon, uuid, user, isCloudEntity ? i.ToString() : null);
                     await repo.AddAsync(entity);
                 }
             }
@@ -352,9 +352,9 @@ namespace CESMII.ProfileDesigner.Api.Tests.Integration
         }
         */
 
-        private static ProfileModel CreateNewItemModel(int i, Guid guidCommon, Guid uuid, string cloudLibraryId = null)
+        private static ProfileModel CreateItemModel(int i, Guid guidCommon, Guid uuid, string cloudLibraryId = null)
         {
-            var entity = CreateNewEntity(i, guidCommon, uuid, null, cloudLibraryId);
+            var entity = CreateEntity(i, guidCommon, uuid, null, cloudLibraryId);
             return new ProfileModel()
             {
                 Namespace = entity.Namespace,
@@ -377,7 +377,7 @@ namespace CESMII.ProfileDesigner.Api.Tests.Integration
         /// <param name="user"></param>
         /// <param name="cloudLibraryId"></param>
         /// <returns></returns>
-        private static Profile CreateNewEntity(int i, Guid guidCommon, Guid uuid, User user, string cloudLibraryId = null)
+        private static Profile CreateEntity(int i, Guid guidCommon, Guid uuid, User user, string cloudLibraryId = null)
         {
             var namespacePattern = string.IsNullOrEmpty(cloudLibraryId) ? NAMESPACE_PATTERN : NAMESPACE_CLOUD_PATTERN;
             var dt = DateTime.SpecifyKind(new DateTime(DateTime.Now.Year, 1, i), DateTimeKind.Utc);
@@ -403,7 +403,7 @@ namespace CESMII.ProfileDesigner.Api.Tests.Integration
         /// User <_guidCommon> as way to find items to delete 
         /// </summary>
         /// <returns></returns>
-        private async Task CleanupProfiles()
+        private async Task CleanupEntities()
         {
             using (var scope = _serviceProvider.CreateScope())
             {
@@ -426,7 +426,7 @@ namespace CESMII.ProfileDesigner.Api.Tests.Integration
             for (int i = 1; i <= 10; i++)
             {
                 var uuid = Guid.NewGuid();
-                result.Add(new object[] { CreateNewItemModel(i, uuid, uuid) });
+                result.Add(new object[] { CreateItemModel(i, uuid, uuid) });
             }
             return result;
         }
@@ -446,7 +446,7 @@ namespace CESMII.ProfileDesigner.Api.Tests.Integration
             //model.Wait();
             ////delete the items
             //base.ApiClient.ApiExecuteAsync<Shared.Models.ResultMessageModel>(URL_DELETE_MANY, model.Result).Wait();
-            CleanupProfiles().Wait();
+            CleanupEntities().Wait();
         }
 
     }

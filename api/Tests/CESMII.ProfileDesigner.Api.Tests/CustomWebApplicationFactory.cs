@@ -41,8 +41,8 @@ namespace CESMII.ProfileDesigner.Api.Tests
                     _configuration = new ConfigurationBuilder()
                                 .SetBasePath(AppContext.BaseDirectory)
                                 .AddJsonFile(path: "appsettings.json", optional: false, reloadOnChange: true)
-                                .AddJsonFile(path: "appsettings.staging.json", optional: false, reloadOnChange: true)
-                                .AddJsonFile(path: "appsettings.development.json", optional: false, reloadOnChange: true)
+                                .AddJsonFile(path: "appsettings.staging.json", optional: true, reloadOnChange: true)
+                                .AddJsonFile(path: "appsettings.development.json", optional: true, reloadOnChange: true)
                                .Build();
                 }
                 return _configuration; 

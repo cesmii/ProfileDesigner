@@ -18,7 +18,7 @@ using CESMII.ProfileDesigner.DAL.Models;
 using CESMII.ProfileDesigner.Api.Shared.Models;
 using CESMII.ProfileDesigner.Data.Entities;
 
-namespace CESMII.ProfileDesigner.Api.Tests
+namespace CESMII.ProfileDesigner.Api.Tests.Int
 {
     public class ControllerTestBase : IClassFixture<CustomWebApplicationFactory<Api.Startup>>, IDisposable
     {

@@ -174,12 +174,12 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
             }
         }
 
-        public static IEnumerable<object[]> ControllerTestGuidData()
+        public static IEnumerable<object[]> ControllerTestCounterData()
         {
             var result = new List<object[]>();
             for (int i = 1; i <= 10; i++)
             {
-                result.Add(new object[] { Guid.NewGuid().ToString() });
+                result.Add(new object[] { i });
             }
             return result;
         }

@@ -22,16 +22,16 @@ using Xunit.Sdk;
 [assembly: CollectionBehavior(DisableTestParallelization = true)]
 [assembly: TestCollectionOrderer("CESMII.ProfileDesigner.Api.Tests.CollectionOrderer", "CESMII.ProfileDesigner.Api.Tests")]
 
-namespace CESMII.ProfileDesigner.Api.Tests.Integration
+namespace CESMII.ProfileDesigner.Api.Tests
 {
-    [TestCaseOrderer("CESMII.ProfileDesigner.Api.Tests.Integration.ImportExportIntegrationTestCaseOrderer", "CESMII.ProfileDesigner.Api.Tests.Integration")]
-    public partial class ImportExportIntegration
+    [TestCaseOrderer("CESMII.ProfileDesigner.Api.Tests.ImportExportIntegrationTestCaseOrderer", "CESMII.ProfileDesigner.Api.Tests")]
+    public partial class Integration
         : IClassFixture<CustomWebApplicationFactory<CESMII.ProfileDesigner.Api.Startup>>
     {
         private readonly CustomWebApplicationFactory<CESMII.ProfileDesigner.Api.Startup> _factory;
         private readonly ITestOutputHelper output;
 
-        public ImportExportIntegration(CustomWebApplicationFactory<CESMII.ProfileDesigner.Api.Startup> factory, ITestOutputHelper output)
+        public Integration(CustomWebApplicationFactory<CESMII.ProfileDesigner.Api.Startup> factory, ITestOutputHelper output)
         {
             _factory = factory;
             this.output = output;
@@ -493,14 +493,14 @@ namespace CESMII.ProfileDesigner.Api.Tests.Integration
     {
         internal static string[] GetFiles()
         {
-            var nodeSetFiles = Directory.GetFiles(ImportExportIntegration.strTestNodeSetDirectory);
+            var nodeSetFiles = Directory.GetFiles(Integration.strTestNodeSetDirectory);
 
             var importRequest = new List<MyNamespace.ImportOPCModel>();
             foreach (var file in nodeSetFiles)
             {
                 importRequest.Add(new ImportOPCModel { FileName = Path.GetFileName(file), Data = File.ReadAllText(file), });
             }
-            var orderedImportRequest = ImportExportIntegration.OrderImportsByDependencies(importRequest);
+            var orderedImportRequest = Integration.OrderImportsByDependencies(importRequest);
             var orderedNodeSetFiles = orderedImportRequest.Select(r => r.FileName).ToArray();
 
             return orderedNodeSetFiles;
@@ -508,7 +508,7 @@ namespace CESMII.ProfileDesigner.Api.Tests.Integration
 
         public IEnumerator<object[]> GetEnumerator()
         {
-            ImportExportIntegration._ImportExportPending = true;
+            Integration._ImportExportPending = true;
             var files = GetFiles();
             return files.Select(f => new object[] { f }).GetEnumerator();
         }
@@ -519,7 +519,7 @@ namespace CESMII.ProfileDesigner.Api.Tests.Integration
     {
         public IEnumerator<object[]> GetEnumerator()
         {
-            ImportExportIntegration._ImportExportPending = true;
+            Integration._ImportExportPending = true;
             var files = TestNodeSetFiles.GetFiles().Skip(3).Take(3);
             return files.Select(f => new object[] { f }).GetEnumerator();
         }
@@ -549,7 +549,7 @@ namespace CESMII.ProfileDesigner.Api.Tests.Integration
                         return true;
                     }
                     var file = t.TestMethodArguments[0].ToString();
-                    var diffFile = ImportExportIntegration.GetExpectedDiffFile(Path.Combine(ImportExportIntegration.strTestNodeSetDirectory, file));
+                    var diffFile = Integration.GetExpectedDiffFile(Path.Combine(Integration.strTestNodeSetDirectory, file));
                     var bHasDiff = File.Exists(diffFile);
                     if (!bHasDiff)
                     {
@@ -558,27 +558,27 @@ namespace CESMII.ProfileDesigner.Api.Tests.Integration
                     return bHasDiff;
                 }).ToList();
             }
-            var importTestCaseList = testCasesWithExpectedDiff.Where(t => t.TestMethod.Method.Name == nameof(ImportExportIntegration.Import)).ToList();
+            var importTestCaseList = testCasesWithExpectedDiff.Where(t => t.TestMethod.Method.Name == nameof(Integration.Import)).ToList();
             var testFiles = importTestCaseList.Select(t => t.TestMethodArguments[0].ToString()).ToList();
             var importRequests = testFiles.Select(file =>
             {
-                var filePath = Path.Combine(ImportExportIntegration.strTestNodeSetDirectory, file);
+                var filePath = Path.Combine(Integration.strTestNodeSetDirectory, file);
                 return new ImportOPCModel { FileName = filePath, Data = File.ReadAllText(filePath), };
             }).ToList();
-            var orderedImportRequests = ImportExportIntegration.OrderImportsByDependencies(importRequests);
+            var orderedImportRequests = Integration.OrderImportsByDependencies(importRequests);
             // Run import tests first, in dependency order
-            var orderedTestCases = orderedImportRequests.Select(ir => importTestCaseList.FirstOrDefault(tc => Path.Combine(ImportExportIntegration.strTestNodeSetDirectory, tc.TestMethodArguments[0].ToString()) == ir.FileName)).ToList();
+            var orderedTestCases = orderedImportRequests.Select(ir => importTestCaseList.FirstOrDefault(tc => Path.Combine(Integration.strTestNodeSetDirectory, tc.TestMethodArguments[0].ToString()) == ir.FileName)).ToList();
 
             var remainingTestCaseList = testCasesWithExpectedDiff.Except(orderedTestCases).ToList();
 
-            var remainingOrdered = orderedImportRequests.Select(ir => remainingTestCaseList.FirstOrDefault(tc => IsImportExportTest(tc) && Path.Combine(ImportExportIntegration.strTestNodeSetDirectory, tc.TestMethodArguments[0].ToString()) == ir.FileName)).Where(tc => tc != null).ToList();
+            var remainingOrdered = orderedImportRequests.Select(ir => remainingTestCaseList.FirstOrDefault(tc => IsImportExportTest(tc) && Path.Combine(Integration.strTestNodeSetDirectory, tc.TestMethodArguments[0].ToString()) == ir.FileName)).Where(tc => tc != null).ToList();
             var excludedTestCases = new List<TTestCase>();
             string[] unstableTests = new string[0];
 
-            var unstableFileName = Path.Combine(ImportExportIntegration.strTestNodeSetDirectory, "ExpectedDiffs", "unstable.txt");
+            var unstableFileName = Path.Combine(Integration.strTestNodeSetDirectory, "ExpectedDiffs", "unstable.txt");
             if (File.Exists(unstableFileName))
             {
-                File.ReadAllLines(Path.Combine(ImportExportIntegration.strTestNodeSetDirectory, "ExpectedDiffs", "unstable.txt"));
+                File.ReadAllLines(Path.Combine(Integration.strTestNodeSetDirectory, "ExpectedDiffs", "unstable.txt"));
             }
             foreach (var remaining in remainingOrdered)
             {
@@ -609,7 +609,7 @@ namespace CESMII.ProfileDesigner.Api.Tests.Integration
 
         static bool IsImportExportTest(ITestCase t)
         {
-            return new[] { nameof(ImportExportIntegration.Import), nameof(ImportExportIntegration.Export), nameof(ImportExportIntegration.ExportAASX) }.Contains(t.TestMethod.Method.Name);
+            return new[] { nameof(Integration.Import), nameof(Integration.Export), nameof(Integration.ExportAASX) }.Contains(t.TestMethod.Method.Name);
         }
     }
 

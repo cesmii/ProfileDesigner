@@ -15,9 +15,8 @@ using CESMII.ProfileDesigner.Data.Repositories;
 using CESMII.ProfileDesigner.Data.Entities;
 using CESMII.ProfileDesigner.Data.Contexts;
 
-namespace CESMII.ProfileDesigner.Api.Tests.Integration
+namespace CESMII.ProfileDesigner.Api.Tests.Int
 {
-    [TestCaseOrderer("CESMII.ProfileDesigner.Api.Tests.Integration.ProfileControllerTestCaseOrderer", "CESMII.ProfileDesigner.Api.Tests.Integration")]
     public class ProfileControllerIntegrationTest : ControllerTestBase
     {
         private readonly ServiceProvider _serviceProvider;

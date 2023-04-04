@@ -213,15 +213,15 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
             await Assert.ThrowsAsync<MyNamespace.ApiException>(
                 async () => await apiClient.ApiGetItemAsync<ProfileTypeDefinitionModel>(URL_GETBYID, modelDelete));
         }
-        /*
+
         [Theory]
-        [InlineData(CATEGORY_PATTERN, 10, 8, 2)]
-        //[InlineData(NAMESPACE_CLOUD_PATTERN, 2, 4, 2)]
-        [InlineData(NAME_PATTERN, 7, 7, 2)]
-        [InlineData(TITLE_PATTERN, 16, 14, 2)]
-        [InlineData("zzzz", 0, 10, 10)]
-        [InlineData("yyyy", 0, 10, 10)]
-        public async Task GetLibrary(string query, int expectedCount, int numItemsToAdd, int numCloudItemsToAdd)
+        [InlineData(CATEGORY_PATTERN, 5, 10)]
+        [InlineData(NAME_PATTERN, 3, 7)]
+        [InlineData(TITLE_PATTERN, 8, 16)]
+        [InlineData("zzzz", 5, 10)]
+        [InlineData("yyyy", 5, 10)]
+        [InlineData("xxxx", 0, 1)]
+        public async Task GetLibrary(string query, int expectedCount, int numItemsToAdd)
         {
             // ARRANGE
             //get api client
@@ -232,7 +232,7 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
             filter.Query = query;
 
             //add some test rows to search against
-            await InsertMockEntitiesForSearchTests(numItemsToAdd);
+            await InsertMockEntitiesForSearchTests(numItemsToAdd, query); //apply query to desc for 1/2 the items
 
             // ACT
             //get the list of items
@@ -244,6 +244,7 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
             Assert.Equal(expectedCount, items.Count);
         }
 
+        /*
         [Theory]
         [InlineData(CATEGORY_PATTERN, 8, 8, 4)]
         //[InlineData(NAMESPACE_CLOUD_PATTERN, 0, 4, 5)]
@@ -337,7 +338,7 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
             }
         }
 
-        private async Task InsertMockEntitiesForSearchTests(int upperBound)
+        private async Task InsertMockEntitiesForSearchTests(int upperBound, string query)
         {
             using (var scope = _serviceProvider.CreateScope())
             {
@@ -351,14 +352,19 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
                 await repoProfile.AddAsync(profile);
 
                 //create a parent type definition
-                var parent = CreateEntity(0,profile.ID, null, _guidCommon, Guid.NewGuid(), user);
+                var parent = CreateEntity(0, profile.ID, null, _guidCommon, Guid.NewGuid(), user);
                 await repo.AddAsync(parent);
+
+                //assign profile to type def in case caller needs it.
+                parent.Profile = profile;
 
                 //get items, loop over and add
                 for (int i = 1; i <= upperBound; i++)
                 {
                     var uuid = Guid.NewGuid();
                     var entity = CreateEntity(i, profile.ID, parent, _guidCommon, uuid, user);
+                    var desc = i % 2 == 0 ? " " + query : "";
+                    entity.Description += desc;
                     await repo.AddAsync(entity);
                 }
             }
@@ -441,7 +447,7 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
             var parentName = parent == null ? "TypeDef" : $"{parent.Name}::Extend";
             var dt = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc);
             var tags = new List<MetaTag>() { 
-                new MetaTag() { Name = (i % 4 == 0 ? "abcd" : (i % 3 == 0) ? "efg" : (i % 2 == 0) ? "hi" : "none") }
+                new MetaTag() { Name = (i % 4 == 0 ? "abcd" : (i % 3 == 0) ? "efgh" : (i % 2 == 0) ? "ijkl" : "mnop") }
             };
             return new ProfileTypeDefinition()
             {

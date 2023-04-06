@@ -659,6 +659,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
                         AttributeType = new LookupItemModel { ID = (int)AttributeTypeIdEnum.StructureField },
                         DataType = attributeDataType,
                         ValueRank = field.ValueRank,
+                        IsArray = (field.ValueRank ?? -1) != -1,
                         ArrayDimensions = field.ArrayDimensions,
                         MaxStringLength = field.MaxStringLength,
                         OpcNodeId = NodeModelUtils.GetNodeIdIdentifier(_model.NodeId),

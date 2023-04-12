@@ -164,72 +164,62 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
                 async () => await apiClient.ApiGetItemAsync<ProfileModel>(URL_GETBYID, modelDelete));
         }
 
+ 
         [Theory]
-        [InlineData(CATEGORY_PATTERN, 10, 8, 2)]
-        [InlineData(NAMESPACE_CLOUD_PATTERN, 2, 4, 2)]
-        [InlineData(NAMESPACE_PATTERN, 7, 7, 2)]
-        [InlineData(TITLE_PATTERN, 16, 14, 2)]
-        [InlineData("zzzz", 0, 10, 10)]
-        [InlineData("yyyy", 0, 10, 10)]
-        public async Task GetLibrary(string query, int expectedCount, int numItemsToAdd, int numCloudItemsToAdd)
+        [InlineData(CATEGORY_PATTERN, true, 8, 4)] //8
+        [InlineData(CATEGORY_PATTERN, false, 8, 4)] //8
+        [InlineData(NAMESPACE_CLOUD_PATTERN, true, 4, 5)] //0
+        [InlineData(NAMESPACE_CLOUD_PATTERN, false, 4, 5)] //0
+        [InlineData(NAMESPACE_PATTERN, true, 7, 2)] //7
+        [InlineData(NAMESPACE_PATTERN, false, 7, 2)] //7
+        [InlineData(TITLE_PATTERN, true, 14, 6)]  //14
+        [InlineData(TITLE_PATTERN, false, 14, 6)]  //14
+        [InlineData("zzzz", true, 10, 10)]  //0
+        [InlineData("zzzz", false, 10, 10)]  //0
+        [InlineData("yyyy", true, 10, 10)]  //0
+        [InlineData("yyyy", false, 10, 10)]  //0
+        public async Task GetLibrarySearch(string query, bool isMine, int numItemsToAdd, int numCloudItemsToAdd)
         {
             // ARRANGE
             //get api client
             var apiClient = base.ApiClient;
             //get stock filter
             var filter = base.ProfileFilter;
-            //apply specifics to filter
-            filter.Query = query;
-
-            //add some test rows to search against
-            await InsertMockEntitiesForSearchTests(numItemsToAdd, false);
-            await InsertMockEntitiesForSearchTests(numCloudItemsToAdd, true);
-
-            // ACT
-            //get the list of items
-            //always add the extra where clause after the fact of _guidCommon in case another test is adding stuff in parallel. 
-            var items = (await apiClient.ApiGetManyAsync<ProfileModel>(URL_LIBRARY, filter)).Data
-                .Where(x => x.Keywords != null && string.Join(",", x.Keywords).ToLower().Contains(_guidCommon.ToString())).ToList();
-
-            //ASSERT
-            Assert.Equal(expectedCount, items.Count);
-        }
-
-        [Theory]
-        [InlineData(CATEGORY_PATTERN, 8, 8, 4)]
-        [InlineData(NAMESPACE_CLOUD_PATTERN, 0, 4, 5)]
-        [InlineData(NAMESPACE_PATTERN, 7, 7, 2)]
-        [InlineData(TITLE_PATTERN, 14, 14, 6)]
-        [InlineData("zzzz", 0, 10, 10)]
-        [InlineData("yyyy", 0, 10, 10)]
-        public async Task GetLibraryMine(string query, int expectedCount, int numItemsToAdd, int numCloudItemsToAdd)
-        {
-            // ARRANGE
-            //get api client
-            var apiClient = base.ApiClient;
-            //get stock filter
-            var filter = base.ProfileFilter;
+            filter.Take = 9999;
 
             //get profiles that are mine only
-            var f = filter.Filters.Find(x => x.Name.ToLower().Equals("source"))?.Items
-                .Find(y => y.ID.Equals((int)ProfileSearchCriteriaSourceEnum.Mine));
-            f.Selected = true;
+            //get profiles that are mine only
+            if (isMine)
+            {
+                var f = filter.Filters.Find(x => x.Name.ToLower().Equals("source"))?.Items
+                    .Find(y => y.ID.Equals((int)ProfileSearchCriteriaSourceEnum.Mine));
+                f.Selected = true;
+            }
 
             //apply specifics to filter
             filter.Query = query;
 
             //add some test rows to search against
             var guidCommon = Guid.NewGuid();
-            await InsertMockEntitiesForSearchTests(numItemsToAdd, false);
-            await InsertMockEntitiesForSearchTests(numCloudItemsToAdd, true);
+            var itemsAdded = 
+                (await InsertMockEntitiesForSearchTests(numItemsToAdd, false))
+                .Union(await InsertMockEntitiesForSearchTests(numCloudItemsToAdd, true)).ToList();
+
+            var expectedCount = CalculateExpectedCountSearch(itemsAdded, query, isMine);
 
             // ACT
             //get the list of items
+            var result = await apiClient.ApiGetManyAsync<ProfileModel>(URL_LIBRARY, filter);
             //always add the extra where clause after the fact of _guidCommon in case another test is adding stuff in parallel. 
-            var items = (await apiClient.ApiGetManyAsync<ProfileModel>(URL_LIBRARY, filter)).Data
+            var items = result.Data
                 .Where(x => x.Keywords != null && string.Join(",", x.Keywords).ToLower().Contains(_guidCommon.ToString())).ToList();
 
             //ASSERT
+            //lets see the correct outcome 
+            if (expectedCount == items.Count)
+            {
+                output.WriteLine($"Expected: {expectedCount}, Actual: {items.Count}");
+            }
             Assert.Equal(expectedCount, items.Count);
         }
 
@@ -283,8 +273,9 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
         }
         */
 
-        private async Task InsertMockEntitiesForSearchTests(int upperBound, bool isCloudEntity)
+        private async Task<List<Profile>> InsertMockEntitiesForSearchTests(int upperBound, bool isCloudEntity)
         {
+            var result = new List<Profile>();
             using (var scope = _serviceProvider.CreateScope())
             {
                 var repo = scope.ServiceProvider.GetService<IRepository<Profile>>();
@@ -297,10 +288,46 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
                     var uuid = Guid.NewGuid();
                     var entity = CreateEntity(i, _guidCommon, uuid, user, isCloudEntity ? i.ToString() : null);
                     await repo.AddAsync(entity);
+                    result.Add(entity);
                 }
             }
+            return result;
         }
 
+        /// <summary>
+        /// Using the items added in the insert mock items, calculate the expected count to compare against actual search count
+        /// </summary>
+        /// <param name="itemsAdded"></param>
+        /// <param name="query"></param>
+        /// <param name="isMine"></param>
+        /// <param name="isPopular"></param>
+        /// <param name="typeDefType"></param>
+        /// <returns></returns>
+        private int CalculateExpectedCountSearch(List<Profile> itemsAdded, string query, bool isMine)
+        {
+            query = String.IsNullOrEmpty(query) ? query : query.ToLower();
+            //calculate this value based on the criteria and our knowledge of how we prep the test data
+            return itemsAdded
+                //trim out mine - if needed 
+                .Where(x => !isMine || (isMine && x.AuthorId.HasValue))
+                //cloud lib id - these are going to get trimmed out b/c there is not a real cloud library item to associate to the local item
+                .Where(x => !isMine || (isMine && string.IsNullOrEmpty(x.CloudLibraryId)))
+                //query
+                .Where(x => string.IsNullOrEmpty(query) || 
+                         (
+                              x.Namespace.ToLower().Contains(query) ||
+                             (x.Title != null && x.Title.ToLower().Contains(query)) ||
+                             (x.License != null && x.License.ToLower().Contains(query)) ||
+                             (x.Description != null && x.Description.ToLower().Contains(query)) ||
+                             (x.ContributorName != null && x.ContributorName.ToLower().Contains(query)) ||
+                             (x.Keywords != null && string.Join(",", x.Keywords).ToLower().Contains(query)) ||
+                             (x.CategoryName != null && x.CategoryName.ToLower().Contains(query)) ||
+                             (x.CopyrightText != null && x.CopyrightText.ToLower().Contains(query)) ||
+                             (x.Author != null && x.Author.DisplayName.ToLower().Contains(query))
+                         )
+                     )
+                .Count();
+        }
         /*
         /// <summary>
         /// We won't know the id but we need to get the id by searching the db with a specific profile namespace.

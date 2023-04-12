@@ -4,72 +4,48 @@
     Layout = "_EmailLayout";
 }
 
+@if (Model.displayName != null)
+{
 <div>
-    
-    <p>A new user named, <b>@Model.displayName</b> has signed-up as a Clean Energy Smart Manufacturing Innovation Institute (CESMII) user.</p>
-    <p>Here are the details of the new user:</p>
-</div>
-<div>
-    <h3>Standard User Attributes</h3>
-    <p style="margin-left:35px;">
-        @if (Model.displayName != null)
-        {
-            <div style="margin-left:35px;">
-                Display Name: @Model.displayName<br />
-
-            </div>
-        }
-        @if (Model.givenName != null)
-        {
-            <div style="margin-left:35px;">
-                Given Name: @Model.givenName<br />
-            </div>
-        }
-        @if (Model.surName != null)
-        {
-            <div style="margin-left:35px;">
-                Surname: @Model.surName<br />
-            </div>
-        }
-        @if (Model.email != null)
-        {
-            <div style="margin-left:35px;">
-            Email Address: @Model.email<br />
-            </div>
-        }
-        @if (Model.phoneNumber != null)
-        {
-            <div style="margin-left:35px;">
-                Phone Number: @Model.phoneNumber<br />
-            </div>
-        }
-        <br/>
-    </p>
-
-    <div>
-        <h3>Custom User Attributes</h3>
-        <p style="margin-left:35px;">
-            @if (Model.Organization != null)
-            {
-                <div style="margin-left:35px;">
-                    Organization: @Model.Organization<br />
-                </div>
-            }
-            @if (Model.CESMIIMember != null)
-            {
-                <div style="margin-left:35px;">
-                    CESMII Member: @Model.CESMIIMember
-                </div>
-            }
-        </p>
-    </div>
-</div>
-
-
-<div>
+    <p>Dear @Model.displayName,</p>
     <br/>
-    <br />
-    <p>Thank you for your support of the CESMII Smart Manufacturing Profile Designer!</p>
+</div>
+}
+
+<div>
+    <p>Welcome and thank you for creating an account on the Clean Energy Smart Manufacturing Innovation Institute (CESMII) website. </p>
+    <br/>
+</div>
+
+<div>
+    <p>
+        The CESMII website supports Smart Manufacturing Profiles&trade;. These are innovative, structured information models created to represent operational data.
+        The use of smart manufacturing profiles enables the building of work flows for moving "data-in-context" from source to consumption, 
+        and between components that consume the data as part of a smart manufacturing solution. </p>
+        <br/>
+</div>
+
+<div>
+    <p>Now that you've signed up for the CESMII website, you can start building your own Smart Manufacturing Profile&trade; by logging into the CESMII website and accessing the  <a href="https://profiledesigner.cesmii.net" />Smart Manufacturing Profile&trade; Designer</a>.</p>
+        <br />
+</div>
+
+<div>
+    <p>Your user name: <b>@Model.email</b></p>
+        <br />
+</div>
+
+<div>
+    <p>Another feature of the CESMII website is the <a href="https://marketplace.cesmii.net">CESMII Smart Manufacturing Marketplace</a>, a repository of best-in-class implementations of smart manufacturing hardware, solutions, applications, and services. 
+        Browse the marketplace to locate products created by companies that support the CESMII smart manufacturing approach. 
+        After you have completed your Smart Manufacturing Profile, you can give the world access by publishing it in the CESMII The Smart Manufacturing Marketplace. </p>
+        <br />
+    </div>
+
+<div>
+    <p>
+        If you have any questions about using the <a href="https://profiledesigner.cesmii.net" />Profile Designer</a>, or about the <a href="https://marketplace.cesmii.net">CESMII Smart Manufacturing Marketplace</a>, contact us at devops@cesmii.org.
+        Thank you for supporting CESMII through these and all its other offerings.</p>
     <br />
     <p>Sincerely,<br />
         The Automated Self-Service Sign-Up System

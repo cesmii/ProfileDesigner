@@ -158,8 +158,8 @@ namespace CESMII.ProfileDesigner.Api.Controllers
 
             //Part 1 - Mine OR Popular - This will be an OR clause within this portion
             //TBD - weave in popular with author
-            var filterAuthors = model.Filters?.Find(c => c.ID.Value == (int)SearchCriteriaCategoryEnum.Author)
-                .Items.Where(x => x.Selected).ToList();
+            var filterAuthors = model.Filters?.Find(c => c.ID.Value == (int)SearchCriteriaCategoryEnum.Author)?
+                .Items?.Where(x => x.Selected).ToList();
             if (filterAuthors!= null && filterAuthors.Any())
             {
                 Expression<Func<ProfileTypeDefinition, bool>> predAuthor = null;
@@ -174,9 +174,9 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             }
 
             //Part 1a - Filter on popular
-            var filtersPopular = model.Filters?.Find(c => c.ID.Value == (int)SearchCriteriaCategoryEnum.Popular)
-                .Items.Where(x => x.Selected).ToList();
-            if (filtersPopular.Any())
+            var filtersPopular = model.Filters?.Find(c => c.ID.Value == (int)SearchCriteriaCategoryEnum.Popular)?
+                .Items?.Where(x => x.Selected).ToList();
+            if (filtersPopular != null && filtersPopular.Any())
             {
                 //for popular, there is only one item in collection so we don't loop over filtersPopular 
                 //get list of type defs we characterize as popular - top 30
@@ -191,8 +191,8 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             }
 
             //Part 2 - Filter on Profile - Typedefs associated with a specific profile - none, one or many
-            var filterProfiles = model.Filters?.Find(c => c.ID.Value == (int)SearchCriteriaCategoryEnum.Profile)
-                .Items.Where(x => x.Selected).ToList();
+            var filterProfiles = model.Filters?.Find(c => c.ID.Value == (int)SearchCriteriaCategoryEnum.Profile)?
+                .Items?.Where(x => x.Selected).ToList();
             if (filterProfiles != null && filterProfiles.Any())
             {
                 Expression<Func<ProfileTypeDefinition, bool>> predProfile = null;
@@ -206,8 +206,8 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             }
 
             //Part 3 - Filter on typeDef types (object, variable type, structure, enumeration) associated with a specific profile
-            var filterTypes = model.Filters?.Find(c => c.ID.Value == (int)SearchCriteriaCategoryEnum.TypeDefinitionType)
-                .Items.Where(x => x.Selected).ToList();
+            var filterTypes = model.Filters?.Find(c => c.ID.Value == (int)SearchCriteriaCategoryEnum.TypeDefinitionType)?
+                .Items?.Where(x => x.Selected).ToList();
             if (filterTypes != null && filterTypes.Any())
             {
                 Expression<Func<ProfileTypeDefinition, bool>> predTypeId = null;

@@ -11,6 +11,7 @@
         public string CompositionRootProfileName { get; set; }
         public string InterfaceRootProfileName { get; set; }
         public string PropertyVariableRootProfileName { get; set; }
+        public string VariableTypeRootProfileName { get; set; }
         public string StructureRootProfileName { get; set; }
     }
 }

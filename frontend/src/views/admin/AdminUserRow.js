@@ -30,6 +30,9 @@ function AdminUserRow(props) { //props are item, showActions
                         Email Address
                     </th>
                     <th className="" >
+                        Organization
+                    </th>
+                    <th className="" >
                         Object ID (AAD)
                     </th>
                     <th className="" >
@@ -51,6 +54,9 @@ function AdminUserRow(props) { //props are item, showActions
                 </td>
                 <td className="py-2 align-middle" >
                     {props.item.email}
+                </td>
+                <td className="py-2 align-middle" >
+                    {props.item.organization != null && props.item.organization.name != null ? props.item.organization.name : ' '}
                 </td>
                 <td className="py-2 align-middle" >
                     {props.item.objectIdAAD}

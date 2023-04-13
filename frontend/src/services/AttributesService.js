@@ -4,10 +4,12 @@ import Select from 'react-select';
 import { SVGIcon } from '../components/SVGIcon'
 import color from '../components/Constants'
 import { AppSettings } from '../utils/appsettings';
-import { getUserPreferences, setUserPreferences, convertToNumeric, validateNumeric, validate_NoSpecialCharacters } from '../utils/UtilityService';
+import { getUserPreferences, setUserPreferences, convertToNumeric, validateNumeric, validate_NoSpecialCharacters, getPermittedDataTypesForVariableTypeById } from '../utils/UtilityService';
 import { getProfileCaption } from './ProfileService';
 
 //const CLASS_NAME = "AttributeService";
+
+const _dataTypeInit = { id: -1, name: '', customTypeId: null, customType: null };
 
 export const attributeNew = {
     id: null, name: '', dataType: { id: -1, name: '', customTypeId: null, customType: null }
@@ -41,8 +43,14 @@ export const validate_nameDuplicate = (val, item, allAttributes) => {
         (allAttributes.find((a) => { return a.id !== item.id && a.name.toLowerCase() === val.toLowerCase() }) == null);
 };
 
-export const validate_dataType = (val) => {
-    return val != null && val.id.toString() !== "-1";
+export const validate_dataType = (val, permittedDataTypes) => {
+    if (val == null || val.id.toString() === "-1")
+        return false;
+    const match = permittedDataTypes.find(dt => dt.id.toString() === val.id.toString());
+    return match != null;
+};
+export const validate_variableType = (val) => {
+    return true; // val != null && val.id.toString() !== "-1";
 };
 
 export const validate_attributeType = (dataType, val) => {
@@ -83,15 +91,19 @@ export const validate_symbolicName = (val) => {
 
 
 //validate all - call from button click
-export const validate_All = (item, editSettings, allAttributes) => {
+export const validate_All = (item, editSettings, allAttributes, permittedDataTypes) => {
+    const isValidDataType = validate_dataType(item.dataType, permittedDataTypes);
     var result = {
         name: validate_name(item.name, item),
         nameDuplicate: validate_nameDuplicate(item.name, item, allAttributes),
+        //certain attr types do not require data type and therefore are true
         dataType: item.attributeType?.id === AppSettings.AttributeTypeDefaults.InterfaceId ||
-            item.attributeType?.id === AppSettings.AttributeTypeDefaults.EnumerationId || validate_dataType(item.dataType),
+            item.attributeType?.id === AppSettings.AttributeTypeDefaults.CompositionId ||
+            item.attributeType?.id === AppSettings.AttributeTypeDefaults.EnumerationId || isValidDataType,
         composition: item.attributeType?.id !== AppSettings.AttributeTypeDefaults.CompositionId || 
             (item.composition != null && item.compositionId > 0),
-        structure: item.attributeType?.id !== AppSettings.AttributeTypeDefaults.StructureId || validate_dataType(item.dataType),
+        variableType: validate_variableType(item.variableTypeDefinition),
+        structure: item.attributeType?.id !== AppSettings.AttributeTypeDefaults.StructureId || isValidDataType,
         attributeType: validate_attributeType(item.dataType, item.attributeType == null ? null : item.attributeType.id), //can be null if composition
         symbolicName: validate_symbolicName(item.symbolicName),
         minMax: validate_minMax(item.minValue, item.maxValue, item.dataType, editSettings),
@@ -157,31 +169,78 @@ export const onChangeDataTypeShared = (val, item, settings, lookupDataTypes) => 
     //set data type and update state
     item.dataType = lookupItem != null ? lookupItem :
         { id: -1, name: '', customTypeId: null, customType: null };
-
-    settings = {
-        ...settings,
-        useMinMax: useMinMax,
-        useEngUnit: useEngUnit,
-        //showComposition: isComposition,
-        //showInterface: isInterface,
-        isCustomType: isCustom,
-        //showDescription: !isInterface
+    if (settings != null) {
+        settings = {
+            ...settings,
+            useMinMax: useMinMax,
+            useEngUnit: useEngUnit,
+            //showComposition: isComposition,
+            //showInterface: isInterface,
+            isCustomType: isCustom,
+            //showDescription: !isInterface
+        }
     }
-
     return { item: item, settings: settings };
 };
+
+//-------------------------------------------------------------------
+// onChangeDataType: on change of data type, update item and settings values. 
+//      Shared by attributeList.add, attributeItemRow inline edit and
+//      attributeEntity edit 
+//-------------------------------------------------------------------
+export const onChangeVariableTypeShared = (val, item, lookupVariableTypes, lookupDataTypes) => {
+    //e can be e.target.value or e.value - two different controls
+
+    const match = lookupVariableTypes.find(vt => { return vt.id.toString() === val?.toString(); });
+
+    //set variable type and update state
+    //change item ref variable
+    setVariableType(item, match);
+    //reset data type value to force new selection
+    item.dataType = _dataTypeInit;
+};
+
+const setVariableType = (item, val) => {
+    //set variable type, item ref variable
+    if (val == null) {
+        item.variableTypeDefinition = null;
+        item.variableTypeDefinitionId = null;
+        return null;
+    }
+    else {
+        item.variableTypeDefinition = {};
+        item.variableTypeDefinitionId = val.id;
+        item.variableTypeDefinition.id = val.id;
+        item.variableTypeDefinition.name = val.name;
+        item.variableTypeDefinition.browseName = val.browseName; //this becomes critical for adding on server side in new scenario
+        return null;
+    }
+};
+
+
+export const getPermittedDataTypesForAttribute = (attributeItem, lookupDataTypes, lookupVariableTypes) => {
+    if (attributeItem.variableTypeDefinition != null) {
+        var variableType = lookupVariableTypes.find(vt => { return vt.id.toString() === attributeItem.variableTypeDefinition.id?.toString(); });
+        if (variableType != null) {
+            return getPermittedDataTypesForVariableTypeById(variableType?.variableDataTypeId, lookupDataTypes);
+        }
+        return null;
+    }
+}
 
 //-------------------------------------------------------------------
 // onChangeAttributeTypeShared
 //      Shared by attributeList.add, attributeItemRow inline edit and
 //      attributeEntity edit 
 //-------------------------------------------------------------------
-export const onChangeAttributeTypeShared = (e, item, settings, lookupAttributeTypes, lookupDataTypes) => {
+export const onChangeAttributeTypeShared = (e, item, settings, lookupAttributeTypes, lookupDataTypes, lookupVariableTypes) => {
 
     var isComposition = false;
     var isStructure = false;
     var isInterface = false;
     var isEnumeration = false;
+    var isDataVariable = false;
+    var isProperty = false;
 
     var lookupItem = lookupAttributeTypes.find(dt => { return dt.id.toString() === e.target.value; });
     if (e.target.value == null || e.target.value.toString() === "-1") {
@@ -191,6 +250,8 @@ export const onChangeAttributeTypeShared = (e, item, settings, lookupAttributeTy
         isStructure = lookupItem != null && lookupItem.id === AppSettings.AttributeTypeDefaults.StructureId;
         isInterface = lookupItem != null && lookupItem.id === AppSettings.AttributeTypeDefaults.InterfaceId;
         isEnumeration = lookupItem != null && lookupItem.id === AppSettings.AttributeTypeDefaults.EnumerationId;
+        isDataVariable = lookupItem != null && lookupItem.id === AppSettings.AttributeTypeDefaults.DataVariableId;
+        isProperty = lookupItem != null && lookupItem.id === AppSettings.AttributeTypeDefaults.PropertyId;
     }
 
     //reset composition, interface object anytime this changes
@@ -216,8 +277,15 @@ export const onChangeAttributeTypeShared = (e, item, settings, lookupAttributeTy
         dataTypeInt = dataTypeInt == null ? lookupDataTypes.find(dt => { return dt.name.toLowerCase().indexOf("int32") === 0 }) : dataTypeInt;
         item.dataType = dataTypeInt;
     }
+    //set variable data type field default to BaseDataVariableType
+    else if (lookupItem != null && isDataVariable) {
+        const varTypeDefault = lookupVariableTypes.find(x => { return x.name?.toLowerCase().indexOf("basedatavariabletype") === 0 });
+        setVariableType(item, varTypeDefault);
+        //init data type
+        item.dataType = _dataTypeInit;
+    }
     else { //reset to select one...
-        item.dataType = { id: -1, name: '', customTypeId: null, customType: null };
+        item.dataType = _dataTypeInit;
     }
 
     settings = {
@@ -226,7 +294,9 @@ export const onChangeAttributeTypeShared = (e, item, settings, lookupAttributeTy
         showStructure: isStructure,
         showInterface: isInterface,
         showDescription: !isInterface,
-        showEnumeration: isEnumeration
+        showEnumeration: isEnumeration,
+        showVariableType: isDataVariable,
+        showProperty: isProperty
     }
 
     return { item: item, settings: settings };
@@ -281,16 +351,28 @@ export const onChangeCompositionShared = (match, item) => {
     if (match == null) {
         item.composition = null;
         item.compositionId = null;
+        item.browseName = null;
+        item.symbolicName = null;
     }
     else {
+        // Preserve the intermediate object so we can find and update it in the backend
+        const intermediateObjectId = item.composition?.intermediateObjectId;
+        const intermediateObjectName = item.composition?.intermediateObjectName;
+
         item.composition = {};
         item.compositionId = match.id;
         item.composition.id = match.id;
         item.composition.name = match.name;
-        item.composition.browseName = match.browseName; //this becomes critical for adding on server side in new scenario
+        item.composition.description = match.description;
+        item.composition.browseName = match.browseName; 
         //this is what is used downstream. 
         item.composition.relatedProfileTypeDefinitionId = item.composition.id;
         item.composition.relatedName = item.composition.name;
+        item.composition.intermediateObjectId = intermediateObjectId;
+        item.composition.intermediateObjectName = intermediateObjectName;
+        //copy some values into the profile_composition data record
+        item.browseName = match.browseName; //this becomes critical for adding on server side in new scenario
+        item.symbolicName = match.symbolicName;
     }
 }
 
@@ -298,7 +380,7 @@ export const onChangeCompositionShared = (match, item) => {
 //-------------------------------------------------------------------
 // Region: Shared render methods
 //-------------------------------------------------------------------
-export const renderAttributeIcon = (item, readOnly) => {
+export const renderAttributeIcon = (item, readOnly, className = '') => {
     //simplify icons
     //set up color properly
     const iconColor = readOnly ? color.nevada : color.mine;
@@ -311,30 +393,64 @@ export const renderAttributeIcon = (item, readOnly) => {
     if (item.interface != null) iconName = AppSettings.IconMapper.Interface;
 
     return (
-        <span className="mr-2">
+        <span className={`mr-2 ${className}`}>
             <SVGIcon name={iconName} size="20" fill={iconColor} />
         </span>
     );
 }
 
 //-------------------------------------------------------------------
+// Region: Render Common variable type drop down list
+//-------------------------------------------------------------------
+export const renderVariableTypeUIShared = (editItem, lookupVariableTypes, settings, isValid, showLabel, onChangeCallback, onBlurCallback) => {
+    if (lookupVariableTypes == null || lookupVariableTypes.length === 0 || !settings.showVariableType) return;
+    const options = buildSelectOptionsByVariabletype(lookupVariableTypes);
+
+    //map value bind to structure the control accepts
+    const selValue = {
+        label: editItem === {} || editItem.variableTypeDefinitionId == null || editItem.variableTypeDefinitionId.toString() === "-1" ?
+            "Select" : editItem.variableTypeDefinition?.name, value : editItem.variableTypeDefinitionId?.id
+    };
+
+    return renderSelectGroupByUI(
+        options,
+        selValue,
+        'typeDefinitionId',
+        `Data Variable Type`,
+        isValid,
+        showLabel,
+        onChangeCallback,
+        onBlurCallback,
+        true
+    );
+};
+
+const buildSelectOptionsByVariabletype = (lookupItems) => {
+    if (lookupItems == null || lookupItems.length === 0) return null;
+
+    //this data is ordered by popularity - a combo of usage count and a manual rank count. Everytime
+    //we hit a new popularity level, add a grouping row separator
+    return buildSelectOptionsByPopularity(lookupItems, "name");
+}
+
+//-------------------------------------------------------------------
 // Region: Render Common data type drop down list
 //-------------------------------------------------------------------
-export const renderDataTypeUIShared = (editItem, lookupDataTypes, typeDef, isValid, showLabel, onChangeCallback, onBlurCallback) => {
+export const renderDataTypeUIShared = (dataType, lookupDataTypes, typeDef, isValid, showLabel, labelOverride, onChangeCallback, onBlurCallback) => {
     if (lookupDataTypes == null || lookupDataTypes.length === 0) return;
     const options = buildSelectOptionsByDatatype(lookupDataTypes, typeDef?.type);
 
     //map value bind to structure the control accepts
     const selValue = {
-        label: editItem.dataType.id == null || editItem.dataType.id.toString() === "-1" ?
-            "Select" : editItem.dataType.name, value: editItem.dataType.id
+        label: dataType?.id == null || dataType.id.toString() === "-1" ?
+            "Select" : dataType.name, value: dataType?.id
     };
 
     return renderSelectGroupByUI(
         options,
         selValue,
         'ddlDatatype',
-        `Data Type`,
+        labelOverride != null ? labelOverride : `Data Type`,
         isValid,
         showLabel,
         onChangeCallback,
@@ -485,7 +601,8 @@ const renderSelectGroupByUI = (
     isValid,
     showLabel,
     onChangeCallback,
-    onBlurCallback
+    onBlurCallback,
+    isClearable
 ) => {
 
     const styleCustom = {
@@ -520,6 +637,7 @@ const renderSelectGroupByUI = (
                 onChange={onChangeCallback}
                 onBlur={onBlurCallback}
                 options={options}
+                isClearable={isClearable}
             />
         </Form.Group>
     )
@@ -529,7 +647,7 @@ const renderSelectGroupByUI = (
 //-------------------------------------------------------------------
 // Region: Render Common eng unit drop down list
 //-------------------------------------------------------------------
-export const renderEngUnitUIShared = (editItem, lookupEngUnits, onChangeCallback, onBlurCallback) => {
+export const renderEngUnitUIShared = (editItem, lookupEngUnits, isValid, onChangeCallback, onBlurCallback) => {
     if (lookupEngUnits == null || lookupEngUnits.length === 0) return;
 
     const options = buildSelectOptionsByPopularity(lookupEngUnits, "displayName");
@@ -546,7 +664,7 @@ export const renderEngUnitUIShared = (editItem, lookupEngUnits, onChangeCallback
         selValue,
         'engUnit',
         `Eng Unit`,
-        null,
+        isValid,
         true,
         onChangeCallback,
         onBlurCallback

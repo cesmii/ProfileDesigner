@@ -69,6 +69,8 @@ export const AppSettings = {
         , CompositionId: 9
         , InterfaceId: 10
         , StructureId: 7
+        , PropertyId: 5
+        , DataVariableId: 6,
     }
     , SearchCriteriaCategory: {
         Author: 1,

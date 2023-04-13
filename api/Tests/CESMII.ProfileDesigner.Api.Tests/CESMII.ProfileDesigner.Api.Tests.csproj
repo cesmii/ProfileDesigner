@@ -6,6 +6,8 @@
     <IsPackable>false</IsPackable>
 
     <Configurations>Debug;Release</Configurations>
+
+    <UserSecretsId>3129f37d-2eda-4f85-bf37-9ee0ba170972</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
@@ -24,7 +26,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="OPCFoundation.NetStandard.Opc.Ua.Core" Version="1.4.368.33" />
-		<PackageReference Include="CESMII.OpcUa.NodeSetDiff" Version ="1.0.9" />
+		<PackageReference Include="CESMII.OpcUa.NodeSetDiff" Version="1.0.12" />
 	</ItemGroup>
 
 	<ItemGroup>

@@ -6,6 +6,7 @@ namespace CESMII.ProfileDesigner.OpcUa
     using CESMII.OpcUa.NodeSetModel;
     using CESMII.OpcUa.NodeSetModel.Factory.Opc;
     using CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile;
+    using CESMII.OpcUa.NodeSetModel.Opc.Extensions;
 #if NODESETDBTEST
     using Microsoft.EntityFrameworkCore;
 #endif
@@ -15,6 +16,7 @@ namespace CESMII.ProfileDesigner.OpcUa
     using System.Linq;
     using System.Threading.Tasks;
     using global::Opc.Ua.Export;
+    using CESMII.ProfileDesigner.DAL.Utils;
 
     public class DalOpcContext : 
 #if NODESETDBTEST
@@ -157,7 +159,7 @@ namespace CESMII.ProfileDesigner.OpcUa
 
         public ProfileTypeDefinitionSimpleModel MapToModelProfileSimple(ProfileTypeDefinitionModel profileTypeDef)
         {
-            return _importer._profileUtils.MapToModelProfileSimple(profileTypeDef);
+            return ProfileMapperUtil.MapToModelProfileSimple(profileTypeDef);
         }
 
         public ProfileModel GetProfileForNamespace(string uaNamespace, DateTime? publicationDate, string version)
@@ -185,7 +187,7 @@ namespace CESMII.ProfileDesigner.OpcUa
         {
             if (!_nodesetModels.TryGetValue(model.ModelUri, out var nodesetModel))
             {
-                var profile = GetProfileForNamespace(model.ModelUri, model.PublicationDateSpecified ? model.PublicationDate : null, model.Version);
+                var profile = GetProfileForNamespace(model.ModelUri, model.GetNormalizedPublicationDate(), model.Version);
 #if NODESETDBTEST
                 var existingNodeSet = GetMatchingOrHigherNodeSetAsync(model.ModelUri, model.PublicationDateSpecified ? model.PublicationDate : null).Result;
                 if (existingNodeSet != null)
@@ -215,7 +217,7 @@ namespace CESMII.ProfileDesigner.OpcUa
                 }
                 if (model.PublicationDateSpecified && model.PublicationDate.Kind != DateTimeKind.Utc)
                 {
-                    model.PublicationDate = DateTime.SpecifyKind(model.PublicationDate, DateTimeKind.Utc);
+                    model.PublicationDate = model.GetNormalizedPublicationDate();
                 }
 
                 nodesetModel = base.GetOrAddNodesetModel(model, createNew);

@@ -5,7 +5,7 @@
 
     public class ProfileExplorerModel
     {
-        public ProfileTypeDefinitionModel Profile { get; set; }
+        public ProfileTypeDefinitionModel TypeDefinition { get; set; }
 
         public List<ProfileTypeDefinitionSimpleModel> Dependencies { get; set; }
 
@@ -14,7 +14,7 @@
 
         public List<ProfileTypeDefinitionModel> Interfaces { get
             {
-                return this.Profile.Interfaces == null ? new List<ProfileTypeDefinitionModel>() : this.Profile.Interfaces;
+                return this.TypeDefinition.Interfaces == null ? new List<ProfileTypeDefinitionModel>() : this.TypeDefinition.Interfaces;
             }
         }
 
@@ -22,7 +22,7 @@
         {
             get
             {
-                return this.Profile.Compositions == null ? new List<ProfileTypeDefinitionRelatedModel>() : this.Profile.Compositions;
+                return this.TypeDefinition.Compositions == null ? new List<ProfileTypeDefinitionRelatedModel>() : this.TypeDefinition.Compositions;
             }
         }
     }

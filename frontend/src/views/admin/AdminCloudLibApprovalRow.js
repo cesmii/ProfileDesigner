@@ -2,7 +2,7 @@ import React from 'react'
 import { Dropdown } from 'react-bootstrap'
 import { AppSettings } from '../../utils/appsettings';
 
-import { formatDateUtc, generateLogMessageString, renderMenuIcon } from '../../utils/UtilityService';
+import { formatDateUtc, generateLogMessageString, renderMenuColorIcon } from '../../utils/UtilityService';
 import { renderProfileAvatarBgCss, renderProfileIcon, renderProfilePublishStatus } from '../shared/ProfileRenderHelpers';
 
 const CLASS_NAME = "AdminCloudLibApprovalRow";
@@ -54,16 +54,16 @@ function AdminCloudLibApprovalRow(props) {
                         {(props.item.profileState === AppSettings.ProfileStateEnum.CloudLibPending ||
                             props.item.profileState === AppSettings.ProfileStateEnum.Unknown) &&
                             <>
-                            <Dropdown.Item key="moreVert1" onClick={onApprove} >{renderMenuIcon("check")}Approve</Dropdown.Item>
-                            <Dropdown.Item key="moreVert2" onClick={onReject} >{renderMenuIcon("close")}Reject</Dropdown.Item>
+                            <Dropdown.Item key="moreVert1" onClick={onApprove} >{renderMenuColorIcon("check",null,"#6AA342")}Approve</Dropdown.Item>
+                            <Dropdown.Item key="moreVert2" onClick={onReject} >{renderMenuColorIcon("close", null, "#D2222D")}Reject</Dropdown.Item>
                             </>
                         }
                         {(props.item.profileState === AppSettings.ProfileStateEnum.CloudLibRejected) &&
                             <>
-                            <Dropdown.Item key="moreVert3" onClick={onSetPending} >{renderMenuIcon("cloud-queue")}Set Pending</Dropdown.Item>
+                            <Dropdown.Item key="moreVert3" onClick={onSetPending} >{renderMenuColorIcon("cloud-upload",null,"#ffbf00")}Requeue</Dropdown.Item>
                             </>
                         }
-                        <Dropdown.Item key="moreVert4" onClick={onCancel} >{renderMenuIcon("delete")}Remove</Dropdown.Item>
+                        <Dropdown.Item key="moreVert4" onClick={onCancel} >{renderMenuColorIcon("undo",null,"#D2222D")}Cancel Publish Request</Dropdown.Item>
                     </Dropdown.Menu>
                 </Dropdown>
             </div>

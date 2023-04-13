@@ -326,10 +326,8 @@ function AdminUserList() {
                     {(_dataRows.itemCount != null && _dataRows.itemCount > 0) ?
                         <>
                             <span className="px-2 ml-auto font-weight-bold">{_dataRows.itemCount}{_dataRows.itemCount === 1 ? ' item' : ' items'}</span>
-                            <a className="btn btn-icon-outline circle primary" href={`/admin/user/new`} ><i className="material-icons">add</i></a>
                         </>
-                        :
-                        <a className="btn btn-icon-outline circle ml-auto hl-blue" href={`/admin/user/new`} ><i className="material-icons">add</i></a>
+                        : <br/>
                     }
                 </div>
             </div>

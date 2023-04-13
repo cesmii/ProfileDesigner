@@ -1,3 +1,4 @@
+
 import { getUserPreferences, setUserPreferences, generateLogMessageString, concatenateField, validate_Required, validate_namespaceFormat } from '../utils/UtilityService';
 import axiosInstance from './AxiosService';
 
@@ -6,7 +7,6 @@ const CLASS_NAME = "ProfileService";
 //-------------------------------------------------------------------
 // Region: Common / Helper Profile Methods
 //-------------------------------------------------------------------
-//export const profileNew  = { id: 0, namespace: '', version: null, publishDate: null, authorId: null, author: null }
 export const profileNew  = { id: 0, namespace: '', version: null, publishDate: null, authorId: null }
 
 //-------------------------------------------------------------------
@@ -66,18 +66,18 @@ export function getTypeDefEntityLink(item) {
 // getProfileTypePreferences, setProfileTypePageSize - get/set commonly shared user preferences for a profile type def (ie page size)
 //-------------------------------------------------------------------
 export function getTypeDefPreferences() {
-    var item = getUserPreferences();
+    const item = getUserPreferences();
     return item.typeDefPreferences;
 }
 
 export function setProfileTypePageSize(val) {
-    var item = getUserPreferences();
+    const item = getUserPreferences();
     item.typeDefPreferences.pageSize = val;
     setUserPreferences(item);
 }
 
 export function setProfileTypeDisplayMode(val) {
-    var item = getUserPreferences();
+    const item = getUserPreferences();
     item.typeDefPreferences.displayMode = val;
     setUserPreferences(item);
 }
@@ -86,12 +86,12 @@ export function setProfileTypeDisplayMode(val) {
 // getProfilePreferences, setProfilePageSize - get/set commonly shared user preferences for a profile (ie page size)
 //-------------------------------------------------------------------
 export function getProfilePreferences() {
-    var item = getUserPreferences();
+    const item = getUserPreferences();
     return item.profilePreferences;
 }
 
 export function setProfilePageSize(val) {
-    var item = getUserPreferences();
+    const item = getUserPreferences();
     item.profilePreferences.pageSize = val;
     setUserPreferences(item);
 }

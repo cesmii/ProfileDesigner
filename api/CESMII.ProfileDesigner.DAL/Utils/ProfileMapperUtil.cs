@@ -117,14 +117,18 @@ namespace CESMII.ProfileDesigner.DAL.Utils
             {
                 var siblings = _dal.Where(p => !ProfileMapperUtil.ExcludedProfileTypes.Contains(p.ProfileTypeId) /*p.ProfileTypeId != (int)ProfileItemTypeEnum.Object*/ && typeDef.Parent != null &&
                                             p.ParentId.Equals(typeDef.Parent.ID) &&
+                                            p.ProfileTypeId.Equals(typeDef.TypeId) &&  //only get siblings of same type
                                             p.ID != typeDef.ID, userToken, null, null, false).Data
                     .Select(s => MapToModelProfileAncestory(s, 1));
 
                 if (lineage.Count == 1) result = result.Concat(siblings).ToList();
                 else if (finalParent != null)
                 {
-                    //append siblings to final parent
-                    finalParent.Children = finalParent.Children.Concat(siblings).ToList();
+                    //append siblings to final parent, sort by name
+                    finalParent.Children = finalParent.Children.Concat(siblings)
+                        .OrderBy(x => x.Name)
+                        .ThenBy(x => x.Profile.Namespace)
+                        .ToList();
                 }
             }
             return result;
@@ -194,12 +198,12 @@ namespace CESMII.ProfileDesigner.DAL.Utils
         {
             var fnName = "public.fn_profile_type_definition_get_dependencies";
             var orderBys = new List<OrderBySimple>() {
-                new OrderBySimple() { FieldName = "level" },
+                new OrderBySimple() { FieldName = "name" },
                 new OrderBySimple() { FieldName = "profile_title" } ,
                 new OrderBySimple() { FieldName = "profile_namespace" } ,
                 new OrderBySimple() { FieldName = "profile_version" } ,
                 new OrderBySimple() { FieldName = "profile_publish_date" } ,
-                new OrderBySimple() { FieldName = "name" }
+                new OrderBySimple() { FieldName = "level" }
             };
             //TBD - pass in paging to this.
             return _dalRelated.GetItemsPaged(fnName, null, null, false, orderBys, id, userToken.UserId, false, false);
@@ -324,6 +328,28 @@ namespace CESMII.ProfileDesigner.DAL.Utils
             return result;
         }
 
+        public List<ProfileTypeDefinitionSimpleModel> BuildVariableTypeLookup(UserToken userToken)
+        {
+            //CHANGE: 
+            //A composition can depend on a type def and that type def can depend on that composition - either directly or indirectly
+            //Customer type can have list of orders type. Order can have a customer type. 
+            //Recursive - Parent-child are types pointing to themselves so that should be permitted.  
+            //compositions can only derive from BaseObjectType - get BaseObjectType profile's dependencies and trim down the
+            //list of the compositions if any of these are in the final dependencies list
+            var compRoot = _dal.GetByFunc(
+                x => x.Name.ToLower().Equals(_config.ProfilesSettings.ReservedProfileNames.VariableTypeRootProfileName.ToLower()),
+                userToken, false);
+            var orderBys = new List<OrderBySimple>() {
+                new OrderBySimple() { FieldName = "profile_namespace" } ,
+                new OrderBySimple() { FieldName = "profile_title" } ,
+                new OrderBySimple() { FieldName = "profile_version" } ,
+                new OrderBySimple() { FieldName = "profile_publish_date" } ,
+                new OrderBySimple() { FieldName = "name" }
+            };
+            var result = this.GetDescendants(compRoot.ID.Value, userToken, true, true, orderBys).Data;
+            return result;
+        }
+
 
         /// <summary>
         /// 
@@ -394,7 +420,13 @@ namespace CESMII.ProfileDesigner.DAL.Utils
                     Profile = new ProfileModel() { ID = item.Profile.ID, Namespace = item.Profile.Namespace, Version = item.Profile.Version },
                     Description = item.Description,
                     Type = item.Type,
-                    Author = item.Author,
+                    //establish ownership
+                    Author = item.Profile == null || 
+                             item.Profile.ProfileState == ProfileStateEnum.CloudLibApproved ||
+                             item.Profile.ProfileState == ProfileStateEnum.Core ||  
+                             item.Profile.ProfileState == ProfileStateEnum.CloudLibPublished ||  
+                             item.Profile.ProfileState == ProfileStateEnum.Unknown ? 
+                             null : item.Author,
                     OpcNodeId = item.OpcNodeId,
                     IsAbstract = item.IsAbstract,
                     Level = level
@@ -416,7 +448,7 @@ namespace CESMII.ProfileDesigner.DAL.Utils
             return result.OrderBy(a => a.Name).ToList(); 
         }
 
-        public ProfileTypeDefinitionSimpleModel MapToModelProfileSimple(ProfileTypeDefinitionModel item, int level = 0)
+        public static ProfileTypeDefinitionSimpleModel MapToModelProfileSimple(ProfileTypeDefinitionModel item, int level = 0)
         {
             if (item != null)
             {
@@ -429,11 +461,13 @@ namespace CESMII.ProfileDesigner.DAL.Utils
                     Profile = item.Profile,
                     ProfileTypeDefinition = item,
                     Description = item.Description,
+                    SymbolicName = item.SymbolicName,                     
                     Type = item.Type ?? new LookupItemModel { ID = item.TypeId, LookupType = LookupTypeEnum.ProfileType },
                     Author = item.Author,
                     OpcNodeId = item.OpcNodeId,
                     IsAbstract = item.IsAbstract,
-                    Level = level
+                    Level = level,
+                    VariableDataTypeId = item.VariableDataType?.ID,
                 };
             }
             else
@@ -452,6 +486,7 @@ namespace CESMII.ProfileDesigner.DAL.Utils
                     ID = item.ID,
                     Name = item.Name,
                     BrowseName = item.BrowseName,
+                    SymbolicName = item.SymbolicName,
                     /*Namespace = item.Profile.Namespace,*/
                     Profile = new ProfileModel() { ID = item.Profile.ID, Namespace = item.Profile.Namespace, Version = item.Profile.Version },
                     Description = item.Description,
@@ -528,9 +563,12 @@ namespace CESMII.ProfileDesigner.DAL.Utils
                     CompositionId = comp.RelatedProfileTypeDefinitionId,
                     ID = comp.ID,
                     Name = comp.Name,
+                    OpcNodeId = comp.OpcNodeId,
                     BrowseName = comp.BrowseName,
                     SymbolicName = comp.SymbolicName,
                     Description = comp.Description,
+                    IsRequired = comp.IsRequired,
+                    ModelingRule = comp.ModelingRule,
                     TypeDefinitionId = item.ID,
                     //TypeDefinition = item, // Results in cycle during serialization
                     // No VariableTypeDefinition for compositions
@@ -600,18 +638,28 @@ namespace CESMII.ProfileDesigner.DAL.Utils
                 {
                     ID = a.ID,
                     RelatedProfileTypeDefinitionId = a.CompositionId.Value,
+                    RelatedProfileTypeDefinition = new ProfileTypeDefinitionModel() { ID = a.CompositionId.Value,  
+                        Name = a.Composition.Name, Description = a.Composition.Description 
+                    },
+                    IntermediateObject = a.Composition.IntermediateObject,
+                    IntermediateObjectId = a.Composition.IntermediateObjectId,
+                    IntermediateObjectName = a.Composition.IntermediateObjectName,
                     Name = a.Name,
+                    OpcNodeId = a.OpcNodeId,
                     SymbolicName = a.SymbolicName,
                     Description = a.Description,
-                    BrowseName = a.Composition.BrowseName,
-                    RelatedName = a.Composition.Name,
-                    RelatedDescription = a.Composition.Description,
-                    RelatedIsRequired = a.Composition.RelatedIsRequired,
-                    RelatedModelingRule = a.Composition.RelatedModelingRule,
+                    BrowseName = a.BrowseName,
+                    IsRequired = a.IsRequired,
+                    ModelingRule = a.ModelingRule,
                     Author = a.Composition.Author
                 });
             }
             return result;
+        }
+
+        internal static bool IsHasComponentReference(string relatedReferenceId)
+        {
+            return string.IsNullOrEmpty(relatedReferenceId) || relatedReferenceId == "nsu=http://opcfoundation.org/UA/;i=47";
         }
 
         #endregion

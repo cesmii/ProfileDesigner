@@ -7,10 +7,8 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Serialization;
 using System.Threading.Tasks;
 
-using System.Text.Json;
 using CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile;
 using Opc.Ua.Export;
 
@@ -130,7 +128,12 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
         }
         protected static string GetProfileItemNodeId(ProfileTypeDefinitionSimpleModel profileItem)
         {
-            return GetProfileItemNodeIdInternal(profileItem.OpcNodeId, profileItem.Profile.Namespace);
+            var nodeId = profileItem.OpcNodeId;
+            if (string.IsNullOrEmpty(nodeId))
+            {
+                nodeId = $"g={Guid.NewGuid()}";
+            }
+            return GetProfileItemNodeIdInternal(nodeId, profileItem.Profile.Namespace);
         }
         protected static string GetProfileItemNodeId(string defaultNamespace, ProfileAttributeModel profileAttribute, IDALContext dalContext, out string opcNamespace)
         {
@@ -176,10 +179,10 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
                     }
                     else if (composition.RelatedIsEvent == true)
                     {
-                        var eventProfileType = composition.RelatedProfileTypeDefinition;
-                        if (composition.RelatedProfileTypeDefinition == null)
+                        var eventProfileType = composition.IntermediateObject ?? composition.RelatedProfileTypeDefinition;
+                        if (eventProfileType == null)
                         {
-                            eventProfileType = dalContext.GetProfileItemById(composition.RelatedProfileTypeDefinitionId);
+                            eventProfileType = dalContext.GetProfileItemById(composition.IntermediateObjectId ?? composition.RelatedProfileTypeDefinitionId);
                         }
 
                         var uaEventType = ObjectTypeModelFromProfileFactory.Create(eventProfileType, opcContext, dalContext) as ObjectTypeModel;
@@ -206,17 +209,24 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
                                 _model.Objects.Add(uaObjectModel);
                             }
                         }
+                        else
+                        {
+                            // BaseDataType
+                            // BaseObjectType
+                            // BaseVariableType
+                            opcContext.Logger.LogWarning($"Unexpected node {nodeModel} in composition {composition.Name} of profile type {profileItem}. Ignored.");
+                        }
                         if (!string.IsNullOrEmpty(composition.RelatedReferenceId))
                         {
                             if (composition.RelatedReferenceIsInverse != true)
                             {
-                                _model.OtherReferencedNodes.Add(new NodeModel.NodeAndReference { Node = nodeModel, Reference = composition.RelatedReferenceId });
-                                nodeModel.OtherReferencingNodes.Add(new NodeModel.NodeAndReference { Node = _model, Reference = composition.RelatedReferenceId });
+                                AddIfNotExists(_model.OtherReferencedNodes, new NodeModel.NodeAndReference { Node = nodeModel, Reference = composition.RelatedReferenceId });
+                                AddIfNotExists(nodeModel.OtherReferencingNodes, new NodeModel.NodeAndReference { Node = _model, Reference = composition.RelatedReferenceId });
                             }
                             else
                             {
-                                _model.OtherReferencingNodes.Add(new NodeModel.NodeAndReference { Node = nodeModel, Reference = composition.RelatedReferenceId });
-                                nodeModel.OtherReferencedNodes.Add(new NodeModel.NodeAndReference { Node = _model, Reference = composition.RelatedReferenceId });
+                                AddIfNotExists(_model.OtherReferencingNodes, new NodeModel.NodeAndReference { Node = nodeModel, Reference = composition.RelatedReferenceId });
+                                AddIfNotExists(nodeModel.OtherReferencedNodes, new NodeModel.NodeAndReference { Node = _model, Reference = composition.RelatedReferenceId });
                             }
                         }
                     }
@@ -233,6 +243,14 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
                 }
             }
             Logger.LogTrace($"Created node model {_model} from profile type definition {profileItem}");
+        }
+
+        private static void AddIfNotExists(List<NodeModel.NodeAndReference> otherReferencedNodes, NodeModel.NodeAndReference nodeAndReference)
+        {
+            if (!otherReferencedNodes.Any(nr => nr.Node == nodeAndReference.Node && nr.Reference == nodeAndReference.Reference))
+            {
+                otherReferencedNodes.Add(nodeAndReference);
+            }
         }
 
         void InitializeAttributes(List<ProfileAttributeModel> attributes, ProfileModel profile, ProfileTypeDefinitionModel profileItem, IOpcUaContext opcContext, IDALContext dalContext)
@@ -371,13 +389,13 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
     {
         internal static NodeModel Create(ProfileTypeDefinitionRelatedModel objectTypeRelated, ProfileTypeDefinitionModel composingProfile, IOpcUaContext opcContext, IDALContext dalContext)
         {
-            var objectProfile = objectTypeRelated.RelatedProfileTypeDefinition;
+            var objectProfile = objectTypeRelated.IntermediateObject ?? objectTypeRelated.RelatedProfileTypeDefinition;
             if (objectProfile == null)
             {
-                objectProfile = dalContext.GetProfileItemById(objectTypeRelated.RelatedProfileTypeDefinitionId);
+                objectProfile = dalContext.GetProfileItemById(objectTypeRelated.IntermediateObjectId ?? objectTypeRelated.RelatedProfileTypeDefinitionId);
             }
             var objectOrTypeModel = Create(objectProfile, opcContext, dalContext);
-            var modelingRule = GetModelingRuleFromProfile(objectTypeRelated.RelatedIsRequired, objectTypeRelated.RelatedModelingRule);
+            var modelingRule = GetModelingRuleFromProfile(objectTypeRelated.IsRequired, objectTypeRelated.ModelingRule);
             if (string.IsNullOrEmpty(objectTypeRelated.OpcNodeId))
             {
                 if (objectOrTypeModel is InstanceModelBase instanceModel)
@@ -523,14 +541,19 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
                 variableModel.EngUnitNodeId = attribute.EngUnitOpcNodeId;
                 variableModel.EngUnitModellingRule = attribute.EngUnitModelingRule;
                 variableModel.EngUnitAccessLevel = attribute.EngUnitAccessLevel;
+
+                variableModel.MinValue = (double?)attribute.MinValue;
+                variableModel.MaxValue = (double?)attribute.MaxValue;
                 variableModel.EURangeNodeId = attribute.EURangeOpcNodeId;
                 variableModel.EURangeModellingRule = attribute.EURangeModelingRule;
                 variableModel.EURangeAccessLevel = attribute.EURangeAccessLevel;
 
-                variableModel.MinValue = (double?)attribute.MinValue;
-                variableModel.MaxValue = (double?)attribute.MaxValue;
                 variableModel.InstrumentMinValue = (double?)attribute.InstrumentMinValue;
                 variableModel.InstrumentMaxValue = (double?)attribute.InstrumentMaxValue;
+                variableModel.InstrumentRangeNodeId = attribute.InstrumentRangeOpcNodeId;
+                variableModel.InstrumentRangeModellingRule = attribute.InstrumentRangeModelingRule;
+                variableModel.InstrumentRangeAccessLevel = attribute.InstrumentRangeAccessLevel;
+
                 variableModel.Value = attribute.AdditionalData;
                 variableModel.MinimumSamplingInterval = attribute.MinimumSamplingInterval;
 

@@ -8,17 +8,9 @@
 ====>Expected attribute value '2021-06-23T01:00:08Z' but was '2021-10-03T01:00:00Z' - comparing <RequiredModel PublicationDate="2021-06-23T01:00:08Z"...> at /UANodeSet[1]/Models[1]/Model[1]/RequiredModel[4]/@PublicationDate to <RequiredModel PublicationDate="2021-10-03T01:00:00Z"...> at /UANodeSet[1]/Models[1]/Model[1]/RequiredModel[4]/@PublicationDate
 ====>Expected attribute value '1.00.8' but was '1.00' - comparing <RequiredModel Version="1.00.8"...> at /UANodeSet[1]/Models[1]/Model[1]/RequiredModel[4]/@Version to <RequiredModel Version="1.00"...> at /UANodeSet[1]/Models[1]/Model[1]/RequiredModel[4]/@Version
 ====>Expected attribute name '/UANodeSet[1]/UAObject[1]/@EventNotifier' - comparing <UAObject...> at /UANodeSet[1]/UAObject[1]/@EventNotifier to <UAObject...> at /UANodeSet[1]/UAObject[6]
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[1]/References[1]/Reference[2] to <NULL>
-====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAObject[6]/References[1]/Reference[2]
 ====>Expected attribute name '/UANodeSet[1]/UAObject[2]/@EventNotifier' - comparing <UAObject...> at /UANodeSet[1]/UAObject[2]/@EventNotifier to <UAObject...> at /UANodeSet[1]/UAObject[9]
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[3]/References[1]/Reference[6] to <NULL>
-====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAObject[11]/References[1]/Reference[20]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[67]/Description[1]/@Locale' - comparing <Description...> at /UANodeSet[1]/UAVariable[67]/Description[1]/@Locale to <Description...> at /UANodeSet[1]/UAVariable[99]/Description[1]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[97]/Description[1]/@Locale' - comparing <Description...> at /UANodeSet[1]/UAVariable[97]/Description[1]/@Locale to <Description...> at /UANodeSet[1]/UAVariable[84]/Description[1]
 ====>Expected attribute name '/UANodeSet[1]/UAObject[19]/@EventNotifier' - comparing <UAObject...> at /UANodeSet[1]/UAObject[19]/@EventNotifier to <UAObject...> at /UANodeSet[1]/UAObject[2]
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[19]/References[1]/Reference[3] to <NULL>
-====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAObject[2]/References[1]/Reference[2]
 ====>Expected attribute name '/UANodeSet[1]/UAObject[20]/@EventNotifier' - comparing <UAObject...> at /UANodeSet[1]/UAObject[20]/@EventNotifier to <UAObject...> at /UANodeSet[1]/UAObject[4]
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[21]/References[1]/Reference[20] to <NULL>
-====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAObject[1]/References[1]/Reference[20]
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Extensions' but was '' - comparing <Extensions...> at /UANodeSet[1]/Extensions[1] to <NULL>

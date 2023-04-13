@@ -1,0 +1,66 @@
+﻿@using CESMII.ProfileDesigner.Api.Shared.Models
+@model SubmittedProfileModel
+@{
+    Layout = "_EmailLayout";
+}
+
+<div>
+    <p> Your profile has been REJECTED for inclusion in the CESMII Cloud Library.
+    </p>
+    <p style="margin-left:20px;"><b>Reviewer Comments:</b> @Model.strReason</p>
+</div>
+<div>
+    <h3>Profile: @Model.Title</h3>
+    <p style="margin-left:20px;">
+        Description: @Model.Description<br />
+        Namespace: @Model.Namespace<br />
+        Version: @(Model.Version == null ? "" : Model.Version)<br />
+        Publication Date: @Model.PublishDate<br />
+        License: @Model.License<br />
+    </p>
+
+    <div>
+        <h3>Author and Organization</h3>
+        <p style="margin-left:20px;">
+            Author: @Model.Author.DisplayName [@Model.Author.Email]<br />
+            Organization: @(Model.Author.Organization == null ? "" : Model.Author.Organization.Name == null ? "" : Model.Author.Organization.Name)
+        </p>
+    </div>
+</div>
+
+    <div>
+    <h3>Next Steps</h3>
+        <h4>Status</h4>
+        <p style="margin-left:20px;">
+            To find out the current status of your submission, go to the <a href="https://profiledesigner.cesmii.net/profiles/library" />CESMII Profile Library</a>.
+            The Profile Library allows you to access all the profiles that you are working on. It also shows you the submission status, 
+            including whether a profile is still under review, has been rejected, or has been published.
+        </p>
+    </div>
+
+    <div>
+        <h4>Cancel Publish</h4>
+        <p style="margin-left:20px;">
+            Once you submit a profile for publishing, you cannot make any further changes to it.
+            However, if you want to edit the profile, you can click the "Cancel Publish" button in the <a href="https://profiledesigner.cesmii.net/profiles/library" />Profile Library</a> to cancel the submission.
+            You can then edit the profile and submit it again for publishing at a later time.
+        </p>
+    </div>
+
+<div>
+    <h4>Resubmitting Your Profile</h4>
+    <p style="margin-left:20px;">
+        When you have made the necessary changes, we invite you to resubmit your profile to the CESMII Cloud Library 
+        and to the <a href="https://marketplace.cesmii.net">CESMII Smart Manufacturing Marketplace</a>.
+    </p>
+</div>
+
+<div>
+    <br/>
+    <p>Thank you for your support of the <a href="https://profiledesigner.cesmii.net" />CESMII Smart Manufacturing Profile&trade; Designer</a>!</p>
+    <br />
+    <p>Sincerely,<br />
+        CESMII Support Team
+    </p>
+    <br />
+</div>

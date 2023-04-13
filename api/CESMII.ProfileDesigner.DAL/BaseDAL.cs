@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
+    using Microsoft.EntityFrameworkCore;
 
     using NLog;
 
@@ -47,6 +48,18 @@
         {
             var entity = _repo.FindByCondition(u => u.ID == id).FirstOrDefault();
             return MapToModel(entity);
+        }
+
+        /// <summary>
+        /// Get item by id - asynchronously
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public virtual async Task<TModel> GetByIdAsync(int id, UserToken userToken)
+        {
+            var entity = await _repo.FindByCondition(u => u.ID == id).FirstOrDefaultAsync();
+            var result = MapToModel(entity);
+            return result;
         }
 
         public virtual List<TModel> GetAll(UserToken userToken, bool verbose = false)

@@ -31,8 +31,20 @@
             //apply id - should be present after onlogin handler, it gets set by middleware when request is inbound
             var permission = EnumUtils.GetEnumDescription(PermissionEnum.UserAzureADMapped);
             if (int.TryParse(user.FindFirst(x => x.Type.ToLower().Equals(permission.ToLower()))?.Value, out int oId))
-            { 
+            {
                 result.ID = oId;
+            }
+
+
+            string strClaimOrg = $"{permission}_org";
+
+            var strOrgName = user.FindFirst(x => x.Type.ToLower().Equals(strClaimOrg.ToLower()))?.Value;
+            if (strOrgName != null)
+            {
+                result.Organization = new OrganizationModel()
+                {
+                    Name = strOrgName
+                };
             }
 
             return result;

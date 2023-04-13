@@ -5,36 +5,37 @@
 }
 
 <div>
-    <p>We have received your request to cancel the Smart Manufacturing Profile submission for profile <b>@Model.Title</b>. You may now access and edit your profile from the CESMII <a href="https://profiledesigner.cesmii.net/profiles/library">Profile Library</a> and submit your profile to be published at a later time.</p>
+    <p>We have received your request to cancel the Smart Manufacturing Profile&trade; submission for profile <b>@Model.Title</b>.
+        Your may now edit your profile in the <a href="https://profiledesigner.cesmii.net" />CESMII Smart Manufacturing Profile&trade; Designer</a>. 
+        Once your edits are complete, we invite you to resubmit your profile for publishing in the CESMII Cloud Library and the <a href="https://marketplace.cesmii.net">CESMII Smart Manufacturing Marketplace</a>.
+    </p>
+    <br />
     <p>Here are the details of your submission:</p>
 </div>
 
     <div>
         <h3>Profile: @Model.Title</h3>
-    <p style="margin-left:35px;">
-            Title: @Model.Title<br />
+    <p style="margin-left:20px;">
             Description: @Model.Description<br />
             Namespace: @Model.Namespace<br />
-            Version: @Model.Version<br />
+            Version: @(Model.Version == null ? "" : Model.Version)<br />
             Publication Date: @Model.PublishDate<br />
             License: @Model.License<br />
         </p>
 </div>
 <div>
-    <h3>Author &amp; Organization</h3>
-    <p style="margin-left:35px;">
+    <h3>Author and Organization</h3>
+    <p style="margin-left:20px;">
         Author: @Model.Author.DisplayName [@Model.Author.Email]<br />
-        Organization: @Model.Author.Organization.Name
+        Organization: @(Model.Author.Organization == null ? "" : Model.Author.Organization.Name==null ? "" : Model.Author.Organization.Name)
     </p>
 </div>
 
 <div>
+    <p>Thank you, again, for your support of the <a href="https://profiledesigner.cesmii.net" />CESMII Smart Manufacturing Profile&trade; Designer</a>!</p>
     <br />
-    <p>Thank you again for your support of the CESMII <a href="https://profiledesigner.cesmii.net/">Smart Manufacturing Profile&trade; Designer</a>!</p>
-    <br/>
-    <br />
-
-    <p> Sincerely,<br />
+    <p>
+        Sincerely,<br />
         CESMII Support Team
     </p>
     <br />

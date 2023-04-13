@@ -23,9 +23,22 @@
         [Column(name: "opc_browse_name")]
         public string BrowseName { get; set; }
 
-        // Compositions don't have nodeids. Compare on BrowseName
-        //[Column(name: "opc_node_id")]
-        //public string OpcNodeId { get; set; }
+        /// <summary>
+        /// Symbolic name would be used for code generation scenarios. 
+        /// </summary>
+        [Column(name: "symbolic_name")]
+        public string SymbolicName { get; set; }
+        /// <summary>
+        /// A url that points to documentation of the node set.  
+        /// </summary>
+        [Column(name: "document_url")]
+        public string DocumentUrl { get; set; }
+        [Column(name: "metatags")]
+        public string MetaTags { get; set; }
+
+        // NodeId only for compositions that represent an intermediate Object between a parent and an ObjectType (Profile Designer optimization)
+        [Column(name: "opc_node_id")]
+        public string OpcNodeId { get; set; }
 
         [Column(name: "is_required")]
         public bool? IsRequired { get; set; }

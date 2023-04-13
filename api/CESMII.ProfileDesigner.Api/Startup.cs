@@ -47,9 +47,13 @@ namespace CESMII.ProfileDesigner.Api
         {
             var connectionStringProfileDesigner = Configuration.GetConnectionString("ProfileDesignerDB");
             //PostgreSql context
+#if DEBUG
             services.AddDbContext<ProfileDesignerPgContext>(options =>
                     options.UseNpgsql(connectionStringProfileDesigner).EnableSensitiveDataLogging());
-
+#else
+            services.AddDbContext<ProfileDesignerPgContext>(options =>
+                    options.UseNpgsql(connectionStringProfileDesigner));
+#endif
 
             //set variables used in nLog.config
             NLog.LogManager.Configuration.Variables["connectionString"] = connectionStringProfileDesigner;
@@ -81,10 +85,14 @@ namespace CESMII.ProfileDesigner.Api
 
             //stock tables
             services.AddScoped<IRepository<User>, BaseRepo<User, ProfileDesignerPgContext>>();
+            services.AddScoped<IRepository<Organization>, BaseRepo<Organization, ProfileDesignerPgContext>>();
             services.AddScoped<IRepository<Permission>, BaseRepo<Permission, ProfileDesignerPgContext>>();
 
             //DAL objects
-            services.AddScoped<UserDAL>();  //this one has extra methods outside of the IDal interface
+            services.AddScoped<UserDAL>();     //this one has extra methods outside of the IDal interface
+            services.AddScoped<OrganizationDAL>();
+
+            //services.AddScoped<IDal<Organization,OrganizationModel>,OrganizationDAL>();
             services.AddScoped<IDal<ProfileTypeDefinition, ProfileTypeDefinitionModel>, ProfileTypeDefinitionDAL>();
             services.AddScoped<IDal<LookupItem, LookupItemModel>, LookupDAL>();
             services.AddScoped<IDal<LookupDataType, LookupDataTypeModel>, LookupDataTypeDAL>();
@@ -108,8 +116,9 @@ namespace CESMII.ProfileDesigner.Api
             services.AddScoped<DAL.Utils.ProfileMapperUtil>();  // helper to allow us to modify profile data for front end 
             services.AddScoped<Utils.CloudLibraryUtil>();  // helper to allow controllers to do stuff related to CloudLibPublish 
             services.AddOpcUaImporter(Configuration);
-            services.AddSingleton<SelfSignUpAuthFilter>();               // Validator for self-sign up - authentiate API Connector username & password.
-            services.AddSingleton<SelfServiceSignUpNotifyController>();  // API Connector for Self-Service Sign-Up User Flow
+
+            services.AddScoped<SelfSignUpAuthFilter>();               // Validator for self-sign up - authentiate API Connector username & password.
+            services.AddScoped<SelfServiceSignUpNotifyController>();  // API Connector for Self-Service Sign-Up User Flow
             services.AddSingleton<MailRelayService>();                   // helper for emailing (in CESMII.Common.SelfServiceSignUp)
             //services.AddSingleton<UACloudLibClient>(sp => new UACloudLibClient(configuration.GetSection("CloudLibrary")new UACloudLibClient.Options))
 

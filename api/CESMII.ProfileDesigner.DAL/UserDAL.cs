@@ -34,7 +34,7 @@
         /// <param name="userId"></param>
         /// <returns></returns>
         //add this layer so we can instantiate the new entity here.
-        public override async Task<int?> AddAsync(UserModel model, UserToken userToken)
+        public override async Task<int?> AddAsync(UserModel model, UserToken userToken = null)
         {
             var entity = new User
             {
@@ -44,6 +44,9 @@
                 //if future, the user sets their own pw on register complete
                 //,Password = PasswordUtils.EncryptNewPassword(_configUtil.PasswordConfigSettings.EncryptionSettings, password)
             };
+
+            if (userToken == null)
+                userToken = new UserToken();
 
             this.MapToEntity(ref entity, model, userToken);
             //do this after mapping to enforce isactive is true on add
@@ -175,6 +178,8 @@
                     Created = entity.Created,
                     LastLogin = entity.LastLogin,
                     Email = entity.EmailAddress,
+                    SelfServiceSignUp_Organization_Name = entity.Oranization_Name,
+                    SelfServiceSignUp_IsCesmiiMember = entity.CesmiiMember,
                 };
             }
             else
@@ -192,9 +197,8 @@
             entity.OrganizationId = model.Organization?.ID;
             entity.EmailAddress = model.Email;
 
-            //AAD - no longer needed
-            //handle update of user permissions
+            entity.Oranization_Name = model.SelfServiceSignUp_Organization_Name;
+            entity.CesmiiMember = model.SelfServiceSignUp_IsCesmiiMember;
         }
-
     }
 }

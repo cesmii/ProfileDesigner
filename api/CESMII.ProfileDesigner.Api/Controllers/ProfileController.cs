@@ -327,8 +327,15 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             if (!string.IsNullOrEmpty(model.Query))
             {
                 result.Add(x => x.Namespace.ToLower().Contains(model.Query) ||
+                         (x.Title != null && x.Title.ToLower().Contains(model.Query)) ||
+                         (x.License != null && x.License.ToLower().Contains(model.Query)) ||
+                         (x.Description != null && x.Description.ToLower().Contains(model.Query)) ||
+                         (x.ContributorName != null && x.ContributorName.ToLower().Contains(model.Query)) ||
+                         (x.Keywords != null && string.Join(",",x.Keywords).ToLower().Contains(model.Query)) ||
+                         (x.CategoryName != null && x.CategoryName.ToLower().Contains(model.Query)) ||
+                         (x.CopyrightText != null && x.CopyrightText.ToLower().Contains(model.Query)) ||
                          (x.Author != null && x.Author.DisplayName.ToLower().Contains(model.Query)));
-            }
+            } 
 
             //Part 1 - Mine OR Base profiles - This will be an OR clause within this portion
             var filterProfileSource = model.Filters?.Find(c =>

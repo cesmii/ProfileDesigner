@@ -11,7 +11,8 @@ import { SVGIcon } from '../../components/SVGIcon'
 import { generateLogMessageString, pageDataRows, convertToNumeric, toInt, onChangeNumericKeysOnly } from '../../utils/UtilityService'
 import {
     getAttributesPreferences, setAttributesPageSize, attributeNew, validate_All, validate_nameDuplicate,
-    validate_name, onChangeDataTypeShared, onChangeAttributeTypeShared, validate_attributeType, validate_enumValueDuplicate, validate_enumValueNumeric, onChangeInterfaceShared, onChangeCompositionShared, renderDataTypeUIShared, renderCompositionSelectUIShared, renderInterfaceSelectUIShared
+    validate_name, onChangeDataTypeShared, onChangeAttributeTypeShared, validate_attributeType, validate_enumValueDuplicate, validate_enumValueNumeric, onChangeInterfaceShared, onChangeCompositionShared, renderDataTypeUIShared, renderCompositionSelectUIShared, renderInterfaceSelectUIShared,
+    renderVariableTypeUIShared, getPermittedDataTypesForAttribute, onChangeVariableTypeShared
 } from '../../services/AttributesService';
 import AttributeItemRow from './AttributeItemRow';
 import AttributeSlideOut from './AttributeSlideOut';
@@ -43,15 +44,18 @@ function AttributeList(props) {
     //all interfaces is our list from the server, current list is the ones not yet chosen
     const [_lookupInterfaces, setLookupInterfaces] = useState({ all: [], current: [] });
     const [_lookupDataTypes, setLookupDataTypes] = useState([]);
+    const [_permittedDataTypes, setPermittedDataTypes] = useState(null);
+    const [_lookupVariableTypes, setLookupVariableTypes] = useState([]);
     const [_lookupAttributeTypes, setLookupAttributeTypes] = useState([]);
     const [_addSettings, setAddSettings] = useState({
-        useMinMax: true, useEngUnit: true, showComposition: false, /*showStructure: false,*/ showInterface: false, showEnumeration: false,
-        isCustomDataType: false, showDescription: true
+        useMinMax: true, useEngUnit: true, showComposition: false, showStructure: false, showInterface: false, showEnumeration: false,
+        isCustomDataType: false, showDescription: true, showVariableType: false, showProperty: false,
     });
     const [_isValid, setIsValid] = useState({
         name: true,
         nameDuplicate: true,
         dataType: true,
+        variableType: true,
         attributeType: true,
         composition: true,
         structure: true,
@@ -119,10 +123,12 @@ function AttributeList(props) {
     useEffect(() => {
         if (props.lookupRelated == null) {
             setLookupCompositions([]); //also updates state
+            setLookupVariableTypes([]);
             setLookupInterfaces({ all: [], current: [] });
         }
         else {
             setLookupCompositions(props.lookupRelated.compositions); //also updates state
+            setLookupVariableTypes(props.lookupRelated.variableTypes);
             setLookupInterfaces({ all: props.lookupRelated.interfaces, current: props.lookupRelated.interfaces });
         }
 
@@ -213,6 +219,25 @@ function AttributeList(props) {
         };
     }, [props.typeDefinition?.typeId, loadingProps.lookupDataRefreshed]);
 
+    //-------------------------------------------------------------------
+    // Region: hooks
+    //-------------------------------------------------------------------
+    useEffect(() => {
+        setPermittedDataTypes(_lookupDataTypes);
+    }, [_lookupDataTypes]);
+
+    //-------------------------------------------------------------------
+    // Region: hooks
+    //-------------------------------------------------------------------
+    useEffect(() => {
+        const newPermittedDataTypes = getPermittedDataTypesForAttribute(_addItem, _lookupDataTypes, _lookupVariableTypes);
+        if (newPermittedDataTypes != null) {
+            setPermittedDataTypes(newPermittedDataTypes)
+        }
+        else {
+            setPermittedDataTypes(_lookupDataTypes);
+        }
+    }, [_addItem]);
 
     //-------------------------------------------------------------------
     // Region: Validation
@@ -260,7 +285,7 @@ function AttributeList(props) {
     const validateForm = () => {
         console.log(generateLogMessageString(`validateForm`, CLASS_NAME));
 
-        var isValid = validate_All(_addItem, _addSettings, _allAttributes.all);
+        var isValid = validate_All(_addItem, _addSettings, _allAttributes.all, _permittedDataTypes);
         isValid.composition = (_addItem.composition != null && _addItem.compositionId > 0) || _addItem.attributeType.id !== AppSettings.AttributeTypeDefaults.CompositionId;
         isValid.interface = (_addItem.interface != null && _addItem.interfaceId > 0) || _addItem.attributeType.id !== AppSettings.AttributeTypeDefaults.InterfaceId;
 
@@ -491,7 +516,7 @@ function AttributeList(props) {
     //attribute add ui - change data type
     const onChangeDataType = (e) => {
         //var data = onChangeDataTypeShared(e.target.value, _addItem, _addSettings, _lookupDataTypes);
-        const data = onChangeDataTypeShared(e.value, _addItem, _addSettings, _lookupDataTypes);
+        const data = onChangeDataTypeShared(e.value, _addItem, _addSettings, _permittedDataTypes);
 
         //replace add settings (updated in shared method)
         setAddSettings(JSON.parse(JSON.stringify(data.settings)));
@@ -500,10 +525,16 @@ function AttributeList(props) {
 
     }
 
+    const onChangeVariableType = (e) => {
+        onChangeVariableTypeShared(e?.value, _addItem, _lookupVariableTypes, _lookupDataTypes);
+
+        //replace add settings (updated in shared method)
+        setAdd(JSON.parse(JSON.stringify(_addItem)));
+    }
+
     //attribute add ui - change data type
     const onChangeAttributeType = (e) => {
-        const data = onChangeAttributeTypeShared(e, _addItem, _addSettings, _lookupAttributeTypes, _lookupDataTypes);
-
+        const data = onChangeAttributeTypeShared(e, _addItem, _addSettings, _lookupAttributeTypes, _lookupDataTypes, _lookupVariableTypes);
         //replace settings (updated in shared method)
         setAddSettings(JSON.parse(JSON.stringify(data.settings)));
         //update state - after changes made in shared method
@@ -739,6 +770,7 @@ function AttributeList(props) {
                 onDelete={deleteCallback} onDeleteInterface={deleteInterfaceCallback} onUpdate={onAttributeUpdate} allAttributes={_allAttributes.all}
                 toggleSlideOutCustomType={toggleSlideOutCustomType} toggleSlideOutDetail={toggleSlideOutDetail}
                 lookupDataTypes={_lookupDataTypes} lookupAttributeTypes={_lookupAttributeTypes} lookupCompositions={_lookupCompositions}
+                lookupVariableTypes={_lookupVariableTypes}
                 lookupStructures={_lookupStructures} />)
         });
 
@@ -769,9 +801,12 @@ function AttributeList(props) {
         return <GridPager currentPage={_dataRows.pager.currentPage} pageSize={_dataRows.pager.pageSize} itemCount={_dataRows.pager.itemCount} onChangePage={onChangePage} />
     }
 
+    const renderVariableTypeUI = () => {
+        return renderVariableTypeUIShared(_addItem, _lookupVariableTypes, _addSettings, _isValid.variableType, true, onChangeVariableType);
+    };
 
     const renderDataTypeUI = () => {
-        return renderDataTypeUIShared(_addItem, _lookupDataTypes, props.typeDefinition.type, _isValid.dataType, true, onChangeDataType);
+        return renderDataTypeUIShared(_addItem.dataType, _permittedDataTypes, props.typeDefinition.type, _isValid.dataType, true, null, onChangeDataType);
     };
 
     const renderAttributeTypeUI = () => {
@@ -947,19 +982,22 @@ function AttributeList(props) {
                 </div>
                 <div className="py-2 px-4 hl-blue">
                     <div className="row" >
-                        <div className="col-sm-5" >{renderAttributeTypeUI()}</div>
-                        {(!_addSettings.showInterface && !_addSettings.showComposition && !_addSettings.showEnumeration) &&
-                            <div className="col-sm-6" >{renderDataTypeUI()}</div>
+                        <div className="col-sm-4" >{renderAttributeTypeUI()}</div>
+                        {(_addSettings.showVariableType) &&
+                            <div className="col-sm-4" >{renderVariableTypeUI()}</div>
+                        }
+                        {(_addSettings.showVariableType || _addSettings.showProperty || _addSettings.showStructure) &&
+                            <div className={`col-sm-${_addSettings.showVariableType ? '3' :'7'}`} >{renderDataTypeUI()}</div>
                         }
                         {_addSettings.showEnumeration &&
                             <div className="col-sm-3" >{renderEnumValueUI()}</div>
                         }
                         {_addSettings.showComposition &&
-                            <div className="col-sm-6" >{renderCompositionUI()}</div>
+                            <div className="col-sm-7" >{renderCompositionUI()}</div>
                         }
                         {_addSettings.showInterface &&
                             <>
-                            <div className="col-md-6 col-sm-5" >
+                            <div className="col-md-7 col-sm-6" >
                                 {renderInterfaceUI()}
                             </div>
                             <div className="col-sm-1 align-items-end align-self-end" >
@@ -970,7 +1008,7 @@ function AttributeList(props) {
                     </div>
                     {!_addSettings.showInterface &&
                         <div className="row" >
-                        <div className="col-sm-5" >
+                        <div className="col-sm-4" >
                                 <Form.Group className="">
                                     <Form.Label>Name</Form.Label>
                                     {!_isValid.name &&
@@ -988,7 +1026,7 @@ function AttributeList(props) {
                                         onChange={onChange} className={(!_isValid.name || !_isValid.nameDuplicate ? 'invalid-field' : '')} />
                                 </Form.Group>
                             </div>
-                        <div className="col-md-6 col-sm-5" >
+                        <div className="col-md-7 col-sm-6" >
                                 {renderDescription()}
                             </div>
                         <div className="col-sm-1 align-items-end align-self-end" >
@@ -1010,7 +1048,7 @@ function AttributeList(props) {
             {renderGrid()}
             {renderPagination()}
             <AttributeSlideOut isOpen={_slideOut.isOpen} item={_slideOut.item} onClosePanel={toggleSlideOutCustomType} readOnly={_slideOut.readOnly}
-                showDetail={_slideOut.showDetail} lookupDataTypes={_lookupDataTypes} lookupAttributeTypes={_lookupAttributeTypes}
+                showDetail={_slideOut.showDetail} lookupDataTypes={_lookupDataTypes} lookupAttributeTypes={_lookupAttributeTypes} lookupVariableTypes={_lookupVariableTypes}
                 allAttributes={_allAttributes.all} lookupCompositions={_lookupCompositions} lookupInterfaces={_lookupInterfaces}
                 lookupEngUnits={_lookupEngUnits} onUpdate={onAttributeUpdate} activeAccount={props.activeAccount}
             />

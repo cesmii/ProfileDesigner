@@ -118,8 +118,9 @@ function ProfileEntity() {
         //get a blank object from server
         async function fetchDataAdd() {
             console.log(generateLogMessageString('useEffect||fetchDataAdd||async', CLASS_NAME));
-            //set item state value
-            setItem(JSON.parse(JSON.stringify(profileNew)));
+            var newthing = JSON.parse(JSON.stringify(profileNew));
+            newthing.contributorName = loadingProps.organizationName;
+            setItem(newthing);
             setLoadingProps({ isLoading: false, message: null });
         }
 

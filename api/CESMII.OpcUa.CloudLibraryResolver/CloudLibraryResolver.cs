@@ -98,7 +98,7 @@ namespace CESMII.OpcUa.NodeSetImporter
                     {
                         OnDownloadNodeSet?.Invoke(bestMatch?.NamespaceUri, bestMatch?.PublicationDate);
                         var nodeSet = await _client.DownloadNodesetAsync(bestMatch?.Identifier).ConfigureAwait(false);
-                        nodesetXml = nodeSet.Nodeset.NodesetXml;
+                        nodesetXml = nodeSet?.Nodeset?.NodesetXml;
                     }
                     if (!string.IsNullOrEmpty(nodesetXml))
                     {

@@ -50,12 +50,10 @@ function LoginButton() {
                 </Button>
             </div>
             <p className="mt-3 mb-2 text-center" >
-                <span className="font-weight-bold mr-1" >Don't have an account?</span>
+                    <span className="font-weight-bold mr-1" >Don't have an account?</span>
                 <Button variant="link" className="link m-0 p-0 pr-1" type="button" onClick={onCreateAccountClick} >
-                    Create Account
+                Create an account now.
                 </Button>
-                or email us at <a href="mailto:devops@cesmii.org" >devops@cesmii.org</a> to get registered.
-                Please provide your project name or SOPO number with your request.
             </p>
             </div>
         </div>

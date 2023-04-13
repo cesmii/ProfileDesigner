@@ -8,7 +8,6 @@ import { generateLogMessageString, isInRoles } from '../utils/UtilityService'
 import { useLoadingContext } from "../components/contexts/LoadingContext";
 import { AppSettings } from "../utils/appsettings";
 import { Msal_Instance } from "..";
-
 const CLASS_NAME = "OnLoginHandler";
 
 
@@ -75,6 +74,34 @@ export const useRegisterMsalEventCallback = (setLoadingProps) => {
     return null;
 }
 
+export function InitOrgName(setLoadingProps) {
+
+    // Get the last organization that was found on login.
+    var url = `auth/QueryCurrentOrganization`;
+    axiosInstance.post(url)
+        .then(result => {
+
+            if (result.data.isSuccess) {
+                setLoadingProps({ organizationName: result.data.message });
+            }
+            else {
+                console.log(generateLogMessageString(`QueryCurrentOrganization||error||${result.data.message}`, CLASS_NAME, 'error'));
+            }
+        })
+        .catch(error => {
+            //hide a spinner, show a message
+            console.log(generateLogMessageString('QueryCurrentOrganization||error||' + JSON.stringify(error), CLASS_NAME, 'error'));
+            console.log(error);
+            //scroll back to top
+            window.scroll({
+                top: 0,
+                left: 0,
+                behavior: 'smooth',
+            });
+        });
+
+}
+
 //-------------------------------------------------------------------
 // onAfterAADLogin: after login, let API know and wire up some stuff for downstream
 //-------------------------------------------------------------------
@@ -96,6 +123,8 @@ export const onAADLogin = (setLoadingProps) => {
                     refreshFavoritesList: true
                 });
                 //if (callbackFn) callbackFn(200);
+
+                InitOrgName(setLoadingProps);
             }
             else {
                 console.warn(generateLogMessageString(`onAADLogin||Initialize Failed||${result.data.message}`, CLASS_NAME));
@@ -142,11 +171,13 @@ export const onAADLoginComplete = (instance, history, setLoadingProps, statusCod
             console.error(generateLogMessageString(`onAADLoginComplete||statusCode||${statusCode}`, CLASS_NAME));
             //history.push('/notauthorized');
             doLogout(history, instance, '/notauthorized');
+            setLoadingProps({ organizationName: null });
             break;
         case 403:
             console.error(generateLogMessageString(`onAADLoginComplete||statusCode||${statusCode}`, CLASS_NAME));
             //history.push('/notpermitted');
             doLogout(history, instance, '/notpermitted', true, true);
+            setLoadingProps({ organizationName: null });
             break;
         case 399:
         case 400:

@@ -105,27 +105,26 @@
         /// </summary>
         CloudLibPublished = 2,
         /// <summary>
-        /// A nodeset that is in a pending state of being published. This would be pending but ot approved yet. 
+        /// A nodeset that is in a pending state of being published. This would be pending but not approved yet. 
         /// Readonly state
         /// </summary>
         CloudLibPending = 3,
         /// <summary>
-        /// A nodeset that is in submitted but rejected by approver. This could be pending or rejected but not withdrawn
+        /// A nodeset that is approved for publication, and will be removed from the queue.
         /// Readonly state
         /// </summary>
         CloudLibApproved = 4,
         /// <summary>
-        /// A nodeset that is in submitted but rejected by approver. This could be pending or rejected but not withdrawn
+        /// A nodeset that is rejected from being published but remains in the queue.
         /// Readonly state
         /// </summary>
         CloudLibRejected = 5,
         /// <summary>
-        /// A nodeset that is in submitted but rejected by approver. This could be pending or rejected but not withdrawn
-        /// Readonly state
+        /// A nodeset where the submission has been removed from the queue. A user can modify this.
         /// </summary>
         CloudLibCancelled = 6,
         /// <summary>
-        /// A nodeset that is currently being modified by the user. This user owns this proifle and can modify.
+        /// A nodeset that is currently being modified by the user. This user owns this profile and can modify.
         /// </summary>
         Local = 7,
         /// <summary>

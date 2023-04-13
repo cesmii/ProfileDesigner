@@ -207,6 +207,57 @@ export function getProfileTypeCaption(item) {
     }
 }
 
+
+///--------------------------------------------------------------------------
+/// Gets the data types permitted for a variable type
+//--------------------------------------------------------------------------
+export const getPermittedDataTypesForVariableTypeById = (variableTypeId, lookupDataTypes) => {
+    if (variableTypeId != null) {
+        var vtDataType = lookupDataTypes.find(dt => { return dt.customTypeId === variableTypeId });
+        if (vtDataType != null) {
+            const permittedDataTypes = getDerivedDataTypes(vtDataType, lookupDataTypes);
+            return permittedDataTypes;
+        }
+    }
+    return null;
+}
+
+///--------------------------------------------------------------------------
+/// Gets all data types derived from a data type (from for example loadingProps.lookupDataStatic.dataTypes), including the data type itself
+//--------------------------------------------------------------------------
+export const getDerivedDataTypes = (dataType, lookupDataTypes) => {
+    const derivedDataTypes = lookupDataTypes.filter((dt) => {
+        if (isDerivedFromDataType(dt, dataType, lookupDataTypes)) {
+            return dt;
+        }
+        return null;
+    });
+    return derivedDataTypes;
+}
+
+///--------------------------------------------------------------------------
+/// Determines if a data type (from for example loadingProps.lookupDataStatic.dataTypes) is derived from another data type
+//--------------------------------------------------------------------------
+export const isDerivedFromDataType = (dataType, baseDataType, lookupDataTypes) => {
+    let dtCurrent = dataType;
+    do {
+        if (dtCurrent.id === baseDataType.id) {
+            return true;
+        }
+        if (dtCurrent.baseDataTypeId == null) {
+            break;
+        }
+        let dtBase = lookupDataTypes.find(dt => { return dt.id === dtCurrent.baseDataTypeId; });
+        if (dtBase === dtCurrent) {
+            // avoid infinite loop if data is bad
+            break;
+        }
+        dtCurrent = dtBase;
+    }
+    while (dtCurrent != null);
+    return false;
+}
+
 //TBD - move to profile service file
 export function getTypeDefIconName(item) {
     if (item == null || item.type == null) return AppSettings.IconMapper.TypeDefinition;
@@ -231,11 +282,7 @@ export const getIconColorByProfileState = (profileState) => {
 
     switch (profileState) {
         case AppSettings.ProfileStateEnum.CloudLibPending:
-        //    iconColor = color.amber;
-        //    break;
         case AppSettings.ProfileStateEnum.CloudLibRejected:
-        //    iconColor = color.cardinal;
-        //    break;
         case AppSettings.ProfileStateEnum.Local:
             return color.mine;
         case AppSettings.ProfileStateEnum.CloudLibPublished:
@@ -339,7 +386,7 @@ export function validateNumeric(dataType, val) {
 export const validate_namespaceFormat = (val) => {
     if (val == null || val.length === 0) return true;
 
-    var format = /((([A-Za-z]{3,9}:(?:\/\/)?)(?:[-;:&=+$,\w]+@)?[A-Za-z0-9.-]+|(?:www\.|[-;:&=+$,\w]+@)[A-Za-z0-9.-]+)((?:\/[+~%/.\w\-_]*)?\??(?:[-+=&;%@.\w_]*)#?(?:[.!/\\\w]*))?)/;
+    const format = /((([A-Za-z]{3,9}:(?:\/\/)?)(?:[-;:&=+$,\w]+@)?[A-Za-z0-9.-]+|(?:www\.|[-;:&=+$,\w]+@)[A-Za-z0-9.-]+)((?:\/[+~%/.\w\-_]*)?\??(?:[-+=&;%@.\w_]*)#?(?:[.!/\\\w]*))?)/;
     return format.test(val);
 };
 
@@ -349,7 +396,7 @@ export const validate_namespaceFormat = (val) => {
 export const validate_NoSpecialCharacters = (val) => {
     if (val == null || val.length === 0) return true;
 
-    var format = /[ `!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?~(0-9)]/;  //includes a space
+    const format = /[ `!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?~(0-9)]/;  //includes a space
     return !format.test(val);
 };
 
@@ -496,4 +543,13 @@ export function renderMenuIcon(iconName, alt) {
     );
 }
 
+///--------------------------------------------------------------------------
+/// menu icon convenience code
+//--------------------------------------------------------------------------
+export function renderMenuColorIcon(iconName, alt, colorFill) {
+    if (iconName == null || iconName === '') return null;
+    return (
+        <span className="mr-3" alt={`${alt == null ? iconName : alt}`}><SVGIcon name={iconName} fill={colorFill} size={24} /></span>
+    );
+}
 

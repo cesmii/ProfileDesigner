@@ -50,7 +50,6 @@ namespace CESMII.ProfileDesigner.OpcUa
             IDal<NodeSetFile, NodeSetFileModel> nodeSetFileDal,
             UANodeSetDBCache nodeSetCache,
             IDal<EngineeringUnit, EngineeringUnitModel> euDal,
-            ProfileMapperUtil profileUtils,
             IRepository<ProfileTypeDefinitionAnalytic> ptAnalyticsRepo,
             IRepository<ProfileTypeDefinitionFavorite> ptFavoritesRepo,
             IRepository<LookupDataTypeRanked> dtRankRepo,
@@ -61,6 +60,14 @@ namespace CESMII.ProfileDesigner.OpcUa
             )
         {
             _dal = dal;
+            if (_dal is ProfileTypeDefinitionDAL dalClass)
+            {
+                dalClass.GenerateIntermediateCompositionObjects = false;
+            }
+            else
+            {
+                logger.LogError($"Importer: ProfileTypeDefinitionDAL not of expected type. Import/export may be incorrect.");
+            }
             _dtDal = dtDal;
             _euDal = euDal;
             this.Logger = new LoggerCapture(logger);
@@ -73,7 +80,6 @@ namespace CESMII.ProfileDesigner.OpcUa
             _cloudLibResolver = cloudLibResolver;
             _nodeSetFileDal = nodeSetFileDal;
             _nodeSetCache = nodeSetCache;
-            _profileUtils = profileUtils;
             _ptAnalyticsRepo = ptAnalyticsRepo;
             _ptFavoritesRepo = ptFavoritesRepo;
             _dtRankRepo = dtRankRepo;
@@ -82,7 +88,6 @@ namespace CESMII.ProfileDesigner.OpcUa
         public readonly IDal<ProfileTypeDefinition, ProfileTypeDefinitionModel> _dal;
         public readonly IDal<LookupDataType, LookupDataTypeModel> _dtDal;
         public readonly IDal<EngineeringUnit, EngineeringUnitModel> _euDal;
-        public readonly ProfileMapperUtil _profileUtils;
         private readonly IRepository<ProfileTypeDefinitionAnalytic> _ptAnalyticsRepo;
         private readonly IRepository<ProfileTypeDefinitionFavorite> _ptFavoritesRepo;
         private readonly IRepository<LookupDataTypeRanked> _dtRankRepo;
@@ -426,6 +431,13 @@ namespace CESMII.ProfileDesigner.OpcUa
                 throw ex;
             }
 
+            if (nodeSet.Models.Length > 1)
+            {
+                var ex = new Exception($"Nodeset: multiple model entries not supported.");
+                Logger.LogError(ex.Message);
+                throw ex;
+            }
+
             var firstModel = nodeSet.Models.FirstOrDefault();
             if (firstModel.ModelUri != profile.Namespace)
             {
@@ -503,10 +515,10 @@ namespace CESMII.ProfileDesigner.OpcUa
             exportedNodeSets.Add(exportedNodeSet);
             if (includeRequiredModels)
             {
-                var requiredModels = exportedNodeSet.nodeSet.Models.SelectMany(m => m.RequiredModel)?.GroupBy(m => m.ModelUri).Select(mg => mg.MaxBy(m => m.PublicationDate)).ToList();
+                var requiredModels = exportedNodeSet.nodeSet.Models.SelectMany(m => m.RequiredModel)?.GroupBy(m => m.ModelUri).Select(mg => mg.MaxBy(m => m.GetNormalizedPublicationDate())).ToList();
                 foreach (var requiredModel in requiredModels)
                 {
-                    var requiredProfile = _profileDal.Where(p => p.Namespace == requiredModel.ModelUri && p.PublishDate >= requiredModel.PublicationDate, userToken).Data?.OrderByDescending(p => p.PublishDate)?.FirstOrDefault();
+                    var requiredProfile = _profileDal.Where(p => p.Namespace == requiredModel.ModelUri && p.PublishDate >= requiredModel.GetNormalizedPublicationDate(), userToken).Data?.OrderByDescending(p => p.PublishDate)?.FirstOrDefault();
                     var requiredNodeSet = ExportInternal(requiredProfile, userToken, authorId, bForceReexport);
                     exportedNodeSets.Add(requiredNodeSet);
                 }
@@ -709,7 +721,7 @@ namespace CESMII.ProfileDesigner.OpcUa
                     }
                     else
                     {
-                        if (uaVariable.Parent is DataVariableModel dvParentModel && dalContext.profileItemsByNodeId.TryGetValue(dvParentModel.Parent.NodeId, out var dvGrandParent))
+                        if (uaVariable.Parent is DataVariableModel dvParentModel && dvParentModel.Parent != null && dalContext.profileItemsByNodeId.TryGetValue(dvParentModel.Parent.NodeId, out var dvGrandParent))
                         {
 
                             var nodeIdParts = uaVariable.Parent.NodeId.Split(';');

@@ -61,6 +61,19 @@ namespace CESMII.ProfileDesigner.Api.Tests
             } 
         }
 
+        public TestUserModel _localUser;
+        public TestUserModel LocalUser
+        {
+            get
+            {
+                if (_localUser == null)
+                {
+                    _localUser = new TestUserModel();
+                }
+                return _localUser;
+            }
+        }
+
         protected override IHostBuilder CreateHostBuilder()
         {
             return base.CreateHostBuilder()
@@ -147,11 +160,11 @@ namespace CESMII.ProfileDesigner.Api.Tests
             var testUser = new ClaimsPrincipal(new ClaimsIdentity(
                 new List<Claim>
                 {
-                    new Claim("objectidentifier", "1234"),
-                    new Claim("preferred_username", "cesmiitest"),
-                    new Claim("ClaimTypes.Surname", "cesmiitest"),
-                    new Claim("ClaimTypes.GivenName", "cesmiitest"),
-                    new Claim("name", "cesmiitest"),
+                    new Claim("objectidentifier", LocalUser.ObjectIdAAD),
+                    new Claim("preferred_username", LocalUser.UserName),
+                    new Claim("ClaimTypes.Surname", LocalUser.UserName),
+                    new Claim("ClaimTypes.GivenName", LocalUser.UserName),
+                    new Claim("name", LocalUser.UserName),
                     //new Claim("role", "cesmii.profiledesigner.user"),
                 }));
             var tokenInfo = new JwtSecurityToken(issuer: "testissuer", claims: testUser.Claims);
@@ -161,4 +174,14 @@ namespace CESMII.ProfileDesigner.Api.Tests
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, token);
         }
     }
+
+    /// <summary>
+    /// A model to faciliate re-use of the test user that will be generated and re-used in multiple tests 
+    /// </summary>
+    public class TestUserModel
+    {
+        public string ObjectIdAAD { get; set; } = "1234";
+        public string UserName { get; set; } = "cesmiitest";
+    }
+
 }

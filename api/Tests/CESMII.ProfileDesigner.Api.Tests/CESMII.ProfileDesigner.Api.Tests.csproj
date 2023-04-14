@@ -42,4 +42,16 @@
 	  </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="TestNodeSets\LargeFiles\Siemens-S7-opcua.NodeSet2.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestNodeSets\LargeFiles\Siemens.OPCUA.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestNodeSets\LargeFiles\www.Equinor.com.EntTypes.2021-12-08.NodeSet2.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

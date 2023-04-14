@@ -11,7 +11,6 @@
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Logging;
     using System;
-    using System.Linq;
     using System.Threading;
 
     [Authorize, Route("api/[controller]")]
@@ -56,6 +55,7 @@
         protected UserModel InitLocalUser()
         {
             bool bCheckOrganization = false;
+            bool bUpdateUser = false;
             bool bFound = false;
 
             UserModel um = null;
@@ -63,23 +63,22 @@
             // Search using user's Azure id.
             var userAAD = User.GetUserAAD();
             var listMatchObjectIdAAD = _dalUser.Where(x => x.ObjectIdAAD.ToLower().Equals(userAAD.ObjectIdAAD), null).Data;
-            if (listMatchObjectIdAAD.Count > 0)
+            if (listMatchObjectIdAAD.Count == 1)
             {
-                var mysort = listMatchObjectIdAAD.OrderBy(item => item.Created);
-                um = mysort.First();
+                um = listMatchObjectIdAAD[0];
                 um.Email = userAAD.Email;
                 um.DisplayName = userAAD.DisplayName;
                 um.LastLogin = DateTime.UtcNow;
 
+                bUpdateUser = true;         // Synch UserModel changes
                 bCheckOrganization = true;  // Check the user's organization.
 
                 bFound = true;              // No need to keep looking.
-
-                if (listMatchObjectIdAAD.Count > 1)
-                {
-                    // This is likely a database problem, so let's let them in.
-                    _logger.LogWarning($"InitLocalUser||More than one Profile designer user record found with user object id {userAAD.ObjectIdAAD}. {listMatchObjectIdAAD.Count} records found.");
-                }
+            }
+            else if (listMatchObjectIdAAD.Count > 1)
+            {
+                _logger.LogWarning($"InitLocalUser||More than one Profile designer user record found with user name {userAAD.ObjectIdAAD}. {listMatchObjectIdAAD.Count} records found.");
+                throw new ArgumentNullException($"InitLocalUser: More than one Profile designer record user found with user name {userAAD.ObjectIdAAD}. {listMatchObjectIdAAD.Count} records found.");
             }
 
 
@@ -100,13 +99,12 @@
                     um.ID = _dalUser.AddAsync(um, null).Result;
                     um = _dalUser.GetById((int)um.ID, null);
 
+                    bUpdateUser = true;         // Synch UserModel changes
                     bCheckOrganization = true;  // Check the user's organization.
                 }
-                else // We have one or more records with the same email address.
+                else if (listMatchEmailAddress.Count == 1)
                 {
-                    // If more than 1 item, grab the oldest one.
-                    var mysort = listMatchEmailAddress.OrderBy(item => item.Created);
-                    um = mysort.First();
+                    um = listMatchEmailAddress[0];
 
                     // Update the user's Azure id. If we are here, then Azure id has changed.
                     // This can happen if user
@@ -117,16 +115,14 @@
                     um.DisplayName = userAAD.DisplayName;
                     um.LastLogin = DateTime.UtcNow;
 
+                    bUpdateUser = true;         // Synch UserModel changes
                     bCheckOrganization = true;  // Check the user's organization.
-
-                    // Log an error message.
-                    if (listMatchEmailAddress.Count > 1)
-                    {
-                        // Could be a database problem, or maybe they left the organization and then signed up again.
-                        // Let's let them in.
-                        string strError = $"InitLocalUser||More than one Profile designer user record found with email {userAAD.Email}. {listMatchEmailAddress.Count} records found.";
-                        _logger.LogWarning(strError);
-                    }
+                }
+                else
+                {
+                    string strError = $"InitLocalUser||More than one Profile designer user record found with email {userAAD.Email}. {listMatchEmailAddress.Count} records found.";
+                    _logger.LogWarning(strError);
+                    throw new ArgumentNullException(strError);
                 }
             }
 
@@ -151,29 +147,30 @@
                         var idNewOrg = _dalOrganization.AddAsync(om, null).Result;
                         om = _dalOrganization.GetById((int)idNewOrg, null);
                         um.Organization = om;
+                        bUpdateUser = true;         // Synch UserModel changes
                     }
-                    else if (listMatchOrganizationName.Count > 0)
+                    else if (listMatchOrganizationName.Count == 1)
                     {
-                        // More than one? Go with first one.
-                        var myOrgSort = listMatchOrganizationName.OrderBy(org => org.ID);
-                        um.Organization = myOrgSort.First();
-                        if (listMatchOrganizationName.Count > 1)
-                        {
-                            // More than one organization. Oops. 
-                            // Not sure why this happened, but we log it and go with the first one.
-                            string strError = $"InitLocalUser||More than one organization record found with Name = {strFindOrgName}. {listMatchOrganizationName.Count} records found.";
-                            _logger.LogWarning(strError);
-                        }
+                        // Found? Assign it.
+                        um.Organization = listMatchOrganizationName[0];
+                        bUpdateUser = true;         // Synch UserModel changes
+                    }
+                    else
+                    {
+                        // More than one -- oops. A problem.
+                        string strError = $"InitLocalUser||More than one organization record found with Name = {strFindOrgName}. {listMatchOrganizationName.Count} records found.";
+                        _logger.LogWarning(strError);
+                        throw new ArgumentNullException(strError);
                     }
                 }
             }
 
-            // We always update the user record.
-            // If nothing else, we need to update the last login date & time.
-            _dalUser.UpdateAsync(um, new UserToken() { UserId = um.ID.Value }).Wait();
+            if (bUpdateUser)
+                _dalUser.UpdateAsync(um, new UserToken() { UserId = um.ID.Value }).Wait();
 
             return um;
 
         }
+
     }
 }

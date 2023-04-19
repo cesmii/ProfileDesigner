@@ -30,7 +30,7 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
         protected const string TEST_USER_OBJECTID_AAD = "1234";
 
         #region api endpoints
-        protected const string URL_IMPORT_GETBYID = "/api/importlog/getbyid";
+        //protected const string URL_IMPORT_GETBYID = "/api/importlog/getbyid";
         protected const string URL_USER_SEARCH = "/api/user/search";
         #endregion
 
@@ -148,28 +148,6 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
             var connectionStringProfileDesigner = _factory.Config.GetConnectionString("ProfileDesignerDB");
             services.AddDbContext<ProfileDesignerPgContext>(options =>
                     options.UseNpgsql(connectionStringProfileDesigner));
-        }
-
-        protected async Task PollImportStatus(int id)
-        {
-            //TODO - add loop to wait for import to complete
-            DAL.Models.ImportLogModel status;
-            var model = new IdIntModel { ID = id };
-            var sw = Stopwatch.StartNew();
-            do
-            {
-                System.Threading.Thread.Sleep(2000);
-                status = await ApiClient.ApiGetItemAsync<DAL.Models.ImportLogModel>(URL_IMPORT_GETBYID, model);
-            } 
-            while (sw.Elapsed < TimeSpan.FromMinutes(15) &&
-                     ((int)status.Status == (int)Common.Enums.TaskStatusEnum.InProgress
-                     || (int)status.Status == (int)Common.Enums.TaskStatusEnum.NotStarted));
-            if ((int?)(status?.Status) != (int)Common.Enums.TaskStatusEnum.Completed)
-            {
-                var errorText = $"Error importing nodeset with id '{id}': {status.Messages.FirstOrDefault().Message}";
-                output.WriteLine(errorText);
-                Assert.True(false, errorText);
-            }
         }
 
         protected User GetTestUser(Data.Repositories.IRepository<User> repo)

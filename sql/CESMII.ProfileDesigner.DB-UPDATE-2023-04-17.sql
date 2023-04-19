@@ -9,9 +9,9 @@
 ---------------------------------------------------------------------
 --	Rename Table, FKs of child tables, fk col names - import_log becomes import_action
 ---------------------------------------------------------------------
---TODO
 ALTER TABLE public.import_log
 DROP COLUMN file_list;
+--TODO - --	Rename Table, FKs of child tables, fk col names - import_log becomes import_action
 
 ---------------------------------------------------------------------
 --	New Table - import file - child table to import_action (formerly import_log)
@@ -37,7 +37,7 @@ ALTER TABLE public.import_file
     OWNER to profiledesigner;
 
 ---------------------------------------------------------------------
---	New Table - import file chunk - child table to import_action (formerly import_log)
+--	New Table - import file chunk - child table to import_file
 ---------------------------------------------------------------------
 -- DROP TABLE public.import_file_chunk;
 CREATE TABLE public.import_file_chunk

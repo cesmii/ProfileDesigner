@@ -1077,7 +1077,6 @@ CREATE TABLE public.import_log
     id SERIAL PRIMARY KEY,
     owner_id integer NULL,
     status_id integer NOT NULL,  
-    file_list character varying NULL,
     is_active boolean NOT NULL,
     created timestamp with time zone NOT NULL,
     updated timestamp with time zone NOT NULL,
@@ -1147,6 +1146,50 @@ TABLESPACE pg_default;
 ALTER TABLE public.import_log_warning
     OWNER to profiledesigner;
 
+---------------------------------------------------------------------
+--	New Table - import file - child table to import_action (formerly import_log)
+---------------------------------------------------------------------
+-- DROP TABLE public.import_file;
+CREATE TABLE public.import_file
+(
+    id SERIAL PRIMARY KEY,
+    import_action_id integer NOT NULL,  
+    file_name character varying NOT NULL,
+    total_chunks integer NOT NULL,
+    total_bytes bigint NOT NULL,
+    CONSTRAINT import_import_action_id_fk FOREIGN KEY (import_action_id)
+        REFERENCES public.import_log (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+        DEFERRABLE INITIALLY DEFERRED
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE public.import_file
+    OWNER to profiledesigner;
+
+---------------------------------------------------------------------
+--	New Table - import file chunk - child table to import_file
+---------------------------------------------------------------------
+-- DROP TABLE public.import_file_chunk;
+CREATE TABLE public.import_file_chunk
+(
+    id SERIAL PRIMARY KEY,
+    import_file_id integer NOT NULL,  
+    chunk_order integer NOT NULL,
+    contents bytea NULL,
+    CONSTRAINT import_file_import_file_id_fk FOREIGN KEY (import_file_id)
+        REFERENCES public.import_file (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+        DEFERRABLE INITIALLY DEFERRED
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE public.import_file_chunk
+    OWNER to profiledesigner;
 ---------------------------------------------------------------------
 --	Delete a nodeset and all of its children
 ---------------------------------------------------------------------

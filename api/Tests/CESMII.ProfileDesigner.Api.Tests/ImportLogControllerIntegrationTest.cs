@@ -122,6 +122,18 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
             _currentFileName = importData.Key;
             CleanupEntities(importData.Key).Wait();
 
+            await ImportChunkedFiles(apiClient, importData);
+        }
+
+        /// <summary>
+        /// This will perform all 3 import steps. This is shared by the large file import test as well as the 
+        /// import/export integration tests.
+        /// </summary>
+        /// <param name="importData"></param>
+        /// <returns></returns>
+        protected async Task ImportChunkedFiles(MyNamespace.Client apiClient, KeyValuePair<string, List<ImportFileModel>> importData)
+        {
+            // ARRANGE
             //Note - files prepared and chunked in TestLargeNodeSetFiles class
             //capture info for comparison after the upload.
             //chunk size set below is 8mb
@@ -130,8 +142,7 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
                 FileName = fileInfo.FileName,
                 TotalBytes = fileInfo.Chunks.Sum(x => x.Contents.Length),
                 TotalChunks = fileInfo.Chunks.Count
-            });
-            var files = importData.Value;
+            }).ToList();
 
             //ACT
             //Act 1 - call the first API endpoint to init the upload / import process
@@ -144,7 +155,7 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
             Assert.NotNull(importItem.ID);
             foreach (var fileImport in importItem.Files)
             {
-                var fileSource = files.Find(f => f.FileName.ToLower().Equals(fileImport.FileName.ToLower()));
+                var fileSource = importData.Value.Find(f => f.FileName.ToLower().Equals(fileImport.FileName.ToLower()));
                 Assert.NotNull(fileSource);
                 Assert.Equal(fileSource.TotalBytes, fileImport.TotalBytes);
                 Assert.Equal(fileSource.TotalChunks, fileImport.TotalChunks);
@@ -154,12 +165,13 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
             var uploadChunkCalls = new List<Task<ResultMessageModel>>();  //using task.when all to get some parallel processing
             foreach (var fileImport in importItem.Files)
             {
-                var fileSource = files.Find(f => f.FileName.ToLower().Equals((object)fileImport.FileName.ToLower()));
+                var fileSource = importData.Value.Find(f => f.FileName.ToLower().Equals((object)fileImport.FileName.ToLower()));
                 Assert.NotNull(fileSource);
                 //loop over chunks and import
                 foreach (var item in fileSource.Chunks)
                 {
-                    var chunk = new ImportFileChunkProcessModel() {
+                    var chunk = new ImportFileChunkProcessModel()
+                    {
                         ImportActionId = importItem.ID.Value,
                         ImportFileId = fileImport.ID.Value,
                         FileName = fileSource.FileName,
@@ -168,7 +180,7 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
                     };
                     //item.ImportFileId = _guidCommon.ToString();
                     var msgTotalChunks = fileImport.TotalChunks == 1 ? "" : $"Chunk {item.ChunkOrder} of {fileImport.TotalChunks}";
-                    var msgSize = $"{Math.Round((decimal)(item.Contents.Length / (1024 * 1024)),1)} mb";
+                    var msgSize = $"{Math.Round((decimal)(item.Contents.Length / (1024 * 1024)), 1)} mb";
                     output.WriteLine($"Testing ImportChunkedFile: {fileSource.FileName}, {msgTotalChunks}, Chunk Size: {msgSize}");
                     //var resultChunk = await apiClient.ApiExecuteAsync<ResultMessageModel>(URL_IMPORT_UPLOAD, chunk);
                     //add calls to collection of upload tasks so we can use .whenAll
@@ -379,7 +391,7 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
             {
                 //polling action
                 System.Threading.Thread.Sleep(10000);
-                importItem = await apiClient.ApiGetItemAsync<ImportLogModel>(URL_IMPORT_GETBYID, model);
+                importItem = await apiClient.ApiGetItemAsync<ImportLogModel>(URL_GETBYID, model);
                 var msgRecent = importItem.Messages.OrderByDescending(x => x.Created).FirstOrDefault();
                 //output message if it is different than last
                 if (!lastMessage.Equals(msgRecent.Message))
@@ -421,7 +433,7 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
     /// </summary>
     internal class TestLargeNodeSetFiles : IEnumerable<object[]>
     {
-        const int CHUNK_SIZE = 8 * 1024 *1024;
+        const int CHUNK_SIZE = 8 * 1024 * 1024;
 
         //this is the path and location of the test files and their dependent nodesets (if any)
         //the large nodeset files are named so we can use the file name, replace -SLASH- and then find the profile by namespace

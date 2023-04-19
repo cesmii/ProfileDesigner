@@ -43,14 +43,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="TestNodeSets\LargeFiles\Siemens-S7-opcua.NodeSet2.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    <None Update="TestNodeSets\LargeFiles\siemens.com-SLASH-simatic-s7-opcua-SLASH-LARGE_NODESET_TEST.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="TestNodeSets\LargeFiles\Siemens.OPCUA.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="TestNodeSets\LargeFiles\www.Equinor.com.EntTypes.2021-12-08.NodeSet2.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    <None Update="TestNodeSets\LargeFiles\www.Equinor.com-SLASH-EntTypes-SLASH-LARGE_NODESET_TEST.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 

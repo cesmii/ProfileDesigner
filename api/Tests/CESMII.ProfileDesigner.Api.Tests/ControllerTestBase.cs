@@ -25,6 +25,7 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
         protected readonly CustomWebApplicationFactory<Api.Startup> _factory;
         protected readonly ITestOutputHelper output;
         private MyNamespace.Client _apiClient;
+        private MyNamespace.Client _apiClientAdmin;
 
         protected const string TEST_USER_OBJECTID_AAD = "1234";
 
@@ -56,8 +57,21 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
             get
             {
                 if (_apiClient == null)
-                    _apiClient = _factory.GetApiClientAuthenticated();
+                    _apiClient = _factory.GetApiClientAuthenticated(false);
                 return _apiClient;
+            }
+        }
+
+        /// <summary>
+        /// Inits api client and adds user as an admin
+        /// </summary>
+        protected MyNamespace.Client ApiClientAdmin
+        {
+            get
+            {
+                if (_apiClientAdmin == null)
+                    _apiClientAdmin = _factory.GetApiClientAuthenticated(true);
+                return _apiClientAdmin;
             }
         }
 

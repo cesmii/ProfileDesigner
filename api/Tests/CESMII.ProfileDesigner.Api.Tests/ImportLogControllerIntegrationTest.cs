@@ -168,7 +168,7 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
                     };
                     //item.ImportFileId = _guidCommon.ToString();
                     var msgTotalChunks = fileImport.TotalChunks == 1 ? "" : $"Chunk {item.ChunkOrder} of {fileImport.TotalChunks}";
-                    var msgSize = $"{Math.Round((decimal)(item.Contents.Length / (1024 * 1024)))} mb";
+                    var msgSize = $"{Math.Round((decimal)(item.Contents.Length / (1024 * 1024)),1)} mb";
                     output.WriteLine($"Testing ImportChunkedFile: {fileSource.FileName}, {msgTotalChunks}, Chunk Size: {msgSize}");
                     //var resultChunk = await apiClient.ApiExecuteAsync<ResultMessageModel>(URL_IMPORT_UPLOAD, chunk);
                     //add calls to collection of upload tasks so we can use .whenAll
@@ -429,19 +429,24 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
         //we can do clean up after we run the test. 
         internal static List<List<string>> TEST_FILES = new List<List<string>>()
         {
-            //10mb
+            //10mb - takes about 26 seconds for full import
             new List<string>(){
                 $"{Integration.strTestNodeSetDirectory}/LargeFiles/www.Equinor.com-SLASH-EntTypes-SLASH-LARGE_NODESET_TEST.xml",
                 $"{Integration.strTestNodeSetDirectory}/opcfoundation.org.UA.1.04.2020-07-15.NodeSet2.xml",
                 $"{Integration.strTestNodeSetDirectory}/www.OPCFoundation.org.UA.2013.01.ISA95.2013-11-06.NodeSet2.xml"
             }
-            //20mb
+            //20mb - takes about 2.8 min for full import
             ,new List<string>(){
                 $"{Integration.strTestNodeSetDirectory}/LargeFiles/siemens.com-SLASH-simatic-s7-opcua-SLASH-LARGE_NODESET_TEST.xml",
                 $"{Integration.strTestNodeSetDirectory}/opcfoundation.org.UA.1.05.2022-11-01.NodeSet2.xml",
                 $"{Integration.strTestNodeSetDirectory}/opcfoundation.org.UA.DI.2022-11-03.NodeSet2.xml"
             }
-            //30mb
+            //72mb - takes about 3.6 min for full import
+            ,new List<string>(){
+                $"{Integration.strTestNodeSetDirectory}/LargeFiles/siemens.com-SLASH-opcua-SLASH-LARGE_NODESET_TEST.xml",
+                $"{Integration.strTestNodeSetDirectory}/opcfoundation.org.UA.1.05.2022-11-01.NodeSet2.xml",
+                $"{Integration.strTestNodeSetDirectory}/opcfoundation.org.UA.DI.2022-11-03.NodeSet2.xml"
+            }
         };
 
         internal static Dictionary<string, List<ImportFileModel>> GetImportFiles()

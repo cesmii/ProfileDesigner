@@ -43,6 +43,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="TestNodeSets\LargeFiles\siemens.com-SLASH-opcua-SLASH-LARGE_NODESET_TEST.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="TestNodeSets\LargeFiles\siemens.com-SLASH-simatic-s7-opcua-SLASH-LARGE_NODESET_TEST.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

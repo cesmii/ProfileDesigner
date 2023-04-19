@@ -42,20 +42,34 @@ namespace CESMII.ProfileDesigner.Api.Utils
             _configuration = configuration;
         }
 
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <remarks>Preserve backward compatability where we generate the import item within this service.
+        /// The newer approach to support large files does some advanced processing and prepares import item in advance</remarks>
+        /// <returns></returns>
         public async Task<int> ImportOpcUaNodeSet(List<ImportOPCModel> nodeSetXmlList, UserToken userToken, bool allowMultiVersion, bool upgradePreviousVersions)
         {
             //the rest of the fields are set in the dal
-            var logItem = new ImportLogModel()
+            var importItem = new ImportLogModel()
             {
-                FileList = nodeSetXmlList.Select(f => f.FileName).ToArray<string>(),
+                Files = nodeSetXmlList.Select(f => new ImportFileModel() {
+                    FileName = f.FileName,
+                    TotalBytes = (long)f.Data.Length,
+                    TotalChunks = 1
+                    }).ToList(), 
                 Messages = new List<ImportLogMessageModel>() {
                     new ImportLogMessageModel() {
                         Message = $"Starting..."
                     }
                 }
             };
-            var logId = await _dalImportLog.AddAsync(logItem, userToken);
+            return await ImportOpcUaNodeSet(importItem.ID.Value, nodeSetXmlList, userToken, allowMultiVersion, upgradePreviousVersions);
+        }
 
+        public async Task<int> ImportOpcUaNodeSet(int importId, List<ImportOPCModel> nodeSetXmlList, UserToken userToken, bool allowMultiVersion, bool upgradePreviousVersions)
+        {
             Task backgroundTask = null;
 
             //slow task - kick off in background
@@ -66,7 +80,7 @@ namespace CESMII.ProfileDesigner.Api.Utils
                 //web api request completes and disposes of the import service object (and its module vars)
                 try
                 {
-                    backgroundTask = ImportOpcUaNodeSetInternal(nodeSetXmlList, logId.Value, userToken, allowMultiVersion, upgradePreviousVersions);
+                    backgroundTask = ImportOpcUaNodeSetInternal(nodeSetXmlList, importId, userToken, allowMultiVersion, upgradePreviousVersions);
                     await backgroundTask;
                 }
                 catch (Exception ex)
@@ -74,12 +88,12 @@ namespace CESMII.ProfileDesigner.Api.Utils
                     _logger.LogError(new EventId(), ex, "Unhandled exception in background importer.");
                     //update import log to indicate unexpected failure
                     var dalImportLog = GetImportLogDalIsolated();
-                    await CreateImportLogMessage(dalImportLog, logId.Value, userToken, "Unhandled exception in background importer.", TaskStatusEnum.Failed);
+                    await CreateImportLogMessage(dalImportLog, importId, userToken, "Unhandled exception in background importer.", TaskStatusEnum.Failed);
                 }
             });
 
             //return result async
-            return logId.Value;
+            return importId;
         }
 
 

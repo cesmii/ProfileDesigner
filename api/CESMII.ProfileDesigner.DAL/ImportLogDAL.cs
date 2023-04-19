@@ -28,8 +28,7 @@
                 , Updated = DateTime.UtcNow
                 //, OwnerId = tenantId
                 //only update file list on add
-                , FileList = model.FileList == null ? null : string.Join(",", model.FileList),
-                  IsActive = true
+                , IsActive = true
             };
             model.Status = Common.Enums.TaskStatusEnum.InProgress; //set in model because the map to entity will assign val from model.
 
@@ -111,6 +110,11 @@
         {
             ImportLog entity = base.FindByCondition(userToken, x => x.ID == id && x.OwnerId == userToken.UserId).FirstOrDefault();
             entity.IsActive = false;
+            //clean out file chunks when we delete this item. This has a lot of data and it is no longer needed once the import concludes.
+            foreach (var f in entity.Files)
+            {
+                f.Chunks.Clear();
+            }
             _repo.Update(entity);
             await _repo.SaveChangesAsync();
             return entity.ID;
@@ -152,7 +156,6 @@
                 var result = new ImportLogModel
                 {
                     ID = entity.ID,
-                    FileList = string.IsNullOrEmpty(entity.FileList) ? null : entity.FileList.Split(","),
                     Status = (Common.Enums.TaskStatusEnum)entity.StatusId,
                     Completed = entity.Completed,
                     Created = entity.Created,
@@ -165,6 +168,7 @@
                 {
                     result.Messages = MapToModelMessages(entity);
                     result.ProfileWarnings = MapToModelProfileWarnings(entity);
+                    result.Files = MapToModelFiles(entity);
                 }
                 return result;
             }
@@ -203,6 +207,38 @@
                 .ToList();
         }
 
+        private static List<ImportFileModel> MapToModelFiles(ImportLog entity)
+        {
+            if (entity.Files == null) return new List<ImportFileModel>();
+            return entity.Files.OrderBy(x => x.FileName)
+                .Select(file => new ImportFileModel
+                {
+                    ID = file.ID,
+                    ImportActionId = file.ImportActionId,
+                    FileName = file.FileName,
+                    TotalBytes = file.TotalBytes,
+                    TotalChunks = file.TotalChunks,
+                    Chunks = MapToModelFileChunks(file)
+                }
+                )
+                .ToList();
+        }
+
+        private static List<ImportFileChunkModel> MapToModelFileChunks(ImportFile file)
+        {
+            if (file.Chunks == null) return new List<ImportFileChunkModel>();
+            return file.Chunks.OrderBy(x => x.ChunkOrder)
+                .Select(chunk => new ImportFileChunkModel
+                {
+                    ID = chunk.ID,
+                    ImportFileId = chunk.ImportFileId,
+                    ChunkOrder = chunk.ChunkOrder,
+                    Contents = chunk.Contents
+                }
+                )
+                .ToList();
+        }
+
         protected override void MapToEntity(ref ImportLog entity, ImportLogModel model, UserToken userToken)
         {
             //only update file list, owner, created on add
@@ -213,6 +249,7 @@
             }
             MapToEntityMessages(ref entity, model.Messages);
             MapToEntityProfileWarnings(ref entity, model.ProfileWarnings);
+            MapToEntityFiles(ref entity, model.Files);
         }
 
         protected static void MapToEntityMessages(ref ImportLog entity, List<Models.ImportLogMessageModel> messages)
@@ -298,6 +335,104 @@
                             Message = msg.Message,
                             ProfileId = msg.ProfileId,
                             Created = DateTime.UtcNow
+                        });
+                    }
+                }
+            }
+        }
+
+        protected static void MapToEntityFiles(ref ImportLog entity, List<Models.ImportFileModel> files)
+        {
+            //init for new scenario
+            if (entity.Files == null) entity.Files = new List<ImportFile>();
+
+            // Remove attribs no longer used
+            // Use counter from end of collection so we can remove and not mess up loop iterator 
+            if (entity.Files.Count > 0)
+            {
+                var length = entity.Files.Count - 1;
+                for (var i = length; i >= 0; i--)
+                {
+                    var currentId = entity.Files[i].ID;
+
+                    //remove if no longer present - shouldn't happen with import messages
+                    var source = files?.Find(x => x.ID.Equals(currentId));
+                    if (source == null)
+                    {
+                        entity.Files.RemoveAt(i);
+                    }
+                    else
+                    {
+                        entity.Files[i].FileName = source.FileName;
+                        entity.Files[i].TotalBytes = source.TotalBytes;
+                        entity.Files[i].TotalChunks = source.TotalChunks;
+                        var itemExisting = entity.Files[i];
+                        MapToEntityFileChunks(ref itemExisting, source.Chunks);
+                    }
+                }
+            }
+
+            // Loop over items passed in and only add those not already there
+            if (files != null)
+            {
+                foreach (var file in files)
+                {
+                    if ((file.ID ?? 0) == 0 || entity.Files.Find(up => up.ID.Equals(file.ID)) == null)
+                    {
+                        var fileNew = new ImportFile
+                        {
+                            ImportActionId = entity.ID.HasValue ? entity.ID.Value : 0,
+                            FileName = file.FileName,
+                            TotalBytes = file.TotalBytes,
+                            TotalChunks = file.TotalChunks
+                        };
+                        MapToEntityFileChunks(ref fileNew, file.Chunks); 
+                        entity.Files.Add(fileNew);
+                    }
+                }
+            }
+        }
+
+        protected static void MapToEntityFileChunks(ref ImportFile entity, List<Models.ImportFileChunkModel> chunks)
+        {
+            //init for new scenario
+            if (entity.Chunks == null) entity.Chunks = new List<ImportFileChunk>();
+
+            // Remove attribs no longer used
+            // Use counter from end of collection so we can remove and not mess up loop iterator 
+            if (entity.Chunks.Count > 0)
+            {
+                var length = entity.Chunks.Count - 1;
+                for (var i = length; i >= 0; i--)
+                {
+                    var currentId = entity.Chunks[i].ID;
+
+                    //remove if no longer present - shouldn't happen with import messages
+                    var source = chunks?.Find(x => x.ID.Equals(currentId));
+                    if (source == null)
+                    {
+                        entity.Chunks.RemoveAt(i);
+                    }
+                    else
+                    {
+                        entity.Chunks[i].ChunkOrder = source.ChunkOrder;
+                        entity.Chunks[i].Contents = source.Contents;
+                    }
+                }
+            }
+
+            // Loop over items passed in and only add those not already there
+            if (chunks != null)
+            {
+                foreach (var file in chunks)
+                {
+                    if ((file.ID ?? 0) == 0 || entity.Chunks.Find(up => up.ID.Equals(file.ID)) == null)
+                    {
+                        entity.Chunks.Add(new ImportFileChunk
+                        {
+                            ImportFileId = entity.ID.HasValue ? entity.ID.Value : 0,
+                            ChunkOrder = file.ChunkOrder,
+                            Contents = file.Contents
                         });
                     }
                 }

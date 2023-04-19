@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Linq;
@@ -34,9 +33,6 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
 
         private const string URL_CLOUD_LIBRARY = "/api/profile/cloudlibrary";
         private const string URL_CLOUD_IMPORT = "/api/profile/cloudlibrary/import";
-
-        private const string URL_UPLOAD = "/api/profile/UploadChunks";
-        private const string URL_UPLOAD_COMPLETE = "/api/profile/UploadComplete";
         #endregion
 
         #region data naming constants
@@ -126,8 +122,8 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
 
             // ACT
             //add an item
-            var resultAdd = await apiClient.ApiExecuteAsync<Shared.Models.ResultMessageWithDataModel>(URL_ADD, model);
-            var modelGet = new Shared.Models.IdIntModel() { ID = (int)resultAdd.Data };
+            var resultAdd = await apiClient.ApiExecuteAsync<ResultMessageWithDataModel>(URL_ADD, model);
+            var modelGet = new IdIntModel() { ID = (int)resultAdd.Data };
             var resultGet = await apiClient.ApiGetItemAsync<ProfileModel>(URL_GETBYID, modelGet);
 
             //ASSERT - Add
@@ -227,53 +223,6 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
             }
             Assert.Equal(expectedCount, items.Count);
         }
-
-        [Theory]
-        [ClassData(typeof(TestLargeNodeSetFiles))]
-        public async Task ImportChunkedFile(KeyValuePair<string, List<Shared.Models.ImportFileChunk>> fileInfo)
-        {
-            string _UPLOAD_FOLDER = System.IO.Path.Combine(AppContext.BaseDirectory, "uploads");
-
-            // Arrange
-            var apiClient = _factory.GetApiClientAuthenticated();
-
-            //Note - files prepared and chunked in TestLargeNodeSetFiles class
-            //capture info for comparison after the upload.
-            //chunk size set below is 8mb
-            var totalChunks = fileInfo.Value.Count();
-            var totalBytes = fileInfo.Value.Sum(x => x.Data.Length);
-
-            //ACT
-            //loop over chunks and import
-            foreach (var item in fileInfo.Value)
-            {
-                item.ProcessId = _guidCommon.ToString();
-                var msgTotalChunks = item.TotalChunks == 1 ? "" : $"Chunk {item.ChunkId} of {item.TotalChunks}";
-                var msgSize = $"{Math.Round((decimal)(item.Data.Length / (1024 * 1024)))} mb";
-                output.WriteLine($"Testing ImportChunkedFile: {item.FileName}, {msgTotalChunks}, Chunk Size: {msgSize}");
-                var resultChunk = await apiClient.ApiExecuteAsync<Shared.Models.ResultMessageModel>(URL_UPLOAD, item);
-
-                //ASSERT
-                if (!resultChunk.IsSuccess) output.WriteLine(resultChunk.Message);
-                Assert.True(resultChunk.IsSuccess);
-
-            }
-
-            //now call the upload complete and reassemble the file 
-            var model = new ImportFileChunkComplete() 
-                { ProcessId = _guidCommon.ToString(), FileName = fileInfo.Key, TotalBytes = totalBytes, TotalChunks = totalChunks };
-            var resultFinal = await apiClient.ApiExecuteAsync<Shared.Models.ResultMessageModel>(URL_UPLOAD_COMPLETE, model);
-
-            //ASSERT
-            if (!resultFinal.IsSuccess) output.WriteLine(resultFinal.Message);
-            Assert.True(resultFinal.IsSuccess);
-
-            //compare the pre-import file matches the post import file - need specific knowledge of where the controller puts the processed file
-            var sourceFileName = System.IO.Path.Combine(Integration.strTestNodeSetDirectory, "LargeFiles", model.FileName);
-            var uploadedFileName = System.IO.Path.Combine(_UPLOAD_FOLDER, _factory.LocalUser.ObjectIdAAD, $"{model.ProcessId}_{model.FileName}");
-            AssertCompareFiles(sourceFileName, uploadedFileName);
-        }
-
 
         #region Helper Methods
         private async Task<List<Profile>> InsertMockEntitiesForSearchTests(int upperBound, bool isCloudEntity)
@@ -398,77 +347,6 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
             }
         }
 
-
-        /// <summary>
-        /// Compare two files and determine if they are equal using MD5
-        /// </summary>
-        /// <param name="sourceFileName"></param>
-        /// <param name="uploadedFileName"></param>
-        private static void AssertCompareFiles(string sourceFileName, string uploadedFileName)
-        {
-            var hash = string.Empty;
-            var hash2 = string.Empty;
-
-            using (var md5 = System.Security.Cryptography.MD5.Create())
-            {
-                using (var stream = System.IO.File.OpenRead(sourceFileName))
-                {
-                    hash = BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", "").ToLower();
-                }
-                using (var stream = System.IO.File.OpenRead(uploadedFileName))
-                {
-                    hash2 = BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", "").ToLower();
-                }
-            }
-
-            //compare the 2 files are same
-            Assert.True(!string.IsNullOrEmpty(hash));
-            Assert.True(hash.Equals(hash2));
-        }
-
-        /// <summary>
-        /// Take a large file and chunk it into segments so that they can be uploaded to the server.
-        /// </summary>
-        /// <param name="stream"></param>
-        /// <param name="chunkSize"></param>
-        /// <returns></returns>
-        private static List<byte[]> ChunkContents(System.IO.MemoryStream stream, int chunkSize)
-        {
-            var result = new List<byte[]>();
-
-            if (stream.Length < chunkSize)
-            {
-                result.Add(stream.ToArray());
-                return result;
-            }
-
-            byte[] chunk = new byte[chunkSize];
-            while (true)
-            {
-                int space = chunkSize, read, offset = 0;
-                while (space > 0 && (read = stream.Read(chunk, offset, space)) > 0)
-                {
-                    space -= read;
-                    offset += read;
-                }
-                // either a full buffer, or EOF
-                if (space != 0)
-                { // EOF - final
-                    if (offset != 0)
-                    { // something to send
-                        Array.Resize(ref chunk, offset);
-                        result.Add(chunk);
-                    }
-                    break;
-                }
-                else
-                {
-                    // full buffer
-                    result.Add(chunk);
-                }
-            }
-            return result;
-        }
         #endregion
 
         #region Test Data
@@ -502,66 +380,5 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
         }
 
     }
-
-    /// <summary>
-    /// Test data for large nodesets. This is using actual nodesets that are below, just above or well above the allowable 
-    /// upload size. Note the chunk size is below the allowable 30mb limit.
-    /// </summary>
-    internal class TestLargeNodeSetFiles : IEnumerable<object[]>
-    {
-        const int CHUNK_SIZE = 8 * 1024 *1024;
-
-        internal static Dictionary<string, List<Shared.Models.ImportFileChunk>> GetChunkedFiles()
-        {
-            //get large file which requires chunking AND exceeds max upload size 30mb. 
-            //get large file which requires chunking AND is less than max upload size CHUNK_SIZE. 
-            //get large file which does NOT require chunking AND is less than max upload size. 
-
-            var path = System.IO.Path.Combine(Integration.strTestNodeSetDirectory, "LargeFiles");
-            var nodeSetFiles = System.IO.Directory.GetFiles(path).OrderBy(x => x);
-
-            var result = new Dictionary<string, List<Shared.Models.ImportFileChunk>>();
-            foreach (var file in nodeSetFiles)
-            {
-                //if less than chunk size, set to 1 chunk and whole file
-                var content = System.IO.File.ReadAllBytes(file);
-                //if (content.Length > CHUNK_SIZE)
-                //{
-                int i = 1;
-                var fileName = System.IO.Path.GetFileName(file);
-                var contentChunked = ChunkContents(content, CHUNK_SIZE);
-                var items = new List<ImportFileChunk>();
-                foreach (var chunk in contentChunked)
-                {
-                    items.Add(new ImportFileChunk
-                        { FileName = fileName, ChunkId = i, TotalChunks = contentChunked.Count, Data = chunk });
-                    i++;
-                }
-                result.Add(fileName, items.OrderBy(x => x.ChunkId).ToList());
-                //}
-            }
-            return result;
-        }
-
-        private static List<byte[]> ChunkContents(byte[] contents, int chunkSize)
-        {
-            var result = new List<byte[]>();
-
-            if (contents.Length < chunkSize)
-            {
-                result.Add(contents);
-                return result;
-            }
-
-            return contents.Chunk(chunkSize).ToList();
-        }
-
-        public IEnumerator<object[]> GetEnumerator()
-        {
-            var files = GetChunkedFiles();
-            return files.Select(f => new object[] { f }).GetEnumerator();
-        }
-
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-    }
+     
 }

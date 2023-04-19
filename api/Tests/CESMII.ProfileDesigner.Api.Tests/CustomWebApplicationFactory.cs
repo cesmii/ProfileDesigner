@@ -135,11 +135,11 @@ namespace CESMII.ProfileDesigner.Api.Tests
         }
 
         bool bLoggedIn = false;
-        internal Client GetApiClientAuthenticated()
+        internal Client GetApiClientAuthenticated(bool isAdmin = false)
         {
             var client = CreateClient();
             client.Timeout = TimeSpan.FromMinutes(60);
-            AddUserAuth(client);
+            AddUserAuth(client, isAdmin);
             var apiClient = GetApiClient(client);
             if (!bLoggedIn)
             {
@@ -148,17 +148,15 @@ namespace CESMII.ProfileDesigner.Api.Tests
             }
             return apiClient;
         }
+
         internal Client GetApiClient(HttpClient client)
         {
             var nswagClient = new Client(client.BaseAddress.ToString(), client);
             return nswagClient;
         }
-        internal void AddUserAuth(HttpClient client)
+        internal void AddUserAuth(HttpClient client, bool isAdmin)
         {
-            var apiClient = GetApiClient(client);
-
-            var testUser = new ClaimsPrincipal(new ClaimsIdentity(
-                new List<Claim>
+            var claims = new List<Claim>
                 {
                     new Claim("objectidentifier", LocalUser.ObjectIdAAD),
                     new Claim("preferred_username", LocalUser.UserName),
@@ -166,7 +164,10 @@ namespace CESMII.ProfileDesigner.Api.Tests
                     new Claim("ClaimTypes.GivenName", LocalUser.UserName),
                     new Claim("name", LocalUser.UserName),
                     //new Claim("role", "cesmii.profiledesigner.user"),
-                }));
+                };
+            if (isAdmin) claims.Add(new Claim("role", "cesmii.profiledesigner.admin"));
+
+            var testUser = new ClaimsPrincipal(new ClaimsIdentity(claims));
             var tokenInfo = new JwtSecurityToken(issuer: "testissuer", claims: testUser.Claims);
 
             var handler = new JwtSecurityTokenHandler();

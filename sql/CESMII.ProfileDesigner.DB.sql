@@ -63,6 +63,8 @@ DROP TABLE IF EXISTS public.profile_type_definition;
 DROP TABLE IF EXISTS public.import_log_warning;
 DROP TABLE IF EXISTS public.profile_additional_properties;
 DROP TABLE IF EXISTS public.profile;
+DROP TABLE IF EXISTS public.import_file_chunk;
+DROP TABLE IF EXISTS public.import_file;
 DROP TABLE IF EXISTS public.import_log_message;
 DROP TABLE IF EXISTS public.import_log;
 

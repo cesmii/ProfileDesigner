@@ -434,9 +434,9 @@ namespace CESMII.ProfileDesigner.Api.Tests
                         Contents = item.Contents,
                     };
                     //item.ImportFileId = _guidCommon.ToString();
-                    var msgTotalChunks = fileImport.TotalChunks == 1 ? "" : $"Chunk {item.ChunkOrder} of {fileImport.TotalChunks}";
-                    var msgSize = $"{Math.Round((decimal)(item.Contents.Length / (1024 * 1024)), 1)} mb";
-                    output.WriteLine($"Testing ImportChunkedFile: {fileSource.FileName}, {msgTotalChunks}, Chunk Size: {msgSize}");
+                    var msgTotalChunks = fileImport.TotalChunks == 1 ? "" : $", Chunk {item.ChunkOrder} of {fileImport.TotalChunks}";
+                    var msgSize = $"{Math.Round((double)(item.Contents.Length / (1024 * 1024)), 1)} mb";
+                    output.WriteLine($"Testing ImportChunkedFile: {fileSource.FileName} {msgTotalChunks}, Chunk Size: {msgSize}");
                     //add calls to collection of upload tasks so we can use .whenAll
                     uploadChunkCalls.Add(apiClient.ApiExecuteAsync<ResultMessageModel>(URL_IMPORT_UPLOAD, chunk));
                 }

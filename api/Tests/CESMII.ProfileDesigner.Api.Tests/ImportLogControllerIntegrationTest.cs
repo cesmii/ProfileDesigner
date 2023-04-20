@@ -17,6 +17,7 @@ using CESMII.ProfileDesigner.Data.Repositories;
 using CESMII.ProfileDesigner.Data.Entities;
 using CESMII.ProfileDesigner.Data.Contexts;
 using CESMII.ProfileDesigner.Api.Shared.Models;
+using Opc.Ua.Export;
 
 namespace CESMII.ProfileDesigner.Api.Tests.Int
 {
@@ -25,8 +26,8 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
         private readonly ServiceProvider _serviceProvider;
         //for some tests, tie together a common guid so we can delete the created items at end of test. 
         private Guid _guidCommon = Guid.NewGuid();
-        //set inside large nodeset import test
-        private string _currentFileName;
+        //set inside large nodeset import test and used in cleanup
+        private KeyValuePair<string, List<ImportFileModel>> _currentImportData = new KeyValuePair<string, List<ImportFileModel>>();
 
         #region API constants
         private const string URL_GETBYID = "/api/importlog/getbyid";
@@ -119,8 +120,8 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
             var apiClient = base.ApiClientAdmin;
 
             //clean up any previously existing import for this file.
-            _currentFileName = importData.Key;
-            CleanupEntities(importData.Key).Wait();
+            _currentImportData = importData;
+            CleanupEntities(importData).Wait();
 
             await ImportChunkedFiles(apiClient, importData);
         }
@@ -179,9 +180,9 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
                         Contents = item.Contents,
                     };
                     //item.ImportFileId = _guidCommon.ToString();
-                    var msgTotalChunks = fileImport.TotalChunks == 1 ? "" : $"Chunk {item.ChunkOrder} of {fileImport.TotalChunks}";
-                    var msgSize = $"{Math.Round((decimal)(item.Contents.Length / (1024 * 1024)), 1)} mb";
-                    output.WriteLine($"Testing ImportChunkedFile: {fileSource.FileName}, {msgTotalChunks}, Chunk Size: {msgSize}");
+                    var msgTotalChunks = fileImport.TotalChunks == 1 ? "" : $", Chunk {item.ChunkOrder} of {fileImport.TotalChunks}";
+                    var msgSize = $"{Math.Round((double)(item.Contents.Length / (1024 * 1024)), 1)} mb";
+                    output.WriteLine($"Testing ImportChunkedFile: {fileSource} {msgTotalChunks}, Chunk Size: {msgSize}");
                     //var resultChunk = await apiClient.ApiExecuteAsync<ResultMessageModel>(URL_IMPORT_UPLOAD, chunk);
                     //add calls to collection of upload tasks so we can use .whenAll
                     uploadChunkCalls.Add(apiClient.ApiExecuteAsync<ResultMessageModel>(URL_IMPORT_UPLOAD, chunk));
@@ -329,29 +330,40 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
         /// User <_guidCommon> as way to find items to delete 
         /// </summary>
         /// <returns></returns>
-        private async Task CleanupEntities(string fileName)
+        private async Task CleanupEntities(KeyValuePair<string, List<ImportFileModel>> importData)
         {
-            const string LARGE_NODESET_TEST = "LARGE_NODESET_TEST";
-
-            if (string.IsNullOrEmpty(fileName)) return;
-
-            //split file name into a format that will match namespace inside file and data. I made the file name as:
-            // Filename: www.Equinor.com-SLASH-EntTypes-SLASH-LARGE_NODESET_TEST.xml
-            // Namespace equivalent: http[s]://www.Equinor.com/EntTypes/LARGE_NODESET_TEST
-            var ns = fileName.Replace(".xml", "").Replace("-SLASH-", "/").ToLower();
+            if (importData.Key == null) return;
 
             using (var scope = _serviceProvider.CreateScope())
             {
-                //Cleanup imported profiles (this does not remove dependent profiles)
-                //get profile rows directly and search for the large nodesets
-                //then call the API to delete them using the id of each
+                //Cleanup imported profiles - loop over items with collection of nodesets
+                //open nodeset file and extract namespace
+                //then find profile in db and delete
                 var repoProfile = scope.ServiceProvider.GetService<IRepository<Profile>>();
-                var items = repoProfile.FindByCondition(x =>
-                    x.Namespace.ToLower().Contains(ns));
-                //get the ids into a string list for deleting
-                if (items.Any())
+
+                //clean out multiple profiles
+                List<string> profileIds = new List<string>();
+                foreach (var item in importData.Value)
                 {
-                    var ids = string.Join(",", items.ToList().Select(x => x.ID.Value.ToString()));
+                    var models = GetModels(item.FileName);
+                    foreach (var model in models)
+                    {
+                        var matches = repoProfile.FindByCondition(x =>
+                            x.Namespace.ToLower().Equals(model.ModelUri.ToLower()) &&
+                            (string.IsNullOrEmpty(model.Version) || x.Version.ToLower().Equals(model.Version.ToLower())));
+                        if (matches.Any())
+                        {
+                            var ids = matches.ToList().Select(x => x.ID.Value.ToString());
+                            profileIds = profileIds.Union(ids).ToList();
+                        }
+                    }
+                }
+
+                //get the ids into a string list for deleting - this will allow for dependencies to 
+                //be deleted in proper order as everything is deleted at once 
+                if (profileIds.Any())
+                {
+                    var ids = string.Join(",", profileIds);
                     await repoProfile.ExecStoredProcedureAsync("call public.sp_nodeset_delete({0})", ids);
                     await repoProfile.SaveChangesAsync(); // SP does not get executed until SaveChanges
                 }
@@ -377,7 +389,25 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
                     await repo.DeleteAsync(entity);
                     await repo.SaveChangesAsync();
                 }
+            }
+        }
 
+        private static List<ModelTableEntry> GetModels(string fileName)
+        {
+            //file is either in TestNodesets or TestNodesets\LargeFiles
+            var pathParent = System.IO.Path.Combine(Integration.strTestNodeSetDirectory, fileName);
+            var pathLargeFiles = System.IO.Path.Combine(Integration.strTestNodeSetDirectory, "LargeFiles", fileName);
+            var sourceFileName = System.IO.File.Exists(pathLargeFiles) ? pathLargeFiles : pathParent;
+
+            var contents = System.IO.File.ReadAllText(sourceFileName).Replace("<Value/>", "<Value xsi:nil='true' />");
+
+            using (var ms = new System.IO.MemoryStream(System.Text.Encoding.UTF8.GetBytes(contents)))
+            {
+                var nodeSet = UANodeSet.Read(ms);
+                var result = new List<ModelTableEntry>();
+                if (nodeSet.Models.Any()) result.Add(nodeSet.Models[0]);
+                var requiredModels = nodeSet.Models?.SelectMany(m => m.RequiredModel?.Select(rm => rm) ?? new List<ModelTableEntry>());
+                return result.Union(requiredModels).ToList();
             }
         }
 
@@ -422,8 +452,8 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
         {
             ////delete the imported items
             //base.ApiClient.ApiExecuteAsync<Shared.Models.ResultMessageModel>(URL_DELETE_MANY, model.Result).Wait();
-            CleanupEntities(_currentFileName).Wait();
-            _currentFileName = null;
+            CleanupEntities(_currentImportData).Wait();
+            _currentImportData = new KeyValuePair<string, List<ImportFileModel>>();
         }
     }
 
@@ -443,19 +473,19 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
         {
             //10mb - takes about 26 seconds for full import
             new List<string>(){
-                $"{Integration.strTestNodeSetDirectory}/LargeFiles/www.Equinor.com-SLASH-EntTypes-SLASH-LARGE_NODESET_TEST.xml",
+                $"{Integration.strTestNodeSetDirectory}/LargeFiles/www.Equinor.com.EntTypes.LARGE_NODESET_TEST.xml",
                 $"{Integration.strTestNodeSetDirectory}/opcfoundation.org.UA.1.04.2020-07-15.NodeSet2.xml",
                 $"{Integration.strTestNodeSetDirectory}/www.OPCFoundation.org.UA.2013.01.ISA95.2013-11-06.NodeSet2.xml"
             }
             //20mb - takes about 2.8 min for full import
             ,new List<string>(){
-                $"{Integration.strTestNodeSetDirectory}/LargeFiles/siemens.com-SLASH-simatic-s7-opcua-SLASH-LARGE_NODESET_TEST.xml",
+                $"{Integration.strTestNodeSetDirectory}/LargeFiles/siemens.com.opcua.simatic-s7.LARGE_NODESET_TEST.xml",
                 $"{Integration.strTestNodeSetDirectory}/opcfoundation.org.UA.1.05.2022-11-01.NodeSet2.xml",
                 $"{Integration.strTestNodeSetDirectory}/opcfoundation.org.UA.DI.2022-11-03.NodeSet2.xml"
             }
             //72mb - takes about 3.6 min for full import
             ,new List<string>(){
-                $"{Integration.strTestNodeSetDirectory}/LargeFiles/siemens.com-SLASH-opcua-SLASH-LARGE_NODESET_TEST.xml",
+                $"{Integration.strTestNodeSetDirectory}/LargeFiles/siemens.com.opcua.LARGE_NODESET_TEST.xml",
                 $"{Integration.strTestNodeSetDirectory}/opcfoundation.org.UA.1.05.2022-11-01.NodeSet2.xml",
                 $"{Integration.strTestNodeSetDirectory}/opcfoundation.org.UA.DI.2022-11-03.NodeSet2.xml"
             }
@@ -472,8 +502,7 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
             foreach (var fileSet in TEST_FILES)
             {
                 //make 1st file item the key value
-                string[] filePathSegment = fileSet[0].Split('/');
-                result.Add(filePathSegment[filePathSegment.Length - 1],
+                result.Add(System.IO.Path.GetFileName(fileSet[0]),
                     fileSet.Select(x => PrepareImportFile(x)).ToList());
             }
 

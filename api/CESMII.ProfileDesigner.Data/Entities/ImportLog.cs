@@ -72,7 +72,7 @@
         [Column(name: "file_name")]
         public string FileName { get; set; }
 
-        [Column(name: "import_action_id")]
+        [Column(name: "import_id")]
         public int ImportActionId { get; set; }
 
         [Column(name: "total_chunks")]
@@ -95,7 +95,7 @@
         public int ChunkOrder { get; set; }
 
         [Column(name: "contents")]
-        public byte[] Contents { get; set; }
+        public string Contents { get; set; }
 
         public virtual ImportFile ImportFile { get; set; }
     }

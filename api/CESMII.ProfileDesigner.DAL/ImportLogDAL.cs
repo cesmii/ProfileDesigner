@@ -168,7 +168,7 @@
                 {
                     result.Messages = MapToModelMessages(entity);
                     result.ProfileWarnings = MapToModelProfileWarnings(entity);
-                    result.Files = MapToModelFiles(entity);
+                    result.Files = MapToModelFiles(entity, verbose);
                 }
                 return result;
             }
@@ -207,7 +207,7 @@
                 .ToList();
         }
 
-        private static List<ImportFileModel> MapToModelFiles(ImportLog entity)
+        private static List<ImportFileModel> MapToModelFiles(ImportLog entity, bool verbose)
         {
             if (entity.Files == null) return new List<ImportFileModel>();
             return entity.Files.OrderBy(x => x.FileName)
@@ -218,7 +218,7 @@
                     FileName = file.FileName,
                     TotalBytes = file.TotalBytes,
                     TotalChunks = file.TotalChunks,
-                    Chunks = MapToModelFileChunks(file)
+                    Chunks = verbose ? MapToModelFileChunks(file) : null
                 }
                 )
                 .ToList();

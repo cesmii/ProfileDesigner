@@ -20,11 +20,11 @@ DROP COLUMN file_list;
 CREATE TABLE public.import_file
 (
     id SERIAL PRIMARY KEY,
-    import_action_id integer NOT NULL,  
+    import_id integer NOT NULL,  
     file_name character varying NOT NULL,
     total_chunks integer NOT NULL,
     total_bytes bigint NOT NULL,
-    CONSTRAINT import_import_action_id_fk FOREIGN KEY (import_action_id)
+    CONSTRAINT import_import_id_fk FOREIGN KEY (import_id)
         REFERENCES public.import_log (id) MATCH SIMPLE
         ON UPDATE NO ACTION
         ON DELETE NO ACTION
@@ -45,7 +45,7 @@ CREATE TABLE public.import_file_chunk
     id SERIAL PRIMARY KEY,
     import_file_id integer NOT NULL,  
     chunk_order integer NOT NULL,
-    contents bytea NULL,
+    contents text NULL,
     CONSTRAINT import_file_import_file_id_fk FOREIGN KEY (import_file_id)
         REFERENCES public.import_file (id) MATCH SIMPLE
         ON UPDATE NO ACTION

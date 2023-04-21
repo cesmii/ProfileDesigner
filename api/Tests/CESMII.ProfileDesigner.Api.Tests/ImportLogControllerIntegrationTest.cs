@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Linq;
+using System.Text;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
@@ -177,7 +178,8 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
                         ImportFileId = fileImport.ID.Value,
                         FileName = fileSource.FileName,
                         ChunkOrder = item.ChunkOrder,
-                        Contents = item.Contents,
+                        //Contents = Encoding.UTF8.GetString(item.Contents),
+                        Contents = item.Contents
                     };
                     //item.ImportFileId = _guidCommon.ToString();
                     var msgTotalChunks = fileImport.TotalChunks == 1 ? "" : $", Chunk {item.ChunkOrder} of {fileImport.TotalChunks}";
@@ -272,12 +274,15 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
                         var pathParent = System.IO.Path.Combine(Integration.strTestNodeSetDirectory, f.FileName);
                         var pathLargeFiles = System.IO.Path.Combine(Integration.strTestNodeSetDirectory, "LargeFiles", f.FileName);
                         var sourceFileName = System.IO.File.Exists(pathLargeFiles) ? pathLargeFiles : pathParent;
-                        AssertCompareFile(sourceFileName,MergeChunks(fileDestination));
+                        //AssertCompareFile(sourceFileName,MergeChunks(fileDestination));
+                        //AssertCompareFileContent(sourceFileName, (new ASCIIEncoding()).GetBytes(MergeChunks(fileDestination)));
+                        AssertCompareFileContent(sourceFileName, MergeChunks(fileDestination));
                     }
                 }
             }
         }
 
+        /*
         /// <summary>
         /// Compare two files and determine if they are equal using MD5
         /// </summary>
@@ -306,7 +311,31 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
             if (hash.Equals(hash2)) output.WriteLine($"File comparison success: {sourceFileName}");
             Assert.True(hash.Equals(hash2));
         }
+        */
 
+        /// <summary>
+        /// Compare two files and determine if they are equal using text
+        /// </summary>
+        private void AssertCompareFileContent(string sourceFileName, string destinationContents)
+        {
+            //compare the 2 files are same
+            var sourceContents = System.IO.File.ReadAllText(sourceFileName);
+            var isEqual = sourceContents.Equals(destinationContents);
+            Assert.True(!string.IsNullOrEmpty(sourceContents));
+            if (isEqual) output.WriteLine($"File comparison success: {sourceFileName}");
+            Assert.True(isEqual);
+        }
+
+        private string MergeChunks(ImportFile file)
+        {
+            return string.Join("",
+                file.Chunks
+                .OrderBy(x => x.ChunkOrder)
+                //.ToList()
+                .Select(x => x.Contents));
+        }
+
+        /*
         private byte[] MergeChunks(ImportFile file)
         {
             //if one chunk, return it as is
@@ -324,6 +353,7 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
             }
             return result;
         }
+        */
 
         /// <summary>
         /// Delete profiles, import data created during each test
@@ -511,7 +541,7 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
 
         private static ImportFileModel PrepareImportFile(string file)
         {
-            var content = System.IO.File.ReadAllBytes(file);
+            var content = System.IO.File.ReadAllText(file);
             int i = 1;
             var fileName = System.IO.Path.GetFileName(file);
             var contentChunked = ChunkContents(content, CHUNK_SIZE);
@@ -519,7 +549,7 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
             foreach (var chunk in contentChunked)
             {
                 items.Add(new ImportFileChunkModel
-                { ChunkOrder = i, /*TotalChunks = contentChunked.Count, */ Contents = chunk });
+                { ChunkOrder = i, Contents = chunk });
                 i++;
             }
             return new ImportFileModel()
@@ -531,6 +561,7 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
             };
         }
 
+        /*
         private static List<byte[]> ChunkContents(byte[] contents, int chunkSize)
         {
             var result = new List<byte[]>();
@@ -542,6 +573,29 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
             }
 
             return contents.Chunk(chunkSize).ToList();
+        }
+        */
+
+        private static List<string> ChunkContents(string contents, int chunkSize)
+        {
+            var result = new List<string>();
+
+            //set first chunk boundary
+            var size = contents.Length;
+            var chunkStart = 0;
+
+            while (contents.Length > chunkStart)
+            {
+                var chunkLength = Math.Min(chunkSize, size - chunkStart);
+                //slice current chunk
+                var chunk = contents.Substring(chunkStart, chunkLength);
+                result.Add(chunk);
+                //increment the next chunk boundaries and counter
+                chunkStart += chunkSize;
+
+            }
+
+            return result;
         }
 
         public IEnumerator<object[]> GetEnumerator()

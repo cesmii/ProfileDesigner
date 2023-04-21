@@ -127,7 +127,8 @@
         /// For large files, this will be a portion of the file. We will pass back an id to the caller so subsequent 
         /// file chunks can be associated to the same import file operation
         /// </summary>
-        public byte[] Contents { get; set; }
+        [Required]
+        public string Contents { get; set; }
     }
 
 }

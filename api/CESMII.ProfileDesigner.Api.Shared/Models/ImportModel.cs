@@ -1,7 +1,7 @@
-﻿using CESMII.ProfileDesigner.DAL.Models;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.ComponentModel.DataAnnotations;
+
+using CESMII.ProfileDesigner.DAL.Models;
 
 namespace CESMII.ProfileDesigner.Api.Shared.Models
 {

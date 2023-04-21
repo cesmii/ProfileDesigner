@@ -362,7 +362,7 @@ namespace CESMII.ProfileDesigner.Api.Tests
             foreach (var item in nextBatch)
             {
                 //make file name the key value
-                var content = File.ReadAllBytes(item.FileName);
+                var content = File.ReadAllText(item.FileName);
 
                 fileList.Add( new ImportFileModel()
                 {
@@ -431,7 +431,7 @@ namespace CESMII.ProfileDesigner.Api.Tests
                         ImportFileId = fileImport.ID.Value,
                         FileName = fileSource.FileName,
                         ChunkOrder = item.ChunkOrder,
-                        Contents = item.Contents,
+                        Contents = item.Contents
                     };
                     //item.ImportFileId = _guidCommon.ToString();
                     var msgTotalChunks = fileImport.TotalChunks == 1 ? "" : $", Chunk {item.ChunkOrder} of {fileImport.TotalChunks}";

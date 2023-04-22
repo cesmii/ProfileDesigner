@@ -164,12 +164,11 @@
                     IsActive = entity.IsActive
                 };
 
-                if (verbose)
-                {
-                    result.Messages = MapToModelMessages(entity);
-                    result.ProfileWarnings = MapToModelProfileWarnings(entity);
-                    result.Files = MapToModelFiles(entity, verbose);
-                }
+                //if !verbose, get files but not underlying content, get last message if not verbose, always get all warnings
+                result.Messages = MapToModelMessages(entity, verbose);
+                result.Files = MapToModelFiles(entity, verbose);
+                result.ProfileWarnings = MapToModelProfileWarnings(entity);
+
                 return result;
             }
             else
@@ -179,10 +178,13 @@
 
         }
 
-        private static List<ImportLogMessageModel> MapToModelMessages(ImportLog entity)
+        private static List<ImportLogMessageModel> MapToModelMessages(ImportLog entity, bool verbose)
         {
-            if (entity.Messages == null) return null;
-            return entity.Messages.OrderByDescending(x => x.Created)
+            if (!entity.Messages.Any()) return null;
+
+            var msgItems = verbose ? entity.Messages.OrderByDescending(x => x.Created)
+                : entity.Messages.OrderByDescending(x => x.Created).Take(1);
+            return msgItems
                 .Select(msg => new ImportLogMessageModel
                     {
                         ID = msg.ID,

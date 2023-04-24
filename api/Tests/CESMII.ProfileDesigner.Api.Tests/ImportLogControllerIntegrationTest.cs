@@ -28,7 +28,7 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
         //for some tests, tie together a common guid so we can delete the created items at end of test. 
         private Guid _guidCommon = Guid.NewGuid();
         //set inside large nodeset import test and used in cleanup
-        private KeyValuePair<string, List<ImportFileModel>> _currentImportData = new KeyValuePair<string, List<ImportFileModel>>();
+        private List<ImportFileModel> _currentImportData = new List<ImportFileModel>();
 
         #region API constants
         private const string URL_GETBYID = "/api/importlog/getbyid";
@@ -114,32 +114,32 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
 
         [Theory]
         [ClassData(typeof(TestLargeNodeSetFiles))]
-        public async Task ImportLargeFiles(KeyValuePair<string, List<ImportFileModel>> importData)
+        public async Task ImportLargeFiles(string fileName, List<ImportFileModel> importFiles)
         {
             // ARRANGE
             //get admin version of api client which makes user an admin
             var apiClient = base.ApiClientAdmin;
 
             //clean up any previously existing import for this file.
-            _currentImportData = importData;
-            CleanupEntities(importData).Wait();
+            _currentImportData = importFiles;
+            CleanupEntities(importFiles).Wait();
 
-            await ImportChunkedFiles(apiClient, importData);
+            await ImportChunkedFiles(apiClient, fileName, importFiles);
         }
 
         /// <summary>
         /// This will perform all 3 import steps. This is shared by the large file import test as well as the 
         /// import/export integration tests.
         /// </summary>
-        /// <param name="importData"></param>
+        /// <param name="importFiles"></param>
         /// <returns></returns>
-        protected async Task ImportChunkedFiles(MyNamespace.Client apiClient, KeyValuePair<string, List<ImportFileModel>> importData)
+        protected async Task ImportChunkedFiles(MyNamespace.Client apiClient, string fileName, List<ImportFileModel> importFiles)
         {
             // ARRANGE
             //Note - files prepared and chunked in TestLargeNodeSetFiles class
             //capture info for comparison after the upload.
             //chunk size set below is 8mb
-            var itemsToImport = importData.Value.Select(fileInfo => new ImportFileModel()
+            var itemsToImport = importFiles.Select(fileInfo => new ImportFileModel()
             {
                 FileName = fileInfo.FileName,
                 TotalBytes = fileInfo.Chunks.Sum(x => x.Contents.Length),
@@ -157,7 +157,7 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
             Assert.NotNull(importItem.ID);
             foreach (var fileImport in importItem.Files)
             {
-                var fileSource = importData.Value.Find(f => f.FileName.ToLower().Equals(fileImport.FileName.ToLower()));
+                var fileSource = importFiles.Find(f => f.FileName.ToLower().Equals(fileImport.FileName.ToLower()));
                 Assert.NotNull(fileSource);
                 Assert.Equal(fileSource.TotalBytes, fileImport.TotalBytes);
                 Assert.Equal(fileSource.TotalChunks, fileImport.TotalChunks);
@@ -167,7 +167,7 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
             var uploadChunkCalls = new List<Task<ResultMessageModel>>();  //using task.when all to get some parallel processing
             foreach (var fileImport in importItem.Files)
             {
-                var fileSource = importData.Value.Find(f => f.FileName.ToLower().Equals((object)fileImport.FileName.ToLower()));
+                var fileSource = importFiles.Find(f => f.FileName.ToLower().Equals((object)fileImport.FileName.ToLower()));
                 Assert.NotNull(fileSource);
                 //loop over chunks and import
                 foreach (var item in fileSource.Chunks)
@@ -183,7 +183,7 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
                     };
                     //item.ImportFileId = _guidCommon.ToString();
                     var msgTotalChunks = fileImport.TotalChunks == 1 ? "" : $", Chunk {item.ChunkOrder} of {fileImport.TotalChunks}";
-                    var msgSize = $"{Math.Round((double)(item.Contents.Length / (1024 * 1024)), 1)} mb";
+                    var msgSize = $"{(item.Contents.Length / (1024 * 1024)).ToString("#,###.#")} mb";
                     output.WriteLine($"Testing ImportChunkedFile: {fileSource} {msgTotalChunks}, Chunk Size: {msgSize}");
                     //var resultChunk = await apiClient.ApiExecuteAsync<ResultMessageModel>(URL_IMPORT_UPLOAD, chunk);
                     //add calls to collection of upload tasks so we can use .whenAll
@@ -216,7 +216,7 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
             Assert.True(resultFinal.IsSuccess);
 
             //compare the pre-import file matches the post import file - need specific knowledge of where the controller puts the file parts
-            AssertCompareFiles(importData.Value);
+            AssertCompareFiles(importFiles);
 
             //Track import messages and poll for import completion.
             await PollImportStatus(apiClient, importItem.ID.Value);
@@ -360,9 +360,9 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
         /// User <_guidCommon> as way to find items to delete 
         /// </summary>
         /// <returns></returns>
-        private async Task CleanupEntities(KeyValuePair<string, List<ImportFileModel>> importData)
+        private async Task CleanupEntities(List<ImportFileModel> importFiles)
         {
-            if (importData.Key == null) return;
+            if (importFiles == null) return;
 
             using (var scope = _serviceProvider.CreateScope())
             {
@@ -373,7 +373,7 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
 
                 //clean out multiple profiles
                 List<string> profileIds = new List<string>();
-                foreach (var item in importData.Value)
+                foreach (var item in importFiles)
                 {
                     var models = GetModels(item.FileName);
                     foreach (var model in models)
@@ -483,7 +483,7 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
             ////delete the imported items
             //base.ApiClient.ApiExecuteAsync<Shared.Models.ResultMessageModel>(URL_DELETE_MANY, model.Result).Wait();
             CleanupEntities(_currentImportData).Wait();
-            _currentImportData = new KeyValuePair<string, List<ImportFileModel>>();
+            _currentImportData = new List<ImportFileModel>();
         }
     }
 
@@ -603,7 +603,7 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
             var files = GetImportFiles();
             var result = new List<object[]>();
             result.Add(new object[] { files });
-            return files.Select(f => new object[] { f }).GetEnumerator();
+            return files.Select(f => new object[] {f.Key, f.Value }).GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();

@@ -314,8 +314,8 @@ namespace CESMII.ProfileDesigner.Api.Tests
                     int? importId = null;
                     try
                     {
-                        var importData = PrepareMultiStepImportData(nextBatch);
-                        importId = await ImportChunkedFiles(apiClient, importData);
+                        var importFiles = PrepareMultiStepImportData(nextBatch);
+                        importId = await ImportChunkedFiles(apiClient, importFiles[0].FileName, importFiles);
                         //result = await apiClient.ImportAsync(nextBatch);
                         //Assert.True(result.IsSuccess, $"Failed to import nodesets: {result.Message}");
                     }
@@ -351,10 +351,10 @@ namespace CESMII.ProfileDesigner.Api.Tests
             }
         }
 
-        private KeyValuePair<string, List<ImportFileModel>> PrepareMultiStepImportData(List<ImportOPCModel> nextBatch)
+        private List<ImportFileModel> PrepareMultiStepImportData(List<ImportOPCModel> nextBatch)
         {
             //convert from old format into new format 
-            if (nextBatch.Count == 0) return new KeyValuePair<string, List<ImportFileModel>>();
+            if (nextBatch.Count == 0) return new List<ImportFileModel>();
 
             //make file name the key value
             var fileList = new List<ImportFileModel>();
@@ -373,26 +373,23 @@ namespace CESMII.ProfileDesigner.Api.Tests
                 });
             }
 
-            return new KeyValuePair<string, List<ImportFileModel>>(
-                Path.GetFileName(nextBatch[0].FileName),
-                fileList
-            );
+            return fileList;
         }
 
         /// <summary>
         /// This will perform all 3 import steps. This is shared by the large file import test as well as the 
         /// import/export integration tests.
         /// </summary>
-        /// <param name="importData"></param>
+        /// <param name="importFiles"></param>
         /// <returns></returns>
-        protected async Task<int?> ImportChunkedFiles(MyNamespace.Client apiClient, KeyValuePair<string, List<ImportFileModel>> importData)
+        protected async Task<int?> ImportChunkedFiles(MyNamespace.Client apiClient, string fileName, List<ImportFileModel> importFiles)
         {
             // ARRANGE
 
             //Note - files prepared and chunked in TestLargeNodeSetFiles class
             //capture info for comparison after the upload.
             //chunk size set below is 8mb
-            var itemsToImport = importData.Value.Select(fileInfo => new ImportFileModel()
+            var itemsToImport = importFiles.Select(fileInfo => new ImportFileModel()
             {
                 FileName = fileInfo.FileName,
                 TotalBytes = fileInfo.Chunks.Sum(x => x.Contents.Length),
@@ -410,7 +407,7 @@ namespace CESMII.ProfileDesigner.Api.Tests
             Assert.NotNull(importItem.ID);
             foreach (var fileImport in importItem.Files)
             {
-                var fileSource = importData.Value.Find(f => f.FileName.ToLower().Equals(fileImport.FileName.ToLower()));
+                var fileSource = importFiles.Find(f => f.FileName.ToLower().Equals(fileImport.FileName.ToLower()));
                 Assert.NotNull(fileSource);
                 Assert.Equal(fileSource.TotalBytes, fileImport.TotalBytes);
                 Assert.Equal(fileSource.TotalChunks, fileImport.TotalChunks);
@@ -420,7 +417,7 @@ namespace CESMII.ProfileDesigner.Api.Tests
             var uploadChunkCalls = new List<Task<ResultMessageModel>>();  //using task.when all to get some parallel processing
             foreach (var fileImport in importItem.Files)
             {
-                var fileSource = importData.Value.Find(f => f.FileName.ToLower().Equals((object)fileImport.FileName.ToLower()));
+                var fileSource = importFiles.Find(f => f.FileName.ToLower().Equals((object)fileImport.FileName.ToLower()));
                 Assert.NotNull(fileSource);
                 //loop over chunks and import
                 foreach (var item in fileSource.Chunks)
@@ -431,6 +428,7 @@ namespace CESMII.ProfileDesigner.Api.Tests
                         ImportFileId = fileImport.ID.Value,
                         FileName = fileSource.FileName,
                         ChunkOrder = item.ChunkOrder,
+                        //Contents = Encoding.Default.GetString(item.Contents)
                         Contents = item.Contents
                     };
                     //item.ImportFileId = _guidCommon.ToString();

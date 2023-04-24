@@ -19,13 +19,19 @@ function ProfileImporter(props) {
     const [_fileSelection, setFileSelection] = useState('');
     const [_error, setError] = useState({ show: false, message: null, caption: null });
     const [_cancelImportId, setCancelImportId] = useState(null);
-    const _IMPORT_CHUNK_SIZE = 3 * 1024 * 1024; //8mb
+    const _IMPORT_CHUNK_SIZE = 8 * 1024 * 1024; //8mb
 
     //-------------------------------------------------------------------
     // Region: Event handlers
     //-------------------------------------------------------------------
     const onImportClick = (e) => {
         console.log(generateLogMessageString(`onImportClick`, CLASS_NAME));
+
+        //prevent too many files from being imported at one time. Set an arbitrary limit of 20 items.
+        if (e.target.files.length > 20) {
+            setError({ show: true, caption: 'Import Nodeset Files', message: 'A maximum of 20 files can be imported at one time. To import more than 20 files, import the files in groups of 20.' });
+            return;
+        }
 
         //if (loadingProps.isImporting) return;
 
@@ -232,7 +238,7 @@ function ProfileImporter(props) {
         console.log(generateLogMessageString(`importUploadFiles||${url}`, CLASS_NAME));
 
         let errorCount = 0;
-        let errorMessage;
+        let errorMessages = [];
 
         //collection of promises which represent each upload action for each chunk of each file
         let chunkCalls = [];
@@ -243,9 +249,7 @@ function ProfileImporter(props) {
             if (fileSource == null) {
                 //throw exception, cancel import
                 console.log(generateLogMessageString(`importUploadFiles||fileSource||cannot find ${fileImport.fileName} in fileSource.`, CLASS_NAME, 'critical'));
-                if (errorMessage) {
-                    setError({ show: true, caption: 'Import Error', message: `An unexpected error occurred pre-processing this import. File not found: ${fileImport.fileName}` });
-                }
+                setError({ show: true, caption: 'Import Error', message: `An unexpected error occurred pre-processing this import. File not found: ${fileImport.fileName}` });
                 setCancelImportId(importItem.id);
             }
 
@@ -273,13 +277,11 @@ function ProfileImporter(props) {
                             }
                             else {
                                 errorCount += 1;
-                                errorMessage = errorMessage == null || errorMessage === '' ? '' : `${errorMessage} `;
-                                errorMessage += `An error occurred processing the import file '${chunk.fileName}': ${result.data.message}`;
+                                errorMessages.push(`An error occurred processing the import file '${chunk.fileName}': ${result.data.message}`);
                             }
                         } else {
                             errorCount += 1;
-                            errorMessage = errorMessage == null || errorMessage === '' ? '' : `${errorMessage} `;
-                            errorMessage += `An error occurred processing the import file '${chunk.fileName}'.`;
+                            errorMessages.push(`An error occurred processing the import file '${chunk.fileName}'.`);
                             //hide a spinner, show a message
                             setLoadingProps({
                                 isLoading: false, message: null, isImporting: false
@@ -297,8 +299,7 @@ function ProfileImporter(props) {
                                 isLoading: false, message: null, isImporting: false
                                 //,inlineMessages: [{ id: new Date().getTime(), severity: "danger", body: e.response.data ? e.response.data : `An error occurred saving the imported profile.`, isTimed: false, isImporting: false }]
                             });
-                            errorMessage = errorMessage == null || errorMessage === '' ? '' : `${errorMessage} `; 
-                            errorMessage += `${e.response?.data ? e.response.data : 'A system error has occurred during the profile import. Please contact your system administrator.' }`;
+                            errorMessages.push(`${e.response?.data ? e.response.data : 'An error occurred processing the import file ' + chunk.fileName + '.'}`);
                             console.log(generateLogMessageString('importUploadFiles||error||' + JSON.stringify(e), CLASS_NAME, 'error'));
                             console.log(e);
                         }
@@ -318,8 +319,15 @@ function ProfileImporter(props) {
                 //handle scenario where errors occurred
                 //make api call to clean out the uploaded file chunks.
                 console.log(generateLogMessageString(`importUploadFiles||promise.all||cannot process file chunks - ${errorCount} error(s) occurred.`, CLASS_NAME, 'warn'));
-                if (errorMessage) {
-                    setError({ show: true, caption: 'Import Error', message: errorMessage });
+                if (errorMessages.length > 0) {
+                    var msg = '';
+                    errorMessages.forEach(function (x) {
+                        if (msg.indexOf(x) === -1) {
+                            msg += `${x} `;
+                        }
+                    });
+
+                    setError({ show: true, caption: 'Import Error', message: msg });
                 }
                 setCancelImportId(importItem.id);
             }
@@ -417,27 +425,44 @@ function ProfileImporter(props) {
         let chunks = [];
         //set first chunk boundary
         let chunkStart = 0;
-        let chunkEnd = Math.min(size, chunkStart + _IMPORT_CHUNK_SIZE);
+        let chunkEnd = Math.min(contents.length, chunkStart + _IMPORT_CHUNK_SIZE);
         let counter = 1;
+
+        //warning - file size not same as content length, this is possible file size in bytes, content length is num characters.
+        if (contents.length !== size) {
+            console.warn(generateLogMessageString(`prepareFileChunks||${fileName}||FileSize: ${size} != Content Length: ${contents.length}`, CLASS_NAME));
+        }
 
         while (addChunk) {
             //slice current chunk
             const chunk = contents.slice(chunkStart, chunkEnd);
             //const chunk = new Uint8Array(contents.slice(chunkStart, chunkEnd));
+
+            //check for this scenario - should not happen
+            if (chunk.length === 0) {
+                console.error(generateLogMessageString(`prepareFileChunks||${fileName}||Chunk: ${counter}, Start: ${chunkStart}, End: ${chunkEnd}|| Chunk Length is 0.`, CLASS_NAME));
+            }
+
             chunks.push({ fileName: fileName, chunkOrder: counter, contents: chunk });
             //determine if we need another chunk
-            addChunk = size > (chunkEnd);
+            addChunk = contents.length > (chunkEnd);
             //increment the next chunk boundaries and counter
             chunkStart = chunkEnd;
             chunkEnd = Math.min(size, chunkStart + _IMPORT_CHUNK_SIZE);
             counter++;
         }
 
+        //check sum of chunks equals length of content
+        const sum = chunks.reduce((x, chunk) => x + parseInt(chunk.contents.length), 0);
+        if (contents.length !== sum) {
+            console.error(generateLogMessageString(`prepareFileChunks||${fileName}||Sum of Chunks: ${sum} != Content Length: ${contents.length}`, CLASS_NAME));
+        }
+
         //return fully prepared file
         return {
             fileName: fileName,
             chunks: chunks,
-            totalBytes: size,
+            totalBytes: contents.length, //size,
             totalChunks: chunks.length
         };
     }

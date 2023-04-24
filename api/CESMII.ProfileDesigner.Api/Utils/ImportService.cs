@@ -180,6 +180,11 @@ namespace CESMII.ProfileDesigner.Api.Utils
             if (status == TaskStatusEnum.Failed || status == TaskStatusEnum.Cancelled || status == TaskStatusEnum.Completed)
             {
                 logItem.Completed = DateTime.UtcNow;
+                //TBD - send notification email
+                if (logItem.NotifyOnComplete)
+                {
+                    //send notification email here...
+                }
             }
             logItem.Messages.Add(new ImportLogMessageModel() { Message = message });
             await dalImportLog.UpdateAsync(logItem, userToken);

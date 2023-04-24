@@ -6,6 +6,8 @@ import { generateLogMessageString, renderMenuIcon } from '../../utils/UtilitySer
 import { ErrorModal } from '../../services/CommonUtil';
 import { AppSettings } from '../../utils/appsettings';
 import { useDeleteImportMessage } from '../../components/ImportMessage';
+import ConfirmationModal from '../../components/ConfirmationModal';
+import color from '../../components/Constants';
 
 const CLASS_NAME = "ProfileImporter";
 
@@ -19,6 +21,7 @@ function ProfileImporter(props) {
     const [_fileSelection, setFileSelection] = useState('');
     const [_error, setError] = useState({ show: false, message: null, caption: null });
     const [_cancelImportId, setCancelImportId] = useState(null);
+    const [_notifyConfirmModal, setNotifyConfirmModal] = useState({ show: false, items: null, message: `Would you like to receive import notifications?` });
     const _IMPORT_CHUNK_SIZE = 8 * 1024 * 1024; //8mb
 
     //-------------------------------------------------------------------
@@ -48,7 +51,8 @@ function ProfileImporter(props) {
         //once the files are completely read/prepped, then kick off import
         Promise.all(readersChunked).then((values) => {
             //console.log(values);
-            importStart(values);
+            //importStart(values);
+            importStartPreProcess(values);
         });
     };
 
@@ -147,20 +151,57 @@ function ProfileImporter(props) {
     */
 
     //-------------------------------------------------------------------
+    // Multi-step import - Pre-process - Ask if they want notifications when
+    //  importing large nodesets (over 30mb)
+    //-------------------------------------------------------------------
+    const importStartPreProcess = (items) =>
+    {
+        //if they are uploading a large amount of content, warn them in advance.
+        const totalSize = items.reduce((x, item) => x + parseInt(item.totalBytes), 0) / (1024 * 1024); //mb;
+        //totalSize = totalSize / (1024 * 1024); //mb
+        var msgRange = `several minutes`;
+        if (totalSize > 40) {
+            msgRange = '30-60 minutes';
+        }
+        else if (totalSize > 30) {
+            msgRange = '20-35 minutes';
+        }
+        else {
+            //small enough - just proceed as normal
+            importStart(items);
+        }
+
+        //if we get there, show the notification confirm modal
+        let msgLarge = `You are uploading a large amount of data (approximately ${Math.round(totalSize)} mb). ` +
+            `This will take ${msgRange} to process. ` +
+            `Would you like to receive a notification email when the import has completed?`;
+        setNotifyConfirmModal({ show: true, items: items, message: msgLarge });
+
+    }
+
+    //on confirm click within the modal, this callback will then trigger the next step (ie call the API)
+    const onNotifyYes = () => {
+        console.log(generateLogMessageString(`onNotifyYes`, CLASS_NAME));
+        importStart(_notifyConfirmModal.items, true);
+        setNotifyConfirmModal({ show: false, items: null });
+    };
+
+    const onNotifyNo = () => {
+        console.log(generateLogMessageString(`onNotifyNo`, CLASS_NAME));
+        importStart(_notifyConfirmModal.items, false);
+        setNotifyConfirmModal({ show: false, items: null });
+    };
+
+    //-------------------------------------------------------------------
     // Multi-step import - step 1 of 3
     //-------------------------------------------------------------------
-    const importStart = async (items) => {
+    const importStart = async (items, includeNotification) => {
 
         const url = `importlog/init`;
         console.log(generateLogMessageString(`initImport||${url}`, CLASS_NAME));
 
-        let msgFiles = "";
-        items.forEach(function (f) {
-            msgFiles += msgFiles === "" ? `File(s) being imported: ${f.fileName}` : `<br/>${f.fileName}`;
-        });
-
         //map items to a collection with out the data so we can send up streamlined init data
-        let itemsNoContent = items.map(function (f) {
+        let itemsInit = items.map(function (f) {
             return {
                 fileName: f.fileName,
                 totalBytes: f.totalBytes,
@@ -174,7 +215,7 @@ function ProfileImporter(props) {
             isLoading: true, message: `Starting upload of files to server...This may take a few minutes.`
         });
 
-        await axiosInstance.post(url, itemsNoContent).then(result => {
+        await axiosInstance.post(url, { notifyOnComplete: includeNotification, items: itemsInit }).then(result => {
             if (result.status === 200) {
                 //check for success message OR check if some validation failed
                 //remove processing message, show a result message
@@ -228,6 +269,7 @@ function ProfileImporter(props) {
             }
         });
     }
+
 
     //-------------------------------------------------------------------
     // Multi-step import - step 2 of 3
@@ -482,6 +524,23 @@ function ProfileImporter(props) {
     //-------------------------------------------------------------------
     // Region: Render helpers
     //-------------------------------------------------------------------
+    //render the delete modal when show flag is set to true
+    //callbacks are tied to each button click to proceed or cancel
+    const renderNotifyConfirmation = () => {
+
+        if (!_notifyConfirmModal.show) return;
+
+        const caption = "Notify On Completion?";
+
+        return (
+            <ConfirmationModal showModal={_notifyConfirmModal.show} caption={caption} message={_notifyConfirmModal.message}
+                icon={{ name: "warning", color: color.cornflower }}
+                confirm={{ caption: "Yes", callback: onNotifyYes, buttonVariant: 'primary'}}
+                cancel={{ caption: "No", callback: onNotifyNo, buttonVariant: 'secondary' }}
+            />
+        );
+    };
+
 
     //-------------------------------------------------------------------
     // Region: Render final output
@@ -499,6 +558,7 @@ function ProfileImporter(props) {
                 <input type="file" value={_fileSelection} multiple onClick={resetFileSelection} disabled={props.disabled ? "disabled" : ""} onChange={onImportClick} style={{ display: "none" }} />
             </label>
             <ErrorModal modalData={_error} callback={onErrorModalClose} />
+            { renderNotifyConfirmation() }
         </>
     )
 }

@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 using CESMII.ProfileDesigner.DAL.Models;
@@ -10,6 +10,13 @@ namespace CESMII.ProfileDesigner.Api.Shared.Models
         public string FileName { get; set; }
         public string Data { get; set; }
         public string CloudLibraryId { get; set; }
+    }
+
+
+    public class ImportStartModel
+    {
+        public bool NotifyOnComplete { get; set; }
+        public List<ImportFileModel> Items { get; set; }
     }
 
 

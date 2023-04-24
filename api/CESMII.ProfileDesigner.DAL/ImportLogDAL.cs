@@ -158,6 +158,7 @@
                     ID = entity.ID,
                     Status = (Common.Enums.TaskStatusEnum)entity.StatusId,
                     Completed = entity.Completed,
+                    NotifyOnComplete = entity.NotifyOnComplete,
                     Created = entity.Created,
                     Updated = entity.Updated,
                     OwnerId = entity.OwnerId??0,
@@ -245,6 +246,7 @@
         {
             //only update file list, owner, created on add
             entity.StatusId = (int)model.Status;
+            entity.NotifyOnComplete = model.NotifyOnComplete;
             if (model.Completed.HasValue)
             {
                 entity.Completed = model.Completed;

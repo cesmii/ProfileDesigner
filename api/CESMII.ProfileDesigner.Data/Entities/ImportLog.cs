@@ -32,6 +32,10 @@
 
         [Column(name: "is_active")]
         public bool IsActive { get; set; }
+
+        [Column(name: "notify_on_complete")]
+        public bool NotifyOnComplete { get; set; }
+
     }
 
     public class ImportLogMessage : AbstractEntity

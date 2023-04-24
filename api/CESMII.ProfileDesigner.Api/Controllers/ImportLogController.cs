@@ -133,9 +133,9 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         /// <returns></returns>
         [HttpPost("init")]
         [ProducesResponseType(200, Type = typeof(ImportLogModel))]
-        public async Task<IActionResult> ImportStart([FromBody] List<ImportFileModel> model)
+        public async Task<IActionResult> ImportStart([FromBody] ImportStartModel model)
         {
-            if (model == null || model.Count == 0)
+            if (model == null || model.Items?.Count == 0)
             {
                 return BadRequest("Model is null or empty. At least one file is required to start the import process.");
             }
@@ -158,11 +158,11 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                     }, 
 
                 },
-                Files = model
+                Files = model.Items
             };
 
             //determine if user should get an extra warning due to large file sizes...
-            long totalSize = model.Select(x => x.TotalChunks).Sum(y => y) / (1024 * 1024);
+            long totalSize = model.Items.Select(x => x.TotalChunks).Sum(y => y) / (1024 * 1024);
             if (totalSize > 10)
             {
                 itemAdd.Messages.Add(new ImportLogMessageModel(){   

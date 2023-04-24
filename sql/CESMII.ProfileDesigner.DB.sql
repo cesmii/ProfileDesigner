@@ -1080,6 +1080,7 @@ CREATE TABLE public.import_log
     owner_id integer NULL,
     status_id integer NOT NULL,  
     is_active boolean NOT NULL,
+    notify_on_complete boolean NOT NULL,
     created timestamp with time zone NOT NULL,
     updated timestamp with time zone NOT NULL,
     completed timestamp with time zone NULL,

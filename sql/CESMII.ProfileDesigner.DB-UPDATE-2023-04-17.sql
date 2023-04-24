@@ -11,6 +11,10 @@
 ---------------------------------------------------------------------
 ALTER TABLE public.import_log
 DROP COLUMN file_list;
+
+ALTER TABLE public.import_log
+ADD notify_on_complete boolean NOT NULL default('FALSE');
+
 --TODO - --	Rename Table, FKs of child tables, fk col names - import_log becomes import_action
 
 ---------------------------------------------------------------------

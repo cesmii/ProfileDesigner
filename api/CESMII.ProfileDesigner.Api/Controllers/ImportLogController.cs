@@ -194,6 +194,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             try
             {
                 //convert string representation of bytes into byte[], if it fails, then return
+                /*
                 byte[] contents;
                 try
                 {
@@ -204,6 +205,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                     _logger.LogCritical($"ProfileController|ImportUploadFiles|User Id:{LocalUser.ID}, FileName: {model.FileName}, Chunk: {model.ChunkOrder}. Could not convert content data into byte[].");
                     throw new ImportException($"Could not upload part of {model.FileName}.", ex);
                 }
+                */
 
                 TryValidateModel(model);
                 if (!ModelState.IsValid)

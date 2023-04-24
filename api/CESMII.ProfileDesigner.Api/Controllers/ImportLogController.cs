@@ -234,7 +234,9 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                     });
                     //add import log message so we can update front end on progress or failures
                     var msgPart = file.TotalChunks < 2 ? "" : $" (part { model.ChunkOrder} of { file.TotalChunks})";
-                    importItem.Messages.Add(new ImportLogMessageModel() { Message = $"Uploading {file.FileName} file contents{msgPart}..." });
+                    _logger.LogInformation($"Uploading {file.FileName} file contents{msgPart}...");  
+                    //don't put part X of Y in user facing message b/c it will not go in order necessarily and can be confusing.
+                    importItem.Messages.Add(new ImportLogMessageModel() { Message = $"Uploading {file.FileName} file contents..." });
                     importItem.Status = TaskStatusEnum.InProgress;
                     await _dal.UpdateAsync(importItem, base.DalUserToken);
                 }

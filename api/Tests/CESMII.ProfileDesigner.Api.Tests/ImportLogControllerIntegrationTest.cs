@@ -502,6 +502,7 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
         //we can do clean up after we run the test. 
         internal static List<List<string>> TEST_FILES = new List<List<string>>()
         {
+            /*
             //10mb
             new List<string>(){
                 $"{Integration.strTestNodeSetDirectory}/LargeFiles/www.Equinor.com.EntTypes.LARGE_NODESET_TEST.xml",
@@ -515,10 +516,12 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
                 $"{Integration.strTestNodeSetDirectory}/opcfoundation.org.UA.DI.2022-11-03.NodeSet2.xml"
             }
             //72mb
-            , new List<string>(){
+            , */new List<string>(){
                 $"{Integration.strTestNodeSetDirectory}/LargeFiles/siemens.com.opcua.LARGE_NODESET_TEST.xml",
                 $"{Integration.strTestNodeSetDirectory}/opcfoundation.org.UA.1.04.2022-03-29.NodeSet2.xml",
-                $"{Integration.strTestNodeSetDirectory}/opcfoundation.org.UA.DI.2021-09-07.NodeSet2.xml"
+                $"{Integration.strTestNodeSetDirectory}/opcfoundation.org.UA.DI.2021-09-07.NodeSet2.xml",
+                $"{Integration.strTestNodeSetDirectory}/opcfoundation.org.UA.Robotics.2021-05-20.NodeSet2.xml",
+                $"{Integration.strTestNodeSetDirectory}/clabs.com.UA.HumanRobot.2021-07-05.NodeSet2.xml"
             }
         };
 

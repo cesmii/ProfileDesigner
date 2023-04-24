@@ -433,7 +433,8 @@ namespace CESMII.ProfileDesigner.Api.Tests
                     };
                     //item.ImportFileId = _guidCommon.ToString();
                     var msgTotalChunks = fileImport.TotalChunks == 1 ? "" : $", Chunk {item.ChunkOrder} of {fileImport.TotalChunks}";
-                    var msgSize = $"{Math.Round((double)(item.Contents.Length / (1024 * 1024)), 1)} mb";
+                    var chunkSize = Math.Round((item.Contents.Length / Convert.ToDecimal(1024 * 1024)), 2);
+                    var msgSize = $"{chunkSize} mb";
                     output.WriteLine($"Testing ImportChunkedFile: {fileSource.FileName} {msgTotalChunks}, Chunk Size: {msgSize}");
                     //add calls to collection of upload tasks so we can use .whenAll
                     uploadChunkCalls.Add(apiClient.ApiExecuteAsync<ResultMessageModel>(URL_IMPORT_UPLOAD, chunk));

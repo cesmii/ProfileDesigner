@@ -183,8 +183,9 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
                     };
                     //item.ImportFileId = _guidCommon.ToString();
                     var msgTotalChunks = fileImport.TotalChunks == 1 ? "" : $", Chunk {item.ChunkOrder} of {fileImport.TotalChunks}";
-                    var msgSize = $"{(item.Contents.Length / (1024 * 1024)).ToString("#,###.#")} mb";
-                    output.WriteLine($"Testing ImportChunkedFile: {fileSource} {msgTotalChunks}, Chunk Size: {msgSize}");
+                    var chunkSize = Math.Round((item.Contents.Length / Convert.ToDecimal(1024 * 1024)), 2);
+                    var msgSize =  $"{chunkSize} mb";
+                    output.WriteLine($"Testing ImportChunkedFile: {fileSource.FileName} {msgTotalChunks}, Chunk Size: {msgSize}");
                     //var resultChunk = await apiClient.ApiExecuteAsync<ResultMessageModel>(URL_IMPORT_UPLOAD, chunk);
                     //add calls to collection of upload tasks so we can use .whenAll
                     uploadChunkCalls.Add(apiClient.ApiExecuteAsync<ResultMessageModel>(URL_IMPORT_UPLOAD, chunk));
@@ -501,23 +502,23 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
         //we can do clean up after we run the test. 
         internal static List<List<string>> TEST_FILES = new List<List<string>>()
         {
-            //10mb - takes about 26 seconds for full import
+            //10mb
             new List<string>(){
                 $"{Integration.strTestNodeSetDirectory}/LargeFiles/www.Equinor.com.EntTypes.LARGE_NODESET_TEST.xml",
                 $"{Integration.strTestNodeSetDirectory}/opcfoundation.org.UA.1.04.2020-07-15.NodeSet2.xml",
                 $"{Integration.strTestNodeSetDirectory}/www.OPCFoundation.org.UA.2013.01.ISA95.2013-11-06.NodeSet2.xml"
             }
-            //20mb - takes about 2.8 min for full import
+            //20mb
             ,new List<string>(){
                 $"{Integration.strTestNodeSetDirectory}/LargeFiles/siemens.com.opcua.simatic-s7.LARGE_NODESET_TEST.xml",
                 $"{Integration.strTestNodeSetDirectory}/opcfoundation.org.UA.1.05.2022-11-01.NodeSet2.xml",
                 $"{Integration.strTestNodeSetDirectory}/opcfoundation.org.UA.DI.2022-11-03.NodeSet2.xml"
             }
-            //72mb - takes about 3.6 min for full import
-            ,new List<string>(){
+            //72mb
+            , new List<string>(){
                 $"{Integration.strTestNodeSetDirectory}/LargeFiles/siemens.com.opcua.LARGE_NODESET_TEST.xml",
-                $"{Integration.strTestNodeSetDirectory}/opcfoundation.org.UA.1.05.2022-11-01.NodeSet2.xml",
-                $"{Integration.strTestNodeSetDirectory}/opcfoundation.org.UA.DI.2022-11-03.NodeSet2.xml"
+                $"{Integration.strTestNodeSetDirectory}/opcfoundation.org.UA.1.04.2022-03-29.NodeSet2.xml",
+                $"{Integration.strTestNodeSetDirectory}/opcfoundation.org.UA.DI.2021-09-07.NodeSet2.xml"
             }
         };
 

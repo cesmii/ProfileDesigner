@@ -22,7 +22,7 @@ function ProfileImporter(props) {
     const [_error, setError] = useState({ show: false, message: null, caption: null });
     const [_cancelImportId, setCancelImportId] = useState(null);
     const [_notifyConfirmModal, setNotifyConfirmModal] = useState({ show: false, items: null, message: `Would you like to receive import notifications?` });
-    const _IMPORT_CHUNK_SIZE = 8 * 1024 * 1024; //8mb
+    const _IMPORT_CHUNK_SIZE = 12 * 1024 * 1024; //8mb
 
     //-------------------------------------------------------------------
     // Region: Event handlers
@@ -169,6 +169,7 @@ function ProfileImporter(props) {
         else {
             //small enough - just proceed as normal
             importStart(items);
+            return;
         }
 
         //if we get there, show the notification confirm modal

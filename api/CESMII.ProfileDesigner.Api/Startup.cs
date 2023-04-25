@@ -49,7 +49,8 @@ namespace CESMII.ProfileDesigner.Api
             //PostgreSql context
 #if DEBUG
             services.AddDbContext<ProfileDesignerPgContext>(options =>
-                    options.UseNpgsql(connectionStringProfileDesigner, options => options.EnableRetryOnFailure())
+                    options.UseNpgsql(connectionStringProfileDesigner)
+                    //options.UseNpgsql(connectionStringProfileDesigner, options => options.EnableRetryOnFailure())
                     .EnableSensitiveDataLogging());
 #else
             services.AddDbContext<ProfileDesignerPgContext>(options =>

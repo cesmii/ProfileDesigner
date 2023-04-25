@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-
+using CESMII.ProfileDesigner.DAL;
 using CESMII.ProfileDesigner.DAL.Models;
 
 namespace CESMII.ProfileDesigner.Api.Shared.Models
@@ -34,5 +34,29 @@ namespace CESMII.ProfileDesigner.Api.Shared.Models
         [Required]
         public string FileName { get; set; }
     }
+
+    /// <summary>
+    /// This will be used to pass a couple of pieces of related user info needed downstream in the import
+    /// </summary>
+    public class ImportUserModel
+    {
+        public UserModel User { get; set; }
+
+        public UserToken UserToken { get; set; }
+    }
+
+    /// <summary>
+    /// This will be used in the notification email to inform user of completion
+    /// </summary>
+    public class ImportCompleteNotifyModel 
+    {
+        public ImportLogModel ImportItem { get; set; }
+
+        /// <summary>
+        /// used in email template to determine proper link
+        /// </summary>
+        public string BaseUrl { get; set; }
+    }
+
 
 }

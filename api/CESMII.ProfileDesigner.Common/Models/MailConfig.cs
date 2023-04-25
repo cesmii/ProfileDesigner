@@ -10,6 +10,8 @@
 
         public List<string> DebugToAddresses { get; set; }
 
+        public List<string> NotifyImportFailureAddresses { get; set; }
+
         public string BaseUrl { get; set; }
 
         public string MailFromAddress { get; set; }

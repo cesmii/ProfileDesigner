@@ -511,7 +511,6 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
                 $"{Integration.strTestNodeSetDirectory}/opcfoundation.org.UA.1.04.2020-07-15.NodeSet2.xml",
                 $"{Integration.strTestNodeSetDirectory}/www.OPCFoundation.org.UA.2013.01.ISA95.2013-11-06.NodeSet2.xml"
             }
-            /*
             //20mb
             ,new List<string>(){
                 $"{Integration.strTestNodeSetDirectory}/LargeFiles/siemens.com.opcua.simatic-s7.LARGE_NODESET_TEST.xml",
@@ -526,7 +525,6 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
                 $"{Integration.strTestNodeSetDirectory}/opcfoundation.org.UA.Robotics.2021-05-20.NodeSet2.xml",
                 $"{Integration.strTestNodeSetDirectory}/clabs.com.UA.HumanRobot.2021-07-05.NodeSet2.xml"
             }
-            */
         };
 
         internal static Dictionary<string, List<ImportFileModel>> GetImportFiles()

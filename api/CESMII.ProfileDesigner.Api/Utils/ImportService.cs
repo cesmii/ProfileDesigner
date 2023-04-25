@@ -1,25 +1,19 @@
-﻿using CESMII.OpcUa.NodeSetImporter;
-using CESMII.OpcUa.NodeSetModel;
-using CESMII.ProfileDesigner.Api.Shared.Models;
-using CESMII.ProfileDesigner.Api.Shared.Utils;
-using CESMII.ProfileDesigner.Common.Enums;
-using CESMII.ProfileDesigner.DAL;
-using CESMII.ProfileDesigner.DAL.Models;
-using CESMII.ProfileDesigner.Data.Entities;
-using CESMII.ProfileDesigner.Opc.Ua.NodeSetDBCache;
-using CESMII.ProfileDesigner.OpcUa;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Opc.Ua;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
+using CESMII.ProfileDesigner.Api.Shared.Models;
+using CESMII.ProfileDesigner.Common.Enums;
+using CESMII.ProfileDesigner.DAL;
+using CESMII.ProfileDesigner.DAL.Models;
+using CESMII.ProfileDesigner.Data.Entities;
+using CESMII.ProfileDesigner.OpcUa;
 
 namespace CESMII.ProfileDesigner.Api.Utils
 {
@@ -29,17 +23,20 @@ namespace CESMII.ProfileDesigner.Api.Utils
         private readonly IServiceScopeFactory _serviceScopeFactory;
         private readonly IDal<ImportLog, ImportLogModel> _dalImportLog;
         private readonly IConfiguration _configuration;
+        private readonly ImportNotificationUtil _importNotifyUtil;
 
         public ImportService(IServiceScopeFactory serviceScopeFactory,
             IDal<ImportLog, ImportLogModel> dalImportLog,
             ILogger<ImportService> logger,
-            IConfiguration configuration)
+            IConfiguration configuration,
+            ImportNotificationUtil importNotifyUtil)
 
         {
             _logger = logger;
             _serviceScopeFactory = serviceScopeFactory;
             _dalImportLog = dalImportLog;
             _configuration = configuration;
+            _importNotifyUtil = importNotifyUtil;
         }
 
 
@@ -49,7 +46,7 @@ namespace CESMII.ProfileDesigner.Api.Utils
         /// <remarks>Preserve backward compatability where we generate the import item within this service.
         /// The newer approach to support large files does some advanced processing and prepares import item in advance</remarks>
         /// <returns></returns>
-        public async Task<int> ImportOpcUaNodeSet(List<ImportOPCModel> nodeSetXmlList, UserToken userToken, bool allowMultiVersion, bool upgradePreviousVersions)
+        public async Task<int> ImportOpcUaNodeSet(List<ImportOPCModel> nodeSetXmlList, ImportUserModel userInfo, bool allowMultiVersion, bool upgradePreviousVersions)
         {
             //the rest of the fields are set in the dal
             var importItem = new ImportLogModel()
@@ -58,17 +55,17 @@ namespace CESMII.ProfileDesigner.Api.Utils
                     FileName = f.FileName,
                     TotalBytes = (long)f.Data.Length,
                     TotalChunks = 1
-                    }).ToList(), 
+                }).ToList(),
                 Messages = new List<ImportLogMessageModel>() {
                     new ImportLogMessageModel() {
                         Message = $"Starting..."
                     }
                 }
             };
-            return await ImportOpcUaNodeSet(importItem.ID.Value, nodeSetXmlList, userToken, allowMultiVersion, upgradePreviousVersions);
+            return await ImportOpcUaNodeSet(importItem.ID.Value, nodeSetXmlList, userInfo, allowMultiVersion, upgradePreviousVersions);
         }
 
-        public async Task<int> ImportOpcUaNodeSet(int importId, List<ImportOPCModel> nodeSetXmlList, UserToken userToken, bool allowMultiVersion, bool upgradePreviousVersions)
+        public async Task<int> ImportOpcUaNodeSet(int importId, List<ImportOPCModel> nodeSetXmlList, ImportUserModel userInfo, bool allowMultiVersion, bool upgradePreviousVersions)
         {
             Task backgroundTask = null;
 
@@ -80,7 +77,7 @@ namespace CESMII.ProfileDesigner.Api.Utils
                 //web api request completes and disposes of the import service object (and its module vars)
                 try
                 {
-                    backgroundTask = ImportOpcUaNodeSetInternal(nodeSetXmlList, importId, userToken, allowMultiVersion, upgradePreviousVersions);
+                    backgroundTask = ImportOpcUaNodeSetInternal(nodeSetXmlList, importId, userInfo, allowMultiVersion, upgradePreviousVersions);
                     await backgroundTask;
                 }
                 catch (Exception ex)
@@ -88,7 +85,7 @@ namespace CESMII.ProfileDesigner.Api.Utils
                     _logger.LogError(new EventId(), ex, "Unhandled exception in background importer.");
                     //update import log to indicate unexpected failure
                     var dalImportLog = GetImportLogDalIsolated();
-                    await CreateImportLogMessage(dalImportLog, importId, userToken, "Unhandled exception in background importer.", TaskStatusEnum.Failed);
+                    await CreateImportLogMessage(_importNotifyUtil, dalImportLog, importId, userInfo, "Unhandled exception in background importer.", TaskStatusEnum.Failed);
                 }
             });
 
@@ -105,7 +102,7 @@ namespace CESMII.ProfileDesigner.Api.Utils
         /// <param name="nodeSetXmlList"></param>
         /// <param name="authorToken"></param>
         /// <returns></returns>
-        private async Task ImportOpcUaNodeSetInternal(List<ImportOPCModel> nodeSetXmlList, int logId, UserToken userToken, bool allowMultiVersion, bool upgradePreviousVersions)
+        private async Task ImportOpcUaNodeSetInternal(List<ImportOPCModel> nodeSetXmlList, int logId, ImportUserModel userInfo, bool allowMultiVersion, bool upgradePreviousVersions)
         {
             var dalImportLog = GetImportLogDalIsolated();
 
@@ -120,14 +117,15 @@ namespace CESMII.ProfileDesigner.Api.Utils
                 //var dalStandardNodeSet = scope.ServiceProvider.GetService<IDal<StandardNodeSet, StandardNodeSetModel>>();
                 //var dalEngineeringUnits = scope.ServiceProvider.GetService<IDal<EngineeringUnit, EngineeringUnitModel>>();
 
+                var importNotifyUtil = scope.ServiceProvider.GetService<ImportNotificationUtil>();
                 var importer = scope.ServiceProvider.GetService<OpcUaImporter>();
                 _logger.LogTrace($"Timestamp||ImportId:{logId}||Retrieved DAL services");
 
-                var nodesetWarnings = await importer.ImportUaNodeSets(nodeSetXmlList, userToken,
+                var nodesetWarnings = await importer.ImportUaNodeSets(nodeSetXmlList, userInfo.UserToken,
                     async (message, status) =>
                     {
-                        await CreateImportLogMessage(dalImportLog, logId, userToken, message, status);
-                    }, 
+                        await CreateImportLogMessage(importNotifyUtil, dalImportLog, logId, userInfo, message, status);
+                    },
                     logId, allowMultiVersion, upgradePreviousVersions);
 
                 if (nodesetWarnings != null)
@@ -140,7 +138,7 @@ namespace CESMII.ProfileDesigner.Api.Utils
                         {
                             //save each nodesets warnings to the DB...for display upon export
                             //don't show a warning message on the import ui at this point.
-                            await CreateImportLogWarnings(dalImportLog, logId, warningList, userToken);
+                            await CreateImportLogWarnings(dalImportLog, logId, warningList, userInfo.UserToken);
                         }
                     }
                     catch (Exception ex)
@@ -163,7 +161,7 @@ namespace CESMII.ProfileDesigner.Api.Utils
         public IDal<ImportLog, ImportLogModel> GetImportLogDalIsolated()
         {
             var connString = _configuration.GetConnectionString("ProfileDesignerDB");
-            var options = new Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<Data.Contexts.ProfileDesignerPgContext>()
+            var options = new DbContextOptionsBuilder<Data.Contexts.ProfileDesignerPgContext>()
                 .UseNpgsql(connString)
                 .Options;
             var dbContextLogging = new Data.Contexts.ProfileDesignerPgContext(options);
@@ -172,22 +170,29 @@ namespace CESMII.ProfileDesigner.Api.Utils
             return new ImportLogDAL(repo);
         }
 
-        private static async Task CreateImportLogMessage(IDal<ImportLog, ImportLogModel> dalImportLog, int logId, UserToken userToken,
-            string message, TaskStatusEnum status)
+        private async Task CreateImportLogMessage(ImportNotificationUtil importNotifyUtil, 
+            IDal<ImportLog, ImportLogModel> dalImportLog, 
+            int logId, 
+            ImportUserModel userInfo,
+            string message, 
+            TaskStatusEnum status)
         {
-            var logItem = dalImportLog.GetById(logId, userToken);
+            var logItem = dalImportLog.GetById(logId, userInfo.UserToken);
             logItem.Status = status;
             if (status == TaskStatusEnum.Failed || status == TaskStatusEnum.Cancelled || status == TaskStatusEnum.Completed)
             {
                 logItem.Completed = DateTime.UtcNow;
-                //TBD - send notification email
-                if (logItem.NotifyOnComplete)
-                {
-                    //send notification email here...
-                }
             }
             logItem.Messages.Add(new ImportLogMessageModel() { Message = message });
-            await dalImportLog.UpdateAsync(logItem, userToken);
+            await dalImportLog.UpdateAsync(logItem, userInfo.UserToken);
+
+            //send notification after update completes so that an email error does not prevent completion
+            if (logItem.NotifyOnComplete && 
+                (status == TaskStatusEnum.Failed || status == TaskStatusEnum.Cancelled || status == TaskStatusEnum.Completed))
+            {
+                //TBD - in progress
+                //await importNotifyUtil.SendEmailNotification(logItem, userInfo.User);
+            }
         }
 
         /// <summary>

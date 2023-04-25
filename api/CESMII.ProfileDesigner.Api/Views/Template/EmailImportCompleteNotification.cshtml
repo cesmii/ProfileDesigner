@@ -1,0 +1,43 @@
+﻿@using CESMII.ProfileDesigner.Api.Shared.Models
+@model ImportCompleteNotifyModel
+@{
+    Layout = "_EmailLayout";
+
+}
+
+<div>
+    <p>
+        Your nodeset import has completed. 
+        @if (!string.IsNullOrEmpty(@Model.ImportItem.FileList))
+        {
+            var fileLabel = Model.ImportItem.Files.Count > 1 ? "files" : "file";
+            Html.Raw($"This import included nodeset {fileLabel} {Model.ImportItem.FileList}."); 
+        }
+        To view your imported nodeset, go to the CESMII Smart Manufacturing Profile&trade; Designer 
+        <a href="@Model.BaseUrl/profiles/library" />Profile Library</a>.
+    </p>
+
+</div>
+@if (Model.ImportItem.ProfileWarnings != null && Model.ImportItem.ProfileWarnings.Count > 0)
+{    <div>
+        <h2>Import Warnings</h2>
+        <p>The import completed with warnings. Please review the following warning messages.</p>
+        <ul>
+        @foreach(var warning in Model.ImportItem.ProfileWarnings)
+        {
+            <li>@warning.Message</li>
+        }
+        </ul>
+    </div>
+}
+
+
+<div>
+    <br/>
+    <p>Thank you for your support of the <a href="@Model.BaseUrl" />CESMII Smart Manufacturing Profile&trade; Designer</a>!</p>
+    <br />
+    <p>Sincerely,<br />
+        CESMII Support Team
+    </p>
+    <br />
+</div>

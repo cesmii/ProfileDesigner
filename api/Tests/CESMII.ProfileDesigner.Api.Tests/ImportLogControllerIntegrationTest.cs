@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Linq;
-using System.Text;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
@@ -64,7 +63,7 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
             services.AddScoped<IRepository<Profile>, BaseRepo<Profile, ProfileDesignerPgContext>>();
             //need to get user id of test user
             services.AddScoped<IRepository<User>, BaseRepo<User, ProfileDesignerPgContext>>();
-            
+
             _serviceProvider = services.BuildServiceProvider();
         }
 
@@ -139,16 +138,20 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
             //Note - files prepared and chunked in TestLargeNodeSetFiles class
             //capture info for comparison after the upload.
             //chunk size set below is 8mb
-            var itemsToImport = importFiles.Select(fileInfo => new ImportFileModel()
+            var item = new ImportStartModel()
             {
-                FileName = fileInfo.FileName,
-                TotalBytes = fileInfo.Chunks.Sum(x => x.Contents.Length),
-                TotalChunks = fileInfo.Chunks.Count
-            }).ToList();
+                NotifyOnComplete = false,
+                Items = importFiles.Select(fileInfo => new ImportFileModel()
+                {
+                    FileName = fileInfo.FileName,
+                    TotalBytes = fileInfo.Chunks.Sum(x => x.Contents.Length),
+                    TotalChunks = fileInfo.Chunks.Count
+                }).ToList()
+            };
 
             //ACT
             //Act 1 - call the first API endpoint to init the upload / import process
-            var importItem = await apiClient.ApiGetItemAsync<ImportLogModel>(URL_IMPORT_START, itemsToImport);
+            var importItem = await apiClient.ApiGetItemAsync<ImportLogModel>(URL_IMPORT_START, item);
             //insert mock message to be used during cleanup
             await InsertMockImportMessage(importItem.ID.Value);
 
@@ -170,20 +173,20 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
                 var fileSource = importFiles.Find(f => f.FileName.ToLower().Equals((object)fileImport.FileName.ToLower()));
                 Assert.NotNull(fileSource);
                 //loop over chunks and import
-                foreach (var item in fileSource.Chunks)
+                foreach (var ch in fileSource.Chunks)
                 {
                     var chunk = new ImportFileChunkProcessModel()
                     {
                         ImportActionId = importItem.ID.Value,
                         ImportFileId = fileImport.ID.Value,
                         FileName = fileSource.FileName,
-                        ChunkOrder = item.ChunkOrder,
+                        ChunkOrder = ch.ChunkOrder,
                         //Contents = Encoding.UTF8.GetString(item.Contents),
-                        Contents = item.Contents
+                        Contents = ch.Contents
                     };
                     //item.ImportFileId = _guidCommon.ToString();
-                    var msgTotalChunks = fileImport.TotalChunks == 1 ? "" : $", Chunk {item.ChunkOrder} of {fileImport.TotalChunks}";
-                    var chunkSize = Math.Round((item.Contents.Length / Convert.ToDecimal(1024 * 1024)), 2);
+                    var msgTotalChunks = fileImport.TotalChunks == 1 ? "" : $", Chunk {ch.ChunkOrder} of {fileImport.TotalChunks}";
+                    var chunkSize = Math.Round((ch.Contents.Length / Convert.ToDecimal(1024 * 1024)), 2);
                     var msgSize =  $"{chunkSize} mb";
                     output.WriteLine($"Testing ImportChunkedFile: {fileSource.FileName} {msgTotalChunks}, Chunk Size: {msgSize}");
                     //var resultChunk = await apiClient.ApiExecuteAsync<ResultMessageModel>(URL_IMPORT_UPLOAD, chunk);
@@ -461,7 +464,7 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
                     lastMessage = msgRecent.Message;
                 }
 
-            } while (sw.Elapsed < TimeSpan.FromMinutes(15) &&
+            } while (sw.Elapsed < TimeSpan.FromMinutes(45) &&
                      (importItem.Status == TaskStatusEnum.InProgress
                      || importItem.Status == TaskStatusEnum.NotStarted));
             
@@ -502,13 +505,13 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
         //we can do clean up after we run the test. 
         internal static List<List<string>> TEST_FILES = new List<List<string>>()
         {
-            /*
             //10mb
             new List<string>(){
                 $"{Integration.strTestNodeSetDirectory}/LargeFiles/www.Equinor.com.EntTypes.LARGE_NODESET_TEST.xml",
                 $"{Integration.strTestNodeSetDirectory}/opcfoundation.org.UA.1.04.2020-07-15.NodeSet2.xml",
                 $"{Integration.strTestNodeSetDirectory}/www.OPCFoundation.org.UA.2013.01.ISA95.2013-11-06.NodeSet2.xml"
             }
+            /*
             //20mb
             ,new List<string>(){
                 $"{Integration.strTestNodeSetDirectory}/LargeFiles/siemens.com.opcua.simatic-s7.LARGE_NODESET_TEST.xml",
@@ -516,13 +519,14 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
                 $"{Integration.strTestNodeSetDirectory}/opcfoundation.org.UA.DI.2022-11-03.NodeSet2.xml"
             }
             //72mb
-            , */new List<string>(){
+            ,new List<string>(){
                 $"{Integration.strTestNodeSetDirectory}/LargeFiles/siemens.com.opcua.LARGE_NODESET_TEST.xml",
                 $"{Integration.strTestNodeSetDirectory}/opcfoundation.org.UA.1.04.2022-03-29.NodeSet2.xml",
                 $"{Integration.strTestNodeSetDirectory}/opcfoundation.org.UA.DI.2021-09-07.NodeSet2.xml",
                 $"{Integration.strTestNodeSetDirectory}/opcfoundation.org.UA.Robotics.2021-05-20.NodeSet2.xml",
                 $"{Integration.strTestNodeSetDirectory}/clabs.com.UA.HumanRobot.2021-07-05.NodeSet2.xml"
             }
+            */
         };
 
         internal static Dictionary<string, List<ImportFileModel>> GetImportFiles()

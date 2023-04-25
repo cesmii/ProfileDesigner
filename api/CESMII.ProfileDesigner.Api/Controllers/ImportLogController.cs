@@ -380,7 +380,8 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 //call the existing import code. 
                 //pass in the author id as current user
                 //kick off background process, logid is returned immediately so front end can track progress...
-                await _svcImport.ImportOpcUaNodeSet(importItem.ID.Value, importItems, base.DalUserToken, allowMultiVersion: allowMultiVersion, upgradePreviousVersions: upgradePreviousVersions);
+                var userInfo = new ImportUserModel() { User = LocalUser, UserToken = base.DalUserToken };
+                await _svcImport.ImportOpcUaNodeSet(importItem.ID.Value, importItems, userInfo, allowMultiVersion: allowMultiVersion, upgradePreviousVersions: upgradePreviousVersions);
 
                 return Ok(
                     new ResultMessageWithDataModel()

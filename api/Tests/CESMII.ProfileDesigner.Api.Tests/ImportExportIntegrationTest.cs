@@ -389,16 +389,20 @@ namespace CESMII.ProfileDesigner.Api.Tests
             //Note - files prepared and chunked in TestLargeNodeSetFiles class
             //capture info for comparison after the upload.
             //chunk size set below is 8mb
-            var itemsToImport = importFiles.Select(fileInfo => new ImportFileModel()
+            var item = new ImportStartModel()
             {
-                FileName = fileInfo.FileName,
-                TotalBytes = fileInfo.Chunks.Sum(x => x.Contents.Length),
-                TotalChunks = fileInfo.Chunks.Count
-            }).ToList();
+                NotifyOnComplete = false,
+                Items = importFiles.Select(fileInfo => new ImportFileModel()
+                {
+                    FileName = fileInfo.FileName,
+                    TotalBytes = fileInfo.Chunks.Sum(x => x.Contents.Length),
+                    TotalChunks = fileInfo.Chunks.Count
+                }).ToList()
+            };
 
             //ACT
             //Act 1 - call the first API endpoint to init the upload / import process
-            var importItem = await apiClient.ApiGetItemAsync<ImportLogModel>(URL_IMPORT_START, itemsToImport);
+            var importItem = await apiClient.ApiGetItemAsync<ImportLogModel>(URL_IMPORT_START, item);
             //insert mock message to be used during cleanup
             //await InsertMockImportMessage(importItem.ID.Value);
 
@@ -420,20 +424,20 @@ namespace CESMII.ProfileDesigner.Api.Tests
                 var fileSource = importFiles.Find(f => f.FileName.ToLower().Equals((object)fileImport.FileName.ToLower()));
                 Assert.NotNull(fileSource);
                 //loop over chunks and import
-                foreach (var item in fileSource.Chunks)
+                foreach (var ch in fileSource.Chunks)
                 {
                     var chunk = new ImportFileChunkProcessModel()
                     {
                         ImportActionId = importItem.ID.Value,
                         ImportFileId = fileImport.ID.Value,
                         FileName = fileSource.FileName,
-                        ChunkOrder = item.ChunkOrder,
+                        ChunkOrder = ch.ChunkOrder,
                         //Contents = Encoding.Default.GetString(item.Contents)
-                        Contents = item.Contents
+                        Contents = ch.Contents
                     };
                     //item.ImportFileId = _guidCommon.ToString();
-                    var msgTotalChunks = fileImport.TotalChunks == 1 ? "" : $", Chunk {item.ChunkOrder} of {fileImport.TotalChunks}";
-                    var chunkSize = Math.Round((item.Contents.Length / Convert.ToDecimal(1024 * 1024)), 2);
+                    var msgTotalChunks = fileImport.TotalChunks == 1 ? "" : $", Chunk {ch.ChunkOrder} of {fileImport.TotalChunks}";
+                    var chunkSize = Math.Round((ch.Contents.Length / Convert.ToDecimal(1024 * 1024)), 2);
                     var msgSize = $"{chunkSize} mb";
                     output.WriteLine($"Testing ImportChunkedFile: {fileSource.FileName} {msgTotalChunks}, Chunk Size: {msgSize}");
                     //add calls to collection of upload tasks so we can use .whenAll

@@ -213,7 +213,7 @@ function ProfileImporter(props) {
         //show a processing message at top. One to stay for duration, one to show for timed period.
         //var msgImportProcessingId = new Date().getTime();
         setLoadingProps({
-            isLoading: true, message: `Starting upload of files to server...This may take a few minutes.`
+            isLoading: true, /*message: `Starting upload of files to server...This may take a few minutes.`*/
         });
 
         await axiosInstance.post(url, { notifyOnComplete: includeNotification, items: itemsInit }).then(result => {

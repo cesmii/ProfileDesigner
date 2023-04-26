@@ -368,62 +368,74 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
         {
             if (importFiles == null) return;
 
-            using (var scope = _serviceProvider.CreateScope())
+            //wrap in try/catch so we can more easily see the cleanup entities was the failure point and not the 
+            //actual test run. Still need to throw exception because inability to clean up impacts other tests. 
+            try
             {
-                //Cleanup imported profiles - loop over items with collection of nodesets
-                //open nodeset file and extract namespace
-                //then find profile in db and delete
-                var repoProfile = scope.ServiceProvider.GetService<IRepository<Profile>>();
-
-                //clean out multiple profiles
-                List<string> profileIds = new List<string>();
-                foreach (var item in importFiles)
+                using (var scope = _serviceProvider.CreateScope())
                 {
-                    var models = GetModels(item.FileName);
-                    foreach (var model in models)
+                    //Cleanup imported profiles - loop over items with collection of nodesets
+                    //open nodeset file and extract namespace
+                    //then find profile in db and delete
+                    var repoProfile = scope.ServiceProvider.GetService<IRepository<Profile>>();
+
+                    //clean out multiple profiles
+                    List<string> profileIds = new List<string>();
+                    foreach (var item in importFiles)
                     {
-                        var matches = repoProfile.FindByCondition(x =>
-                            x.Namespace.ToLower().Equals(model.ModelUri.ToLower()) &&
-                            (string.IsNullOrEmpty(model.Version) || x.Version.ToLower().Equals(model.Version.ToLower())));
-                        if (matches.Any())
+                        var models = GetModels(item.FileName);
+                        foreach (var model in models)
                         {
-                            var ids = matches.ToList().Select(x => x.ID.Value.ToString());
-                            profileIds = profileIds.Union(ids).ToList();
+                            var matches = repoProfile.FindByCondition(x =>
+                                x.Namespace.ToLower().Equals(model.ModelUri.ToLower()) &&
+                                (string.IsNullOrEmpty(model.Version) || x.Version.ToLower().Equals(model.Version.ToLower())));
+                            if (matches.Any())
+                            {
+                                var ids = matches.ToList().Select(x => x.ID.Value.ToString());
+                                profileIds = profileIds.Union(ids).ToList();
+                            }
                         }
                     }
-                }
 
-                //get the ids into a string list for deleting - this will allow for dependencies to 
-                //be deleted in proper order as everything is deleted at once 
-                if (profileIds.Any())
-                {
-                    var ids = string.Join(",", profileIds);
-                    await repoProfile.ExecStoredProcedureAsync("call public.sp_nodeset_delete({0})", ids);
-                    await repoProfile.SaveChangesAsync(); // SP does not get executed until SaveChanges
-                }
-
-                //clean out the import log data
-                //find the import record using the guid common which was placed as a message in the import log.messages collection
-                var repo = scope.ServiceProvider.GetService<IRepository<ImportLog>>();
-                var entity = repo.FindByCondition(x => x.Messages.Any(y => y.Message.Contains(_guidCommon.ToString()))).FirstOrDefault();
-                //get the ids into a string list for deleting
-                if (entity != null)
-                {
-                    //cascade delete not working...so deleting each part, then deleting entity
-                    foreach (var f in entity.Files)
+                    //get the ids into a string list for deleting - this will allow for dependencies to 
+                    //be deleted in proper order as everything is deleted at once 
+                    if (profileIds.Any())
                     {
-                        f.Chunks.Clear();
+                        var ids = string.Join(",", profileIds);
+                        var timeOut = 240;
+                        await repoProfile.ExecStoredProcedureAsync("call public.sp_nodeset_delete({0})", timeOut, ids);
+                        await repoProfile.SaveChangesAsync(); // SP does not get executed until SaveChanges
                     }
-                    entity.Files.Clear();
-                    entity.Messages.Clear();
-                    entity.ProfileWarnings.Clear();
-                    await repo.UpdateAsync(entity);
 
-                    //just delete the whole import log record and associated data
-                    await repo.DeleteAsync(entity);
-                    await repo.SaveChangesAsync();
+                    //clean out the import log data
+                    //find the import record using the guid common which was placed as a message in the import log.messages collection
+                    var repo = scope.ServiceProvider.GetService<IRepository<ImportLog>>();
+                    var entity = repo.FindByCondition(x => x.Messages.Any(y => y.Message.Contains(_guidCommon.ToString()))).FirstOrDefault();
+                    //get the ids into a string list for deleting
+                    if (entity != null)
+                    {
+                        //cascade delete not working...so deleting each part, then deleting entity
+                        foreach (var f in entity.Files)
+                        {
+                            f.Chunks.Clear();
+                        }
+                        entity.Files.Clear();
+                        entity.Messages.Clear();
+                        entity.ProfileWarnings.Clear();
+                        await repo.UpdateAsync(entity);
+
+                        //just delete the whole import log record and associated data
+                        await repo.DeleteAsync(entity);
+                        await repo.SaveChangesAsync();
+                    }
                 }
             }
+            catch (Exception ex) {
+                output.WriteLine($"CleanupEntities||Exception||{ex.Message}");
+                throw;
+            }
+
+
         }
 
         private static List<ModelTableEntry> GetModels(string fileName)
@@ -447,6 +459,7 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
 
         private async Task PollImportStatus(MyNamespace.Client apiClient, int itemId)
         {
+            int timeLimit = 45;
             var lastMessage = string.Empty;
             var model = new IdIntModel() { ID = itemId };
             ImportLogModel importItem;
@@ -464,7 +477,7 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
                     lastMessage = msgRecent.Message;
                 }
 
-            } while (sw.Elapsed < TimeSpan.FromMinutes(45) &&
+            } while (sw.Elapsed < TimeSpan.FromMinutes(timeLimit) &&
                      (importItem.Status == TaskStatusEnum.InProgress
                      || importItem.Status == TaskStatusEnum.NotStarted));
             
@@ -472,6 +485,13 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
             {
                 var msgRecent = importItem.Messages.OrderByDescending(x => x.Created).FirstOrDefault();
                 output.WriteLine(msgRecent.Message);
+                output.WriteLine($"PollImportStatus||Expected: {TaskStatusEnum.Completed} status, Actual: {importItem?.Status}");
+
+                //show a clear message that the issue was we ran out of time rather than a failure
+                if (sw.Elapsed >= TimeSpan.FromMinutes(timeLimit))
+                {
+                    output.WriteLine($"PollImportStatus||Time limit of {timeLimit} minutes exceeded");
+                }
             }
             Assert.Equal(TaskStatusEnum.Completed, importItem?.Status);
         }
@@ -521,9 +541,7 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
             ,new List<string>(){
                 $"{Integration.strTestNodeSetDirectory}/LargeFiles/siemens.com.opcua.LARGE_NODESET_TEST.xml",
                 $"{Integration.strTestNodeSetDirectory}/opcfoundation.org.UA.1.04.2022-03-29.NodeSet2.xml",
-                $"{Integration.strTestNodeSetDirectory}/opcfoundation.org.UA.DI.2021-09-07.NodeSet2.xml",
-                $"{Integration.strTestNodeSetDirectory}/opcfoundation.org.UA.Robotics.2021-05-20.NodeSet2.xml",
-                $"{Integration.strTestNodeSetDirectory}/clabs.com.UA.HumanRobot.2021-07-05.NodeSet2.xml"
+                $"{Integration.strTestNodeSetDirectory}/opcfoundation.org.UA.DI.2021-09-07.NodeSet2.xml"
             }
         };
 

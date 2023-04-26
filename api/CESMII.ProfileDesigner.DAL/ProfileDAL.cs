@@ -5,7 +5,8 @@
     using System.Linq;
     using System.Linq.Expressions;
     using System.Threading.Tasks;
-    using CESMII.ProfileDesigner.Common.Enums;
+    
+    using CESMII.ProfileDesigner.Common;
     using CESMII.ProfileDesigner.DAL.Models;
     using CESMII.ProfileDesigner.Data.Entities;
     using CESMII.ProfileDesigner.Data.Repositories;
@@ -13,14 +14,17 @@
 
     public class ProfileDAL : TenantBaseDAL<Profile, ProfileModel>, IDal<Profile, ProfileModel>
     {
-        public ProfileDAL(IRepository<Profile> repo, IDal<NodeSetFile, NodeSetFileModel> nodeSetFileDAL, IServiceProvider sp) : base(repo)
+        private readonly NodeSetFileDAL _nodeSetFileDAL;
+        private readonly IServiceProvider _serviceProvider;
+        protected readonly ConfigUtil _configUtil;
+
+        public ProfileDAL(IRepository<Profile> repo, IDal<NodeSetFile, NodeSetFileModel> nodeSetFileDAL, ConfigUtil configUtil, IServiceProvider sp) : base(repo)
         {
             // TODO clean up the dependencies: expand interface?
             _nodeSetFileDAL = nodeSetFileDAL as NodeSetFileDAL;
             _serviceProvider = sp; 
+            _configUtil = configUtil;
         }
-        private readonly NodeSetFileDAL _nodeSetFileDAL;
-        private readonly IServiceProvider _serviceProvider;
 
         public override async Task<int?> AddAsync(ProfileModel model, UserToken userToken)
         {
@@ -95,7 +99,7 @@
 
             //complex delete with many cascading implications, call stored proc which deletes all dependent objects 
             // in proper order, etc.
-            await _repo.ExecStoredProcedureAsync("call public.sp_nodeset_delete({0})", id.ToString());
+            await _repo.ExecStoredProcedureAsync("call public.sp_nodeset_delete({0})", _configUtil.ProfilesSettings.CommandTimeout, id.ToString());
             await _repo.SaveChangesAsync(); // SP does not get executed until SaveChanges
             return 1;
         }
@@ -114,7 +118,7 @@
 
             //only delete items where this user is the author - regardless of their original list
             var idsString = string.Join(",", matchesWAuthor.Select(x => x.ID).ToList());
-            await _repo.ExecStoredProcedureAsync("call public.sp_nodeset_delete({0})", idsString);
+            await _repo.ExecStoredProcedureAsync("call public.sp_nodeset_delete({0})", _configUtil.ProfilesSettings.CommandTimeout, idsString);
             return 1;
         }
 

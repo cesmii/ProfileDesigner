@@ -326,7 +326,8 @@ namespace CESMII.ProfileDesigner.Api.Tests
                     finally
                     { 
                     }
-                    
+
+                    int timeLimit = 15;
                     ImportLogModel importLogItem;
                     var model = new IdIntModel { ID = importId.Value };
                     var sw = Stopwatch.StartNew();
@@ -335,16 +336,22 @@ namespace CESMII.ProfileDesigner.Api.Tests
                         System.Threading.Thread.Sleep(2000);
                         importLogItem = await apiClient.ApiGetItemAsync<ImportLogModel>(URL_IMPORT_GETBYID, model);
                         //importLogItem = await apiClient.GetByIDAsync(statusModel);
-                    } while (sw.Elapsed < TimeSpan.FromMinutes(15) &&
-                             ((int)importLogItem.Status == (int)CESMII.ProfileDesigner.Common.Enums.TaskStatusEnum.InProgress
-                             || (int)importLogItem.Status == (int)CESMII.ProfileDesigner.Common.Enums.TaskStatusEnum.NotStarted));
-                    if ((int?)(importLogItem?.Status) != (int)CESMII.ProfileDesigner.Common.Enums.TaskStatusEnum.Completed)
+                    } while (sw.Elapsed < TimeSpan.FromMinutes(timeLimit) &&
+                             ((int)importLogItem.Status == (int)TaskStatusEnum.InProgress
+                             || (int)importLogItem.Status == (int)TaskStatusEnum.NotStarted));
+                    
+                    if ((int?)(importLogItem?.Status) != (int)TaskStatusEnum.Completed)
                     {
                         var errorText = $"Error importing nodeset {nextBatch.FirstOrDefault().FileName}: {importLogItem.Messages.FirstOrDefault().Message}";
                         output.WriteLine(errorText);
+                        //show a clear message that the issue was we ran out of time rather than a failure
+                        if (sw.Elapsed >= TimeSpan.FromMinutes(timeLimit))
+                        {
+                            output.WriteLine($"PollImportStatus||Time limit of {timeLimit} minutes exceeded");
+                        }
                         Assert.True(false, errorText);
                     }
-                    Assert.True((int?)(importLogItem?.Status) == (int)CESMII.ProfileDesigner.Common.Enums.TaskStatusEnum.Completed);
+                    Assert.True((int?)(importLogItem?.Status) == (int)TaskStatusEnum.Completed);
                     //Assert.True(!status?.Messages?.Any());
                     orderedImportRequest.RemoveRange(0, nextBatch.Count);
                 } while (orderedImportRequest.Any());

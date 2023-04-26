@@ -37,7 +37,7 @@
 
         public virtual DALResult<TModel> GetItemsAll(string fnName, bool returnCount, List<OrderBySimple> orderBys, params object[] parameters)
         {
-            var query = _repo.ExecStoredFunction(fnName, null, null, orderBys, parameters);
+            var query = _repo.ExecStoredFunction(fnName, null, null, null, orderBys, parameters);
             var count = returnCount ? this.Count(fnName, parameters) : 0;
             return new DALResult<TModel>()
             {
@@ -49,7 +49,7 @@
         public virtual DALResult<TModel> GetItemsPaged(string fnName, int? skip, int? take,
             bool returnCount, List<OrderBySimple> orderBys, params object[] parameters)
         {
-            var query = _repo.ExecStoredFunction(fnName, skip, take, orderBys, parameters);
+            var query = _repo.ExecStoredFunction(fnName, null, skip, take, orderBys, parameters);
             var count = returnCount ? this.Count(fnName, parameters) : 0;
             return new DALResult<TModel>()
             {

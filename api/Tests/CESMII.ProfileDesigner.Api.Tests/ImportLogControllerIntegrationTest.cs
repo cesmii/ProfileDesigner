@@ -540,8 +540,8 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
             //72mb
             ,new List<string>(){
                 $"{Integration.strTestNodeSetDirectory}/LargeFiles/siemens.com.opcua.LARGE_NODESET_TEST.xml",
-                $"{Integration.strTestNodeSetDirectory}/opcfoundation.org.UA.1.04.2022-03-29.NodeSet2.xml",
-                $"{Integration.strTestNodeSetDirectory}/opcfoundation.org.UA.DI.2021-09-07.NodeSet2.xml"
+                $"{Integration.strTestNodeSetDirectory}/opcfoundation.org.UA.1.05.2022-11-01.NodeSet2.xml",
+                $"{Integration.strTestNodeSetDirectory}/opcfoundation.org.UA.DI.2022-11-03.NodeSet2.xml"
             }
         };
 

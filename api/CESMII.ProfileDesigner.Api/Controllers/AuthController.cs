@@ -84,30 +84,28 @@
 
                 bUpdateUser = true;         // Synch UserModel changes
                 bCheckOrganization = true;  // Check the user's organization.
-
-                bFound = true;              // No need to keep looking.
+                bFound = true;              // No need for lookup by email address.
             }
             else if (listMatchObjectIdAAD.Count > 1)
             {
                 // We should never get here, since it means that the database is corrupted somehow.
+                bErrorCondition = true;
                 strError = $"InitLocalUser||More than one Profile designer user record found with user name {userAAD.ObjectIdAAD}. {listMatchObjectIdAAD.Count} records found.";
                 _logger.LogWarning(strError);
-                bErrorCondition = true;
-                // throw new ArgumentNullException(strError);
             }
 
             if (bErrorCondition)
                 return (null,strError);
 
 
-            // If not found, user's oid is not in the public.user table.
+            // We didn't find user by Azure object id (oid), so let's try finding them by email address.
             if (!bFound)
             {
                 // Is there a public.user record for the user's email address?
                 var listMatchEmailAddress = _dalUser.Where(x => x.EmailAddress.ToLower().Equals(userAAD.Email.ToLower()) && x.ObjectIdAAD == null, null).Data;
                 if (listMatchEmailAddress.Count == 0)
                 {
-                    // For manually-created users, this is the first time they are logging into Profile Designer.
+                    // Here for (1) manually created users, or (2) users from marketplace self-service sign-up.
                     um = new UserModel()
                     {
                         ObjectIdAAD = userAAD.ObjectIdAAD,
@@ -118,7 +116,7 @@
                     um.ID = _dalUser.AddAsync(um, null).Result;
                     um = _dalUser.GetById((int)um.ID, null);
 
-                    bUpdateUser = true;         // Synch UserModel changes
+                    bUpdateUser = false;        // No need to synch - we just wrote all we know about.
                     bCheckOrganization = true;  // Check the user's organization.
                 }
                 else if (listMatchEmailAddress.Count == 1)
@@ -137,10 +135,9 @@
                     }
                     else
                     {
-                        strError = $"InitLocalUser||Initialized Profile designer user record found with email {userAAD.Email}. {listMatchEmailAddress.Count} records found. Existing object id = {um.ObjectIdAAD}";
                         bErrorCondition = true;
+                        strError = $"InitLocalUser||Initialized Profile designer user record found with email {userAAD.Email}. {listMatchEmailAddress.Count} records found. Existing object id = {um.ObjectIdAAD}";
                         _logger.LogWarning(strError);
-                        // throw new ArgumentNullException(strError);
                     }
                 }
                 else
@@ -169,10 +166,9 @@
                     }
                     else
                     {
+                        bErrorCondition = true;
                         strError = $"InitLocalUser||More than one Profile designer user record found with email {userAAD.Email}. {listMatchEmailAddress.Count} records found. Existing object id = {um.ObjectIdAAD}";
-                        bErrorCondition = true;
                         _logger.LogWarning(strError);
-                        bErrorCondition = true;
                     }
                 }
             }
@@ -212,10 +208,9 @@
                     else
                     {
                         // More than one -- oops. A problem.
-                        strError = $"InitLocalUser||More than one organization record found with Name = {strFindOrgName}. {listMatchOrganizationName.Count} records found.";
                         bErrorCondition = true;
+                        strError = $"InitLocalUser||More than one organization record found with Name = {strFindOrgName}. {listMatchOrganizationName.Count} records found.";
                         _logger.LogWarning(strError);
-                        // throw new ArgumentNullException(strError);
                     }
                 }
             }

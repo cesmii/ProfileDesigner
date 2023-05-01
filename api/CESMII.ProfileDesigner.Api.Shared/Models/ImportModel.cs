@@ -53,6 +53,17 @@ namespace CESMII.ProfileDesigner.Api.Shared.Models
         public ImportLogModel ImportItem { get; set; }
 
         /// <summary>
+        /// This is the user who performed the upload.
+        /// </summary>
+        public UserModel Author { get; set; }
+
+        /// <summary>
+        /// only populate this if import fails. We will populate this extra info in a separate email
+        /// to admin / support user
+        /// </summary>
+        public UserModel AdminUserInfo { get; set; } = null;
+
+        /// <summary>
         /// used in email template to determine proper link
         /// </summary>
         public string BaseUrl { get; set; }

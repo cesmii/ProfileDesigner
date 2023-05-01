@@ -57,7 +57,7 @@
         <h2>Import Warnings</h2>
         <p>The import completed with warnings. Please review the following warning messages.</p>
         <ul>
-        @foreach(var warning in Model.ImportItem.ProfileWarnings.OrderBy(x => x.Created))
+        @foreach(var warning in Model.ImportItem.ProfileWarnings.OrderBy(x => x.ID))
         {
             <li>@warning.Message</li>
         }
@@ -68,9 +68,9 @@
 @if (Model.ImportItem.Messages != null && Model.ImportItem.Messages.Count > 0)
 {    <div>
         <h2>Import Messages</h2>
-        <p>Please review the import messages collected during the import process are shown here (most recent first). </p>
+        <p>The import messages collected during the import process are shown here (most recent first). </p>
         <ul>
-        @foreach(var msg in Model.ImportItem.Messages.OrderByDescending(x => x.Created))
+        @foreach(var msg in Model.ImportItem.Messages.OrderByDescending(x => x.ID))
         {
             <li>@msg.Message</li>
         }

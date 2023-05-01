@@ -8,7 +8,7 @@
 <div>
     @if (Model.AdminUserInfo != null)
     {
-        <p class="border-bottom">
+        <p>
             <h2>Import Failed</h2>
             <h3>User Info</h3>
             <ul>
@@ -24,6 +24,7 @@
                 <li>Last updated: @Model.ImportItem.Updated</li>  
             </ul>
         </p>
+        <hr class="divider" />
     }
     <p>
         Dear @Model.Author.DisplayName: 

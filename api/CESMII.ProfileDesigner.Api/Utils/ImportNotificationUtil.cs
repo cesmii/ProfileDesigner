@@ -78,8 +78,9 @@ namespace CESMII.ProfileDesigner.Api.Utils
                     //add admin user info to inform the template to include some extra info
                     //generate a new body for the email
                     item.AdminUserInfo = user;
-                    mm.Subject += "|| Admin Notification";
+                    mm.Subject += " | Admin Notification";
                     mm.Body = await _viewEngine.RazorViewToHtmlAsync(viewName, item);
+                    leaTo = new List<EmailAddress>();
                     foreach (var addr in _configUtil.MailSettings.NotifyImportFailureAddresses)
                     {
                         leaTo.Add(new EmailAddress() { Email = addr });

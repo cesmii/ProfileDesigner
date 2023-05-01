@@ -113,7 +113,7 @@ namespace CESMII.ProfileDesigner.Api.Utils
             {
                 _logger.LogTrace($"Timestamp||ImportId:{logId}||Getting DAL services");
 //TBD - temp
-throw new InvalidOperationException();
+throw new InvalidOperationException("Testing email notification - temp exception...");
 
                 //var dalProfile = scope.ServiceProvider.GetService<IDal<Profile, ProfileModel>>();
                 //var dalNodeSetFile = scope.ServiceProvider.GetService<IDal<NodeSetFile, NodeSetFileModel>>();

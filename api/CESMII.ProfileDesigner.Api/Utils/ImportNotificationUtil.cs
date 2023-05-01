@@ -47,13 +47,13 @@ namespace CESMII.ProfileDesigner.Api.Utils
                 var item = new ImportCompleteNotifyModel()
                 {
                     ImportItem = logItem,
+                    Author = user,
                     BaseUrl = _configUtil.MailSettings.BaseUrl
                 };
 
                 var subject = SUBJECT.Replace("{{STATUS}}", logItem.StatusName);
                 //var emailInfo = new EmailDataModel(user, subject);
                 string viewName = "~/Views/Template/EmailImportCompleteNotification.cshtml";
-                string body = await _viewEngine.RazorViewToHtmlAsync(viewName, item);
 
                 // Setup "To" list 
                 // List of recipients for the notification email.
@@ -63,19 +63,29 @@ namespace CESMII.ProfileDesigner.Api.Utils
                 MailMessage mm = new MailMessage()
                 {
                     Subject = subject,
-                    Body = body
+                    Body = await _viewEngine.RazorViewToHtmlAsync(viewName, item)
                 };
 
-                //TBD - let devops at cesmii know if a failed import occurs
-                if (logItem.Status == Common.Enums.TaskStatusEnum.Failed)
+                //sending email to the user who experienced the issue
+                await _mailService.SendEmailSendGrid(mm, leaTo);
+
+                
+                //If import failed, send separate notification with some additional info to admin
+                //Let devops at cesmii know if a failed import occurs
+                if (logItem.Status == Common.Enums.TaskStatusEnum.Failed 
+                    && _configUtil.MailSettings.NotifyImportFailureAddresses != null)
                 {
+                    //add admin user info to inform the template to include some extra info
+                    //generate a new body for the email
+                    item.AdminUserInfo = user;
+                    mm.Subject += "|| Admin Notification";
+                    mm.Body = await _viewEngine.RazorViewToHtmlAsync(viewName, item);
                     foreach (var addr in _configUtil.MailSettings.NotifyImportFailureAddresses)
                     {
                         leaTo.Add(new EmailAddress() { Email = addr });
                     }
+                    await _mailService.SendEmailSendGrid(mm, leaTo);
                 }
-
-                await _mailService.SendEmailSendGrid(mm, leaTo);
 
             }
             catch (Exception ex)

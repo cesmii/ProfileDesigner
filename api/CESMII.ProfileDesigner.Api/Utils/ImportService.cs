@@ -112,8 +112,6 @@ namespace CESMII.ProfileDesigner.Api.Utils
             using (var scope = _serviceScopeFactory.CreateScope())
             {
                 _logger.LogTrace($"Timestamp||ImportId:{logId}||Getting DAL services");
-//TBD - temp
-throw new InvalidOperationException("Testing email notification - temp exception...");
 
                 //var dalProfile = scope.ServiceProvider.GetService<IDal<Profile, ProfileModel>>();
                 //var dalNodeSetFile = scope.ServiceProvider.GetService<IDal<NodeSetFile, NodeSetFileModel>>();
@@ -190,9 +188,7 @@ throw new InvalidOperationException("Testing email notification - temp exception
             await dalImportLog.UpdateAsync(logItem, userInfo.UserToken);
 
             //send notification after update completes so that an email error does not prevent import completion
-//TEMP
-//            if (logItem.NotifyOnComplete &&
-if (
+            if (logItem.NotifyOnComplete &&
                 (status == TaskStatusEnum.Failed || status == TaskStatusEnum.Cancelled || status == TaskStatusEnum.Completed))
             {
                 await importNotifyUtil.SendEmailNotification(logItem, userInfo.User);

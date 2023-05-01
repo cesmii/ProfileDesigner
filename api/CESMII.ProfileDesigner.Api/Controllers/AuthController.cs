@@ -30,8 +30,18 @@
             //extract user name from identity passed in via token
             //check if that user record is in DB. If not, add it.
             //InitLocalUser: this property checks for user, adds to db and returns a fully formed user model if one does not exist. 
-            var user = InitLocalUser();
-            return Ok(new ResultMessageModel() { IsSuccess = true, Message = $"On AAD Login, profile designer user {user.ObjectIdAAD} was initialized." });
+            var returned = InitLocalUser();
+            UserModel user = returned.Item1;
+            String strError = returned.Item2;
+
+            if (user != null)
+            {
+                return Ok(new ResultMessageModel() { IsSuccess = true, Message = $"On AAD Login, profile designer user {user.ObjectIdAAD} was initialized." });
+            }
+            else
+            {
+                return StatusCode(401,new ResultMessageModel() { IsSuccess = false, Message = strError });
+            }
         }
 
 
@@ -52,15 +62,17 @@
         /// </summary>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        protected UserModel InitLocalUser()
+        protected (UserModel,string) InitLocalUser()
         {
             bool bCheckOrganization = false;
             bool bUpdateUser = false;
             bool bFound = false;
+            bool bErrorCondition = false;
+            string strError = null;
 
             UserModel um = null;
 
-            // Search using user's Azure id.
+            // Search using user's Azure object id (oid).
             var userAAD = User.GetUserAAD();
             var listMatchObjectIdAAD = _dalUser.Where(x => x.ObjectIdAAD.ToLower().Equals(userAAD.ObjectIdAAD), null).Data;
             if (listMatchObjectIdAAD.Count == 1)
@@ -72,23 +84,28 @@
 
                 bUpdateUser = true;         // Synch UserModel changes
                 bCheckOrganization = true;  // Check the user's organization.
-
-                bFound = true;              // No need to keep looking.
+                bFound = true;              // No need for lookup by email address.
             }
             else if (listMatchObjectIdAAD.Count > 1)
             {
-                _logger.LogWarning($"InitLocalUser||More than one Profile designer user record found with user name {userAAD.ObjectIdAAD}. {listMatchObjectIdAAD.Count} records found.");
-                throw new ArgumentNullException($"InitLocalUser: More than one Profile designer record user found with user name {userAAD.ObjectIdAAD}. {listMatchObjectIdAAD.Count} records found.");
+                // We should never get here, since it means that the database is corrupted somehow.
+                bErrorCondition = true;
+                strError = $"InitLocalUser||More than one Profile designer user record found with user name {userAAD.ObjectIdAAD}. {listMatchObjectIdAAD.Count} records found.";
+                _logger.LogWarning(strError);
             }
 
+            if (bErrorCondition)
+                return (null,strError);
 
-            // If Azure id not found, search by email address.
+
+            // We didn't find user by Azure object id (oid), so let's try finding them by email address.
             if (!bFound)
             {
-                var listMatchEmailAddress = _dalUser.Where(x => x.EmailAddress.ToLower().Equals(userAAD.Email.ToLower()), null).Data;
+                // Is there a public.user record for the user's email address?
+                var listMatchEmailAddress = _dalUser.Where(x => x.EmailAddress.ToLower().Equals(userAAD.Email.ToLower()) && x.ObjectIdAAD == null, null).Data;
                 if (listMatchEmailAddress.Count == 0)
                 {
-                    // First time we are encountering this user.
+                    // Here for (1) manually created users, or (2) users from marketplace self-service sign-up.
                     um = new UserModel()
                     {
                         ObjectIdAAD = userAAD.ObjectIdAAD,
@@ -99,32 +116,65 @@
                     um.ID = _dalUser.AddAsync(um, null).Result;
                     um = _dalUser.GetById((int)um.ID, null);
 
-                    bUpdateUser = true;         // Synch UserModel changes
+                    bUpdateUser = false;        // No need to synch - we just wrote all we know about.
                     bCheckOrganization = true;  // Check the user's organization.
                 }
                 else if (listMatchEmailAddress.Count == 1)
                 {
+                    // For self-service sign-up users, this is the first time they are logging into Profile Designer.
                     um = listMatchEmailAddress[0];
+                    if (um.ObjectIdAAD == null)
+                    {
+                        um.ObjectIdAAD = userAAD.ObjectIdAAD;
+                        um.Email = userAAD.Email;
+                        um.DisplayName = userAAD.DisplayName;
+                        um.LastLogin = DateTime.UtcNow;
 
-                    // Update the user's Azure id. If we are here, then Azure id has changed.
-                    // This can happen if user
-                    // (1) Does self-service sign-up, 
-                    // (2) Leaves the organization, then
-                    // (3) Signs-up again.
-                    um.ObjectIdAAD = userAAD.ObjectIdAAD;
-                    um.DisplayName = userAAD.DisplayName;
-                    um.LastLogin = DateTime.UtcNow;
-
-                    bUpdateUser = true;         // Synch UserModel changes
-                    bCheckOrganization = true;  // Check the user's organization.
+                        bUpdateUser = true;         // Synch UserModel changes
+                        bCheckOrganization = true;  // Check the user's organization.
+                    }
+                    else
+                    {
+                        bErrorCondition = true;
+                        strError = $"InitLocalUser||Initialized Profile designer user record found with email {userAAD.Email}. {listMatchEmailAddress.Count} records found. Existing object id = {um.ObjectIdAAD}";
+                        _logger.LogWarning(strError);
+                    }
                 }
                 else
                 {
-                    string strError = $"InitLocalUser||More than one Profile designer user record found with email {userAAD.Email}. {listMatchEmailAddress.Count} records found.";
-                    _logger.LogWarning(strError);
-                    throw new ArgumentNullException(strError);
+                    // When more than 1 record, it means they have signed up (and then left) more than 
+                    // once. This is okay, but we pick the most recent one.
+                    // listMatchEmailAddress.Sort((em1, em2) => DateTime?.Compare(em1.LastLogin, em2.LastLogin));
+                    listMatchEmailAddress.Sort((em1, em2) => 
+                        { 
+                            DateTime dt1 = new DateTime(em1.LastLogin.Value.Ticks);
+                            DateTime dt2 = new DateTime(em2.LastLogin.Value.Ticks);
+                            return DateTime.Compare(dt1, dt2);
+                        });
+
+                    int iItem = listMatchEmailAddress.Count - 1;
+                    um = listMatchEmailAddress[iItem];
+                    if (um.ObjectIdAAD == null)
+                    {
+                        um.ObjectIdAAD = userAAD.ObjectIdAAD;
+                        um.Email = userAAD.Email;
+                        um.DisplayName = userAAD.DisplayName;
+                        um.LastLogin = DateTime.UtcNow;
+
+                        bUpdateUser = true;         // Synch UserModel changes
+                        bCheckOrganization = true;  // Check the user's organization.
+                    }
+                    else
+                    {
+                        bErrorCondition = true;
+                        strError = $"InitLocalUser||More than one Profile designer user record found with email {userAAD.Email}. {listMatchEmailAddress.Count} records found. Existing object id = {um.ObjectIdAAD}";
+                        _logger.LogWarning(strError);
+                    }
                 }
             }
+
+            if (bErrorCondition)
+                return (null, strError);
 
             // Check organzation and update it if needed.
             if (bCheckOrganization)
@@ -158,17 +208,20 @@
                     else
                     {
                         // More than one -- oops. A problem.
-                        string strError = $"InitLocalUser||More than one organization record found with Name = {strFindOrgName}. {listMatchOrganizationName.Count} records found.";
+                        bErrorCondition = true;
+                        strError = $"InitLocalUser||More than one organization record found with Name = {strFindOrgName}. {listMatchOrganizationName.Count} records found.";
                         _logger.LogWarning(strError);
-                        throw new ArgumentNullException(strError);
                     }
                 }
             }
 
+            if (bErrorCondition)
+                return (null, strError);
+
             if (bUpdateUser)
                 _dalUser.UpdateAsync(um, new UserToken() { UserId = um.ID.Value }).Wait();
 
-            return um;
+            return (um,null);
 
         }
 

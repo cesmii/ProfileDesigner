@@ -1,5 +1,6 @@
 using CESMII.Common.CloudLibClient;
 using CESMII.Common.SelfServiceSignUp;
+using CESMII.Common.SelfServiceSignUp.Models;
 using CESMII.Common.SelfServiceSignUp.Services;
 using CESMII.OpcUa.NodeSetImporter;
 using CESMII.ProfileDesigner.Api.Shared.Extensions;
@@ -93,6 +94,7 @@ namespace CESMII.ProfileDesigner.Api
             //DAL objects
             services.AddScoped<UserDAL>();     //this one has extra methods outside of the IDal interface
             services.AddScoped<OrganizationDAL>();
+            services.AddScoped<IUserSignUpData, UserSignUpData>();
 
             //services.AddScoped<IDal<Organization,OrganizationModel>,OrganizationDAL>();
             services.AddScoped<IDal<ProfileTypeDefinition, ProfileTypeDefinitionModel>, ProfileTypeDefinitionDAL>();

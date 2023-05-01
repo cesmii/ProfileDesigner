@@ -51,7 +51,8 @@ namespace CESMII.ProfileDesigner.Api.Utils
             //the rest of the fields are set in the dal
             var importItem = new ImportLogModel()
             {
-                Files = nodeSetXmlList.Select(f => new ImportFileModel() {
+                Files = nodeSetXmlList.Select(f => new ImportFileModel()
+                {
                     FileName = f.FileName,
                     TotalBytes = (long)f.Data.Length,
                     TotalChunks = 1
@@ -111,6 +112,8 @@ namespace CESMII.ProfileDesigner.Api.Utils
             using (var scope = _serviceScopeFactory.CreateScope())
             {
                 _logger.LogTrace($"Timestamp||ImportId:{logId}||Getting DAL services");
+//TBD - temp
+throw new InvalidOperationException();
 
                 //var dalProfile = scope.ServiceProvider.GetService<IDal<Profile, ProfileModel>>();
                 //var dalNodeSetFile = scope.ServiceProvider.GetService<IDal<NodeSetFile, NodeSetFileModel>>();
@@ -170,11 +173,11 @@ namespace CESMII.ProfileDesigner.Api.Utils
             return new ImportLogDAL(repo);
         }
 
-        private async Task CreateImportLogMessage(ImportNotificationUtil importNotifyUtil, 
-            IDal<ImportLog, ImportLogModel> dalImportLog, 
-            int logId, 
+        private async Task CreateImportLogMessage(ImportNotificationUtil importNotifyUtil,
+            IDal<ImportLog, ImportLogModel> dalImportLog,
+            int logId,
             ImportUserModel userInfo,
-            string message, 
+            string message,
             TaskStatusEnum status)
         {
             var logItem = dalImportLog.GetById(logId, userInfo.UserToken);
@@ -186,12 +189,13 @@ namespace CESMII.ProfileDesigner.Api.Utils
             logItem.Messages.Add(new ImportLogMessageModel() { Message = message });
             await dalImportLog.UpdateAsync(logItem, userInfo.UserToken);
 
-            //send notification after update completes so that an email error does not prevent completion
-            if (logItem.NotifyOnComplete && 
+            //send notification after update completes so that an email error does not prevent import completion
+//TEMP
+//            if (logItem.NotifyOnComplete &&
+if (
                 (status == TaskStatusEnum.Failed || status == TaskStatusEnum.Cancelled || status == TaskStatusEnum.Completed))
             {
-                //TBD - in progress
-                //await importNotifyUtil.SendEmailNotification(logItem, userInfo.User);
+                await importNotifyUtil.SendEmailNotification(logItem, userInfo.User);
             }
         }
 

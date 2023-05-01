@@ -4,6 +4,8 @@ using System.Threading.Tasks;
 using System.Net.Mail;
 
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Hosting;
+
 using SendGrid.Helpers.Mail;
 
 using CESMII.Common.SelfServiceSignUp.Services;
@@ -26,7 +28,7 @@ namespace CESMII.ProfileDesigner.Api.Utils
 
         private const string SUBJECT = "CESMII | Profile Designer | Nodeset Import {{STATUS}}";
 
-        public ImportNotificationUtil(ConfigUtil configUtil, 
+        public ImportNotificationUtil(ConfigUtil configUtil,
             MailRelayService mailservice,
             ICustomRazorViewEngine viewEngine,
             ILogger<ImportNotificationUtil> logger)
@@ -63,7 +65,7 @@ namespace CESMII.ProfileDesigner.Api.Utils
                     Subject = subject,
                     Body = body
                 };
-                
+
                 //TBD - let devops at cesmii know if a failed import occurs
                 if (logItem.Status == Common.Enums.TaskStatusEnum.Failed)
                 {

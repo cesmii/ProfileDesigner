@@ -8,7 +8,7 @@
 <div>
     @if (Model.AdminUserInfo != null)
     {
-        <p>
+        <p class="border-bottom">
             <h2>Import Failed</h2>
             <h3>User Info</h3>
             <ul>
@@ -24,28 +24,29 @@
                 <li>Last updated: @Model.ImportItem.Updated</li>  
             </ul>
         </p>
-        <hr />
     }
     <p>
         Dear @Model.Author.DisplayName: 
     </p>
     <p>
-        Your nodeset import has @Model.ImportItem.Status.ToString().ToLower(). 
+        Your nodeset import has <b>@Model.ImportItem.Status.ToString().ToLower()</b>. 
+    </p>
+    <p>
         @if (!string.IsNullOrEmpty(@Model.ImportItem.FileList))
         {
             var fileLabel = Model.ImportItem.Files.Count > 1 ? "files" : "file";
             Html.Raw($"This import included nodeset {fileLabel} {Model.ImportItem.FileList}."); 
         }
-        if (Model.ImportItem.Status == CESMII.ProfileDesigner.Common.Enums.TaskStatusEnum.Completed &&
+        @if (Model.ImportItem.Status == CESMII.ProfileDesigner.Common.Enums.TaskStatusEnum.Completed)
+        {
+            Html.Raw($"To view your imported nodeset, go to the CESMII Smart Manufacturing Profile&trade; Designer");
+            Html.Raw($"<a href='{_profileLibraryUrl} >Profile Library</a>.");
+        }
+        @if (Model.ImportItem.Status == CESMII.ProfileDesigner.Common.Enums.TaskStatusEnum.Completed &&
                 !string.IsNullOrEmpty(Model.ImportItem.FileList))
         {
             var fileLabel = Model.ImportItem.Files.Count > 1 ? "files" : "file";
             Html.Raw($"This import included nodeset {fileLabel} {Model.ImportItem.FileList}."); 
-        }
-        if (Model.ImportItem.Status == CESMII.ProfileDesigner.Common.Enums.TaskStatusEnum.Completed)
-        {
-            To view your imported nodeset, go to the CESMII Smart Manufacturing Profile&trade; Designer 
-            <a href="@_profileLibraryUrl" >Profile Library</a>.
         }
     </p>
 
@@ -55,7 +56,7 @@
         <h2>Import Warnings</h2>
         <p>The import completed with warnings. Please review the following warning messages.</p>
         <ul>
-        @foreach(var warning in Model.ImportItem.ProfileWarnings)
+        @foreach(var warning in Model.ImportItem.ProfileWarnings.OrderBy(x => x.Created))
         {
             <li>@warning.Message</li>
         }
@@ -68,7 +69,7 @@
         <h2>Import Messages</h2>
         <p>Please review the import messages collected during the import process are shown here (most recent first). </p>
         <ul>
-        @foreach(var msg in Model.ImportItem.Messages)
+        @foreach(var msg in Model.ImportItem.Messages.OrderByDescending(x => x.Created))
         {
             <li>@msg.Message</li>
         }
@@ -78,7 +79,7 @@
 
 <div>
     <br/>
-    <p>Thank you for your support of the <a href="@Model.BaseUrl" />CESMII Smart Manufacturing Profile&trade; Designer</a>!</p>
+    <p>Thank you for your support of the <a href="@Model.BaseUrl" >CESMII Smart Manufacturing Profile&trade; Designer</a>!</p>
     <br />
     <p>Sincerely,<br />
         CESMII Support Team

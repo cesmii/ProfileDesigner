@@ -14,6 +14,7 @@ using CESMII.ProfileDesigner.DAL.Models;
 using CESMII.ProfileDesigner.Data.Repositories;
 using CESMII.ProfileDesigner.Data.Entities;
 using CESMII.ProfileDesigner.Data.Contexts;
+using CESMII.ProfileDesigner.Api.Shared.Models;
 
 namespace CESMII.ProfileDesigner.Api.Tests.Int
 {
@@ -121,8 +122,8 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
 
             // ACT
             //add an item
-            var resultAdd = await apiClient.ApiExecuteAsync<Shared.Models.ResultMessageWithDataModel>(URL_ADD, model);
-            var modelGet = new Shared.Models.IdIntModel() { ID = (int)resultAdd.Data };
+            var resultAdd = await apiClient.ApiExecuteAsync<ResultMessageWithDataModel>(URL_ADD, model);
+            var modelGet = new IdIntModel() { ID = (int)resultAdd.Data };
             var resultGet = await apiClient.ApiGetItemAsync<ProfileModel>(URL_GETBYID, modelGet);
 
             //ASSERT - Add
@@ -224,55 +225,6 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
         }
 
         #region Helper Methods
-        //private async Task ImportCloudLibItemsForSearchTests()
-        //{
-        //    //get api client
-        //    var apiClient = base.ApiClient;
-
-        //    //get cloud lib items of interest (ua, ua/di, ua/robotics, /fdi5, /fdi7 )
-        //    //mock only accepts certain search query combinations
-        //    var filter = base.CloudLibFilter;
-        //    filter.Query = null;
-        //    filter.Take = 100;
-        //    filter.PageBackwards = false;
-        //    filter.Cursor = null;
-        //    var items = (await apiClient.ApiGetManyAsync<CloudLibProfileModel>(URL_CLOUD_LIBRARY, base.CloudLibFilter)).Data;
-
-        //    //get list of cloud lib ids to import
-        //    //TODO: namespace of mocks is not actual namespaces...
-        //    var model = items
-        //        .Where(x =>
-        //                (x.Namespace.ToLower().Equals("http://opcfoundation.org/ua/") & (!string.IsNullOrEmpty(x.Version) && x.Version.Equals("1.05.02"))) ||
-        //                (x.Namespace.ToLower().Equals("http://opcfoundation.org/ua/di/") & (!string.IsNullOrEmpty(x.Version) && x.Version.Equals("1.04.0"))) ||
-        //                (x.Namespace.ToLower().Equals("http://opcfoundation.org/ua/robotics/") & (!string.IsNullOrEmpty(x.Version) && x.Version.Equals("1.01.2"))) ||
-        //                (x.Namespace.ToLower().Equals("http://fdi-cooperation.com/opcua/fdi5/")) ||
-        //                (x.Namespace.ToLower().Equals("http://fdi-cooperation.com/opcua/fdi7/"))
-        //              )
-
-        //        .Select(y => new Shared.Models.IdStringModel() { ID = y.CloudLibraryId }).ToList();
-        //    //run the import
-        //    var result = await apiClient.ApiExecuteAsync<Shared.Models.ResultMessageWithDataModel>(URL_CLOUD_IMPORT, model);
-
-        //    //wait for import to complete before proceeding
-        //    await base.PollImportStatus((int)result.Data);
-        //}
-
-        /*
-        private async Task InsertMockProfilesForSearchTests(int upperBound = 10)
-        {
-            //get api client
-            var apiClient = base.ApiClient;
-
-            //get items, loop over and add
-            for (int i = 1; i <= upperBound; i++)
-            {
-                var uuid = Guid.NewGuid();
-                var model = CreateNewItemModel(i, _guidCommon, uuid);
-                await apiClient.ApiExecuteAsync<Shared.Models.ResultMessageWithDataModel>(URL_ADD, model);
-            }
-        }
-        */
-
         private async Task<List<Profile>> InsertMockEntitiesForSearchTests(int upperBound, bool isCloudEntity)
         {
             var result = new List<Profile>();
@@ -328,55 +280,6 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
                      )
                 .Count();
         }
-        /*
-        /// <summary>
-        /// We won't know the id but we need to get the id by searching the db with a specific profile namespace.
-        /// </summary>
-        /// <param name="ns"></param>
-        /// <returns></returns>
-        /// <exception cref="System.InvalidOperationException"></exception>
-        private async Task<int> GetItemIdByNamespace(string ns)
-        {
-            // ARRANGE
-            //get api client
-            var apiClient = base.ApiClient;
-            //get stock filter
-            var filter = base.ProfileFilter;
-            //apply specifics to filter
-            filter.Query = ns;
-
-            // ACT
-            //get the list of items
-            var items = (await apiClient.ApiGetManyAsync<ProfileModel>(URL_LIBRARY, filter)).Data;
-
-            //get first item in list
-            if (items.Count == 0) throw new System.InvalidOperationException($"Item not found: {ns}");
-            return items[0].ID.Value;
-        }
-        */
-
-        /*
-        /// <summary>
-        /// Delete most of the nodesets created from other integration tests except
-        /// ua, ua/di, fdi v5, fdi v7, robotics
-        /// </summary>
-        private static async Task<List<Shared.Models.IdIntModel>> GetItemsToDelete(MyNamespace.Client apiClient, Shared.Models.ProfileTypeDefFilterModel filter)
-        {
-            filter.Take = 10000;
-            //get the list of items, filter out some to preserve
-            var items = (await apiClient.ApiGetManyAsync<ProfileModel>(URL_LIBRARY, filter)).Data
-                .Where(x =>
-                        (!x.Namespace.ToLower().Equals("http://opcfoundation.org/ua/") & (string.IsNullOrEmpty(x.Version) || !x.Version.Equals("1.05.02"))) &&
-                        (!x.Namespace.ToLower().Equals("http://opcfoundation.org/ua/di/") & (string.IsNullOrEmpty(x.Version) || !x.Version.Equals("1.04.0"))) &&
-                        (!x.Namespace.ToLower().Equals("http://opcfoundation.org/ua/robotics/") & (string.IsNullOrEmpty(x.Version) || !x.Version.Equals("1.01.2"))) &&
-                        (!x.Namespace.ToLower().Equals("http://fdi-cooperation.com/opcua/fdi5/")) &&
-                        (!x.Namespace.ToLower().Equals("http://fdi-cooperation.com/opcua/fdi7/")) 
-                      )
-                .ToList();
-
-            return items.Select(y => new Shared.Models.IdIntModel() { ID = y.ID.Value }).ToList();
-        }
-        */
 
         private static ProfileModel CreateItemModel(int i, Guid guidCommon, Guid uuid, string cloudLibraryId = null)
         {
@@ -443,6 +346,7 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
                 await repo.SaveChangesAsync();
             }
         }
+
         #endregion
 
         #region Test Data
@@ -476,4 +380,5 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
         }
 
     }
+     
 }

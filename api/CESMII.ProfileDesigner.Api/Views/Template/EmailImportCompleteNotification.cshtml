@@ -1,0 +1,89 @@
+﻿@using CESMII.ProfileDesigner.Api.Shared.Models
+@model ImportCompleteNotifyModel
+@{
+    Layout = "_EmailLayout";
+    var _profileLibraryUrl = $"{@Model.BaseUrl}profiles/library";
+}
+
+<div>
+    @if (Model.AdminUserInfo != null)
+    {
+        <p>
+            <h2>Import Failed</h2>
+            <h3>User Info</h3>
+            <ul>
+                <li>User: @Model.AdminUserInfo.DisplayName</li>  
+                <li>ObjectId Aad: @Model.AdminUserInfo.ObjectIdAAD</li>  
+                <li>Email: @Model.AdminUserInfo.Email</li>  
+            </ul>
+            <h3>Import Info</h3>
+            <ul>
+                <li>id: @Model.ImportItem.ID</li>  
+                <li>Status: @Model.ImportItem.Status</li>  
+                <li>Created: @Model.ImportItem.Created</li>  
+                <li>Last updated: @Model.ImportItem.Updated</li>  
+            </ul>
+        </p>
+        <hr class="divider" />
+    }
+    <p>
+        Dear @Model.Author.DisplayName: 
+    </p>
+    <p>
+        Your nodeset import has <b>@Model.ImportItem.Status.ToString().ToLower()</b>. 
+    </p>
+    <p>
+        @if (!string.IsNullOrEmpty(@Model.ImportItem.FileList))
+        {
+            var fileLabel = Model.ImportItem.Files.Count > 1 ? "files" : "file";
+            Html.Raw($"This import included nodeset {fileLabel} {Model.ImportItem.FileList}."); 
+        }
+        @if (Model.ImportItem.Status == CESMII.ProfileDesigner.Common.Enums.TaskStatusEnum.Completed)
+        {
+            Html.Raw($"To view your imported nodeset, go to the CESMII Smart Manufacturing Profile&trade; Designer");
+            Html.Raw($"<a href='{_profileLibraryUrl} >Profile Library</a>.");
+        }
+        @if (Model.ImportItem.Status == CESMII.ProfileDesigner.Common.Enums.TaskStatusEnum.Completed &&
+                !string.IsNullOrEmpty(Model.ImportItem.FileList))
+        {
+            var fileLabel = Model.ImportItem.Files.Count > 1 ? "files" : "file";
+            Html.Raw($"This import included nodeset {fileLabel} {Model.ImportItem.FileList}."); 
+        }
+    </p>
+
+</div>
+@if (Model.ImportItem.ProfileWarnings != null && Model.ImportItem.ProfileWarnings.Count > 0)
+{    <div>
+        <h2>Import Warnings</h2>
+        <p>The import completed with warnings. Please review the following warning messages.</p>
+        <ul>
+        @foreach(var warning in Model.ImportItem.ProfileWarnings.OrderBy(x => x.ID))
+        {
+            <li>@warning.Message</li>
+        }
+        </ul>
+    </div>
+}
+
+@if (Model.ImportItem.Messages != null && Model.ImportItem.Messages.Count > 0)
+{    <div>
+        <h2>Import Messages</h2>
+        <p>The import messages collected during the import process are shown here (most recent first). </p>
+        <ul>
+        @foreach(var msg in Model.ImportItem.Messages.OrderByDescending(x => x.ID))
+        {
+            <li>@msg.Message</li>
+        }
+        </ul>
+    </div>
+}
+
+<div>
+    <br/>
+    <p>Thank you for your support of the <a href="@Model.BaseUrl" >CESMII Smart Manufacturing Profile&trade; Designer</a>!</p>
+    <br />
+    <p>Sincerely,<br />
+        CESMII Support Team
+    </p>
+    <br />
+</div>

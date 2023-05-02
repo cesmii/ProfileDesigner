@@ -42,4 +42,16 @@
 	  </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="TestNodeSets\LargeFiles\siemens.com.opcua.LARGE_NODESET_TEST.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestNodeSets\LargeFiles\siemens.com.opcua.simatic-s7.LARGE_NODESET_TEST.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestNodeSets\LargeFiles\www.Equinor.com.EntTypes.LARGE_NODESET_TEST.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

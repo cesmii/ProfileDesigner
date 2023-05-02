@@ -26,7 +26,7 @@
             //_context.Database.SetCommandTimeout(int.Parse(configuration["ReportSettings:CommandTimeout"]));
         }
 
-        public IQueryable<TEntity> ExecStoredFunction(string fnName, int? skip, int? take, List<OrderBySimple> orderBys, params object[] parameters)
+        public IQueryable<TEntity> ExecStoredFunction(string fnName, int? timeout, int? skip, int? take, List<OrderBySimple> orderBys, params object[] parameters)
         {
             var orderByExpr = BuildOrderByList(orderBys);
             if (!string.IsNullOrEmpty(orderByExpr)) orderByExpr = $" ORDER BY {orderByExpr}";
@@ -43,7 +43,24 @@
                 sql += $" OFFSET {skip}";
             }
 
-            return _context.Set<TEntity>().FromSqlRaw(sql, parameters);
+            //wrap call in timeout setting if needed
+            var existingTimeout = _context.Database.GetCommandTimeout();
+            if (timeout.HasValue)
+            {
+                _context.Database.SetCommandTimeout(timeout);
+            }
+            try
+            {
+                return _context.Set<TEntity>().FromSqlRaw(sql, parameters);
+            }
+            finally
+            {
+                //restore timeout setting - if needed
+                if (timeout.HasValue)
+                {
+                    _context.Database.SetCommandTimeout(existingTimeout);
+                }
+            }
         }
 
         public int ExecStoredFunctionCount(string fnName, params object[] parameters)

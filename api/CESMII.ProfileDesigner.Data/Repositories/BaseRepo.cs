@@ -135,10 +135,25 @@
             return query2;
         }
 
-        public Task<int> ExecStoredProcedureAsync(string query, params object[] parameters)
+        public Task<int> ExecStoredProcedureAsync(string query, int? timeout, params object[] parameters)
         {
-            return _context.Database.ExecuteSqlRawAsync(query, parameters);
-            //return _context.Set<TEntity>().FromSqlRaw(query, parameters);
+            var existingTimeout = _context.Database.GetCommandTimeout();
+            if (timeout.HasValue)
+            {
+                _context.Database.SetCommandTimeout(timeout);
+            }
+            try
+            {
+                return _context.Database.ExecuteSqlRawAsync(query, parameters);
+                //return _context.Set<TEntity>().FromSqlRaw(query, parameters);
+            }
+            finally {
+                //restore timeout setting - if needed
+                if (timeout.HasValue)
+                {
+                    _context.Database.SetCommandTimeout(existingTimeout);
+                }
+            }
         }
         public async Task<int> AddAsync(TEntity entity)
         {

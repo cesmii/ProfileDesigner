@@ -61,6 +61,19 @@ namespace CESMII.ProfileDesigner.Api.Tests
             } 
         }
 
+        public TestUserModel _localUser;
+        public TestUserModel LocalUser
+        {
+            get
+            {
+                if (_localUser == null)
+                {
+                    _localUser = new TestUserModel();
+                }
+                return _localUser;
+            }
+        }
+
         protected override IHostBuilder CreateHostBuilder()
         {
             return base.CreateHostBuilder()
@@ -122,11 +135,11 @@ namespace CESMII.ProfileDesigner.Api.Tests
         }
 
         bool bLoggedIn = false;
-        internal Client GetApiClientAuthenticated()
+        internal Client GetApiClientAuthenticated(bool isAdmin = false)
         {
             var client = CreateClient();
             client.Timeout = TimeSpan.FromMinutes(60);
-            AddUserAuth(client);
+            AddUserAuth(client, isAdmin);
             var apiClient = GetApiClient(client);
             if (!bLoggedIn)
             {
@@ -135,25 +148,26 @@ namespace CESMII.ProfileDesigner.Api.Tests
             }
             return apiClient;
         }
+
         internal Client GetApiClient(HttpClient client)
         {
             var nswagClient = new Client(client.BaseAddress.ToString(), client);
             return nswagClient;
         }
-        internal void AddUserAuth(HttpClient client)
+        internal void AddUserAuth(HttpClient client, bool isAdmin)
         {
-            var apiClient = GetApiClient(client);
-
-            var testUser = new ClaimsPrincipal(new ClaimsIdentity(
-                new List<Claim>
+            var claims = new List<Claim>
                 {
-                    new Claim("objectidentifier", "1234"),
-                    new Claim("preferred_username", "cesmiitest"),
-                    new Claim("ClaimTypes.Surname", "cesmiitest"),
-                    new Claim("ClaimTypes.GivenName", "cesmiitest"),
-                    new Claim("name", "cesmiitest"),
+                    new Claim("objectidentifier", LocalUser.ObjectIdAAD),
+                    new Claim("preferred_username", LocalUser.UserName),
+                    new Claim("ClaimTypes.Surname", LocalUser.UserName),
+                    new Claim("ClaimTypes.GivenName", LocalUser.UserName),
+                    new Claim("name", LocalUser.UserName),
                     //new Claim("role", "cesmii.profiledesigner.user"),
-                }));
+                };
+            if (isAdmin) claims.Add(new Claim("role", "cesmii.profiledesigner.admin"));
+
+            var testUser = new ClaimsPrincipal(new ClaimsIdentity(claims));
             var tokenInfo = new JwtSecurityToken(issuer: "testissuer", claims: testUser.Claims);
 
             var handler = new JwtSecurityTokenHandler();
@@ -161,4 +175,14 @@ namespace CESMII.ProfileDesigner.Api.Tests
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, token);
         }
     }
+
+    /// <summary>
+    /// A model to faciliate re-use of the test user that will be generated and re-used in multiple tests 
+    /// </summary>
+    public class TestUserModel
+    {
+        public string ObjectIdAAD { get; set; } = "1234";
+        public string UserName { get; set; } = "cesmiitest";
+    }
+
 }

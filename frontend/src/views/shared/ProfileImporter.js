@@ -161,10 +161,13 @@ function ProfileImporter(props) {
         //totalSize = totalSize / (1024 * 1024); //mb
         var msgRange = `several minutes`;
         if (totalSize > 40) {
-            msgRange = '30-60 minutes';
+            msgRange = '20-35 minutes';
         }
         else if (totalSize > 30) {
-            msgRange = '20-35 minutes';
+            msgRange = '10-25 minutes';
+        }
+        else if (totalSize > 12) {
+            msgRange = '5-10 minutes';
         }
         else {
             //small enough - just proceed as normal
@@ -174,7 +177,7 @@ function ProfileImporter(props) {
 
         //if we get there, show the notification confirm modal
         let msgLarge = `You are uploading a large amount of data (approximately ${Math.round(totalSize)} mb). ` +
-            `This will take ${msgRange} to process. ` +
+            `This may take ${msgRange} to process. ` +
             `Would you like to receive a notification email when the import has completed?`;
         setNotifyConfirmModal({ show: true, items: items, message: msgLarge });
 

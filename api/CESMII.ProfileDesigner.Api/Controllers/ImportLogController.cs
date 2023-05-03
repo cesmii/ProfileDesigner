@@ -158,7 +158,8 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                     }, 
 
                 },
-                Files = model.Items
+                Files = model.Items,
+                NotifyOnComplete = model.NotifyOnComplete
             };
 
             //determine if user should get an extra warning due to large file sizes...

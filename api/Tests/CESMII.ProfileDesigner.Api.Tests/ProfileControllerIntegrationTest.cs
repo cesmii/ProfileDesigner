@@ -134,6 +134,7 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
             Assert.Equal(model.Title, resultGet.Title);
             Assert.Equal(model.Namespace, resultGet.Namespace);
             Assert.Equal(model.Version, resultGet.Version);
+            Assert.Equal(model.XmlSchemaUri, resultGet.XmlSchemaUri);
             Assert.Equal(model.CategoryName, resultGet.CategoryName);
             Assert.Equal(model.Description, resultGet.Description);
             Assert.Equal(model.License, resultGet.License);
@@ -291,6 +292,7 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
                 Version = entity.Version,
                 CategoryName = entity.CategoryName,
                 PublishDate = entity.PublishDate,
+                XmlSchemaUri = entity.XmlSchemaUri,
                 License = entity.License,
                 Description = entity.Description,
                 CloudLibraryId = entity.CloudLibraryId, 
@@ -313,6 +315,7 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
             return new Profile()
             {
                 Namespace = $"{namespacePattern}{i}/{uuid}",
+                XmlSchemaUri = $"{namespacePattern}{i}/{uuid}.xsd",
                 Title = $"{TITLE_PATTERN}{i}",
                 Version = $"{VERSION_PATTERN}{i}",
                 CategoryName = $"{CATEGORY_PATTERN}",

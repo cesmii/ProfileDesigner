@@ -373,6 +373,7 @@
                     CloudLibraryId = entity.CloudLibraryId,
                     CloudLibPendingApproval = entity.CloudLibPendingApproval,
                     Version = entity.Version,
+                    XmlSchemaUri = entity.XmlSchemaUri,
                     PublishDate = entity.PublishDate,
                     AuthorId = entity.AuthorId,
                     Author = MapToModelSimpleUser(entity.Author)

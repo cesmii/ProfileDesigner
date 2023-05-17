@@ -153,7 +153,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
             {
                 if (_model.OtherReferencedNodes.Any(nr => nr.Node == opcObject 
                     && nr.Reference != "nsu=http://opcfoundation.org/UA/;i=47" 
-                    && nr.ReferenceType.HasBaseType("nsu=http://opcfoundation.org/UA/;i=47")))
+                    && ((ReferenceTypeModel) nr.ReferenceType).HasBaseType("nsu=http://opcfoundation.org/UA/;i=47")))
                 {
                     // There is a derived reference in OtherReferencedNodes that will be imported later: ignore this one
                     continue;

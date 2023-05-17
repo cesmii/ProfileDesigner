@@ -117,6 +117,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
             {
                 ModelUri = profile.Namespace,
                 Version = profile.Version,
+                XmlSchemaUri = profile.XmlSchemaUri,
                 PublicationDate = profile.PublishDate ?? default,
                 PublicationDateSpecified = profile.PublishDate != null,
             };
@@ -658,17 +659,24 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
                     throw new Exception($"Unable to resolve data type {profileItem.VariableDataType.Name}");
                 }
                 _model.DataType = dataTypeModel;
+            }
+            _model.ValueRank = profileItem.VariableValueRank;
 
-                _model.ValueRank = profileItem.VariableValueRank;
-
-                if (!string.IsNullOrEmpty(profileItem.VariableArrayDimensions))
-                {
-                    _model.ArrayDimensions = profileItem.VariableArrayDimensions;
-                }
-                else
-                {
-                    _model.ArrayDimensions = null;
-                }
+            if (!string.IsNullOrEmpty(profileItem.VariableArrayDimensions))
+            {
+                _model.ArrayDimensions = profileItem.VariableArrayDimensions;
+            }
+            else
+            {
+                _model.ArrayDimensions = null;
+            }
+            if (!string.IsNullOrEmpty(profileItem.VariableValue))
+            {
+                _model.Value = profileItem.VariableValue;
+            }
+            else
+            {
+                _model.Value = null;
             }
         }
     }

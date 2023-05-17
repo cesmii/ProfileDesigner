@@ -382,7 +382,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 //pass in the author id as current user
                 //kick off background process, logid is returned immediately so front end can track progress...
                 var userInfo = new ImportUserModel() { User = LocalUser, UserToken = base.DalUserToken };
-                await _svcImport.ImportOpcUaNodeSet(importItem.ID.Value, importItems, userInfo, allowMultiVersion: allowMultiVersion, upgradePreviousVersions: upgradePreviousVersions);
+                _svcImport.ImportOpcUaNodeSet(importItem.ID.Value, importItems, userInfo, allowMultiVersion: allowMultiVersion, upgradePreviousVersions: upgradePreviousVersions);
 
                 return Ok(
                     new ResultMessageWithDataModel()
@@ -521,11 +521,11 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         {
         }
 
-        public ImportException(string? message) : base(message)
+        public ImportException(string message) : base(message)
         {
         }
 
-        public ImportException(string? message, Exception? innerException) : base(message, innerException)
+        public ImportException(string message, Exception innerException) : base(message, innerException)
         {
         }
 

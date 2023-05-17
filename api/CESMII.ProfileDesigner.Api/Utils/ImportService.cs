@@ -46,7 +46,7 @@ namespace CESMII.ProfileDesigner.Api.Utils
         /// <remarks>Preserve backward compatability where we generate the import item within this service.
         /// The newer approach to support large files does some advanced processing and prepares import item in advance</remarks>
         /// <returns></returns>
-        public async Task<int> ImportOpcUaNodeSet(List<ImportOPCModel> nodeSetXmlList, ImportUserModel userInfo, bool allowMultiVersion, bool upgradePreviousVersions)
+        public int ImportOpcUaNodeSet(List<ImportOPCModel> nodeSetXmlList, ImportUserModel userInfo, bool allowMultiVersion, bool upgradePreviousVersions)
         {
             //the rest of the fields are set in the dal
             var importItem = new ImportLogModel()
@@ -69,9 +69,8 @@ namespace CESMII.ProfileDesigner.Api.Utils
             return await ImportOpcUaNodeSet(importItem.ID.Value, nodeSetXmlList, userInfo, allowMultiVersion, upgradePreviousVersions);
         }
 
-        public async Task<int> ImportOpcUaNodeSet(int importId, List<ImportOPCModel> nodeSetXmlList, ImportUserModel userInfo, bool allowMultiVersion, bool upgradePreviousVersions)
+        public int ImportOpcUaNodeSet(int importId, List<ImportOPCModel> nodeSetXmlList, ImportUserModel userInfo, bool allowMultiVersion, bool upgradePreviousVersions)
         {
-            Task backgroundTask = null;
 
             //slow task - kick off in background
             _ = Task.Run(async () =>
@@ -81,7 +80,7 @@ namespace CESMII.ProfileDesigner.Api.Utils
                 //web api request completes and disposes of the import service object (and its module vars)
                 try
                 {
-                    backgroundTask = ImportOpcUaNodeSetInternal(nodeSetXmlList, importId, userInfo, allowMultiVersion, upgradePreviousVersions);
+                    var backgroundTask = ImportOpcUaNodeSetInternal(nodeSetXmlList, importId, userInfo, allowMultiVersion, upgradePreviousVersions);
                     await backgroundTask;
                 }
                 catch (Exception ex)

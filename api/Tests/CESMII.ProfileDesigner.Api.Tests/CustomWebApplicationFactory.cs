@@ -55,6 +55,7 @@ namespace CESMII.ProfileDesigner.Api.Tests
                         .SetBasePath(AppContext.BaseDirectory)
                         .AddJsonFile(path: "appsettings.test.json", optional: true, reloadOnChange: true)  //not yet used but can be a place to store settings
                         .AddInMemoryCollection(_settings)
+                        .AddUserSecrets(typeof(CloudLibraryController).Assembly)
                         .Build();
                 }
                 return _config; 

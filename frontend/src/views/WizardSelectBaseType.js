@@ -46,7 +46,7 @@ function WizardSelectBaseType() {
             console.log(generateLogMessageString('useEffect||wizardProps||Cleanup', CLASS_NAME));
             //setFilterValOnChild('');
         };
-    }, [wizardProps.currentPage]);
+    }, [wizardProps.currentPage, _currentPage.id, _searchCriteriaChanged, setWizardProps, wizardProps]);
 
     //-------------------------------------------------------------------
     // Region: Validation

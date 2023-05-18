@@ -21,19 +21,6 @@ export function CloudLibraryImporter(props) {
 
 
     //-------------------------------------------------------------------
-    // useEffect - if list of items is changed, then we update local state
-    //-------------------------------------------------------------------
-    useEffect(() => {
-
-        //if we have items to import, call the import API
-        if (props.items?.length > 0) {
-            console.log(generateLogMessageString(`useEffect | onImportItemsChanged | Trigger import`, CLASS_NAME));
-            importItems(props.items);
-        }
-
-    }, [props.items]);
-
-    //-------------------------------------------------------------------
     // Region: Execute the import
     //-------------------------------------------------------------------
     const importItems = async (items) => {
@@ -111,6 +98,19 @@ export function CloudLibraryImporter(props) {
         })
 
     };
+
+    //-------------------------------------------------------------------
+    // useEffect - if list of items is changed, then we update local state
+    //-------------------------------------------------------------------
+    useEffect(() => {
+
+        //if we have items to import, call the import API
+        if (props.items?.length > 0) {
+            console.log(generateLogMessageString(`useEffect | onImportItemsChanged | Trigger import`, CLASS_NAME));
+            importItems(props.items);
+        }
+
+    }, [props.items, importItems]);
 
     //-------------------------------------------------------------------
     // Region: event handlers

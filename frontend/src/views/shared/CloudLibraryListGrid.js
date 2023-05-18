@@ -48,7 +48,7 @@ function CloudLibraryListGrid(props) {
         //trigger api to get data
         setSearchCriteriaChanged(_searchCriteriaChanged + 1);
 
-    }, [loadingProps.cloudLibImporterSearchCriteria]);
+    }, [loadingProps.cloudLibImporterSearchCriteria, _searchCriteriaChanged, loadingProps.refreshCloudLibImporterSearchCriteria, setLoadingProps]);
 
     //-------------------------------------------------------------------
     // Region: Hooks

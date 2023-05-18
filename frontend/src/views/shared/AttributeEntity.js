@@ -6,7 +6,7 @@ import Button from 'react-bootstrap/Button'
 import { generateLogMessageString, onChangeNumericKeysOnly, validateNumeric, convertToNumeric, toInt } from '../../utils/UtilityService'
 import { AppSettings } from '../../utils/appsettings';
 import {
-    validate_name, validate_nameDuplicate, validate_dataType, validate_minMax, validate_engUnit, validate_All, 
+    validate_name, validate_nameDuplicate, validate_minMax, validate_engUnit, validate_All, /* validate_dataType, */
     onChangeDataTypeShared, renderAttributeIcon, validate_attributeType, onChangeAttributeTypeShared, validate_enumValueDuplicate, validate_enumValueNumeric, onChangeInterfaceShared, onChangeCompositionShared, onChangeEngUnitShared, validate_symbolicName, renderDataTypeUIShared, renderEngUnitUIShared, renderCompositionSelectUIShared, renderVariableTypeUIShared, onChangeVariableTypeShared, getPermittedDataTypesForAttribute
 } from '../../services/AttributesService';
 
@@ -105,7 +105,7 @@ function AttributeEntity(props) { //props are item, showActions
         else {
             setPermittedDataTypes(props.lookupDataTypes);
         }
-    }, [_editItem]);
+    }, [_editItem, props.lookupDataTypes, props.lookupVariableTypes]);
 
     //-------------------------------------------------------------------
     // Region: Validation
@@ -117,10 +117,10 @@ function AttributeEntity(props) { //props are item, showActions
         setIsValid({ ..._isValid, name: isValid, nameDuplicate: isValidDup });
     };
 
-    const validateForm_dataType = (e) => {
-        const dataType = props.lookupDataTypes.find(dt => { return dt.id === parseInt(e.target.value); });
-        setIsValid({ ..._isValid, dataType: validate_dataType(dataType, props.lookupDataTypes) }); // Currently no edit under this entity. If Variable Type becomes editable, need to call getPermittedDataTypes to limit data types etc.
-    };
+    //const validateForm_dataType = (e) => {
+    //    const dataType = props.lookupDataTypes.find(dt => { return dt.id === parseInt(e.target.value); });
+    //    setIsValid({ ..._isValid, dataType: validate_dataType(dataType, props.lookupDataTypes) }); // Currently no edit under this entity. If Variable Type becomes editable, need to call getPermittedDataTypes to limit data types etc.
+    //};
 
     const validateForm_attributeType = (e) => {
         setIsValid({ ..._isValid, attributeType: validate_attributeType(_editItem.dataType, e.target.value) });

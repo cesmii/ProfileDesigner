@@ -56,7 +56,7 @@ function DependencyList(props) {
         return () => {
             console.log(generateLogMessageString('useEffect||Cleanup', CLASS_NAME));
         };
-    }, [props.typeDefinition.id, _dependencyPreferences.pageSize]);
+    }, [props.typeDefinition.id, _dependencyPreferences.pageSize, props.typeDefinition.dependencies]);
 
     //-------------------------------------------------------------------
     // Region: Render helpers

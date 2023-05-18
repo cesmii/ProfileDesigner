@@ -31,7 +31,7 @@ function ProfileTypeDefinitionFilter(props) {
             setFilterVal(props.searchCriteria.query);
         }
 
-    }, [props.searchCriteria]);
+    }, [props.searchCriteria, _filterVal]);
 
     //-------------------------------------------------------------------
     // Region: Helper Methods

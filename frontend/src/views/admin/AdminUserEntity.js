@@ -134,7 +134,7 @@ function AdminUserEntity() {
         return () => {
             console.log(generateLogMessageString('useEffect||Cleanup', CLASS_NAME));
         };
-    }, [id, copyId]);
+    }, [id, copyId, history, setLoadingProps]);
 
 
     //-------------------------------------------------------------------

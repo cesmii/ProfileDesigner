@@ -52,7 +52,7 @@ function WizardImportProfile() {
             console.log(generateLogMessageString('useEffect||wizardProps||Cleanup', CLASS_NAME));
             //setFilterValOnChild('');
         };
-    }, [wizardProps.currentPage, _mode]);
+    }, [wizardProps.currentPage, _mode, _currentPage.id, setWizardProps, wizardProps]);
 
     //-------------------------------------------------------------------
     // Region: hooks
@@ -73,10 +73,22 @@ function WizardImportProfile() {
         return () => {
             //console.log(generateLogMessageString('useEffect||wizardProps||Cleanup', CLASS_NAME));
         };
-    }, [loadingProps.activateImportLog]);
+    }, [loadingProps.activateImportLog, _importStatus]);
 
 
-    //the 2nd effect is triggered when the activateImportLog is changed indicating the state in loadingProps.importLogs 
+    //-------------------------------------------------------------------
+    // Region: Event handling
+    //-------------------------------------------------------------------
+    //this will be called once the useEffect determines the import has completed
+    const onNextStep = () => {
+        console.log(generateLogMessageString(`onNextStep`, CLASS_NAME));
+
+        history.push({
+            pathname: _navInfo.next.href
+        });
+    };
+
+    //the 2nd effect is triggered when the activateImportLog is changed indicating the state in loadingProps.importLogs
     //is ready to evaluate. 
     useEffect(() => {
 
@@ -124,7 +136,7 @@ function WizardImportProfile() {
             console.log(generateLogMessageString('useEffect||wizardProps||Cleanup', CLASS_NAME));
             //setFilterValOnChild('');
         };
-    }, [_importStatus.isStarted, _importLogId, loadingProps.importingLogs]);
+    }, [_importStatus.isStarted, _importLogId, loadingProps.importingLogs, _currentPage.caption, _importStatus, onNextStep, setLoadingProps]);
 
     useEffect(() => {
         document.body.className = _cloudLibSlideOut.isOpen ?
@@ -139,17 +151,6 @@ function WizardImportProfile() {
     }, [_cloudLibSlideOut]);
 
 
-    //-------------------------------------------------------------------
-    // Region: Event handling
-    //-------------------------------------------------------------------
-    //this will be called once the useEffect determines the import has completed
-    const onNextStep = () => {
-        console.log(generateLogMessageString(`onNextStep`, CLASS_NAME));
-
-        history.push({
-            pathname: _navInfo.next.href
-        });
-    };
 
     const onImportStarted = (id) => {
         console.log(generateLogMessageString(`onImportStarted`, CLASS_NAME));
@@ -186,8 +187,8 @@ function WizardImportProfile() {
     //-------------------------------------------------------------------
     const renderButtonRow = () => {
         const processing = _importLogId != null;
-        const sourceCloudLib = _importStatus.importSource == AppSettings.ImportSourceEnum.CloudLib;
-        const sourceNodeSetXml = _importStatus.importSource == AppSettings.ImportSourceEnum.NodeSetXML || _importStatus.importSource == null;
+        const sourceCloudLib = _importStatus.importSource === AppSettings.ImportSourceEnum.CloudLib;
+        const sourceNodeSetXml = _importStatus.importSource === AppSettings.ImportSourceEnum.NodeSetXML || _importStatus.importSource == null;
         return (
             <div className="row pb-3">
                 <div className="col-12 d-flex" >

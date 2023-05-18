@@ -26,7 +26,7 @@ function LoginSuccess() {
             history.push(returnUrl ? decodeURIComponent(returnUrl) : '/');
         }
 
-    }, [isAuthenticated, isAuthorized]);
+    }, [isAuthenticated, isAuthorized, history, returnUrl]);
 
     //-------------------------------------------------------------------
     // Region: hooks

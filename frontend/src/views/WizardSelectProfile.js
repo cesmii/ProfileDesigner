@@ -56,7 +56,7 @@ function WizardSelectProfile() {
             console.log(generateLogMessageString('useEffect||wizardProps||Cleanup', CLASS_NAME));
             //setFilterValOnChild('');
         };
-    }, [wizardProps.currentPage]);
+    }, [wizardProps.currentPage, _currentPage.id, _mode, setWizardProps, wizardProps]);
 
 
     //-------------------------------------------------------------------
@@ -88,7 +88,7 @@ function WizardSelectProfile() {
 
         setSearchCriteria(criteria);
 
-    }, [loadingProps.profileSearchCriteria]);
+    }, [loadingProps.profileSearchCriteria, loadingProps.refreshProfileSearchCriteria, setLoadingProps]);
 
     //-------------------------------------------------------------------
     // Region: Event handling

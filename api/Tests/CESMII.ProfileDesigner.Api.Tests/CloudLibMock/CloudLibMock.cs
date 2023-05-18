@@ -38,6 +38,11 @@ namespace CESMII.ProfileDesigner.Api.Tests
                 recording = true;
             }
         }
+        public Task<GraphQlResult<Nodeset>> GetManyAsync(List<string> identifiers)
+        {
+            return null;
+        }
+
         record SearchInputs
         {
             public string[] Keywords { get; set; }

@@ -16,6 +16,8 @@
     using CESMII.ProfileDesigner.Common.Enums;
     using System.Runtime.Serialization;
     using CESMII.ProfileDesigner.DAL.Utils;
+    using System.ComponentModel;
+    using Npgsql.Internal.TypeHandlers.NumericHandlers;
 
     public class ProfileTypeDefinitionDAL : TenantBasePdDAL<ProfileTypeDefinition, ProfileTypeDefinitionModel>
     {
@@ -77,6 +79,15 @@
 
             return MapToModel(entity, true);
         }
+
+
+        public async Task<int> GetCountByProfileIdAsync(int profileId, UserToken userToken)
+        {
+            var count = await base.FindByCondition(userToken, x => x.ProfileId == profileId)
+                .CountAsync();
+            return count;
+        }
+
 
         /// <summary>
         /// Get all 

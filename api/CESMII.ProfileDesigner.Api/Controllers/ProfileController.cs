@@ -36,6 +36,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
     public class ProfileController : BaseController<ProfileController>
     {
         private readonly IDal<Profile, ProfileModel> _dal;
+        private readonly ProfileTypeDefinitionDAL _dalProfileType;
         private readonly ICloudLibDal<CloudLibProfileModel> _cloudLibDal;
         private readonly CloudLibraryUtil _cloudLibUtil;
 
@@ -44,6 +45,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         private readonly List<string> _permissibleLicenses = new() { "MIT", "BSD-3-Clause" };
 
         public ProfileController(IDal<Profile, ProfileModel> dal,
+            ProfileTypeDefinitionDAL dalProfileType,
             ICloudLibDal<CloudLibProfileModel> cloudLibDal,
             UserDAL dalUser,
             Utils.ImportService svcImport,
@@ -53,6 +55,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             : base(config, logger, dalUser)
         {
             _dal = dal;
+            _dalProfileType = dalProfileType;
             _cloudLibDal = cloudLibDal;
             _svcImport = svcImport;
             _exporter = exporter;
@@ -754,6 +757,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             }
 
             var profile = _dal.GetById(model.ID, base.DalUserToken);
+
             if (profile == null)
             {
                 _logger.LogWarning($"ProfileController|PublishToCloudLibrary|Failed to publish : {model.ID}. Profile not found.");
@@ -766,6 +770,21 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 );
             }
 
+            // Prevent publishing of profiles that have no items.
+            int cItems = _dalProfileType.GetCountByProfileIdAsync(model.ID, base.DalUserToken).Result;
+            if (cItems == 0)
+            {
+                _logger.LogWarning($"ProfileController|PublishToCloudLibrary|Cannot publish a profile that contains no type definitions : {model.ID}. No profile type items found.");
+                return Ok(
+                    new ResultMessageWithDataModel()
+                    {
+                        IsSuccess = false,
+                        Message = "Cannot publish a profile that contains no type definitions."
+                    }
+                );
+            }
+
+            // Validation complete - publication can proceed.
             return Ok(await PublishToCloudLibrary(profile));
         }
 
@@ -789,6 +808,35 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             //first do the save and then do the publish. if save fails, return that result and end
             ResultMessageWithDataModel resultSave = await UpdateCommon(model);
             if (!resultSave.IsSuccess) return Ok(resultSave);
+
+
+            var profile = _dal.GetById((int)model.ID, base.DalUserToken);
+
+            if (profile == null)
+            {
+                _logger.LogWarning($"ProfileController|PublishToCloudLibrary|Failed to publish : {model.ID}. Profile not found.");
+                return Ok(
+                    new ResultMessageWithDataModel()
+                    {
+                        IsSuccess = false,
+                        Message = "Profile not found."
+                    }
+                );
+            }
+
+            // Prevent publishing of profiles that have no items.
+            int cItems = _dalProfileType.GetCountByProfileIdAsync((int)model.ID, base.DalUserToken).Result;
+            if (cItems == 0)
+            {
+                _logger.LogWarning($"ProfileController|PublishToCloudLibrary|Cannot publish a profile that contains no type definitions : {model.ID}. No profile type items found.");
+                return Ok(
+                    new ResultMessageWithDataModel()
+                    {
+                        IsSuccess = false,
+                        Message = "Cannot publish a profile that contains no type definitions."
+                    }
+                );
+            }
 
             //now do the publish
             return Ok(await PublishToCloudLibrary(model));
@@ -830,7 +878,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 var exportedNodeSet = (exportResult as OkObjectResult)?.Value as ResultMessageExportModel;
                 if (exportedNodeSet == null || !exportedNodeSet.IsSuccess)
                 {
-                    _logger.LogWarning($"ProfileController|PublishToCloudLibrary|Failed to export : {model.ID}.");
+                    _logger.LogWarning($"ProfileController|PublishToCloudLibrary|Failed to publish - cannot export : {model.ID}.");
                     return new ResultMessageWithDataModel()
                     {
                         IsSuccess = false,
@@ -865,7 +913,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 }
                 catch (UploadException ex)
                 {
-                    _logger.LogError($"ProfileController|PublishToCloudLibrary|Failed to publish to Cloud Library: {model.ID.Value} {ex.Message}.");
+                    _logger.LogError($"ProfileController|PublishToCloudLibrary|Failed to publish - cannot upload: {model.ID.Value} {ex.Message}.");
                     return new ResultMessageWithDataModel()
                     {
                         IsSuccess = false,
@@ -884,7 +932,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError($"ProfileController|PublishToCloudLibrary|Failed to publish to Cloud Library: {model.ID} {ex.Message}.");
+                _logger.LogError($"ProfileController|PublishToCloudLibrary|Failed to publish - Unhandled exception: {model.ID} {ex.Message}.");
                 return new ResultMessageWithDataModel()
                 {
                     IsSuccess = false,

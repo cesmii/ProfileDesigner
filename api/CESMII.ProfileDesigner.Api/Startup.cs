@@ -89,9 +89,11 @@ namespace CESMII.ProfileDesigner.Api
             services.AddScoped<IRepository<Organization>, BaseRepo<Organization, ProfileDesignerPgContext>>();
             services.AddScoped<IRepository<Permission>, BaseRepo<Permission, ProfileDesignerPgContext>>();
 
-            //DAL objects
-            services.AddScoped<UserDAL>();     //this one has extra methods outside of the IDal interface
-            services.AddScoped<OrganizationDAL>();
+            // DAL objects
+            services.AddScoped<UserDAL>();                  // Has extra methods outside of the IDal interface
+            services.AddScoped<OrganizationDAL>();          // Has extra methods outside of the IDal interface
+            services.AddScoped<ProfileTypeDefinitionDAL>(); // Has extra methods outside of the IDal interface
+
             services.AddScoped<IUserSignUpData, UserSignUpData>();
 
             //services.AddScoped<IDal<Organization,OrganizationModel>,OrganizationDAL>();

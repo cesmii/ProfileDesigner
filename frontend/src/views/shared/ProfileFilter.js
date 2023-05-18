@@ -43,7 +43,7 @@ function ProfileFilter(props) {
             console.log(generateLogMessageString('useEffect||Cleanup', CLASS_NAME));
         };
 
-    }, [props.searchCriteria]);
+    }, [props.searchCriteria, _profileFilterVal, loadingProps.refreshProfileSearchCriteria, setLoadingProps]);
 
     //-------------------------------------------------------------------
     // Region: Helper Methods
@@ -107,15 +107,15 @@ function ProfileFilter(props) {
         if (props.onSearchCriteriaChanged != null) props.onSearchCriteriaChanged(criteria);
     }
 
-    const onTileViewToggle = () => {
-        console.log(generateLogMessageString('onTileViewToggle', CLASS_NAME));
-        if (props.toggleDisplayMode) props.toggleDisplayMode("tile");
-    }
+    //const onTileViewToggle = () => {
+    //    console.log(generateLogMessageString('onTileViewToggle', CLASS_NAME));
+    //    if (props.toggleDisplayMode) props.toggleDisplayMode("tile");
+    //}
 
-    const onListViewToggle = () => {
-        console.log(generateLogMessageString('onListViewToggle', CLASS_NAME));
-        if (props.toggleDisplayMode) props.toggleDisplayMode("list");
-    }
+    //const onListViewToggle = () => {
+    //    console.log(generateLogMessageString('onListViewToggle', CLASS_NAME));
+    //    if (props.toggleDisplayMode) props.toggleDisplayMode("list");
+    //}
 
     //const hasSelected = () => {
     //    if (loadingProps == null || props.searchCriteria == null || props.searchCriteria.filters == null

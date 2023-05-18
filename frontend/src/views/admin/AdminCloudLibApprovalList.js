@@ -117,7 +117,7 @@ function AdminCloudLibApprovalList() {
         };
         //type passed so that any change to this triggers useEffect to be called again
         //_setMarketplacePageSizePreferences.pageSize - needs to be passed so that useEffects dependency warning is avoided.
-    }, [_pager, _refreshData]);
+    }, [_pager, _refreshData, _dataRows, setLoadingProps]);
 
     //-------------------------------------------------------------------
     // Region: Event Handling - delete item
@@ -154,7 +154,7 @@ function AdminCloudLibApprovalList() {
         axiosInstance.post(url, data)  //api allows one or many
             .then(result => {
 
-                if (result.data != null && result.data.cloudLibraryId == _approvalModal.item.cloudLibraryId) {
+                if (result.data != null && result.data.cloudLibraryId === _approvalModal.item.cloudLibraryId) {
                     //hide a spinner, show a message
                     setLoadingProps({
                         isLoading: false, message: null, inlineMessages: [

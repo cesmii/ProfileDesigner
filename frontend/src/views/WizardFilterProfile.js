@@ -47,7 +47,7 @@ function WizardFilterProfile() {
             console.log(generateLogMessageString('useEffect||wizardProps||Cleanup', CLASS_NAME));
             //setFilterValOnChild('');
         };
-    }, [wizardProps.currentPage]);
+    }, [wizardProps.currentPage, _currentPage.id, loadingProps.searchCriteria, setWizardProps, wizardProps]);
 
     //-------------------------------------------------------------------
     // Region: search criteria check and populate
@@ -68,7 +68,7 @@ function WizardFilterProfile() {
 
         setSearchCriteria(JSON.parse(JSON.stringify(loadingProps.profileSearchCriteria)));
 
-    }, [loadingProps.profileSearchCriteria]);
+    }, [loadingProps.profileSearchCriteria, loadingProps.refreshProfileSearchCriteria, setLoadingProps]);
 
 
     //-------------------------------------------------------------------

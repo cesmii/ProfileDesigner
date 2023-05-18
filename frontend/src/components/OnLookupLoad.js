@@ -66,7 +66,7 @@ export const OnLookupLoad = () => {
             fetchData();
         }
 
-    }, [loadingProps.lookupDataStatic, loadingProps.refreshLookupData, _isAuthenticated]);
+    }, [loadingProps.lookupDataStatic, loadingProps.refreshLookupData, _isAuthenticated, loadingProps.lookupDataRefreshed, setLoadingProps]);
 
     //-------------------------------------------------------------------
     // Region: hooks
@@ -121,7 +121,7 @@ export const OnLookupLoad = () => {
             fetchData();
         }
 
-    }, [loadingProps.searchCriteria, loadingProps.refreshSearchCriteria, _isAuthenticated]);
+    }, [loadingProps.searchCriteria, loadingProps.refreshSearchCriteria, _isAuthenticated, loadingProps, setLoadingProps]);
 
     //-------------------------------------------------------------------
     // Region: hooks
@@ -176,7 +176,7 @@ export const OnLookupLoad = () => {
             fetchData();
         }
 
-    }, [loadingProps.profileSearchCriteria, loadingProps.refreshProfileSearchCriteria, _isAuthenticated]);
+    }, [loadingProps.profileSearchCriteria, loadingProps.refreshProfileSearchCriteria, _isAuthenticated, loadingProps, setLoadingProps]);
 
     //-------------------------------------------------------------------
     // Region: hooks
@@ -231,7 +231,7 @@ export const OnLookupLoad = () => {
             fetchData();
         }
 
-    }, [loadingProps.cloudLibImporterSearchCriteria, loadingProps.refreshCloudLibImporterSearchCriteria, _isAuthenticated]);
+    }, [loadingProps.cloudLibImporterSearchCriteria, loadingProps.refreshCloudLibImporterSearchCriteria, _isAuthenticated, loadingProps, setLoadingProps]);
 
     //-------------------------------------------------------------------
     // Region: hooks
@@ -280,7 +280,7 @@ export const OnLookupLoad = () => {
             fetchData();
         }
 
-    }, [loadingProps.favoritesList, loadingProps.refreshFavoritesList, _isAuthenticated]);
+    }, [loadingProps.favoritesList, loadingProps.refreshFavoritesList, _isAuthenticated, setLoadingProps]);
 
     //-------------------------------------------------------------------
     // Region: Render

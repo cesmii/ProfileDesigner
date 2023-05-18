@@ -186,7 +186,7 @@ function ProfileTypeDefinitionListGrid(props) {
             fetchData();
         }
 
-    }, [_refreshData, props.searchCriteria, props.searchCriteriaChanged]);
+    }, [_refreshData, props.searchCriteria, props.searchCriteriaChanged, _pager.currentPage, _pager.pageSize, setLoadingProps]);
 
     //-------------------------------------------------------------------
     // Region: Delete event handlers

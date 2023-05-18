@@ -74,7 +74,7 @@ function ProfileTypeDefinitionEntity() {
     useEffect(() => {
         // Init flags to detect unsaved changes and warn a user when they try to leave the page
         setLoadingProps({ bIsTypeEditUnsaved: false });
-    }, []);
+    }, [setLoadingProps]);
 
     //-------------------------------------------------------------------
     // Region: hooks
@@ -97,7 +97,7 @@ function ProfileTypeDefinitionEntity() {
             console.log(generateLogMessageString('useEffect||wizardProps||Cleanup', CLASS_NAME));
             //setFilterValOnChild('');
         };
-    }, [wizardProps.currentPage]);
+    }, [wizardProps.currentPage, _currentPage.id, history.location.pathname, setWizardProps, wizardProps]);
 
     //-------------------------------------------------------------------
     // Region: hooks
@@ -232,7 +232,7 @@ function ProfileTypeDefinitionEntity() {
         return () => {
             console.log(generateLogMessageString('useEffect||Cleanup', CLASS_NAME));
         };
-    }, [id, parentId, profileId ]);
+    }, [id, parentId, profileId, _activeAccount, history, loadingProps.recentFileList, setLoadingProps ]);
 
     useEffect(() => {
         setPermittedDataTypes(_lookupDataTypes);
@@ -246,7 +246,7 @@ function ProfileTypeDefinitionEntity() {
         else {
             setPermittedDataTypes(_lookupDataTypes);
         }
-    }, [_item]);
+    }, [_item, _lookupDataTypes]);
 
     //-------------------------------------------------------------------
     // Region: Hooks - When composition data type is chosen, go get a list of profiles
@@ -318,7 +318,7 @@ function ProfileTypeDefinitionEntity() {
             parentId != null
         );
 
-    }, [id, parentId]);
+    }, [id, parentId, _lookupRelated]);
 
     //-------------------------------------------------------------------
     // Region: Hooks - load lookup data static from context. if not present, trigger a fetch of this data. 
@@ -348,7 +348,7 @@ function ProfileTypeDefinitionEntity() {
         return () => {
             console.log(generateLogMessageString('useEffect||Cleanup', CLASS_NAME));
         };
-    }, [loadingProps.lookupDataStatic, loadingProps.lookupDataRefreshed]);
+    }, [loadingProps.lookupDataStatic, loadingProps.lookupDataRefreshed, loadingProps.refreshLookupData, setLoadingProps]);
 
     //-------------------------------------------------------------------
     //
@@ -425,7 +425,7 @@ function ProfileTypeDefinitionEntity() {
         if (lookupDataType != null && baseVTDataType != null) {
             return isDerivedFromDataType(lookupDataType, baseVTDataType, _lookupDataTypes);
         }
-        return lookupDataType == baseVTDataType; // ok if both are null or if they are identical
+        return lookupDataType === baseVTDataType; // ok if both are null or if they are identical
     }
 
     ////update state for when search click happens

@@ -48,7 +48,7 @@ function WizardMaster(props) {
         return () => {
             //console.log(generateLogMessageString('useEffect||wizardProps||Cleanup', CLASS_NAME));
         };
-    }, [loadingProps.searchCriteriaRefreshed]);
+    }, [loadingProps.searchCriteriaRefreshed, _searchCriteriaRefreshedLocal, loadingProps.refreshSearchCriteria, loadingProps.searchCriteria, setLoadingProps, setWizardProps]);
 
     //-------------------------------------------------------------------
     // Region: Render helpers

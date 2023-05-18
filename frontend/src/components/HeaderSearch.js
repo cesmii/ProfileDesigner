@@ -35,7 +35,7 @@ function HeaderSearch(props) { //(caption, iconName, showSearch, searchValue, on
         return () => {
             console.log(generateLogMessageString('useEffect||Cleanup', CLASS_NAME));
         };
-    }, [props.filterVal]);
+    }, [props.filterVal, _filterVal]);
 
     ////-------------------------------------------------------------------
     //// Region: Event Handling of child component events

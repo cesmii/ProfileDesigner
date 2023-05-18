@@ -26,7 +26,7 @@ function ProfileEntityForm(props) {
     useEffect(() => {
         // Init flags to detect unsaved changes and warn a user when they try to leave the page
         setLoadingProps({ bIsProfileEditUnsaved: false });
-    }, []);
+    }, [setLoadingProps]);
 
     //-------------------------------------------------------------------
     // Region: Validation
@@ -60,14 +60,14 @@ function ProfileEntityForm(props) {
         setLoadingProps({ bIsProfileEditUnsaved: true });
     }
 
-    const onChangeAuthor = (e) => {
-        //console.log(generateLogMessageString(`onEntityChange||e:${e.target}`, CLASS_NAME));
-        //note you must update the state value for the input to be read only. It is not enough to simply have the onChange handler.
-        props.item[e.target.id] = e.target.value === '' ? null : { id: null, name: e.target.value };
+    //const onChangeAuthor = (e) => {
+    //    //console.log(generateLogMessageString(`onEntityChange||e:${e.target}`, CLASS_NAME));
+    //    //note you must update the state value for the input to be read only. It is not enough to simply have the onChange handler.
+    //    props.item[e.target.id] = e.target.value === '' ? null : { id: null, name: e.target.value };
 
-        //pass a copy of the updated object to parent to update state
-        if (props.onChange) props.onChange(JSON.parse(JSON.stringify(props.item)));
-    }
+    //    //pass a copy of the updated object to parent to update state
+    //    if (props.onChange) props.onChange(JSON.parse(JSON.stringify(props.item)));
+    //}
 
     //on change publish date handler to update state
     const onChangePublishDate = (e) => {

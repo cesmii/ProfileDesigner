@@ -31,7 +31,7 @@ function ErrorPage({ error, resetErrorBoundary }) {
         if (loadingProps.isLoading) {
             setLoadingProps({ isLoading: false });
         }
-    }, [loadingProps.isLoading]);
+    }, [loadingProps.isLoading, setLoadingProps]);
 
     //TBD - log exception to API - do not raise exception if fails
     useEffect(() => {
@@ -57,7 +57,7 @@ function ErrorPage({ error, resetErrorBoundary }) {
             console.warn(generateLogMessageString(`logError||Error occurred logging to the server.`, CLASS_NAME));
         });
 
-    }, [_logError, _isAuthenticated]);
+    }, [_logError, _isAuthenticated, error, history.location.pathname]);
 
     //allow user to log out from error page
     const onLogoutClick = () => {

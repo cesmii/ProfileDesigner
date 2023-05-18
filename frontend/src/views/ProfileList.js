@@ -63,7 +63,7 @@ function ProfileList() {
 
         setSearchCriteria(JSON.parse(JSON.stringify(loadingProps.profileSearchCriteria)));
 
-    }, [loadingProps.profileSearchCriteria]);
+    }, [loadingProps.profileSearchCriteria, loadingProps.refreshProfileSearchCriteria, setLoadingProps]);
 
 
     //-------------------------------------------------------------------

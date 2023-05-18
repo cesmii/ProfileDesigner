@@ -85,7 +85,6 @@ function AttributeItemRow(props) { //props are item, showActions
         attributeType: true,
         composition: true,
         structure: true,
-        variableType: true,
         minMax: true,
         minIsNumeric: true,
         maxIsNumeric: true,
@@ -127,7 +126,7 @@ function AttributeItemRow(props) { //props are item, showActions
                 setPermittedDataTypes(props.lookupDataTypes);
             }
         }
-    }, [_editItem, _isEditMode]);
+    }, [_editItem, _isEditMode, props.lookupDataTypes, props.lookupVariableTypes]);
 
     //-------------------------------------------------------------------
     // Region: Validation

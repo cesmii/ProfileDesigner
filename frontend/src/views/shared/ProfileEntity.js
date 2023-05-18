@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import Form from 'react-bootstrap/Form'
 import { useMsal } from "@azure/msal-react";
 
@@ -6,7 +6,10 @@ import { generateLogMessageString, validate_namespaceFormat, validate_Required }
 import '../styles/ProfileEntity.scss';
 import { isOwner } from './ProfileRenderHelpers';
 
+import { Prompt } from 'react-router'
+
 import spdxExpressionValidate from 'spdx-expression-validate';
+import { useLoadingContext } from "../../components/contexts/LoadingContext";
 
 const CLASS_NAME = "ProfileEntityForm";
 
@@ -17,6 +20,13 @@ function ProfileEntityForm(props) {
     //-------------------------------------------------------------------
     const { instance } = useMsal();
     const _activeAccount = instance.getActiveAccount();
+    const { loadingProps, setLoadingProps } = useLoadingContext();
+
+    // Execute only one time after the component mounts.
+    useEffect(() => {
+        // Init flags to detect unsaved changes and warn a user when they try to leave the page
+        setLoadingProps({ bIsProfileEditUnsaved: false });
+    }, []);
 
     //-------------------------------------------------------------------
     // Region: Validation
@@ -47,6 +57,7 @@ function ProfileEntityForm(props) {
 
         //pass a copy of the updated object to parent to update state
         if (props.onChange) props.onChange(JSON.parse(JSON.stringify(props.item)));
+        setLoadingProps({ bIsProfileEditUnsaved: true });
     }
 
     const onChangeAuthor = (e) => {
@@ -120,6 +131,10 @@ function ProfileEntityForm(props) {
         var isReadOnly = mode === "view";
         return (
             <>
+                <Prompt
+                    when={loadingProps.bIsProfileEditUnsaved}
+                    message="Unsaved changes will be lost. Ok to exit the page? line 128 in shared-ProfileEntity.js"
+                />
                 <div className="row">
                     <div className="col-md-12">
                         <Form.Group>

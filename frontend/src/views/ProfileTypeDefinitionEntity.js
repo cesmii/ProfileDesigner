@@ -26,6 +26,7 @@ import { SVGIcon } from "../components/SVGIcon";
 import { getWizardNavInfo, renderWizardBreadcrumbs, WizardSettings } from '../services/WizardUtil';
 import { isOwner } from './shared/ProfileRenderHelpers';
 import './styles/ProfileTypeDefinitionEntity.scss';
+import { Prompt } from 'react-router'
 
 const CLASS_NAME = "ProfileTypeDefinitionEntity";
 const entityInfo = {
@@ -67,6 +68,14 @@ function ProfileTypeDefinitionEntity() {
     const _navInfo = history.location.pathname.indexOf('/wizard/') === - 1 ? null : getWizardNavInfo(wizardProps.mode, 'ExtendBaseType');
     const _currentPage = history.location.pathname.indexOf('/wizard/') === - 1 ? null : WizardSettings.panels.find(p => { return p.id === 'ExtendBaseType'; });
     
+    //-------------------------------------------------------------------
+    // Region: hooks - Execute once after component loads
+    //-------------------------------------------------------------------
+    useEffect(() => {
+        // Init flags to detect unsaved changes and warn a user when they try to leave the page
+        setLoadingProps({ bIsTypeEditUnsaved: false });
+    }, []);
+
     //-------------------------------------------------------------------
     // Region: hooks
     //-------------------------------------------------------------------
@@ -461,6 +470,9 @@ function ProfileTypeDefinitionEntity() {
         _item.metaTags = _item.metaTagsConcatenated == null || _item.metaTagsConcatenated.trim().length === 0 ?
             null : _item.metaTagsConcatenated.split(",").map(x => x.trim(' '));
 
+        // Everything saved - no need to warn the user about unsaved changes.
+        setLoadingProps({ bIsTypeEditUnsaved: false });
+
         //perform insert call
         console.log(generateLogMessageString(`handleOnSave||${mode}`, CLASS_NAME));
         var url = mode.toLowerCase() === "extend" || mode.toLowerCase() === "new" ?
@@ -583,6 +595,7 @@ function ProfileTypeDefinitionEntity() {
         }
         //update the state
         setItem(JSON.parse(JSON.stringify(_item)));
+        setLoadingProps({ bIsTypeEditUnsaved: true });
     }
 
     const onAddProfile = () => {
@@ -946,6 +959,10 @@ function ProfileTypeDefinitionEntity() {
 
         return (
             <>
+                <Prompt
+                    when={loadingProps.bIsTypeEditUnsaved}
+                    message="Unsaved changes will be lost. Ok to exit the page? To save click Cancel then click Save."
+                />
                 {renderValidationMessage()}
                 <div className="row my-1">
                     <div className="col-sm-9 col-md-8 align-self-center" >

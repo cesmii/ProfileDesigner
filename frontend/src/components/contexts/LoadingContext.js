@@ -28,7 +28,9 @@ const initialState = {
     isImporting: null,
     hasSidebar: false,
     searchCriteria: null,
-    lookupDataStatic: null
+    lookupDataStatic: null,
+    bIsProfileEditUnsaved: false,
+    bIsTypeEditUnsaved: false
 };
 
 //Split between local storage and session storage, unify the response

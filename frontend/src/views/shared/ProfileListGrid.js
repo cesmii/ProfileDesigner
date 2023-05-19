@@ -274,7 +274,7 @@ function ProfileListGrid(props) {
 
         //type passed so that any change to this triggers useEffect to be called again
         //_nodesetPreferences.pageSize - needs to be passed so that useEffects dependency warning is avoided.
-    }, [_pager, _forceReload, props.mode, _searchCriteria, _dataRows?.endCursor, _dataRows.itemCount, _dataRows?.pageNumber, _dataRows?.startCursor, setLoadingProps]);
+    }, [_pager, _forceReload, props.mode, _searchCriteria]);
 
 
     useEffect(() => {
@@ -296,7 +296,7 @@ function ProfileListGrid(props) {
             setForceReload(_forceReload + 1);
             setLoadingProps({ refreshProfileList: null, refreshProfileSearchCriteria: true, refreshCloudLibImporterSearchCriteria: true});
         }
-    }, [loadingProps.refreshProfileList, _forceReload, setLoadingProps]);
+    }, [loadingProps.refreshProfileList]);
 
 
     //-------------------------------------------------------------------

@@ -100,7 +100,7 @@ function ProfileEntity() {
 
             //add to the recent file list to keep track of where we have been
             if (thisMode.toLowerCase() === "view" || thisMode.toLowerCase() === "edit") {
-                let friendlyCaption = result.data?.title !== null && result.data?.title !== '' ? result.data?.title :
+                let friendlyCaption = result.data?.title != null && result.data?.title != '' ? result.data?.title :
                     result.data?.namespace.replace('https://', '').replace('http://', '');
                 if (friendlyCaption.length > 25) {
                     friendlyCaption = `...${friendlyCaption.substring(friendlyCaption.length - 25)}`;
@@ -138,7 +138,7 @@ function ProfileEntity() {
         return () => {
             console.log(generateLogMessageString('useEffect||Cleanup', CLASS_NAME));
         };
-    }, [id, _forceReload, _activeAccount, _iconName, history, loadingProps.organizationName, loadingProps.recentFileList, setLoadingProps]);
+    }, [id, _forceReload]);
 
     //-------------------------------------------------------------------
     // Region: hook - trigger search criteria change to get the type definitions
@@ -177,7 +177,7 @@ function ProfileEntity() {
         //trigger api to get data - unless in new mode
         setSearchCriteriaChanged(_searchCriteriaChanged + 1);
 
-    }, [loadingProps.searchCriteria, id, _searchCriteriaChanged, loadingProps.refreshSearchCriteria, setLoadingProps]);
+    }, [loadingProps.searchCriteria, id]);
 
 
     //-------------------------------------------------------------------

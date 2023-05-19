@@ -66,7 +66,7 @@ export function useDeleteImportMessage(props) {
                 });
             });
 
-    }, [props.id, loadingProps.importingLogs, setLoadingProps]);
+    }, [props.id]);
 
     //nothing to render
     return null;
@@ -105,7 +105,7 @@ function ImportMessage() {
         };
         //type passed so that any change to this triggers useEffect to be called again
         //_nodesetPreferences.pageSize - needs to be passed so that useEffects dependency warning is avoided.
-    }, [loadingProps.activateImportLog, _forceReload, setLoadingProps]);
+    }, [loadingProps.activateImportLog]);
 
     //-------------------------------------------------------------------
     // Region: hooks
@@ -151,8 +151,8 @@ function ImportMessage() {
                         .map((x) => { return { id: x.id, status: x.status, message: x.messages != null && x.messages.length > 0 ? x.messages[0].message : null }; })
                         .filter((x) => { return x.completed == null || x.status !== AppSettings.ImportLogStatus.Completed; });
 
-                    //var diff1 = loadingProps.importingLogs.filter(x => !importingLogs.includes(x));
-                    //var diff2 = importingLogs.filter(x => !loadingProps.importingLogs.includes(x));
+                    var diff1 = loadingProps.importingLogs.filter(x => !importingLogs.includes(x));
+                    var diff2 = importingLogs.filter(x => !loadingProps.importingLogs.includes(x));
 
                     //update list of in progress item ids. Set refresh trigger, update lookup data to get latest data types
                     setLoadingProps({
@@ -191,7 +191,7 @@ function ImportMessage() {
         return () => {
             console.log(generateLogMessageString('useEffect||fetchImportLogData||Cleanup', CLASS_NAME));
         };
-    }, [_forceReload, setLoadingProps]);
+    }, [_forceReload]);
 
     //-------------------------------------------------------------------
     // Region: Events

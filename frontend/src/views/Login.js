@@ -34,7 +34,7 @@ function Login() {
             history.push(returnUrl ? decodeURIComponent(returnUrl) : '/');
         }
 
-    }, [isAuthenticated, isAuthorized, history, returnUrl]);
+    }, [isAuthenticated, isAuthorized]);
 
     //-------------------------------------------------------------------
     // Region: hooks
@@ -44,7 +44,7 @@ function Login() {
         //set this for downstream use post successful silent login
         if (returnUrl != null && loadingProps.returnUrl !== returnUrl) setLoadingProps({ returnUrl: returnUrl });
 
-    }, [returnUrl, loadingProps.returnUrl, setLoadingProps]);
+    }, [returnUrl, loadingProps.returnUrl]);
 
 
     //-------------------------------------------------------------------
@@ -56,7 +56,7 @@ function Login() {
         const p = !(inProgress === InteractionStatus.Logout || inProgress === InteractionStatus.None || inProgress === InteractionStatus.SsoSilent);
         //only set state if value has changed
         if (p !== _inProgress) setInProgress(p);
-    }, [inProgress, _inProgress]);
+    }, [inProgress]);
 
     //-------------------------------------------------------------------
     // Region: hooks

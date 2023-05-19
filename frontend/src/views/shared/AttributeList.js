@@ -165,7 +165,7 @@ function AttributeList(props) {
         return () => {
             console.log(generateLogMessageString('useEffect||Cleanup', CLASS_NAME));
         };
-    }, [loadingProps.lookupDataStatic, loadingProps.lookupDataRefreshed, loadingProps.refreshLookupData, setLoadingProps]);
+    }, [loadingProps.lookupDataStatic, loadingProps.lookupDataRefreshed]);
 
     //-------------------------------------------------------------------
     // Populate attribute type based on profile type
@@ -217,7 +217,7 @@ function AttributeList(props) {
         return () => {
             //console.log(generateLogMessageString('useEffect||Cleanup', CLASS_NAME));
         };
-    }, [props.typeDefinition?.typeId, loadingProps.lookupDataRefreshed, loadingProps.lookupDataStatic, loadingProps.refreshLookupData, setLoadingProps]);
+    }, [props.typeDefinition?.typeId, loadingProps.lookupDataRefreshed]);
 
     //-------------------------------------------------------------------
     // Region: hooks
@@ -237,7 +237,7 @@ function AttributeList(props) {
         else {
             setPermittedDataTypes(_lookupDataTypes);
         }
-    }, [_addItem, _lookupDataTypes, _lookupVariableTypes]);
+    }, [_addItem]);
 
     //-------------------------------------------------------------------
     // Region: Validation

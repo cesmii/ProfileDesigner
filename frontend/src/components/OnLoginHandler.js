@@ -69,7 +69,7 @@ export const useRegisterMsalEventCallback = (setLoadingProps) => {
                 Msal_Instance.removeEventCallback(callbackId);
             }
         }
-    }, [setLoadingProps]);
+    }, []);
 
     return null;
 }
@@ -473,7 +473,7 @@ export const useLoginSilent = () => {
             console.info(generateLogMessageString(`useEffect||doLoginSilent`, CLASS_NAME));
             doLoginSilent();
         }
-    }, [_activeAccount, _isAuthenticated, accounts, inProgress, instance, loadingProps.returnUrl, setLoadingProps ]);
+    }, [_activeAccount, _isAuthenticated ]);
 
     //-------------------------------------------------------------------
     // Region: Render
@@ -539,7 +539,7 @@ export const useOnLoginComplete = () => {
                 break;
         }
 
-    }, [loadingProps.loginStatusCode, isAuthenticated, isAuthorized, setLoadingProps]);
+    }, [loadingProps.loginStatusCode, isAuthenticated, isAuthorized]);
 
     //-------------------------------------------------------------------
     // Region: Render

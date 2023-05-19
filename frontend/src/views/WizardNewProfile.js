@@ -46,7 +46,7 @@ function WizardNewProfile() {
         //update state on load 
         setWizardProps({currentPage: _currentPage.id, mode: _mode});
 
-    }, [wizardProps.currentPage, _currentPage.id, _mode, setWizardProps, wizardProps]);
+    }, [wizardProps.currentPage]);
 
 
     //if the profile is present in the wizard cache, use that. Else, start new

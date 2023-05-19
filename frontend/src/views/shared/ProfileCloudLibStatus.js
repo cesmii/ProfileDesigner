@@ -138,14 +138,14 @@ function ProfileCloudLibStatus(props) {
         let msg = null;
         //check required fields
         let requiredFields = [];
-        if (props.item.title === null || props.item.title === '') requiredFields.push('Title');
-        if (props.item.namespace === null || props.item.namespace === '') requiredFields.push('Namespace');
-        if (props.item.publishDate === null || props.item.publishDate === '') requiredFields.push('Publish Date');
-        if (props.item.description === null || props.item.description === '') requiredFields.push('Description');
-        if (props.item.contributorName === null || props.item.contributorName === '') requiredFields.push('Contributor');
-        if (props.item.copyrightText === null || props.item.copyrightText === '') requiredFields.push('Copyright');
-        if (props.item.license === null || props.item.license === '') requiredFields.push('License');
-        if (props.item.categoryName === null || props.item.categoryName === '') requiredFields.push('Category');
+        if (props.item.title == null || props.item.title == '') requiredFields.push('Title');
+        if (props.item.namespace == null || props.item.namespace == '') requiredFields.push('Namespace');
+        if (props.item.publishDate == null || props.item.publishDate == '') requiredFields.push('Publish Date');
+        if (props.item.description == null || props.item.description == '') requiredFields.push('Description');
+        if (props.item.contributorName == null || props.item.contributorName == '') requiredFields.push('Contributor');
+        if (props.item.copyrightText == null || props.item.copyrightText == '') requiredFields.push('Copyright');
+        if (props.item.license == null || props.item.license == '') requiredFields.push('License');
+        if (props.item.categoryName == null || props.item.categoryName == '') requiredFields.push('Category');
         if (requiredFields.length > 0) {
             msg = `${requiredFields.join(', ')} ${requiredFields.length === 1 ? 'is' : 'are'} required before publishing this profile.`
         }

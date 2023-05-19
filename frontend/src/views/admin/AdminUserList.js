@@ -116,7 +116,7 @@ function AdminUserList() {
         };
         //type passed so that any change to this triggers useEffect to be called again
         //_setMarketplacePageSizePreferences.pageSize - needs to be passed so that useEffects dependency warning is avoided.
-    }, [_pager, _dataRows, setLoadingProps]);
+    }, [_pager]);
 
     //-------------------------------------------------------------------
     // Region: Event Handling - delete item

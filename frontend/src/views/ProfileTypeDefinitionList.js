@@ -29,7 +29,7 @@ function ProfileTypeDefinitionList() {
     const caption = `Type Library`;
     const iconName = AppSettings.IconMapper.TypeDefinition;
     const iconColor = color.shark;
-    //const [ _initSearchCriteria, setInitSearchCriteria ] = useState(true);
+    const [ _initSearchCriteria, setInitSearchCriteria ] = useState(true);
     const [ _searchCriteria, setSearchCriteria ] = useState(null);
     const [_searchCriteriaChanged, setSearchCriteriaChanged] = useState(0);
 
@@ -59,7 +59,7 @@ function ProfileTypeDefinitionList() {
         //trigger api to get data
         setSearchCriteriaChanged(_searchCriteriaChanged + 1);
 
-    }, [loadingProps.searchCriteria, profileId, _searchCriteriaChanged, loadingProps.refreshSearchCriteria, setLoadingProps]);
+    }, [loadingProps.searchCriteria, profileId]);
 
 
     //-------------------------------------------------------------------

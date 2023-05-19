@@ -9,7 +9,7 @@ import { useWizardContext } from '../components/contexts/WizardContext';
 import { AppSettings } from '../utils/appsettings'
 //import { generateLogMessageString } from '../utils/UtilityService';
 import { renderWizardHeader, renderWizardIntroContent, WizardSettings } from '../services/WizardUtil';
-// import LoginButton from '../components/LoginButton';
+import LoginButton from '../components/LoginButton';
 
 //const CLASS_NAME = "WizardWelcome";
 
@@ -48,7 +48,7 @@ function WizardWelcome() {
             mode: null, profile: null, profileId: null, parentId: null
         });
 
-    }, [wizardProps.currentPage, loadingProps.searchCriteriaRefreshed, _currentPage.id, setWizardProps, wizardProps]);
+    }, [wizardProps.currentPage, loadingProps.searchCriteriaRefreshed]);
 
     //-------------------------------------------------------------------
     // Region: Render helpers
@@ -71,20 +71,20 @@ function WizardWelcome() {
         );
     };
 
-    //const renderWelcomeContentCreate = (pg) => {
-    //    return (
-    //        <>
-    //            <p>Create a new profile & type definition - start from scratch.</p>
-    //            {pg.introContent}
-    //            <ul className="p-0 pl-3 mb-0">
-    //                <li>Step 1 - Create a new profile</li>
-    //                <li>Step 2 - Select dependent profiles</li>
-    //                <li>Step 3 - Select base type to extend</li>
-    //                <li>Step 4 - Save newly extended type </li>
-    //            </ul>
-    //        </>
-    //    );
-    //};
+    const renderWelcomeContentCreate = (pg) => {
+        return (
+            <>
+                <p>Create a new profile & type definition - start from scratch.</p>
+                {pg.introContent}
+                <ul className="p-0 pl-3 mb-0">
+                    <li>Step 1 - Create a new profile</li>
+                    <li>Step 2 - Select dependent profiles</li>
+                    <li>Step 3 - Select base type to extend</li>
+                    <li>Step 4 - Save newly extended type </li>
+                </ul>
+            </>
+        );
+    };
 
     const renderWelcomeContentImport = (pg) => {
         return (

@@ -63,6 +63,9 @@ namespace CESMII.ProfileDesigner.Api.Utils
                     }
                 }
             };
+
+            var logId = await _dalImportLog.AddAsync(importItem, userInfo.UserToken);
+
             return await ImportOpcUaNodeSet(importItem.ID.Value, nodeSetXmlList, userInfo, allowMultiVersion, upgradePreviousVersions);
         }
 

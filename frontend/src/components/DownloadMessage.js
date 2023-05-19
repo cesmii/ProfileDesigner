@@ -122,7 +122,7 @@ function DownloadMessage() {
                 });
             }
         }
-    }, [loadingProps.downloadItems, setLoadingProps]);
+    }, [loadingProps.downloadItems]);
 
     //-------------------------------------------------------------------
     // Region: event

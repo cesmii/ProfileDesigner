@@ -6,6 +6,7 @@ import { useLoadingContext } from "../../components/contexts/LoadingContext";
 import { AppSettings } from '../../utils/appsettings';
 import ConfirmationModal from '../../components/ConfirmationModal';
 import { ErrorModal } from '../../services/CommonUtil';
+import { isOwner } from './ProfileRenderHelpers';
 import { cleanFileName, generateLogMessageString, renderMenuIcon } from '../../utils/UtilityService';
 import { SVGIcon } from '../../components/SVGIcon'
 import color from '../../components/Constants';

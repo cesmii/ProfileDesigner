@@ -103,7 +103,7 @@ function CloudLibViewer() {
             fetchData();
         }
 
-    }, [id, _pollForCompletion.isComplete, _pollForCompletion.isFailed, _qsTitle, history, setLoadingProps]);
+    }, [id, _pollForCompletion.isComplete, _pollForCompletion.isFailed]);
 
     //-------------------------------------------------------------------
     // Region: hook - run a polling operation to check for completion of import
@@ -147,7 +147,7 @@ function CloudLibViewer() {
             }
         }, 1000);
 
-    }, [_pollForCompletion, loadingProps.importingLogs, setLoadingProps]);
+    }, [_pollForCompletion]);
 
     //-------------------------------------------------------------------
     // Region: search criteria check and populate
@@ -176,7 +176,7 @@ function CloudLibViewer() {
         //trigger api to get data
         setSearchCriteriaChanged(_searchCriteriaChanged + 1);
 
-    }, [loadingProps.searchCriteria, _item?.id, _searchCriteriaChanged, loadingProps.refreshSearchCriteria, setLoadingProps]);
+    }, [loadingProps.searchCriteria, _item?.id]);
 
 
     //-------------------------------------------------------------------

@@ -29,7 +29,7 @@ export const OnRefreshEvent = () => {
         //else {
         //    console.log(generateLogMessageString(`useEffect||navigation||Page not reloaded`, CLASS_NAME));
         //}
-    }, [_triggerRefresh, setLoadingProps]);
+    }, [_triggerRefresh]);
 
     // renders nothing, since nothing is needed
     return null;

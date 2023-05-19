@@ -55,7 +55,7 @@ function ProfileImporter(props) {
     const importFiles = async (items) => {
 
         var url = `profile/import`;
-        if (props.caption === "Upgrade Global NodeSet file") {
+        if (props.caption == "Upgrade Global NodeSet file") {
             url = `profile/importupgrade`;
         }
         //url = `profile/import/slow`; //testing purposes

@@ -46,7 +46,7 @@ namespace CESMII.ProfileDesigner.Api.Utils
         /// <remarks>Preserve backward compatability where we generate the import item within this service.
         /// The newer approach to support large files does some advanced processing and prepares import item in advance</remarks>
         /// <returns></returns>
-        public async Task<int> ImportOpcUaNodeSet(List<ImportOPCModel> nodeSetXmlList, ImportUserModel userInfo, bool allowMultiVersion, bool upgradePreviousVersions)
+        public async Task<int> ImportOpcUaNodeSetAsync(List<ImportOPCModel> nodeSetXmlList, ImportUserModel userInfo, bool allowMultiVersion, bool upgradePreviousVersions)
         {
             //the rest of the fields are set in the dal
             var importItem = new ImportLogModel()

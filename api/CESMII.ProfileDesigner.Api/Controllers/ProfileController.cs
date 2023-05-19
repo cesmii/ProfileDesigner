@@ -1248,13 +1248,13 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             {
                 var errors = ExtractModelStateErrors();
                 _logger.LogCritical($"ProfileController|Import|User Id:{LocalUser.ID}, Errors: {errors}");
-                Ok(
+                
+                return Ok(
                     new ResultMessageWithDataModel()
                     {
                         IsSuccess = false,
                         Message = "The nodeset data is invalid."
-                    }
-                );
+                    });
             }
 
             if (model == null || model.Count == 0)
@@ -1274,7 +1274,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             //pass in the author id as current user
             //kick off background process, logid is returned immediately so front end can track progress...
             var userInfo = new ImportUserModel() { User = LocalUser, UserToken = base.DalUserToken };
-            var logId = await _svcImport.ImportOpcUaNodeSet(model, userInfo, allowMultiVersion: false, upgradePreviousVersions: false);
+            var logId = await _svcImport.ImportOpcUaNodeSetAsync(model, userInfo, allowMultiVersion: false, upgradePreviousVersions: false);
 
             return Ok(
                 new ResultMessageWithDataModel()

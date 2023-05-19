@@ -1242,31 +1242,31 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         /// <returns>Return result model with an isSuccess indicator.</returns>
         //[HttpPost, Route("Import")]
         //[ProducesResponseType(200, Type = typeof(ResultMessageWithDataModel))]
-        private Task<IActionResult> Import([FromBody] List<ImportOPCModel> model)
+        private async Task<IActionResult> Import([FromBody] List<ImportOPCModel> model)
         {
             if (!ModelState.IsValid)
             {
                 var errors = ExtractModelStateErrors();
                 _logger.LogCritical($"ProfileController|Import|User Id:{LocalUser.ID}, Errors: {errors}");
-                return Task.FromResult<IActionResult>(Ok(
+                Ok(
                     new ResultMessageWithDataModel()
                     {
                         IsSuccess = false,
                         Message = "The nodeset data is invalid."
                     }
-                ));
+                );
             }
 
             if (model == null || model.Count == 0)
             {
                 _logger.LogWarning($"ProfileController|Import|No nodeset files to import. User Id:{LocalUser.ID}.");
-                return Task.FromResult<IActionResult>(Ok(
+                return Ok(
                     new ResultMessageWithDataModel()
                     {
                         IsSuccess = false,
                         Message = "No nodesets to import."
                     }
-                ));
+                );
             }
 
             _logger.LogInformation($"ProfileController|ImportMyOpcUaProfile|Importing {model.Count} nodeset files. User Id:{LocalUser.ID}.");
@@ -1274,16 +1274,16 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             //pass in the author id as current user
             //kick off background process, logid is returned immediately so front end can track progress...
             var userInfo = new ImportUserModel() { User = LocalUser, UserToken = base.DalUserToken };
-            var logId = _svcImport.ImportOpcUaNodeSet(model, userInfo, allowMultiVersion: false, upgradePreviousVersions: false);
+            var logId = await _svcImport.ImportOpcUaNodeSet(model, userInfo, allowMultiVersion: false, upgradePreviousVersions: false);
 
-            return Task.FromResult<IActionResult>(Ok(
+            return Ok(
                 new ResultMessageWithDataModel()
                 {
                     IsSuccess = true,
                     Message = "Import is processing...",
                     Data = logId
                 }
-            ));
+            );
         }
 
         /*MOVED TO ImportLogController

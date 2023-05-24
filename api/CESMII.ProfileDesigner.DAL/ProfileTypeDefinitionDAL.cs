@@ -223,7 +223,7 @@
             }
             else
             {
-                return modelOpcNodeId == entityOpcNodeId && modelNamespace == entityNamespace;
+                return (modelOpcNodeId != null || entityOpcNodeId != null) && modelOpcNodeId == entityOpcNodeId && modelNamespace == entityNamespace;
             }
         }
         private static bool MatchIdentity(ProfileTypeDefinition entity, ProfileTypeDefinitionModel model)
@@ -1122,6 +1122,8 @@
                 }
             }
 
+            var referenceId = source.RelatedReferenceId;
+
             if (source.IntermediateObjectId != null)
             {
                 source.IntermediateObject = GetById(source.IntermediateObjectId.Value, userToken);
@@ -1183,6 +1185,10 @@
                     var typeEntity = CheckForExisting(source.RelatedProfileTypeDefinition, userToken);
                     intermediateEntity.Parent = typeEntity;
                 }
+                if (ProfileMapperUtil.IsOPCFolderType($"{parentEntity.Parent?.Profile?.Namespace};{parentEntity.Parent?.OpcNodeId}"))
+                {
+                    referenceId = "nsu=http://opcfoundation.org/UA/;i=35"; // Organizes reference is used for references from objects of type FolderType
+                }
             }
             else
             {
@@ -1214,7 +1220,7 @@
             composition.IsRequired = source.IsRequired;
             composition.ModelingRule = source.ModelingRule;
             composition.IsEvent = source.RelatedIsEvent;
-            composition.ReferenceId = source.RelatedReferenceId;
+            composition.ReferenceId = referenceId;
             composition.ReferenceIsInverse = source.RelatedReferenceIsInverse;
             composition.Description = source.Description;
         }

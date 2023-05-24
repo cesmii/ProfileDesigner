@@ -430,6 +430,7 @@ CREATE TABLE public.profile
     namespace character varying(400) COLLATE pg_catalog."default" NOT NULL,
     version character varying(25) COLLATE pg_catalog."default",
     publish_date timestamp with time zone NULL,
+    xml_schema_uri character varying(400) COLLATE pg_catalog."default" NULL,
     --ua_standard_profile_id integer NULL,
     author_id integer NULL,
 	

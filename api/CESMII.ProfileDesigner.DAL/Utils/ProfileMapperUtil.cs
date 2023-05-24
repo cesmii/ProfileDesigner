@@ -663,6 +663,10 @@ namespace CESMII.ProfileDesigner.DAL.Utils
         {
             return string.IsNullOrEmpty(relatedReferenceId) || relatedReferenceId == "nsu=http://opcfoundation.org/UA/;i=47";
         }
+        internal static bool IsOPCFolderType(string nodeId)
+        {
+            return nodeId == "http://opcfoundation.org/UA/;i=61";
+        }
 
         #endregion
 

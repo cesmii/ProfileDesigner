@@ -57,7 +57,9 @@ namespace CESMII.ProfileDesigner.DAL.Utils
             while (ancestor != null)
             {
                 result.Add(MapToModelProfileSimple(ancestor, counter));
-                ancestor = ancestor.Parent?.ID == null ? null : _dal.GetById(ancestor.Parent.ID.Value, userToken);
+                // For Objects we use the instance hierarchy instead of the type of the object
+                var parentId = (ancestor.TypeId == (int) ProfileItemTypeEnum.Object && ancestor.InstanceParent != null ? ancestor.InstanceParent?.ID : ancestor.Parent?.ID);
+                ancestor = parentId == null ? null : _dal.GetById(parentId.Value, userToken);
                 counter--;
             }
             //sort the result grandaprent / parent / profile

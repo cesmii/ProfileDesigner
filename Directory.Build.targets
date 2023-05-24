@@ -1,6 +1,21 @@
 <Project>
+	<PropertyGroup>
+		<GitVersionTaskExcludedProjects Condition="'$(GitVersionTaskExcludedProjects)' == ''"></GitVersionTaskExcludedProjects>
+		<!-- Performance optimization: only look at certain package references -->
+		<GitVersionTaskExcluded>$(GitVersionTaskExcludedProjects.Contains($(ProjectName)))</GitVersionTaskExcluded>
+		<WriteVersionInfoToBuildLog>false</WriteVersionInfoToBuildLog>
+		<!-- Prevent the Azure DevOps build number to be written twice and forced to semver: should only be done by gitversion task in the build pipeline -->
+	</PropertyGroup>
 
-  <!-- Package to  Project replacement: Based on https://github.com/dotnet/sdk/issues/1151#issuecomment-459275750 -->
+	<!-- GitVersion-based auto-versioning -->
+	<ItemGroup Condition="'$(GitVersionTaskExcluded)' != 'True'" >
+		<PackageReference Include="GitVersion.MsBuild" Version="5.*">
+			<PrivateAssets>all</PrivateAssets>
+		</PackageReference>
+	</ItemGroup>
+
+
+	<!-- Package to  Project replacement: Based on https://github.com/dotnet/sdk/issues/1151#issuecomment-459275750 -->
   <PropertyGroup>
     <ReplacePackageReferences Condition="'$(ReplacePackageReferences)' == ''">true</ReplacePackageReferences>
     <PackageReferenceFilter Condition="'$(PackageReferenceFilter)' == ''"></PackageReferenceFilter> <!-- Performance optimization: only look at certain package references -->

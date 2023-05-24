@@ -123,7 +123,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
                         ModelingRule = (parent as InstanceModelBase)?.ModellingRule,
                         //OpcNodeId = NodeModelUtils.GetNodeIdIdentifier(child.NodeId),
                         //Namespace = opcObject.Namespace,
-                        RelatedReferenceId = parentRef.Reference,
+                        RelatedReferenceId = parentRef.ReferenceType?.NodeId,
                         RelatedReferenceIsInverse = true,
                         Profile = parent.CustomState as ProfileModel ?? dalContext.GetProfileForNamespace(parent.Namespace, parent.NodeSet.PublicationDate, parent.NodeSet.Version),
                     };
@@ -151,8 +151,8 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
             }
             foreach (var opcObject in this._model.Objects)
             {
-                if (_model.OtherReferencedNodes.Any(nr => nr.Node == opcObject 
-                    && nr.Reference != "nsu=http://opcfoundation.org/UA/;i=47" 
+                if (_model.OtherReferencedNodes.Any(nr => nr.Node == opcObject
+                    && nr.ReferenceType.NodeId != "nsu=http://opcfoundation.org/UA/;i=47"
                     && ((ReferenceTypeModel) nr.ReferenceType).HasBaseType("nsu=http://opcfoundation.org/UA/;i=47")))
                 {
                     // There is a derived reference in OtherReferencedNodes that will be imported later: ignore this one
@@ -209,7 +209,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
                         ModelingRule = (child as InstanceModelBase)?.ModellingRule,
                         //OpcNodeId = NodeModelUtils.GetNodeIdIdentifier(child.NodeId),
                         //Namespace = opcObject.Namespace,
-                        RelatedReferenceId = childRef.Reference,
+                        RelatedReferenceId = childRef.ReferenceType?.NodeId,
                         Profile = child.CustomState as ProfileModel ?? dalContext.GetProfileForNamespace(child.Namespace, child.NodeSet.PublicationDate, child.NodeSet.Version),
                     };
                     profileItem.Compositions.Add(composition);

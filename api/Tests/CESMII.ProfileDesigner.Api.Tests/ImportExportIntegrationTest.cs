@@ -201,6 +201,11 @@ namespace CESMII.ProfileDesigner.Api.Tests
                 // Ignore CR/LF difference in the diff files (often git induced) 
                 expectedSummary = expectedSummary.Replace("\r", "").Replace("\n", "");
                 diffSummary = diffSummary.Replace("\r", "").Replace("\n", "");
+                if (expectedSummary != diffSummary)
+                {
+                    output.WriteLine("Expected Diffs: " + expectedSummary);
+                    output.WriteLine("Actual Diffs: " + diffSummary);
+                }
                 Assert.True(expectedSummary == diffSummary, $"Diffs not as expected {Path.GetFullPath(summaryDiffFile)} expected {Path.GetFullPath(expectedDiffFile)}");
                 output.WriteLine($"Verified export {file}. Diffs: {diffCounts}");
                 if (issueCounts.TryGetValue("Untriaged", out var untriagedIssues) && untriagedIssues > 0)
@@ -324,7 +329,7 @@ namespace CESMII.ProfileDesigner.Api.Tests
                         Assert.True(false, $"Failed to import nodesets: {ex.Message}");
                     }
                     finally
-                    { 
+                    {
                     }
 
                     int timeLimit = 15;
@@ -339,7 +344,7 @@ namespace CESMII.ProfileDesigner.Api.Tests
                     } while (sw.Elapsed < TimeSpan.FromMinutes(timeLimit) &&
                              ((int)importLogItem.Status == (int)TaskStatusEnum.InProgress
                              || (int)importLogItem.Status == (int)TaskStatusEnum.NotStarted));
-                    
+
                     if ((int?)(importLogItem?.Status) != (int)TaskStatusEnum.Completed)
                     {
                         var errorText = $"Error importing nodeset {nextBatch.FirstOrDefault().FileName}: {importLogItem.Messages.FirstOrDefault().Message}";
@@ -371,7 +376,7 @@ namespace CESMII.ProfileDesigner.Api.Tests
                 //make file name the key value
                 var content = File.ReadAllText(item.FileName);
 
-                fileList.Add( new ImportFileModel()
+                fileList.Add(new ImportFileModel()
                 {
                     FileName = item.FileName,
                     Chunks = new List<ImportFileChunkModel>() { new ImportFileChunkModel() { ChunkOrder = 1, Contents = content } },

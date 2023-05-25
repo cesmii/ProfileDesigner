@@ -142,6 +142,7 @@
                     Author = MapToModelSimpleUser(entity.Author),
                     NodeSetFiles = verbose ? entity.NodeSetFiles.Select(nsf => _nodeSetFileDAL.MapToModelPublic(nsf, verbose)).ToList() : null,
                     Version = entity.Version,
+                    XmlSchemaUri = entity.XmlSchemaUri,
                     PublishDate = entity.PublishDate,
                     // Cloud Library meta data
                     Title = entity.Title,
@@ -199,6 +200,7 @@
 
             entity.AuthorId = model.AuthorId;
             entity.Version = model.Version;
+            entity.XmlSchemaUri = model.XmlSchemaUri;
             entity.PublishDate = model.PublishDate;
 
             // Cloud Library meta data

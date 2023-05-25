@@ -1185,9 +1185,11 @@
                     var typeEntity = CheckForExisting(source.RelatedProfileTypeDefinition, userToken);
                     intermediateEntity.Parent = typeEntity;
                 }
-                if (ProfileMapperUtil.IsOPCFolderType($"{parentEntity.Parent?.Profile?.Namespace};{parentEntity.Parent?.OpcNodeId}"))
+                var customReference = ProfileMapperUtil.GetReferenceTypeForObjectType($"{parentEntity.Parent?.Profile?.Namespace};{parentEntity.Parent?.OpcNodeId}");
+                if (!string.IsNullOrEmpty(customReference))
                 {
-                    referenceId = "nsu=http://opcfoundation.org/UA/;i=35"; // Organizes reference is used for references from objects of type FolderType
+                    // Some object types (FolderType) use special references (Organizes) for compositions
+                    referenceId = customReference; 
                 }
             }
             else

@@ -27,6 +27,10 @@ namespace CESMII.ProfileDesigner.DAL.Utils
             get { return _excludedProfileTypes; }
         }
 
+        public const string strOpcHasComponentReferenceNodeId = "nsu=http://opcfoundation.org/UA/;i=47";
+        private const string strOpcFolderTypeNodeId = "http://opcfoundation.org/UA/;i=61";
+        private const string strOpcOrganizesReferenceNodeId = "nsu=http://opcfoundation.org/UA/;i=35";
+
         public ProfileMapperUtil(IDal<ProfileTypeDefinition, ProfileTypeDefinitionModel> dal,
             IDal<LookupItem, LookupItemModel> dalLookup,
             IDal<LookupDataType, LookupDataTypeModel> dalDataType,
@@ -661,11 +665,16 @@ namespace CESMII.ProfileDesigner.DAL.Utils
 
         internal static bool IsHasComponentReference(string relatedReferenceId)
         {
-            return string.IsNullOrEmpty(relatedReferenceId) || relatedReferenceId == "nsu=http://opcfoundation.org/UA/;i=47";
+            return string.IsNullOrEmpty(relatedReferenceId) || relatedReferenceId == strOpcHasComponentReferenceNodeId;
         }
-        internal static bool IsOPCFolderType(string nodeId)
+        internal static string GetReferenceTypeForObjectType(string nodeId)
         {
-            return nodeId == "http://opcfoundation.org/UA/;i=61";
+            if (nodeId?.EndsWith(strOpcFolderTypeNodeId) == true)
+            {
+                // Organizes reference is used for references from objects of type FolderType
+                return strOpcOrganizesReferenceNodeId;
+            }
+            return null;
         }
 
         #endregion

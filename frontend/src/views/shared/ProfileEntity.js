@@ -160,7 +160,7 @@ function ProfileEntityForm(props) {
             <>
                 <Prompt
                     when={loadingProps.bIsProfileEditUnsaved}
-                    message="Unsaved changes will be lost. Ok to exit the page? line 128 in shared-ProfileEntity.js"
+                    message="Unsaved changes will be lost. Ok to exit the page? To save, click Cancel then click Save."
                 />
                 <div className="row">
                     <div className="col-md-12">

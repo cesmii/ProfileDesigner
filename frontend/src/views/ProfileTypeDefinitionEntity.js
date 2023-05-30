@@ -961,7 +961,7 @@ function ProfileTypeDefinitionEntity() {
             <>
                 <Prompt
                     when={loadingProps.bIsTypeEditUnsaved}
-                    message="Unsaved changes will be lost. Ok to exit the page? To save click Cancel then click Save."
+                    message="Unsaved changes will be lost. Ok to exit the page? To save, click Cancel then click Save."
                 />
                 {renderValidationMessage()}
                 <div className="row my-1">

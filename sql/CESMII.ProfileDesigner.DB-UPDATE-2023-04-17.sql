@@ -62,3 +62,48 @@ TABLESPACE pg_default;
 ALTER TABLE public.import_file_chunk
     OWNER to profiledesigner;
 
+
+
+
+---------------------------------------------------------------------
+--	New Indexes to help with performance
+---------------------------------------------------------------------
+--import log warning table
+-- Index: idx_import_log_warning_profile_id
+
+DROP INDEX IF EXISTS public.idx_import_log_warning_profile_id;
+CREATE INDEX idx_import_log_warning_profile_id
+    ON public.import_log_warning USING btree
+    (profile_id ASC NULLS LAST)
+    TABLESPACE pg_default;
+
+--type def table
+-- Index: idx_profile_type_definition_profile_id
+DROP INDEX IF EXISTS public.idx_profile_type_definition_profile_id;
+CREATE INDEX idx_profile_type_definition_profile_id
+    ON public.profile_type_definition USING btree
+    (profile_id ASC NULLS LAST)
+    TABLESPACE pg_default;
+
+-- Index: idx_profile_type_definition_parent_id
+DROP INDEX IF EXISTS public.idx_profile_type_definition_parent_id;
+CREATE INDEX idx_profile_type_definition_parent_id
+    ON public.profile_type_definition USING btree
+    (parent_id ASC NULLS LAST)
+    TABLESPACE pg_default;
+
+-- Index: idx_profile_type_definition_instance_parent_id
+DROP INDEX IF EXISTS public.idx_profile_type_definition_instance_parent_id;
+CREATE INDEX idx_profile_type_definition_instance_parent_id
+    ON public.profile_type_definition USING btree
+    (instance_parent_id ASC NULLS LAST)
+    TABLESPACE pg_default;
+
+
+--attribute table
+DROP INDEX IF EXISTS public.idx_profile_attribute_profile_type_definition_id;
+CREATE INDEX idx_profile_attribute_profile_type_definition_id
+    ON public.profile_attribute USING btree
+    (profile_type_definition_id ASC NULLS LAST)
+    TABLESPACE pg_default;	
+	

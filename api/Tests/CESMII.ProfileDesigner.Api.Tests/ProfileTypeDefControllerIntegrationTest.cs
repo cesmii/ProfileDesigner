@@ -197,6 +197,7 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
             Assert.Equal(itemExtend.Profile.ID, resultGet.Profile.ID);
             Assert.Equal(itemExtend.Profile.Namespace, resultGet.Profile.Namespace);
             Assert.Equal(itemExtend.Profile.Version, resultGet.Profile.Version);
+            Assert.Equal(itemExtend.Profile.XmlSchemaUri, resultGet.Profile.XmlSchemaUri);
         }
 
         [Theory]

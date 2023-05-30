@@ -13,6 +13,11 @@
 
         public DateTime? PublishDate { get; set; }
 
+        /// <summary>
+        /// The URI to use for XML elements for this nodeset
+        /// </summary>
+        public string XmlSchemaUri{ get; set; }
+
         public string CloudLibraryId { get; set; }
         public bool? CloudLibPendingApproval { get; set; }
         public string CloudLibApprovalStatus { get; set; } = "UNKNOWN";
@@ -154,6 +159,7 @@
                 Namespace = profile.Namespace,
                 PublishDate = profile.PublishDate,
                 Version = profile.Version,
+                XmlSchemaUri = profile.XmlSchemaUri,
                 AuthorId = profile.AuthorId,
                 NodeSetFiles = profile.NodeSetFiles,
                 HasLocalProfile = true,

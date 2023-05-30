@@ -84,8 +84,8 @@ function ProfileTypeDefinitionFilter(props) {
         if (props.onSearchCriteriaChanged != null) props.onSearchCriteriaChanged(criteria);
     }
 
-    const onSortBy = (e) => {
-        console.log(generateLogMessageString('onSortBy', CLASS_NAME));
+    const onChangeSortBy = (e) => {
+        console.log(generateLogMessageString('onChangeSortBy', CLASS_NAME));
 
         //clear out the selected, the query val
         var criteria = JSON.parse(JSON.stringify(props.searchCriteria));
@@ -188,7 +188,7 @@ function ProfileTypeDefinitionFilter(props) {
             <>
                 <Form.Label htmlFor="sortBy" className="d-inline mx-1" >Sort by:</Form.Label>
                 <Form.Control id="sortByEnum" as="select" className="input-rounded minimal pr-5" value={selValue == null ? "3" : selValue}
-                    onChange={onSortBy} >
+                    onChange={onChangeSortBy} >
                     {options}
                 </Form.Control>
             </>

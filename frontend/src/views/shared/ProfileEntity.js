@@ -22,6 +22,13 @@ function ProfileEntityForm(props) {
     const _activeAccount = instance.getActiveAccount();
     const { loadingProps, setLoadingProps } = useLoadingContext();
 
+    const _licenseOptions = [
+        { val: "None", caption: "None" },
+        { val: "MIT", caption: "MIT" },
+        { val: "BSD-3-Clause", caption: "BSD-3-Clause" },
+        { val: "Custom", caption: "Custom" }
+    ];
+
     // Execute only one time after the component mounts.
     useEffect(() => {
         // Init flags to detect unsaved changes and warn a user when they try to leave the page
@@ -110,7 +117,8 @@ function ProfileEntityForm(props) {
         //console.log(generateLogMessageString(`onChangeKeywords||e:${e.target}`, CLASS_NAME));
         //note you must update the state value for the input to be read only. It is not enough to simply have the onChange handler.
 
-        props.item.keywords = e.target.value.split(",").map(x => x.trim(' '));
+        // props.item.keywords = e.target.value.split(","); //.map(x => x.trim(' '));
+        props.item.keywords = e.target.value.split(",").map(x => x.trimStart(' '));
 
         //pass a copy of the updated object to parent to update state
         if (props.onChange) props.onChange(JSON.parse(JSON.stringify(props.item)));
@@ -123,6 +131,25 @@ function ProfileEntityForm(props) {
         //pass a copy of the updated object to parent to update state
         if (props.onChange) props.onChange(JSON.parse(JSON.stringify(props.item)));
     }
+
+    const renderLicense = () => {
+        const options = _licenseOptions.map((item) => {
+            return (<option key={item.val} value={item.val} >{item.caption}</option>)
+        });
+
+        var selValue = props.item.license
+
+        return (
+            <>
+                <Form.Label>License</Form.Label>
+                <Form.Control id="license" as="select" className="input-rounded minimal pr-5" value={selValue == null ? "None" : selValue}
+                    onChange={onChangeLicense} >
+                    {options}
+                </Form.Control>
+            </>
+        )
+    }
+
 
     //-------------------------------------------------------------------
     // Region: Render Helpers
@@ -199,14 +226,16 @@ function ProfileEntityForm(props) {
                     </div>
                     <div className="col-md-12">
                         <Form.Group>
-                            <Form.Label>License</Form.Label>
-                            {!props.isValid.licenseExpression &&
-                                <span className="invalid-field-message inline">
-                                    Invalid license expression. (Refer to the <a href="https://spdx.org/licenses/" target="_blank" rel="noreferrer">SPDX License list</a> for valid identifiers.)
-                                </span>
-                            }
-                            <Form.Control id="license" type="" placeholder="" value={props.item.license == null ? '' : props.item.license} onChange={onChangeLicense}
-                                onBlur={validateForm_license} readOnly={isReadOnly} />
+                        {/*    <Form.Label>License</Form.Label>*/}
+                        {/*    {!props.isValid.licenseExpression &&*/}
+                        {/*        <span className="invalid-field-message inline">*/}
+                        {/*            Invalid license expression. (Refer to the <a href="https://spdx.org/licenses/" target="_blank" rel="noreferrer">SPDX License list</a> for valid identifiers.)*/}
+                        {/*        </span>*/}
+                        {/*    }*/}
+                        {/*    <Form.Control id="license" type="" placeholder="" value={props.item.license == null ? '' : props.item.license} onChange={onChangeLicense}*/}
+                            {/*        onBlur={validateForm_license} readOnly={isReadOnly} />*/}
+
+                            {renderLicense()}
                         </Form.Group>
                     </div>
                     <div className="col-md-12">

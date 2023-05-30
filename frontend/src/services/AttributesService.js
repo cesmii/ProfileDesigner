@@ -371,8 +371,6 @@ export const onChangeCompositionShared = (match, item) => {
         item.composition.intermediateObjectId = intermediateObjectId;
         item.composition.intermediateObjectName = intermediateObjectName;
         //copy some values into the profile_composition data record
-        item.browseName = match.browseName; //this becomes critical for adding on server side in new scenario
-        item.symbolicName = match.symbolicName;
     }
 }
 

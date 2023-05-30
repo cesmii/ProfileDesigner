@@ -1260,6 +1260,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             }
         }
 
+        /*
         /// <summary>
         /// Flush the UA Cache 
         /// </summary>
@@ -1276,9 +1277,10 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             //return success message object
             return Task.FromResult<IActionResult>(Ok(new ResultMessageModel() { IsSuccess = true, Message = "Item was deleted." }));
         }
+        */
 
         /// <summary>
-        /// Import OPC UA nodeset uploaded by front end. There may be multiple files being uploaded. 
+        /// Re-purposed import items downloaded from Cloud Library
         /// </summary>
         /// <remarks>Non-standard nodesets are associated with the user doing the uploading. 
         /// Standard OPC UA nodesets will go into the library of nodesets visible to all.
@@ -1286,21 +1288,21 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         /// </remarks>
         /// <param name="nodeSetXmlList"></param>
         /// <returns>Return result model with an isSuccess indicator.</returns>
-        [HttpPost, Route("Import")]
-        [ProducesResponseType(200, Type = typeof(ResultMessageWithDataModel))]
-        public async Task<IActionResult> Import([FromBody] List<ImportOPCModel> model)
+        //[HttpPost, Route("Import")]
+        //[ProducesResponseType(200, Type = typeof(ResultMessageWithDataModel))]
+        private async Task<IActionResult> Import([FromBody] List<ImportOPCModel> model)
         {
             if (!ModelState.IsValid)
             {
                 var errors = ExtractModelStateErrors();
                 _logger.LogCritical($"ProfileController|Import|User Id:{LocalUser.ID}, Errors: {errors}");
+                
                 return Ok(
                     new ResultMessageWithDataModel()
                     {
                         IsSuccess = false,
                         Message = "The nodeset data is invalid."
-                    }
-                );
+                    });
             }
 
             if (model == null || model.Count == 0)
@@ -1319,7 +1321,8 @@ namespace CESMII.ProfileDesigner.Api.Controllers
 
             //pass in the author id as current user
             //kick off background process, logid is returned immediately so front end can track progress...
-            var logId = await _svcImport.ImportOpcUaNodeSet(model, base.DalUserToken, allowMultiVersion: false, upgradePreviousVersions: false);
+            var userInfo = new ImportUserModel() { User = LocalUser, UserToken = base.DalUserToken };
+            var logId = await _svcImport.ImportOpcUaNodeSetAsync(model, userInfo, allowMultiVersion: false, upgradePreviousVersions: false);
 
             return Ok(
                 new ResultMessageWithDataModel()
@@ -1331,6 +1334,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             );
         }
 
+        /*MOVED TO ImportLogController
         /// <summary>
         /// Import OPC UA nodeset uploaded by front end and upgrade any prior versions to this version. There may be multiple files being uploaded. 
         /// </summary>
@@ -1373,7 +1377,8 @@ namespace CESMII.ProfileDesigner.Api.Controllers
 
             //pass in the author id as current user
             //kick off background process, logid is returned immediately so front end can track progress...
-            var logId = await _svcImport.ImportOpcUaNodeSet(model, base.DalUserToken, true, true);
+            var userInfo = new ImportUserModel() { User = LocalUser, UserToken = base.DalUserToken };
+            var logId = await _svcImport.ImportOpcUaNodeSet(model, userInfo, true, true);
 
             return Ok(
                 new ResultMessageWithDataModel()
@@ -1384,7 +1389,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 }
             );
         }
-
+        */
 
         /// <summary>
         /// Exports all type definitions in a profile 

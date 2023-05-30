@@ -63,6 +63,8 @@ DROP TABLE IF EXISTS public.profile_type_definition;
 DROP TABLE IF EXISTS public.import_log_warning;
 DROP TABLE IF EXISTS public.profile_additional_properties;
 DROP TABLE IF EXISTS public.profile;
+DROP TABLE IF EXISTS public.import_file_chunk;
+DROP TABLE IF EXISTS public.import_file;
 DROP TABLE IF EXISTS public.import_log_message;
 DROP TABLE IF EXISTS public.import_log;
 
@@ -428,6 +430,7 @@ CREATE TABLE public.profile
     namespace character varying(400) COLLATE pg_catalog."default" NOT NULL,
     version character varying(25) COLLATE pg_catalog."default",
     publish_date timestamp with time zone NULL,
+    xml_schema_uri character varying(400) COLLATE pg_catalog."default" NULL,
     --ua_standard_profile_id integer NULL,
     author_id integer NULL,
 	
@@ -1077,8 +1080,8 @@ CREATE TABLE public.import_log
     id SERIAL PRIMARY KEY,
     owner_id integer NULL,
     status_id integer NOT NULL,  
-    file_list character varying NULL,
     is_active boolean NOT NULL,
+    notify_on_complete boolean NOT NULL,
     created timestamp with time zone NOT NULL,
     updated timestamp with time zone NOT NULL,
     completed timestamp with time zone NULL,
@@ -1147,6 +1150,49 @@ TABLESPACE pg_default;
 ALTER TABLE public.import_log_warning
     OWNER to profiledesigner;
 
+---------------------------------------------------------------------
+--	New Table - import file - child table to import_action (formerly import_log)
+---------------------------------------------------------------------
+-- DROP TABLE public.import_file;
+CREATE TABLE public.import_file
+(
+    id SERIAL PRIMARY KEY,
+    import_id integer NOT NULL,  
+    file_name character varying NOT NULL,
+    total_chunks integer NOT NULL,
+    total_bytes bigint NOT NULL,
+    CONSTRAINT import_import_id_fk FOREIGN KEY (import_id)
+        REFERENCES public.import_log (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+        DEFERRABLE INITIALLY DEFERRED
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE public.import_file
+    OWNER to profiledesigner;
+---------------------------------------------------------------------
+--	New Table - import file chunk - child table to import_file
+---------------------------------------------------------------------
+-- DROP TABLE public.import_file_chunk;
+CREATE TABLE public.import_file_chunk
+(
+    id SERIAL PRIMARY KEY,
+    import_file_id integer NOT NULL,  
+    chunk_order integer NOT NULL,
+    contents text NULL,
+    CONSTRAINT import_file_import_file_id_fk FOREIGN KEY (import_file_id)
+        REFERENCES public.import_file (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+        DEFERRABLE INITIALLY DEFERRED
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE public.import_file_chunk
+    OWNER to profiledesigner;
 ---------------------------------------------------------------------
 --	Delete a nodeset and all of its children
 ---------------------------------------------------------------------

@@ -300,6 +300,23 @@ function AttributeEntity(props) { //props are item, showActions
     const onCheckChange = (e) => {
         _editItem[e.target.id] = e.target.checked;
         setEditItem(JSON.parse(JSON.stringify(_editItem)));
+        onPlaceholderCheckChange()
+    }
+    const onIsRequiredCheckChange = (e) => {
+        _editItem[e.target.id] = e.target.checked;
+        let isPlaceHolder = _editItem.modelingRule?.indexOf("Placeholder") > 0;
+        _editItem.modelingRule = getModelingRule(e.target.checked, isPlaceHolder);
+        setEditItem(JSON.parse(JSON.stringify(_editItem)));
+    }
+
+    const onPlaceholderCheckChange = (e) => {
+        _editItem.modelingRule = getModelingRule(_editItem.isRequired, e.target.checked);
+        setEditItem(JSON.parse(JSON.stringify(_editItem)));
+    }
+
+    const getModelingRule = (required, placeholder) => {
+        const modelingRule = (required ? "Mandatory" : "Optional") + (placeholder ? "Placeholder" : "");
+        return modelingRule;
     }
 
     //onchange - update state on change
@@ -614,10 +631,20 @@ function AttributeEntity(props) { //props are item, showActions
         const isReadOnly = (props.readOnly || _editItem._itemType == null || _editItem._itemType === "extended" || _editItem.interface != null);
 
         return (
+            <div className="row mb-2">
+                <div className="col-sm-12 col-md-6">
             <Form.Group className="flex-grow-1 align-self-center">
-                <Form.Check type="checkbox" id="isRequired" label="Is Required" checked={_editItem.isRequired} onChange={onCheckChange}
+                        <Form.Check type="checkbox" id="isRequired" label="Is Required" checked={_editItem.isRequired} onChange={onIsRequiredCheckChange}
                     disabled={isReadOnly ? "disabled" : ""} />
             </Form.Group>
+                </div>
+                <div className="col-sm-12 col-md-6">
+                    <Form.Group className="flex-grow-1 align-self-center">
+                        <Form.Check type="checkbox" id="isPlaceholder" label="Placeholder" checked={_editItem.modelingRule == "MandatoryPlaceholder" || _editItem.modelingRule == "OptionalPlaceholder"} onChange={onPlaceholderCheckChange}
+                            disabled={isReadOnly ? "disabled" : ""} />
+                    </Form.Group>
+                </div>
+            </div>
         );
     };
 

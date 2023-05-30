@@ -15,6 +15,8 @@
         [Column(name: "publish_date")]
         public DateTime? PublishDate { get; set; }
 
+        [Column(name: "xml_schema_uri")]
+        public string XmlSchemaUri { get; set; }
 
         [Column(name: "cloud_library_id")]
         public string CloudLibraryId { get; set; }

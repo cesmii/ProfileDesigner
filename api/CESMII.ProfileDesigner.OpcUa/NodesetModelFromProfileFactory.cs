@@ -117,6 +117,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
             {
                 ModelUri = profile.Namespace,
                 Version = profile.Version,
+                XmlSchemaUri = profile.XmlSchemaUri,
                 PublicationDate = profile.PublishDate ?? default,
                 PublicationDateSpecified = profile.PublishDate != null,
             };
@@ -218,15 +219,16 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
                         }
                         if (!string.IsNullOrEmpty(composition.RelatedReferenceId))
                         {
+                            var referenceType = new ReferenceTypeModel { NodeId = composition.RelatedReferenceId, }; //opcContext.GetModelForNode<ReferenceTypeModel>(composition.RelatedReferenceId);
                             if (composition.RelatedReferenceIsInverse != true)
                             {
-                                AddIfNotExists(_model.OtherReferencedNodes, new NodeModel.NodeAndReference { Node = nodeModel, Reference = composition.RelatedReferenceId });
-                                AddIfNotExists(nodeModel.OtherReferencingNodes, new NodeModel.NodeAndReference { Node = _model, Reference = composition.RelatedReferenceId });
+                                AddIfNotExists(_model.OtherReferencedNodes, new NodeModel.NodeAndReference { Node = nodeModel, /*Reference = composition.RelatedReferenceId, */ReferenceType = referenceType });
+                                AddIfNotExists(nodeModel.OtherReferencingNodes, new NodeModel.NodeAndReference { Node = _model, /*Reference = composition.RelatedReferenceId, */ReferenceType = referenceType });
                             }
                             else
                             {
-                                AddIfNotExists(_model.OtherReferencingNodes, new NodeModel.NodeAndReference { Node = nodeModel, Reference = composition.RelatedReferenceId });
-                                AddIfNotExists(nodeModel.OtherReferencedNodes, new NodeModel.NodeAndReference { Node = _model, Reference = composition.RelatedReferenceId });
+                                AddIfNotExists(_model.OtherReferencingNodes, new NodeModel.NodeAndReference { Node = nodeModel, /*Reference = composition.RelatedReferenceId, */ReferenceType = referenceType });
+                                AddIfNotExists(nodeModel.OtherReferencedNodes, new NodeModel.NodeAndReference { Node = _model, /*Reference = composition.RelatedReferenceId , */ReferenceType = referenceType });
                             }
                         }
                     }
@@ -247,7 +249,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
 
         private static void AddIfNotExists(List<NodeModel.NodeAndReference> otherReferencedNodes, NodeModel.NodeAndReference nodeAndReference)
         {
-            if (!otherReferencedNodes.Any(nr => nr.Node == nodeAndReference.Node && nr.Reference == nodeAndReference.Reference))
+            if (!otherReferencedNodes.Contains(nodeAndReference))
             {
                 otherReferencedNodes.Add(nodeAndReference);
             }
@@ -658,17 +660,24 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
                     throw new Exception($"Unable to resolve data type {profileItem.VariableDataType.Name}");
                 }
                 _model.DataType = dataTypeModel;
+            }
+            _model.ValueRank = profileItem.VariableValueRank;
 
-                _model.ValueRank = profileItem.VariableValueRank;
-
-                if (!string.IsNullOrEmpty(profileItem.VariableArrayDimensions))
-                {
-                    _model.ArrayDimensions = profileItem.VariableArrayDimensions;
-                }
-                else
-                {
-                    _model.ArrayDimensions = null;
-                }
+            if (!string.IsNullOrEmpty(profileItem.VariableArrayDimensions))
+            {
+                _model.ArrayDimensions = profileItem.VariableArrayDimensions;
+            }
+            else
+            {
+                _model.ArrayDimensions = null;
+            }
+            if (!string.IsNullOrEmpty(profileItem.VariableValue))
+            {
+                _model.Value = profileItem.VariableValue;
+            }
+            else
+            {
+                _model.Value = null;
             }
         }
     }

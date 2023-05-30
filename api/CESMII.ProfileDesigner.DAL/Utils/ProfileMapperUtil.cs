@@ -27,6 +27,10 @@ namespace CESMII.ProfileDesigner.DAL.Utils
             get { return _excludedProfileTypes; }
         }
 
+        public const string strOpcHasComponentReferenceNodeId = "nsu=http://opcfoundation.org/UA/;i=47";
+        private const string strOpcFolderTypeNodeId = "http://opcfoundation.org/UA/;i=61";
+        private const string strOpcOrganizesReferenceNodeId = "nsu=http://opcfoundation.org/UA/;i=35";
+
         public ProfileMapperUtil(IDal<ProfileTypeDefinition, ProfileTypeDefinitionModel> dal,
             IDal<LookupItem, LookupItemModel> dalLookup,
             IDal<LookupDataType, LookupDataTypeModel> dalDataType,
@@ -57,7 +61,9 @@ namespace CESMII.ProfileDesigner.DAL.Utils
             while (ancestor != null)
             {
                 result.Add(MapToModelProfileSimple(ancestor, counter));
-                ancestor = ancestor.Parent?.ID == null ? null : _dal.GetById(ancestor.Parent.ID.Value, userToken);
+                // For Objects we use the instance hierarchy instead of the type of the object
+                var parentId = (ancestor.TypeId == (int) ProfileItemTypeEnum.Object && ancestor.InstanceParent != null ? ancestor.InstanceParent?.ID : ancestor.Parent?.ID);
+                ancestor = parentId == null ? null : _dal.GetById(parentId.Value, userToken);
                 counter--;
             }
             //sort the result grandaprent / parent / profile
@@ -659,7 +665,16 @@ namespace CESMII.ProfileDesigner.DAL.Utils
 
         internal static bool IsHasComponentReference(string relatedReferenceId)
         {
-            return string.IsNullOrEmpty(relatedReferenceId) || relatedReferenceId == "nsu=http://opcfoundation.org/UA/;i=47";
+            return string.IsNullOrEmpty(relatedReferenceId) || relatedReferenceId == strOpcHasComponentReferenceNodeId;
+        }
+        internal static string GetReferenceTypeForObjectType(string nodeId)
+        {
+            if (nodeId?.EndsWith(strOpcFolderTypeNodeId) == true)
+            {
+                // Organizes reference is used for references from objects of type FolderType
+                return strOpcOrganizesReferenceNodeId;
+            }
+            return null;
         }
 
         #endregion

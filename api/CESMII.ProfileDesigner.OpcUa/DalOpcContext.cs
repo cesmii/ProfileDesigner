@@ -203,6 +203,7 @@ namespace CESMII.ProfileDesigner.OpcUa
                     model.Version = profile.Version;
                     model.PublicationDate = profile.PublishDate ?? DateTime.MinValue;
                     model.PublicationDateSpecified = profile.PublishDate.HasValue;
+                    model.XmlSchemaUri = profile.XmlSchemaUri;
                 }
                 else
                 {

@@ -534,6 +534,12 @@ function AttributeItemRow(props) { //props are item, showActions
                     </div>
                 );
             }
+            if (_editItem.composition?.intermediateObjectId != null) {
+                return (
+                    <a href={`/type/${_editItem.composition.intermediateObjectId}`} >{_editItem.name}</a>
+                );
+            }
+
             //simple scenario
             return _editItem.name;
         }

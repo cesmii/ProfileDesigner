@@ -194,5 +194,10 @@ namespace CESMII.ProfileDesigner.Api.Tests
         {
             throw new NotImplementedException();
         }
+
+        public Task<GraphQlResult<Nodeset>> GetManyAsync(List<string> identifiers)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

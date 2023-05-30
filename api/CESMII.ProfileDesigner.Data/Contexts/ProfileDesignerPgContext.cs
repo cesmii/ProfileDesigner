@@ -164,11 +164,15 @@
             //Import log data
             //------------------------------------------------
             modelBuilder.Entity<ImportLog>().ToTable("import_log", "public")
-                .HasOne(x => x.Owner).WithMany().HasForeignKey(x => x.OwnerId);
+                .HasOne(x => x.Owner).WithMany().HasForeignKey(x => x.OwnerId)
+                .OnDelete(DeleteBehavior.Cascade);
             modelBuilder.Entity<ImportLog>()
                 .HasMany(x => x.Messages).WithOne();
             modelBuilder.Entity<ImportLog>()
                 .HasMany(x => x.ProfileWarnings).WithOne();
+            modelBuilder.Entity<ImportLog>()
+                .HasMany(x => x.Files).WithOne();
+
             modelBuilder.Entity<ImportLogMessage>().ToTable("import_log_message", "public")
                 .HasOne(x => x.ImportLog).WithMany(x => x.Messages).HasForeignKey(x => x.ImportLogId)
                 .OnDelete(DeleteBehavior.Cascade);
@@ -179,6 +183,14 @@
             modelBuilder.Entity<ImportProfileWarning>()
                 .HasOne(x => x.Profile).WithMany(x => x.ImportWarnings).HasForeignKey(x => x.ProfileId)
                 ;
+            modelBuilder.Entity<ImportFile>().ToTable("import_file", "public")
+                .HasOne(x => x.ImportAction).WithMany(x => x.Files).HasForeignKey(x => x.ImportActionId)
+                .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<ImportFile>()
+                .HasMany(x => x.Chunks).WithOne();
+            modelBuilder.Entity<ImportFileChunk>().ToTable("import_file_chunk", "public")
+                .HasOne(x => x.ImportFile).WithMany(x => x.Chunks).HasForeignKey(x => x.ImportFileId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             //------------------------------------------------
             //Special scenario - need to use this to call some stored procs

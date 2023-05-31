@@ -36,6 +36,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
     public class ProfileController : BaseController<ProfileController>
     {
         private readonly IDal<Profile, ProfileModel> _dal;
+        private readonly ProfileTypeDefinitionDAL _dalProfileType;
         private readonly ICloudLibDal<CloudLibProfileModel> _cloudLibDal;
         private readonly CloudLibraryUtil _cloudLibUtil;
 
@@ -44,6 +45,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         private readonly List<string> _permissibleLicenses = new() { "MIT", "BSD-3-Clause" };
 
         public ProfileController(IDal<Profile, ProfileModel> dal,
+            ProfileTypeDefinitionDAL dalProfileType,
             ICloudLibDal<CloudLibProfileModel> cloudLibDal,
             UserDAL dalUser,
             Utils.ImportService svcImport,
@@ -53,6 +55,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             : base(config, logger, dalUser)
         {
             _dal = dal;
+            _dalProfileType = dalProfileType;
             _cloudLibDal = cloudLibDal;
             _svcImport = svcImport;
             _exporter = exporter;
@@ -754,6 +757,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             }
 
             var profile = _dal.GetById(model.ID, base.DalUserToken);
+
             if (profile == null)
             {
                 _logger.LogWarning($"ProfileController|PublishToCloudLibrary|Failed to publish : {model.ID}. Profile not found.");
@@ -766,6 +770,21 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 );
             }
 
+            // Prevent publishing of profiles that have no items.
+            int cItems = _dalProfileType.GetCountByProfileIdAsync(model.ID, base.DalUserToken).Result;
+            if (cItems == 0)
+            {
+                _logger.LogWarning($"ProfileController|PublishToCloudLibrary|Cannot publish a profile that contains no type definitions : {model.ID}. No profile type items found.");
+                return Ok(
+                    new ResultMessageWithDataModel()
+                    {
+                        IsSuccess = false,
+                        Message = "Cannot publish a profile that contains no type definitions."
+                    }
+                );
+            }
+
+            // Validation complete - publication can proceed.
             return Ok(await PublishToCloudLibrary(profile));
         }
 
@@ -789,6 +808,35 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             //first do the save and then do the publish. if save fails, return that result and end
             ResultMessageWithDataModel resultSave = await UpdateCommon(model);
             if (!resultSave.IsSuccess) return Ok(resultSave);
+
+
+            var profile = _dal.GetById((int)model.ID, base.DalUserToken);
+
+            if (profile == null)
+            {
+                _logger.LogWarning($"ProfileController|PublishToCloudLibrary|Failed to publish : {model.ID}. Profile not found.");
+                return Ok(
+                    new ResultMessageWithDataModel()
+                    {
+                        IsSuccess = false,
+                        Message = "Profile not found."
+                    }
+                );
+            }
+
+            // Prevent publishing of profiles that have no items.
+            int cItems = _dalProfileType.GetCountByProfileIdAsync((int)model.ID, base.DalUserToken).Result;
+            if (cItems == 0)
+            {
+                _logger.LogWarning($"ProfileController|PublishToCloudLibrary|Cannot publish a profile that contains no type definitions : {model.ID}. No profile type items found.");
+                return Ok(
+                    new ResultMessageWithDataModel()
+                    {
+                        IsSuccess = false,
+                        Message = "Cannot publish a profile that contains no type definitions."
+                    }
+                );
+            }
 
             //now do the publish
             return Ok(await PublishToCloudLibrary(model));
@@ -830,7 +878,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 var exportedNodeSet = (exportResult as OkObjectResult)?.Value as ResultMessageExportModel;
                 if (exportedNodeSet == null || !exportedNodeSet.IsSuccess)
                 {
-                    _logger.LogWarning($"ProfileController|PublishToCloudLibrary|Failed to export : {model.ID}.");
+                    _logger.LogWarning($"ProfileController|PublishToCloudLibrary|Failed to publish - cannot export : {model.ID}.");
                     return new ResultMessageWithDataModel()
                     {
                         IsSuccess = false,
@@ -865,7 +913,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 }
                 catch (UploadException ex)
                 {
-                    _logger.LogError($"ProfileController|PublishToCloudLibrary|Failed to publish to Cloud Library: {model.ID.Value} {ex.Message}.");
+                    _logger.LogError($"ProfileController|PublishToCloudLibrary|Failed to publish - cannot upload: {model.ID.Value} {ex.Message}.");
                     return new ResultMessageWithDataModel()
                     {
                         IsSuccess = false,
@@ -884,7 +932,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError($"ProfileController|PublishToCloudLibrary|Failed to publish to Cloud Library: {model.ID} {ex.Message}.");
+                _logger.LogError($"ProfileController|PublishToCloudLibrary|Failed to publish - Unhandled exception: {model.ID} {ex.Message}.");
                 return new ResultMessageWithDataModel()
                 {
                     IsSuccess = false,
@@ -1212,6 +1260,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             }
         }
 
+        /*
         /// <summary>
         /// Flush the UA Cache 
         /// </summary>
@@ -1228,9 +1277,10 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             //return success message object
             return Task.FromResult<IActionResult>(Ok(new ResultMessageModel() { IsSuccess = true, Message = "Item was deleted." }));
         }
+        */
 
         /// <summary>
-        /// Import OPC UA nodeset uploaded by front end. There may be multiple files being uploaded. 
+        /// Re-purposed import items downloaded from Cloud Library
         /// </summary>
         /// <remarks>Non-standard nodesets are associated with the user doing the uploading. 
         /// Standard OPC UA nodesets will go into the library of nodesets visible to all.
@@ -1238,21 +1288,21 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         /// </remarks>
         /// <param name="nodeSetXmlList"></param>
         /// <returns>Return result model with an isSuccess indicator.</returns>
-        [HttpPost, Route("Import")]
-        [ProducesResponseType(200, Type = typeof(ResultMessageWithDataModel))]
-        public async Task<IActionResult> Import([FromBody] List<ImportOPCModel> model)
+        //[HttpPost, Route("Import")]
+        //[ProducesResponseType(200, Type = typeof(ResultMessageWithDataModel))]
+        private async Task<IActionResult> Import([FromBody] List<ImportOPCModel> model)
         {
             if (!ModelState.IsValid)
             {
                 var errors = ExtractModelStateErrors();
                 _logger.LogCritical($"ProfileController|Import|User Id:{LocalUser.ID}, Errors: {errors}");
+                
                 return Ok(
                     new ResultMessageWithDataModel()
                     {
                         IsSuccess = false,
                         Message = "The nodeset data is invalid."
-                    }
-                );
+                    });
             }
 
             if (model == null || model.Count == 0)
@@ -1271,7 +1321,8 @@ namespace CESMII.ProfileDesigner.Api.Controllers
 
             //pass in the author id as current user
             //kick off background process, logid is returned immediately so front end can track progress...
-            var logId = await _svcImport.ImportOpcUaNodeSet(model, base.DalUserToken, allowMultiVersion: false, upgradePreviousVersions: false);
+            var userInfo = new ImportUserModel() { User = LocalUser, UserToken = base.DalUserToken };
+            var logId = await _svcImport.ImportOpcUaNodeSetAsync(model, userInfo, allowMultiVersion: false, upgradePreviousVersions: false);
 
             return Ok(
                 new ResultMessageWithDataModel()
@@ -1283,6 +1334,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             );
         }
 
+        /*MOVED TO ImportLogController
         /// <summary>
         /// Import OPC UA nodeset uploaded by front end and upgrade any prior versions to this version. There may be multiple files being uploaded. 
         /// </summary>
@@ -1325,7 +1377,8 @@ namespace CESMII.ProfileDesigner.Api.Controllers
 
             //pass in the author id as current user
             //kick off background process, logid is returned immediately so front end can track progress...
-            var logId = await _svcImport.ImportOpcUaNodeSet(model, base.DalUserToken, true, true);
+            var userInfo = new ImportUserModel() { User = LocalUser, UserToken = base.DalUserToken };
+            var logId = await _svcImport.ImportOpcUaNodeSet(model, userInfo, true, true);
 
             return Ok(
                 new ResultMessageWithDataModel()
@@ -1336,7 +1389,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 }
             );
         }
-
+        */
 
         /// <summary>
         /// Exports all type definitions in a profile 

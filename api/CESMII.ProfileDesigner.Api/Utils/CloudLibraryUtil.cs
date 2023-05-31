@@ -1,17 +1,16 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Net.Mail;
 
 using Microsoft.Extensions.Logging;
 using SendGrid.Helpers.Mail;
 
+using CESMII.Common.SelfServiceSignUp.Services;
 using CESMII.ProfileDesigner.DAL.Models;
 using CESMII.ProfileDesigner.Common.Enums;
-using CESMII.Common.SelfServiceSignUp.Services;
-using System.Collections.Generic;
 using CESMII.ProfileDesigner.Api.Controllers;
 using CESMII.ProfileDesigner.Api.Shared.Extensions;
-using Microsoft.AspNetCore.Mvc;
 using CESMII.ProfileDesigner.Api.Models;
 using CESMII.ProfileDesigner.Api.Shared.Models;
 

@@ -536,20 +536,20 @@ export function useQueryString(key) {
 ///--------------------------------------------------------------------------
 /// menu icon convenience code
 //--------------------------------------------------------------------------
-export function renderMenuIcon(iconName, alt) {
+export function renderMenuIcon(iconName, alt, className='mr-3') {
     if (iconName == null || iconName === '') return null;
     return (
-        <span className="mr-3" alt={`${alt == null ? iconName : alt}`}><SVGIcon name={iconName} size={24} /></span>
+        <span className={className} alt={`${alt == null ? iconName : alt}`}><SVGIcon name={iconName} size={24} /></span>
     );
 }
 
 ///--------------------------------------------------------------------------
 /// menu icon convenience code
 //--------------------------------------------------------------------------
-export function renderMenuColorIcon(iconName, alt, colorFill) {
+export function renderMenuColorIcon(iconName, alt, colorFill, className='mr-3') {
     if (iconName == null || iconName === '') return null;
     return (
-        <span className="mr-3" alt={`${alt == null ? iconName : alt}`}><SVGIcon name={iconName} fill={colorFill} size={24} /></span>
+        <span className={className} alt={`${alt == null ? iconName : alt}`}><SVGIcon name={iconName} fill={colorFill} size={24} /></span>
     );
 }
 

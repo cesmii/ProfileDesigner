@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
 using System.Threading.Tasks;
+
+using CESMII.ProfileDesigner.Common;
 using CESMII.ProfileDesigner.DAL.Models;
 using CESMII.ProfileDesigner.Data.Entities;
 using CESMII.ProfileDesigner.Data.Repositories;
@@ -12,8 +13,11 @@ namespace CESMII.ProfileDesigner.DAL
 {
     public class NodeSetFileDAL : TenantBaseDAL<NodeSetFile, NodeSetFileModel>, IDal<NodeSetFile, NodeSetFileModel>
     {
-        public NodeSetFileDAL(IRepository<NodeSetFile> repo) : base(repo)
+        protected readonly ConfigUtil _configUtil;
+
+        public NodeSetFileDAL(IRepository<NodeSetFile> repo, ConfigUtil configUtil) : base(repo)
         {
+            _configUtil = configUtil;
         }
 
         public override async Task<int?> AddAsync(NodeSetFileModel model, UserToken userToken)
@@ -106,7 +110,7 @@ namespace CESMII.ProfileDesigner.DAL
 
             //only delete items where this user is the author - regardless of their original list
             var idsString = string.Join(",", matchesWAuthor.Select(x => x.ID).ToList());
-            await _repo.ExecStoredProcedureAsync("call public.sp_nodeset_delete({0})", idsString);
+            await _repo.ExecStoredProcedureAsync("call public.sp_nodeset_delete({0})", _configUtil.ProfilesSettings.CommandTimeout, idsString);
             return 1;
         }
 

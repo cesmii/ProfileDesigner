@@ -357,7 +357,7 @@ namespace CESMII.OpcUa.NodeSetModel.Export.Smip
                 bool bAdded = false;
                 foreach (var referencingNode in _model.Parent.OtherReferencedNodes.Where(cr => cr.Node == _model))
                 {
-                    var referenceType = GetNodeIdForExport(referencingNode.Reference, namespaces, aliases);
+                    var referenceType = GetNodeIdForExport(referencingNode.ReferenceType?.NodeId, namespaces, aliases);
                     if (!references.Any(r => r.IsForward == false && r.Value == parentNodeId && r.ReferenceType != referenceType))
                     {
                         references.Add(new Reference { IsForward = false, ReferenceType = referenceType, Value = parentNodeId });
@@ -542,8 +542,8 @@ namespace CESMII.OpcUa.NodeSetModel.Export.Smip
 
             // For now: flatten any properties in sub-folders (Organized - i=35)
             var organizesReferenceId = new ExpandedNodeId(ReferenceTypeIds.Organizes, Namespaces.OpcUa).ToString();
-            var organizedProperties = _model.OtherReferencedNodes.Where(rn => rn.Reference == organizesReferenceId).SelectMany(rn => rn.Node.Properties).ToList();
-            var organizedVariables = _model.OtherReferencedNodes.Where(rn => rn.Reference == organizesReferenceId).SelectMany(rn => rn.Node.DataVariables).ToList();
+            var organizedProperties = _model.OtherReferencedNodes.Where(rn => rn.ReferenceType?.NodeId == organizesReferenceId).SelectMany(rn => rn.Node.Properties).ToList();
+            var organizedVariables = _model.OtherReferencedNodes.Where(rn => rn.ReferenceType?.NodeId == organizesReferenceId).SelectMany(rn => rn.Node.DataVariables).ToList();
 
             var dataVariableTypeInfos = _model.DataVariables.Concat(organizedVariables).Select(dv => new DataVariableModelExportSmip { _model = dv }.ExportNode(library)).ToList();
 

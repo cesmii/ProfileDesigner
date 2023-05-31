@@ -244,6 +244,9 @@ function ProfileEntity() {
         //perform insert/update call
         console.log(generateLogMessageString(`handleOnSave||${_mode}`, CLASS_NAME));
         saveProfile(_item, onSaveSuccess, onSaveError);
+
+        // Set when the user saved from shared/ProfileEntity.js
+        setLoadingProps({ bIsProfileEditUnsaved: false });
     };
 
     const onSaveSuccess = (item) => {

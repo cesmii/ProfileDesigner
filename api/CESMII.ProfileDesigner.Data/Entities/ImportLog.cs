@@ -6,12 +6,6 @@
 
     public class ImportLog : AbstractEntityWithTenant
     {
-        /// <summary>
-        /// Commas separated list of files being imported
-        /// </summary>
-        [Column(name: "file_list")]
-        public string FileList { get; set; }
-
         [Column(name: "status_id")]
         public int StatusId { get; set; }
 
@@ -32,10 +26,16 @@
         //[Column(name: "owner_id")]
         //public int OwnerId { get; set; }
 
+        public virtual List<ImportFile> Files { get; set; }
+
         public virtual User Owner { get; set; }
 
         [Column(name: "is_active")]
         public bool IsActive { get; set; }
+
+        [Column(name: "notify_on_complete")]
+        public bool NotifyOnComplete { get; set; }
+
     }
 
     public class ImportLogMessage : AbstractEntity
@@ -70,4 +70,38 @@
         [Column(name: "created")]
         public DateTime Created { get; set; }
     }
+
+    public class ImportFile : AbstractEntity
+    {
+        [Column(name: "file_name")]
+        public string FileName { get; set; }
+
+        [Column(name: "import_id")]
+        public int ImportActionId { get; set; }
+
+        [Column(name: "total_chunks")]
+        public int TotalChunks { get; set; }
+
+        [Column(name: "total_bytes")]
+        public long TotalBytes { get; set; }
+
+        public virtual ImportLog ImportAction { get; set; }
+
+        public virtual List<ImportFileChunk> Chunks { get; set; }
+    }
+
+    public class ImportFileChunk : AbstractEntity
+    {
+        [Column(name: "import_file_id")]
+        public int ImportFileId { get; set; }
+
+        [Column(name: "chunk_order")]
+        public int ChunkOrder { get; set; }
+
+        [Column(name: "contents")]
+        public string Contents { get; set; }
+
+        public virtual ImportFile ImportFile { get; set; }
+    }
+
 }

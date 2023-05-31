@@ -8,9 +8,12 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+
 using CESMII.ProfileDesigner.Api.Controllers;
+using CESMII.ProfileDesigner.Api.Shared.Models;
+using CESMII.ProfileDesigner.Common.Enums;
+using CESMII.ProfileDesigner.DAL.Models;
 using Microsoft.Extensions.DependencyInjection;
-using MyNamespace;
 using NodeSetDiff;
 using Opc.Ua;
 using Opc.Ua.Export;
@@ -28,6 +31,16 @@ namespace CESMII.ProfileDesigner.Api.Tests
     public partial class Integration
         : IClassFixture<CustomWebApplicationFactory<CESMII.ProfileDesigner.Api.Startup>>
     {
+        #region API constants
+        private const string URL_IMPORT_GETBYID = "/api/importlog/getbyid";
+        private const string URL_IMPORT_START = "/api/importlog/init";
+        private const string URL_IMPORT_UPLOAD = "/api/importlog/uploadfiles";
+        //Note - there is an admin and non-admin flavor of the process call. In this case, the tests
+        //are ordered so that dependency issues should not be encountered. Thus, going with the non-admin
+        //flavor of this endpoint
+        private const string URL_IMPORT_PROCESS = "/api/importlog/processfiles";
+        #endregion
+
         private readonly CustomWebApplicationFactory<CESMII.ProfileDesigner.Api.Startup> _factory;
         private readonly ITestOutputHelper output;
 
@@ -188,6 +201,11 @@ namespace CESMII.ProfileDesigner.Api.Tests
                 // Ignore CR/LF difference in the diff files (often git induced) 
                 expectedSummary = expectedSummary.Replace("\r", "").Replace("\n", "");
                 diffSummary = diffSummary.Replace("\r", "").Replace("\n", "");
+                if (expectedSummary != diffSummary)
+                {
+                    output.WriteLine("Expected Diffs: " + expectedSummary);
+                    output.WriteLine("Actual Diffs: " + diffSummary);
+                }
                 Assert.True(expectedSummary == diffSummary, $"Diffs not as expected {Path.GetFullPath(summaryDiffFile)} expected {Path.GetFullPath(expectedDiffFile)}");
                 output.WriteLine($"Verified export {file}. Diffs: {diffCounts}");
                 if (issueCounts.TryGetValue("Untriaged", out var untriagedIssues) && untriagedIssues > 0)
@@ -223,14 +241,14 @@ namespace CESMII.ProfileDesigner.Api.Tests
             return file.Replace(strTestNodeSetDirectory, Path.Combine(strTestNodeSetDirectory, "ExpectedDiffs")) + ".summarydiff.difflog";
         }
 
-        private List<ImportOPCModel> CheckAndDeleteExistingProfiles(bool deleteProfiles, Client apiClient, string[] nodeSetFiles)
+        private List<ImportOPCModel> CheckAndDeleteExistingProfiles(bool deleteProfiles, MyNamespace.Client apiClient, string[] nodeSetFiles)
         {
-            var profilesResultBefore = apiClient.LibraryAsync(new PagerFilterSimpleModel { Query = "", Skip = 0, Take = 999 }).Result;
+            var profilesResultBefore = apiClient.LibraryAsync(new MyNamespace.PagerFilterSimpleModel { Query = "", Skip = 0, Take = 999 }).Result;
             var nodeSetFilesBefore = profilesResultBefore.Data.Select(p => GetFileNameFromNamespace(p.Namespace, p.Version, p.PublishDate)).ToList();
 
-            var importRequest = new List<MyNamespace.ImportOPCModel>();
+            var importRequest = new List<ImportOPCModel>();
 
-            var profilesToDelete = new List<ProfileModel>();
+            var profilesToDelete = new List<MyNamespace.ProfileModel>();
 
             foreach (var file in nodeSetFiles)
             {
@@ -289,9 +307,8 @@ namespace CESMII.ProfileDesigner.Api.Tests
             return importRequest;
         }
 
-        private async Task ImportNodeSets(Client apiClient, List<ImportOPCModel> importRequest)
+        private async Task ImportNodeSets(MyNamespace.Client apiClient, List<ImportOPCModel> importRequest)
         {
-            ImportLogModel status;
             if (importRequest.Any())
             {
                 var orderedImportRequest = importRequest?.Count == 1 ? importRequest : OrderImportsByDependencies(importRequest);
@@ -299,37 +316,168 @@ namespace CESMII.ProfileDesigner.Api.Tests
                 do
                 {
                     var nextBatch = orderedImportRequest.Take(1).ToList();
-                    ResultMessageWithDataModel result = null;
+                    int? importId = null;
                     try
                     {
-                        result = await apiClient.ImportAsync(nextBatch);
-                        Assert.True(result.IsSuccess, $"Failed to import nodesets: {result.Message}");
+                        var importFiles = PrepareMultiStepImportData(nextBatch);
+                        importId = await ImportChunkedFiles(apiClient, importFiles[0].FileName, importFiles);
+                        //result = await apiClient.ImportAsync(nextBatch);
+                        //Assert.True(result.IsSuccess, $"Failed to import nodesets: {result.Message}");
                     }
                     catch (Exception ex)
                     {
                         Assert.True(false, $"Failed to import nodesets: {ex.Message}");
                     }
+                    finally
+                    {
+                    }
 
-                    var statusModel = new MyNamespace.IdIntModel { Id = Convert.ToInt32(result.Data), };
+                    int timeLimit = 15;
+                    ImportLogModel importLogItem;
+                    var model = new IdIntModel { ID = importId.Value };
                     var sw = Stopwatch.StartNew();
                     do
                     {
                         System.Threading.Thread.Sleep(2000);
-                        status = await apiClient.GetByIDAsync(statusModel);
-                    } while (sw.Elapsed < TimeSpan.FromMinutes(15) &&
-                             ((int)status.Status == (int)CESMII.ProfileDesigner.Common.Enums.TaskStatusEnum.InProgress
-                             || (int)status.Status == (int)CESMII.ProfileDesigner.Common.Enums.TaskStatusEnum.NotStarted));
-                    if ((int?)(status?.Status) != (int)CESMII.ProfileDesigner.Common.Enums.TaskStatusEnum.Completed)
+                        importLogItem = await apiClient.ApiGetItemAsync<ImportLogModel>(URL_IMPORT_GETBYID, model);
+                        //importLogItem = await apiClient.GetByIDAsync(statusModel);
+                    } while (sw.Elapsed < TimeSpan.FromMinutes(timeLimit) &&
+                             ((int)importLogItem.Status == (int)TaskStatusEnum.InProgress
+                             || (int)importLogItem.Status == (int)TaskStatusEnum.NotStarted));
+
+                    if ((int?)(importLogItem?.Status) != (int)TaskStatusEnum.Completed)
                     {
-                        var errorText = $"Error importing nodeset {nextBatch.FirstOrDefault().FileName}: {status.Messages.FirstOrDefault().Message}";
+                        var errorText = $"Error importing nodeset {nextBatch.FirstOrDefault().FileName}: {importLogItem.Messages.FirstOrDefault().Message}";
                         output.WriteLine(errorText);
+                        //show a clear message that the issue was we ran out of time rather than a failure
+                        if (sw.Elapsed >= TimeSpan.FromMinutes(timeLimit))
+                        {
+                            output.WriteLine($"PollImportStatus||Time limit of {timeLimit} minutes exceeded");
+                        }
                         Assert.True(false, errorText);
                     }
-                    Assert.True((int?)(status?.Status) == (int)CESMII.ProfileDesigner.Common.Enums.TaskStatusEnum.Completed);
+                    Assert.True((int?)(importLogItem?.Status) == (int)TaskStatusEnum.Completed);
                     //Assert.True(!status?.Messages?.Any());
                     orderedImportRequest.RemoveRange(0, nextBatch.Count);
                 } while (orderedImportRequest.Any());
             }
+        }
+
+        private List<ImportFileModel> PrepareMultiStepImportData(List<ImportOPCModel> nextBatch)
+        {
+            //convert from old format into new format 
+            if (nextBatch.Count == 0) return new List<ImportFileModel>();
+
+            //make file name the key value
+            var fileList = new List<ImportFileModel>();
+
+            foreach (var item in nextBatch)
+            {
+                //make file name the key value
+                var content = File.ReadAllText(item.FileName);
+
+                fileList.Add(new ImportFileModel()
+                {
+                    FileName = item.FileName,
+                    Chunks = new List<ImportFileChunkModel>() { new ImportFileChunkModel() { ChunkOrder = 1, Contents = content } },
+                    TotalBytes = content.Length,
+                    TotalChunks = 1
+                });
+            }
+
+            return fileList;
+        }
+
+        /// <summary>
+        /// This will perform all 3 import steps. This is shared by the large file import test as well as the 
+        /// import/export integration tests.
+        /// </summary>
+        /// <param name="importFiles"></param>
+        /// <returns></returns>
+        protected async Task<int?> ImportChunkedFiles(MyNamespace.Client apiClient, string fileName, List<ImportFileModel> importFiles)
+        {
+            // ARRANGE
+
+            //Note - files prepared and chunked in TestLargeNodeSetFiles class
+            //capture info for comparison after the upload.
+            //chunk size set below is 8mb
+            var item = new ImportStartModel()
+            {
+                NotifyOnComplete = false,
+                Items = importFiles.Select(fileInfo => new ImportFileModel()
+                {
+                    FileName = fileInfo.FileName,
+                    TotalBytes = fileInfo.Chunks.Sum(x => x.Contents.Length),
+                    TotalChunks = fileInfo.Chunks.Count
+                }).ToList()
+            };
+
+            //ACT
+            //Act 1 - call the first API endpoint to init the upload / import process
+            var importItem = await apiClient.ApiGetItemAsync<ImportLogModel>(URL_IMPORT_START, item);
+            //insert mock message to be used during cleanup
+            //await InsertMockImportMessage(importItem.ID.Value);
+
+            //ASSERT (Act 1)
+            Assert.NotNull(importItem);
+            Assert.NotNull(importItem.ID);
+            foreach (var fileImport in importItem.Files)
+            {
+                var fileSource = importFiles.Find(f => f.FileName.ToLower().Equals(fileImport.FileName.ToLower()));
+                Assert.NotNull(fileSource);
+                Assert.Equal(fileSource.TotalBytes, fileImport.TotalBytes);
+                Assert.Equal(fileSource.TotalChunks, fileImport.TotalChunks);
+            }
+
+            //Act 2 - call the multi-step upload process - uploading chunks
+            var uploadChunkCalls = new List<Task<ResultMessageModel>>();  //using task.when all to get some parallel processing
+            foreach (var fileImport in importItem.Files)
+            {
+                var fileSource = importFiles.Find(f => f.FileName.ToLower().Equals((object)fileImport.FileName.ToLower()));
+                Assert.NotNull(fileSource);
+                //loop over chunks and import
+                foreach (var ch in fileSource.Chunks)
+                {
+                    var chunk = new ImportFileChunkProcessModel()
+                    {
+                        ImportActionId = importItem.ID.Value,
+                        ImportFileId = fileImport.ID.Value,
+                        FileName = fileSource.FileName,
+                        ChunkOrder = ch.ChunkOrder,
+                        //Contents = Encoding.Default.GetString(item.Contents)
+                        Contents = ch.Contents
+                    };
+                    //item.ImportFileId = _guidCommon.ToString();
+                    var msgTotalChunks = fileImport.TotalChunks == 1 ? "" : $", Chunk {ch.ChunkOrder} of {fileImport.TotalChunks}";
+                    var chunkSize = Math.Round((ch.Contents.Length / Convert.ToDecimal(1024 * 1024)), 2);
+                    var msgSize = $"{chunkSize} mb";
+                    output.WriteLine($"Testing ImportChunkedFile: {fileSource.FileName} {msgTotalChunks}, Chunk Size: {msgSize}");
+                    //add calls to collection of upload tasks so we can use .whenAll
+                    uploadChunkCalls.Add(apiClient.ApiExecuteAsync<ResultMessageModel>(URL_IMPORT_UPLOAD, chunk));
+                }
+            }
+
+            //now execute tasks and handle the outcomes and then proceed once all are completed
+            await Task.WhenAll(uploadChunkCalls);
+            foreach (var uploadChunkTask in uploadChunkCalls)
+            {
+                ResultMessageModel resultChunk = await uploadChunkTask;
+
+                //ASSERT - act 2
+                if (!resultChunk.IsSuccess) output.WriteLine(resultChunk.Message);
+                Assert.True(resultChunk.IsSuccess);
+            }
+
+            //Act 3 - call the upload complete process which kicks off the import process
+            var model = new IdIntModel() { ID = (int)importItem.ID.Value };
+            var resultFinal = await apiClient.ApiExecuteAsync<ResultMessageWithDataModel>(URL_IMPORT_PROCESS, model);
+
+            //ASSERT - import processing step
+            if (!resultFinal.IsSuccess) output.WriteLine(resultFinal.Message);
+            Assert.True(resultFinal.IsSuccess);
+
+            //return the import id for use downstream
+            return importItem.ID;
         }
 
         public static List<ImportOPCModel> OrderImportsByDependencies(List<ImportOPCModel> importRequest)
@@ -387,9 +535,9 @@ namespace CESMII.ProfileDesigner.Api.Tests
             return orderedImportRequest;
         }
 
-        private static async Task ExportNodeSets(Client apiClient, string[] nodeSetFiles, bool exportAASX)
+        private static async Task ExportNodeSets(MyNamespace.Client apiClient, string[] nodeSetFiles, bool exportAASX)
         {
-            var nodeSetResult = apiClient.LibraryAsync(new PagerFilterSimpleModel { Query = "", Skip = 0, Take = 999 }).Result;
+            var nodeSetResult = apiClient.LibraryAsync(new MyNamespace.PagerFilterSimpleModel { Query = "", Skip = 0, Take = 999 }).Result;
             foreach (var nodeSetFile in nodeSetFiles)
             {
                 bool bExportFound = false;
@@ -399,7 +547,7 @@ namespace CESMII.ProfileDesigner.Api.Tests
 
                     if (string.Equals(Path.GetFileName(nodeSetFile), nodeSetFileName, StringComparison.InvariantCultureIgnoreCase))
                     {
-                        var exportResult = await apiClient.ExportAsync(new ExportRequestModel { Id = profile.Id ?? 0, ForceReexport = true, Format = exportAASX ? "AASX" : null });
+                        var exportResult = await apiClient.ExportAsync(new MyNamespace.ExportRequestModel { Id = profile.Id ?? 0, ForceReexport = true, Format = exportAASX ? "AASX" : null });
                         Assert.True(exportResult.IsSuccess, $"Failed to export {profile.Namespace}: {exportResult.Message}");
 
                         string exportedNodeSet;
@@ -495,7 +643,7 @@ namespace CESMII.ProfileDesigner.Api.Tests
         {
             var nodeSetFiles = Directory.GetFiles(Integration.strTestNodeSetDirectory);
 
-            var importRequest = new List<MyNamespace.ImportOPCModel>();
+            var importRequest = new List<ImportOPCModel>();
             foreach (var file in nodeSetFiles)
             {
                 importRequest.Add(new ImportOPCModel { FileName = Path.GetFileName(file), Data = File.ReadAllText(file), });

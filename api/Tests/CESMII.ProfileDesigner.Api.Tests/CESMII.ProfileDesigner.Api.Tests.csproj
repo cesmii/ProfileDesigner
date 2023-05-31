@@ -25,8 +25,8 @@
   </ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="OPCFoundation.NetStandard.Opc.Ua.Core" Version="1.4.368.33" />
-		<PackageReference Include="CESMII.OpcUa.NodeSetDiff" Version="1.0.12" />
+		<PackageReference Include="OPCFoundation.NetStandard.Opc.Ua.Core" Version="1.4.371.86" />
+		<PackageReference Include="CESMII.OpcUa.NodeSetDiff" Version="1.0.13" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -40,6 +40,18 @@
 	  <None Update="TestNodeSets\ExpectedDiffs\*">
 		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="TestNodeSets\LargeFiles\siemens.com.opcua.LARGE_NODESET_TEST.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestNodeSets\LargeFiles\siemens.com.opcua.simatic-s7.LARGE_NODESET_TEST.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestNodeSets\LargeFiles\www.Equinor.com.EntTypes.LARGE_NODESET_TEST.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

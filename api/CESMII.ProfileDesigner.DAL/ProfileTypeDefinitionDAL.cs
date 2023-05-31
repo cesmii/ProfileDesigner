@@ -16,6 +16,8 @@
     using CESMII.ProfileDesigner.Common.Enums;
     using System.Runtime.Serialization;
     using CESMII.ProfileDesigner.DAL.Utils;
+    using System.ComponentModel;
+    using Npgsql.Internal.TypeHandlers.NumericHandlers;
 
     public class ProfileTypeDefinitionDAL : TenantBasePdDAL<ProfileTypeDefinition, ProfileTypeDefinitionModel>
     {
@@ -77,6 +79,15 @@
 
             return MapToModel(entity, true);
         }
+
+
+        public async Task<int> GetCountByProfileIdAsync(int profileId, UserToken userToken)
+        {
+            var count = await base.FindByCondition(userToken, x => x.ProfileId == profileId)
+                .CountAsync();
+            return count;
+        }
+
 
         /// <summary>
         /// Get all 
@@ -223,7 +234,7 @@
             }
             else
             {
-                return modelOpcNodeId == entityOpcNodeId && modelNamespace == entityNamespace;
+                return (modelOpcNodeId != null || entityOpcNodeId != null) && modelOpcNodeId == entityOpcNodeId && modelNamespace == entityNamespace;
             }
         }
         private static bool MatchIdentity(ProfileTypeDefinition entity, ProfileTypeDefinitionModel model)
@@ -373,6 +384,7 @@
                     CloudLibraryId = entity.CloudLibraryId,
                     CloudLibPendingApproval = entity.CloudLibPendingApproval,
                     Version = entity.Version,
+                    XmlSchemaUri = entity.XmlSchemaUri,
                     PublishDate = entity.PublishDate,
                     AuthorId = entity.AuthorId,
                     Author = MapToModelSimpleUser(entity.Author)
@@ -1121,6 +1133,8 @@
                 }
             }
 
+            var referenceId = source.RelatedReferenceId;
+
             if (source.IntermediateObjectId != null)
             {
                 source.IntermediateObject = GetById(source.IntermediateObjectId.Value, userToken);
@@ -1182,6 +1196,12 @@
                     var typeEntity = CheckForExisting(source.RelatedProfileTypeDefinition, userToken);
                     intermediateEntity.Parent = typeEntity;
                 }
+                var customReference = ProfileMapperUtil.GetReferenceTypeForObjectType($"{parentEntity.Parent?.Profile?.Namespace};{parentEntity.Parent?.OpcNodeId}");
+                if (!string.IsNullOrEmpty(customReference))
+                {
+                    // Some object types (FolderType) use special references (Organizes) for compositions
+                    referenceId = customReference; 
+                }
             }
             else
             {
@@ -1213,7 +1233,7 @@
             composition.IsRequired = source.IsRequired;
             composition.ModelingRule = source.ModelingRule;
             composition.IsEvent = source.RelatedIsEvent;
-            composition.ReferenceId = source.RelatedReferenceId;
+            composition.ReferenceId = referenceId;
             composition.ReferenceIsInverse = source.RelatedReferenceIsInverse;
             composition.Description = source.Description;
         }

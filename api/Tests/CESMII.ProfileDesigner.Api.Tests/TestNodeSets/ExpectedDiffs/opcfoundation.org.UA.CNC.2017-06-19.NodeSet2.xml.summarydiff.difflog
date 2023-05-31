@@ -3,8 +3,6 @@
 ###2#Feature#Export: Allow specifying versions of dependent profiles that are lower than the imported one#C2-193
 ====>Expected attribute value '1.03' but was '1.05.02' - comparing <RequiredModel Version="1.03"...> at /UANodeSet[1]/Models[1]/Model[1]/RequiredModel[1]/@Version to <RequiredModel Version="1.05.02"...> at /UANodeSet[1]/Models[1]/Model[1]/RequiredModel[1]/@Version
 ====>Expected attribute value '2016-04-15T00:00:00Z' but was '2022-11-01T00:00:00Z' - comparing <RequiredModel PublicationDate="2016-04-15T00:00:00Z"...> at /UANodeSet[1]/Models[1]/Model[1]/RequiredModel[1]/@PublicationDate to <RequiredModel PublicationDate="2022-11-01T00:00:00Z"...> at /UANodeSet[1]/Models[1]/Model[1]/RequiredModel[1]/@PublicationDate
-###1#Feature#Capture default value for variable types#Capture default value for variable types
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Value' but was '' - comparing <Value...> at /UANodeSet[1]/UAVariableType[1]/Value[1] to <NULL>
 ###2#Feature#Nested datavariables
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[13]/References[1]/Reference[1] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[17]/References[1]/Reference[1] to <NULL>

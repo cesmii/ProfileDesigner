@@ -29,7 +29,7 @@
         /// </summary>
         /// <param name="query">The query to execute.</param>
         /// <param name="parameters">Additional parameters to execute.</param>
-        Task<int> ExecStoredProcedureAsync(string query, params object[] parameters);
+        Task<int> ExecStoredProcedureAsync(string query, int? timeout, params object[] parameters);
         void StartTransaction();
         Task CommitTransactionAsync();
         void RollbackTransaction();

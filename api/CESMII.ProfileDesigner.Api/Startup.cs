@@ -1,5 +1,6 @@
 using CESMII.Common.CloudLibClient;
 using CESMII.Common.SelfServiceSignUp;
+using CESMII.Common.SelfServiceSignUp.Models;
 using CESMII.Common.SelfServiceSignUp.Services;
 using CESMII.OpcUa.NodeSetImporter;
 using CESMII.ProfileDesigner.Api.Shared.Extensions;
@@ -49,7 +50,9 @@ namespace CESMII.ProfileDesigner.Api
             //PostgreSql context
 #if DEBUG
             services.AddDbContext<ProfileDesignerPgContext>(options =>
-                    options.UseNpgsql(connectionStringProfileDesigner).EnableSensitiveDataLogging());
+                    options.UseNpgsql(connectionStringProfileDesigner)
+                    //options.UseNpgsql(connectionStringProfileDesigner, options => options.EnableRetryOnFailure())
+                    .EnableSensitiveDataLogging());
 #else
             services.AddDbContext<ProfileDesignerPgContext>(options =>
                     options.UseNpgsql(connectionStringProfileDesigner));
@@ -88,9 +91,12 @@ namespace CESMII.ProfileDesigner.Api
             services.AddScoped<IRepository<Organization>, BaseRepo<Organization, ProfileDesignerPgContext>>();
             services.AddScoped<IRepository<Permission>, BaseRepo<Permission, ProfileDesignerPgContext>>();
 
-            //DAL objects
-            services.AddScoped<UserDAL>();     //this one has extra methods outside of the IDal interface
-            services.AddScoped<OrganizationDAL>();
+            // DAL objects
+            services.AddScoped<UserDAL>();                  // Has extra methods outside of the IDal interface
+            services.AddScoped<OrganizationDAL>();          // Has extra methods outside of the IDal interface
+            services.AddScoped<ProfileTypeDefinitionDAL>(); // Has extra methods outside of the IDal interface
+
+            services.AddScoped<IUserSignUpData, UserSignUpData>();
 
             //services.AddScoped<IDal<Organization,OrganizationModel>,OrganizationDAL>();
             services.AddScoped<IDal<ProfileTypeDefinition, ProfileTypeDefinitionModel>, ProfileTypeDefinitionDAL>();
@@ -115,6 +121,8 @@ namespace CESMII.ProfileDesigner.Api
             services.AddSingleton<ConfigUtil>();  // helper to allow us to bind to app settings data 
             services.AddScoped<DAL.Utils.ProfileMapperUtil>();  // helper to allow us to modify profile data for front end 
             services.AddScoped<Utils.CloudLibraryUtil>();  // helper to allow controllers to do stuff related to CloudLibPublish 
+            services.AddScoped<Utils.ImportNotificationUtil>();  // helper to allow import service to send notification email
+            services.AddScoped<ICustomRazorViewEngine, CustomRazorViewEngine>();  //this facilitates sending formatted emails w/o dependency on controller
             services.AddOpcUaImporter(Configuration);
 
             services.AddScoped<SelfSignUpAuthFilter>();               // Validator for self-sign up - authentiate API Connector username & password.

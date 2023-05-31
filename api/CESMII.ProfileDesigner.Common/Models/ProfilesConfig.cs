@@ -4,6 +4,7 @@
     public class ProfilesConfig
     {
         public ReservedProfilesConfig ReservedProfileNames { get; set; }
+        public int CommandTimeout { get; set; }
     }
 
     public class ReservedProfilesConfig

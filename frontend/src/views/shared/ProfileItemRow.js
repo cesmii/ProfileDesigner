@@ -1,70 +1,25 @@
-import React, { useState } from 'react'
-import { Dropdown } from 'react-bootstrap'
+import React from 'react'
 
-import { useLoadingContext } from "../../components/contexts/LoadingContext";
-import { SVGIcon, SVGDownloadIcon } from '../../components/SVGIcon'
-import { isOwner, renderProfileIcon } from './ProfileRenderHelpers';
-import { cleanFileName, formatDate, generateLogMessageString } from '../../utils/UtilityService';
+import { renderProfileAvatarBgCss, renderProfileIcon } from './ProfileRenderHelpers';
+import { formatDateUtc } from '../../utils/UtilityService';
 import { getProfileCaption } from '../../services/ProfileService'
+import { SVGIcon } from '../../components/SVGIcon';
+import ProfileActions from './ProfileActions';
+import ProfileCloudLibStatus from './ProfileCloudLibStatus';
 import { AppSettings } from '../../utils/appsettings';
 
-const CLASS_NAME = "ProfileItemRow";
+//const CLASS_NAME = "ProfileItemRow";
 
 function ProfileItemRow(props) { //props are item, showActions
-
-    const { loadingProps, setLoadingProps } = useLoadingContext();
-    const [_error, setError] = useState({ show: false, message: null, caption: null });
 
     //-------------------------------------------------------------------
     // Region: Event Handling of child component events
     //-------------------------------------------------------------------
-    //const getTypeDefinitionsUrl = () => {
-    //    //var val = encodeURIComponent(props.item.namespace);
-    //    return (props.item.isReadOnly || props.item.authorId == null || props.currentUserId !== props.item.authorId) ?
-    //        `/types/library/p=${props.item.id}` : `/types/mine/p=${props.item.id}`;
-    //};
-
-    //const getTypeDefinitionNewUrl = () => {
-    //    return `/type/new/p=${props.item.id}`; 
-    //};
-
-    const downloadItem = async () => {
-        console.log(generateLogMessageString(`downloadItem||start`, CLASS_NAME));
-        //add a row to download messages and this will kick off download
-        var msgs = loadingProps.downloadItems || [];
-        msgs.push({ profileId: props.item.id, fileName: cleanFileName(props.item.namespace), immediateDownload: true });
-        setLoadingProps({ downloadItems: JSON.parse(JSON.stringify(msgs)) });
-    }
-    const downloadItemAsAASX = async () => {
-        console.log(generateLogMessageString(`downloadItemAsAASX||start`, CLASS_NAME));
-        //add a row to download messages and this will kick off download
-        var msgs = loadingProps.downloadItems || [];
-        msgs.push({ profileId: props.item.id, fileName: cleanFileName(props.item.namespace), immediateDownload: true, downloadFormat: AppSettings.ExportFormatEnum.AASX });
-        setLoadingProps({ downloadItems: JSON.parse(JSON.stringify(msgs)) });
-    }
-    const downloadItemAsSmipJson = async () => {
-        console.log(generateLogMessageString(`downloadItemAsSmipJson||start`, CLASS_NAME));
-        //add a row to download messages and this will kick off download
-        var msgs = loadingProps.downloadItems || [];
-        msgs.push({ profileId: props.item.id, fileName: cleanFileName(props.item.namespace), immediateDownload: true, downloadFormat: AppSettings.ExportFormatEnum.SmipJson});
-        setLoadingProps({ downloadItems: JSON.parse(JSON.stringify(msgs)) });
-    }
-
-    const onDeleteItem = () => {
-        props.onDeleteCallback(props.item);
-    }
-
     const onEditItem = (e) => {
         e.stopPropagation();
         //format date if present
         //props.item.publishDate = formatDate(props.item.publishDate);
         props.onEditCallback(props.item);
-    }
-
-    const onImportItem = () => {
-        //format date if present
-        //props.item.publishDate = formatDate(props.item.publishDate);
-        props.onImportCallback(props.item);
     }
 
     const onRowSelect = () => {
@@ -78,56 +33,34 @@ function ProfileItemRow(props) { //props are item, showActions
 
     const IsRowSelected = (item) => {
         if (props.selectedItems == null) return;
-        var x = item.hasLocalProfile ||  props.selectedItems.findIndex(p => { return p.toString() === item.id.toString(); }); // TODO make the local profile selection configurable
+        const x = item.hasLocalProfile || props.selectedItems.findIndex(p => { return p.toString() === item.id.toString(); }); // TODO make the local profile selection configurable
         return x >= 0;
+    }
+
+    const onRowChanged = (e) => {
+        if (props.onRowChanged) props.onRowChanged(e);
     }
 
     //-------------------------------------------------------------------
     // Region: Render helpers
     //-------------------------------------------------------------------
-    const renderActionsColumn = (item, showActions) => {
+
+    const renderActionsColumn = (showActions) => {
 
         if (!showActions) return;
 
-        if (item.hasLocalProfile == null || item.hasLocalProfile) {
-            //if standard ua nodeset, author is null
-            return (
-                <div className="col-sm-4 ml-auto d-inline-flex justify-content-end align-items-center" >
-                    <span className="my-0 mr-2"><a href={`/types/library/profile/${props.item.id}`} ><span className="mr-1" alt="view"><SVGIcon name="visibility" /></span>View Type Definitions</a></span>
-                    <Dropdown className="action-menu icon-dropdown" onClick={(e) => e.stopPropagation()} >
-                        <Dropdown.Toggle drop="left" title="Actions" >
-                            <SVGIcon name="more-vert" />
-                        </Dropdown.Toggle>
-                        <Dropdown.Menu>
-                            {/*{(props.currentUserId != null && props.currentUserId === item.authorId) &&*/}
-                            {/*    <Dropdown.Item key="moreVert2" href={getTypeDefinitionNewUrl()} ><span className="mr-3" alt="extend"><SVGIcon name="extend" /></span>New Type Definition</Dropdown.Item>*/}
-                            {/*}*/}
-                            {isOwner(props.item, props.activeAccount) &&
-                                <Dropdown.Item key="moreVert3" onClick={onDeleteItem} ><span className="mr-3" alt="delete"><SVGIcon name="delete" /></span>Delete Profile</Dropdown.Item>
-                            }
-                            <Dropdown.Item key="moreVert4" onClick={downloadItem} ><span className="mr-3" alt="arrow-drop-down"><SVGDownloadIcon name="download" /></span>Download Profile</Dropdown.Item>
-                            <Dropdown.Item key="moreVert5" onClick={downloadItemAsAASX} ><span className="mr-3" alt="arrow-drop-down"><SVGDownloadIcon name="downloadAASX" /></span>Download Profile as AASX</Dropdown.Item>
-                            <Dropdown.Item key="moreVert5" onClick={downloadItemAsSmipJson} ><span className="mr-3" alt="arrow-drop-down"><SVGDownloadIcon name="downloadSmipJson" /></span>Download Profile for SMIP import (experimental)</Dropdown.Item>
-                        </Dropdown.Menu>
-                    </Dropdown>
-                </div>
-            );
-        }
-        else {
-            return (
-                <div className="col-sm-4 ml-auto d-inline-flex justify-content-end align-items-center" >
-                    <button className="ml-1 btn btn-link" onClick={onImportItem} ><span className="mr-1" alt="view"><SVGDownloadIcon name="import" /></span>Import from Cloud Library</button>
-                {/*    <Dropdown className="action-menu icon-dropdown" onClick={(e) => e.stopPropagation()} >*/}
-                {/*        <Dropdown.Toggle drop="left" title="Actions" >*/}
-                {/*            <SVGIcon name="more-vert" />*/}
-                {/*        </Dropdown.Toggle>*/}
-                {/*        <Dropdown.Menu>*/}
-                {/*            <Dropdown.Item key="moreVert4" onClick={importItem} ><span className="mr-3" alt="arrow-drop-down"><SVGIcon name="visibility" /></span>View profile description</Dropdown.Item>*/}
-                {/*        </Dropdown.Menu>*/}
-                {/*    </Dropdown>*/}
-                </div>
-            );
-        }
+        return (
+            <>
+            <div className="col-sm-3 ml-auto d-inline-flex justify-content-end align-items-center" >
+                    <ProfileCloudLibStatus item={props.item} activeAccount={props.activeAccount} showButton={true} showStatus={false}
+                        onPublishProfileCallback={onRowChanged} onWithdrawProfileCallback={onRowChanged} />
+            </div>
+            <div className="col-sm-3 ml-auto d-inline-flex justify-content-end align-items-center" >
+                <span className="my-0 mr-2"><a href={`/profile/${props.item.id}?tab=typedefs`} ><span className="mr-1" alt="view"><SVGIcon name="visibility" /></span>View Type Definitions</a></span>
+                <ProfileActions item={props.item} activeAccount={props.activeAccount} />
+            </div>
+            </>
+        );
     }
 
     const renderSelectColumn = (item, isReadOnly) => {
@@ -147,17 +80,53 @@ function ProfileItemRow(props) { //props are item, showActions
         );
     }
 
-    //render simplified Profile show on profile type entity or profile type list 
+    const renderTitleNamespace = () => {
+
+        let profileCaption = null;
+        let profileValue = null;
+        if (props.item.title == null || props.item.title === '') {
+            profileCaption = props.profileCaption == null ? "Namespace: " : `${props.profileCaption}: `;
+            profileValue = props.item.namespace;
+        }
+        else {
+            profileCaption = props.profileCaption == null ? "Title: " : `${props.profileCaption}: `;
+            profileValue = props.item.title;
+
+        }
+
+        if (!props.showActions) {
+            return (
+                <>
+                    {profileCaption}
+                    <span className="ml-2" >{profileValue}</span>
+                </>
+            );
+        }
+        else {
+            return (
+                <>
+                    {profileCaption}
+                    {props.navigateModal ?
+                        <button className="ml-1 mr-2 btn btn-link" onClick={onEditItem} >{profileValue}</button>
+                        :
+                        <a className="mx-2" href={`/profile/${props.item.id}`} >{profileValue}</a>
+                    }
+                </>
+            );
+        }
+    }
+
+    //render simplified Profile show on profile type entity or profile type list
     const renderRowSimple = () => {
 
         const isSelected = props.item != null && IsRowSelected(props.item) ? "selected" : "";
         const cssClass = `row py-1 align-items-center ${props.cssClass == null ? '' : props.cssClass} ${isSelected} ${props.selectMode != null ? "selectable" : ""}`;
-        const avatarCss = `col-avatar mr-2 rounded-circle avatar-${!isOwner(props.item, props.activeAccount) ? "locked" : "unlocked"} elevated`;
+        const avatarCss = `col-avatar mr-2 rounded-circle ${renderProfileAvatarBgCss(props.item)} elevated`;
         //var colCss = `${props.actionUI == null ? "col-sm-12" : "col-sm-10"} d-flex align-items-center`;
         const caption = props.item == null ? "" : getProfileCaption(props.item);
         const profileIcon = props.item == null ?
-            renderProfileIcon({ authorId: null }, props.activeAccount, 20, false) :
-            renderProfileIcon(props.item, props.activeAccount, 20, false);
+            renderProfileIcon({ authorId: null }, 24) :
+            renderProfileIcon(props.item, 24);
 
         return (
             <div className={cssClass} onClick={onRowSelect} >
@@ -165,7 +134,10 @@ function ProfileItemRow(props) { //props are item, showActions
                     <div className={avatarCss} >{profileIcon}</div>
                     <div className="col-sm-11" >
                         <span className="font-weight-bold mr-2" >{props.profileCaption == null ? "Profile: " : `${props.profileCaption}: `}</span>
-                        {caption}
+                        {props.item == null ?
+                            caption : 
+                            <a className="mx-2" href={`/profile/${props.item.id}?tab=typedefs`} >{caption}</a>
+                        }
                         {(props.actionUI != null) &&
                             <div className="ml-2 d-inline-flex" >
                                 {props.actionUI}
@@ -184,54 +156,54 @@ function ProfileItemRow(props) { //props are item, showActions
         const isReadonly = props.item?.hasLocalProfile;
         const cssClass = `row py-1 align-items-center ${props.cssClass == null ? '' : props.cssClass} ${isSelected} ${props.selectMode != null ? "selectable" : ""} ${isReadonly ? "select-readonly" : ""}`;
 
-
-        let profileCaption = null;
-        let profileValue = null;
-        if (props.item.title == null) {
-            profileCaption = props.profileCaption == null ? "Namespace: " : `${props.profileCaption}: `;
-            profileValue = props.item.namespace;
-        }
-        else {
-            profileCaption = props.profileCaption == null ? "Title: " : `${props.profileCaption}: `;
-            profileValue = props.item.title;
-
-        }
         return (
             <div className={cssClass} onClick={props.item.hasLocalProfile ? null : onRowSelect}> {/*TODO Make the local profile selection configurable */}
-                <div className="col-sm-8 d-flex" >
+                <div className="col-sm-6 d-flex" >
                     {props.selectMode != null &&
                         renderSelectColumn(props.item, isReadonly)
                     }
-                    <div className={`col-avatar mt-1 mr-2 rounded-circle avatar-${!isOwner(props.item, props.activeAccount) ? "locked" : "unlocked"} elevated`} >
-                        {renderProfileIcon(props.item, props.activeAccount, 24, false)}
+                    <div className={`col-avatar mt-1 mr-2 rounded-circle ${renderProfileAvatarBgCss(props.item)} elevated`} >
+                        {renderProfileIcon(props.item, 24)}
                     </div>
                     <div className="col-sm-11 d-flex align-items-center" >
                         <div className="d-block" >
-                            <p className="my-0 d-flex align-content-center">
-                                {profileCaption}
-                                {!props.showActions /*|| props.selectMode != null*/ ?
-                                    <span className="ml-2" >{profileValue}</span>
-                                    :
-                                    <button className="ml-1 btn btn-link" onClick={onEditItem} >{profileValue}</button>
-                                }
+                            <p className="my-0 d-flex align-items-center">
+                                {renderTitleNamespace()}
                             </p>
-                            {props.item.title != null &&
+                            {(props.item.title != null && props.item.title !== '') &&
                                 <p className="my-0 small-size" >Namespace: {props.item.namespace}</p>
                             }
                             {props.item.version != null &&
                                 <p className="my-0 small-size" >Version: {props.item.version}</p>
                             }
                             {props.item.publishDate != null &&
-                                <p className="my-0 small-size" >Published: {formatDate(props.item.publishDate)}</p>
-                            }
-                            {props.item.description != null &&
-                                <p className="my-0 small-size" >Description: {props.item.description.substr(0, 80)}</p>
+                                <p className="my-0 small-size" >Published: {formatDateUtc(props.item.publishDate)}</p>
                             }
                         </div>
                     </div>
                 </div>
-                {renderActionsColumn(props.item, props.showActions && props.selectMode == null)}
-            </div>
+                {renderActionsColumn(props.showActions && props.selectMode == null)}
+                {props.item.description != null &&
+                    <div className="col-sm-12 d-flex" >
+                        {props.selectMode != null &&
+                            <div className="col-spacer mr-1" >
+                            </div>
+                        }
+                        <div className="col-spacer mr-2" >
+                        </div>
+                        <div className="col-sm-11" >
+                        <p className="my-0 small-size" >Description: {props.item.description.length > 160 ? props.item.description.substr(0, 160) + '...' : props.item.description}</p>
+                        </div>
+                    </div>
+                }
+                {(props.item.profileState === AppSettings.ProfileStateEnum.CloudLibRejected &&
+                    props.item.cloudLibApprovalDescription != null && 
+                    props.item.cloudLibApprovalDescription !== '') &&
+                    <div className="col-sm-12 d-flex" >
+                        <p className="alert alert-danger my-2 small-size w-100" >Publish Rejection Reason: {props.item.cloudLibApprovalDescription}</p>
+                    </div>
+                }
+            </div >
         );
     };
 

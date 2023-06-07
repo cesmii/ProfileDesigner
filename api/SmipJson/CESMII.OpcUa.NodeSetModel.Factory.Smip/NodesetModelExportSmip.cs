@@ -147,7 +147,7 @@ namespace CESMII.OpcUa.NodeSetModel.Export.Smip
 
         public static string EscapeSpecialCharacters(string name)
         {
-            return name.Replace(":", "_").Replace(".", "_").Replace("//", "_").Replace("/", "_").Replace(";", "_").Replace("=", "_");
+            return name.Replace(":", "_").Replace(".", "_").Replace("//", "_").Replace("/", "_").Replace(";", "_").Replace("=", "_").ToLowerInvariant();
         }
 
         public static string Get3PartVersion(string version)
@@ -357,7 +357,7 @@ namespace CESMII.OpcUa.NodeSetModel.Export.Smip
                 bool bAdded = false;
                 foreach (var referencingNode in _model.Parent.OtherReferencedNodes.Where(cr => cr.Node == _model))
                 {
-                    var referenceType = GetNodeIdForExport(referencingNode.Reference, namespaces, aliases);
+                    var referenceType = GetNodeIdForExport(referencingNode.ReferenceType?.NodeId, namespaces, aliases);
                     if (!references.Any(r => r.IsForward == false && r.Value == parentNodeId && r.ReferenceType != referenceType))
                     {
                         references.Add(new Reference { IsForward = false, ReferenceType = referenceType, Value = parentNodeId });
@@ -398,10 +398,12 @@ namespace CESMII.OpcUa.NodeSetModel.Export.Smip
             }
             var childTypeDefinitionInfo = new ObjectTypeModelExportSmip { _model = _model.TypeDefinition }.ExportNode(library);
             childEquipmentTypeInfo.tiqModel.ChildTypeFqn = childTypeDefinitionInfo.tiqModel?.Fqn.ToArray();
-            childEquipmentTypeInfo.tiqModel.IsRequired = IsRequired(_model.ModelingRule);
+            childEquipmentTypeInfo.tiqModel.IsRequired = IsRequired(_model.ModellingRule);
             // document
             // max_number
             // min_number
+
+            // TODO Data Variables, Properties
             return childEquipmentTypeInfo;
         }
         //public override (T ExportedNode, List<UANode> AdditionalNodes) GetUANode<T>(NamespaceTable namespaces, Dictionary<string, string> aliases)
@@ -538,9 +540,14 @@ namespace CESMII.OpcUa.NodeSetModel.Export.Smip
                 equipmentType.ChildEquipment.Add(childEquipmentTypeInfo.tiqModel);
             }
 
-            var dataVariableTypeInfos = _model.DataVariables.Select(dv => new DataVariableModelExportSmip { _model = dv }.ExportNode(library)).ToList();
+            // For now: flatten any properties in sub-folders (Organized - i=35)
+            var organizesReferenceId = new ExpandedNodeId(ReferenceTypeIds.Organizes, Namespaces.OpcUa).ToString();
+            var organizedProperties = _model.OtherReferencedNodes.Where(rn => rn.ReferenceType?.NodeId == organizesReferenceId).SelectMany(rn => rn.Node.Properties).ToList();
+            var organizedVariables = _model.OtherReferencedNodes.Where(rn => rn.ReferenceType?.NodeId == organizesReferenceId).SelectMany(rn => rn.Node.DataVariables).ToList();
 
-            var propertyTypeInfos = _model.Properties.Select(prop => new PropertyModelExportSmip { _model = prop as PropertyModel }.ExportNode(library)).ToList();
+            var dataVariableTypeInfos = _model.DataVariables.Concat(organizedVariables).Select(dv => new DataVariableModelExportSmip { _model = dv }.ExportNode(library)).ToList();
+
+            var propertyTypeInfos = _model.Properties.Concat(organizedProperties).Select(prop => new PropertyModelExportSmip { _model = prop as PropertyModel }.ExportNode(library)).ToList();
             var variableTypeInfos = dataVariableTypeInfos.Concat(propertyTypeInfos).ToList();
 
             foreach (var variableTypeInfo in variableTypeInfos)
@@ -567,6 +574,11 @@ namespace CESMII.OpcUa.NodeSetModel.Export.Smip
                 {
                     throw new Exception($"Unexpected variable type {variableTypeInfo.tiqModel.GetType().Name} returned for {variableTypeInfo.tiqModel?.RelativeName}");
                 }
+            }
+
+            foreach (var referencedNode in _model.OtherReferencedNodes)
+            {
+                // TODO Folder (Organizes) references
             }
 
             return equipmentTypeInfo;
@@ -606,7 +618,7 @@ namespace CESMII.OpcUa.NodeSetModel.Export.Smip
                     Document = variableInfo.tiqModel.Document,
                     Fqn = variableInfo.tiqModel.Fqn,
                     ChildTypeFqn = dataTypeInfo.tiqModel.Fqn.ToArray(),
-                    IsRequired = IsRequired(_model.ModelingRule),
+                    IsRequired = IsRequired(_model.ModellingRule),
                     // max_number
                     // min_number
                 };
@@ -624,7 +636,7 @@ namespace CESMII.OpcUa.NodeSetModel.Export.Smip
                 Fqn = variableInfo.tiqModel.Fqn,
 
                 DataType = dataTypeInfo.DataTypeName,
-                IsRequired = IsRequired(_model.ModelingRule),
+                IsRequired = IsRequired(_model.ModellingRule),
                 // TODO AttributeTypeFqn = GetSmipAttributeType(dataVariable.TypeDefinition),
                 //DefaultEnumerationValues =,
                 MeasurementUnitFqn = GetSmipMeasurementUnit(_model.EngineeringUnit),

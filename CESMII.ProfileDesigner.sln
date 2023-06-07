@@ -25,7 +25,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CESMII.OpcUa.CloudLibraryRe
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CESMII.OpcUa.CloudLibraryResolver.DependencyInjection", "api\CESMII.OpcUa.CloudLibraryResolver.DependencyInjection\CESMII.OpcUa.CloudLibraryResolver.DependencyInjection.csproj", "{FA2B77D7-79E8-4815-90E6-1A1DFD755A9A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Opc.Ua.Cloud.Library.Client", "api\Opc.Ua.Cloud.Library.Client\Opc.Ua.Cloud.Library.Client.csproj", "{A94716E0-17B6-4FFE-BFAB-23C9582B4ABD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Opc.Ua.Cloud.Library.Client", "common\Opc.Ua.Cloud.Library.Client\Opc.Ua.Cloud.Library.Client.csproj", "{A94716E0-17B6-4FFE-BFAB-23C9582B4ABD}"
 EndProject
 Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "frontend", "frontend\frontend.esproj", "{E82C3AA8-E104-49B3-9402-C1ABF3C2B5DA}"
 EndProject
@@ -45,11 +45,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{B6529603
 		.github\workflows\tests.yml = .github\workflows\tests.yml
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CESMII.Common.CloudLibClient", "api\CESMII.Marketplace.CloudLibClient\CESMII.Common.CloudLibClient.csproj", "{B25AC5CD-A337-4302-ACEA-5C7FF320B649}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CESMII.Common.CloudLibClient", "common\CESMII.Common.CloudLibClient\CESMII.Common.CloudLibClient.csproj", "{B25AC5CD-A337-4302-ACEA-5C7FF320B649}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CESMII.OpcUa.NodeSetModel.Factory.Smip", "api\SmipJson\CESMII.OpcUa.NodeSetModel.Factory.Smip\CESMII.OpcUa.NodeSetModel.Factory.Smip.csproj", "{9912DF0C-A034-400A-8A78-1D925402AA34}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SmipJson", "SmipJson", "{32887CE8-03AE-45A1-BF45-00AFC71637A0}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CESMII.Common.SelfServiceSignUp", "common\CESMII.Common.SelfServiceSignUp\CESMII.Common.SelfServiceSignUp.csproj", "{EC9943CD-4E5E-4835-AA5D-45520C78D146}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -135,6 +137,12 @@ Global
 		{9912DF0C-A034-400A-8A78-1D925402AA34}.Release|Any CPU.Build.0 = Release|Any CPU
 		{9912DF0C-A034-400A-8A78-1D925402AA34}.Staging|Any CPU.ActiveCfg = Staging|Any CPU
 		{9912DF0C-A034-400A-8A78-1D925402AA34}.Staging|Any CPU.Build.0 = Staging|Any CPU
+		{EC9943CD-4E5E-4835-AA5D-45520C78D146}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EC9943CD-4E5E-4835-AA5D-45520C78D146}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EC9943CD-4E5E-4835-AA5D-45520C78D146}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EC9943CD-4E5E-4835-AA5D-45520C78D146}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EC9943CD-4E5E-4835-AA5D-45520C78D146}.Staging|Any CPU.ActiveCfg = Debug|Any CPU
+		{EC9943CD-4E5E-4835-AA5D-45520C78D146}.Staging|Any CPU.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

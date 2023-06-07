@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "dependencies": {
-    "@azure/msal-browser": "^2.30.0",
-    "@azure/msal-react": "^1.4.9",
+    "@azure/msal-browser": "2.30.0",
+    "@azure/msal-react": "1.4.9",
     "@material/react-material-icon": "^0.15.0",
     "@testing-library/jest-dom": "^5.11.5",
     "@testing-library/react": "^11.1.0",
@@ -23,12 +23,13 @@
     "react-scripts": "4.0.0",
     "react-select": "^5.2.1",
     "sass": "^1.49.11",
+    "spdx-expression-validate": "^2.0.0",
     "web-vitals": "^0.2.4"
   },
   "scripts": {
     "start": "react-scripts start",
     "start-dev": "set PORT=3001 && react-scripts start",
-    "build": "react-scripts build",
+    "build": "GENERATE_SOURCEMAP=false react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "build:staging": "env-cmd -f .env.staging npm run-script build"

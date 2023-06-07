@@ -8,7 +8,6 @@
     using Microsoft.Extensions.Configuration;
 
     using CESMII.ProfileDesigner.Data.Entities;
-    using System.Collections.Generic;
 
     //static class CacheCounters
     //{
@@ -98,25 +97,29 @@
             {
                 // Use the Tracked Changes first if under transaction: doesn't work reliably otherwise (ChangeTracker collection changed exception)
                 IQueryable<TEntity> query;
-                try
+                int retryCount = 50;
+                do
                 {
-                    query = _context.Set<TEntity>().Local.AsQueryable().Where(expression);
-                    if (cacheOnly || query?.Any() == true)
+                    try
                     {
-                        //CacheCounters.cacheHitCount++;
-                        return query.AsQueryable();
+                        query = _context.Set<TEntity>().Local.AsQueryable().Where(expression);
+                        if (cacheOnly || query?.Any() == true)
+                        {
+                            //CacheCounters.cacheHitCount++;
+                            return query.AsQueryable();
+                        }
+                        retryCount = 0;
                     }
-                }
-                catch (InvalidOperationException)
-                {
-                    // The underlying collection has changed: try one more time
-                    query = _context.Set<TEntity>().Local.AsQueryable().Where(expression);
-                    if (query?.Any() == true)
+                    catch (InvalidOperationException)
                     {
-                        //CacheCounters.cacheHitCount++;
-                        return query.AsQueryable();
+                        // For some reason (likely on-demand data loading of data) this throws due to modified collection
+                        retryCount--;
+                        if (retryCount <= 0)
+                        {
+                            throw;
+                        }
                     }
-                }
+                } while (retryCount > 0);
             }
             var query2 = _context.Set<TEntity>().Where(expression);
             //if (!query2.Any())
@@ -132,14 +135,34 @@
             return query2;
         }
 
-        public Task<int> ExecStoredProcedureAsync(string query, params object[] parameters)
+        public Task<int> ExecStoredProcedureAsync(string query, int? timeout, params object[] parameters)
         {
-            return _context.Database.ExecuteSqlRawAsync(query, parameters);
-            //return _context.Set<TEntity>().FromSqlRaw(query, parameters);
+            var existingTimeout = _context.Database.GetCommandTimeout();
+            if (timeout.HasValue)
+            {
+                _context.Database.SetCommandTimeout(timeout);
+            }
+            try
+            {
+                return _context.Database.ExecuteSqlRawAsync(query, parameters);
+                //return _context.Set<TEntity>().FromSqlRaw(query, parameters);
+            }
+            finally {
+                //restore timeout setting - if needed
+                if (timeout.HasValue)
+                {
+                    _context.Database.SetCommandTimeout(existingTimeout);
+                }
+            }
         }
         public async Task<int> AddAsync(TEntity entity)
         {
-            await _context.Set<TEntity>().AddAsync(entity);
+            var entry = _context.Entry(entity);
+            if (entry?.State == EntityState.Detached)
+            {
+                // Only add if not already tracked
+                await _context.Set<TEntity>().AddAsync(entity);
+            }
             if (_context.Database.CurrentTransaction != null) return 0;
             return await _context.SaveChangesAsync();
         }

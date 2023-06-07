@@ -7,11 +7,10 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Serialization;
 using System.Threading.Tasks;
 
-using System.Text.Json;
 using CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile;
+using Opc.Ua.Export;
 
 namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
 {
@@ -27,15 +26,16 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
 
         LookupDataTypeModel GetDataType(string opcNamespace, string opcNodeId);
         Task<int?> CreateCustomDataTypeAsync(LookupDataTypeModel customDataTypeLookup);
-        Task<LookupDataTypeModel> GetCustomDataTypeAsync(ProfileTypeDefinitionModel customDataTypeProfile);
+        Task<LookupDataTypeModel> GetCustomDataTypeAsync(ProfileTypeDefinitionModel customDataTypeProfile, bool cacheOnly = false);
         object GetNodeSetCustomState(string uaNamespace);
         EngineeringUnitModel GetOrCreateEngineeringUnitAsync(EngineeringUnitModel engUnitLookup);
         ILogger Logger { get; }
 
         ProfileTypeDefinitionSimpleModel MapToModelProfileSimple(ProfileTypeDefinitionModel profileTypeDef);
-        ProfileModel GetProfileForNamespace(string uaNamespace);
+        ProfileModel GetProfileForNamespace(string uaNamespace, DateTime? publicationDate, string version);
         ProfileTypeDefinitionModel CheckExisting(ProfileTypeDefinitionModel profileItem);
         void SetUser(UserToken userToken, UserToken authorToken);
+        bool RegisterCustomTypePlaceholder(LookupDataTypeModel attributeDataType);
     }
 
     public class NodeModelFromProfileFactory : NodeModelFromProfileFactory<NodeModel>
@@ -83,11 +83,11 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
             return nodeModel;
         }
 
-        private static TNodeModel Create<TNodeModelFactory, TNodeModel>(ProfileTypeDefinitionModel profileItem, IOpcUaContext opcContext, IDALContext dalContext) 
+        private static TNodeModel Create<TNodeModelFactory, TNodeModel>(ProfileTypeDefinitionModel profileItem, IOpcUaContext opcContext, IDALContext dalContext)
             where TNodeModel : NodeModel, new()
             where TNodeModelFactory : NodeModelFromProfileFactory<TNodeModel>, new()
         {
-            var nodeModel = NodeModelFactoryOpc<TNodeModel>.Create<TNodeModel>(opcContext, GetProfileItemNodeId(profileItem), profileItem.Profile.Namespace, profileItem.Profile, out var created);
+            var nodeModel = NodeModelFactoryOpc<TNodeModel>.Create<TNodeModel>(opcContext, GetProfileItemNodeId(profileItem), GetModelForProfile(profileItem.Profile), profileItem.Profile, out var created);
             var nodeModelFactory = new TNodeModelFactory { _model = nodeModel, Logger = opcContext.Logger };
             if (created)
             {
@@ -111,13 +111,30 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
             return nodeModel;
         }
 
+        protected static ModelTableEntry GetModelForProfile(ProfileModel profile)
+        {
+            return new ModelTableEntry
+            {
+                ModelUri = profile.Namespace,
+                Version = profile.Version,
+                XmlSchemaUri = profile.XmlSchemaUri,
+                PublicationDate = profile.PublishDate ?? default,
+                PublicationDateSpecified = profile.PublishDate != null,
+            };
+        }
+
         protected static string GetProfileItemNodeId(ProfileTypeDefinitionModel profileItem)
         {
             return GetProfileItemNodeIdInternal(profileItem.OpcNodeId, profileItem.Profile.Namespace);
         }
         protected static string GetProfileItemNodeId(ProfileTypeDefinitionSimpleModel profileItem)
         {
-            return GetProfileItemNodeIdInternal(profileItem.OpcNodeId, profileItem.Profile.Namespace);
+            var nodeId = profileItem.OpcNodeId;
+            if (string.IsNullOrEmpty(nodeId))
+            {
+                nodeId = $"g={Guid.NewGuid()}";
+            }
+            return GetProfileItemNodeIdInternal(nodeId, profileItem.Profile.Namespace);
         }
         protected static string GetProfileItemNodeId(string defaultNamespace, ProfileAttributeModel profileAttribute, IDALContext dalContext, out string opcNamespace)
         {
@@ -163,10 +180,10 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
                     }
                     else if (composition.RelatedIsEvent == true)
                     {
-                        var eventProfileType = composition.RelatedProfileTypeDefinition;
-                        if (composition.RelatedProfileTypeDefinition == null)
+                        var eventProfileType = composition.IntermediateObject ?? composition.RelatedProfileTypeDefinition;
+                        if (eventProfileType == null)
                         {
-                            eventProfileType = dalContext.GetProfileItemById(composition.RelatedProfileTypeDefinitionId);
+                            eventProfileType = dalContext.GetProfileItemById(composition.IntermediateObjectId ?? composition.RelatedProfileTypeDefinitionId);
                         }
 
                         var uaEventType = ObjectTypeModelFromProfileFactory.Create(eventProfileType, opcContext, dalContext) as ObjectTypeModel;
@@ -193,17 +210,25 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
                                 _model.Objects.Add(uaObjectModel);
                             }
                         }
+                        else
+                        {
+                            // BaseDataType
+                            // BaseObjectType
+                            // BaseVariableType
+                            opcContext.Logger.LogWarning($"Unexpected node {nodeModel} in composition {composition.Name} of profile type {profileItem}. Ignored.");
+                        }
                         if (!string.IsNullOrEmpty(composition.RelatedReferenceId))
                         {
+                            var referenceType = new ReferenceTypeModel { NodeId = composition.RelatedReferenceId, }; //opcContext.GetModelForNode<ReferenceTypeModel>(composition.RelatedReferenceId);
                             if (composition.RelatedReferenceIsInverse != true)
                             {
-                                _model.OtherReferencedNodes.Add(new NodeModel.NodeAndReference { Node = nodeModel, Reference = composition.RelatedReferenceId });
-                                nodeModel.OtherReferencingNodes.Add(new NodeModel.NodeAndReference { Node = _model, Reference = composition.RelatedReferenceId });
+                                AddIfNotExists(_model.OtherReferencedNodes, new NodeModel.NodeAndReference { Node = nodeModel, /*Reference = composition.RelatedReferenceId, */ReferenceType = referenceType });
+                                AddIfNotExists(nodeModel.OtherReferencingNodes, new NodeModel.NodeAndReference { Node = _model, /*Reference = composition.RelatedReferenceId, */ReferenceType = referenceType });
                             }
                             else
                             {
-                                _model.OtherReferencingNodes.Add(new NodeModel.NodeAndReference { Node = nodeModel, Reference = composition.RelatedReferenceId });
-                                nodeModel.OtherReferencedNodes.Add(new NodeModel.NodeAndReference { Node = _model, Reference = composition.RelatedReferenceId });
+                                AddIfNotExists(_model.OtherReferencingNodes, new NodeModel.NodeAndReference { Node = nodeModel, /*Reference = composition.RelatedReferenceId, */ReferenceType = referenceType });
+                                AddIfNotExists(nodeModel.OtherReferencedNodes, new NodeModel.NodeAndReference { Node = _model, /*Reference = composition.RelatedReferenceId , */ReferenceType = referenceType });
                             }
                         }
                     }
@@ -220,6 +245,14 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
                 }
             }
             Logger.LogTrace($"Created node model {_model} from profile type definition {profileItem}");
+        }
+
+        private static void AddIfNotExists(List<NodeModel.NodeAndReference> otherReferencedNodes, NodeModel.NodeAndReference nodeAndReference)
+        {
+            if (!otherReferencedNodes.Contains(nodeAndReference))
+            {
+                otherReferencedNodes.Add(nodeAndReference);
+            }
         }
 
         void InitializeAttributes(List<ProfileAttributeModel> attributes, ProfileModel profile, ProfileTypeDefinitionModel profileItem, IOpcUaContext opcContext, IDALContext dalContext)
@@ -358,18 +391,18 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
     {
         internal static NodeModel Create(ProfileTypeDefinitionRelatedModel objectTypeRelated, ProfileTypeDefinitionModel composingProfile, IOpcUaContext opcContext, IDALContext dalContext)
         {
-            var objectProfile = objectTypeRelated.RelatedProfileTypeDefinition;
+            var objectProfile = objectTypeRelated.IntermediateObject ?? objectTypeRelated.RelatedProfileTypeDefinition;
             if (objectProfile == null)
             {
-                objectProfile = dalContext.GetProfileItemById(objectTypeRelated.RelatedProfileTypeDefinitionId);
+                objectProfile = dalContext.GetProfileItemById(objectTypeRelated.IntermediateObjectId ?? objectTypeRelated.RelatedProfileTypeDefinitionId);
             }
             var objectOrTypeModel = Create(objectProfile, opcContext, dalContext);
-            var modelingRule = GetModelingRuleFromProfile(objectTypeRelated.RelatedIsRequired, objectTypeRelated.RelatedModelingRule);
+            var modelingRule = GetModelingRuleFromProfile(objectTypeRelated.IsRequired, objectTypeRelated.ModelingRule);
             if (string.IsNullOrEmpty(objectTypeRelated.OpcNodeId))
             {
                 if (objectOrTypeModel is InstanceModelBase instanceModel)
                 {
-                    instanceModel.ModelingRule = modelingRule;
+                    instanceModel.ModellingRule = modelingRule;
                     return instanceModel;
                 }
                 return objectOrTypeModel;
@@ -379,14 +412,14 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
                 // In the profile designer we allow composition directly with a class: create the intermediate OPC Object required
                 try
                 {
-                    var objectModel = NodeModelFactoryOpc<NodeModel>.Create<ObjectModel>(opcContext, GetProfileItemNodeId(objectTypeRelated), objectTypeRelated.Profile.Namespace ?? composingProfile.Profile.Namespace, objectTypeRelated.Profile, out var created);
+                    var objectModel = NodeModelFactoryOpc<NodeModel>.Create<ObjectModel>(opcContext, GetProfileItemNodeId(objectTypeRelated), GetModelForProfile(objectTypeRelated.Profile ?? composingProfile.Profile), objectTypeRelated.Profile, out var created);
                     if (created)
                     {
                         objectModel.DisplayName = NodeModel.LocalizedText.ListFromText(objectTypeRelated.Name);
                         objectModel.SymbolicName = objectTypeRelated.SymbolicName;
                         objectModel.BrowseName = objectTypeRelated.BrowseName;
                         objectModel.TypeDefinition = objectTypeModel;
-                        objectModel.ModelingRule = modelingRule;
+                        objectModel.ModellingRule = modelingRule;
                     }
                     return objectModel;
                 }
@@ -448,7 +481,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
     {
         internal static T Create<T>(ProfileModel profile, ProfileAttributeModel attribute, IOpcUaContext opcContext, IDALContext dalContext) where T : VariableModel, new()
         {
-            var variableModel = NodeModelFactoryOpc.Create<T>(opcContext, GetProfileItemNodeId(profile?.Namespace, attribute, dalContext, out var opcNamespace), opcNamespace, profile, out var created);
+            var variableModel = NodeModelFactoryOpc.Create<T>(opcContext, GetProfileItemNodeId(profile?.Namespace, attribute, dalContext, out var opcNamespace), GetModelForProfile(profile), profile, out var created);
             if (created)
             {
                 var dataTypeModel = DataTypeModelFromProfileFactory.GetDataTypeModel(attribute, opcContext, dalContext);
@@ -472,7 +505,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
                 {
 
                 }
-                variableModel.ModelingRule = GetModelingRuleFromProfile(attribute.IsRequired, attribute.ModelingRule);
+                variableModel.ModellingRule = GetModelingRuleFromProfile(attribute.IsRequired, attribute.ModelingRule);
                 if (attribute.ValueRank != null)
                 {
                     variableModel.ValueRank = attribute.ValueRank;
@@ -508,16 +541,21 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
                     };
                 }
                 variableModel.EngUnitNodeId = attribute.EngUnitOpcNodeId;
-                variableModel.EngUnitModelingRule = attribute.EngUnitModelingRule;
+                variableModel.EngUnitModellingRule = attribute.EngUnitModelingRule;
                 variableModel.EngUnitAccessLevel = attribute.EngUnitAccessLevel;
-                variableModel.EURangeNodeId = attribute.EURangeOpcNodeId;
-                variableModel.EURangeModelingRule = attribute.EURangeModelingRule;
-                variableModel.EURangeAccessLevel = attribute.EURangeAccessLevel;
 
                 variableModel.MinValue = (double?)attribute.MinValue;
                 variableModel.MaxValue = (double?)attribute.MaxValue;
+                variableModel.EURangeNodeId = attribute.EURangeOpcNodeId;
+                variableModel.EURangeModellingRule = attribute.EURangeModelingRule;
+                variableModel.EURangeAccessLevel = attribute.EURangeAccessLevel;
+
                 variableModel.InstrumentMinValue = (double?)attribute.InstrumentMinValue;
                 variableModel.InstrumentMaxValue = (double?)attribute.InstrumentMaxValue;
+                variableModel.InstrumentRangeNodeId = attribute.InstrumentRangeOpcNodeId;
+                variableModel.InstrumentRangeModellingRule = attribute.InstrumentRangeModelingRule;
+                variableModel.InstrumentRangeAccessLevel = attribute.InstrumentRangeAccessLevel;
+
                 variableModel.Value = attribute.AdditionalData;
                 variableModel.MinimumSamplingInterval = attribute.MinimumSamplingInterval;
 
@@ -537,10 +575,11 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
             {
                 if (map?.DataVariableNodeIdsByBrowseName.TryGetValue(typeDataVariable.BrowseName, out var mapEntry) == true)
                 {
-                    VariableModel dataVariable = 
+                    var variableProfile = GetModelForProfile(variableModel.NodeSet.CustomState as ProfileModel ?? profile);
+                    VariableModel dataVariable =
                         mapEntry.IsProperty ?
-                            NodeModelFactoryOpc.Create<PropertyModel>(opcContext, mapEntry.NodeId, variableModel.Namespace, profile, out var dvCreated)
-                            :NodeModelFactoryOpc.Create<DataVariableModel>(opcContext, mapEntry.NodeId, variableModel.Namespace, profile, out dvCreated);
+                            NodeModelFactoryOpc.Create<PropertyModel>(opcContext, mapEntry.NodeId, variableProfile, profile, out var dvCreated)
+                            : NodeModelFactoryOpc.Create<DataVariableModel>(opcContext, mapEntry.NodeId, variableProfile, profile, out dvCreated);
                     if (dvCreated)
                     {
                         dataVariable.DataType = typeDataVariable.DataType;
@@ -558,7 +597,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
                         dataVariable.Value = mapEntry.Value;
                         dataVariable.ValueRank = mapEntry.ValueRank;
                         dataVariable.Parent = variableModel;
-                        dataVariable.ModelingRule = mapEntry.ModelingRule;
+                        dataVariable.ModellingRule = mapEntry.ModelingRule;
                         dataVariable.AccessLevel = typeDataVariable.AccessLevel;
                         // deprecated dataVariable.UserAccessLevel = typeDataVariable.UserAccessLevel;
                         dataVariable.AccessRestrictions = typeDataVariable.AccessRestrictions;
@@ -621,17 +660,24 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
                     throw new Exception($"Unable to resolve data type {profileItem.VariableDataType.Name}");
                 }
                 _model.DataType = dataTypeModel;
+            }
+            _model.ValueRank = profileItem.VariableValueRank;
 
-                _model.ValueRank = profileItem.VariableValueRank;
-
-                if (!string.IsNullOrEmpty(profileItem.VariableArrayDimensions))
-                {
-                    _model.ArrayDimensions = profileItem.VariableArrayDimensions;
-                }
-                else
-                {
-                    _model.ArrayDimensions = null;
-                }
+            if (!string.IsNullOrEmpty(profileItem.VariableArrayDimensions))
+            {
+                _model.ArrayDimensions = profileItem.VariableArrayDimensions;
+            }
+            else
+            {
+                _model.ArrayDimensions = null;
+            }
+            if (!string.IsNullOrEmpty(profileItem.VariableValue))
+            {
+                _model.Value = profileItem.VariableValue;
+            }
+            else
+            {
+                _model.Value = null;
             }
         }
     }

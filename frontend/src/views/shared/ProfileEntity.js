@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import Form from 'react-bootstrap/Form'
 import { useMsal } from "@azure/msal-react";
 
@@ -6,17 +6,34 @@ import { generateLogMessageString, validate_namespaceFormat, validate_Required }
 import '../styles/ProfileEntity.scss';
 import { isOwner } from './ProfileRenderHelpers';
 
-import { AppSettings } from '../../utils/appsettings'
+import { Prompt } from 'react-router'
 
-const CLASS_NAME = "ProfileEntity";
+import spdxExpressionValidate from 'spdx-expression-validate';
+import { useLoadingContext } from "../../components/contexts/LoadingContext";
 
-function ProfileEntity(props) {
+const CLASS_NAME = "ProfileEntityForm";
+
+function ProfileEntityForm(props) {
 
     //-------------------------------------------------------------------
     // Region: Initialization
     //-------------------------------------------------------------------
     const { instance } = useMsal();
     const _activeAccount = instance.getActiveAccount();
+    const { loadingProps, setLoadingProps } = useLoadingContext();
+
+    const _licenseOptions = [
+        { val: "None", caption: "None" },
+        { val: "MIT", caption: "MIT" },
+        { val: "BSD-3-Clause", caption: "BSD-3-Clause" },
+        { val: "Custom", caption: "Custom" }
+    ];
+
+    // Execute only one time after the component mounts.
+    useEffect(() => {
+        // Init flags to detect unsaved changes and warn a user when they try to leave the page
+        setLoadingProps({ bIsProfileEditUnsaved: false });
+    }, []);
 
     //-------------------------------------------------------------------
     // Region: Validation
@@ -25,6 +42,13 @@ function ProfileEntity(props) {
         var isValid = {
             namespace: validate_Required(e.target.value),
             namespaceFormat: validate_namespaceFormat(e.target.value)
+        };
+        if (props.onValidate) props.onValidate(isValid);
+    };
+
+    const validateForm_license = (e) => {
+        var isValid = {
+            licenseExpression: e.target.value == null || e.target.value ==="" ? true : spdxExpressionValidate(e.target.value)
         };
         if (props.onValidate) props.onValidate(isValid);
     };
@@ -40,6 +64,7 @@ function ProfileEntity(props) {
 
         //pass a copy of the updated object to parent to update state
         if (props.onChange) props.onChange(JSON.parse(JSON.stringify(props.item)));
+        setLoadingProps({ bIsProfileEditUnsaved: true });
     }
 
     const onChangeAuthor = (e) => {
@@ -72,16 +97,18 @@ function ProfileEntity(props) {
     //  a. W/ Timezone info (typically from server): 2021-09-24T00:00:00
     //  b. No timezone info (after editing in control): 2021-09-24
     const prepDateVal = (val) => {
-        if (val == null) return '';
+        if (val == null || val === '') return '';
         //check and append timezone so we get consistent conversion
-        if (val.indexOf('T00:00:00') === -1) val += `T00:00:00`;
+        //if (val.indexOf('T00:00:00') === -1) val += `T00:00:00`;
+        //DB changed to support date and time timestamp so T:00:00:00 no longer reliable, just check for T
+        if (val.indexOf('T') === -1) val += `T00:00:00`;
 
         var dt = new Date(val);
-        var mm = dt.getMonth() + 1;
+        var mm = dt.getUTCMonth() + 1;
         mm = mm < 10 ? `0${mm.toString()}` : mm.toString();
-        var dd = dt.getDate();
+        var dd = dt.getUTCDate();
         dd = dd < 10 ? `0${dd.toString()}` : dd.toString();
-        var result = `${dt.getFullYear()}-${mm}-${dd}`;
+        var result = `${dt.getUTCFullYear()}-${mm}-${dd}`;
         console.log(generateLogMessageString(`prepDateVal||inbound:${val}||outbound:${result}`, CLASS_NAME));
         return result;
     }
@@ -90,7 +117,8 @@ function ProfileEntity(props) {
         //console.log(generateLogMessageString(`onChangeKeywords||e:${e.target}`, CLASS_NAME));
         //note you must update the state value for the input to be read only. It is not enough to simply have the onChange handler.
 
-        props.item.keywords = e.target.value.split(",").map(x => x.trim(' '));
+        // props.item.keywords = e.target.value.split(","); //.map(x => x.trim(' '));
+        props.item.keywords = e.target.value.split(",").map(x => x.trimStart(' '));
 
         //pass a copy of the updated object to parent to update state
         if (props.onChange) props.onChange(JSON.parse(JSON.stringify(props.item)));
@@ -98,29 +126,47 @@ function ProfileEntity(props) {
     const onChangeLicense = (e) => {
         //console.log(generateLogMessageString(`onChangeLicense||e:${e.target}`, CLASS_NAME));
         //note you must update the state value for the input to be read only. It is not enough to simply have the onChange handler.
-        const license = parseInt(e.target.value);
-        props.item.license = isNaN(license) ? null : license;
+        props.item.license = e.target.value;
 
         //pass a copy of the updated object to parent to update state
         if (props.onChange) props.onChange(JSON.parse(JSON.stringify(props.item)));
     }
+
+    const renderLicense = () => {
+        const options = _licenseOptions.map((item) => {
+            return (<option key={item.val} value={item.val} >{item.caption}</option>)
+        });
+
+        var selValue = props.item.license
+
+        return (
+            <>
+                <Form.Label>License</Form.Label>
+                <Form.Control id="license" as="select" className="input-rounded minimal pr-5" value={selValue == null ? "None" : selValue}
+                    onChange={onChangeLicense} >
+                    {options}
+                </Form.Control>
+            </>
+        )
+    }
+
 
     //-------------------------------------------------------------------
     // Region: Render Helpers
     //-------------------------------------------------------------------
     const renderForm = () => {
         var isReadOnly = mode === "view";
-        const licenseOptions = () => Object.keys(AppSettings.ProfileLicenseEnum).map((key) => {
-            return (<option key={key} value={key} >{AppSettings.ProfileLicenseEnum[key]}</option>)
-        });
-
         return (
             <>
+                <Prompt
+                    when={loadingProps.bIsProfileEditUnsaved}
+                    message="Unsaved changes will be lost. Ok to exit the page? To save, click Cancel then click Save."
+                />
                 <div className="row">
                     <div className="col-md-12">
                         <Form.Group>
                             <Form.Label>Title</Form.Label>
-                            <Form.Control id="title" type="" placeholder="" value={props.item.title} onChange={onChange} readOnly={isReadOnly} />
+                            <Form.Control id="title" type="" placeholder="" value={props.item.title ? props.item.title : ''} onChange={onChange} readOnly={isReadOnly} />
                         </Form.Group>
                     </div>
                     <div className="col-12">
@@ -137,7 +183,7 @@ function ProfileEntity(props) {
                                 </span>
                             }
                             <Form.Control className={(!props.isValid.namespace || !props.isValid.namespaceFormat ? 'invalid-field' : '')} id="namespace" type=""
-                                value={props.item.namespace} onBlur={validateForm_namespace} onChange={onChange} readOnly={isReadOnly} />
+                                value={props.item.namespace ? props.item.namespace : ''} onBlur={validateForm_namespace} onChange={onChange} readOnly={isReadOnly} />
                         </Form.Group>
                     </div>
                     <div className="col-sm-6">
@@ -149,7 +195,7 @@ function ProfileEntity(props) {
                     <div className="col-sm-6">
                         <Form.Group className="mb-1">
                             <Form.Label>Publication Date</Form.Label>
-                            <Form.Control id="publishDate" mindate="2010-01-01" type="date" value={prepDateVal(props.item.publishDate)} onChange={onChangePublishDate} readOnly={mode === "view"} />
+                            <Form.Control id="publishDate" mindate="2010-01-01" type={mode === "view" ? "" : "date"} value={prepDateVal(props.item.publishDate)} onChange={onChangePublishDate} readOnly={mode === "view"} />
                         </Form.Group>
                     </div>
                 </div>
@@ -157,13 +203,13 @@ function ProfileEntity(props) {
                     <div className="col-md-12">
                         <Form.Group>
                             <Form.Label>Description</Form.Label>
-                            <Form.Control as="textarea" id="description" type="" placeholder="" value={props.item.description} onChange={onChange} readOnly={isReadOnly}>{props.item.description}</Form.Control>
+                            <Form.Control as="textarea" id="description" type="" placeholder="" value={props.item.description ? props.item.description : ''} onChange={onChange} readOnly={isReadOnly}>{props.item.description}</Form.Control>
                         </Form.Group>
                     </div>
                     <div className="col-md-12">
                         <Form.Group>
                             <Form.Label>Contributor</Form.Label>
-                            <Form.Control id="contributorName" type="" placeholder="" value={props.item.contributorName} onChange={onChange} readOnly={isReadOnly} />
+                            <Form.Control id="contributorName" type="" placeholder="" value={props.item.contributorName ? props.item.contributorName : ''} onChange={onChange} readOnly={isReadOnly} />
                         </Form.Group>
                     </div>
                     <div className="col-md-12">
@@ -180,11 +226,16 @@ function ProfileEntity(props) {
                     </div>
                     <div className="col-md-12">
                         <Form.Group>
-                            <Form.Label>License</Form.Label>
-                            <Form.Control id="license" type="" as="select" placeholder="" value={props.item.license == null ? '' : props.item.license} onChange={onChangeLicense} readOnly={isReadOnly}>
-                                <option value="">not specified</option>
-                                {licenseOptions()}
-                            </Form.Control>
+                        {/*    <Form.Label>License</Form.Label>*/}
+                        {/*    {!props.isValid.licenseExpression &&*/}
+                        {/*        <span className="invalid-field-message inline">*/}
+                        {/*            Invalid license expression. (Refer to the <a href="https://spdx.org/licenses/" target="_blank" rel="noreferrer">SPDX License list</a> for valid identifiers.)*/}
+                        {/*        </span>*/}
+                        {/*    }*/}
+                        {/*    <Form.Control id="license" type="" placeholder="" value={props.item.license == null ? '' : props.item.license} onChange={onChangeLicense}*/}
+                            {/*        onBlur={validateForm_license} readOnly={isReadOnly} />*/}
+
+                            {renderLicense()}
                         </Form.Group>
                     </div>
                     <div className="col-md-12">
@@ -277,4 +328,4 @@ function ProfileEntity(props) {
     )
 }
 
-export default ProfileEntity;
+export default ProfileEntityForm;

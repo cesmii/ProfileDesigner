@@ -5,8 +5,9 @@ import InputGroup from 'react-bootstrap/InputGroup'
 import Button from 'react-bootstrap/Button'
 import axiosInstance from "../../services/AxiosService";
 
+import { AppSettings } from '../../utils/appsettings'
 import { generateLogMessageString } from '../../utils/UtilityService'
-import { filterProfiles, getTypeDefEntityLink } from '../../services/ProfileService';
+import { filterProfiles, getProfileCaption, getTypeDefEntityLink } from '../../services/ProfileService';
 import { renderTypeIcon, renderLinkedName } from './ProfileRenderHelpers';
 
 import { SVGIcon } from '../../components/SVGIcon'
@@ -35,6 +36,7 @@ function ProfileExplorer(props) {
     });
     const [_toggleStates, setToggleStates] = useState({ inheritanceTree: true, compositions: false, dependencies: false, interfaces: false });
     const [_filterVal, setFilterVal] = useState('');
+    const [_loading, setIsLoading] = useState(null);
 
     //-------------------------------------------------------------------
     // Region: Event Handling of child component events
@@ -95,7 +97,7 @@ function ProfileExplorer(props) {
 
         if (items == null) return null;
 
-        var filteredCopy = JSON.parse(JSON.stringify(items));
+        const filteredCopy = JSON.parse(JSON.stringify(items));
 
         if (val == null || val === '') {
             return filteredCopy;
@@ -103,7 +105,7 @@ function ProfileExplorer(props) {
 
         // Filter data - match up against a number of fields
         return filteredCopy.filter((item, i) => {
-            var concatenatedSearch = delimiter + item.name.toLowerCase() + delimiter
+            const concatenatedSearch = delimiter + item.name.toLowerCase() + delimiter
                 + item.composition.name.toLowerCase() + delimiter
             return (concatenatedSearch.indexOf(val.toLowerCase()) !== -1);
         });
@@ -117,13 +119,15 @@ function ProfileExplorer(props) {
         async function fetchData() {
             //TBD - revisit and improve error handling flow...
             //hardcode for now
-            var url = `profiletypedefinition/explorer`;
+            const url = `profiletypedefinition/explorer`;
             console.log(generateLogMessageString(`useEffect||fetchData||${url}`, CLASS_NAME));
 
             var result = null;
             try {
-                var data = { id: props.currentProfileId };
+                setIsLoading(true);
+                const data = { id: props.currentProfileId };
                 result = await axiosInstance.post(url, data);
+                setIsLoading(false);
             }
             catch (err) {
                 var msg = 'An error occurred retrieving the profile explorer.';
@@ -133,6 +137,7 @@ function ProfileExplorer(props) {
                     msg += ' Profile Explorer: This profile was not found.';
                 }
                 console.log(generateLogMessageString(`useEffect||fetchData||error||${msg}`, CLASS_NAME, 'error'));
+                setIsLoading(null);
             }
 
             if (result == null) return;
@@ -144,7 +149,7 @@ function ProfileExplorer(props) {
 
             //set state on fetch of data
             setItems({
-                item: result.data.profile,
+                item: result.data.typeDefinition,
                 all: { inheritanceTree: tree, compositions: compositions, dependencies: dependencies, interfaces: interfaces },
                 filtered: { inheritanceTree: tree, compositions: compositions, dependencies: dependencies, interfaces: interfaces }
             });
@@ -162,26 +167,26 @@ function ProfileExplorer(props) {
     //-------------------------------------------------------------------
     //render an icon per section
     const renderSectionHeaderIcon = (sectionId) => {
-        var iconName = "profile";
+        let iconName = "profile";
         switch (sectionId.toLowerCase()) {
             case "inheritancetree":
                 iconName = 'account-tree';
                 break;
             case "compositions":
-                iconName = 'profile';
+                iconName = AppSettings.IconMapper.TypeDefinition;
                 break;
             case "dependencies":
-                iconName = 'folder-profile';
+                iconName = AppSettings.IconMapper.TypeDefinition;
                 break;
             case "interfaces":
-                iconName = 'key';
+                iconName = AppSettings.IconMapper.Interface;
                 break;
             default:
-                iconName = 'profile';
+                iconName = AppSettings.IconMapper.TypeDefinition;
                 break;
         }
 
-        var svg = (<SVGIcon name={iconName} size="18" fill={color.shark} alt={iconName} />);
+        const svg = (<SVGIcon name={iconName} size="18" fill={color.readOnly} alt={iconName} />);
 
         return (<span>{svg}</span>)
 
@@ -204,19 +209,21 @@ function ProfileExplorer(props) {
 
     //render a profile item - supports a nested view
     const renderProfileItem = (p, level) => {
-        var key = `li_${level.toString()}_${p.id.toString()}`;
-        var cssClass = `small-size${props.currentProfileId == null || props.currentProfileId !== p.id ? '' : ' current'}`;
-        // dynamically increase padding for each level
-        var padding = (level * 8).toString() + 'px';
+        const key = `li_${level.toString()}_${p.id.toString()}`;
+        const cssClass = `small-size${props.currentProfileId == null || props.currentProfileId !== p.id ? '' : ' current'}`;
+        // dynamically increase padding for each level, override and make constant for interfaces
+        const padding = p.type?.name?.toLowerCase() === "interface" ? "32px" : 
+            (level * 8).toString() + 'px';
 
         //::::::::::::::::::::::
         // Increment the child count
         childCount++;
 
         return (
-            <li id={key} key={key} className={cssClass} >
-                <div style={{ paddingLeft: padding }} className="hierarchy-link d-flex pr-3">
-                    {renderTypeIcon(p, props.activeAccount, 18)}
+            <li id={key} key={key} className={cssClass} title={getProfileCaption(p.profile)} >
+                <div style={{ paddingLeft: padding }}
+                    className={`hierarchy-link d-flex pr-3`} >
+                    {renderTypeIcon(p, props.activeAccount, 18, 'mr-2')}
                     <span className="hierarchy-item text-break">{renderLinkedName(p)}</span>
                     {/* Affordance for "go-to / view" */}
                     <SVGIcon name="chevron-right" fill={color.silver} className="view-affordance-icon float-right" />
@@ -229,8 +236,8 @@ function ProfileExplorer(props) {
 
     // render a profile item - supports a nested view
     const renderCompositionItem = (c) => {
-        var key = `li_attr_${c.id.toString()}`;
-        var cssClass = `small-size`;
+        const key = `li_attr_${c.id.toString()}`;
+        const cssClass = `small-size`;
 
         //::::::::::::::::::::::
         // Increment the child count
@@ -239,7 +246,7 @@ function ProfileExplorer(props) {
         return (
             <li id={key} key={key} className={cssClass} >
                 <div className="composition-link d-flex pr-3">
-                    {renderTypeIcon(c, props.activeAccount, 18, color.nevada)}
+                    {renderTypeIcon(c, props.activeAccount, 18, 'mr-2')}
                     <span className="composition-item text-break">{renderLinkedCompositionName(c)}</span>
                     {/* Affordance for "go-to / view" */}
                     <SVGIcon name="chevron-right" fill={color.silver} className="view-affordance-icon float-right" />
@@ -251,7 +258,7 @@ function ProfileExplorer(props) {
     //
     const renderLinkedCompositionName = (item) => {
         if (item == null) return;
-        var href = getTypeDefEntityLink(item);
+        const href = getTypeDefEntityLink(item);
         return (
             <a href={href} >{`${item.name} (${item.relatedName})`}</a>
         );
@@ -287,9 +294,9 @@ function ProfileExplorer(props) {
     }
 
     const renderSectionHeader = (items, caption, toggleState, sectionId) => {
-        var toggleCss = toggleState ? "expanded d-flex align-items-center action-menu ml-3" : "d-flex align-items-center action-menu ml-3";
-        var toggleIcon = toggleState ? "arrow-drop-up" : "arrow-drop-down";
-        var myCount = childCount;
+        const toggleCss = toggleState ? "expanded d-flex align-items-center action-menu ml-3" : "d-flex align-items-center action-menu ml-3";
+        const toggleIcon = toggleState ? "arrow-drop-up" : "arrow-drop-down";
+        const myCount = childCount;
         childCount = 0;
         return (
             <>
@@ -303,7 +310,7 @@ function ProfileExplorer(props) {
                         <span key="toggle" className="ml-auto">
                             <Button variant="accordion" className="btn" title={toggleState ? "Collapse" : "Expand"} >
                                 <span>
-                                    <SVGIcon name={toggleIcon} fill={color.shark} alt={caption} className="toggle-icon" />
+                                    <SVGIcon name={toggleIcon} fill={color.readOnly} alt={caption} className="toggle-icon" />
                                 </span>
                             </Button>
                         </span> :
@@ -320,7 +327,7 @@ function ProfileExplorer(props) {
 
     //render the main area - this is called for each section (inheritance tree, dependencies, compositions, interfaces)
     const renderSection = (items, caption, toggleState, sectionId) => {
-        var toggleCss = toggleState ? "expanded" : "collapsed";
+        const toggleCss = toggleState ? "expanded" : "collapsed";
 
         //has children scenario
         const mainBody = items.map((p) => {
@@ -340,11 +347,10 @@ function ProfileExplorer(props) {
 
     //render the main area
     const renderExplorer = () => {
-        if (_items == null) {
+        if (_items == null) return null; 
+        else if (_loading === true) {
             return (
-                <div className="alert alert-info-custom mt-2 mb-2">
-                    {/* <div className="text-center small" >There are no matching items.</div> */}
-                </div>
+                <div className="mt-2 mb-2 text-center">loading profile explorer...</div>
             )
         }
         return (

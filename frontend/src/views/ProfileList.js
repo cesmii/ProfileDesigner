@@ -4,14 +4,12 @@ import axiosInstance from "../services/AxiosService";
 
 import { Button } from 'react-bootstrap'
 
+import { useMsal } from "@azure/msal-react";
+
 import { AppSettings } from '../utils/appsettings'
-import { generateLogMessageString, renderTitleBlock, scrollTop } from '../utils/UtilityService'
+import { generateLogMessageString, renderTitleBlock, scrollTop, isInRole, renderMenuIcon } from '../utils/UtilityService'
 import { useLoadingContext } from "../components/contexts/LoadingContext";
 import ConfirmationModal from '../components/ConfirmationModal';
-import ProfileEntityModal from './modals/ProfileEntityModal';
-//import CloudLibraryImporterModal from './modals/CloudLibraryImporterModal';
-//import CloudLibraryImporter from './shared/CloudLibraryImporter';
-//import CloudLibList from './CloudLibList';
 import CloudLibSlideOut from './shared/CloudLibSlideOut.js'
 import ProfileListGrid from './shared/ProfileListGrid';
 import ProfileImporter from './shared/ProfileImporter';
@@ -30,51 +28,43 @@ function ProfileList() {
     // Region: Initialization
     //-------------------------------------------------------------------
     const caption = 'Profile Library';
-    const iconName = 'folder-shared';
+    const iconName = AppSettings.IconMapper.Profile;
     const iconColor = color.shark;
     const { loadingProps, setLoadingProps } = useLoadingContext();
     const [_deleteModal, setDeleteModal] = useState({ show: false, items: null });
     //importer
     const [_error, setError] = useState({ show: false, message: null, caption: null });
-    //used in popup profile add/edit ui. Default to new version
-    const [_profileEntityModal, setProfileEntityModal] = useState({ show: false, item: null});
-    //const [_cloudLibImporterModal, setCloudLibImporterModal] = useState({ show: false });
-    const [_initSearchCriteria, setInitSearchCriteria] = useState(true);
     const [_searchCriteria, setSearchCriteria] = useState(null);
     const [_searchCriteriaChanged, setSearchCriteriaChanged] = useState(0);
     const [_cloudLibSlideOut, setCloudLibSlideOut] = useState({ isOpen: false });
 
+    const { instance } = useMsal();
+    const _activeAccount = instance.getActiveAccount();
+
     //-------------------------------------------------------------------
     // Region: Pass profile id into component if profileId passed in from url
     //-------------------------------------------------------------------
+    //-------------------------------------------------------------------
+    // Region: search criteria check and populate
+    //-------------------------------------------------------------------
     useEffect(() => {
-
-        if (!_initSearchCriteria) return;
-
         //check for searchcriteria - trigger fetch of search criteria data - if not already triggered
         if ((loadingProps.profileSearchCriteria == null || loadingProps.profileSearchCriteria.filters == null) && !loadingProps.refreshProfileSearchCriteria) {
             setLoadingProps({ refreshProfileSearchCriteria: true });
+            return;
         }
-        //start with a blank criteria slate. Handle possible null scenario if criteria hasn't loaded yet. 
-        const criteria = loadingProps.profileSearchCriteria == null ? null : JSON.parse(JSON.stringify(loadingProps.profileSearchCriteria));
-
-        if (criteria == null) {
-            return; //criteria = clearSearchCriteria(criteria);
+        else if (loadingProps.profileSearchCriteria == null || loadingProps.profileSearchCriteria.filters == null) {
+            return;
+        }
+        //implies it is in progress on re-loading criteria
+        else if (loadingProps.refreshProfileSearchCriteria) {
+            return;
         }
 
-        //update state
-        setInitSearchCriteria(false);
-        if (criteria != null) {
-            setSearchCriteria(criteria);
-            setSearchCriteriaChanged(_searchCriteriaChanged + 1);
-        }
-        setLoadingProps({ ...loadingProps, profileSearchCriteria: criteria });
+        setSearchCriteria(JSON.parse(JSON.stringify(loadingProps.profileSearchCriteria)));
 
-        //this will execute on unmount
-        return () => {
-            //console.log(generateLogMessageString('useEffect||Cleanup', CLASS_NAME));
-        };
-    }, [_initSearchCriteria, loadingProps.profileSearchCriteriaRefreshed]);
+    }, [loadingProps.profileSearchCriteria]);
+
 
     //-------------------------------------------------------------------
     // Region: hooks - show or hide panel - update body tag
@@ -114,38 +104,6 @@ function ProfileList() {
         setCloudLibSlideOut({ isOpen: false });
     }
 
-    const onCloudLibImportCancel = () => {
-        console.log(generateLogMessageString(`onCloudLibImportCancel`, CLASS_NAME));
-        //setCloudLibImporterModal({ show: false });
-    };
-
-    const onCloudLibImportStarted = (id) => {
-        //setCloudLibImporterModal({ show: false });
-    }
-
-
-    const onAdd = () => {
-        console.log(generateLogMessageString(`onAdd`, CLASS_NAME));
-        setProfileEntityModal({ show: true, item: null });
-    };
-
-    const onEdit = (item) => {
-        console.log(generateLogMessageString(`onEdit`, CLASS_NAME));
-        setProfileEntityModal({ show: true, item: item });
-    };
-
-    const onSave = (id) => {
-        console.log(generateLogMessageString(`onSave`, CLASS_NAME));
-        setProfileEntityModal({ show: false, item: null });
-        //force re-load to show the newly added, edited items
-        setLoadingProps({ refreshProfileList: true });
-    };
-
-    const onSaveCancel = () => {
-        console.log(generateLogMessageString(`onSaveCancel`, CLASS_NAME));
-        setProfileEntityModal({ show: false, item: null });
-    };
-
     const onErrorModalClose = () => {
         //console.log(generateLogMessageString(`onErrorMessageOK`, CLASS_NAME));
         setError({ show: false, caption: null, message: null });
@@ -179,10 +137,10 @@ function ProfileList() {
 
         if (!_deleteModal.show) return;
 
-        var message = _deleteModal.items.length === 1 ?
+        const message = _deleteModal.items.length === 1 ?
             `You are about to delete your profile '${_deleteModal.items[0].namespace}'. This will delete all type definitions associated with this profile. This action cannot be undone. Are you sure?` :
             `You are about to delete ${_deleteModal.items.length} profiles. This will delete all type definitions associated with these profiles. This action cannot be undone. Are you sure?`;
-        var caption = `Delete Profile${_deleteModal.items.length === 1 ? "" : "s"}`;
+        const caption = `Delete Profile${_deleteModal.items.length === 1 ? "" : "s"}`;
 
         return (
             <>
@@ -208,9 +166,9 @@ function ProfileList() {
         setLoadingProps({ isLoading: true, message: "" });
 
         //perform delete call
-        var data = items.length === 1 ? { id: items[0].id } :
+        const data = items.length === 1 ? { id: items[0].id } :
             items.map((item) => { return { id: item.id }; });
-        var url = items.length === 1 ? `profile/delete` : `profile/deletemany`;
+        const url = items.length === 1 ? `profile/delete` : `profile/deletemany`;
         axiosInstance.post(url, data)  //api allows one or many
             .then(result => {
 
@@ -225,7 +183,8 @@ function ProfileList() {
                         ],
                         //get profile count from server...this will trigger that call on the side menu
                         refreshProfileCount: true,
-                        refreshProfileList: true
+                        refreshProfileList: true,
+                        refreshSearchCriteria: true //refresh this list to make sure list of profiles is accurate in the filters
                     });
                 }
                 else {
@@ -275,13 +234,21 @@ function ProfileList() {
                             Import...
                         </Dropdown.Toggle>
                         <Dropdown.Menu className="py-0" >
-                            <Dropdown.Item className="py-2" onClick={onCloudLibImportClick}>Import from Cloud Library</Dropdown.Item>
+                            <Dropdown.Item className="py-2" onClick={onCloudLibImportClick}>{renderMenuIcon("cloud-download")}Import from Cloud Library</Dropdown.Item>
                             <Dropdown.Item className="py-2" as="button" >
-                                {<ProfileImporter caption="Import NodeSet file" cssClass="mb-0" useCssClassOnly="true" />}
+                                {<ProfileImporter caption="Import NodeSet file" iconName="file-upload" cssClass="mb-0" useCssClassOnly="true" />}
                             </Dropdown.Item>
+                            {(isInRole(_activeAccount, 'cesmii.profiledesigner.admin')) &&
+                                <>
+                                    <Dropdown.Divider className="my-0" />
+                                    <Dropdown.Item className="pb-2" as="button" >
+                                    {<ProfileImporter caption="Upgrade Global NodeSet file" iconName="settings" cssClass="mb-0" useCssClassOnly="true" />}
+                                    </Dropdown.Item>
+                                </>
+                            }
                         </Dropdown.Menu>
                     </Dropdown>
-                    <Button variant="secondary" type="button" className="auto-width mx-2" onClick={onAdd} >Create Profile</Button>
+                    <Button variant="secondary" type="button" className="auto-width mx-2" href="/profile/new" >Create Profile</Button>
                 </div>
             </div>
         );
@@ -300,28 +267,6 @@ function ProfileList() {
         );
     }
 
-    //renderProfileEntity as a modal to force user to say ok.
-    const renderProfileEntity = () => {
-
-        if (!_profileEntityModal.show) return;
-
-        return (
-            <ProfileEntityModal item={_profileEntityModal.item} showModal={_profileEntityModal.show} onSave={onSave} onCancel={onSaveCancel} showSavedMessage={true} />
-        );
-    };
-    //const renderProfileCloudLibImport = () => {
-
-    //    if (!_cloudLibImporterModal.show) return;
-
-    //    //<CloudLibraryImporterModal showModal={_cloudLibImporterModal.show} onImportCanceled={onCloudLibImportCancel} onImportStarted={onCloudLibImportStarted} />
-    //    //<CloudLibList/>
-    //    //<CloudLibraryImporter onImportStarted={onCloudLibImportStarted} />
-
-    //    return (
-    //        <CloudLibraryImporter onImportStarted={onCloudLibImportStarted} />
-    //    );
-    //};
-
     //-------------------------------------------------------------------
     // Region: Render final output
     //-------------------------------------------------------------------
@@ -334,10 +279,9 @@ function ProfileList() {
             {renderIntroContent()}
             {(_searchCriteria != null) &&
                 <ProfileListGrid searchCriteria={_searchCriteria} mode={AppSettings.ProfileListMode.Profile}
-                    onGridRowSelect={onGridRowSelect} onEdit={onEdit} onDeleteItemClick={onDeleteItemClick}
-                    onSearchCriteriaChanged={onSearchCriteriaChanged} searchCriteriaChanged={_searchCriteriaChanged} noSearch="false" />
+                    onGridRowSelect={onGridRowSelect} onDeleteItemClick={onDeleteItemClick}
+                    onSearchCriteriaChanged={onSearchCriteriaChanged} searchCriteriaChanged={_searchCriteriaChanged} hideSearchBox={false} />
             }
-            {renderProfileEntity()}
             {renderDeleteConfirmation()}
             <ErrorModal modalData={_error} callback={onErrorModalClose} />
             <CloudLibSlideOut isOpen={_cloudLibSlideOut.isOpen} onClosePanel={onCloseSlideOut} onImportStarted={onCloseSlideOut} />

@@ -8,7 +8,6 @@ import { generateLogMessageString, isInRoles } from '../utils/UtilityService'
 import { useLoadingContext } from "../components/contexts/LoadingContext";
 import { AppSettings } from "../utils/appsettings";
 import { Msal_Instance } from "..";
-
 const CLASS_NAME = "OnLoginHandler";
 
 
@@ -75,6 +74,34 @@ export const useRegisterMsalEventCallback = (setLoadingProps) => {
     return null;
 }
 
+export function InitOrgName(setLoadingProps) {
+
+    // Get the last organization that was found on login.
+    var url = `auth/QueryCurrentOrganization`;
+    axiosInstance.post(url)
+        .then(result => {
+
+            if (result.data.isSuccess) {
+                setLoadingProps({ organizationName: result.data.message });
+            }
+            else {
+                console.log(generateLogMessageString(`QueryCurrentOrganization||error||${result.data.message}`, CLASS_NAME, 'error'));
+            }
+        })
+        .catch(error => {
+            //hide a spinner, show a message
+            console.log(generateLogMessageString('QueryCurrentOrganization||error||' + JSON.stringify(error), CLASS_NAME, 'error'));
+            console.log(error);
+            //scroll back to top
+            window.scroll({
+                top: 0,
+                left: 0,
+                behavior: 'smooth',
+            });
+        });
+
+}
+
 //-------------------------------------------------------------------
 // onAfterAADLogin: after login, let API know and wire up some stuff for downstream
 //-------------------------------------------------------------------
@@ -87,8 +114,17 @@ export const onAADLogin = (setLoadingProps) => {
         .then(result => {
             if (result.data.isSuccess) {
                 console.log(generateLogMessageString(`onAADLogin||${result.data.message}`, CLASS_NAME));
-                setLoadingProps({ loginStatusCode: 200 });
+                //get current search criteria data
+                setLoadingProps({
+                    loginStatusCode: 200,
+                    refreshSearchCriteria: true,
+                    refreshProfileSearchCriteria: true,
+                    refreshCloudLibImporterSearchCriteria: true,
+                    refreshFavoritesList: true
+                });
                 //if (callbackFn) callbackFn(200);
+
+                InitOrgName(setLoadingProps);
             }
             else {
                 console.warn(generateLogMessageString(`onAADLogin||Initialize Failed||${result.data.message}`, CLASS_NAME));
@@ -135,11 +171,13 @@ export const onAADLoginComplete = (instance, history, setLoadingProps, statusCod
             console.error(generateLogMessageString(`onAADLoginComplete||statusCode||${statusCode}`, CLASS_NAME));
             //history.push('/notauthorized');
             doLogout(history, instance, '/notauthorized');
+            setLoadingProps({ organizationName: null });
             break;
         case 403:
             console.error(generateLogMessageString(`onAADLoginComplete||statusCode||${statusCode}`, CLASS_NAME));
             //history.push('/notpermitted');
             doLogout(history, instance, '/notpermitted', true, true);
+            setLoadingProps({ organizationName: null });
             break;
         case 399:
         case 400:
@@ -305,12 +343,15 @@ const handleLoginSuccess = (instance, payload, setLoadingProps) => {
 };
 
 export const handleMSALEvent = (message, setLoadingProps) => {
-    console.info(generateLogMessageString(`handleMSALEvent||${message.eventType}`, CLASS_NAME));
+
+    if (process.env.REACT_APP_MSAL_ENABLE_LOGGER)
+        console.info(generateLogMessageString(`handleMSALEvent||${message.eventType}`, CLASS_NAME));
 
     const instance = Msal_Instance;
     const accounts = instance.getAllAccounts();
 
     switch (message.eventType) {
+        case EventType.ACQUIRE_TOKEN_FAILURE:
         case EventType.LOGIN_FAILURE:
             //if error, then handle it...if InteractionRequiredAuthError, then acquire the token
             if (message.error instanceof InteractionRequiredAuthError) {
@@ -321,7 +362,7 @@ export const handleMSALEvent = (message, setLoadingProps) => {
                 };
 
                 Msal_Instance.acquireTokenRedirect(loginRequest);
-                console.error(generateLogMessageString(`handleMSALEvent||loginPopup||${message.error}`, CLASS_NAME));
+                console.error(generateLogMessageString(`handleMSALEvent||${message.eventType}||${message.error}`, CLASS_NAME));
             }
             else {
                 handleLoginError(message.error, setLoadingProps);

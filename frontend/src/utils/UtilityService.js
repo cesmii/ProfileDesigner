@@ -1,3 +1,4 @@
+import color from "../components/Constants";
 import { SVGIcon } from "../components/SVGIcon";
 import { AppSettings } from "./appsettings";
 
@@ -125,6 +126,15 @@ export function formatDate(val) {
     //return d.getFullYear() + '/' + d.getMonth() + '/' + d.getDate();
     return d.getMonth() + 1 + '/' + d.getDate() + '/' + d.getFullYear();
 }
+///--------------------------------------------------------------------------
+/// Create a timestamp value to display Utc Date
+///--------------------------------------------------------------------------
+export function formatDateUtc(val) {
+    if (val == null || val === '') return null;
+    var d = new Date(val);
+    return d.getUTCMonth() + 1 + '/' + d.getUTCDate() + '/' + d.getUTCFullYear();
+}
+
   ///#endregion: Logging Helper Methods
 
 ///--------------------------------------------------------------------------
@@ -197,24 +207,90 @@ export function getProfileTypeCaption(item) {
     }
 }
 
+
+///--------------------------------------------------------------------------
+/// Gets the data types permitted for a variable type
+//--------------------------------------------------------------------------
+export const getPermittedDataTypesForVariableTypeById = (variableTypeId, lookupDataTypes) => {
+    if (variableTypeId != null) {
+        var vtDataType = lookupDataTypes.find(dt => { return dt.customTypeId === variableTypeId });
+        if (vtDataType != null) {
+            const permittedDataTypes = getDerivedDataTypes(vtDataType, lookupDataTypes);
+            return permittedDataTypes;
+        }
+    }
+    return null;
+}
+
+///--------------------------------------------------------------------------
+/// Gets all data types derived from a data type (from for example loadingProps.lookupDataStatic.dataTypes), including the data type itself
+//--------------------------------------------------------------------------
+export const getDerivedDataTypes = (dataType, lookupDataTypes) => {
+    const derivedDataTypes = lookupDataTypes.filter((dt) => {
+        if (isDerivedFromDataType(dt, dataType, lookupDataTypes)) {
+            return dt;
+        }
+        return null;
+    });
+    return derivedDataTypes;
+}
+
+///--------------------------------------------------------------------------
+/// Determines if a data type (from for example loadingProps.lookupDataStatic.dataTypes) is derived from another data type
+//--------------------------------------------------------------------------
+export const isDerivedFromDataType = (dataType, baseDataType, lookupDataTypes) => {
+    let dtCurrent = dataType;
+    do {
+        if (dtCurrent.id === baseDataType.id) {
+            return true;
+        }
+        if (dtCurrent.baseDataTypeId == null) {
+            break;
+        }
+        let dtBase = lookupDataTypes.find(dt => { return dt.id === dtCurrent.baseDataTypeId; });
+        if (dtBase === dtCurrent) {
+            // avoid infinite loop if data is bad
+            break;
+        }
+        dtCurrent = dtBase;
+    }
+    while (dtCurrent != null);
+    return false;
+}
+
 //TBD - move to profile service file
 export function getTypeDefIconName(item) {
-    if (item == null || item.type == null) return 'profile';
+    if (item == null || item.type == null) return AppSettings.IconMapper.TypeDefinition;
     //TBD - eventually get icons specific for each type
     switch (item.type.name.replace(/\s/g,'').toLowerCase()) {
         case "namespace":
             return "folder-profile";
         case 'interface':
-            return 'key';
+            return AppSettings.IconMapper.Interface;
         case 'customdatatype':
             return 'customdatatype';
         case 'abstract':
         case 'structure':
         case 'class':
         default:
-            return 'profile';
+            return AppSettings.IconMapper.TypeDefinition;
     }
 }
+
+export const getIconColorByProfileState = (profileState) => {
+    if (profileState == null) return color.readOnly;
+
+    switch (profileState) {
+        case AppSettings.ProfileStateEnum.CloudLibPending:
+        case AppSettings.ProfileStateEnum.CloudLibRejected:
+        case AppSettings.ProfileStateEnum.Local:
+            return color.mine;
+        case AppSettings.ProfileStateEnum.CloudLibPublished:
+        case AppSettings.ProfileStateEnum.Core:
+        default:
+            return color.readOnly;
+    }
+};
 
 ///--------------------------------------------------------------------------
 /// Helper - scroll to top
@@ -310,7 +386,7 @@ export function validateNumeric(dataType, val) {
 export const validate_namespaceFormat = (val) => {
     if (val == null || val.length === 0) return true;
 
-    var format = /((([A-Za-z]{3,9}:(?:\/\/)?)(?:[-;:&=+$,\w]+@)?[A-Za-z0-9.-]+|(?:www\.|[-;:&=+$,\w]+@)[A-Za-z0-9.-]+)((?:\/[+~%/.\w\-_]*)?\??(?:[-+=&;%@.\w_]*)#?(?:[.!/\\\w]*))?)/;
+    const format = /((([A-Za-z]{3,9}:(?:\/\/)?)(?:[-;:&=+$,\w]+@)?[A-Za-z0-9.-]+|(?:www\.|[-;:&=+$,\w]+@)[A-Za-z0-9.-]+)((?:\/[+~%/.\w\-_]*)?\??(?:[-+=&;%@.\w_]*)#?(?:[.!/\\\w]*))?)/;
     return format.test(val);
 };
 
@@ -320,7 +396,7 @@ export const validate_namespaceFormat = (val) => {
 export const validate_NoSpecialCharacters = (val) => {
     if (val == null || val.length === 0) return true;
 
-    var format = /[ `!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?~(0-9)]/;  //includes a space
+    const format = /[ `!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?~(0-9)]/;  //includes a space
     return !format.test(val);
 };
 
@@ -382,7 +458,7 @@ export const renderTitleBlock = (caption, iconName, iconColor ) => {
     return (
         <div className="header-title-block d-flex mb-2">
             {(iconName != null && iconName !== "") &&
-                <span className="mr-3">
+                <span className="mr-2">
                     <SVGIcon name={iconName} size="36" fill={iconColor} alt={caption} />
                 </span>
             }
@@ -449,3 +525,31 @@ export const isInRole = (account, roleName) => {
     //check if role name has a match in array
     return roles.findIndex(x => x.toLowerCase() === roleName.toLowerCase()) > -1;
 }
+
+///--------------------------------------------------------------------------
+/// useQueryString - extract query string parameter from url
+//--------------------------------------------------------------------------
+export function useQueryString(key) {
+    return new URLSearchParams(window.location.search).get(key);
+}
+
+///--------------------------------------------------------------------------
+/// menu icon convenience code
+//--------------------------------------------------------------------------
+export function renderMenuIcon(iconName, alt, className='mr-3') {
+    if (iconName == null || iconName === '') return null;
+    return (
+        <span className={className} alt={`${alt == null ? iconName : alt}`}><SVGIcon name={iconName} size={24} /></span>
+    );
+}
+
+///--------------------------------------------------------------------------
+/// menu icon convenience code
+//--------------------------------------------------------------------------
+export function renderMenuColorIcon(iconName, alt, colorFill, className='mr-3') {
+    if (iconName == null || iconName === '') return null;
+    return (
+        <span className={className} alt={`${alt == null ? iconName : alt}`}><SVGIcon name={iconName} fill={colorFill} size={24} /></span>
+    );
+}
+

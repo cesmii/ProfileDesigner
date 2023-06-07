@@ -1,49 +1,17 @@
 import React from 'react'
-import { Dropdown } from 'react-bootstrap'
 
-import { useLoadingContext } from '../../components/contexts/LoadingContext'
-import { SVGIcon, SVGDownloadIcon } from '../../components/SVGIcon'
+import { SVGIcon } from '../../components/SVGIcon'
 import { isOwner, renderTypeIcon } from './ProfileRenderHelpers';
-import { cleanFileName, generateLogMessageString } from '../../utils/UtilityService';
 import { getProfileCaption } from '../../services/ProfileService'
-import { AppSettings } from '../../utils/appsettings';
+import TypeDefinitionActions from './TypeDefinitionActions';
  
-const CLASS_NAME = "ProfileTypeDefinitionRow";
+//const CLASS_NAME = "ProfileTypeDefinitionRow";
 
 function ProfileTypeDefinitionRow(props) { //props are item, showActions
-
-    const { loadingProps, setLoadingProps } = useLoadingContext();
 
     //-------------------------------------------------------------------
     // Region: Event Handling of child component events
     //-------------------------------------------------------------------
-    const downloadProfile = async () => {
-        console.log(generateLogMessageString(`downloadProfile||start`, CLASS_NAME));
-        //add a row to download messages and this will kick off download
-        var msgs = loadingProps.downloadItems || [];
-        msgs.push({ profileId: props.item.profile?.id, fileName: cleanFileName(props.item.profile?.namespace), immediateDownload: true });
-        setLoadingProps({ downloadItems: JSON.parse(JSON.stringify(msgs)) });
-    }
-    const downloadProfileAsAASX = async () => {
-        console.log(generateLogMessageString(`downloadProfileAASX||start`, CLASS_NAME));
-        //add a row to download messages and this will kick off download
-        var msgs = loadingProps.downloadItems || [];
-        msgs.push({ profileId: props.item.profile?.id, fileName: cleanFileName(props.item.profile?.namespace), immediateDownload: true, downloadFormat: AppSettings.ExportFormatEnum.AASX });
-        setLoadingProps({ downloadItems: JSON.parse(JSON.stringify(msgs)) });
-    }
-    const downloadProfileAsSmipJson = async () => {
-        console.log(generateLogMessageString(`downloadProfileSmipJson||start`, CLASS_NAME));
-        //add a row to download messages and this will kick off download
-        var msgs = loadingProps.downloadItems || [];
-        msgs.push({ profileId: props.item.profile?.id, fileName: cleanFileName(props.item.profile?.namespace), immediateDownload: true, downloadFormat: AppSettings.ExportFormatEnum.SmipJson });
-        setLoadingProps({ downloadItems: JSON.parse(JSON.stringify(msgs)) });
-    }
-
-    const onDeleteItem = () => {
-        console.log(generateLogMessageString(`onDeleteItem`, CLASS_NAME));
-        props.onDeleteCallback(props.item);
-    }
-
     const onRowSelect = () => {
         //only some modes allow selecting row
         if (props.selectMode == null) return;
@@ -55,7 +23,7 @@ function ProfileTypeDefinitionRow(props) { //props are item, showActions
 
     const IsRowSelected = (item) => {
         if (props.selectedItems == null) return;
-        var x = props.selectedItems.findIndex(p => { return p.toString() === item.id.toString(); });
+        const x = props.selectedItems.findIndex(p => { return p.toString() === item.id.toString(); });
         return x >= 0;
     }
 
@@ -82,27 +50,15 @@ function ProfileTypeDefinitionRow(props) { //props are item, showActions
             <>
                 <a href={`/type/extend/${props.item.id}/`} ><span alt="extend"><SVGIcon name="extend" /></span>Extend</a>
 
-                <Dropdown className="action-menu icon-dropdown ml-2" onClick={(e) => e.stopPropagation()} >
-                    <Dropdown.Toggle drop="left" title="Actions" >
-                        <SVGIcon name="more-vert" />
-                    </Dropdown.Toggle>
-                    <Dropdown.Menu>
-                        {(!item.isReadOnly && isOwner(item, props.activeAccount)) &&
-                            <Dropdown.Item key="moreVert3" onClick={onDeleteItem} ><span className="mr-3" alt="delete"><SVGIcon name="delete" /></span>Delete Type Definition</Dropdown.Item>
-                        }
-                        <Dropdown.Item key="moreVert5" onClick={downloadProfile} ><span className="mr-3" alt="arrow-drop-down"><SVGDownloadIcon name="downloadNodeset" /></span>Download Profile '{getProfileCaption(props.item.profile)}'</Dropdown.Item>
-                        <Dropdown.Item key="moreVert6" onClick={downloadProfileAsAASX} ><span className="mr-3" alt="arrow-drop-down"><SVGDownloadIcon name="downloadNodeset" /></span>Download Profile '{getProfileCaption(props.item.profile)}' as AASX</Dropdown.Item>
-                        <Dropdown.Item key="moreVert6" onClick={downloadProfileAsSmipJson} ><span className="mr-3" alt="arrow-drop-down"><SVGDownloadIcon name="downloadNodeset" /></span>Download Profile '{getProfileCaption(props.item.profile)}' for SMIP import (experimental)</Dropdown.Item>
-                    </Dropdown.Menu>
-                </Dropdown>
+                <TypeDefinitionActions item={props.item} activeAccount={props.activeAccount} onDeleteCallback={props.onDeleteCallback} showExtend={false} className='ml-2' isReadOnly={props.item.isReadOnly} />
             </>
         );
     }
 
     const renderSelectIcon = (item) => {
 
-        var iconSelected = props.selectMode === "single" ? "task_alt" : "check_box";
-        var iconUnselected = props.selectMode === "single" ? "radio_button_unchecked" : "check_box_outline_blank";
+        const iconSelected = props.selectMode === "single" ? "task_alt" : "check_box";
+        const iconUnselected = props.selectMode === "single" ? "radio_button_unchecked" : "check_box_outline_blank";
 
         return (
             <>
@@ -134,9 +90,9 @@ function ProfileTypeDefinitionRow(props) { //props are item, showActions
     }
 
     const renderRowView = () => {
-        var isReadOnly = (props.item.isReadOnly || !isOwner(props.item, props.activeAccount));
-        var cssClass = `row py-1 align-items-center ${props.cssClass} ${isReadOnly ? "" : "mine"} ${IsRowSelected(props.item) ? "selected" : ""} ${props.selectMode != null ? "selectable" : ""}`;
-        var avatarCss = `col-avatar mt-1 mr-2 rounded-circle avatar-${isReadOnly ? "locked" : "unlocked"} elevated clickable`;
+        const isReadOnly = (props.item.isReadOnly || !isOwner(props.item, props.activeAccount));
+        const cssClass = `row py-1 align-items-center ${props.cssClass} ${isReadOnly ? "" : "mine"} ${IsRowSelected(props.item) ? "selected" : ""} ${props.selectMode != null ? "selectable" : ""}`;
+        const avatarCss = `col-avatar mt-1 mr-2 rounded-circle avatar info elevated clickable`;
 
         return (
             <div className={cssClass} onClick={onRowSelect}>
@@ -144,7 +100,7 @@ function ProfileTypeDefinitionRow(props) { //props are item, showActions
                     {props.selectMode != null &&
                         renderSelectColumn(props.item)
                     }
-                    <div className={avatarCss} >{renderTypeIcon(props.item, props.activeAccount, 20, false)}</div>
+                    <div className={avatarCss} >{renderTypeIcon(props.item, props.activeAccount, 20)}</div>
                     <div className="col-sm-8" >
                         <p className="mb-1" >
                             {props.selectMode != null ?
@@ -178,7 +134,7 @@ function ProfileTypeDefinitionRow(props) { //props are item, showActions
     const renderTileView = () => {
         const isReadOnly = (props.item.isReadOnly || !isOwner(props.item, props.activeAccount));
         const cssClass = `col-lg-4 col-md-6 ${IsRowSelected(props.item) ? "selected" : ""} ${props.selectMode != null ? "selectable" : ""}`;
-        const avatarCss = `col-avatar d-inline-flex mr-2 rounded-circle avatar-${isReadOnly ? "locked" : "unlocked"} elevated clickable`;
+        const avatarCss = `col-avatar d-inline-flex mr-2 rounded-circle avatar ${isReadOnly ? "locked" : "unlocked"} elevated clickable`;
 
         return (
             <div className={cssClass} onClick={onRowSelect}>
@@ -188,7 +144,7 @@ function ProfileTypeDefinitionRow(props) { //props are item, showActions
                             renderSelectFloat(props.item)
                         }
                         <p className="mb-1 d-flex align-items-center" >
-                            <span className={avatarCss} >{renderTypeIcon(props.item, props.activeAccount, 20, false)}</span>
+                            <span className={avatarCss} >{renderTypeIcon(props.item, props.activeAccount, 20)}</span>
                             {props.selectMode != null ?
                                 props.item.name
                                 :

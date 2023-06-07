@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
 
@@ -6,8 +6,8 @@ import Button from 'react-bootstrap/Button'
 import { generateLogMessageString, onChangeNumericKeysOnly, validateNumeric, convertToNumeric, toInt } from '../../utils/UtilityService'
 import { AppSettings } from '../../utils/appsettings';
 import {
-    validate_name, validate_nameDuplicate, validate_dataType, validate_minMax, validate_engUnit, validate_All,
-    onChangeDataTypeShared, renderAttributeIcon, validate_attributeType, onChangeAttributeTypeShared, validate_enumValueDuplicate, validate_enumValueNumeric, onChangeInterfaceShared, onChangeCompositionShared, onChangeEngUnitShared, validate_symbolicName, renderDataTypeUIShared, renderEngUnitUIShared
+    validate_name, validate_nameDuplicate, validate_dataType, validate_minMax, validate_engUnit, validate_All, 
+    onChangeDataTypeShared, renderAttributeIcon, validate_attributeType, onChangeAttributeTypeShared, validate_enumValueDuplicate, validate_enumValueNumeric, onChangeInterfaceShared, onChangeCompositionShared, onChangeEngUnitShared, validate_symbolicName, renderDataTypeUIShared, renderEngUnitUIShared, renderCompositionSelectUIShared, renderVariableTypeUIShared, onChangeVariableTypeShared, getPermittedDataTypesForAttribute
 } from '../../services/AttributesService';
 
 const CLASS_NAME = "AttributeEntity";
@@ -25,11 +25,14 @@ function AttributeEntity(props) { //props are item, showActions
         //        _editItem.attributeType?.id !== AppSettings.AttributeTypeDefaults.InterfaceId &&
         //        _editItem.attributeType?.id !== AppSettings.AttributeTypeDefaults.EnumerationId);
 
-        var changeAttributeType = true;
+        const changeAttributeType = true;
 
-        var showComposition = _editItem.attributeType?.id === AppSettings.AttributeTypeDefaults.CompositionId;
-        var showInterface = _editItem.attributeType?.id === AppSettings.AttributeTypeDefaults.InterfaceId;
-        var showEnumeration = _editItem.attributeType?.id === AppSettings.AttributeTypeDefaults.EnumerationId;
+        const showComposition = _editItem.attributeType?.id === AppSettings.AttributeTypeDefaults.CompositionId;
+        const showInterface = _editItem.attributeType?.id === AppSettings.AttributeTypeDefaults.InterfaceId;
+        const showEnumeration = _editItem.attributeType?.id === AppSettings.AttributeTypeDefaults.EnumerationId;
+        const showVariableType = _editItem.attributeType?.id === AppSettings.AttributeTypeDefaults.DataVariableId;
+        const showProperty = _editItem.attributeType?.id === AppSettings.AttributeTypeDefaults.PropertyId;
+        const showStructure = _editItem.attributeType?.id === AppSettings.AttributeTypeDefaults.StructureId;
 
         if (props.lookupDataTypes == null || props.lookupDataTypes.length === 0) {
             return {
@@ -39,10 +42,13 @@ function AttributeEntity(props) { //props are item, showActions
                 changeAttributeType: changeAttributeType,
                 showComposition: showComposition,
                 showInterface: showInterface,
-                showEnumeration: showEnumeration
+                showEnumeration: showEnumeration,
+                showVariableType: showVariableType,
+                showProperty: showProperty,
+                showStructure: showStructure
             };
         }
-        var lookupItem = props.lookupDataTypes.find(dt => { return dt.id === _editItem.dataType.id; });
+        const lookupItem = props.lookupDataTypes.find(dt => { return dt.id === _editItem.dataType.id; });
 
         return {
             useMinMax: lookupItem != null && lookupItem.useMinMax && !(showComposition | showInterface | showEnumeration),
@@ -51,15 +57,19 @@ function AttributeEntity(props) { //props are item, showActions
             changeAttributeType: changeAttributeType,
             showComposition: showComposition,
             showInterface: showInterface,
-            showEnumeration: showEnumeration
+            showEnumeration: showEnumeration,
+            showVariableType: showVariableType,
+            showProperty: showProperty,
+            showStructure: showStructure
         };
     };
 
-    var [_editItem, setEditItem] = useState(JSON.parse(JSON.stringify(props.item)));
+    const [_editItem, setEditItem] = useState(JSON.parse(JSON.stringify(props.item)));
     const [_isValid, setIsValid] = useState({
         name: true,
         nameDuplicate: true,
         dataType: true,
+        variableType: true,
         attributeType: true,
         composition: true,
         interface: true,
@@ -75,20 +85,41 @@ function AttributeEntity(props) { //props are item, showActions
         enumValueDuplicate: true
     });
     const [_editSettings, setEditSettings] = useState(initEditSettings());
+    const [_permittedDataTypes, setPermittedDataTypes] = useState(null);
+
+    //-------------------------------------------------------------------
+    // Region: hooks
+    //-------------------------------------------------------------------
+    useEffect(() => {
+        setPermittedDataTypes(props.lookupDataTypes);
+    }, [props.lookupDataTypes]);
+
+    //-------------------------------------------------------------------
+    // Region: hooks
+    //-------------------------------------------------------------------
+    useEffect(() => {
+        const newPermittedDataTypes = getPermittedDataTypesForAttribute(_editItem, props.lookupDataTypes, props.lookupVariableTypes);
+        if (newPermittedDataTypes != null) {
+            setPermittedDataTypes(newPermittedDataTypes)
+        }
+        else {
+            setPermittedDataTypes(props.lookupDataTypes);
+        }
+    }, [_editItem]);
 
     //-------------------------------------------------------------------
     // Region: Validation
     //-------------------------------------------------------------------
     const validateForm_name = (e) => {
-        var isValid = validate_name(e.target.value, _editItem);
+        const isValid = validate_name(e.target.value, _editItem);
         //dup check
-        var isValidDup = validate_nameDuplicate(e.target.value, _editItem, props.allAttributes);
+        const isValidDup = validate_nameDuplicate(e.target.value, _editItem, props.allAttributes);
         setIsValid({ ..._isValid, name: isValid, nameDuplicate: isValidDup });
     };
 
     const validateForm_dataType = (e) => {
-        var dataType = props.lookupDataTypes.find(dt => { return dt.id === parseInt(e.target.value); });
-        setIsValid({ ..._isValid, dataType: validate_dataType(dataType) });
+        const dataType = props.lookupDataTypes.find(dt => { return dt.id === parseInt(e.target.value); });
+        setIsValid({ ..._isValid, dataType: validate_dataType(dataType, props.lookupDataTypes) }); // Currently no edit under this entity. If Variable Type becomes editable, need to call getPermittedDataTypes to limit data types etc.
     };
 
     const validateForm_attributeType = (e) => {
@@ -96,12 +127,12 @@ function AttributeEntity(props) { //props are item, showActions
     };
 
     const validateForm_composition = (e) => {
-        var isValid = e.target.value.toString() !== "-1" || parseInt(_editItem.attributeType.id) !== AppSettings.AttributeTypeDefaults.CompositionId;
+        const isValid = e.target.value.toString() !== "-1" || parseInt(_editItem.attributeType.id) !== AppSettings.AttributeTypeDefaults.CompositionId;
         setIsValid({ ..._isValid, composition: isValid });
     };
 
     const validateForm_interface = (e) => {
-        var isValid = e.target.value.toString() !== "-1" || parseInt(_editItem.attributeType.id) !== AppSettings.AttributeTypeDefaults.InterfaceId;
+        const isValid = e.target.value.toString() !== "-1" || parseInt(_editItem.attributeType.id) !== AppSettings.AttributeTypeDefaults.InterfaceId;
         setIsValid({ ..._isValid, interface: isValid });
     };
 
@@ -110,17 +141,17 @@ function AttributeEntity(props) { //props are item, showActions
     };
 
     const validateForm_minMax = (e) => {
-        var isValid = validate_minMax(_editItem.minValue, _editItem.maxValue, _editItem.dataType, _editSettings);
-        var minIsNumeric = !_editSettings.useMinMax || _editItem.minValue == null || validateNumeric(_editItem.dataType, _editItem.minValue);
-        var maxIsNumeric = !_editSettings.useMinMax || _editItem.maxValue == null || validateNumeric(_editItem.dataType, _editItem.maxValue);
+        const isValid = validate_minMax(_editItem.minValue, _editItem.maxValue, _editItem.dataType, _editSettings);
+        const minIsNumeric = !_editSettings.useMinMax || _editItem.minValue == null || validateNumeric(_editItem.dataType, _editItem.minValue);
+        const maxIsNumeric = !_editSettings.useMinMax || _editItem.maxValue == null || validateNumeric(_editItem.dataType, _editItem.maxValue);
 
         setIsValid({ ..._isValid, minMax: isValid, minIsNumeric: minIsNumeric, maxIsNumeric: maxIsNumeric });
     };
 
     const validateForm_instrumentMinMax = (e) => {
-        var isValid = validate_minMax(_editItem.instrumentMinValue, _editItem.instrumentMaxValue, _editItem.dataType, _editSettings);
-        var minIsNumeric = !_editSettings.useMinMax || _editItem.instrumentMinValue == null || validateNumeric(_editItem.dataType, _editItem.instrumentMinValue);
-        var maxIsNumeric = !_editSettings.useMinMax || _editItem.instrumentMaxValue == null || validateNumeric(_editItem.dataType, _editItem.instrumentMaxValue);
+        const isValid = validate_minMax(_editItem.instrumentMinValue, _editItem.instrumentMaxValue, _editItem.dataType, _editSettings);
+        const minIsNumeric = !_editSettings.useMinMax || _editItem.instrumentMinValue == null || validateNumeric(_editItem.dataType, _editItem.instrumentMinValue);
+        const maxIsNumeric = !_editSettings.useMinMax || _editItem.instrumentMaxValue == null || validateNumeric(_editItem.dataType, _editItem.instrumentMaxValue);
 
         setIsValid({ ..._isValid, instrumentMinMax: isValid, instrumentMinIsNumeric: minIsNumeric, instrumentMaxIsNumeric: maxIsNumeric });
     };
@@ -131,9 +162,9 @@ function AttributeEntity(props) { //props are item, showActions
 
     const validateForm_enumValue = (e) => {
         //dup check
-        var isValidDup = validate_enumValueDuplicate(e.target.value, _editItem, props.allAttributes);
+        const isValidDup = validate_enumValueDuplicate(e.target.value, _editItem, props.allAttributes);
         //check for valid integer - is numeric and is positive
-        var isValidValue = validate_enumValueNumeric(e.target.value, _editItem);
+        const isValidValue = validate_enumValueNumeric(e.target.value, _editItem);
         setIsValid({ ..._isValid, enumValue: isValidValue, enumValueDuplicate: isValidDup });
     }
 
@@ -141,7 +172,7 @@ function AttributeEntity(props) { //props are item, showActions
     const validateForm = () => {
         console.log(generateLogMessageString(`validateForm`, CLASS_NAME));
 
-        var isValid = validate_All(_editItem, _editSettings, props.allAttributes);
+        const isValid = validate_All(_editItem, _editSettings, props.allAttributes, _permittedDataTypes); // pass permitted datatypes when editing variable types
 
         setIsValid(JSON.parse(JSON.stringify(isValid)));
         return (isValid.name && isValid.nameDuplicate && isValid.minMax && isValid.dataType && isValid.attributeType && isValid.engUnit
@@ -174,52 +205,59 @@ function AttributeEntity(props) { //props are item, showActions
 
     //attribute add ui - change composition ddl
     const onChangeComposition = (e) => {
-        //_addItem changed by ref in shared method
-        onChangeCompositionShared(e, _editItem);
+        //find the full composition item associated with selection. We need to 
+        //populate more than just id in shared method
+        const match = props.lookupCompositions.find(x => x.id === e.value);
 
-        //call commonn change method
-        onChange(e);
+        //_addItem changed by ref in shared method
+        onChangeCompositionShared(match, _editItem);
+
+        //update state
+        setEditItem(JSON.parse(JSON.stringify(_editItem)));
     }
 
     const onChangeInterface = (e) => {
         //_addItem changed by ref in shared method
-        onChangeInterfaceShared(e, _editItem);
+        onChangeInterfaceShared(e.value, _editItem);
 
-        //call commonn change method
-        onChange(e);
+        //update state
+        setEditItem(JSON.parse(JSON.stringify(_editItem)));
     }
 
     //onchange data type
     const onChangeDataType = (e) => {
-        var data = onChangeDataTypeShared(e.value, _editItem, _editSettings, props.lookupDataTypes);
+        const data = onChangeDataTypeShared(e.value, _editItem, _editSettings, _permittedDataTypes);
 
         //replace add settings (updated in shared method)
         setEditSettings(JSON.parse(JSON.stringify(data.settings)));
         //update state - after changes made in shared method
         setEditItem(JSON.parse(JSON.stringify(data.item)));
-        return;
+    }
 
+    const onChangeVariableType = (e) => {
+        onChangeVariableTypeShared(e?.value, _editItem, props.lookupVariableTypes, props.lookupDataTypes);
+
+        //replace add settings (updated in shared method)
+        setEditItem(JSON.parse(JSON.stringify(_editItem)));
     }
 
     //onchange attribute type
     const onChangeAttributeType = (e) => {
-        var data = onChangeAttributeTypeShared(e, _editItem, _editSettings, props.lookupAttributeTypes, props.lookupDataTypes);
+        const data = onChangeAttributeTypeShared(e, _editItem, _editSettings, props.lookupAttributeTypes, props.lookupDataTypes, props.lookupVariableTypes);
 
         //replace settings (updated in shared method)
         setEditSettings(JSON.parse(JSON.stringify(data.settings)));
         //update state - after changes made in shared method
         setEditItem(JSON.parse(JSON.stringify(data.item)));
-        return;
     }
 
     //onchange eng unit
     const onChangeEngUnit = (e) => {
         //var item = onChangeEngUnitShared(e.target.value, _editItem, props.lookupEngUnits);
-        var item = onChangeEngUnitShared(e.value, _editItem, props.lookupEngUnits);
+        const item = onChangeEngUnitShared(e.value, _editItem, props.lookupEngUnits);
 
         //update state - after changes made in shared method
         setEditItem(JSON.parse(JSON.stringify(item)));
-        return;
     }
 
     //onchange numeric field
@@ -252,7 +290,7 @@ function AttributeEntity(props) { //props are item, showActions
         }
 
         //convert to int - this will convert '10.' to '10' to int
-        var val = toInt(e.target.value);
+        const val = toInt(e.target.value);
 
         _editItem[e.target.id] = val;
         setEditItem(JSON.parse(JSON.stringify(_editItem)));
@@ -262,6 +300,23 @@ function AttributeEntity(props) { //props are item, showActions
     const onCheckChange = (e) => {
         _editItem[e.target.id] = e.target.checked;
         setEditItem(JSON.parse(JSON.stringify(_editItem)));
+        onPlaceholderCheckChange()
+    }
+    const onIsRequiredCheckChange = (e) => {
+        _editItem[e.target.id] = e.target.checked;
+        let isPlaceHolder = _editItem.modelingRule?.indexOf("Placeholder") > 0;
+        _editItem.modelingRule = getModelingRule(e.target.checked, isPlaceHolder);
+        setEditItem(JSON.parse(JSON.stringify(_editItem)));
+    }
+
+    const onPlaceholderCheckChange = (e) => {
+        _editItem.modelingRule = getModelingRule(_editItem.isRequired, e.target.checked);
+        setEditItem(JSON.parse(JSON.stringify(_editItem)));
+    }
+
+    const getModelingRule = (required, placeholder) => {
+        const modelingRule = (required ? "Mandatory" : "Optional") + (placeholder ? "Placeholder" : "");
+        return modelingRule;
     }
 
     //onchange - update state on change
@@ -298,8 +353,8 @@ function AttributeEntity(props) { //props are item, showActions
     const renderNameUI = () => {
         return (
             <Form.Group className="flex-grow-1 align-self-center">
-                {renderAttributeIcon(_editItem)}
-                <Form.Label className="mb-0" >Name</Form.Label>
+                {renderAttributeIcon(_editItem, false, 'd-inline-block mb-1')}
+                <Form.Label className="mb-1" >Name</Form.Label>
                 {!_isValid.name &&
                     <span className="invalid-field-message inline">
                         Required
@@ -324,7 +379,7 @@ function AttributeEntity(props) { //props are item, showActions
             if (_editItem.interface != null) {
                 return (
                     <>
-                        {renderAttributeIcon(_editItem)}
+                        {renderAttributeIcon(_editItem, props.readOnly)}
                         {_editItem.name} [<a href={`/type/${_editItem.interface.id}`} >{_editItem.interface.name}</a>]
                     </>
                 );
@@ -332,7 +387,7 @@ function AttributeEntity(props) { //props are item, showActions
             //simple scenario
             return (
                 <>
-                    {renderAttributeIcon(_editItem)}
+                    {renderAttributeIcon(_editItem, props.readOnly)}
                     {_editItem.name}
                 </>
             );
@@ -347,11 +402,11 @@ function AttributeEntity(props) { //props are item, showActions
     //render for enumeration attr type
     const renderEnumValue = () => {
 
-        var isReadOnly = (render_CheckReadOnly());
+        const isReadOnly = (render_CheckReadOnly());
 
         if (_editItem.attributeType.id !== AppSettings.AttributeTypeDefaults.EnumerationId) return;
 
-        var tip = !_isValid.enumValue ? 'Integer > 0 required.' : '';
+        let tip = !_isValid.enumValue ? 'Integer > 0 required.' : '';
         tip = !_isValid.enumValueIsNumeric ? tip + ' Integer required.' : tip;
         return (
             <Form.Group>
@@ -381,29 +436,47 @@ function AttributeEntity(props) { //props are item, showActions
     const renderComposition = () => {
         if (!_editSettings.showComposition) return;
 
-        var isReadOnly = props.readOnly;
+        const isReadOnly = props.readOnly;
 
-        const options = props.lookupCompositions.map((item) => {
-            return (<option key={item.id} value={item.id} >{item.name}</option>)
-        });
+        if (!isReadOnly) {
+            return renderCompositionSelectUIShared(_editItem,
+                props.lookupCompositions,
+                _isValid.composition,
+                true,
+                onChangeComposition,
+                validateForm_composition);
+        }
+        else {
+            return (
+                <Form.Group>
+                    <Form.Label>Composition</Form.Label>
+                    <Form.Control id="compositionId" value={_editItem.composition == null ? '' : _editItem.composition.name} readOnly={isReadOnly} />
+                </Form.Group>
+            )
+        }
+    };
 
+    const renderCompositionObject = () => {
+        if (!_editSettings.showComposition) return;
+
+        //const isReadOnly = props.readOnly;
+
+        let compObject = null;
+        if (_editItem.composition != null && _editItem.composition.intermediateObjectName != null) {
+            compObject = (<a href={`type/${_editItem.composition.intermediateObjectId}`}> {_editItem.composition.intermediateObjectName} </a >);
+        }
+        else {
+            return null;
+        }
         return (
             <Form.Group>
-                <Form.Label>Composition</Form.Label>
-                {!_isValid.composition &&
-                    <span className="invalid-field-message inline">
-                        Required
-                    </span>
-                }
-                {isReadOnly ?
-                    <Form.Control id="compositionId" value={_editItem.composition == null ? '' : _editItem.composition.name} readOnly={isReadOnly} />
-                    :
-                    <Form.Control id="compositionId" as="select" value={_editItem.compositionId} onBlur={validateForm_composition} readOnly={isReadOnly}
-                        onChange={onChangeComposition} className={(!_isValid.composition ? 'invalid-field minimal pr-5' : 'minimal pr-5')} >
-                        <option key="-1|Select One" value="-1" >Select</option>
-                        {options}
-                    </Form.Control>
-                }
+                <Form.Label>Composition Object</Form.Label>
+                <Form.Text>
+                    <div><a href={`/type/${_editItem.composition.intermediateObjectId}`}>
+                        {_editItem.composition.intermediateObjectName}
+                    </a>
+                    </div>
+                </Form.Text>
             </Form.Group>
         )
     };
@@ -435,7 +508,7 @@ function AttributeEntity(props) { //props are item, showActions
 
     //render the description ui
     const renderDescription = () => {
-        var isReadOnly = (props.readOnly || _editItem._itemType == null || _editItem._itemType === "extended" || _editItem.interface != null);
+        const isReadOnly = (props.readOnly || _editItem._itemType == null || _editItem._itemType === "extended" || _editItem.interface != null);
         return (
             <Form.Group>
                 <Form.Label className="mb-0" >Description</Form.Label>
@@ -447,7 +520,7 @@ function AttributeEntity(props) { //props are item, showActions
 
     //render the browseName ui
     const renderBrowseName = () => {
-        var isReadOnly = (props.readOnly || _editItem._itemType == null || _editItem._itemType === "extended" || _editItem.interface != null);
+        const isReadOnly = (props.readOnly || _editItem._itemType == null || _editItem._itemType === "extended" || _editItem.interface != null);
 
         return (
             <Form.Group>
@@ -460,7 +533,7 @@ function AttributeEntity(props) { //props are item, showActions
 
     //render the symbolicName ui
     const renderSymbolicName = () => {
-        var isReadOnly = (props.readOnly || _editItem._itemType == null || _editItem._itemType === "extended" || _editItem.interface != null);
+        const isReadOnly = (props.readOnly || _editItem._itemType == null || _editItem._itemType === "extended" || _editItem.interface != null);
 
         return (
             <Form.Group>
@@ -477,62 +550,39 @@ function AttributeEntity(props) { //props are item, showActions
     };
 
     //render data type ui
-    const renderDataType = () => {
-        return renderDataTypeUIShared(_editItem, props.lookupDataTypes, null, _isValid.dataType, true, onChangeDataType, validateForm_dataType);
-        //if (props.lookupDataTypes == null || props.lookupDataTypes.length === 0) return;
+    const renderDataTypeUI = () => {
+        const isReadOnly = (props.readOnly || _editItem._itemType == null || _editItem._itemType === "extended" || _editItem.interface != null);
 
-        //var isReadOnly = props.readOnly || _editItem.interface != null;
+        if (isReadOnly) {
+            return (
+                <Form.Group>
+                    <Form.Label className="mb-0" >Data Type</Form.Label>
+                    <Form.Control id="dataType" value={_editItem.dataType.name} readOnly={isReadOnly} />
+                </Form.Group>
+            );
+        }
+        return renderDataTypeUIShared(_editItem.dataType, _permittedDataTypes, null, _isValid.dataType, true, null, onChangeDataType);
+    };
 
-        //const options = renderDataTypeSelectOptions(props.lookupDataTypes, null, false);
-
-        ////grab the associated caption when showing in read only mode
-        //var selectedText = "";
-        //if (_editItem.dataType == null || _editItem.dataType.id.toString() === "-1") selectedText = "";
-        //else {
-        //    var selItem = (props.lookupDataTypes == null || props.lookupDataTypes.length === 0) ? null :
-        //        props.lookupDataTypes.find(x => { return x.id === _editItem.dataType.id });
-        //    selectedText = selItem == null ? _editItem.dataType.name : selItem.name;
-        //}
-
-        //return (
-        //    <Form.Group>
-        //        <Form.Label className="mb-0" >Data Type</Form.Label>
-        //        {
-        //            !_isValid.dataType &&
-        //            <span className="invalid-field-message inline">
-        //                Required
-        //            </span>
-        //        }
-
-        //        {isReadOnly ?
-        //            <Form.Control id="dataType" value={selectedText} readOnly={isReadOnly} />
-        //            :
-        //            <Form.Control id="dataType" as="select" value={_editItem.dataType.id}
-        //                onChange={onChangeDataType} onBlur={validateForm_dataType}
-        //                className={(!_isValid.dataType ? 'invalid-field minimal pr-5' : 'minimal pr-5')} >
-        //                <option key="-1|Select One" value="-1" >Select</option>
-        //                {options}
-        //            </Form.Control>
-        //        }
-        //    </Form.Group>
-        //);
+    const renderVariableTypeUI = () => {
+        return renderVariableTypeUIShared(_editItem, props.lookupVariableTypes, _editSettings, _isValid.variableType, true, onChangeVariableType);
     };
 
     //render attr type ui
     const renderAttributeType = () => {
         if (props.lookupAttributeTypes == null || props.lookupAttributeTypes.length === 0) return;
 
-        var isReadOnly = props.readOnly || _editItem._itemType == null || _editItem._itemType === "extended" || !_editSettings.changeAttributeType;
+        const isReadOnly = props.readOnly || _editItem._itemType == null || _editItem._itemType === "extended" || !_editSettings.changeAttributeType;
 
         const options = props.lookupAttributeTypes.map((item) => {
             return (<option key={item.id} value={item.id} >{item.name}</option>)
         });
 
         //grab the associated caption when showing in read only mode
-        var selectedText = "";
+        let selectedText = "";
         if (_editItem.attributeType == null || _editItem.attributeType.id.toString() === "-1") selectedText = "";
         else {
-            var selItem = (props.lookupAttributeTypes == null || props.lookupAttributeTypes.length === 0) ? null :
+            const selItem = (props.lookupAttributeTypes == null || props.lookupAttributeTypes.length === 0) ? null :
                 props.lookupAttributeTypes.find(x => { return x.id === _editItem.attributeType.id });
             selectedText = selItem == null ? _editItem.attributeType.name : selItem.name;
         }
@@ -563,7 +613,10 @@ function AttributeEntity(props) { //props are item, showActions
 
     //render the is array ui
     const renderIsArray = () => {
-        var isReadOnly = (props.readOnly || _editItem._itemType == null || _editItem._itemType === "extended" || _editItem.interface != null);
+        if (_editItem.composition != null) return null; //hide if this is a composition
+
+        const isReadOnly = (props.readOnly || _editItem._itemType == null || _editItem._itemType === "extended"
+            || _editItem.interface != null);
 
         return (
             <Form.Group className="flex-grow-1 align-self-center">
@@ -575,20 +628,30 @@ function AttributeEntity(props) { //props are item, showActions
 
     //render the is required ui
     const renderIsRequired = () => {
-        var isReadOnly = (props.readOnly || _editItem._itemType == null || _editItem._itemType === "extended" || _editItem.interface != null);
+        const isReadOnly = (props.readOnly || _editItem._itemType == null || _editItem._itemType === "extended" || _editItem.interface != null);
 
         return (
+            <div className="row mb-2">
+                <div className="col-sm-12 col-md-6">
             <Form.Group className="flex-grow-1 align-self-center">
-                <Form.Check type="checkbox" id="isRequired" label="Is Required" checked={_editItem.isRequired} onChange={onCheckChange}
+                        <Form.Check type="checkbox" id="isRequired" label="Is Required" checked={_editItem.isRequired} onChange={onIsRequiredCheckChange}
                     disabled={isReadOnly ? "disabled" : ""} />
             </Form.Group>
+                </div>
+                <div className="col-sm-12 col-md-6">
+                    <Form.Group className="flex-grow-1 align-self-center">
+                        <Form.Check type="checkbox" id="isPlaceholder" label="Placeholder" checked={_editItem.modelingRule == "MandatoryPlaceholder" || _editItem.modelingRule == "OptionalPlaceholder"} onChange={onPlaceholderCheckChange}
+                            disabled={isReadOnly ? "disabled" : ""} />
+                    </Form.Group>
+                </div>
+            </div>
         );
     };
 
     //render the modelling rule - always read only for now
     const rendermodelingRule = () => {
         //var isReadOnly = (props.readOnly || _editItem._itemType == null || _editItem._itemType === "extended" || _editItem.interface != null);
-        var isReadOnly = true;
+        const isReadOnly = true;
         //don't show if null or empty - read only ui for now
         if (_editItem.modelingRule == null || _editItem.modelingRule === '') return;
 
@@ -603,9 +666,9 @@ function AttributeEntity(props) { //props are item, showActions
 
     //render the attribute min, append some stuff for certain types of attributes
     const renderMin = () => {
-        var isReadOnly = (render_CheckReadOnly() || !_editSettings.useMinMax);
+        const isReadOnly = (render_CheckReadOnly() || !_editSettings.useMinMax);
 
-        var tip = !_isValid.minMax ? 'Min > Max.' : '';
+        let tip = !_isValid.minMax ? 'Min > Max.' : '';
         tip = !_isValid.minIsNumeric ? tip + ' Invalid (ie. ####).' : tip;
         return (
             <Form.Group>
@@ -629,9 +692,9 @@ function AttributeEntity(props) { //props are item, showActions
 
     //render the attribute max, append some stuff for certain types of attributes
     const renderMax = () => {
-        var isReadOnly = (render_CheckReadOnly() || !_editSettings.useMinMax);
+        const isReadOnly = (render_CheckReadOnly() || !_editSettings.useMinMax);
 
-        var tip = !_isValid.minMax ? 'Min > Max.' : '';
+        let tip = !_isValid.minMax ? 'Min > Max.' : '';
         tip = !_isValid.maxIsNumeric ? tip + ' Invalid (ie. ####).' : tip;
 
         return (
@@ -651,9 +714,9 @@ function AttributeEntity(props) { //props are item, showActions
 
     //instrument Min
     const renderInstrumentMin = () => {
-        var isReadOnly = (render_CheckReadOnly() || !_editSettings.useMinMax);
+        const isReadOnly = (render_CheckReadOnly() || !_editSettings.useMinMax);
 
-        var tip = !_isValid.instrumentMinMax ? 'Min > Max.' : '';
+        let tip = !_isValid.instrumentMinMax ? 'Min > Max.' : '';
         tip = !_isValid.instrumentMinIsNumeric ? tip + ' Invalid (ie. ####).' : tip;
         return (
             <Form.Group className="flex-grow-1">
@@ -677,9 +740,9 @@ function AttributeEntity(props) { //props are item, showActions
 
     //instrument max
     const renderInstrumentMax = () => {
-        var isReadOnly = (render_CheckReadOnly() || !_editSettings.useMinMax);
+        const isReadOnly = (render_CheckReadOnly() || !_editSettings.useMinMax);
 
-        var tip = !_isValid.instrumentMinMax ? 'Min > Max.' : '';
+        let tip = !_isValid.instrumentMinMax ? 'Min > Max.' : '';
         tip = !_isValid.instrumentMaxIsNumeric ? tip + ' Invalid (ie. ####).' : tip;
 
         return (
@@ -701,18 +764,18 @@ function AttributeEntity(props) { //props are item, showActions
     const renderEngUnit = () => {
         if (props.lookupEngUnits == null || props.lookupEngUnits.length === 0 || !_editSettings.useEngUnit) return;
 
-        var isReadOnly = (render_CheckReadOnly());
+        const isReadOnly = (render_CheckReadOnly());
 
         if (!isReadOnly) {
-            return renderEngUnitUIShared(_editItem, props.lookupEngUnits, onChangeEngUnit, validateForm_engUnit);
+            return renderEngUnitUIShared(_editItem, props.lookupEngUnits, _isValid.engUnit, onChangeEngUnit, validateForm_engUnit);
         }
         else {
             //grab the associated caption when showing in read only mode
-            var selectedText = "";
-            var tip = "";
+            let selectedText = "";
+            let tip = "";
             if (_editItem.engUnit == null || _editItem.engUnit.id.toString() === "-1") selectedText = "";
             else {
-                var selItem = (props.lookupEngUnits == null || props.lookupEngUnits.length === 0) ? null :
+                const selItem = (props.lookupEngUnits == null || props.lookupEngUnits.length === 0) ? null :
                     props.lookupEngUnits.find(x => { return x.id === _editItem.engUnit.id });
                 selectedText = selItem == null ? _editItem.engUnit.displayName : selItem.displayName;
                 tip = selItem == null ? _editItem.engUnit.description : selItem.description;
@@ -725,37 +788,6 @@ function AttributeEntity(props) { //props are item, showActions
                 </Form.Group>
             );
         }
-
-        //const options = props.lookupEngUnits.map((item) => {
-        //    return (<option key={item.id} value={item.id} title={item.description} >{item.displayName}</option>)
-        //});
-
-        ////grab the associated caption when showing in read only mode
-        //var selectedText = "";
-        //var tip = "";
-        //if (_editItem.engUnit == null || _editItem.engUnit.id.toString() === "-1") selectedText = "";
-        //else {
-        //    var selItem = (props.lookupEngUnits == null || props.lookupEngUnits.length === 0) ? null :
-        //        props.lookupEngUnits.find(x => { return x.id === _editItem.engUnit.id });
-        //    selectedText = selItem == null ? _editItem.engUnit.displayName : selItem.displayName;
-        //    tip = selItem == null ? _editItem.engUnit.description : selItem.description;
-        //}
-
-        //return (
-        //    <Form.Group className="flex-grow-1" >
-        //        <Form.Label className="mb-0" >Eng Unit</Form.Label>
-        //        {isReadOnly ?
-        //            <Form.Control id="engUnit" value={selectedText} readOnly={isReadOnly} title={tip} />
-        //            :
-        //            <Form.Control id="engUnit" as="select" value={_editItem.engUnit == null ? "-1" : _editItem.engUnit.id} readOnly={isReadOnly}
-        //                onChange={onChangeEngUnit} onBlur={validateForm_engUnit}
-        //                className="minimal pr-5" >
-        //                <option key="-1|Select One" value="-1" >Select</option>
-        //                {options}
-        //            </Form.Control>
-        //        }
-        //    </Form.Group>
-        //);
     };
 
     //render the actions col. in edit mode, we swap out the icons
@@ -798,16 +830,20 @@ function AttributeEntity(props) { //props are item, showActions
                 <div className="col-sm-12 col-md-6" >
                     {renderAttributeType()}
                 </div>
-                {(!_editSettings.showInterface && !_editSettings.showComposition && !_editSettings.showEnumeration) &&
-                    <div className="col-sm-12 col-md-6" >
-                        {renderDataType()}
-                    </div>
+                {(_editSettings.showVariableType) &&
+                    <div className="col-sm-12 col-md-6" >{renderVariableTypeUI()}</div>
+                }
+                {(_editSettings.showVariableType || _editSettings.showProperty || _editSettings.showStructure) &&
+                    <div className={`col-sm-12 col-md-6`} >{renderDataTypeUI()}</div>
                 }
                 {_editSettings.showEnumeration &&
                     <div className="col-6" >{renderEnumValue()}</div>
                 }
                 {_editSettings.showComposition &&
                     <div className="col-sm-12 col-md-6" >{renderComposition()}</div>
+                }
+                {_editSettings.showComposition &&
+                    <div className="col-sm-12 col-md-6" >{renderCompositionObject()}</div>
                 }
                 {_editSettings.showInterface &&
                     <div className="col-sm-12 col-md-6" >{renderInterface()}</div>

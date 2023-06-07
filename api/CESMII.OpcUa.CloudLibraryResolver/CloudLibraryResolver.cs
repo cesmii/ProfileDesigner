@@ -9,9 +9,7 @@ using Opc.Ua.Cloud.Library.Client;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace CESMII.OpcUa.NodeSetImporter
@@ -59,7 +57,7 @@ namespace CESMII.OpcUa.NodeSetImporter
                 // Attempt to use the new API first
                 foreach (var missingModel in missingModels)
                 {
-                    var nodeSets = await _client.GetNodeSetDependencies(namespaceUri: missingModel.ModelUri).ConfigureAwait(false);
+                    var nodeSets = await _client.GetNodeSetDependencies(modelUri: missingModel.ModelUri).ConfigureAwait(false);
                     foreach (var nodeSet in nodeSets)
                     {
                         nodesetWithURIAndDate.Add((nodeSet.NamespaceUri.OriginalString, nodeSet.PublicationDate, nodeSet.Identifier.ToString(CultureInfo.InvariantCulture), nodeSet.NodesetXml));
@@ -91,7 +89,7 @@ namespace CESMII.OpcUa.NodeSetImporter
                 var bestMatch = nodesetWithURIAndDate.FirstOrDefault(n => n?.Item1 == missing.ModelUri && n?.Item2 == missing.PublicationDate);
                 if (bestMatch == null)
                 {
-                    bestMatch = nodesetWithURIAndDate.Where(n => n?.Item1 == missing.ModelUri && n?.Item2 >= missing.PublicationDate).OrderBy(m => m?.Item2).FirstOrDefault();
+                    bestMatch = nodesetWithURIAndDate.Where(n => n?.Item1 == missing.ModelUri && (missing.PublicationDate == null || n?.Item2 >= missing.PublicationDate)).OrderBy(m => m?.Item2).FirstOrDefault();
                 }
                 if (bestMatch != null)
                 {
@@ -100,7 +98,7 @@ namespace CESMII.OpcUa.NodeSetImporter
                     {
                         OnDownloadNodeSet?.Invoke(bestMatch?.NamespaceUri, bestMatch?.PublicationDate);
                         var nodeSet = await _client.DownloadNodesetAsync(bestMatch?.Identifier).ConfigureAwait(false);
-                        nodesetXml = nodeSet.Nodeset.NodesetXml;
+                        nodesetXml = nodeSet?.Nodeset?.NodesetXml;
                     }
                     if (!string.IsNullOrEmpty(nodesetXml))
                     {

@@ -63,6 +63,8 @@ DROP TABLE IF EXISTS public.profile_type_definition;
 DROP TABLE IF EXISTS public.import_log_warning;
 DROP TABLE IF EXISTS public.profile_additional_properties;
 DROP TABLE IF EXISTS public.profile;
+DROP TABLE IF EXISTS public.import_file_chunk;
+DROP TABLE IF EXISTS public.import_file;
 DROP TABLE IF EXISTS public.import_log_message;
 DROP TABLE IF EXISTS public.import_log;
 
@@ -139,6 +141,8 @@ CREATE TABLE public.user
     email_address character varying(320) COLLATE pg_catalog."default" NULL,
     --is_active boolean NOT NULL,
     date_joined timestamp with time zone NOT NULL,
+    sssu_organization character varying (128) NULL,
+    sssu_cesmii_member boolean NULL,
     --registration_complete timestamp with time zone,
     --CONSTRAINT user_username_key UNIQUE (username),
     CONSTRAINT user_id_fk_org_id FOREIGN KEY (organization_id)
@@ -297,6 +301,7 @@ ALTER TABLE public.engineering_unit
 --	Create NodeSet Lookup Table
 ---------------------------------------------------------------------
 
+/*
 CREATE TABLE public.standard_nodeset
 (
     id SERIAL PRIMARY KEY,
@@ -315,7 +320,7 @@ TABLESPACE pg_default;
 
 ALTER TABLE public.standard_nodeset
     OWNER to profiledesigner;
-
+*/
 /* These now come from the cloud library
 INSERT INTO public.standard_nodeset (id, namespace, version, filename, publish_date, is_active) VALUES (1, 'http://opcfoundation.org/UA/ADI/', '1.01', NULL, '2013-07-31', true);
 INSERT INTO public.standard_nodeset (id, namespace, version, filename, publish_date, is_active) VALUES (2, 'http://opcfoundation.org/UA/AML/', '1.00', NULL, '2016-02-22', true);
@@ -379,7 +384,7 @@ INSERT INTO public.standard_nodeset (id, namespace, version, filename, publish_d
 INSERT INTO public.standard_nodeset (id, namespace, version, filename, publish_date, is_active) VALUES (60, 'http://opcfoundation.org/UA/PlasticsRubber/Extrusion/Pelletizer/', '1.00', NULL, '2020-06-01', true);
 */
 --manually adjust the identity starting val
-SELECT setval('standard_nodeset_id_seq', 61);
+--SELECT setval('standard_nodeset_id_seq', 61);
 
 /*profile-profiletype-rename-refactor - START*/
 ---------------------------------------------------------------------
@@ -425,11 +430,14 @@ CREATE TABLE public.profile
     namespace character varying(400) COLLATE pg_catalog."default" NOT NULL,
     version character varying(25) COLLATE pg_catalog."default",
     publish_date timestamp with time zone NULL,
-    ua_standard_profile_id integer NULL,
+    xml_schema_uri character varying(400) COLLATE pg_catalog."default" NULL,
+    --ua_standard_profile_id integer NULL,
     author_id integer NULL,
 	
 	-- Cloud Library meta data
-	title text NULL,
+	cloud_library_id character varying(100)  NULL,
+  cloud_library_pending_approval boolean NULL,
+  title text NULL,
 	license text NULL,
 	copyright_text text NULL,
 	contributor_name text NULL,
@@ -445,11 +453,11 @@ CREATE TABLE public.profile
 	supported_locales text[] NULL,
 	-- End Cloud Library meta data
 	
-    CONSTRAINT profile_standard_profile_id FOREIGN KEY (ua_standard_profile_id)
-        REFERENCES public.standard_nodeset (id) MATCH SIMPLE
-        ON UPDATE NO ACTION
-        ON DELETE NO ACTION
-        DEFERRABLE INITIALLY DEFERRED,	
+    --CONSTRAINT profile_standard_profile_id FOREIGN KEY (ua_standard_profile_id)
+    --    REFERENCES public.standard_nodeset (id) MATCH SIMPLE
+    --    ON UPDATE NO ACTION
+    --    ON DELETE NO ACTION
+    --    DEFERRABLE INITIALLY DEFERRED,	
     CONSTRAINT profile_author_id FOREIGN KEY (author_id)
         REFERENCES public.user (id) MATCH SIMPLE
         ON UPDATE NO ACTION
@@ -660,15 +668,17 @@ CREATE TABLE public.profile_composition
     profile_type_definition_id integer NOT NULL,
     composition_id integer NOT NULL,
     name character varying(256) COLLATE pg_catalog."default" NOT NULL,
-	opc_browse_name character varying(256) NULL,
-    -- Compositions don't have nodeids, compare on opc_browse_name
-    --opc_node_id character varying(256) NULL, 
+	  opc_browse_name character varying(256) NULL,
+    opc_node_id character varying(256) NULL, 
+    symbolic_name character varying(256) COLLATE pg_catalog."default" NULL,
+    metatags varchar NULL,
+    document_url character varying(512) COLLATE pg_catalog."default" NULL,
     --namespace character varying(512) COLLATE pg_catalog."default" NULL,
     is_required boolean NULL,
-	modeling_rule character varying(256) NULL,
+	  modeling_rule character varying(256) NULL,
     is_event boolean NULL,
-	reference_id character varying(256) NULL,
-	reference_is_inverse boolean NULL,
+	  reference_id character varying(256) NULL,
+	  reference_is_inverse boolean NULL,
     description character varying COLLATE pg_catalog."default" NULL,
     CONSTRAINT profile_composition_id_fk_id FOREIGN KEY (composition_id)
         REFERENCES public.profile_type_definition (id) MATCH SIMPLE
@@ -835,8 +845,13 @@ CREATE TABLE public.profile_attribute
     display_name character varying(256) COLLATE pg_catalog."default" NULL,
     min_value numeric NULL,
     max_value numeric NULL,
+
 	instrument_min_value numeric NULL,
 	instrument_max_value numeric NULL,
+	instrument_range_nodeid character varying(256) NULL,
+	instrument_range_modeling_rule character varying(256) NULL,
+	instrument_range_access_level integer NULL,
+	
 	eng_unit_id integer NULL,
 	eng_unit_nodeid character varying(256) NULL,
 	eng_unit_modeling_rule character varying(256) NULL,
@@ -970,6 +985,7 @@ select
 	--lu.name, 
 	--ptd.*, 
 	dt.*, 
+    baseDt.id as base_data_type_id,
 	COALESCE(a.usage_count, 0) + COALESCE(dtr.manual_rank, 0) as popularity_index,
 	--create a tiered system to distinguish between very popular and mildly popular and the others
 	CASE 
@@ -982,6 +998,7 @@ select
 from public.data_type dt
 left outer join public.data_type_rank dtr on dtr.data_type_id = dt.id
 left outer join public.profile_type_definition ptd on ptd.id = dt.custom_type_id
+left outer join public.data_type baseDt on ptd.parent_id = baseDt.custom_type_id
 --left outer join public.lookup lu on lu.id = ptd.type_id
 left outer join (
 	SELECT data_type_id, count(*) as usage_count 
@@ -1063,8 +1080,8 @@ CREATE TABLE public.import_log
     id SERIAL PRIMARY KEY,
     owner_id integer NULL,
     status_id integer NOT NULL,  
-    file_list character varying NULL,
     is_active boolean NOT NULL,
+    notify_on_complete boolean NOT NULL,
     created timestamp with time zone NOT NULL,
     updated timestamp with time zone NOT NULL,
     completed timestamp with time zone NULL,
@@ -1133,6 +1150,49 @@ TABLESPACE pg_default;
 ALTER TABLE public.import_log_warning
     OWNER to profiledesigner;
 
+---------------------------------------------------------------------
+--	New Table - import file - child table to import_action (formerly import_log)
+---------------------------------------------------------------------
+-- DROP TABLE public.import_file;
+CREATE TABLE public.import_file
+(
+    id SERIAL PRIMARY KEY,
+    import_id integer NOT NULL,  
+    file_name character varying NOT NULL,
+    total_chunks integer NOT NULL,
+    total_bytes bigint NOT NULL,
+    CONSTRAINT import_import_id_fk FOREIGN KEY (import_id)
+        REFERENCES public.import_log (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+        DEFERRABLE INITIALLY DEFERRED
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE public.import_file
+    OWNER to profiledesigner;
+---------------------------------------------------------------------
+--	New Table - import file chunk - child table to import_file
+---------------------------------------------------------------------
+-- DROP TABLE public.import_file_chunk;
+CREATE TABLE public.import_file_chunk
+(
+    id SERIAL PRIMARY KEY,
+    import_file_id integer NOT NULL,  
+    chunk_order integer NOT NULL,
+    contents text NULL,
+    CONSTRAINT import_file_import_file_id_fk FOREIGN KEY (import_file_id)
+        REFERENCES public.import_file (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+        DEFERRABLE INITIALLY DEFERRED
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE public.import_file_chunk
+    OWNER to profiledesigner;
 ---------------------------------------------------------------------
 --	Delete a nodeset and all of its children
 ---------------------------------------------------------------------
@@ -1240,8 +1300,422 @@ begin
 	;
     commit;
 end;$$
+;
 
 
+/*---------------------------------------------------------
+	Function: fn_profile_get_owner
+---------------------------------------------------------*/
+drop function if exists fn_profile_get_owner; 
+create function fn_profile_get_owner (
+   IN _id int, _ownerId int) 
+/*
+	Function: fn_profile_get_owner
+	Who: scoxen
+	When: 2023-03-27
+	Description: 
+	Determine if this profile is owned by this ownerId. 
+	Return user
+*/
+returns table ( 
+	id integer, 
+	objectid_aad character varying(100) 
+) 
+language plpgsql
+as $$
+declare 
+-- variable declaration
+begin
+	-- body
+	return query
+		SELECT u.id, u.objectid_aad  
+		FROM public.profile p
+		--determine ownership
+		--has no cloudlibraryid and author id = passed in user id - owned by user
+		--has cloudlibraryid and cloud library pending approval is true - owned by user
+		--note Cloud library fields are managed and maintained by the API updating its values based on current
+		--Cloud Lib (separate system). If there was any mismatch in values between this and CloudLib, it would be uncommon and updated through 
+		--the normal course of visiting pages within the application.
+		LEFT OUTER JOIN public.user u ON u.id = p.author_id AND
+			(p.cloud_library_id IS NULL OR
+			(p.cloud_library_id IS NOT NULL AND 
+				COALESCE(p.cloud_library_pending_approval, FALSE) IS TRUE))
+		WHERE 
+			 p.id = _id AND
+			(p.owner_id IS NULL --root nodesets
+			 OR p.owner_id = _ownerId)  --my nodesets or nodesets I imported
+	;
+end; $$ 
+;
+
+/*---------------------------------------------------------
+	Function: fn_profile_type_definition_get_descendants
+---------------------------------------------------------*/
+drop function if exists fn_profile_type_definition_get_descendants; 
+create function fn_profile_type_definition_get_descendants (
+   IN _id int, _ownerId int, _limitByType boolean, _excludeAbstract boolean
+) 
+/*
+	Function: fn_profile_type_definition_get_descendants
+	Who: scoxen
+	When: 2023-01-31
+	Description: 
+	Get a list of type defs which are descendants of this 
+	type def. This is a recursive query.
+	This also considers ownership. It will consider type defs associated with 
+	standard nodeset profiles or profiles this owner has created.
+	Notes:
+		allow for ordered, paged results
+*/
+returns table ( 
+	id integer, 
+	browse_name character varying(256), 
+	description character varying, 
+	is_abstract boolean, 
+	name character varying(512), 
+	opc_node_id character varying(100), 
+	parent_id integer, 
+	type_id integer, 
+	type_name character varying(256), 
+    variable_data_type_id integer,
+	profile_id integer, 
+	profile_author_id integer, 
+	profile_author_objectid_aad character varying(100), 
+	profile_namespace character varying(400), 
+	profile_owner_id integer, 
+	profile_publish_date timestamp with time zone, 
+	profile_title text, 
+	profile_version character varying(25), 
+	level integer
+) 
+language plpgsql
+as $$
+declare 
+-- variable declaration
+begin
+	-- body
+	return query
+	WITH RECURSIVE descendant AS (
+		SELECT  t.id,
+				CAST(0 as integer) AS level
+		FROM public.profile_type_definition t
+		JOIN public.profile p on p.id = t.profile_id
+		WHERE t.id = _id
+
+		UNION ALL
+
+		SELECT  t.id,
+				CAST(d.level + 1 as integer) as level
+		FROM public.profile_type_definition t
+		JOIN public.profile p on p.id = t.profile_id
+		JOIN descendant d ON t.parent_id = d.id
+		WHERE
+			(p.owner_id IS NULL) --root nodesets
+			OR (p.owner_id = _ownerId)  --my nodesets or nodesets I imported
+	)
+
+	SELECT  d.id,
+			t.browse_name,
+			t.description,
+			t.is_abstract,
+			t.name,
+			t.opc_node_id,
+			t.parent_id,
+			t.type_id,
+			l.name as type_name,
+			t.variable_data_type_id,
+			p.id as profile_id,
+			u.id as profile_author_id,
+			u.objectid_aad as profile_author_objectid_aad,
+			p.namespace as profile_namespace,
+			p.owner_id as profile_owner_id,
+			p.publish_date as profile_publish_date,
+			p.title as profile_title,
+			p.version as profile_version,
+			d.level
+	FROM descendant d
+	JOIN public.profile_type_definition t ON d.id = t.id 
+		AND t.id <> _id
+	JOIN public.profile p ON p.id = t.profile_id
+	JOIN public.lookup l ON l.id = t.type_id
+	--determine ownership
+	LEFT OUTER JOIN public.fn_profile_get_owner(p.id, _ownerId) u on  u.id = p.author_id
+	WHERE 
+	--rule: always exclude object and method
+	l.id NOT IN (11, 20)   
+	--optional parameters
+	AND 1 = (CASE WHEN _limitByType = false THEN 1
+		 WHEN _limitByType = true AND t.type_id IN (SELECT t1.type_id FROM public.profile_type_definition t1 WHERE t1.id = _id) THEN 1
+		 ELSE 0 END)
+	--optional parameters
+	AND 1 = (CASE WHEN _excludeAbstract = false THEN 1
+		 WHEN _excludeAbstract = true AND t.is_abstract = false THEN 1
+		 ELSE 0 END)
+	;
+end; $$ 
+;
+
+
+/*---------------------------------------------------------
+	Function: fn_profile_type_definition_get_dependencies
+---------------------------------------------------------*/
+drop function if exists fn_profile_type_definition_get_dependencies; 
+create function fn_profile_type_definition_get_dependencies (
+   IN _id int, _ownerId int, _limitByType boolean, _excludeAbstract boolean
+) 
+/*
+	Function: fn_profile_type_definition_get_dependencies
+	Who: scoxen
+	When: 2023-01-31
+	Description: 
+	Get a list of type defs which are descendants OR dependencies of this 
+	type def. Call the descendants function to get those items. 
+	Then call union queries to find the dependencies based on compositions or data type usage
+*/
+returns table ( 
+	id integer, 
+	browse_name character varying(256), 
+	description character varying, 
+	is_abstract boolean, 
+	name character varying(512), 
+	opc_node_id character varying(100), 
+	parent_id integer, 
+	type_id integer, 
+	type_name character varying(256), 
+    variable_data_type_id integer,
+	profile_id integer, 
+	profile_author_id integer, 
+	profile_author_objectid_aad character varying(100), 
+	profile_namespace character varying(400), 
+	profile_owner_id integer, 
+	profile_publish_date timestamp with time zone, 
+	profile_title text, 
+	profile_version character varying(25), 
+	level integer
+) 
+language plpgsql
+as $$
+declare 
+-- variable declaration
+begin
+	-- body
+	return query
+
+	WITH dependants AS (
+		--union with type defs that use this profile as a composition
+		SELECT  t.id,
+				CAST(1 as integer) AS level
+		FROM public.profile_type_definition t 
+		JOIN public.profile_composition c on c.profile_type_definition_id = t.id AND c.composition_id = _id
+		JOIN public.profile p ON p.id = t.profile_id
+		WHERE 
+			(p.owner_id IS NULL) --root nodesets
+			OR (p.owner_id = _ownerId)  --my nodesets or nodesets I imported
+		
+		UNION
+		--union with type defs that use this profile as an interface
+		SELECT  t.id,
+				CAST(1 as integer) AS level
+		FROM public.profile_type_definition t 
+		JOIN public.profile_interface i on i.profile_type_definition_id = t.id AND i.interface_id = _id
+		JOIN public.profile p ON p.id = t.profile_id
+		WHERE 
+			(p.owner_id IS NULL) --root nodesets
+			OR (p.owner_id = _ownerId)  --my nodesets or nodesets I imported
+		
+		UNION
+		--union with type defs that have attributes that use a data type which points to a profile type def (2nd level)
+		SELECT  t.id,
+				CAST(2 as integer) AS level
+		FROM public.profile_type_definition t 
+		JOIN public.profile p ON p.id = t.profile_id
+		WHERE 
+			((p.owner_id IS NULL) --root nodesets
+			OR (p.owner_id = _ownerId)) AND  --my nodesets or nodesets I imported
+			t.id IN (
+			SELECT distinct(t.id) -- , t.name, a.name, d.* 
+			FROM public.profile_attribute a
+			JOIN public.data_type d on d.id = a.data_type_id
+			JOIN public.profile_type_definition t on t.id = a.profile_type_definition_id
+			WHERE d.custom_type_id = _id
+		)
+
+	)
+
+	--adding extra wrapping sql statement to get the distinct values
+	--a type def could be a dependency in multiple scenarios
+	SELECT
+			dFinal.id,
+			dFinal.browse_name,
+			dFinal.description,
+			dFinal.is_abstract,
+			dFinal.name,
+			dFinal.opc_node_id,
+			dFinal.parent_id,
+			dFinal.type_id,
+			dFinal.type_name,
+			dFinal.variable_data_type_id,
+			dFinal.profile_id,
+			dFinal.profile_author_id,
+			dFinal.profile_author_objectid_aad,
+			dFinal.profile_namespace,
+			dFinal.profile_owner_id,
+			dFinal.profile_publish_date,
+			dFinal.profile_title,
+			dFinal.profile_version,
+			min(dFinal.level) as level
+	FROM (SELECT  d.id,
+			t.browse_name,
+			t.description,
+			t.is_abstract,
+			t.name,
+			t.opc_node_id,
+			t.parent_id,
+			t.type_id,
+			l.name as type_name,
+			t.variable_data_type_id,
+			p.id as profile_id,
+			u.id as profile_author_id,
+			u.objectid_aad as profile_author_objectid_aad,
+			p.namespace as profile_namespace,
+			p.owner_id as profile_owner_id,
+			p.publish_date as profile_publish_date,
+			p.title as profile_title,
+			p.version as profile_version,
+			d.level
+	FROM dependants d
+	JOIN public.profile_type_definition t ON d.id = t.id AND t.id <> _id
+	JOIN public.profile p ON p.id = t.profile_id
+	JOIN public.lookup l ON l.id = t.type_id
+	--determine ownership
+	LEFT OUTER JOIN public.fn_profile_get_owner(p.id, _ownerId) u on  u.id = p.author_id
+	WHERE 
+	--rule: always exclude object and method
+	l.id NOT IN (11, 20)   
+	--optional parameters
+	AND 1 = (CASE WHEN _limitByType = false THEN 1
+		 WHEN _limitByType = true AND t.type_id IN (SELECT t1.type_id FROM public.profile_type_definition t1 WHERE t1.id = _id) THEN 1
+		 ELSE 0 END)
+	--optional parameters
+	AND 1 = (CASE WHEN _excludeAbstract = false THEN 1
+		 WHEN _excludeAbstract = true AND t.is_abstract = false THEN 1
+		 ELSE 0 END)
+	UNION 
+	SELECT * FROM public.fn_profile_type_definition_get_descendants(_id, _ownerId, _limitByType, _excludeAbstract)
+	) as dFinal
+	group by 
+			dFinal.id,
+			dFinal.browse_name,
+			dFinal.description,
+			dFinal.is_abstract,
+			dFinal.name,
+			dFinal.opc_node_id,
+			dFinal.parent_id,
+			dFinal.type_id,
+			dFinal.type_name,
+			dFinal.variable_data_type_id,
+			dFinal.profile_id,
+			dFinal.profile_author_id,
+			dFinal.profile_author_objectid_aad,
+			dFinal.profile_namespace,
+			dFinal.profile_owner_id,
+			dFinal.profile_publish_date,
+			dFinal.profile_title,
+			dFinal.profile_version	
+	;
+end; $$ 
+;
+
+/*---------------------------------------------------------
+	Function: fn_profile_type_definition_get_ancestors
+---------------------------------------------------------*/
+drop function if exists fn_profile_type_definition_get_ancestors; 
+create function fn_profile_type_definition_get_ancestors (
+   IN _id int, _ownerId int
+) 
+/*
+	Function: fn_profile_type_definition_get_ancestors
+	Who: scoxen
+	When: 2023-01-31
+	Description: 
+	Get a list of type defs which are parents, grandparents of this 
+	type def. 
+*/
+returns table ( 
+	id integer, 
+	browse_name character varying(256), 
+	description character varying, 
+	is_abstract boolean, 
+	name character varying(512), 
+	opc_node_id character varying(100), 
+	parent_id integer, 
+	type_id integer, 
+	type_name character varying(256), 
+    variable_data_type_id integer,
+	profile_id integer, 
+	profile_author_id integer, 
+	profile_author_objectid_aad character varying(100), 
+	profile_namespace character varying(400), 
+	profile_owner_id integer, 
+	profile_publish_date timestamp with time zone, 
+	profile_title text, 
+	profile_version character varying(25), 
+	level integer
+) 
+language plpgsql
+as $$
+declare 
+-- variable declaration
+begin
+	-- body
+	return query
+	WITH RECURSIVE ancestor AS (
+		SELECT  t.id,
+				t.parent_id,
+				CAST(0 as integer) AS level
+		FROM public.profile_type_definition t
+		JOIN public.profile p on p.id = t.profile_id
+		WHERE t.id = _id
+
+		UNION ALL
+
+		SELECT  t.id,
+				t.parent_id,
+				CAST(d.level - 1 as integer) as level
+		FROM public.profile_type_definition t
+		JOIN public.profile p on p.id = t.profile_id
+		JOIN ancestor d ON d.parent_id = t.id
+		--WHERE p.cloud_library_id IS NOT NULL OR p.owner_id = _ownerId
+	)
+
+	SELECT  d.id,
+			t.browse_name,
+			t.description,
+			t.is_abstract,
+			t.name,
+			t.opc_node_id,
+			t.parent_id,
+			t.type_id,
+			l.name as type_name,
+			t.variable_data_type_id,
+			p.id as profile_id,
+			u.id as profile_author_id,
+			u.objectid_aad as profile_author_objectid_aad,
+			p.namespace as profile_namespace,
+			p.owner_id as profile_owner_id,
+			p.publish_date as profile_publish_date,
+			p.title as profile_title,
+			p.version as profile_version,
+			d.level
+	FROM ancestor d
+	JOIN public.profile_type_definition t ON d.id = t.id --AND t.id <> _id --include item itself
+	JOIN public.profile p ON p.id = t.profile_id
+	JOIN public.lookup l ON l.id = t.type_id
+	--determine ownership
+	LEFT OUTER JOIN public.fn_profile_get_owner(p.id, _ownerId) u on  u.id = p.author_id
+	order by d.level, t.name
+	;
+end; $$ 
 
 
 ---------------------------------------------------------------------

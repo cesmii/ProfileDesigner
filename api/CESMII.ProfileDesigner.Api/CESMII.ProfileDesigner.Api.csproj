@@ -15,8 +15,18 @@
     <None Remove="Migrations - Copy\**" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Remove="Controllers\SelfServiceSignUpAPIConnector.cs" />
+  </ItemGroup>
+
 	<ItemGroup>
 		<InternalsVisibleTo Include="CESMII.ProfileDesigner.Api.Tests" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Include="Views\Shared\_EmailLayout.cshtml" />
+	  <None Include="Views\Shared\_Footer.cshtml" />
+	  <None Include="Views\Shared\_Head.cshtml" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -45,18 +55,35 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\common\CESMII.Common.SelfServiceSignUp\CESMII.Common.SelfServiceSignUp.csproj" />
     <ProjectReference Include="..\CESMII.ProfileDesigner.OpcUa\CESMII.ProfileDesigner.OpcUa.csproj" />
     <ProjectReference Include="..\CESMII.ProfileDesigner.Api.Shared\CESMII.ProfileDesigner.Api.Shared.csproj" />
     <ProjectReference Include="..\CESMII.ProfileDesigner.Common\CESMII.ProfileDesigner.Common.csproj" />
     <ProjectReference Include="..\CESMII.ProfileDesigner.DAL\CESMII.ProfileDesigner.DAL.csproj" />
     <ProjectReference Include="..\CESMII.ProfileDesigner.Data\CESMII.ProfileDesigner.Data.csproj" />
-    <ProjectReference Include="..\Opc.Ua.Cloud.Library.Client\Opc.Ua.Cloud.Library.Client.csproj" />
-    <ProjectReference Include="..\SmipJson\CESMII.OpcUa.NodeSetModel.Factory.Smip\CESMII.OpcUa.NodeSetModel.Factory.Smip.csproj" />
+    <ProjectReference Include="..\..\common\Opc.Ua.Cloud.Library.Client\Opc.Ua.Cloud.Library.Client.csproj" />
+    <ProjectReference Include="..\..\common\CESMII.Common.CloudLibClient\CESMII.Common.CloudLibClient.csproj" />
+	<ProjectReference Include="..\SmipJson\CESMII.OpcUa.NodeSetModel.Factory.Smip\CESMII.OpcUa.NodeSetModel.Factory.Smip.csproj" />
   </ItemGroup>
 
   <ItemGroup>
+    <Content Update="Views\Template\EmailApprovedProfileSubmission.cshtml">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Content>
+    <Content Update="Views\Template\EmailCancelProfileSubmission.cshtml">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Content>
+    <Content Update="Views\Template\EmailProfileSubmission.cshtml">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Content>
+    <Content Update="Views\Template\EmailStatusChangeProfileSubmission.cshtml">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Content>
     <Content Update="NLog.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="Views\Template\EmailRejectedProfileSubmission.cshtml">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
 

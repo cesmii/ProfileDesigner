@@ -38,6 +38,11 @@ namespace CESMII.ProfileDesigner.Api.Tests
                 recording = true;
             }
         }
+        public Task<GraphQlResult<Nodeset>> GetManyAsync(List<string> identifiers)
+        {
+            return null;
+        }
+
         record SearchInputs
         {
             public string[] Keywords { get; set; }
@@ -86,7 +91,7 @@ namespace CESMII.ProfileDesigner.Api.Tests
         public OnNodeSet OnNodeSetFound { get; set; }
         public OnNodeSet OnNodeSetNotFound { get; set; }
 
-        public async Task<GraphQlResult<Nodeset>> SearchAsync(int? limit, string cursor, bool pageBackwards, List<string> keywords, List<string> exclude)
+        public async Task<GraphQlResult<Nodeset>> SearchAsync(int? limit, string cursor, bool pageBackwards, List<string> keywords, List<string> exclude, bool noTotalCount)
         {
             var inputs = new SearchInputs
             {
@@ -97,7 +102,7 @@ namespace CESMII.ProfileDesigner.Api.Tests
             };
             if (_wrapper != null)
             {
-                var result = await _wrapper.SearchAsync(limit, cursor, pageBackwards, keywords, exclude);
+                var result = await _wrapper.SearchAsync(limit, cursor, pageBackwards, keywords, exclude, noTotalCount);
 
                 if (!_searchData.ContainsKey(inputs))
                 {
@@ -170,5 +175,25 @@ namespace CESMII.ProfileDesigner.Api.Tests
             Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
+
+        public Task<string> UploadAsync(UANameSpace uaNamespace)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<GraphQlResult<Nodeset>> GetNodeSetsPendingApprovalAsync(int? limit, string cursor, bool pageBackwards, bool noTotalCount = false, UAProperty prop = null)
+        {
+            throw new NotImplementedException();
+        }
+        public Task<UANameSpace> UpdateApprovalStatusAsync(string nodeSetId, string newStatus, string statusInfo, UAProperty additionalProperty = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<UANameSpace> GetAsync(string identifier)
+        {
+            throw new NotImplementedException();
+        }
+
     }
 }

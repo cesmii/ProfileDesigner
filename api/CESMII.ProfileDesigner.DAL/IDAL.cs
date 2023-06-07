@@ -18,11 +18,27 @@
         {
             return new UserToken { UserId = userToken.UserId, TargetTenantId = 0, };
         }
+        public override string ToString()
+        {
+            if (TargetTenantId != null)
+            {
+                return $"{UserId} ({TargetTenantId})";
+            }
+            return $"{UserId}";
+        }
     }
 
     public interface IDal<TEntity, TModel>: IDisposable where TEntity : AbstractEntity where TModel: AbstractModel
     {
         TModel GetById(int id, UserToken userToken);
+        /// <summary>
+        /// Get item by id - asynchronously
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="userToken"></param>
+        /// <returns></returns>
+        Task<TModel> GetByIdAsync(int id, UserToken userToken);
+
         /// <param name="verbose">Optional. If false, this can provide the option for the implementing class to return a subset of data with less
         ///         relational tables being loaded. For my lists, I typically don't need all the child collections, lookup table info, etc. 
         ///         This can speed stuff up when getting lists of data. </param>

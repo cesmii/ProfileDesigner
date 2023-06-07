@@ -113,7 +113,7 @@ export const OnLookupLoad = () => {
         }
 
         //if not logged in yet, return
-        if (!_isAuthenticated || !loadingProps.refreshSearchCriteria) return;
+        if (!_isAuthenticated || loadingProps.refreshSearchCriteria === false) return;
 
         //trigger retrieval of lookup data - if necessary
         if (loadingProps == null || loadingProps.searchCriteria == null || loadingProps.searchCriteria.filters == null
@@ -168,7 +168,7 @@ export const OnLookupLoad = () => {
         }
 
         //if not logged in yet, return
-        if (!_isAuthenticated || !loadingProps.refreshProfileSearchCriteria) return;
+        if (!_isAuthenticated || loadingProps.refreshProfileSearchCriteria === false) return;
 
         //trigger retrieval of lookup data - if necessary
         if (loadingProps == null || loadingProps.profileSearchCriteria == null || loadingProps.profileSearchCriteria.filters == null
@@ -223,7 +223,7 @@ export const OnLookupLoad = () => {
         }
 
         //if not logged in yet, return
-        if (!_isAuthenticated || !loadingProps.refreshCloudLibImporterSearchCriteria) return;
+        if (!_isAuthenticated || loadingProps.refreshCloudLibImporterSearchCriteria === false) return;
 
         //trigger retrieval of lookup data - if necessary
         if (loadingProps == null || loadingProps.cloudLibImporterSearchCriteria == null || loadingProps.cloudLibImporterSearchCriteria.filters == null
@@ -274,7 +274,7 @@ export const OnLookupLoad = () => {
         }
 
         //if not logged in yet, return
-        if (!_isAuthenticated || !loadingProps.refreshFavoritesList) return;
+        if (!_isAuthenticated || loadingProps.refreshFavoritesList === false) return;
 
         if (loadingProps.favoritesList == null || loadingProps.refreshFavoritesList === true) {
             fetchData();

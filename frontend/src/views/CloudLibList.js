@@ -4,7 +4,7 @@ import { Helmet } from "react-helmet"
 import { AppSettings } from '../utils/appsettings'
 import { renderTitleBlock } from '../utils/UtilityService'
 
-import CloudLibraryImporter from "./shared/CloudLibraryImporter";
+import CloudLibraryListGrid from "./shared/CloudLibraryListGrid";
 
 import color from '../components/Constants'
 import './styles/ProfileList.scss';
@@ -43,7 +43,7 @@ function CloudLibList() {
                 <title>{AppSettings.Titles.Main + " | " + caption}</title>
             </Helmet>
             {renderHeaderRow()}
-            <CloudLibraryImporter/>
+            <CloudLibraryListGrid/>
         </>
     )
 }

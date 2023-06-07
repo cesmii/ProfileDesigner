@@ -35,6 +35,8 @@ function ProfileListGrid(props) {
     });
     const [_pager, setPager] = useState({ currentPage: 1, pageSize: _profilePreferences.pageSize, searchVal: null});
     const { loadingProps, setLoadingProps } = useLoadingContext();
+    const [_isLoading, setIsLoading] = useState(null);
+
     //importer
     const [_forceReload, setForceReload] = useState(0);
 
@@ -94,6 +96,11 @@ function ProfileListGrid(props) {
         if (props.onGridRowSelect) props.onGridRowSelect(item);
     };
 
+    const onRowChanged = (item) => {
+        console.log(generateLogMessageString(`onRowChanged`, CLASS_NAME));
+        setForceReload(_forceReload + 1)
+    }
+
     //-------------------------------------------------------------------
     // Region: Event Handling of child component events
     //-------------------------------------------------------------------
@@ -115,15 +122,16 @@ function ProfileListGrid(props) {
         async function fetchDataProfile() {
             //show a spinner
             setLoadingProps({ isLoading: true, message: null });
+            setIsLoading(true);
 
             const url = `profile/library`;
             console.log(generateLogMessageString(`useEffect||fetchDataProfile||${url}`, CLASS_NAME));
 
             //apply the page size info from this page
-            props.searchCriteria.skip = (_pager.currentPage - 1) * _pager.pageSize;
-            props.searchCriteria.take = _pager.pageSize;
+            _searchCriteria.skip = (_pager.currentPage - 1) * _pager.pageSize;
+            _searchCriteria.take = _pager.pageSize;
             //call search
-            await axiosInstance.post(url, props.searchCriteria).then(result => {
+            await axiosInstance.post(url, _searchCriteria).then(result => {
                 if (result.status === 200) {
 
                     //set state on fetch of data
@@ -147,6 +155,7 @@ function ProfileListGrid(props) {
                 }
                 //hide a spinner
                 setLoadingProps({ isLoading: false, message: null });
+                setIsLoading(false);
 
             }).catch(e => {
                 if ((e.response && e.response.status === 401) || e.toString().indexOf('Network Error') > -1) {
@@ -160,6 +169,7 @@ function ProfileListGrid(props) {
                     });
                     //setItemCount(null);
                 }
+                setIsLoading(false);
             });
         }
 
@@ -194,28 +204,28 @@ function ProfileListGrid(props) {
             }
 
             //apply the page size info from this page
-            props.searchCriteria.skip = (_pager.currentPage - 1) * _pager.pageSize;
-            props.searchCriteria.take = _pager.pageSize;
+            _searchCriteria.skip = (_pager.currentPage - 1) * _pager.pageSize;
+            _searchCriteria.take = _pager.pageSize;
             
             //dynamically append CloudLib specific params to common filtering model
             // Cursor pagination for CloudLib
-            props.searchCriteria.cursor= cursor;
-            props.searchCriteria.pageBackwards = pageBackwards;
+            _searchCriteria.cursor= cursor;
+            _searchCriteria.pageBackwards = pageBackwards;
 
             //show a spinner
             setLoadingProps({ isLoading: true, message: null });
 
-            await axiosInstance.post(url, props.searchCriteria).then(result => {
+            await axiosInstance.post(url, _searchCriteria).then(result => {
                 if (result.status === 200) {
 
                     let itemCount = result.data.count;
                     if (result.data.hasNextPage != null && !result.data.hasNextPage
-                        && !(props.searchCriteria.pageBackwards && props.searchCriteria.cursor != null)
+                        && !(_searchCriteria.pageBackwards && _searchCriteria.cursor != null)
                         && _pager.currentPage < Math.ceil(itemCount / _pager.pageSize)) {
                         // There were more items reported than actually available (backend filtering or other bug): adjust total items
                         itemCount = _pager.pageSize * (_pager.currentPage - 1) + result.data.data.length;
                     }
-                    if (result.data.hasPreviousPage != null && !result.data.hasPreviousPage && props.searchCriteria.pageBackwards && _pager.currentPage !== 1) {
+                    if (result.data.hasPreviousPage != null && !result.data.hasPreviousPage && _searchCriteria.pageBackwards && _pager.currentPage !== 1) {
                         // We are at the first page but the pager is out of sync - there were more items reported than actually available (backend filtering or other bug): adjust total items
                         _pager.currentPage = 1;
                     }
@@ -254,6 +264,9 @@ function ProfileListGrid(props) {
             });
         }
 
+        //don't fetch data if this is null
+        if (_searchCriteria == null) return;
+
         //this component is shared by profile list and cloud lib importer. Get the proper data based
         //on component mode
         if (!props.mode || props.mode === AppSettings.ProfileListMode.Profile) fetchDataProfile();
@@ -262,6 +275,13 @@ function ProfileListGrid(props) {
         //type passed so that any change to this triggers useEffect to be called again
         //_nodesetPreferences.pageSize - needs to be passed so that useEffects dependency warning is avoided.
     }, [_pager, _forceReload, props.mode, _searchCriteria]);
+
+
+    useEffect(() => {
+        //check for searchcriteria - if there, update state and then that triggers retrieval of grid data
+        if (props.searchCriteria == null) return;
+        setSearchCriteria(JSON.parse(JSON.stringify(props.searchCriteria)));
+    }, [props.searchCriteria]);
 
     //-------------------------------------------------------------------
     // useEffect - Importing items
@@ -298,6 +318,8 @@ function ProfileListGrid(props) {
         );
     };
     const renderNoDataRow = () => {
+        if (_isLoading) return null; //don't show no data message if we are trying to load data
+
         return (
             <div className="alert alert-info-custom mt-2 mb-2">
                 <div className="text-center" >There are no {entityInfo.name.toLowerCase()} records.</div>
@@ -323,9 +345,9 @@ function ProfileListGrid(props) {
         const mainBody = _dataRows.all.map((item) => {
             return (<ProfileItemRow key={item.id} item={item} activeAccount={_activeAccount}
                 showActions={true} cssClass={`profile-list-item ${props.rowCssClass ?? ''}`} selectMode={props.selectMode}
-                onEditCallback={onEdit} onDeleteCallback={onDeleteItemClick} onRowSelect={onRowSelect}
+                onEditCallback={onEdit} onDeleteCallback={onDeleteItemClick} onRowSelect={onRowSelect} onRowChanged={onRowChanged}
                 onImportCallback={onImport}
-                selectedItems={props.selectedItems} 
+                selectedItems={props.selectedItems} navigateModal={props.navigateModal}
             />)
         });
 
@@ -344,10 +366,12 @@ function ProfileListGrid(props) {
     return (
         <>
             {renderProfileFilters()}
-            <ProfileFilter onSearchCriteriaChanged={onProfileSearchCriteriaChanged} noSortOptions="true"
-                //displayMode={_displayMode}
-                //toggleDisplayMode={toggleDisplayMode} itemCount={_itemCount}
-                cssClass={props.rowCssClass} searchCriteria={props.searchCriteria} noSearch={props.noSearch} noClearAll="true" />
+            {!props.hideFilter &&
+                <ProfileFilter onSearchCriteriaChanged={onProfileSearchCriteriaChanged} noSortOptions="true"
+                    //displayMode={_displayMode}
+                    //toggleDisplayMode={toggleDisplayMode} itemCount={_itemCount}
+                cssClass={props.rowCssClass} searchCriteria={_searchCriteria} hideSearchBox={props.hideSearchBox} hideClearAll={true} />
+            }
             <div className="">
                 <div ref={_scrollToRef} className="row">
                     <div className="col-12">

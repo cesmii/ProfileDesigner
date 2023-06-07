@@ -15,10 +15,13 @@
         [Column(name: "publish_date")]
         public DateTime? PublishDate { get; set; }
 
-        [Column(name: "ua_standard_profile_id")]
-        public int? StandardProfileID { get; set; }
+        [Column(name: "xml_schema_uri")]
+        public string XmlSchemaUri { get; set; }
 
-        public virtual StandardNodeSet StandardProfile { get; set; }
+        [Column(name: "cloud_library_id")]
+        public string CloudLibraryId { get; set; }
+        [Column(name: "cloud_library_pending_approval")]
+        public bool? CloudLibPendingApproval { get; set; }
 
         public virtual List<ImportProfileWarning> ImportWarnings { get; set; }
 

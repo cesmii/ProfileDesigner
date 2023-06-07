@@ -5,6 +5,8 @@
  * Some contributions thanks to CESMII – the Smart Manufacturing Institute, 2021
  */
 using CESMII.OpcUa.NodeSetImporter;
+using CESMII.OpcUa.NodeSetModel;
+using CESMII.OpcUa.NodeSetModel.Opc.Extensions;
 using CESMII.ProfileDesigner.DAL;
 using CESMII.ProfileDesigner.DAL.Models;
 using CESMII.ProfileDesigner.Data.Entities;
@@ -23,15 +25,13 @@ namespace CESMII.ProfileDesigner.Opc.Ua.NodeSetDBCache
     public class UANodeSetDBCache : IUANodeSetCache
     {
         private readonly IDal<NodeSetFile, NodeSetFileModel> _dalNodeSetFile;
-        private readonly IDal<StandardNodeSet, StandardNodeSetModel> _dalStandardNodeSet;
         private readonly ICloudLibDal<CloudLibProfileModel> _cloudLibDal;
         private UserToken _userToken;
         private readonly ILogger _logger;
 
-        public UANodeSetDBCache(IDal<NodeSetFile, NodeSetFileModel> dalNodeSetFile, IDal<StandardNodeSet, StandardNodeSetModel> dalStandardNodeSet, ICloudLibDal<CloudLibProfileModel> cloudLibDal, ILogger<UANodeSetDBCache> logger)
+        public UANodeSetDBCache(IDal<NodeSetFile, NodeSetFileModel> dalNodeSetFile, ICloudLibDal<CloudLibProfileModel> cloudLibDal, ILogger<UANodeSetDBCache> logger)
         {
             _dalNodeSetFile = dalNodeSetFile;
-            _dalStandardNodeSet = dalStandardNodeSet;
             _cloudLibDal = cloudLibDal;
             _logger = logger;
         }
@@ -98,40 +98,43 @@ namespace CESMII.ProfileDesigner.Opc.Ua.NodeSetDBCache
         public bool GetNodeSet(UANodeSetImportResult results, ModelNameAndVersion nameVersion, object AuthorID)
         {
             var authorToken = AuthorID as UserToken;
-            NodeSetFileModel myModel = GetProfileModel(nameVersion, authorToken);
+            NodeSetFileModel myModel = GetProfileModel(nameVersion, authorToken, allowHigherVersion: true);
 
             if (myModel != null)
             {
                 // workaround for bug https://github.com/dotnet/runtime/issues/67622
                 var fileCachepatched = myModel.FileCache.Replace("<Value/>", "<Value xsi:nil='true' />");
+                bool added = false;
                 using (var nodeSetStream = new MemoryStream(Encoding.UTF8.GetBytes(fileCachepatched)))
                 {
                     UANodeSet nodeSet = UANodeSet.Read(nodeSetStream);
                     foreach (var ns in nodeSet.Models)
                     {
-                        results.AddModelAndDependencies(nodeSet, ns, null, false);
+                        added |= results.AddModelAndDependencies(nodeSet, ns, null, false).Added;
                         foreach (var model in results.Models)
                         {
                             if (model.NameVersion.CCacheId == null)
                             {
-                                if (model.NameVersion.ModelUri == nameVersion.ModelUri && model.NameVersion.PublicationDate == nameVersion.PublicationDate)
+                                // At this point there is exactly one matching version for this nodeset
+                                if (model.NameVersion.ModelUri == nameVersion.ModelUri)
                                 {
+                                    // Record the file model for it
                                     model.NameVersion.CCacheId = myModel;
                                 }
                                 else
                                 {
-                                    GetProfileModel(model.NameVersion, authorToken);
+                                    GetProfileModel(model.NameVersion, authorToken, allowHigherVersion: false);
                                 }
                             }
                         }
                     }
                 }
-                return true;
+                return added;
             }
             return false;
         }
 
-        private NodeSetFileModel GetProfileModel(ModelNameAndVersion nameVersion, object userId)
+        private NodeSetFileModel GetProfileModel(ModelNameAndVersion nameVersion, object userId, bool allowHigherVersion)
         {
             NodeSetFileModel myModel = (nameVersion.CCacheId as NodeSetFileModel);
             if (myModel != null)
@@ -140,7 +143,19 @@ namespace CESMII.ProfileDesigner.Opc.Ua.NodeSetDBCache
             }
 
             var userToken = userId as UserToken;
-            myModel = _dalNodeSetFile?.Where(s => s.FileName == nameVersion.ModelUri, userToken, verbose: true)?.Data?.OrderByDescending(s => s.PublicationDate)?.FirstOrDefault();
+            if (allowHigherVersion)
+            {
+                var allNodeSetFilesForUri = _dalNodeSetFile?.Where(s => s.FileName == nameVersion.ModelUri, userToken, verbose: true)?.Data;
+                var dummyNodeSetsForUri = allNodeSetFilesForUri.Select(f => new NodeSetModel { ModelUri = f.FileName, PublicationDate = f.PublicationDate, Version = f.Version, CustomState = f });
+                var matching = NodeSetVersionUtils.GetMatchingOrHigherNodeSet(dummyNodeSetsForUri, nameVersion.PublicationDate, nameVersion.ModelVersion);
+                myModel = matching?.CustomState as NodeSetFileModel;
+            }
+            else
+            {
+                // exact match
+                myModel = _dalNodeSetFile?.Where(s => s.FileName == nameVersion.ModelUri && s.PublicationDate == nameVersion.PublicationDate && s.Version == nameVersion.ModelVersion, userToken, verbose: true)?.Data?
+                    .OrderByDescending(s => s.PublicationDate)?.FirstOrDefault();
+            }
             if (myModel != null)
             {
                 nameVersion.CCacheId = myModel;
@@ -151,6 +166,16 @@ namespace CESMII.ProfileDesigner.Opc.Ua.NodeSetDBCache
         public bool AddNodeSet(UANodeSetImportResult results, string nodeSetXml, object authorId, bool requested)
         {
             bool WasNewSet = false;
+
+            //Fix: Error - Data at the root level is invalid. Line 1, position 1.
+            //Reference: https://stackoverflow.com/questions/17795167/xml-loaddata-data-at-the-root-level-is-invalid-line-1-position-1
+            string _byteOrderMarkUtf8 = Encoding.UTF8.GetString(Encoding.UTF8.GetPreamble());
+            if (nodeSetXml.StartsWith(_byteOrderMarkUtf8, StringComparison.Ordinal))
+            {
+                nodeSetXml = nodeSetXml.Remove(0, _byteOrderMarkUtf8.Length);
+            }
+            //end fix
+
             #region Comment Processing
             var doc = XElement.Load(new StringReader(nodeSetXml));
             var comments = doc.DescendantNodes().OfType<XComment>();
@@ -171,6 +196,7 @@ namespace CESMII.ProfileDesigner.Opc.Ua.NodeSetDBCache
 
             if (nodeSet.Models?.Any() != true)
             {
+                // Tolerate misauthered nodesets without a model table: Create a models table and populate it from the namespace table (if present)
                 nodeSet.Models = new ModelTableEntry[] {
                         new ModelTableEntry { ModelUri = nodeSet.NamespaceUris?.FirstOrDefault(),
                          RequiredModel = new ModelTableEntry[] { new ModelTableEntry { ModelUri = OpcUaImporter.strOpcNamespaceUri } },
@@ -186,16 +212,26 @@ namespace CESMII.ProfileDesigner.Opc.Ua.NodeSetDBCache
                 bool isGlobalNodeSet = CESMII.ProfileDesigner.OpcUa.OpcUaImporter._coreNodeSetUris.Contains(ns.ModelUri);
                 if (isGlobalNodeSet)
                 {
+                    var existingFiles = _dalNodeSetFile.Where(nf => nf.FileName == ns.ModelUri, userToken)?.Data;
+                    if (existingFiles?.Any() == true)
+                    {
+                        var existingNodeSets = string.Join(", ", existingFiles.Select(f => $"{f.Version} {f.PublicationDate:yyyy-MM-dd}"));
+                        _logger.LogWarning($"Found existing global nodeset(s) {existingNodeSets} while importing {ns.ModelUri} {ns.Version} {ns.PublicationDate}");
+                    }
                     userToken = UserToken.GetGlobalUser(userToken); // Write as a global node set shared acess user
                     authorToken = null;
                 }
                 NodeSetFileModel myModel = GetProfileModel(
                     new ModelNameAndVersion(ns),
-                    userToken);
+                    userToken, allowHigherVersion: false );
                 if (myModel == null)
                 {
-                    myModel = results.Models.FirstOrDefault(m => m.NameVersion.IsNewerOrSame(new ModelNameAndVersion(ns)))
+                    var newerModel = results.Models.FirstOrDefault(m => m.NameVersion.IsNewerOrSame(new ModelNameAndVersion(ns)))
                         ?.NameVersion?.CCacheId as NodeSetFileModel;
+                    if (newerModel != null)
+                    {
+                        // TODO Do we still need this with multi-versioning?
+                    }
                 }
                 bool CacheNewerVersion = true;
                 if (myModel != null)
@@ -223,7 +259,7 @@ namespace CESMII.ProfileDesigner.Opc.Ua.NodeSetDBCache
                             ID = cacheId,
                             FileName = ns.ModelUri,
                             Version = ns.Version,
-                            PublicationDate = ns.PublicationDate,
+                            PublicationDate = ns.GetNormalizedPublicationDate(),
                             // TODO clean up the dependency
                             AuthorId = authorToken?.UserId,
                             FileCache = nodeSetXml
@@ -241,22 +277,13 @@ namespace CESMII.ProfileDesigner.Opc.Ua.NodeSetDBCache
                 {
                     tModel.NameVersion.CCacheId = myModel;
                     tModel.NewInThisImport = newInImport;
-                    
-                    var standardNodeSet = _dalStandardNodeSet
-                        .Where(
-                            sns => sns.Namespace == tModel.NameVersion.ModelUri && sns.PublishDate == tModel.NameVersion.PublicationDate,
-                            userToken)
-                        .Data?.FirstOrDefault();
-                    if (standardNodeSet != null)
-                    {
-                        tModel.NameVersion.UAStandardModelID = standardNodeSet?.ID;
-                    }
+                   
                 }
                 foreach (var model in results.Models)
                 {
                     if (model.NameVersion.CCacheId == null)
                     {
-                        GetProfileModel(model.NameVersion, userToken);
+                        GetProfileModel(model.NameVersion, userToken, allowHigherVersion: false);
                     }
                 }
             }

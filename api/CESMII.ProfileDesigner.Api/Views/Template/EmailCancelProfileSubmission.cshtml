@@ -1,0 +1,44 @@
+﻿@using CESMII.ProfileDesigner.DAL.Models
+@model ProfileModel
+@{
+    Layout = "_EmailLayout";
+}
+
+<div>
+    <p>We have received your request to cancel the Smart Manufacturing Profile&trade; submission for profile <b>@Model.Title</b>.
+        Your may now edit your profile in the <a href="https://profiledesigner.cesmii.net" />CESMII Smart Manufacturing Profile&trade; Designer</a>. 
+        Once your edits are complete, we invite you to resubmit your profile for publishing in the CESMII Cloud Library and the <a href="https://marketplace.cesmii.net">CESMII Smart Manufacturing Marketplace</a>.
+    </p>
+    <br />
+    <p>Here are the details of your submission:</p>
+</div>
+
+    <div>
+        <h3>Profile: @Model.Title</h3>
+    <p style="margin-left:20px;">
+            Description: @Model.Description<br />
+            Namespace: @Model.Namespace<br />
+            Version: @(Model.Version == null ? "" : Model.Version)<br />
+            Publication Date: @Model.PublishDate<br />
+            License: @Model.License<br />
+        </p>
+</div>
+<div>
+    <h3>Author and Organization</h3>
+    <p style="margin-left:20px;">
+        Author: @Model.Author.DisplayName [@Model.Author.Email]<br />
+        Organization: @(Model.Author.Organization == null ? "" : Model.Author.Organization.Name==null ? "" : Model.Author.Organization.Name)
+    </p>
+</div>
+
+<div>
+    <p>Thank you, again, for your support of the <a href="https://profiledesigner.cesmii.net" />CESMII Smart Manufacturing Profile&trade; Designer</a>!</p>
+    <br />
+    <p>
+        Sincerely,<br />
+        CESMII Support Team
+    </p>
+    <br />
+    <br />
+</div>
+

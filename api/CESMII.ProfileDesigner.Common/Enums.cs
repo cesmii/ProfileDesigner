@@ -90,6 +90,49 @@
         CloudLib = 3,
     }
 
+    public enum ProfileStateEnum
+    {
+        /// <summary>
+        /// Core nodeset: ua or ua/di nodeset
+        /// Not owned by anyone and one of the foundational nodesets - can't be changed
+        /// Readonly state
+        /// </summary>
+        Core = 1,
+        /// <summary>
+        /// A published nodeset that the current user has downloaded into their view
+        /// ua/robotics or it could be a nodeset that they published that is now in the CloudLib
+        /// Readonly state
+        /// </summary>
+        CloudLibPublished = 2,
+        /// <summary>
+        /// A nodeset that is in a pending state of being published. This would be pending but not approved yet. 
+        /// Readonly state
+        /// </summary>
+        CloudLibPending = 3,
+        /// <summary>
+        /// A nodeset that is approved for publication, and will be removed from the queue.
+        /// Readonly state
+        /// </summary>
+        CloudLibApproved = 4,
+        /// <summary>
+        /// A nodeset that is rejected from being published but remains in the queue.
+        /// Readonly state
+        /// </summary>
+        CloudLibRejected = 5,
+        /// <summary>
+        /// A nodeset where the submission has been removed from the queue. A user can modify this.
+        /// </summary>
+        CloudLibCancelled = 6,
+        /// <summary>
+        /// A nodeset that is currently being modified by the user. This user owns this profile and can modify.
+        /// </summary>
+        Local = 7,
+        /// <summary>
+        /// Unknown scenario is not expected...
+        /// </summary>
+        Unknown = 0
+    }
+
     public enum PermissionEnum
     {
         /*
@@ -114,15 +157,4 @@
         [Description("UserAzureADMapped")]
         UserAzureADMapped = 130
     }
-
-    // Keep in sync with:
-    // - frontend: AppSettings
-    // - CloudLib SDK: Opc.Ua.Cloud.Library.Client.License
-    public enum ProfileLicenseEnum 
-    {
-        MIT,
-        ApacheLicense20,
-        Custom
-    }
-
 }

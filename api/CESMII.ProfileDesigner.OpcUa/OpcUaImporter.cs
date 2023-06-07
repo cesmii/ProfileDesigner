@@ -32,6 +32,7 @@ namespace CESMII.ProfileDesigner.OpcUa
     using CESMII.ProfileDesigner.Opc.Ua.NodeSetDBCache;
     using CESMII.OpcUa.NodeSetImporter;
     using CESMII.Common.CloudLibClient;
+    using CESMII.ProfileDesigner.Data.Repositories;
 
     public class OpcUaImporter
     {
@@ -44,13 +45,14 @@ namespace CESMII.ProfileDesigner.OpcUa
             IDal<ProfileTypeDefinition, ProfileTypeDefinitionModel> dal,
             IDal<LookupDataType, LookupDataTypeModel> dtDal,
             IDal<Profile, ProfileModel> profileDal,
-            IDal<StandardNodeSet, StandardNodeSetModel> dalStandardNodeSet, 
             ICloudLibDal<CloudLibProfileModel> cloudLibDal,
-            ICloudLibWrapper cloudLibWrapper,
+            IUANodeSetResolverWithProgress cloudLibResolver,
             IDal<NodeSetFile, NodeSetFileModel> nodeSetFileDal,
             UANodeSetDBCache nodeSetCache,
             IDal<EngineeringUnit, EngineeringUnitModel> euDal,
-            ProfileMapperUtil profileUtils,
+            IRepository<ProfileTypeDefinitionAnalytic> ptAnalyticsRepo,
+            IRepository<ProfileTypeDefinitionFavorite> ptFavoritesRepo,
+            IRepository<LookupDataTypeRanked> dtRankRepo,
             ILogger<OpcUaImporter> logger
 #if NODESETDBTEST
             , NodeSetModelContext nsDBContext
@@ -58,6 +60,14 @@ namespace CESMII.ProfileDesigner.OpcUa
             )
         {
             _dal = dal;
+            if (_dal is ProfileTypeDefinitionDAL dalClass)
+            {
+                dalClass.GenerateIntermediateCompositionObjects = false;
+            }
+            else
+            {
+                logger.LogError($"Importer: ProfileTypeDefinitionDAL not of expected type. Import/export may be incorrect.");
+            }
             _dtDal = dtDal;
             _euDal = euDal;
             this.Logger = new LoggerCapture(logger);
@@ -66,33 +76,35 @@ namespace CESMII.ProfileDesigner.OpcUa
             this.nsDBContext = nsDBContext;
 #endif
             _profileDal = profileDal;
-            _dalStandardNodeSet = dalStandardNodeSet;
             _cloudLibDal = cloudLibDal;
-            _cloudLibWrapper = cloudLibWrapper;
+            _cloudLibResolver = cloudLibResolver;
             _nodeSetFileDal = nodeSetFileDal;
             _nodeSetCache = nodeSetCache;
-            _profileUtils = profileUtils;
+            _ptAnalyticsRepo = ptAnalyticsRepo;
+            _ptFavoritesRepo = ptFavoritesRepo;
+            _dtRankRepo = dtRankRepo;
         }
 
         public readonly IDal<ProfileTypeDefinition, ProfileTypeDefinitionModel> _dal;
         public readonly IDal<LookupDataType, LookupDataTypeModel> _dtDal;
         public readonly IDal<EngineeringUnit, EngineeringUnitModel> _euDal;
-        public readonly ProfileMapperUtil _profileUtils;
+        private readonly IRepository<ProfileTypeDefinitionAnalytic> _ptAnalyticsRepo;
+        private readonly IRepository<ProfileTypeDefinitionFavorite> _ptFavoritesRepo;
+        private readonly IRepository<LookupDataTypeRanked> _dtRankRepo;
         public readonly LoggerCapture Logger;
         public readonly ILogger _logger;
 #if NODESETDBTEST
         private readonly NodeSetModelContext nsDBContext;
 #endif
         internal readonly IDal<Data.Entities.Profile, DAL.Models.ProfileModel> _profileDal;
-        private readonly IDal<StandardNodeSet, StandardNodeSetModel> _dalStandardNodeSet;
         private readonly ICloudLibDal<CloudLibProfileModel> _cloudLibDal;
-        private readonly ICloudLibWrapper _cloudLibWrapper;
+        private readonly IUANodeSetResolverWithProgress _cloudLibResolver;
         private readonly IDal<NodeSetFile, NodeSetFileModel> _nodeSetFileDal;
         private readonly UANodeSetDBCache _nodeSetCache;
         readonly Dictionary<string, string> Aliases = new();
 
 
-        public async Task<List<WarningsByNodeSet>> ImportUaNodeSets(List<ImportOPCModel> nodeSetXmlList, UserToken userToken, Func<string, TaskStatusEnum, Task> logToImportLog, int logId)
+        public async Task<List<WarningsByNodeSet>> ImportUaNodeSets(List<ImportOPCModel> nodeSetXmlList, UserToken userToken, Func<string, TaskStatusEnum, Task> logToImportLog, int logId, bool allowMultiVersion, bool upgradePreviousVersions)
         {
             var sw = Stopwatch.StartNew();
             _logger.LogTrace("Starting import");
@@ -126,22 +138,22 @@ namespace CESMII.ProfileDesigner.OpcUa
                 _logger.LogTrace($"Timestamp||ImportId:{logId}||Importing node sets: {sw.Elapsed}");
 
                 var nodeSetXmlStringList = nodeSetXmlList.Select(nodeSetXml => nodeSetXml.Data).ToList();
-                UANodeSetImportResult importedNodeSetFiles = ImportAndDownloadNodeSetFiles(_nodeSetCache, userToken, nodeSetXmlStringList, logToImportLog);
+                UANodeSetImportResult cachedNodeSetFiles = CacheAndDownloadNodeSetFiles(_nodeSetCache, userToken, nodeSetXmlStringList, logToImportLog);
                 _logger.LogTrace($"Timestamp||ImportId:{logId}||Imported node sets: {sw.Elapsed}");
-                if (!string.IsNullOrEmpty(importedNodeSetFiles.ErrorMessage))
+                if (!string.IsNullOrEmpty(cachedNodeSetFiles.ErrorMessage))
                 {
                     //The UA Importer encountered a crash/error
                     //failed complete message
                     _profileDal.RollbackTransaction();
-                    await logToImportLog(importedNodeSetFiles.ErrorMessage + $"<br/>{filesImportedMsg}", TaskStatusEnum.Failed);
+                    await logToImportLog(cachedNodeSetFiles.ErrorMessage + $"<br/>{filesImportedMsg}", TaskStatusEnum.Failed);
                     return null;
                 }
-                if (importedNodeSetFiles?.MissingModels?.Count > 0)
+                if (cachedNodeSetFiles?.MissingModels?.Count > 0)
                 {
                     //The UA Importer tried to resolve already all missing NodeSet either from Cache or CloudLib but could not find all dependencies
                     //failed complete message
                     _profileDal.RollbackTransaction();
-                    var missingModelsText = string.Join(", ", importedNodeSetFiles.MissingModels);
+                    var missingModelsText = string.Join(", ", cachedNodeSetFiles.MissingModels);
                     await logToImportLog($"Missing dependent node sets: {missingModelsText}.", TaskStatusEnum.Failed);
                     return null;
                 }
@@ -163,11 +175,20 @@ namespace CESMII.ProfileDesigner.OpcUa
                     //    return null;
                     //}
 
-                    if (importedNodeSetFiles != null && importedNodeSetFiles.Models.Any())
+                    if (cachedNodeSetFiles != null && cachedNodeSetFiles.Models.Any())
                     {
-                        foreach (var tmodel in importedNodeSetFiles.Models)
+                        foreach (var tmodel in cachedNodeSetFiles.Models)
                         {
-                            var profile = FindOrCreateProfileForNodeSet(tmodel, _profileDal, userToken, logId, sw);
+                            string cloudLibId = null;
+                            if (nodeSetXmlList.Count == 1 && nodeSetXmlList[0].CloudLibraryId != null)
+                            {
+                                if (tmodel.RequestedForThisImport)
+                                {
+                                    cloudLibId = nodeSetXmlList[0].CloudLibraryId;
+                                }
+                            }
+                            var profile = FindOrCreateProfileForNodeSet(tmodel, cloudLibId, _profileDal, userToken, logId, sw, allowMultiVersion);
+
                             profilesAndNodeSets.Add(new ProfileModelAndNodeSet
                             {
                                 Profile = profile, // TODO use the nodesetfile instead
@@ -180,7 +201,7 @@ namespace CESMII.ProfileDesigner.OpcUa
                 }
                 catch (Exception e)
                 {
-                    _nodeSetCache.DeleteNewlyAddedNodeSetsFromCache(importedNodeSetFiles);
+                    _nodeSetCache.DeleteNewlyAddedNodeSetsFromCache(cachedNodeSetFiles);
                     //log complete message to logger and abbreviated message to user. 
                     _logger.LogCritical(e, $"ImportId:{logId}||ImportService|ImportOpcUaProfile|{e.Message}");
                     //failed complete message
@@ -188,6 +209,13 @@ namespace CESMII.ProfileDesigner.OpcUa
                     await logToImportLog($"Nodeset validation failed: {e.Message}.<br/>{filesImportedMsg}", TaskStatusEnum.Failed);
                     return null;
                 }
+
+                if (!profilesAndNodeSets.Any(pn => pn.NodeSetModel.NewInThisImport))
+                {
+                    await logToImportLog($"Nodeset already imported.", TaskStatusEnum.Failed);
+                    return null;
+                }
+
                 //To Here
                 #endregion
 
@@ -198,61 +226,67 @@ namespace CESMII.ProfileDesigner.OpcUa
                 {
                     // Performance: Load the profiles and data types into the EF cache, in a singe database query
                     var startEFCache = sw.Elapsed;
-                    var profileIds = profilesAndNodeSets.Select(pn => pn.Profile.ID).Where(i => (i ?? 0) != 0);
-                    _logger.LogTrace($"Timestamp||ImportId:{logId}||Loading EF cache: {sw.Elapsed}");
-                    await _dal.LoadIntoCacheAsync(pt => profileIds.Contains(pt.ProfileId));
-                    await _dtDal.LoadIntoCacheAsync(dt => profileIds.Contains(dt.CustomType.ProfileId));
-                    var endEFCache = sw.Elapsed;
-                    _logger.LogTrace($"Timestamp||ImportId:{logId}||Finished loading EF cache: {endEFCache - startEFCache}");
-
-                    var nodeSetModels = new Dictionary<string, NodeSetModel>();
-                    var dalOpcContext = new DalOpcContext(this, nodeSetModels, userToken, userToken, false);
-
-                    var profileItemsByNodeId = new Dictionary<string, ProfileTypeDefinitionModel>();
-                    var modelsToImport = new List<NodeSetModel>();
-                    foreach (var profileAndNodeSet in profilesAndNodeSets)
+                    var profileIds = profilesAndNodeSets.Select(pn => pn.Profile.ID).Where(i => (i ?? 0) != 0).ToList();
+                    if (profileIds.Any())
                     {
-                        //only show message for the items which are newly imported...
-                        if (profileAndNodeSet.NodeSetModel.NewInThisImport)
+                        _logger.LogTrace($"Timestamp||ImportId:{logId}||Loading EF cache: {sw.Elapsed}");
+                        await _dal.LoadIntoCacheAsync(pt => profileIds.Contains(pt.ProfileId));
+                        await _dtDal.LoadIntoCacheAsync(dt => profileIds.Contains(dt.CustomType.ProfileId));
+                        var endEFCache = sw.Elapsed;
+                        _logger.LogTrace($"Timestamp||ImportId:{logId}||Finished loading EF cache: {endEFCache - startEFCache}");
+                    }
+                    else
+                    {
+                        var endEFCache = sw.Elapsed;
+                        _logger.LogTrace($"Timestamp||ImportId:{logId}||Not loading EF cache - no required profiles: {endEFCache - startEFCache}");
+                    }
+                    var nodeSetModels = new Dictionary<string, NodeSetModel>();
+                    do
+                    {
+                        var dalOpcContext = new DalOpcContext(this, nodeSetModels, userToken, userToken, false);
+                        var nextImportUri = profilesAndNodeSets.FirstOrDefault(pn => pn.NodeSetModel.NewInThisImport)?.NodeSetModel?.NameVersion.ModelUri;
+                        if (nextImportUri != null)
                         {
-                            await logToImportLog($"Processing nodeset: {profileAndNodeSet.NodeSetModel.NameVersion}...", TaskStatusEnum.InProgress);
+                            // Ensure the imported namespace is index = 1, so that the JsonEncoder works consistently
+                            dalOpcContext.NamespaceUris.GetIndexOrAppend(nextImportUri);
                         }
-                        var logList = new List<string>();
-                        (Logger as LoggerCapture).LogList = logList;
-
-                        var loadedNodeSetModels = await LoadNodeSetAsync(dalOpcContext, profileAndNodeSet.NodeSetModel.NodeSet, profileAndNodeSet.Profile, !profileAndNodeSet.NodeSetModel.NewInThisImport);
-                        if (profileAndNodeSet.NodeSetModel.NewInThisImport)
+                        var modelsToImport = new List<NodeSetModel>();
+                        foreach (var profileAndNodeSet in profilesAndNodeSets)
                         {
-                            foreach (var model in loadedNodeSetModels)
+                            //only show message for the items which are newly imported...
+                            if (profileAndNodeSet.NodeSetModel.NewInThisImport)
                             {
-                                if (modelsToImport.FirstOrDefault(m => m.ModelUri == model.ModelUri) == null)
+                                await logToImportLog($"Processing nodeset: {profileAndNodeSet.NodeSetModel.NameVersion}...", TaskStatusEnum.InProgress);
+                            }
+                            var logList = new List<string>();
+                            (Logger as LoggerCapture).LogList = logList;
+
+                            var loadedNodeSetModels = await LoadNodeSetAsync(dalOpcContext, profileAndNodeSet.NodeSetModel.NodeSet, profileAndNodeSet.Profile, !profileAndNodeSet.NodeSetModel.NewInThisImport);
+                            if (profileAndNodeSet.NodeSetModel.NewInThisImport)
+                            {
+                                foreach (var model in loadedNodeSetModels)
                                 {
-                                    modelsToImport.Add(model);
-                                    var itemsByNodeId = await ImportNodeSetModelAsync(model, dalOpcContext, userToken);
-                                    if (itemsByNodeId != null)
+                                    if (modelsToImport.FirstOrDefault(m => m.ModelUri == model.ModelUri) == null)
                                     {
-                                        foreach (var item in itemsByNodeId)
-                                        {
-                                            profileItemsByNodeId[item.Key] = item.Value;
-                                        }
+                                        modelsToImport.Add(model);
+                                        var itemsByNodeId = await ImportNodeSetModelAsync(model, dalOpcContext, userToken);
+                                    }
+                                    (Logger as LoggerCapture).LogList = null;
+                                    if (logList.Any())
+                                    {
+                                        nodesetWarnings.Add(new WarningsByNodeSet()
+                                        { ProfileId = profileAndNodeSet.Profile.ID.Value, Key = profileAndNodeSet.Profile.ToString(), Warnings = logList });
                                     }
                                 }
-                                (Logger as LoggerCapture).LogList = null;
-                                if (logList.Any())
+                                if (upgradePreviousVersions)
                                 {
-                                    nodesetWarnings.Add(new WarningsByNodeSet()
-                                    { ProfileId = profileAndNodeSet.Profile.ID.Value, Key = profileAndNodeSet.Profile.ToString(), Warnings = logList });
+                                    await UpgradeToProfileAsync(profileAndNodeSet.Profile, userToken);
                                 }
+                                profileAndNodeSet.NodeSetModel.NewInThisImport = false;
+                                break;
                             }
                         }
-                    }
-
-                    //CodeSmell:Remove:if (profileItems.Any())
-                    //CodeSmell:Remove:{
-                    //CodeSmell:Remove:    result = profileItems.Last().Value.ID;
-                    //CodeSmell:Remove:}
-
-                    //CodeSmell:Remove: result = 1; // TOD: OPC imported profiles don't get a profiletype when being read back for some reason
+                    } while (profilesAndNodeSets.Any(pn => pn.NodeSetModel.NewInThisImport));
                     sw.Stop();
                     var elapsed = sw.Elapsed;
                     var elapsedMsg = $"{elapsed.Minutes}:{elapsed.Seconds} (min:sec)";
@@ -290,53 +324,47 @@ namespace CESMII.ProfileDesigner.OpcUa
             return nodesetWarnings;
         }
 
-        private ProfileModel FindOrCreateProfileForNodeSet(ModelValue tModel, IDal<Profile, ProfileModel> dalProfile, UserToken userToken, int logId, Stopwatch sw)
+        private Task UpgradeToProfileAsync(ProfileModel profile, UserToken userToken)
+        {
+            return (_dal as ProfileTypeDefinitionDAL).UpgradeToProfileAsync(profile, _ptAnalyticsRepo, _ptFavoritesRepo, _dtRankRepo);
+        }
+
+        private ProfileModel FindOrCreateProfileForNodeSet(ModelValue tModel, string cloudLibId, IDal<Profile, ProfileModel> dalProfile, UserToken userToken, int logId, Stopwatch sw, bool allowMultiVersion)
         {
             var nsModel = tModel.NameVersion.CCacheId as NodeSetFileModel;
             _logger.LogTrace($"Timestamp||ImportId:{logId}||Loading nodeset {tModel.NameVersion.ModelUri}: {sw.Elapsed}");
-            var profile = dalProfile.Where(p => p.Namespace == tModel.NameVersion.ModelUri /*&& p.PublicationDate == tmodel.NameVersion.PublicationDate*/ /*&& (p.AuthorId == null || p.AuthorId == userToken)*/,
-                    userToken, verbose: false)?.Data?.OrderByDescending(p => p.Version)?.FirstOrDefault();
+            var profiles = dalProfile.Where(p => p.Namespace == tModel.NameVersion.ModelUri && p.PublishDate == tModel.NameVersion.PublicationDate && p.Version == tModel.NameVersion.ModelVersion /*&& (p.AuthorId == null || p.AuthorId == userToken)*/,
+                    userToken, verbose: false)?.Data?.OrderByDescending(p => p.Version);
+            var profile = profiles?.FirstOrDefault();
             _logger.LogTrace($"Timestamp||ImportId:{logId}||Loaded nodeset {tModel.NameVersion.ModelUri}: {sw.Elapsed}");
 
             if (profile == null)
             {
-                StandardNodeSetModel standardNodeSet = null;
+                var otherProfileVersion = dalProfile.Where(p => p.Namespace == tModel.NameVersion.ModelUri,
+                    userToken, verbose: false)?.Data?.OrderByDescending(p => p.Version).FirstOrDefault();
+                if (otherProfileVersion != null && !allowMultiVersion)
+                {
+                    throw new Exception($"Profile {tModel.NameVersion.ModelUri} already has version {otherProfileVersion.Version} {otherProfileVersion.PublishDate}. Can not import {tModel.NameVersion.ModelVersion} {tModel.NameVersion.PublicationDate}");
+                }
                 CloudLibProfileModel cloudLibNodeSet = null;
-                if ((tModel.NameVersion.UAStandardModelID??0) == 0)
+                if (cloudLibId != null)
+                {
+                    cloudLibNodeSet = _cloudLibDal.GetById(cloudLibId).Result;
+                }
+                if (cloudLibNodeSet == null)
                 {
                     cloudLibNodeSet = _cloudLibDal.GetAsync(tModel.NameVersion.ModelUri, tModel.NameVersion.PublicationDate, true).Result;
-                    if (cloudLibNodeSet != null)
-                    {
-                        standardNodeSet = cloudLibNodeSet.ToStandardNodeSet();
-                        _dalStandardNodeSet.AddAsync(standardNodeSet, userToken).Wait();
-                    }
-                    else
+                    if (cloudLibNodeSet == null)
                     {
                         // No exact match: use a newer one to prevent editing of older nodesets
-                        standardNodeSet = _dalStandardNodeSet
-                            .Where(
-                                sns => sns.Namespace == tModel.NameVersion.ModelUri && sns.PublishDate > tModel.NameVersion.PublicationDate,
-                                userToken)
-                            .Data
-                                ?.OrderByDescending(sns => sns.PublishDate).FirstOrDefault();
-                        if (standardNodeSet != null)
+                        cloudLibNodeSet = _cloudLibDal.GetAsync(tModel.NameVersion.ModelUri, tModel.NameVersion.PublicationDate, false).Result;
+                        if (cloudLibNodeSet != null)
                         {
-                            _logger.LogWarning($"Did not find exact match for {tModel.NameVersion}. Using standard nodeset with publication date {standardNodeSet.PublishDate} instead.");
-                            tModel.NameVersion.UAStandardModelID = standardNodeSet.ID;
+                            _logger.LogWarning($"Did not find exact match for {tModel.NameVersion}. Using standard nodeset with publication date {cloudLibNodeSet?.PublishDate} instead.");
                         }
                         else
                         {
-                            cloudLibNodeSet = _cloudLibDal.GetAsync(tModel.NameVersion.ModelUri, tModel.NameVersion.PublicationDate, false).Result;
-                            if (cloudLibNodeSet != null)
-                            {
-                                _logger.LogWarning($"Did not find exact match for {tModel.NameVersion}. Using standard nodeset with publication date {standardNodeSet.PublishDate} instead.");
-                                standardNodeSet = cloudLibNodeSet.ToStandardNodeSet();
-                                _dalStandardNodeSet.AddAsync(standardNodeSet, userToken).Wait();
-                            }
-                            else
-                            {
-                                _logger.LogWarning($"Did not find newer version for {tModel.NameVersion}. Not treating as standard node set to allow editing of future versions.");
-                            }
+                            _logger.LogWarning($"Did not find newer version for {tModel.NameVersion}. Not treating as standard node set to allow editing of future versions.");
                         }
                     }
                 }
@@ -353,23 +381,26 @@ namespace CESMII.ProfileDesigner.OpcUa
                 profile.Namespace = tModel.NameVersion.ModelUri;
                 profile.PublishDate = tModel.NameVersion.PublicationDate;
                 profile.Version = tModel.NameVersion.ModelVersion;
+                var xmlSchemaUri = tModel.NodeSet?.Models?.FirstOrDefault()?.XmlSchemaUri;
+                if (!string.IsNullOrEmpty(xmlSchemaUri))
+                {
+                    profile.XmlSchemaUri = xmlSchemaUri;
+                }
                 profile.AuthorId = nsModel.AuthorId;
-                profile.StandardProfileID = tModel.NameVersion.UAStandardModelID;
-                profile.StandardProfile = standardNodeSet;
             }
 
             if (profile.NodeSetFiles == null)
             {
                 profile.NodeSetFiles = new List<NodeSetFileModel>();
             }
-            if (!profile.NodeSetFiles.Any(m => m.FileName == nsModel.FileName && m.PublicationDate == nsModel.PublicationDate))
+            if (!profile.NodeSetFiles.Any(m => m.FileName == nsModel.FileName && m.PublicationDate == nsModel.PublicationDate && m.Version == nsModel.Version))
             {
                 profile.NodeSetFiles.Add(nsModel);
             }
             return profile;
         }
 
-        private UANodeSetImportResult ImportAndDownloadNodeSetFiles(UANodeSetDBCache myNodeSetCache, UserToken userToken, List<string> nodeSetXmlStringList, Func<string, TaskStatusEnum, Task> logToImportLog)
+        private UANodeSetImportResult CacheAndDownloadNodeSetFiles(UANodeSetDBCache myNodeSetCache, UserToken userToken, List<string> nodeSetXmlStringList, Func<string, TaskStatusEnum, Task> logToImportLog)
         {
             OnNodeSet callback = (string namespaceUri, DateTime? publicationDate) =>
             {
@@ -378,19 +409,20 @@ namespace CESMII.ProfileDesigner.OpcUa
             UANodeSetImportResult resultSet;
             try
             {
-                _cloudLibWrapper.OnDownloadNodeSet += callback;
-                resultSet = UANodeSetImporter.ImportNodeSets(myNodeSetCache, null, nodeSetXmlStringList, false, userToken, _cloudLibWrapper);
+                _cloudLibResolver.OnDownloadNodeSet += callback;
+                var cacheManager = new UANodeSetCacheManager(myNodeSetCache, _cloudLibResolver);
+                resultSet = cacheManager.ImportNodeSets(nodeSetXmlStringList, false, userToken);
             }
             finally
             {
-                _cloudLibWrapper.OnDownloadNodeSet -= callback;
+                _cloudLibResolver.OnDownloadNodeSet -= callback;
             }
 
             return resultSet;
         }
 
 
-        public System.Threading.Tasks.Task<List<NodeSetModel>> LoadNodeSetAsync(IOpcUaContext opcContext,  UANodeSet nodeSet, ProfileModel profile, bool doNotReimport = false)
+        public System.Threading.Tasks.Task<List<NodeSetModel>> LoadNodeSetAsync(IOpcUaContext opcContext, UANodeSet nodeSet, ProfileModel profile, bool doNotReimport = false)
         {
             if (!nodeSet.Models.Any())
             {
@@ -399,14 +431,26 @@ namespace CESMII.ProfileDesigner.OpcUa
                 throw ex;
             }
 
+            if (nodeSet.Models.Length > 1)
+            {
+                var ex = new Exception($"Nodeset: multiple model entries not supported.");
+                Logger.LogError(ex.Message);
+                throw ex;
+            }
+
             var firstModel = nodeSet.Models.FirstOrDefault();
+            if (firstModel.ModelUri != profile.Namespace)
+            {
+                throw new Exception($"Mismatching primary model meta data and meta data from cache");
+            }
             if (
-                firstModel.ModelUri != profile.Namespace
-                || firstModel.Version != profile.Version
+                firstModel.Version != profile.Version
                 || ((firstModel.PublicationDateSpecified ? firstModel.PublicationDate.ToUniversalTime() : null) != profile.PublishDate?.ToUniversalTime())
                 )
             {
-                throw new Exception($"Mismatching primary model meta data and meta data from cache");
+                var message = $"Warning: Newer version {firstModel.Version} of {firstModel.ModelUri} required. Profile designer only offers {profile.Version}. Attempting to load anyway.";
+                opcContext.Logger.LogWarning(message);
+                //throw new Exception(message);
             }
 
             return NodeModelFactoryOpc.LoadNodeSetAsync(opcContext, nodeSet, profile, this.Aliases, doNotReimport);
@@ -449,6 +493,14 @@ namespace CESMII.ProfileDesigner.OpcUa
             }
             await _profileDal.UpsertAsync(profile, userToken, true);
             var profileItemsByNodeId = ImportProfileItems(nodeSetModel, dalContext);
+
+            // Update XmlSchemaUri in case it was not specified in the UANodeset's Model, but found in a (legacy) DataTypeDictionaryType
+            if (profile.XmlSchemaUri == null && nodeSetModel.XmlSchemaUri != null)
+            {
+                profile.XmlSchemaUri = nodeSetModel.XmlSchemaUri;
+                await _profileDal.UpsertAsync(profile, userToken, true);
+            }
+
             var sw = Stopwatch.StartNew();
             Logger.LogTrace($"Commiting transaction");
             await _dal.CommitTransactionAsync();
@@ -471,10 +523,10 @@ namespace CESMII.ProfileDesigner.OpcUa
             exportedNodeSets.Add(exportedNodeSet);
             if (includeRequiredModels)
             {
-                var requiredModels = exportedNodeSet.nodeSet.Models.SelectMany(m => m.RequiredModel)?.GroupBy(m => m.ModelUri).Select(mg => mg.MaxBy(m => m.PublicationDate)).ToList();
+                var requiredModels = exportedNodeSet.nodeSet.Models.SelectMany(m => m.RequiredModel)?.GroupBy(m => m.ModelUri).Select(mg => mg.MaxBy(m => m.GetNormalizedPublicationDate())).ToList();
                 foreach (var requiredModel in requiredModels)
                 {
-                    var requiredProfile = _profileDal.Where(p => p.Namespace == requiredModel.ModelUri && p.PublishDate >= requiredModel.PublicationDate, userToken).Data?.OrderByDescending(p => p.PublishDate)?.FirstOrDefault();
+                    var requiredProfile = _profileDal.Where(p => p.Namespace == requiredModel.ModelUri && p.PublishDate >= requiredModel.GetNormalizedPublicationDate(), userToken).Data?.OrderByDescending(p => p.PublishDate)?.FirstOrDefault();
                     var requiredNodeSet = ExportInternal(requiredProfile, userToken, authorId, bForceReexport);
                     exportedNodeSets.Add(requiredNodeSet);
                 }
@@ -484,14 +536,18 @@ namespace CESMII.ProfileDesigner.OpcUa
 
         public (UANodeSet nodeSet, string xml, NodeSetModel model, Dictionary<string, NodeSetModel> requiredModels) ExportInternal(ProfileModel profileModel, UserToken userToken, UserToken authorId, bool bForceReexport)
         {
-            if (profileModel.StandardProfile != null && !bForceReexport)
+            if (!string.IsNullOrEmpty(profileModel.CloudLibraryId) && !bForceReexport)
             {
+                // Use the original XML for profiles imported from the cloud library (if available)
                 var nodeSetFile = _nodeSetFileDal.Where(nsf => nsf.Profiles.Any(p => p.ID == profileModel.ID), userToken, verbose: true).Data?.FirstOrDefault();
                 var nodeSetXml = nodeSetFile?.FileCache;
-                using (MemoryStream ms = new(Encoding.UTF8.GetBytes(nodeSetXml)))
+                if (nodeSetXml != null)
                 {
-                    var nodeSet = UANodeSet.Read(ms);
-                    return (nodeSet, nodeSetXml, null, null);
+                    using (MemoryStream ms = new(Encoding.UTF8.GetBytes(nodeSetXml)))
+                    {
+                        var nodeSet = UANodeSet.Read(ms);
+                        return (nodeSet, nodeSetXml, null, null);
+                    }
                 }
             }
             Dictionary<string, NodeSetModel> nodeSetModels = new();
@@ -503,7 +559,12 @@ namespace CESMII.ProfileDesigner.OpcUa
                 try
                 {
                     // TODO find the right OPC version references in the nodeSet?
-                    var opcNodeSetModel = _profileDal.Where(ns => ns.Namespace == strOpcNamespaceUri /*&& (ns.AuthorId == null || ns.AuthorId == userId)*/, userToken, null, null, false, true).Data.OrderByDescending(m => m.PublishDate).FirstOrDefault();
+                    // For now: take the highest available version (special core nodeset versioning logic)
+                    var opcNodeSetModel = _profileDal.Where(ns => ns.Namespace == strOpcNamespaceUri, userToken, null, null, false, true).Data
+                        .OrderByDescending(m => string.Join(".", m.Version.Split(".").Take(2))) // First by version family
+                        .ThenByDescending(m => m.PublishDate) //Then by publishdate, within the version family
+                        .FirstOrDefault(); // Order by version family
+
                     // workaround for bug https://github.com/dotnet/runtime/issues/67622
                     var fileCachePatched = opcNodeSetModel.NodeSetFiles[0].FileCache.Replace("<Value/>", "<Value xsi:nil='true' />");
                     using (MemoryStream nodeSetStream = new MemoryStream(Encoding.UTF8.GetBytes(fileCachePatched)))
@@ -512,8 +573,20 @@ namespace CESMII.ProfileDesigner.OpcUa
 
                         var opcModel = nodeSet.Models[0];
                         var opcProfile = _profileDal.Where(ns => ns.Namespace == opcModel.ModelUri, userToken, null, null).Data?.FirstOrDefault();
-                        //TODO - this next line is time consuming, but still faster than loading from database.
-                        this.LoadNodeSetAsync(dalOpcContext, nodeSet, opcProfile, true).Wait();
+
+                        if (profileModel.Namespace != strOpcNamespaceUri)
+                        {
+                            //TODO - this next line is time consuming, but still faster than loading from database.
+                            this.LoadNodeSetAsync(dalOpcContext, nodeSet, opcProfile, true).Wait();
+                        }
+                        else
+                        {
+                            // For core nodeset testing, populate the aliases (for easier diffing) but load the actual nodes from profile database
+                            foreach (var alias in nodeSet.Aliases)
+                            {
+                                this.Aliases.TryAdd(alias.Value, alias.Alias);
+                            }
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -521,6 +594,17 @@ namespace CESMII.ProfileDesigner.OpcUa
                     this.Logger.LogError(ex, "Internal error preparing for nodeset export.");
                 }
             }
+
+            // populate the model being exported with proper version and publication date
+            dalOpcContext.GetOrAddNodesetModel(
+                new ModelTableEntry
+                {
+                    ModelUri = profileModel.Namespace,
+                    PublicationDate = profileModel.PublishDate ?? default,
+                    Version = profileModel.Version,
+                    PublicationDateSpecified = profileModel.PublishDate != null,
+                    XmlSchemaUri = profileModel.XmlSchemaUri,
+                }, true);
 
             var profileItemsResult = _dal.Where(pi => pi.ProfileId == profileModel.ID /*&& (pi.AuthorId == null || pi.AuthorId == userId)*/, userToken, null, null, false, true);
             if (profileItemsResult.Data != null)
@@ -556,7 +640,7 @@ namespace CESMII.ProfileDesigner.OpcUa
 #else
                 model.UpdateIndices();
 #endif
-                exportedNodeSet = UANodeSetModelImporter.ExportNodeSet(model, nodeSetModels, this.Aliases);
+                exportedNodeSet = UANodeSetModelExporter.ExportNodeSet(model, nodeSetModels, this.Aliases);
             }
             // .Net6 changed the default to no-identation: https://github.com/dotnet/runtime/issues/64885
             string exportedNodeSetXml;
@@ -653,7 +737,7 @@ namespace CESMII.ProfileDesigner.OpcUa
                     }
                     else
                     {
-                        if (uaVariable.Parent is DataVariableModel dvParentModel && dalContext.profileItemsByNodeId.TryGetValue(dvParentModel.Parent.NodeId, out var dvGrandParent))
+                        if (uaVariable.Parent is DataVariableModel dvParentModel && dvParentModel.Parent != null && dalContext.profileItemsByNodeId.TryGetValue(dvParentModel.Parent.NodeId, out var dvGrandParent))
                         {
 
                             var nodeIdParts = uaVariable.Parent.NodeId.Split(';');
@@ -682,7 +766,7 @@ namespace CESMII.ProfileDesigner.OpcUa
                     }
                 }
                 bool bFound = false;
-                foreach(var referencingNode in uaVariable.OtherReferencingNodes)
+                foreach (var referencingNode in uaVariable.OtherReferencingNodes)
                 {
                     if (dalContext.profileItemsByNodeId.TryGetValue(referencingNode.Node.NodeId, out var referencingProfileType))
                     {
@@ -713,7 +797,7 @@ namespace CESMII.ProfileDesigner.OpcUa
 
         public async Task ImportEngineeringUnitsAsync(UserToken userToken)
         {
-            var units = NodeModelOpcExtensions.GetUNECEEngineeringUnits();
+            var units = NodeModelOpcExtensions.UNECEEngineeringUnits;//.GetUNECEEngineeringUnits();
             _euDal.StartTransaction();
             foreach (var unit in units)
             {

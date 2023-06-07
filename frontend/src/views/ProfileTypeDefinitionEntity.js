@@ -7,25 +7,26 @@ import axiosInstance from "../services/AxiosService";
 import Form from 'react-bootstrap/Form'
 import Card from 'react-bootstrap/Card'
 import Button from 'react-bootstrap/Button'
-import Dropdown from 'react-bootstrap/Dropdown'
 import Tab from 'react-bootstrap/Tab'
 import Nav from 'react-bootstrap/Nav'
 
 import { useLoadingContext, UpdateRecentFileList } from "../components/contexts/LoadingContext";
 import { useWizardContext } from '../components/contexts/WizardContext';
 import { AppSettings } from '../utils/appsettings';
-import { generateLogMessageString, getTypeDefIconName, getProfileTypeCaption, cleanFileName, validate_NoSpecialCharacters } from '../utils/UtilityService'
+import { generateLogMessageString, getTypeDefIconName, getProfileTypeCaption, getIconColorByProfileState, isDerivedFromDataType, getPermittedDataTypesForVariableTypeById } from '../utils/UtilityService'
+import { renderDataTypeUIShared } from '../services/AttributesService';
 import AttributeList from './shared/AttributeList';
 import DependencyList from './shared/DependencyList';
 import ProfileBreadcrumbs from './shared/ProfileBreadcrumbs';
 import ProfileEntityModal from './modals/ProfileEntityModal';
 import ProfileItemRow from './shared/ProfileItemRow';
+import TypeDefinitionActions from './shared/TypeDefinitionActions';
 
 import { SVGIcon } from "../components/SVGIcon";
-import { getProfileCaption } from '../services/ProfileService';
 import { getWizardNavInfo, renderWizardBreadcrumbs, WizardSettings } from '../services/WizardUtil';
 import { isOwner } from './shared/ProfileRenderHelpers';
 import './styles/ProfileTypeDefinitionEntity.scss';
+import { Prompt } from 'react-router'
 
 const CLASS_NAME = "ProfileTypeDefinitionEntity";
 const entityInfo = {
@@ -53,17 +54,28 @@ function ProfileTypeDefinitionEntity() {
     const [mode, setMode] = useState(initPageMode());
     const [_item, setItem] = useState({});
     const [isLoading, setIsLoading] = useState(true);
-    const [isReadOnly, setIsReadOnly] = useState(true);
-    const [_isValid, setIsValid] = useState({ name: true, profile: true, description: true, type: true, symbolicName: true });
+    const [_lookupDataTypes, setLookupDataTypes] = useState([]);
+    const [_permittedDataTypes, setPermittedDataTypes] = useState(null);
+    const [_isReadOnly, setIsReadOnly] = useState(true);
+    const [_isValid, setIsValid] = useState({ name: true, profile: true, description: true, type: true, symbolicName: true, variableDataType: true });
     //const [_lookupProfiles, setLookupProfiles] = useState([]);
     //used in popup profile add/edit ui. Default to new version
     const [_profileEntityModal, setProfileEntityModal] = useState({ show: false, item: null, autoSave: false  });
     const _profileNew = { id: 0, namespace: '', version: null, publishDate: null, authorId: null };
+    const [_lookupRelated, setLookupRelated] = useState({ compositions: [], interfaces: [], variableTypes: [] });
 
     const { wizardProps, setWizardProps } = useWizardContext();
-    var _navInfo = history.location.pathname.indexOf('/wizard/') === - 1 ? null : getWizardNavInfo(wizardProps.mode, 'ExtendBaseType');
+    const _navInfo = history.location.pathname.indexOf('/wizard/') === - 1 ? null : getWizardNavInfo(wizardProps.mode, 'ExtendBaseType');
     const _currentPage = history.location.pathname.indexOf('/wizard/') === - 1 ? null : WizardSettings.panels.find(p => { return p.id === 'ExtendBaseType'; });
     
+    //-------------------------------------------------------------------
+    // Region: hooks - Execute once after component loads
+    //-------------------------------------------------------------------
+    useEffect(() => {
+        // Init flags to detect unsaved changes and warn a user when they try to leave the page
+        setLoadingProps({ bIsTypeEditUnsaved: false });
+    }, []);
+
     //-------------------------------------------------------------------
     // Region: hooks
     //-------------------------------------------------------------------
@@ -98,11 +110,11 @@ function ProfileTypeDefinitionEntity() {
 
             //mode not set right if we were on this page, save an extend and navigate into edit same profile. Rely on
             // parentId, id. Then determine mode. for extend, we use parentId, for edit/view, we use id.
-            var result = null;
+            let result = null;
             try {
                 //add logic for wizard scenario
-                var data = { id: (parentId != null ? parentId : id) };
-                var url = `profiletypedefinition/getbyid`;
+                let data = { id: (parentId != null ? parentId : id) };
+                let url = `profiletypedefinition/getbyid`;
                 if (parentId != null && history.location.pathname.indexOf('/wizard/') > -1) {
                     url = `profiletypedefinition/wizard/extend`;
                     //add profile id in
@@ -115,7 +127,7 @@ function ProfileTypeDefinitionEntity() {
                 result = await axiosInstance.post(url, data);
             }
             catch (err) {
-                var msg = 'An error occurred retrieving this profile.';
+                var msg = 'An error occurred retrieving this type definition.';
                 console.log(generateLogMessageString('useEffect||fetchData||error', CLASS_NAME, 'error'));
                 //console.log(err.response.status);
                 if (err != null && err.response != null && err.response.status === 404) {
@@ -133,7 +145,7 @@ function ProfileTypeDefinitionEntity() {
             // set view/edit mode now that we can compare user against author of item
             // just a check to make sure that if the mode is edit, but user isn't the author,
             // we force them back to view mode
-            var thisMode = 'view';
+            let thisMode = 'view';
             if (id != null) {
                 thisMode = (result.data.isReadOnly || !isOwner(result.data, _activeAccount)) ? "view" : "edit";
             }
@@ -158,9 +170,10 @@ function ProfileTypeDefinitionEntity() {
 
             //add to the recent file list to keep track of where we have been
             if (thisMode.toLowerCase() === "view" || thisMode.toLowerCase() === "edit") {
-                var revisedList = UpdateRecentFileList(loadingProps.recentFileList, {
+                const revisedList = UpdateRecentFileList(loadingProps.recentFileList, {
                     url: history.location.pathname, caption: result.data.name, iconName: getTypeDefIconName(result.data),
-                    authorId: result.data.author != null ? result.data.author.objectIdAAD : null });
+                    authorId: result.data.author != null && result.data.isReadOnly === false ? result.data.author.objectIdAAD : null
+                });
                 setLoadingProps({ recentFileList: revisedList });
             }
 
@@ -221,6 +234,125 @@ function ProfileTypeDefinitionEntity() {
         };
     }, [id, parentId, profileId ]);
 
+    useEffect(() => {
+        setPermittedDataTypes(_lookupDataTypes);
+    }, [_lookupDataTypes]);
+
+    useEffect(() => {
+        const newPermittedDataTypes = getPermittedDataTypesForVariableTypeById(_item.parent?.variableDataTypeId, _lookupDataTypes);
+        if (newPermittedDataTypes != null) {
+            setPermittedDataTypes(newPermittedDataTypes)
+        }
+        else {
+            setPermittedDataTypes(_lookupDataTypes);
+        }
+    }, [_item]);
+
+    //-------------------------------------------------------------------
+    // Region: Hooks - When composition data type is chosen, go get a list of profiles
+    //      where the profile is neither a descendant or a parent/grandparent, etc. of the profile we 
+    //      are working with
+    //-------------------------------------------------------------------
+    useEffect(() => {
+        async function fetchLookupProfileTypeDefs(lookupId, isExtend) {
+
+            //placeholder vals while we load
+            setLookupRelated({
+                ..._lookupRelated,
+                compositions: [{ id: -1, name: 'Loading...', profile: { id: -1, title: '', namespace: '', version: '', publishDate: '' } },],
+                variableTypes: [{ id: -1, name: 'Loading...', profile: { id: -1, title: '', namespace: '', version: '', publishDate: '' } },]
+            });
+
+            //Filter out anything
+            //where the profile is neither a descendant or a parent/grandparent, etc. of the profile we 
+            //are working with, can't be a dependency of this type definition
+            // If we are working with a profile, then composition can't be an interface type
+            // If we are working with an interface, then composition can't be a profile type
+            const data = { id: lookupId };
+            const url = `profiletypedefinition/lookup/profilerelated${isExtend ? '/extend' : ''}`;
+            console.log(generateLogMessageString(`useEffect||fetchLookupProfileTypeDefs||${url}`, CLASS_NAME));
+            //const result = await axiosInstance.post(url, data);
+
+            await axiosInstance.post(url, data).then(result => {
+                if (result.status === 200) {
+                    //profile id - 3 scenarios - 1. typical - use profile id, 2. extend profile where parent profile should be used, 
+                    //      3. new profile - no parent, no inheritance, use 0 
+                    //var pId = props.typeDefinition.id;
+                    //if (props.typeDefinition.id === 0 && props.typeDefinition.parent != null) pId = props.typeDefinition.parent.id;
+
+                    //TBD - handle paged data scenario, do a predictive search look up
+                    setLookupRelated({
+                        compositions: result.data.compositions,
+                        interfaces: result.data.interfaces,
+                        variableTypes: result.data.variableTypes,
+                    });
+                } else {
+                    console.warn(generateLogMessageString(`useEffect||fetchLookupProfileTypeDefs||error||status:${result.status}`, CLASS_NAME));
+                    setLookupRelated({
+                        ..._lookupRelated,
+                        compositions: [{ id: -1, name: 'Error loading composition data...', profile: { id: -1, title: '', namespace: '', version: '', publishDate: '' } }],
+                        variableTypes: [{ id: -1, name: 'Error loading variable type data...', profile: { id: -1, title: '', namespace: '', version: '', publishDate: '' } }]
+                    });
+                }
+            }).catch(e => {
+                if (e.response && e.response.status === 401) {
+                    console.error(generateLogMessageString(`useEffect||fetchLookupProfileTypeDefs||error||status:${e.response.status}`, CLASS_NAME));
+                }
+                else {
+                    console.error(generateLogMessageString(`useEffect||fetchLookupProfileTypeDefs||error||status:${e.response && e.response.data ? e.response.data : `A system error has occurred during the profile api call.`}`, CLASS_NAME));
+                    console.log(e);
+                }
+                setLookupRelated({
+                    ..._lookupRelated,
+                    compositions: [{ id: -1, name: 'Error loading composition data...', profile: { id: -1, title: '', namespace: '', version: '', publishDate: '' } }],
+                    variableTypes: [{ id: -1, name: 'Error loading variable type data...', profile: { id: -1, title: '', namespace: '', version: '', publishDate: '' } }]
+                });
+            });
+        }
+
+        //we load even if we might be in readonly mode because we don't know if readonly until 
+        //we get the full data back and evaluate ownership. We want to run this in parallel
+        //and thus can't wait to know if readonly. 
+        fetchLookupProfileTypeDefs(
+            parentId != null ? parentId : (id != null && id.toString() !== 'new' ? id : null),
+            parentId != null
+        );
+
+    }, [id, parentId]);
+
+    //-------------------------------------------------------------------
+    // Region: Hooks - load lookup data static from context. if not present, trigger a fetch of this data. 
+    //-------------------------------------------------------------------
+    useEffect(() => {
+        async function initLookupData() {
+
+            //if data not there, but loading in progress.  
+            if (loadingProps.lookupDataStatic == null && loadingProps.refreshLookupData) {
+                //do nothing, the loading effect will inform when complete
+                return;
+            }
+            //if data not there, but loading NOT in progress.  
+            else if (loadingProps.lookupDataStatic == null) {
+                //trigger get of data
+                setLoadingProps({ refreshLookupData: true });
+                return;
+            }
+
+            //get from local storage and keep local to the component lifecycle
+            setLookupDataTypes(loadingProps.lookupDataStatic.dataTypes);
+        }
+
+        initLookupData();
+
+        //this will execute on unmount
+        return () => {
+            console.log(generateLogMessageString('useEffect||Cleanup', CLASS_NAME));
+        };
+    }, [loadingProps.lookupDataStatic, loadingProps.lookupDataRefreshed]);
+
+    //-------------------------------------------------------------------
+    //
+    //-------------------------------------------------------------------
     function initPageMode() {
         //if path contains extend and parent id is set, mode is extend
         //else - we won't know the author ownership till we fetch data, default view
@@ -236,7 +368,7 @@ function ProfileTypeDefinitionEntity() {
     }
 
     function buildTitleCaption(formMode) {
-        var result = getProfileTypeCaption(_item);
+        let result = getProfileTypeCaption(_item);
         if (formMode != null) {
             switch (formMode.toLowerCase()) {
                 case "new":
@@ -261,7 +393,7 @@ function ProfileTypeDefinitionEntity() {
     // Region: Validation
     //-------------------------------------------------------------------
     const validateForm_name = (e) => {
-        var isValid = (e.target.value != null && e.target.value.trim().length > 0);
+        const isValid = (e.target.value != null && e.target.value.trim().length > 0);
         setIsValid({ ..._isValid, name: isValid });
     };
 
@@ -269,27 +401,46 @@ function ProfileTypeDefinitionEntity() {
     };
 
     const validateForm_type = (e) => {
-        var isValid = e.target.value.toString() !== "-1";
+        const isValid = e.target.value.toString() !== "-1";
         setIsValid({ ..._isValid, type: isValid });
     };
 
     const validateForm_symbolicName = (e) => {
-        var isValid = validate_NoSpecialCharacters(e.target.value);
-        setIsValid({ ..._isValid, symbolicName: isValid });
+        setIsValid({ ..._isValid, symbolicName: validate_symbolicName(e.target.value) });
     };
 
-     ////update state for when search click happens
-     const validateForm = () => {
+    const validate_symbolicName = (val) => {
+        const format = /[ `!@#$%^&*()+\-=[\]{};':"\\|,.<>/?~(0-9)]/;  //includes a space, underscore allowed
+        return val == null || val.length === 0 || !format.test(val);
+    };
+
+    const validateForm_variableDataType = (e) => {
+        const isValid = validate_variableDataType(_item.variableDataType);
+        setIsValid({ ..._isValid, variableDataType: isValid });
+    };
+
+    const validate_variableDataType = (vdt) => {
+        var lookupDataType = _lookupDataTypes.find(dt => { return dt.customTypeId.toString() === vdt?.id?.toString(); });
+        var baseVTDataType = _lookupDataTypes.find(dt => { return dt.customTypeId.toString() === _item.parent?.variableDataTypeId?.toString(); })
+        if (lookupDataType != null && baseVTDataType != null) {
+            return isDerivedFromDataType(lookupDataType, baseVTDataType, _lookupDataTypes);
+        }
+        return lookupDataType == baseVTDataType; // ok if both are null or if they are identical
+    }
+
+    ////update state for when search click happens
+    const validateForm = () => {
         console.log(generateLogMessageString(`validateForm`, CLASS_NAME));
 
         _isValid.name = _item.name != null && _item.name.trim().length > 0;
         _isValid.profile = _item.profile != null && _item.profile.id !== -1 && _item.profile.id !== "-1";
         _isValid.description = true; //item.description != null && item.description.trim().length > 0;
         _isValid.type = _item.type != null && _item.type.id !== -1 && _item.type.id !== "-1";
-         _isValid.symbolicName = validate_NoSpecialCharacters(_item.symbolicName);
+        _isValid.symbolicName = validate_symbolicName(_item.symbolicName);
+        _isValid.variableDataType = validate_variableDataType(_item.variableDataType);
 
-         setIsValid(JSON.parse(JSON.stringify(_isValid)));
-         return (_isValid.name && _isValid.profile && _isValid.description && _isValid.type && _isValid.symbolicName);
+        setIsValid(JSON.parse(JSON.stringify(_isValid)));
+        return (_isValid.name && _isValid.profile && _isValid.description && _isValid.type && _isValid.symbolicName && _isValid.variableDataType);
     }
 
     //-------------------------------------------------------------------
@@ -309,7 +460,7 @@ function ProfileTypeDefinitionEntity() {
             //otherwise, return and have user correct the other required items. 
             //alert("validation failed");
             return;
-        } 
+        }
 
         //show a spinner
         setLoadingProps({ isLoading: true, message: "" });
@@ -318,6 +469,9 @@ function ProfileTypeDefinitionEntity() {
         //split the string into array and then build out array of tags
         _item.metaTags = _item.metaTagsConcatenated == null || _item.metaTagsConcatenated.trim().length === 0 ?
             null : _item.metaTagsConcatenated.split(",").map(x => x.trim(' '));
+
+        // Everything saved - no need to warn the user about unsaved changes.
+        setLoadingProps({ bIsTypeEditUnsaved: false });
 
         //perform insert call
         console.log(generateLogMessageString(`handleOnSave||${mode}`, CLASS_NAME));
@@ -356,7 +510,7 @@ function ProfileTypeDefinitionEntity() {
                 //hide a spinner, show a message
                 setLoadingProps({
                     isLoading: false, message: null, inlineMessages: [
-                        { id: new Date().getTime(), severity: "danger", body: `An error occurred ${mode.toLowerCase() === "extend" ? "extending" : "saving"} this profile.`, isTimed: false }
+                        { id: new Date().getTime(), severity: "danger", body: `An error occurred ${mode.toLowerCase() === "extend" ? "extending" : "saving"} this type definition.`, isTimed: false }
                     ]
                 });
                 console.log(generateLogMessageString('handleOnSave||error||' + JSON.stringify(error), CLASS_NAME, 'error'));
@@ -379,8 +533,8 @@ function ProfileTypeDefinitionEntity() {
         //setLoadingProps({ isLoading: true, message: "" });
 
         //perform update call
-        var url = `profiletypedefinition/togglefavorite`;
-        var data = { id: _item.id };
+        const url = `profiletypedefinition/togglefavorite`;
+        const data = { id: _item.id };
         axiosInstance.post(url, data)
             .then(resp => {
                 //hide a spinner, trigger refresh of favorites list
@@ -441,6 +595,7 @@ function ProfileTypeDefinitionEntity() {
         }
         //update the state
         setItem(JSON.parse(JSON.stringify(_item)));
+        setLoadingProps({ bIsTypeEditUnsaved: true });
     }
 
     const onAddProfile = () => {
@@ -451,7 +606,7 @@ function ProfileTypeDefinitionEntity() {
     //add profile on the fly then go get a refreshed list of items.
     const onSaveProfile = (p) => {
         console.log(generateLogMessageString(`onSaveProfile`, CLASS_NAME));
-        var autoSave = _profileEntityModal.autoSave;
+        const autoSave = _profileEntityModal.autoSave;
         setProfileEntityModal({ show: false, item: null, autoSave: false });
 
         //and then assign it to the new item
@@ -489,7 +644,7 @@ function ProfileTypeDefinitionEntity() {
         if (itemCopy.profileAttributes == null) itemCopy.profileAttributes = [];
         // doing the JSON copy stuff here to break up the object reference
         itemCopy.profileAttributes.push(JSON.parse(JSON.stringify(row)));
-        
+
         setItem(JSON.parse(JSON.stringify(itemCopy)));
         return {
             profileAttributes: itemCopy.profileAttributes, extendedProfileAttributes: itemCopy.extendedProfileAttributes
@@ -522,7 +677,7 @@ function ProfileTypeDefinitionEntity() {
         //raised from del button click in child component
         console.log(generateLogMessageString(`onAttributeDelete||item id:${key}`, CLASS_NAME));
 
-        var x = _item.profileAttributes.findIndex(attr => { return attr.id === key; });
+        const x = _item.profileAttributes.findIndex(attr => { return attr.id === key; });
         //no item found
         if (x < 0) {
             console.warn(generateLogMessageString(`onAttributeDelete||no item found to delete with this id`, CLASS_NAME));
@@ -535,7 +690,7 @@ function ProfileTypeDefinitionEntity() {
         _item.profileAttributes.splice(x, 1);
 
         //update the state, return collection to child components
-        var itemCopy = JSON.parse(JSON.stringify(_item));
+        const itemCopy = JSON.parse(JSON.stringify(_item));
         setItem(itemCopy);
         return {
             profileAttributes: itemCopy.profileAttributes, extendedProfileAttributes: itemCopy.extendedProfileAttributes
@@ -548,7 +703,7 @@ function ProfileTypeDefinitionEntity() {
         console.log(generateLogMessageString(`onAttributeInterfaceDelete||interface id:${key}`, CLASS_NAME));
 
         //delete the interface reference
-        var x = _item.interfaces.findIndex(i => { return i.id === key; });
+        const x = _item.interfaces.findIndex(i => { return i.id === key; });
         //no item found
         if (x < 0) {
             console.warn(generateLogMessageString(`onAttributeInterfaceDelete||no interface found to delete with id: ${key}`, CLASS_NAME));
@@ -573,7 +728,7 @@ function ProfileTypeDefinitionEntity() {
 
         //update the state, return attrib collection to child components
         _item.extendedProfileAttributes = matches;
-        var itemCopy = JSON.parse(JSON.stringify(_item));
+        const itemCopy = JSON.parse(JSON.stringify(_item));
         setItem(itemCopy);
         return {
             profileAttributes: itemCopy.profileAttributes, extendedProfileAttributes: itemCopy.extendedProfileAttributes
@@ -584,7 +739,7 @@ function ProfileTypeDefinitionEntity() {
         //raised from del button click in child component
         console.log(generateLogMessageString(`onAttributeUpdate||item id:${attr.id}`, CLASS_NAME));
 
-        var aIndex = _item.profileAttributes.findIndex(a => { return a.id === attr.id; });
+        const aIndex = _item.profileAttributes.findIndex(a => { return a.id === attr.id; });
         //no item found
         if (aIndex === -1) {
             console.warn(generateLogMessageString(`onAttributeUpdate||no item found with this id`, CLASS_NAME));
@@ -596,7 +751,7 @@ function ProfileTypeDefinitionEntity() {
         _item.profileAttributes[aIndex] = JSON.parse(JSON.stringify(attr));
 
         //update the state, return collection to child components
-        var itemCopy = JSON.parse(JSON.stringify(_item));
+        const itemCopy = JSON.parse(JSON.stringify(_item));
         setItem(itemCopy);
         //return item local b/c item is not yet updated in state
         return {
@@ -604,27 +759,25 @@ function ProfileTypeDefinitionEntity() {
         };
     };
 
-    const downloadProfile = async () => {
-        console.log(generateLogMessageString(`downloadProfile||start`, CLASS_NAME));
-        //add a row to download messages and this will kick off download
-        var msgs = loadingProps.downloadItems || [];
-        msgs.push({ profileId: _item.profile?.id, fileName: cleanFileName(_item.profile?.namespace), immediateDownload: true});
-        setLoadingProps({ downloadItems: JSON.parse(JSON.stringify(msgs)) });
+    //if delete goes through, navigate to profiles library page
+    const onDelete = (success) => {
+        console.log(generateLogMessageString(`onDelete || ${success}`, CLASS_NAME));
+        if (success) {
+            history.push(`/types/library`);
+        }
+    };
+
+    //onchange data type
+    const onChangeVariableDataType = (e) => {
+        var lookupItem = _lookupDataTypes.find(dt => { return dt.id.toString() === e.value.toString(); });
+
+        _item.variableDataType = 
+            lookupItem != null ?
+            { id: lookupItem.customTypeId, name: lookupItem.name }
+            : { id: -1, name: '' };
+        setItem(JSON.parse(JSON.stringify(_item)));
     }
-    const downloadProfileAsAASX = async () => {
-        console.log(generateLogMessageString(`downloadProfileAsAASX||start`, CLASS_NAME));
-        //add a row to download messages and this will kick off download
-        var msgs = loadingProps.downloadItems || [];
-        msgs.push({ profileId: _item.profile?.id, fileName: cleanFileName(_item.profile?.namespace), immediateDownload: true, downloadFormat: AppSettings.ExportFormatEnum.AASX });
-        setLoadingProps({ downloadItems: JSON.parse(JSON.stringify(msgs)) });
-    }
-    const downloadProfileAsSmipJson = async () => {
-        console.log(generateLogMessageString(`downloadItemAsSmipJson||start`, CLASS_NAME));
-        //add a row to download messages and this will kick off download
-        var msgs = loadingProps.downloadItems || [];
-        msgs.push({ profileId: _item.profile?.id, fileName: cleanFileName(_item.profile?.namespace), immediateDownload: true, downloadFormat: AppSettings.ExportFormatEnum.SmipJson });
-        setLoadingProps({ downloadItems: JSON.parse(JSON.stringify(msgs)) });
-    }
+
 
     //-------------------------------------------------------------------
     // Region: Render Helpers
@@ -647,11 +800,11 @@ function ProfileTypeDefinitionEntity() {
 
     const renderProfileDefType = () => {
         //show readonly input for view mode
-        if (isReadOnly) {
+        if (_isReadOnly) {
             return (
                 <Form.Group>
                     <Form.Label htmlFor="type">Type</Form.Label>
-                    <Form.Control id="type" type="" value={_item.type != null ? _item.type.name : ""} readOnly={isReadOnly} />
+                    <Form.Control id="type" type="" value={_item.type != null ? _item.type.name : ""} readOnly={_isReadOnly} />
                 </Form.Group>
             )
         }
@@ -688,10 +841,37 @@ function ProfileTypeDefinitionEntity() {
         )
     };
 
+    //if anything is invalid, show a warning...
+    const renderValidationMessage = () => {
+
+        //name the field(s) with the issue
+        let fieldError = [];
+        if (!_isValid.name) fieldError.push(`Name is required.`);
+        if (!_isValid.profile) fieldError.push(`Profile is required.`);
+        if (!_isValid.description) fieldError.push(`Description is required.`);
+        if (!_isValid.type) fieldError.push(`Type is required.`);
+        if (!_isValid.symbolicName) fieldError.push(`Symbolic Name is invalid (Advanced tab).`);
+        if (!_isValid.variableDataType) fieldError.push(`Variable Data Tyype is required.`);
+
+        if (fieldError.length === 0) return null;
+
+        //add extra row and col-md-12 to get align to match with surroundings
+        return (
+            <div className="row pt-2 mb-2 no-gutters">
+                <div className="col-md-12 px-2 alert alert-danger">
+                    {fieldError.length === 1 ?
+                        fieldError[0] :
+                        `Validation Errors: ` + fieldError.join(' ')
+                    }
+                </div>
+            </div>
+        );
+    };
+
     //render Profile Row as a read-only reminder of the parent
     const renderProfile = () => {
 
-        var actionUI = (_item.id != null && _item.id > 0 && _item.profile != null) ? null :
+        const actionUI = (_item.id != null && _item.id > 0 && _item.profile != null) ? null :
             (
                 <button type="button" className="btn btn-secondary auto-width" onClick={onSelectProfile} title="Select Profile" >Select</button>
             );
@@ -705,6 +885,36 @@ function ProfileTypeDefinitionEntity() {
             </div>
         );
     };
+
+    const renderVariableDataType = () => {
+        if (_item.typeId !== AppSettings.ProfileTypeDefaults.VariableTypeId) {
+            return null;
+        }
+        if (_isReadOnly) {
+
+            return (
+                <div className="col-lg-4 col-md-6">
+                    <Form.Group>
+                        <Form.Label htmlFor="type">Data Type of the Variable</Form.Label>
+                        <Form.Control id="type" type="" value={_item.variableDataType != null ? _item.variableDataType.name : ""} readOnly={_isReadOnly} />
+                    </Form.Group>
+                </div>
+            );
+        }
+        else {
+            return (
+                <div className="col-lg-4 col-md-6">
+                    {renderVariableDataTypeUI()}
+                </div>
+            );
+        }
+    };
+
+    const renderVariableDataTypeUI = () => {
+        var lookupItem = _lookupDataTypes.find(dt => { return dt.customTypeId.toString() === _item.variableDataType?.id?.toString(); });
+            //set isValid === true always - not required here...
+        return renderDataTypeUIShared(lookupItem, _permittedDataTypes, null, _isValid.variableDataType, true, "Data Type of the Variable", onChangeVariableDataType, validateForm_variableDataType)
+    }
 
     //renderProfileEntity as a modal to force user to say ok.
     const renderProfileModal = () => {
@@ -723,45 +933,41 @@ function ProfileTypeDefinitionEntity() {
 
         //React-bootstrap bug if you launch modal, then the dropdowns don't work. Add onclick code to the drop down as a workaround - https://github.com/react-bootstrap/react-bootstrap/issues/5561
         return (
-            <Dropdown className="action-menu icon-dropdown ml-1 ml-md-2" onClick={(e) => e.stopPropagation()} >
-                <Dropdown.Toggle drop="left" title="Actions" >
-                    <SVGIcon name="more-vert" size="24" />
-                </Dropdown.Toggle>
-                <Dropdown.Menu>
-                    <Dropdown.Item href={`/type/extend/${_item.id}`}>Extend '{_item.name}'</Dropdown.Item>
-                    {/*<Dropdown.Item onClick={downloadMe} >Download '{item.name}'</Dropdown.Item>*/}
-                    <Dropdown.Item onClick={downloadProfile} >Download Profile '{getProfileCaption(_item.profile)}'</Dropdown.Item>
-                    <Dropdown.Item onClick={downloadProfileAsAASX} >Download Profile '{getProfileCaption(_item.profile)} as AASX'</Dropdown.Item>
-                    <Dropdown.Item onClick={downloadProfileAsSmipJson} >Download Profile '{getProfileCaption(_item.profile)} for SMIP import (experimental)'</Dropdown.Item>
-                </Dropdown.Menu>
-            </Dropdown>
+            <TypeDefinitionActions item={_item} activeAccount={_activeAccount} onDeleteCallback={onDelete} showExtend={true} className='ml-2' isReadOnly={_isReadOnly} />
         );
     }
 
     const renderButtons = () => {
-        var urlCancel = history.location.pathname.indexOf('/wizard/') > - 1 ? _navInfo.prev.href : '/types/library';
-        var captionCancel = history.location.pathname.indexOf('/wizard/') > - 1 ? 'Back' : 'Cancel';
+        const urlCancel = history.location.pathname.indexOf('/wizard/') > - 1 ? _navInfo.prev.href : '/types/library';
+        const captionCancel = history.location.pathname.indexOf('/wizard/') > - 1 ? 'Back' : 'Cancel';
         if (mode.toLowerCase() !== "view") {
             return (
                 <>
-                    <Button variant="text-solo" className="mx-1 btn-auto auto-width" href={urlCancel} >{captionCancel}</Button>
+                    <Button variant="text-solo" className="mx-1 d-none d-lg-block btn-auto auto-width" href={urlCancel} >{captionCancel}</Button>
                     <Button variant="secondary" type="button" className="mx-3 d-none d-lg-block" onClick={onSave} >Save</Button>
-                    <Button variant="icon-outline" type="button" className="mx-1 d-lg-none" onClick={onSave} title="Save" ><i className="material-icons">save</i></Button>
+                    <Button variant="icon-solo" type="button" className="mx-1 d-lg-none" href={urlCancel} title={captionCancel} ><i className="material-icons">close</i></Button>
+                    <Button variant="icon-solo" type="button" className="mx-1 d-lg-none" onClick={onSave} title="Save" ><i className="material-icons">save</i></Button>
                 </>
             );
         }
     }
-    
+
     const renderCommonSection = () => {
 
-        var iconName = mode.toLowerCase() === "extend" ? "extend" : getTypeDefIconName(_item);
+        const iconName = mode.toLowerCase() === "extend" ? "extend" : getTypeDefIconName(_item);
+        const iconColor = getIconColorByProfileState(_isReadOnly ? AppSettings.ProfileStateEnum.Core : AppSettings.ProfileStateEnum.Local);
 
         return (
             <>
+                <Prompt
+                    when={loadingProps.bIsTypeEditUnsaved}
+                    message="Unsaved changes will be lost. Ok to exit the page? To save, click Cancel then click Save."
+                />
+                {renderValidationMessage()}
                 <div className="row my-1">
                     <div className="col-sm-9 col-md-8 align-self-center" >
-                        <h1 className="mb-0">
-                            <SVGIcon name={iconName} size="24" className="mr-1 mr-md-2" />
+                        <h1 className="mb-0 pl-3">
+                            <SVGIcon name={iconName} fill={iconColor} alt={iconName} size="24" className="mr-1 mr-md-2" />
                             Type Definition
                             {(_item.name != null && _item.name.trim() !== '') &&
                                 <>
@@ -784,20 +990,21 @@ function ProfileTypeDefinitionEntity() {
                 {renderProfile()}
                 <div className="row">
                     {(mode.toLowerCase() !== "view") &&
-                        <div className="col-md-8">
-                        <Form.Label htmlFor="name" >Name</Form.Label>
+                        <div className="col-lg-5 col-md-6">
+                            <Form.Label htmlFor="name" >Name</Form.Label>
                             {!_isValid.name &&
                                 <span className="ml-2 d-inline invalid-field-message">Required</span>
                             }
                             <div className={`input-group ${(!_isValid.name ? "invalid-group" : "")}`} >
                                 <Form.Group className="flex-grow-1 m-0">
                                     <Form.Control className={(!_isValid.name ? `invalid-field` : ``)} id="name" type="" placeholder={`Enter name`}
-                                        value={_item.name} onBlur={validateForm_name} onChange={onChange} readOnly={isReadOnly} />
+                                        value={_item.name} onBlur={validateForm_name} onChange={onChange} readOnly={_isReadOnly} />
                                 </Form.Group>
                             </div>
                         </div>
                     }
-                    <div className="col-md-4">
+                    {renderVariableDataType()}
+                    <div className="col-lg-3 col-md-6">
                         {renderProfileDefType()}
                     </div>
                 </div>
@@ -822,13 +1029,13 @@ function ProfileTypeDefinitionEntity() {
                     <div className="col-md-6">
                         <Form.Group>
                             <Form.Label htmlFor="entity_author" >Author name</Form.Label>
-                            <Form.Control id="entity_author" type="" placeholder="Enter your name here" value={_item.author?.fullName} onChange={onChange} readOnly={isReadOnly} disabled='disabled' />
+                            <Form.Control id="entity_author" type="" placeholder="Enter your name here" value={_item.author?.fullName} onChange={onChange} readOnly={_isReadOnly} disabled='disabled' />
                         </Form.Group>
                     </div>
                     <div className="col-md-6">
                         <Form.Group>
                             <Form.Label htmlFor="entity_organization" >Organization</Form.Label>
-                            <Form.Control id="entity_organization" type="" placeholder="Enter your organization's name" value={_item.author?.organization?.name} onChange={onChange} readOnly={isReadOnly} disabled='disabled' />
+                            <Form.Control id="entity_organization" type="" placeholder="Enter your organization's name" value={_item.author?.organization?.name} onChange={onChange} readOnly={_isReadOnly} disabled='disabled' />
                         </Form.Group>
                     </div>
                 </div>
@@ -836,7 +1043,7 @@ function ProfileTypeDefinitionEntity() {
                     <div className="col-sm-6">
                         <Form.Group>
                             <Form.Label htmlFor="browseName" >OPC Browse Name</Form.Label>
-                            <Form.Control id="browseName" type="" placeholder="" readOnly={isReadOnly}
+                            <Form.Control id="browseName" type="" placeholder="" readOnly={_isReadOnly}
                                 value={_item.browseName != null ? _item.browseName : ""} onChange={onChange}  />
                         </Form.Group>
                     </div>
@@ -848,7 +1055,7 @@ function ProfileTypeDefinitionEntity() {
                                     No numbers, spaces or special characters permitted
                                 </span>
                             }
-                            <Form.Control id="symbolicName" className={(!_isValid.symbolicName ? `invalid-field` : ``)} type="" placeholder="" readOnly={isReadOnly}
+                            <Form.Control id="symbolicName" className={(!_isValid.symbolicName ? `invalid-field` : ``)} type="" placeholder="" readOnly={_isReadOnly}
                                 value={_item.symbolicName != null ? _item.symbolicName : ""} onChange={onChange} onBlur={validateForm_symbolicName} />
                         </Form.Group>
                     </div>
@@ -864,17 +1071,25 @@ function ProfileTypeDefinitionEntity() {
                 </div>
                 <div className="row mt-1">
                     <div className="col-sm-6 col-lg-2">
-                        <Form.Group className="d-flex h-100">
-                            <Form.Check className="align-self-end" type="checkbox" id="isAbstract" label="Is Abstract" checked={_item.isAbstract}
-                                onChange={onChange} readOnly={isReadOnly} />
-                        </Form.Group>
+                        {!_isReadOnly ?
+                            <Form.Group className="d-flex h-100">
+                                <Form.Check className="align-self-end" type="checkbox" id="isAbstract" label="Is Abstract" checked={_item.isAbstract}
+                                    onChange={onChange} />
+                            </Form.Group>
+                            :
+                            <Form.Group>
+                                <Form.Label>Is Abstract</Form.Label>
+                                <Form.Control id="isAbstract" type="" placeholder=""
+                                    value={_item.isAbstract} readOnly="readOnly" />
+                            </Form.Group>
+                        }
                     </div>
                 </div>
                 <div className="row mt-1">
                     <div className="col-sm-12">
                         <Form.Group>
                             <Form.Label htmlFor="metaTagsConcatenated" >Meta tags (optional)</Form.Label>
-                            <Form.Control id="metaTagsConcatenated" type="" placeholder="Enter tags seperated by a comma" value={_item.metaTagsConcatenated} onChange={onChange} readOnly={isReadOnly} />
+                            <Form.Control id="metaTagsConcatenated" type="" placeholder="Enter tags seperated by a comma" value={_item.metaTagsConcatenated} onChange={onChange} readOnly={_isReadOnly} />
                         </Form.Group>
                     </div>
                 </div>
@@ -883,7 +1098,7 @@ function ProfileTypeDefinitionEntity() {
                         <Form.Group>
                             <Form.Label htmlFor="documentUrl">Document Url</Form.Label>
                             <Form.Control id="documentUrl" type="" placeholder="Enter Url to the reference documentation (if applicable)."
-                                value={_item.documentUrl != null ? _item.documentUrl : ""} onChange={onChange} readOnly={isReadOnly} />
+                                value={_item.documentUrl != null ? _item.documentUrl : ""} onChange={onChange} readOnly={_isReadOnly} />
                         </Form.Group>
                     </div>
                 </div>
@@ -893,14 +1108,14 @@ function ProfileTypeDefinitionEntity() {
 
     // TBD: need loop to remove and add styles for "nav-item" CSS animations
     const tabListener = (eventKey) => {
-      }
+    }
 
 
     //-------------------------------------------------------------------
     // Region: Render
     //-------------------------------------------------------------------
-    var titleCaption = buildTitleCaption(mode);
-    var caption = getProfileTypeCaption(_item);
+    const titleCaption = buildTitleCaption(mode);
+    const caption = getProfileTypeCaption(_item);
 
     const renderMainContent = () => {
         if (loadingProps.isLoading || isLoading) return;
@@ -921,7 +1136,7 @@ function ProfileTypeDefinitionEntity() {
                                 </Nav.Item>
                                 <Nav.Item className="col-sm-4 rounded p-0 px-md-0" >
                                     <Nav.Link eventKey="dependencies" className="text-center text-md-left p-1 px-2 h-100" >
-                                        <span className="headline-3">Dependencies</span>
+                                        <span className="headline-3">Extended By</span>
                                         {/*<span className="d-none d-md-inline"><br />Type Definitions that depend on 'me'</span>*/}
                                     </Nav.Link>
                                 </Nav.Item>
@@ -940,7 +1155,9 @@ function ProfileTypeDefinitionEntity() {
                                         <Card.Body className="pt-3">
                                             <AttributeList typeDefinition={_item} profileAttributes={_item.profileAttributes} extendedProfileAttributes={_item.extendedProfileAttributes} readOnly={mode === "view"}
                                                 onAttributeAdd={onAttributeAdd} onAttributeInterfaceAdd={onAttributeInterfaceAdd} activeAccount={_activeAccount}
-                                                onAttributeDelete={onAttributeDelete} onAttributeInterfaceDelete={onAttributeInterfaceDelete} onAttributeUpdate={onAttributeUpdate} />
+                                                onAttributeDelete={onAttributeDelete} onAttributeInterfaceDelete={onAttributeInterfaceDelete} onAttributeUpdate={onAttributeUpdate}
+                                                lookupRelated={_lookupRelated}
+                                            />
                                         </Card.Body>
                                     </Card>
                                 </Tab.Pane>

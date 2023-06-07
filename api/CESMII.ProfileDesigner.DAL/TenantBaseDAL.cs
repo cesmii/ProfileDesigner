@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
+    using Microsoft.EntityFrameworkCore;
 
     using NLog;
 
@@ -16,6 +17,18 @@
     {
         protected TenantBaseDAL(IRepository<TEntity> repo): base(repo)
         {
+        }
+
+        /// <summary>
+        /// Get item by id - asynchronously
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public override async Task<TModel> GetByIdAsync(int id, UserToken userToken)
+        {
+            var entity = await _repo.FindByCondition(u => u.ID == id && (u.OwnerId == null || u.OwnerId == userToken.UserId)).FirstOrDefaultAsync();
+            var result = MapToModel(entity);
+            return result;
         }
 
         /// <summary>
@@ -72,15 +85,24 @@
             {
                 Count = count
             };
-            try
+            int retryCount = 50;
+            do
             {
-                result.Data = MapToModels(data.ToList(), verbose);
-            }
-            catch (InvalidOperationException)
-            {
-                // For some reason this throws due to modified collection on first try (local cache change due to side effect of mapping?)
-                result.Data = MapToModels(data.ToList(), verbose);
-            }
+                try
+                {
+                    result.Data = MapToModels(data.ToList(), verbose);
+                    retryCount = 0;
+                }
+                catch (InvalidOperationException)
+                {
+                    // For some reason (likely on-demand data loading of data) this throws due to modified collection
+                    retryCount--;
+                    if (retryCount <= 0)
+                    {
+                        throw;
+                    }
+                }
+            } while (retryCount > 0);
             result.SummaryData = null;
             return result;
         }

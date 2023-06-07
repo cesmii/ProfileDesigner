@@ -27,13 +27,10 @@
 
         .root {
             max-height: 500px;
-            
             //first level parent items
             li {
                 display: flex;
                 align-items: center;
-
-                
             }
         }
 
@@ -71,7 +68,7 @@
             }
         }
 
-        .composition-link {
+        .composition-link, .interface-link {
             padding-left: 32px;
         }
 
@@ -99,6 +96,8 @@
             }
 
             &.expanded {
+                max-height: 320px;
+                overflow-y: auto;
                 display: block;
             }
 

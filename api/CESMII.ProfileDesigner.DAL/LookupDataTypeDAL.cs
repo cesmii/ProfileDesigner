@@ -5,12 +5,10 @@
     using System.Linq;
     using System.Linq.Expressions;
     using System.Threading.Tasks;
-    using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.DependencyInjection;
     using CESMII.ProfileDesigner.DAL.Models;
     using CESMII.ProfileDesigner.Data.Entities;
     using CESMII.ProfileDesigner.Data.Repositories;
-    using Microsoft.Extensions.Logging;
 
     public class LookupDataTypeDAL : TenantBaseDAL<LookupDataType, LookupDataTypeModel>, IDal<LookupDataType, LookupDataTypeModel>
     {
@@ -55,12 +53,19 @@
         }
         public override LookupDataType CheckForExisting(LookupDataTypeModel model, UserToken userToken, bool cacheOnly = false)
         {
-            var entity = base.FindByCondition(userToken, dt =>
+            var entityResult = base.FindByCondition(userToken, dt =>
                 (
                   (model.ID != 0 && model.ID != null && dt.ID == model.ID)
-                  || ( dt.Name == model.Name && dt.Code == model.Code)
-                )
-                , cacheOnly).FirstOrDefault();
+                  || ( dt.Name == model.Name && dt.Code == model.Code 
+                       && (( (model.CustomTypeId ?? 0) != 0&& (dt.CustomTypeId ?? 0) != 0 && dt.CustomTypeId == model.CustomTypeId)
+                            || (model.CustomType != null &&
+                               dt.CustomType.Profile.Namespace == model.CustomType.Profile.Namespace
+                               && dt.CustomType.Profile.PublishDate == model.CustomType.Profile.PublishDate
+                               && dt.CustomType.Profile.Version == model.CustomType.Profile.Version
+                               && dt.CustomType.OpcNodeId == model.CustomType.OpcNodeId
+                ))))
+                , cacheOnly);
+            var entity = entityResult?.FirstOrDefault();
             return entity;
         }
 
@@ -209,7 +214,11 @@
                     entity.CustomType = customTypeEntity;
                 }
             }
+        }
 
+        internal IRepository<LookupDataType> GetRepo()
+        {
+            return _repo;
         }
     }
 }

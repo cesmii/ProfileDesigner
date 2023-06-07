@@ -19,6 +19,7 @@ namespace CESMII.ProfileDesigner.DAL.Utils
         private readonly IDal<ProfileTypeDefinition, ProfileTypeDefinitionModel> _dal;
         private readonly IDal<LookupItem, LookupItemModel> _dalLookup;
         private readonly IDal<LookupDataType, LookupDataTypeModel> _dalDataType;
+        private readonly IStoredProcedureDal<ProfileTypeDefinitionSimpleModel> _dalRelated;
         private readonly Common.ConfigUtil _config;
         
         private readonly static List<int?> _excludedProfileTypes = new() { (int)ProfileItemTypeEnum.Object, (int)ProfileItemTypeEnum.Method };
@@ -26,15 +27,21 @@ namespace CESMII.ProfileDesigner.DAL.Utils
             get { return _excludedProfileTypes; }
         }
 
+        public const string strOpcHasComponentReferenceNodeId = "nsu=http://opcfoundation.org/UA/;i=47";
+        private const string strOpcFolderTypeNodeId = "http://opcfoundation.org/UA/;i=61";
+        private const string strOpcOrganizesReferenceNodeId = "nsu=http://opcfoundation.org/UA/;i=35";
+
         public ProfileMapperUtil(IDal<ProfileTypeDefinition, ProfileTypeDefinitionModel> dal,
             IDal<LookupItem, LookupItemModel> dalLookup,
             IDal<LookupDataType, LookupDataTypeModel> dalDataType,
+            IStoredProcedureDal<ProfileTypeDefinitionSimpleModel> dalRelated,
             Common.ConfigUtil config
             )
         {
             _dal = dal;
             _dalLookup = dalLookup;
             _dalDataType = dalDataType;
+            _dalRelated = dalRelated;
             _config = config;
         }
 
@@ -54,7 +61,9 @@ namespace CESMII.ProfileDesigner.DAL.Utils
             while (ancestor != null)
             {
                 result.Add(MapToModelProfileSimple(ancestor, counter));
-                ancestor = ancestor.Parent?.ID == null ? null : _dal.GetById(ancestor.Parent.ID.Value, userToken);
+                // For Objects we use the instance hierarchy instead of the type of the object
+                var parentId = (ancestor.TypeId == (int) ProfileItemTypeEnum.Object && ancestor.InstanceParent != null ? ancestor.InstanceParent?.ID : ancestor.Parent?.ID);
+                ancestor = parentId == null ? null : _dal.GetById(parentId.Value, userToken);
                 counter--;
             }
             //sort the result grandaprent / parent / profile
@@ -65,23 +74,26 @@ namespace CESMII.ProfileDesigner.DAL.Utils
         /// A nested representation of the profile's place relative to its ancestors and siblings
         /// This is a recursive represenation for ancestors and siblings. 
         /// </summary>
-        /// <param name="profile"></param>
+        /// <param name="typeDef"></param>
         /// <param name="includeSiblings"></param>
         /// <returns></returns>
-        public List<ProfileTypeDefinitionAncestoryModel> GenerateAncestoryTree(ProfileTypeDefinitionModel profile, UserToken userToken, bool includeSiblings = false)
+        public List<ProfileTypeDefinitionAncestoryModel> GenerateAncestoryTree(ProfileTypeDefinitionModel typeDef, UserToken userToken, bool includeSiblings = false)
         {
             //navigate up the inheritance tree until the root. this is sorted properly. Should be at least one.
-            var lineage = this.GenerateAncestoryLineage(profile ,userToken);
-            //build a nested loop from root to profile item
+            //note this includes the item itself in the lineage.
+            var lineage = this.GetAncestors(typeDef.ID.Value ,userToken);
+
+            //convert result set to ProfileTypeDefinitionAncestoryModel which has children collection. 
+            //convert result into a hierarchical representation - from root to typeDef item
             ProfileTypeDefinitionAncestoryModel root = null;
             ProfileTypeDefinitionAncestoryModel curItem = null;
             ProfileTypeDefinitionAncestoryModel finalParent = null;
-            foreach (var p in lineage)
+            foreach (var t in lineage.Data)
             {
                 var pConverted = new ProfileTypeDefinitionAncestoryModel()
-                { ID = p.ID, Author = p.Author, Description = p.Description, Level = p.Level, Name = p.Name, Type = p.Type
-                    , /*Namespace = p.Namespace,*/ IsAbstract = p.IsAbstract, OpcNodeId = p.OpcNodeId
-                    , Profile = new ProfileModel() { ID = p.Profile.ID, Namespace = p.Profile.Namespace, Version = p.Profile.Version }
+                { ID = t.ID, Author = t.Author, Description = t.Description, Level = t.Level, Name = t.Name, Type = t.Type
+                    , /*Namespace = p.Namespace,*/ IsAbstract = t.IsAbstract, OpcNodeId = t.OpcNodeId
+                    , Profile = new ProfileModel() { ID = t.Profile.ID, Namespace = t.Profile.Namespace, Version = t.Profile.Version }
                 };
                 //1st iteration
                 if (root == null)
@@ -105,21 +117,24 @@ namespace CESMII.ProfileDesigner.DAL.Utils
             };
 
             //build out a list and siblings will go on same level as the profile
-
             //find siblings - profiles with same parent. 
             //Append to cur item if there is a multi-gen scenario. append as sibling if profile is the root 
             if (includeSiblings)
             {
-                var siblings = _dal.Where(p => !ProfileMapperUtil.ExcludedProfileTypes.Contains(p.ProfileTypeId) /*p.ProfileTypeId != (int)ProfileItemTypeEnum.Object*/ && profile.Parent != null &&
-                                            p.ParentId.Equals(profile.Parent.ID) &&
-                                            p.ID != profile.ID, userToken, null, null, false).Data
+                var siblings = _dal.Where(p => !ProfileMapperUtil.ExcludedProfileTypes.Contains(p.ProfileTypeId) /*p.ProfileTypeId != (int)ProfileItemTypeEnum.Object*/ && typeDef.Parent != null &&
+                                            p.ParentId.Equals(typeDef.Parent.ID) &&
+                                            p.ProfileTypeId.Equals(typeDef.TypeId) &&  //only get siblings of same type
+                                            p.ID != typeDef.ID, userToken, null, null, false).Data
                     .Select(s => MapToModelProfileAncestory(s, 1));
 
                 if (lineage.Count == 1) result = result.Concat(siblings).ToList();
                 else if (finalParent != null)
                 {
-                    //append siblings to final parent
-                    finalParent.Children = finalParent.Children.Concat(siblings).ToList();
+                    //append siblings to final parent, sort by name
+                    finalParent.Children = finalParent.Children.Concat(siblings)
+                        .OrderBy(x => x.Name)
+                        .ThenBy(x => x.Profile.Namespace)
+                        .ToList();
                 }
             }
             return result;
@@ -128,26 +143,30 @@ namespace CESMII.ProfileDesigner.DAL.Utils
         /// <summary>
         /// Get the list of profiles that depend on this profile
         /// </summary>
-        /// <param name="profile"></param>
+        /// <param name="typeDef"></param>
         /// <returns></returns>
-        public List<ProfileTypeDefinitionSimpleModel> GenerateDependencies(ProfileTypeDefinitionModel profile, UserToken userToken)
+        public List<ProfileTypeDefinitionSimpleModel> GenerateDependencies(ProfileTypeDefinitionModel typeDef, UserToken userToken)
         {
-            //TODO: Investigate performance on this method.
             //find all descendants that may be related...go n levels deep
-            var result = new List<ProfileTypeDefinitionSimpleModel>();
-            BuildDescendantsTree(ref result, profile.ID, 1, userToken);
-            var count = result.Count;
+            //var result = new List<ProfileTypeDefinitionSimpleModel>();
+            //BuildDescendantsTree(ref result, typeDef.ID, 1, userToken);
+            var result = GetDependencies(typeDef.ID.Value, userToken);
 
-            //find compositions, variable types which depend on this profile
-            var dependencies = _dal.Where(p => !ProfileMapperUtil.ExcludedProfileTypes.Contains(p.ProfileTypeId) /*p.ProfileTypeId != (int)ProfileItemTypeEnum.Object*/ &&
-            (p.ParentId.Equals(profile.ID) ||
-                            p.Compositions.Any(p => p.CompositionId.Equals(profile.ID)) 
-                            || p.Attributes.Any(a => a.DataType.CustomTypeId.HasValue 
-                                    && a.DataType.CustomTypeId.Equals(profile.ID)))
-                            , userToken, null, null).Data
-                .Select(s => MapToModelProfileAncestory(s, count + 1));
+            return result.Data;
+        }
 
-            return result.Concat(dependencies).OrderBy(p => p.Level).ThenBy(p => p.Name).ToList();
+        /// <summary>
+        /// Build a list of ancestors for this type def
+        /// </summary>
+        private DALResult<ProfileTypeDefinitionSimpleModel> GetAncestors(int id, UserToken userToken)
+        {
+            var fnName = "public.fn_profile_type_definition_get_ancestors";
+            var orderBys = new List<OrderBySimple>() {
+                new OrderBySimple() { FieldName = "level" },
+                new OrderBySimple() { FieldName = "name" }
+            };
+            //TBD - pass in paging to this.
+            return _dalRelated.GetItemsPaged(fnName, null, null, false, orderBys, id, userToken.UserId);
         }
 
         /// <summary>
@@ -156,20 +175,44 @@ namespace CESMII.ProfileDesigner.DAL.Utils
         /// <param name="descendants"></param>
         /// <param name="parentId"></param>
         /// <param name="level"></param>
-        private void BuildDescendantsTree(ref List<ProfileTypeDefinitionSimpleModel> descendants, int? parentId, int level, UserToken userToken)
+        private DALResult<ProfileTypeDefinitionSimpleModel> GetDescendants(int id, UserToken userToken
+            , bool limitByType, bool excludeIsAbstract, List<OrderBySimple> orderBys = null)
         {
-            if (!parentId.HasValue) return;
-            //add the current set of children
-            var children = _dal.Where(p => p.ParentId.Equals(parentId.Value) && !ProfileMapperUtil.ExcludedProfileTypes.Contains(p.ProfileTypeId) /*p.ProfileTypeId != (int)ProfileItemTypeEnum.Object*/, userToken, null, null, false).Data
-                .Select(s => MapToModelProfileAncestory(s, level));
-            if (!children.Any()) return;
-
-            //add grandchildren and their children recusive...
-            level++;
-            foreach (var child in children)
+            var fnName = "public.fn_profile_type_definition_get_descendants";
+            if (orderBys == null)
             {
-                BuildDescendantsTree(ref descendants, child.ID, level, userToken);
+                orderBys = new List<OrderBySimple>() {
+                    new OrderBySimple() { FieldName = "level" },
+                    new OrderBySimple() { FieldName = "profile_title" } ,
+                    new OrderBySimple() { FieldName = "profile_namespace" } ,
+                    new OrderBySimple() { FieldName = "profile_version" } ,
+                    new OrderBySimple() { FieldName = "profile_publish_date" } ,
+                    new OrderBySimple() { FieldName = "name" }
+                };
             }
+            //TBD - pass in paging to this.
+            return _dalRelated.GetItemsPaged(fnName, null, null, false, orderBys, id, userToken.UserId, limitByType, excludeIsAbstract);
+        }
+
+        /// <summary>
+        /// Build a list of dependencies (descendants and peer dependencies)
+        /// </summary>
+        /// <param name="descendants"></param>
+        /// <param name="parentId"></param>
+        /// <param name="level"></param>
+        private DALResult<ProfileTypeDefinitionSimpleModel> GetDependencies(int id, UserToken userToken)
+        {
+            var fnName = "public.fn_profile_type_definition_get_dependencies";
+            var orderBys = new List<OrderBySimple>() {
+                new OrderBySimple() { FieldName = "name" },
+                new OrderBySimple() { FieldName = "profile_title" } ,
+                new OrderBySimple() { FieldName = "profile_namespace" } ,
+                new OrderBySimple() { FieldName = "profile_version" } ,
+                new OrderBySimple() { FieldName = "profile_publish_date" } ,
+                new OrderBySimple() { FieldName = "level" }
+            };
+            //TBD - pass in paging to this.
+            return _dalRelated.GetItemsPaged(fnName, null, null, false, orderBys, id, userToken.UserId, false, false);
         }
 
         /// <summary>
@@ -187,9 +230,14 @@ namespace CESMII.ProfileDesigner.DAL.Utils
             {
                 ancestor = ancestor.Parent?.ID == null ? null : _dal.GetById(ancestor.Parent.ID.Value, userToken);
                 //note we don't get the attribs from the current profile. They are not "extended". 
-                if (ancestor != null && ancestor.Attributes != null)
+                if (ancestor?.Attributes != null)
                 {
                     result = result.Concat(ancestor.Attributes).ToList();
+                }
+                //FIX. add compositions to extended attributes
+                if (ancestor?.Compositions != null)
+                {
+                    result = result.Concat(MapCompositionsToProfileAttributeModels(ancestor)).ToList();
                 }
             }
 
@@ -239,7 +287,7 @@ namespace CESMII.ProfileDesigner.DAL.Utils
             switch (val)
             {
                 case SearchCriteriaSortByEnum.Author:
-                    result.Add(new OrderByExpression<ProfileTypeDefinition>() { Expression = x => !x.Profile.StandardProfileID.HasValue && 
+                    result.Add(new OrderByExpression<ProfileTypeDefinition>() { Expression = x => string.IsNullOrEmpty(x.Profile.CloudLibraryId) && 
                                                                                     x.AuthorId.HasValue && x.AuthorId.Equals(userId) ? 1 : 0, IsDescending = true });
                     result.Add(new OrderByExpression<ProfileTypeDefinition>() { Expression = x => x.Name });
                     result.Add(new OrderByExpression<ProfileTypeDefinition>() { Expression = x => x.Profile.Namespace });
@@ -264,57 +312,50 @@ namespace CESMII.ProfileDesigner.DAL.Utils
         #endregion
 
         #region Build lookup tables for given profile
-        public List<ProfileTypeDefinitionSimpleModel> BuildCompositionLookup(ProfileTypeDefinitionModel profile, UserToken userToken)
+        public List<ProfileTypeDefinitionSimpleModel> BuildCompositionLookup(UserToken userToken)
         {
-            //TBD - remove variable types from composition list.           
-            //navigate up the inheritance tree until the root. 
-            List<ProfileTypeDefinitionAncestoryModel> ancestors = profile == null ? new List<ProfileTypeDefinitionAncestoryModel>() :
-                this.GenerateAncestoryTree(profile, userToken);
-            //find all descendants that may be related...
-            List<ProfileTypeDefinitionSimpleModel> dependencies = profile == null ? new List<ProfileTypeDefinitionSimpleModel>() :
-                this.GenerateDependencies(profile, userToken);
-
-            //now return the profiles that are NOT an ancestor or a dependency.
-            var finalDependencies = ancestors.Concat(dependencies).Select(x => x.ID).ToList();
-
+            //CHANGE: 
+            //A composition can depend on a type def and that type def can depend on that composition - either directly or indirectly
+            //Customer type can have list of orders type. Order can have a customer type. 
+            //Recursive - Parent-child are types pointing to themselves so that should be permitted.  
             //compositions can only derive from BaseObjectType - get BaseObjectType profile's dependencies and trim down the
             //list of the compositions if any of these are in the final dependencies list
             var compRoot = _dal.GetByFunc(
                 x => x.Name.ToLower().Equals(_config.ProfilesSettings.ReservedProfileNames.CompositionRootProfileName.ToLower()),
                 userToken, false);
-            var eligibleComps = this.GenerateDependencies(compRoot, userToken);
-
-            //if no dependencies, just get all. This should only happen in a new scenario.
-            if (finalDependencies.Count == 0)
-            {
-                return eligibleComps;
-            }
-            else
-            {
-                return eligibleComps.Where(p => !finalDependencies.Contains(p.ID) &&
-                    !p.ID.Equals(profile.ID)).ToList(); 
-                    //&& p.ProfileType.ID.Equals(profile.Type.ID), userToken, null, null, false).Data; //only get items of same profile type
-            }
+            var orderBys = new List<OrderBySimple>() {
+                new OrderBySimple() { FieldName = "profile_namespace" } ,
+                new OrderBySimple() { FieldName = "profile_title" } ,
+                new OrderBySimple() { FieldName = "profile_version" } ,
+                new OrderBySimple() { FieldName = "profile_publish_date" } ,
+                new OrderBySimple() { FieldName = "name" }
+            };
+            var result = this.GetDescendants(compRoot.ID.Value, userToken, true, true, orderBys).Data;
+            return result;
         }
 
-        public List<ProfileTypeDefinitionSimpleModel> BuildCompositionLookupExtend(ProfileTypeDefinitionModel parent, UserToken userToken)
+        public List<ProfileTypeDefinitionSimpleModel> BuildVariableTypeLookup(UserToken userToken)
         {
-            //navigate up the inheritance tree until the root. 
-            List<ProfileTypeDefinitionAncestoryModel> ancestors = this.GenerateAncestoryTree(parent, userToken);
-            var finalDependencies = ancestors.Select(x => x.ID).ToList();
-            //add parent to dependencies list manually
-            finalDependencies.Add(parent.ID);
-
+            //CHANGE: 
+            //A composition can depend on a type def and that type def can depend on that composition - either directly or indirectly
+            //Customer type can have list of orders type. Order can have a customer type. 
+            //Recursive - Parent-child are types pointing to themselves so that should be permitted.  
             //compositions can only derive from BaseObjectType - get BaseObjectType profile's dependencies and trim down the
             //list of the compositions if any of these are in the final dependencies list
             var compRoot = _dal.GetByFunc(
-                x => x.Name.ToLower().Equals(_config.ProfilesSettings.ReservedProfileNames.CompositionRootProfileName.ToLower()),
+                x => x.Name.ToLower().Equals(_config.ProfilesSettings.ReservedProfileNames.VariableTypeRootProfileName.ToLower()),
                 userToken, false);
-            var eligibleComps = this.GenerateDependencies(compRoot, userToken);
-
-            return eligibleComps.Where(p => !finalDependencies.Contains(p.ID) &&
-                !p.ID.Equals(parent.ID)).ToList();
+            var orderBys = new List<OrderBySimple>() {
+                new OrderBySimple() { FieldName = "profile_namespace" } ,
+                new OrderBySimple() { FieldName = "profile_title" } ,
+                new OrderBySimple() { FieldName = "profile_version" } ,
+                new OrderBySimple() { FieldName = "profile_publish_date" } ,
+                new OrderBySimple() { FieldName = "name" }
+            };
+            var result = this.GetDescendants(compRoot.ID.Value, userToken, true, true, orderBys).Data;
+            return result;
         }
+
 
         /// <summary>
         /// 
@@ -323,18 +364,18 @@ namespace CESMII.ProfileDesigner.DAL.Utils
         /// TBD - handle scenario where user implemented same interface in ancestor profile. 
         /// Prevent this from happening by not allowing this as an interface selection.
         ///</remarks>
-        /// <param name="profile"></param>
+        /// <param name="typeDef"></param>
         /// <returns></returns>
-        public List<ProfileTypeDefinitionModel> BuildInterfaceLookup(ProfileTypeDefinitionModel profile, UserToken userToken)
+        public List<ProfileTypeDefinitionModel> BuildInterfaceLookup(ProfileTypeDefinitionModel typeDef, UserToken userToken)
         {
             //remove items of a different type, remove self
             //remove interfaces already used by profile. 
             //Note: interfaces also must only derive from BaseInterfaceType - by selecting only interface profile types, we satisfy this.
-            var items = profile == null ?
+            var items = typeDef == null ?
                 _dal.Where(p => p.ProfileType.Name.ToLower().Equals("interface"), userToken, null, null, false) : 
                 _dal.Where(p => p.ProfileType.Name.ToLower().Equals("interface") &&
-                                    !p.ID.Equals(profile.ID) &&
-                                    !profile.Interfaces.Select(x => x.ID).ToList().Contains(p.ID), userToken, null, null, false);
+                                    !p.ID.Equals(typeDef.ID) &&
+                                    !typeDef.Interfaces.Select(x => x.ID).ToList().Contains(p.ID), userToken, null, null, false);
             var result = new List<ProfileTypeDefinitionModel>();
             int counter = 0;
             foreach (var p in items.Data)
@@ -363,7 +404,11 @@ namespace CESMII.ProfileDesigner.DAL.Utils
                 counter++;
             }
 
-            return result;
+            return result
+                .OrderBy(x => x.Profile.Title)
+                .ThenBy(x => x.Profile.Namespace)
+                .ThenBy(x => x.Profile.Version)
+                .ThenBy(x => x.Profile.PublishDate).ToList();
         }
 
         #endregion
@@ -381,7 +426,13 @@ namespace CESMII.ProfileDesigner.DAL.Utils
                     Profile = new ProfileModel() { ID = item.Profile.ID, Namespace = item.Profile.Namespace, Version = item.Profile.Version },
                     Description = item.Description,
                     Type = item.Type,
-                    Author = item.Author,
+                    //establish ownership
+                    Author = item.Profile == null || 
+                             item.Profile.ProfileState == ProfileStateEnum.CloudLibApproved ||
+                             item.Profile.ProfileState == ProfileStateEnum.Core ||  
+                             item.Profile.ProfileState == ProfileStateEnum.CloudLibPublished ||  
+                             item.Profile.ProfileState == ProfileStateEnum.Unknown ? 
+                             null : item.Author,
                     OpcNodeId = item.OpcNodeId,
                     IsAbstract = item.IsAbstract,
                     Level = level
@@ -403,7 +454,7 @@ namespace CESMII.ProfileDesigner.DAL.Utils
             return result.OrderBy(a => a.Name).ToList(); 
         }
 
-        public ProfileTypeDefinitionSimpleModel MapToModelProfileSimple(ProfileTypeDefinitionModel item, int level = 0)
+        public static ProfileTypeDefinitionSimpleModel MapToModelProfileSimple(ProfileTypeDefinitionModel item, int level = 0)
         {
             if (item != null)
             {
@@ -416,11 +467,13 @@ namespace CESMII.ProfileDesigner.DAL.Utils
                     Profile = item.Profile,
                     ProfileTypeDefinition = item,
                     Description = item.Description,
+                    SymbolicName = item.SymbolicName,                     
                     Type = item.Type ?? new LookupItemModel { ID = item.TypeId, LookupType = LookupTypeEnum.ProfileType },
                     Author = item.Author,
                     OpcNodeId = item.OpcNodeId,
                     IsAbstract = item.IsAbstract,
-                    Level = level
+                    Level = level,
+                    VariableDataTypeId = item.VariableDataType?.ID,
                 };
             }
             else
@@ -439,6 +492,7 @@ namespace CESMII.ProfileDesigner.DAL.Utils
                     ID = item.ID,
                     Name = item.Name,
                     BrowseName = item.BrowseName,
+                    SymbolicName = item.SymbolicName,
                     /*Namespace = item.Profile.Namespace,*/
                     Profile = new ProfileModel() { ID = item.Profile.ID, Namespace = item.Profile.Namespace, Version = item.Profile.Version },
                     Description = item.Description,
@@ -515,9 +569,12 @@ namespace CESMII.ProfileDesigner.DAL.Utils
                     CompositionId = comp.RelatedProfileTypeDefinitionId,
                     ID = comp.ID,
                     Name = comp.Name,
+                    OpcNodeId = comp.OpcNodeId,
                     BrowseName = comp.BrowseName,
                     SymbolicName = comp.SymbolicName,
                     Description = comp.Description,
+                    IsRequired = comp.IsRequired,
+                    ModelingRule = comp.ModelingRule,
                     TypeDefinitionId = item.ID,
                     //TypeDefinition = item, // Results in cycle during serialization
                     // No VariableTypeDefinition for compositions
@@ -587,18 +644,37 @@ namespace CESMII.ProfileDesigner.DAL.Utils
                 {
                     ID = a.ID,
                     RelatedProfileTypeDefinitionId = a.CompositionId.Value,
+                    RelatedProfileTypeDefinition = new ProfileTypeDefinitionModel() { ID = a.CompositionId.Value,  
+                        Name = a.Composition.Name, Description = a.Composition.Description 
+                    },
+                    IntermediateObject = a.Composition.IntermediateObject,
+                    IntermediateObjectId = a.Composition.IntermediateObjectId,
+                    IntermediateObjectName = a.Composition.IntermediateObjectName,
                     Name = a.Name,
-                    BrowseName = a.BrowseName,
+                    OpcNodeId = a.OpcNodeId,
                     SymbolicName = a.SymbolicName,
                     Description = a.Description,
-                    RelatedName = a.Composition.Name,
-                    RelatedDescription = a.Composition.Description,
-                    RelatedIsRequired = a.Composition.RelatedIsRequired,
-                    RelatedModelingRule = a.Composition.RelatedModelingRule,
+                    BrowseName = a.BrowseName,
+                    IsRequired = a.IsRequired,
+                    ModelingRule = a.ModelingRule,
                     Author = a.Composition.Author
                 });
             }
             return result;
+        }
+
+        internal static bool IsHasComponentReference(string relatedReferenceId)
+        {
+            return string.IsNullOrEmpty(relatedReferenceId) || relatedReferenceId == strOpcHasComponentReferenceNodeId;
+        }
+        internal static string GetReferenceTypeForObjectType(string nodeId)
+        {
+            if (nodeId?.EndsWith(strOpcFolderTypeNodeId) == true)
+            {
+                // Organizes reference is used for references from objects of type FolderType
+                return strOpcOrganizesReferenceNodeId;
+            }
+            return null;
         }
 
         #endregion

@@ -2,8 +2,9 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using CESMII.ProfileDesigner.Common.Enums;
-    
+
     public class ProfileModel : AbstractModel
     {
         public string Namespace { get; set; }
@@ -12,9 +13,15 @@
 
         public DateTime? PublishDate { get; set; }
 
-        public int? StandardProfileID { get; set; }
+        /// <summary>
+        /// The URI to use for XML elements for this nodeset
+        /// </summary>
+        public string XmlSchemaUri{ get; set; }
 
-        public StandardNodeSetModel StandardProfile { get; set; }
+        public string CloudLibraryId { get; set; }
+        public bool? CloudLibPendingApproval { get; set; }
+        public string CloudLibApprovalStatus { get; set; } = "UNKNOWN";
+        public string CloudLibApprovalDescription { get; set; }
 
         public List<NodeSetFileModel> NodeSetFiles { get; set; }
 
@@ -31,7 +38,7 @@
 
         /// <summary>Gets or sets the license.</summary>
         /// <value>The license.</value>
-        public ProfileLicenseEnum? License { get; set; }
+        public string License { get; set; }
 
         /// <summary>Gets or sets the license URL.</summary>
         /// <value>The license URL.</value>
@@ -86,22 +93,54 @@
 
         /// <summary>Gets or sets the additional properties.</summary>
         /// <value>The additional properties.</value>
-        public List<KeyValuePair<string, string>> AdditionalProperties { get; set; }
+        public List<AdditionalProperty> AdditionalProperties { get; set; }
         #endregion // Cloud Library meta data
         public bool IsReadOnly
         {
             get
             {
-                return !this.AuthorId.HasValue || this.StandardProfileID.HasValue;
+                return !this.AuthorId.HasValue || !string.IsNullOrEmpty(this.CloudLibraryId)/* this.StandardProfileID.HasValue*/;
             }
         }
 
         public override string ToString()
         {
-            var valPublishDate = PublishDate.HasValue ? $"({PublishDate.Value.ToString("yyyy-MM-dd")})" : ""; 
+            var valPublishDate = PublishDate.HasValue ? $"({PublishDate.Value.ToString("yyyy-MM-dd")})" : "";
             return $"{Namespace} {Version} {valPublishDate}";
         }
 
+        /// <summary>
+        /// Calculate and return the profile state. This state will drive how the UI displays this profile.
+
+        /// </summary>
+        public ProfileStateEnum ProfileState
+        {
+            get
+            {
+                if (!string.IsNullOrEmpty(this.CloudLibraryId) && 
+                        this.CloudLibApprovalStatus?.ToUpper() == "PENDING") return ProfileStateEnum.CloudLibPending;
+                else if (!string.IsNullOrEmpty(this.CloudLibraryId) &&
+                        this.CloudLibApprovalStatus?.ToUpper() == "REJECTED") return ProfileStateEnum.CloudLibRejected;
+                else if (!string.IsNullOrEmpty(this.CloudLibraryId) &&
+                        this.CloudLibApprovalStatus?.ToUpper() == "APPROVED") return ProfileStateEnum.CloudLibApproved;
+                else if (!string.IsNullOrEmpty(this.CloudLibraryId) &&
+                        this.CloudLibApprovalStatus?.ToUpper() == "CANCELED") return ProfileStateEnum.CloudLibCancelled;
+                else if (!string.IsNullOrEmpty(this.CloudLibraryId)) return ProfileStateEnum.CloudLibPublished;
+                else if (!this.AuthorId.HasValue && !string.IsNullOrEmpty(this.CloudLibraryId)) return ProfileStateEnum.Core;
+                // Note author id will only be set to the the user making the request or null. 
+                // Other areas of the code will check to make sure that the requesting user only gets their stuff or core stuff
+                else if (this.AuthorId.HasValue && string.IsNullOrEmpty(this.CloudLibraryId)) return ProfileStateEnum.Local; 
+                else return ProfileStateEnum.Unknown; 
+            }
+        }
+
+
+    }
+
+    public class AdditionalProperty
+    {
+        public string Name { get; set; }
+        public string Value { get; set; }
     }
 
     /// <summary>
@@ -120,17 +159,33 @@
                 Namespace = profile.Namespace,
                 PublishDate = profile.PublishDate,
                 Version = profile.Version,
+                XmlSchemaUri = profile.XmlSchemaUri,
                 AuthorId = profile.AuthorId,
-                StandardProfileID = profile.StandardProfileID,
-                StandardProfile = profile.StandardProfile,
                 NodeSetFiles = profile.NodeSetFiles,
                 HasLocalProfile = true,
-                CloudLibraryId = profile.StandardProfile?.CloudLibraryId,
+                CloudLibraryId = profile.CloudLibraryId,
+                Title = profile.Title,
+                Description = profile.Description,
+                License = profile.License,
+                LicenseUrl = profile.LicenseUrl,
+                Keywords = profile.Keywords,
+                AdditionalProperties = profile.AdditionalProperties.Select(p => new AdditionalProperty {  Name = p.Name, Value =p.Value}).ToList(),
+                CategoryName = profile.CategoryName,
+                ContributorName = profile.ContributorName,
+                CopyrightText = profile.CopyrightText,
+                Author = profile.Author,
+                DocumentationUrl = profile.DocumentationUrl,
+                IconUrl = profile.IconUrl,
+                ImportWarnings = profile.ImportWarnings,
+                PurchasingInformationUrl = profile.PurchasingInformationUrl,
+                ReleaseNotesUrl = profile.ReleaseNotesUrl,
+                SupportedLocales = profile.SupportedLocales,
+                TestSpecificationUrl = profile.TestSpecificationUrl,
+                NodesetXml = null,
             };
         }
 
         public bool HasLocalProfile { get; set; }
-        public string CloudLibraryId { get; set; }
         public string NodesetXml { get; set; }
     }
 

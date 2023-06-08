@@ -380,6 +380,8 @@ function AttributeList(props) {
             onAttributeAddInterface(_addItem.interfaceId);
         }
 
+        // Note unsaved changes
+        setLoadingProps({ bIsTypeEditUnsaved: true });
     };
 
 
@@ -449,6 +451,9 @@ function AttributeList(props) {
             console.log(generateLogMessageString(`onAttributeAdd||Interface||error||${msg}`, CLASS_NAME, 'error'));
             setLoadingProps({ ...loadingProps, isLoading: false, message: 'An error occurred retrieving the interface attributes.' });
         });
+
+        // Note unsaved changes
+        setLoadingProps({ bIsTypeEditUnsaved: true });
     };
 
     const onAddUpdateState = (attributes) => {
@@ -479,6 +484,9 @@ function AttributeList(props) {
 
         //set focus back to attr type ddl
         //_dataAttrTypeDdlRef.current.focus();
+
+        // Note unsaved changes
+        setLoadingProps({ bIsTypeEditUnsaved: true });
     };
 
     //attribute add ui - change composition ddl
@@ -491,6 +499,9 @@ function AttributeList(props) {
 
         //update state
         setAdd(JSON.parse(JSON.stringify(_addItem)));
+
+        // Note unsaved changes
+        setLoadingProps({ bIsTypeEditUnsaved: true });
     }
 
     const onChangeInterface = (e) => {
@@ -499,6 +510,9 @@ function AttributeList(props) {
 
         //update state
         setAdd(JSON.parse(JSON.stringify(_addItem)));
+
+        // Note unsaved changes
+        setLoadingProps({ bIsTypeEditUnsaved: true });
     }
 
     //attribute add ui - change structure 
@@ -523,6 +537,8 @@ function AttributeList(props) {
         //update state - after changes made in shared method
         setAdd(JSON.parse(JSON.stringify(data.item)));
 
+        // Note unsaved changes
+        setLoadingProps({ bIsTypeEditUnsaved: true });
     }
 
     const onChangeVariableType = (e) => {
@@ -530,6 +546,9 @@ function AttributeList(props) {
 
         //replace add settings (updated in shared method)
         setAdd(JSON.parse(JSON.stringify(_addItem)));
+
+        // Note unsaved changes
+        setLoadingProps({ bIsTypeEditUnsaved: true });
     }
 
     //attribute add ui - change data type
@@ -539,6 +558,9 @@ function AttributeList(props) {
         setAddSettings(JSON.parse(JSON.stringify(data.settings)));
         //update state - after changes made in shared method
         setAdd(JSON.parse(JSON.stringify(data.item)));
+
+        // Note unsaved changes
+        setLoadingProps({ bIsTypeEditUnsaved: true });
     }
 
     //onchange numeric field
@@ -554,6 +576,9 @@ function AttributeList(props) {
 
         _addItem[e.target.id] = val;
         setAdd(JSON.parse(JSON.stringify(_addItem)));
+
+        // Note unsaved changes
+        setLoadingProps({ bIsTypeEditUnsaved: true });
     }
 
     //attribute add ui - update state on change (used by multiple controls except onChangeDataType)
@@ -566,6 +591,9 @@ function AttributeList(props) {
         //}
         _addItem[e.target.id] = e.target.value;
         setAdd(JSON.parse(JSON.stringify(_addItem)));
+
+        // Note unsaved changes
+        setLoadingProps({ bIsTypeEditUnsaved: true });
     }
 
     const onDelete = (id) => {
@@ -583,6 +611,9 @@ function AttributeList(props) {
             all: _allAttributes.all, filtered: _allAttributes.filtered, paged: _allAttributes.paged,
             pager: { currentPage: 1, pageSize: _preferences.pageSize, itemCount: _allAttributes.filtered.length }
         });
+
+        // Note unsaved changes
+        setLoadingProps({ bIsTypeEditUnsaved: true });
     };
 
     //delete an interface - delete all attribs for the interface
@@ -611,6 +642,9 @@ function AttributeList(props) {
                 current: JSON.parse(JSON.stringify(_lookupInterfaces.current))
             });
         }
+
+        // Note unsaved changes
+        setLoadingProps({ bIsTypeEditUnsaved: true });
     };
 
     const onAttributeUpdate = (item) => {
@@ -628,6 +662,9 @@ function AttributeList(props) {
             all: _allAttributes.all, filtered: _allAttributes.filtered, paged: _allAttributes.paged,
             pager: { currentPage: 1, pageSize: _preferences.pageSize, itemCount: _allAttributes.filtered.length }
         });
+
+        // Note unsaved changes
+        setLoadingProps({ bIsTypeEditUnsaved: true });
     };
 
     //call from item row click or from panel itself - slides out profile attribute list from a custom data type profile

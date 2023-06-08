@@ -595,6 +595,8 @@ function ProfileTypeDefinitionEntity() {
         }
         //update the state
         setItem(JSON.parse(JSON.stringify(_item)));
+
+        // Note unsaved changes
         setLoadingProps({ bIsTypeEditUnsaved: true });
     }
 

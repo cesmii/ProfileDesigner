@@ -632,6 +632,13 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                     return Ok(new ResultMessageModel() { IsSuccess = false, Message = "This item cannot be deleted because other type definitions depend on this item." });
             }
 
+            //FIX - check for usage as parent separately because dependencies check will filter out certain types (11, 20)
+            var parentCount = _dal.Count(x => x.ParentId.Equals(model.ID), base.DalUserToken);
+            if (parentCount > 0)
+            {
+                _logger.LogWarning($"ProfileTypeDefinitionController|Delete|Could not delete type definition because this is extended by {parentCount} type definition(s). Id:{model.ID}.");
+                return Ok(new ResultMessageModel() { IsSuccess = false, Message = $"This item cannot be deleted because this is extended by {parentCount} other type definition(s)." });
+            }
 
             var result = await _dal.DeleteAsync(model.ID, base.DalUserToken);
             if (result < 0)

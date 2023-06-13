@@ -277,6 +277,8 @@
             //can only delete your own stuff
             var entity = base.FindByCondition(userToken, x => x.ID == id && x.OwnerId.Equals(userToken.UserId))
                 .Include(p => p.Interfaces)
+                //FIX - make sure analytics (child data) are included so that they are deleted when delete is called. 
+                .Include(p => p.Analytics)
                 .Include(p => p.Compositions)
                 .Include(p => p.Attributes)
                 .FirstOrDefault();

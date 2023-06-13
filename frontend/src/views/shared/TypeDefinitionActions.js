@@ -100,15 +100,29 @@ function TypeDefinitionActions(props) {
                 }
                 else {
                     //update spinner, messages
-                    setError({ show: true, caption: 'Delete Item Error', message: `An error occurred deleting this item: ${result.data.message}` });
-                    setLoadingProps({ isLoading: false, message: null });
+                    setLoadingProps({
+                        isLoading: false, message: null, inlineMessages: [
+                            {
+                                id: new Date().getTime(), severity: "danger", body: `An error occurred deleting this item: ${result.data.message}`, isTimed: false
+                            }
+                        ]
+                    });
+                    //setError({ show: true, caption: 'Delete Item Error', message: `An error occurred deleting this item: ${result.data.message}` });
+                    //setLoadingProps({ isLoading: false, message: null });
                 }
 
             })
             .catch(error => {
                 //hide a spinner, show a message
-                setError({ show: true, caption: 'Delete Item Error', message: `An error occurred deleting this item.` });
-                setLoadingProps({ isLoading: false, message: null });
+                //setError({ show: true, caption: 'Delete Item Error', message: `An error occurred deleting this item.` });
+                //setLoadingProps({ isLoading: false, message: null });
+                setLoadingProps({
+                    isLoading: false, message: null, inlineMessages: [
+                        {
+                            id: new Date().getTime(), severity: "danger", body: `An error occurred deleting this item. Please contact system administrator.`, isTimed: false
+                        }
+                    ]
+                });
 
                 console.log(generateLogMessageString('deleteItem||error||' + JSON.stringify(error), CLASS_NAME, 'error'));
                 console.log(error);
@@ -186,7 +200,9 @@ function TypeDefinitionActions(props) {
                 </Dropdown.Menu>
             </Dropdown>
             {renderDeleteConfirmation()}
-            <ErrorModal modalData={_error} callback={onErrorModalClose} />
+            {_error.show && 
+                <ErrorModal show={_error.show} modalData={_error} callback={onErrorModalClose} />
+            }
         </>
     );
 

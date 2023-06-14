@@ -574,29 +574,32 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             }
 
             int? id = 0;
-            if (isAdd)
             {
-                id = await _dal.AddAsync(model, base.DalUserToken);
-
-                //increment extend count for this item's parent
-                var analytic = _dalAnalytics.Where(x => x.ProfileTypeDefinitionId == model.Parent.ID, base.DalUserToken, null, null, false).Data.FirstOrDefault();
-                if (analytic == null)
+                _dal.StartTransaction();
+                if (isAdd)
                 {
-                    await _dalAnalytics.AddAsync(new ProfileTypeDefinitionAnalyticModel() { ProfileTypeDefinitionId = model.Parent.ID.Value, ExtendCount = 1 }, base.DalUserToken);
+                    id = await _dal.AddAsync(model, base.DalUserToken);
+
+                    //increment extend count for this item's parent
+                    var analytic = _dalAnalytics.Where(x => x.ProfileTypeDefinitionId == model.Parent.ID, base.DalUserToken, null, null, false).Data.FirstOrDefault();
+                    if (analytic == null)
+                    {
+                        await _dalAnalytics.AddAsync(new ProfileTypeDefinitionAnalyticModel() { ProfileTypeDefinitionId = model.Parent.ID.Value, ExtendCount = 1 }, base.DalUserToken);
+                    }
+                    else
+                    {
+                        analytic.ExtendCount += 1;
+                        await _dalAnalytics.UpdateAsync(analytic, null);
+                    }
+
+
                 }
                 else
                 {
-                    analytic.ExtendCount += 1;
-                    await _dalAnalytics.UpdateAsync(analytic, null);
+                    id = await _dal.UpdateAsync(model, base.DalUserToken);
                 }
-
-
+                await _dal.CommitTransactionAsync();
             }
-            else
-            {
-                id = await _dal.UpdateAsync(model, base.DalUserToken);
-            }
-
             if (id < 0)
             {
                 _logger.LogWarning($"ProfileTypeDefinitionController|UpdateInternal|Could not {(isAdd ? "add" : "update")} profile type definition.");

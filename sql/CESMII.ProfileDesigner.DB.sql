@@ -1502,6 +1502,12 @@ begin
 	return query
 
 	WITH dependants AS (
+		--union with type defs that use this type def as a parent
+		SELECT  t.id,
+				CAST(1 as integer) AS level
+		FROM public.profile_type_definition t 
+		WHERE t.parent_id = _id
+		UNION
 		--union with type defs that use this profile as a composition
 		SELECT  t.id,
 				CAST(1 as integer) AS level

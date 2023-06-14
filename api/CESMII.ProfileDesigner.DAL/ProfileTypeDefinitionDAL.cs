@@ -21,16 +21,18 @@
 
     public class ProfileTypeDefinitionDAL : TenantBasePdDAL<ProfileTypeDefinition, ProfileTypeDefinitionModel>
     {
-        public ProfileTypeDefinitionDAL(IRepository<ProfileTypeDefinition> repo, IDal<Profile, ProfileModel> profileDAL, IDal<LookupDataType, LookupDataTypeModel> dataTypeDAL, IDal<EngineeringUnit, EngineeringUnitModel> euDAL, /*IDal<LookupItem, LookupItemModel> lookupDAL,*/ ILogger<ProfileTypeDefinitionDAL> diLogger) : base(repo)
+        public ProfileTypeDefinitionDAL(IRepository<ProfileTypeDefinition> repo, IDal<Profile, ProfileModel> profileDAL, IDal<LookupDataType, LookupDataTypeModel> dataTypeDAL, IDal<EngineeringUnit, EngineeringUnitModel> euDAL, /*IDal<LookupItem, LookupItemModel> lookupDAL,*/ IDal<ProfileTypeDefinitionAnalytic, ProfileTypeDefinitionAnalyticModel> analyticsDal, ILogger<ProfileTypeDefinitionDAL> diLogger) : base(repo)
         {
             _profileDAL = profileDAL as ProfileDAL;
             _dataTypeDAL = dataTypeDAL as LookupDataTypeDAL;
             _euDAL = euDAL as EngineeringUnitDAL;
+            _analyticsDal = analyticsDal;
             this._diLogger = diLogger;
         }
         private readonly ProfileDAL _profileDAL;
         private readonly LookupDataTypeDAL _dataTypeDAL;
         private readonly EngineeringUnitDAL _euDAL;
+        private readonly IDal<ProfileTypeDefinitionAnalytic, ProfileTypeDefinitionAnalyticModel> _analyticsDal;
         private readonly ILogger<ProfileTypeDefinitionDAL> _diLogger;
 
         /// <summary>
@@ -1073,6 +1075,18 @@
                             && currentEntity.Composition.ID != null 
                             && currentEntity.Composition.ProfileTypeId == (int) ProfileItemTypeEnum.Object)
                         {
+                            foreach(var composedEntity in currentEntity.Composition.Compositions)
+                            {
+                                if (composedEntity.Composition.ID != null
+                                    && composedEntity.Composition.ProfileTypeId == (int) ProfileItemTypeEnum.Object)
+                                {
+                                    // Get the entity into EF cache so cascade delete gets it 
+                                    var analyticChild = _analyticsDal.Where(x => x.ProfileTypeDefinitionId == composedEntity.Composition.ID.Value, userToken, null, null, false).Data.FirstOrDefault();
+                                    DeleteAsync(composedEntity.Composition.ID.Value, userToken).Wait();
+                                }
+                            }
+                            // Get the entity into EF cache so cascade delete gets it 
+                            var analytic = _analyticsDal.Where(x => x.ProfileTypeDefinitionId == currentEntity.Composition.ID.Value, userToken, null, null, false).Data.FirstOrDefault();
                             DeleteAsync(currentEntity.Composition.ID.Value, userToken).Wait();
                         }
                     }

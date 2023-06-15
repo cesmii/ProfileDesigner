@@ -129,6 +129,10 @@
         {
             ProfileTypeDefinitionAnalytic entity = _repo.FindByCondition(x => x.ID == id)
                 .FirstOrDefault();
+            if (entity == null)
+            {
+                return null;
+            }
             await _repo.DeleteAsync(entity);
             await _repo.SaveChangesAsync();
             return entity.ID;

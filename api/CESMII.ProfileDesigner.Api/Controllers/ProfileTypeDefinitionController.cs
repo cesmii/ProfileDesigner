@@ -575,7 +575,6 @@ namespace CESMII.ProfileDesigner.Api.Controllers
 
             int? id = 0;
             {
-                _dal.StartTransaction();
                 if (isAdd)
                 {
                     id = await _dal.AddAsync(model, base.DalUserToken);
@@ -596,9 +595,10 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 }
                 else
                 {
+                    _dal.StartTransaction();
                     id = await _dal.UpdateAsync(model, base.DalUserToken);
+                    await _dal.CommitTransactionAsync();
                 }
-                await _dal.CommitTransactionAsync();
             }
             if (id < 0)
             {

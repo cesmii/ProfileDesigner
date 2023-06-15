@@ -6,6 +6,7 @@ import color from '../../components/Constants'
 import { getIconColorByProfileState, getTypeDefIconName } from '../../utils/UtilityService';
 import { getTypeDefEntityLink } from '../../services/ProfileService';
 import { AppSettings } from '../../utils/appsettings';
+import Button from 'react-bootstrap/Button'
 
 //const CLASS_NAME = "ProfileRenderHelpers";
 
@@ -23,13 +24,26 @@ export const renderTypeIcon = (item, account, size = 20, className = "") => {
     return (<span className={`d-flex align-items-center justify-content-center ${className}`} >{svg}</span>)
 };
 
-export const renderLinkedName = (item, cssClass = null ) => {
+export const OnClickUnsavedCheck = (href, bUnsaved) => {
+    var bOk = true;
+    if (bUnsaved != null && bUnsaved === true) {
+        bOk = window.confirm("Unsaved changes to your profile will be lost. Ok to continue?\n(Hint: To save, click Cancel, finish adding attribute then click Save button.)")
+    }
+
+    if (bOk && href != null) {
+        window.open(href, "_self");
+    }
+}
+
+export const renderLinkedName = (item, bUnsaved, cssClass = null ) => {
     if (item == null || item.type == null) return;
     const href = getTypeDefEntityLink(item);
     return (
-        <a key={item.id} href={href} className={cssClass == null || cssClass === '' ? '' : cssClass} >{item.name}</a>
+            <Button key={item.id} onClick={() => OnClickUnsavedCheck(href, bUnsaved)} className={cssClass == null || cssClass === '' ? '' : cssClass} >{item.name}</Button>
     );
 };
+
+
 
 //-------------------------------------------------------------------
 // Region: Common Nodeset Render helpers

@@ -598,6 +598,27 @@ option.selected {
     }
 }
 
+
+.btn-link-flat {
+    align-items: normal;
+    background-color: rgba(0,0,0,0);
+    border-color: rgb(0, 0, 238);
+    border-style: none;
+    box-sizing: content-box;
+    color: #2E2B26;
+    cursor: pointer;
+    display: inline;
+    font: inherit;
+    height: auto;
+    padding: 0;
+    perspective-origin: 0 0;
+    text-align: start;
+    text-decoration: none;
+    transform-origin: 0 0;
+    width: auto;
+    -moz-appearance: none;
+}
+
 .btn-link-prepend-icon {
     color: color("link");
 }

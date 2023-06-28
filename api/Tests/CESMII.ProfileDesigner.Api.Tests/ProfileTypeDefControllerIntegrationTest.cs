@@ -48,6 +48,10 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
             "]," +
             "'sortByEnum':3,'query':null,'take':25,'skip':0}";
 
+        private const string _attributeComposition = "{'id':-4,'name':'AAA','dataType':{'id':1,'name':'Composition','customTypeId':null,'customType':null},'attributeType':{'name':'Composition','code':'Composition','lookupType':2,'typeId':2,'displayOrder':9999,'isActive':false,'id':9}," + 
+                                                     "'minValue':null,'maxValue':null,'engUnit':null,'compositionId':-999,'composition':{'id':-999,'name':'Test Comp Add','description':'','browseName':'','relatedProfileTypeDefinitionId':-999,'relatedName':'Test Comp Add'}," + 
+                                                     "'interfaceId':-1,'interface':null,'description':'','displayName':'','typeDefinitionId':-888,'isArray':false,'isRequired':false,'enumValue':null}";
+
         #region API constants
         private const string URL_INIT = "/api/profiletypedefinition/init";
         private const string URL_EXTEND = "/api/profiletypedefinition/extend";
@@ -213,18 +217,99 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
             var itemExtend = await InsertMockProfileAndExtendEntity(_guidCommon);
             var resultExtend = await MapModelToExtendedItem(apiClient, _guidCommon, itemExtend, model);
             var resultAdd = await apiClient.ApiExecuteAsync<ResultMessageWithDataModel>(URL_ADD, resultExtend);
-            var modelDelete = new IdIntModel() { ID = (int)resultAdd.Data };
+            var modelId = new IdIntModel() { ID = (int)resultAdd.Data };
+            //call the get on the new item so we force an analytics tally - testing FK/cascade delete scenario
+            await apiClient.ApiExecuteAsync<ResultMessageWithDataModel>(URL_GETBYID, modelId);
 
             // ACT
             //delete the item
-            var result = await apiClient.ApiExecuteAsync<ResultMessageModel>(URL_DELETE, modelDelete);
+            var result = await apiClient.ApiExecuteAsync<ResultMessageModel>(URL_DELETE, modelId);
 
             //ASSERT
             Assert.True(result.IsSuccess);
             Assert.Contains("item was deleted", result.Message.ToLower());
             //Try to get the item and should throw bad request
             await Assert.ThrowsAsync<MyNamespace.ApiException>(
-                async () => await apiClient.ApiGetItemAsync<ProfileTypeDefinitionModel>(URL_GETBYID, modelDelete));
+                async () => await apiClient.ApiGetItemAsync<ProfileTypeDefinitionModel>(URL_GETBYID, modelId));
+        }
+
+        [Theory]
+        [MemberData(nameof(ProfileTypeDefControllerTestData))]
+        public async Task NoDeleteParent(ProfileTypeDefinitionModel model)
+        {
+            // ARRANGE
+            //get api client
+            var apiClient = base.ApiClient;
+            //add an item to a parent item and then try to delete parent.
+            //we should get a message indicating can't delete parent due to dependency. Must delete child then you can delete parent.
+            var entityParent = await InsertMockProfileAndExtendEntity(_guidCommon);
+            var modelChildNew = await MapModelToExtendedItem(apiClient, _guidCommon, entityParent, model);
+            var resultChild = await apiClient.ApiExecuteAsync<ResultMessageWithDataModel>(URL_ADD, modelChildNew);
+            var parentId = new IdIntModel() { ID = entityParent.ID.Value };
+            //call the get on the new item so we force an analytics tally - testing FK/cascade delete scenario
+            await apiClient.ApiExecuteAsync<ResultMessageWithDataModel>(URL_GETBYID, parentId);
+
+            // ACT
+            //try to delete the parent - expect error
+            var result = await apiClient.ApiExecuteAsync<ResultMessageModel>(URL_DELETE, parentId);
+
+            //ASSERT
+            //expecting a false meaning this is an expected exception scenario
+            Assert.True(!result.IsSuccess); 
+            Assert.Contains("cannot be deleted because other type definitions depend", result.Message.ToLower());
+        }
+
+        [Theory]
+        [MemberData(nameof(ProfileTypeDefControllerTestData))]
+        public async Task DeleteItemIntermediateObject(ProfileTypeDefinitionModel model)
+        {
+            // ARRANGE
+            //get api client
+            var apiClient = base.ApiClient;
+
+            //insert base parent
+            var entityParent = await InsertMockProfileAndExtendEntity(_guidCommon);
+            //extend base parent as item 1 - use this as composition for item 2
+            var modelChild1New = await MapModelToExtendedItem(apiClient, _guidCommon, entityParent, model);
+            var resultChild1Added = await apiClient.ApiExecuteAsync<ResultMessageWithDataModel>(URL_ADD, modelChild1New);
+            var modelChild1Id = new IdIntModel() { ID = (int)resultChild1Added.Data };
+            //extend base parent as item 2 - add composition pointing to item 1
+            var modelChild2New = await MapModelToExtendedItem(apiClient, _guidCommon, entityParent, model);
+            //add composition attribute pointing to child 1
+            var attr = JsonConvert.DeserializeObject<ProfileAttributeModel>(_attributeComposition);
+            attr.CompositionId = modelChild1Id.ID;
+            attr.Composition.ID = modelChild1Id.ID;
+            attr.Composition.SymbolicName = _guidCommon.ToString(); //so we can delete this item once done
+            attr.Composition.RelatedProfileTypeDefinitionId = modelChild1Id.ID;
+            //attr.Composition.RelatedProfileTypeDefinition.ID = modelChild1Id.ID;
+            //attr.Composition.RelatedProfileTypeDefinition.Name = modelChild1New.Name;
+            attr.Name = $"Comp-{modelChild1Id}-{DateTime.Now.Ticks}-{_guidCommon}";
+            modelChild2New.ProfileAttributes.Add(attr);
+            var resultChild2Added = await apiClient.ApiExecuteAsync<ResultMessageWithDataModel>(URL_ADD, modelChild2New);
+            var modelChild2Id = new IdIntModel() { ID = (int)resultChild2Added.Data };
+
+            //visit item 2, visit item 1 (get by id)
+            //call the get on the new item so we force an analytics tally - testing FK/cascade delete scenario
+            await apiClient.ApiExecuteAsync<ResultMessageWithDataModel>(URL_GETBYID, modelChild1Id);
+            await apiClient.ApiExecuteAsync<ResultMessageWithDataModel>(URL_GETBYID, modelChild2Id);
+
+            // ACT
+            //delete item 1 - expect fail due to item 2 depending on item 1 
+            var result = await apiClient.ApiExecuteAsync<ResultMessageModel>(URL_DELETE, modelChild1Id);
+            //delete item 2 - expect pass and testing that intermediate object (associated with composition) is not an issue
+            var result2 = await apiClient.ApiExecuteAsync<ResultMessageModel>(URL_DELETE, modelChild2Id);
+
+            //ASSERT
+            //expecting a false meaning this is an expected exception scenario
+            Assert.True(!result.IsSuccess);
+            Assert.Contains("cannot be deleted because this is extended by", result.Message.ToLower());
+
+            //ASSERT
+            Assert.True(result2.IsSuccess);
+            Assert.Contains("item was deleted", result2.Message.ToLower());
+            //Try to get the item and should throw bad request
+            await Assert.ThrowsAsync<MyNamespace.ApiException>(
+                async () => await apiClient.ApiGetItemAsync<ProfileTypeDefinitionModel>(URL_GETBYID, modelChild2Id));
         }
 
         /*
@@ -645,11 +730,22 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
             {
                 //type defs
                 var repo = scope.ServiceProvider.GetService<IRepository<ProfileTypeDefinition>>();
+
+                //var repoUser = scope.ServiceProvider.GetService<IRepository<User>>();
+                //var user = GetTestUser(repoUser);
+                //var itemsAll = repo.FindByCondition(x => x.OwnerId.Equals(user.ID)).ToList();
+
                 //order by to account for some fk delete issues
                 var items = repo.FindByCondition(x =>
                     x.SymbolicName != null && x.SymbolicName.ToLower().Contains(_guidCommon.ToString()))
                     //.OrderBy(x => x.ParentId.HasValue)
                     .OrderByDescending(x => !x.ParentId.HasValue ? 0 : x.ParentId.Value)
+                    .ToList();
+
+                //get items created server side that are related to items test created - intermediate objs
+                var itemsIntermediate = repo.FindByCondition(x =>
+                    string.IsNullOrEmpty(x.SymbolicName) && ((ProfileItemTypeEnum)x.ProfileTypeId).Equals(ProfileItemTypeEnum.Object) && (
+                    x.ParentId.HasValue && items.Select(y => y.ID.Value).Contains(x.ParentId.Value)))
                     .ToList();
 
                 //type def analytics
@@ -663,6 +759,13 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
                     await repoAnalytic.DeleteAsync(a);
                 }
                 await repoAnalytic.SaveChangesAsync();
+
+                //intermdiate items
+                foreach (var item in itemsIntermediate)
+                {
+                    await repo.DeleteAsync(item);
+                }
+                await repo.SaveChangesAsync();
 
                 //type defs
                 foreach (var item in items)

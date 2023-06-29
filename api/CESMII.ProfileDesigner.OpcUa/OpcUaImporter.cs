@@ -46,7 +46,7 @@ namespace CESMII.ProfileDesigner.OpcUa
             IDal<LookupDataType, LookupDataTypeModel> dtDal,
             IDal<Profile, ProfileModel> profileDal,
             ICloudLibDal<CloudLibProfileModel> cloudLibDal,
-            IUANodeSetResolverWithProgress cloudLibResolver,
+            IUANodeSetResolverWithPending cloudLibResolver,
             IDal<NodeSetFile, NodeSetFileModel> nodeSetFileDal,
             UANodeSetDBCache nodeSetCache,
             IDal<EngineeringUnit, EngineeringUnitModel> euDal,
@@ -98,7 +98,7 @@ namespace CESMII.ProfileDesigner.OpcUa
 #endif
         internal readonly IDal<Data.Entities.Profile, DAL.Models.ProfileModel> _profileDal;
         private readonly ICloudLibDal<CloudLibProfileModel> _cloudLibDal;
-        private readonly IUANodeSetResolverWithProgress _cloudLibResolver;
+        private readonly IUANodeSetResolverWithPending _cloudLibResolver;
         private readonly IDal<NodeSetFile, NodeSetFileModel> _nodeSetFileDal;
         private readonly UANodeSetDBCache _nodeSetCache;
         readonly Dictionary<string, string> Aliases = new();
@@ -410,6 +410,11 @@ namespace CESMII.ProfileDesigner.OpcUa
             try
             {
                 _cloudLibResolver.OnDownloadNodeSet += callback;
+                //_cloudLibResolver.FilterPendingNodeSet = (n =>
+                //    {
+                //        return n.Metadata?.AdditionalProperties?.Any(p => p.Name == ICloudLibDal<CloudLibProfileModel>.strCESMIIUserInfo && p.Value.EndsWith($"PD{userToken.UserId}"))??false;
+                //    }
+                //);
                 var cacheManager = new UANodeSetCacheManager(myNodeSetCache, _cloudLibResolver);
                 resultSet = cacheManager.ImportNodeSets(nodeSetXmlStringList, false, userToken);
             }

@@ -20,6 +20,22 @@ Pass resolver to UANodeSetCacheManager constructor:
     }
 ```
 
+## With nodesets pending approval
+```c#
+    try
+    {
+        _cloudLibResolver.OnDownloadNodeSet += callback;
+        _cloudLibResolver.FilterPendingNodeSet = (n => true);
+        var cacheManager = new UANodeSetCacheManager(myNodeSetCache, _cloudLibResolver);
+        resultSet = cacheManager.ImportNodeSets(nodeSetXmlStringList, false, userToken);
+    }
+    finally
+    {
+        _cloudLibResolver.OnDownloadNodeSet -= callback;
+    }
+```
+
+
 ## Dependency Injection
 Add service in startup.cs / program.cs:
 ```c#
@@ -35,8 +51,8 @@ Provide configuration:
   }
 ```
 
-Request as IUANodeSetResolverWithProgress:
+Request as IUANodeSetResolverWithPending:
 ```c#
-services.GetService<IUANodeSetResolverWithProgress>();
+services.GetService<IUANodeSetResolverWithPending>();
 ```
 

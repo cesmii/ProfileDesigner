@@ -151,6 +151,17 @@
             return entity.ID;
         }
 
+        public async Task<int?> DeleteUserAsync(int id, UserToken userToken)
+        {
+            var entity = _repo.FindByCondition(x => x.ID == id)
+                .FirstOrDefault();
+
+            await _repo.DeleteAsync(entity);
+            await _repo.SaveChangesAsync();
+
+            return entity.ID;
+        }
+
         public async Task<int?> DeleteAsync(int id, UserToken userToken)
         {
             //perform a soft delete by setting active to false

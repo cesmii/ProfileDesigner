@@ -163,9 +163,25 @@
 
                         bUpdateUser = true;         // Synch UserModel changes
                         bCheckOrganization = true;  // Check the user's organization.
+
+                        // We use the most recent record, then delete the rest of the records.
+                        for (int i = 0; i < iItem; i++)
+                        {
+                            if (listMatchEmailAddress[i].ID != null)
+                            {
+                                int iID = listMatchEmailAddress[i].ID.Value;
+
+                                string strLogMessage = $"InitLocalUser|| About to delete record {i} of {iItem} from public.user. Id:{iID}, Email:{listMatchEmailAddress[i].Email}";
+                                _logger.LogWarning(strLogMessage);
+
+                                #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                                _dalUser.DeleteUserAsync(iID, base.DalUserToken);
+                            }
+                        }
                     }
                     else
                     {
+                        // We should never get here, since the earlier query asked for records with ObjectIdAAD==null.
                         bErrorCondition = true;
                         strError = $"InitLocalUser||More than one Profile designer user record found with email {userAAD.Email}. {listMatchEmailAddress.Count} records found. Existing object id = {um.ObjectIdAAD}";
                         _logger.LogWarning(strError);

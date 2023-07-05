@@ -19,7 +19,7 @@ using CESMII.ProfileDesigner.Api.Shared.Models;
 
 namespace CESMII.ProfileDesigner.Api.Tests.Int
 {
-    public class ProfileTypeDefControllerIntegrationTestBase : ControllerTestBase
+    public class ProfileTypeDefControllerTestBase : ControllerTestBase
     {
         protected readonly ServiceProvider _serviceProvider;
         //for some tests, tie together a common guid so we can delete the created items at end of test. 
@@ -48,7 +48,7 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
         protected const int TYPE_ID_DEFAULT = (int)ProfileItemTypeEnum.Class;  
         #endregion
 
-        public ProfileTypeDefControllerIntegrationTestBase(
+        public ProfileTypeDefControllerTestBase(
             CustomWebApplicationFactory<Api.Startup> factory, 
             ITestOutputHelper output):
             base(factory, output)
@@ -126,121 +126,6 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
                 return result;
             }
         }
-
-        /// <summary>
-        /// Inserts parent profiles, parent type defs and then inserts types defs. 
-        /// </summary>
-        /// <remarks>Note there is lots of logic to disperse the data. 67% of items assigned to owner, 
-        /// 75% of items given query value in description, 
-        /// Type def type is assigned 20% interface, 25% enum, 33% structure, remainder class</remarks>
-        /// <param name="upperBound"></param>
-        /// <param name="query"></param>
-        /// <returns></returns>
-        protected async Task<List<ProfileTypeDefinition>> InsertMockEntitiesForSearchTests(int upperBound, string query)
-        {
-            var result = new List<ProfileTypeDefinition>();
-            using (var scope = _serviceProvider.CreateScope())
-            {
-                var repoProfile = scope.ServiceProvider.GetService<IRepository<Profile>>();
-                var repo = scope.ServiceProvider.GetService<IRepository<ProfileTypeDefinition>>();
-                var repoUser = scope.ServiceProvider.GetService<IRepository<User>>();
-                var user = GetTestUser(repoUser);
-
-                //create a parent profile - one that is mine, one that is generic
-                var profileMine = CreateProfileEntity(_guidCommon, user);
-                await repoProfile.AddAsync(profileMine);
-                var profileCore = CreateProfileEntity(_guidCommon, null);
-                profileCore.AuthorId = null;
-                profileCore.OwnerId = null;
-                await repoProfile.AddAsync(profileCore);
-
-                //create a parent type definition - make parents null so it doesn't impact the 
-                //search calls
-                var parentClass = CreateEntity(0, profileMine.ID, null, _guidCommon, Guid.NewGuid(), user);
-                parentClass.AuthorId = null;
-                parentClass.OwnerId = null;
-                parentClass.ExternalAuthor = _guidCommon.ToString();
-                await repo.AddAsync(parentClass);
-                var parentInterface = CreateEntity(0, profileMine.ID, null, _guidCommon, Guid.NewGuid(), user);
-                parentInterface.ProfileTypeId = (int)ProfileItemTypeEnum.Interface;
-                parentInterface.AuthorId = null;
-                parentInterface.OwnerId = null;
-                parentInterface.ExternalAuthor = _guidCommon.ToString();
-                await repo.AddAsync(parentInterface);
-                var parentEnum = CreateEntity(0, profileMine.ID, null, _guidCommon, Guid.NewGuid(), user);
-                parentEnum.ProfileTypeId = (int)ProfileItemTypeEnum.Enumeration;
-                parentEnum.AuthorId = null;
-                parentEnum.OwnerId = null;
-                parentEnum.ExternalAuthor = _guidCommon.ToString();
-                await repo.AddAsync(parentEnum);
-                var parentStructure = CreateEntity(0, profileMine.ID, null, _guidCommon, Guid.NewGuid(), user);
-                parentStructure.ProfileTypeId = (int)ProfileItemTypeEnum.Structure;
-                parentStructure.AuthorId = null;
-                parentStructure.OwnerId = null;
-                parentStructure.ExternalAuthor = _guidCommon.ToString();
-                await repo.AddAsync(parentStructure);
-
-                //assign profile to type def in case caller needs it.
-                parentClass.Profile = profileCore;
-                parentInterface.Profile = profileCore;
-                parentEnum.Profile = profileCore;
-                parentStructure.Profile = profileCore;
-
-                //add to collection to return
-                result.Add(parentClass);
-                result.Add(parentInterface);
-                result.Add(parentEnum);
-                result.Add(parentStructure);
-
-                //get items, loop over and add
-                for (int i = 1; i <= upperBound; i++)
-                {
-                    var uuid = Guid.NewGuid();
-                    //distribute the parent type def assignment
-                    var p = i % 5 == 0 ? parentInterface : i % 4 == 0 ? parentClass : i % 3 == 0 ? parentStructure : parentEnum;
-                    //set owner to 2/3 of the items
-                    var entity = CreateEntity(i, i % 3 == 0 ? profileCore.ID : profileMine.ID, p, _guidCommon, uuid, user);
-                    int? authorId = i % 3 == 0 ? null : user.ID;
-                    entity.AuthorId = authorId;
-                    entity.OwnerId = authorId;
-                    //customize some entries
-                    //add query to description for 75%
-                    var desc = i % 4 == 0 ? "" : " " + query;
-                    entity.Description += desc;
-                    await repo.AddAsync(entity);
-                    result.Add(entity);
-                }
-            }
-            return result;
-        }
-
-        /*
-                /// <summary>
-                /// Using the items added in the insert mock items, calculate the expected count to compare against actual search count
-                /// </summary>
-                /// <param name="itemsAdded"></param>
-                /// <param name="query"></param>
-                /// <param name="isMine"></param>
-                /// <param name="isPopular"></param>
-                /// <param name="typeDefType"></param>
-                /// <returns></returns>
-                private int CalculateExpectedCountSearch(List<ProfileTypeDefinition> itemsAdded, string query, bool isMine, bool isPopular, ProfileItemTypeEnum? typeDefType)
-                {
-                    //calculate this value based on the criteria and our knowledge of how we prep the test data
-                    return itemsAdded
-                        //always trim out parent type defs
-                        .Where(x => x.ExternalAuthor == null || !x.ExternalAuthor.ToLower().Contains(_guidCommon.ToString()))
-                        //trim out mine - if needed 
-                        .Where(x => !isMine || (isMine && x.AuthorId.HasValue))
-                        //TODO: popular filter
-                        //
-                        //type def filter
-                        .Where(x => typeDefType == null || x.ProfileTypeId.Equals((int)typeDefType))
-                        //query
-                        .Where(x => string.IsNullOrEmpty(query) || x.Description.ToLower().Contains(query.ToLower()))
-                        .Count();
-                }
-        */
 
         protected static ProfileTypeDefinitionModel CreateItemModel(int i, int? profileId, ProfileTypeDefinition parent, Guid guidCommon, Guid uuid, string cloudLibraryId = null)
         {

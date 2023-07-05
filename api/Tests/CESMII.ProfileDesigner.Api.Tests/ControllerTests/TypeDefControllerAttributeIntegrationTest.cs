@@ -19,7 +19,7 @@ using CESMII.ProfileDesigner.Api.Shared.Models;
 
 namespace CESMII.ProfileDesigner.Api.Tests.Int
 {
-    public class TypeDefControllerAttributeIntegrationTest : ProfileTypeDefControllerIntegrationTestBase
+    public class TypeDefControllerAttributeIntegrationTest : ProfileTypeDefControllerTestBase
     {
         //get some lookup data that will be needed when we start adding addtribute tests
         private AppLookupModel _lookupData = null;

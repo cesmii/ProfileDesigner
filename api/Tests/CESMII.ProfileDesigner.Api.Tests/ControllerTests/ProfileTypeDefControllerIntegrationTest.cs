@@ -50,21 +50,15 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
 
     #region API constants
         private const string URL_INIT = "/api/profiletypedefinition/init";
-        private const string URL_EXTEND = "/api/profiletypedefinition/extend";
-        private const string URL_ADD = "/api/profiletypedefinition/add";
         private const string URL_LIBRARY = "/api/profiletypedefinition/library";
-        private const string URL_GETBYID = "/api/profiletypedefinition/getbyid";
         private const string URL_DELETE = "/api/profiletypedefinition/delete";
         private const string URL_DELETE_MANY = "/api/profiletypedefinition/deletemany";
         #endregion
 
         #region data naming constants
         private const string NAME_PATTERN = "CESMII.TypeDef";
-        private const string PARENT_PROFILE_NAMESPACE = "https://CESMII.Profile.Mock.org/";
-        private const string TITLE_PATTERN = "CESMII.ProfileDesigner.Api.Tests.Integration";
         private const string CATEGORY_PATTERN = "category-test";
         private const string VERSION_PATTERN = "1.0.0.";
-        private const int TYPE_ID_DEFAULT = (int)ProfileItemTypeEnum.Class;  
         #endregion
 
         public ProfileTypeDefControllerIntegrationTest(

@@ -293,6 +293,7 @@
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[46]/References[1]/Reference[3]
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Definition' but was '' - comparing <Definition...> at /UANodeSet[1]/UADataType[28]/Definition[1] to <NULL>
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Definition' - comparing <NULL> to <Definition...> at /UANodeSet[1]/UADataType[27]/Definition[1]
+====>Expected attribute name '/UANodeSet[1]/UAVariable[73]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[73] to <UAVariable...> at /UANodeSet[1]/UAVariable[47]/@ArrayDimensions
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Definition' but was '' - comparing <Definition...> at /UANodeSet[1]/UADataType[29]/Definition[1] to <NULL>
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Definition' - comparing <NULL> to <Definition...> at /UANodeSet[1]/UADataType[26]/Definition[1]
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Definition' but was '' - comparing <Definition...> at /UANodeSet[1]/UADataType[30]/Definition[1] to <NULL>

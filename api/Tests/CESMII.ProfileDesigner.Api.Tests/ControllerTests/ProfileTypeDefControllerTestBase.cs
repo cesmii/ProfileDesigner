@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
@@ -25,26 +26,19 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
         //for some tests, tie together a common guid so we can delete the created items at end of test. 
         protected Guid _guidCommon = Guid.NewGuid();
 
-        protected const string _attributeComposition = "{'id':-1,'name':'A Comp Attr','dataType':{'id':1,'name':'Composition','customTypeId':null,'customType':null},'attributeType':{'name':'Composition','code':'Composition','lookupType':2,'typeId':2,'displayOrder':9999,'isActive':false,'id':9}," + 
-                                                     "'minValue':null,'maxValue':null,'engUnit':null,'compositionId':-999,'composition':{'id':-999,'name':'Test Comp Add','description':'','browseName':'','relatedProfileTypeDefinitionId':-999,'relatedName':'Test Comp Add'}," + 
-                                                     "'interfaceId':-1,'interface':null,'description':'','displayName':'','typeDefinitionId':-888,'isArray':false,'isRequired':false,'enumValue':null}";
-
         #region API constants
-        protected const string URL_INIT = "/api/profiletypedefinition/init";
+        //protected const string URL_INIT = "/api/profiletypedefinition/init";
         protected const string URL_EXTEND = "/api/profiletypedefinition/extend";
         protected const string URL_ADD = "/api/profiletypedefinition/add";
-        protected const string URL_LIBRARY = "/api/profiletypedefinition/library";
+        //protected const string URL_LIBRARY = "/api/profiletypedefinition/library";
         protected const string URL_GETBYID = "/api/profiletypedefinition/getbyid";
-        protected const string URL_DELETE = "/api/profiletypedefinition/delete";
-        protected const string URL_DELETE_MANY = "/api/profiletypedefinition/deletemany";
+        //protected const string URL_DELETE = "/api/profiletypedefinition/delete";
+        //protected const string URL_DELETE_MANY = "/api/profiletypedefinition/deletemany";
         #endregion
 
         #region data naming constants
-        protected const string NAME_PATTERN = "CESMII.TypeDef";
-        protected const string PARENT_PROFILE_NAMESPACE = "https://CESMII.Profile.Mock.org/";
         protected const string TITLE_PATTERN = "CESMII.ProfileDesigner.Api.Tests.Integration";
-        protected const string CATEGORY_PATTERN = "category-test";
-        protected const string VERSION_PATTERN = "1.0.0.";
+        protected const string PARENT_PROFILE_NAMESPACE = "https://CESMII.Profile.Mock.org/";
         protected const int TYPE_ID_DEFAULT = (int)ProfileItemTypeEnum.Class;  
         #endregion
 
@@ -264,50 +258,86 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
                 //var user = GetTestUser(repoUser);
                 //var itemsAll = repo.FindByCondition(x => x.OwnerId.Equals(user.ID)).ToList();
 
-                //order by to account for some fk delete issues
+                //order by to account for some fk delete issues, include child tables - analytics, attributes, compositions, interfaces
                 var items = repo.FindByCondition(x =>
                     x.SymbolicName != null && x.SymbolicName.ToLower().Contains(_guidCommon.ToString()))
                     //.OrderBy(x => x.ParentId.HasValue)
                     .OrderByDescending(x => !x.ParentId.HasValue ? 0 : x.ParentId.Value)
+                    .Include(x => x.Interfaces)
+                    .Include(x => x.Compositions)
+                    .Include(x => x.Analytics)
+                    .Include(x => x.Attributes)
                     .ToList();
-
-                //get items created server side that are related to items test created - intermediate objs
-                var itemsIntermediate = repo.FindByCondition(x =>
-                    string.IsNullOrEmpty(x.SymbolicName) && ((ProfileItemTypeEnum)x.ProfileTypeId).Equals(ProfileItemTypeEnum.Object) && (
-                    x.ParentId.HasValue && items.Select(y => y.ID.Value).Contains(x.ParentId.Value)))
-                    .ToList();
-
-                //type def analytics
-                var repoAnalytic = scope.ServiceProvider.GetService<IRepository<ProfileTypeDefinitionAnalytic>>();
-                //order to account for some fk delete issues
-                var itemsAnalytic = repoAnalytic.FindByCondition(x =>
-                    items.Select(y => y.ID.Value).Contains(x.ProfileTypeDefinitionId))
-                    .ToList();
-                foreach (var a in itemsAnalytic)
-                {
-                    await repoAnalytic.DeleteAsync(a);
-                }
-                await repoAnalytic.SaveChangesAsync();
-
-                //intermdiate items
-                foreach (var item in itemsIntermediate)
-                {
-                    await repo.DeleteAsync(item);
-                }
-                await repo.SaveChangesAsync();
-
-                //type defs
-                foreach (var item in items)
-                {
-                    await repo.DeleteAsync(item);
-                }
-                await repo.SaveChangesAsync();
 
                 //parent profiles
                 var repoProfile = scope.ServiceProvider.GetService<IRepository<Profile>>();
                 var itemsProfile = repoProfile.FindByCondition(x =>
                     items.Select(y => y.ProfileId.Value).Contains(x.ID.Value))
                     .ToList();
+
+                //get intermediate items created server side that are related to items test created - intermediate objs
+                //assuming the item would be a child of the parent profile we will delete below. 
+                //prevent dups - only the items not collected above so that we don't try to delete something not there. 
+                var itemsIntermediate = repo.FindByCondition(x =>
+                    itemsProfile.Select(y => y.ID).Contains(x.ProfileId) &&
+                    !items.Select(y => y.ID.Value).Contains(x.ID.Value))
+                    .Include(x => x.Interfaces)
+                    .Include(x => x.Compositions)
+                    .Include(x => x.Analytics)
+                    .Include(x => x.Attributes)
+                    .ToList();
+
+                //works
+                //var itemsIntermediate = repo.FindByCondition(x =>
+                //    string.IsNullOrEmpty(x.SymbolicName) && ((ProfileItemTypeEnum)x.ProfileTypeId).Equals(ProfileItemTypeEnum.Object) 
+                //    && (x.InstanceParentId.HasValue && items.Select(y => y.ID.Value).Contains(x.InstanceParentId.Value))
+                //    )
+                //    .ToList();
+
+                //var itemsIntermediate = itemsIntermediate0.Where(x =>
+                //    items.Select(y => y.ID.Value).Contains(x.InstanceParentId.Value)
+                //    )
+                //    .ToList();
+                //var itemsIntermediate1 = itemsIntermediate0.Where(x =>
+                //    (x.ParentId.HasValue && items.Select(y => y.ID.Value).Contains(x.ParentId.Value)) ||
+                //    (x.InstanceParentId.HasValue && items.Select(y => y.ID.Value).Contains(x.InstanceParentId.Value))
+                //    )
+                //    .ToList();
+
+                /*
+                var itemsIntermediate = repo.FindByCondition(x =>
+                    string.IsNullOrEmpty(x.SymbolicName) && ((ProfileItemTypeEnum)x.ProfileTypeId).Equals(ProfileItemTypeEnum.Object) &&
+                    ((x.ParentId.HasValue && items.Select(y => y.ID.Value).Equals(x.ParentId.Value)) ||
+                    (x.InstanceParentId.HasValue && items.Select(y => y.ID.Value).Equals(x.InstanceParentId.Value))) 
+                    )
+                    .ToList();
+                */
+                //type def analytics
+                //var repoAnalytic = scope.ServiceProvider.GetService<IRepository<ProfileTypeDefinitionAnalytic>>();
+                //order to account for some fk delete issues
+                //var itemsAnalytic = repoAnalytic.FindByCondition(x =>
+                //    items.Select(y => y.ID.Value).Contains(x.ProfileTypeDefinitionId))
+                //    .ToList();
+                //foreach (var a in itemsAnalytic)
+                //{
+                    //await repoAnalytic.DeleteAsync(a);
+                //}
+                //await repoAnalytic.SaveChangesAsync();
+
+                //type defs
+                foreach (var item in items)
+                {
+                    await repo.DeleteAsync(item);
+                }
+                //intermediate items - do this AFTER delete type defs
+                foreach (var item in itemsIntermediate)
+                {
+                    await repo.DeleteAsync(item);
+                }
+                //commit changes
+                await repo.SaveChangesAsync();
+
+                //parent profiles
                 foreach (var item in itemsProfile)
                 { 
                     await repoProfile.DeleteAsync(item);

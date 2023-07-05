@@ -269,7 +269,9 @@ function ProfileExplorer(props) {
     // Warn user if they might have unsaved changes
     const WhatAboutThis = (myhref) =>
     {
-        window.location = myhref;
+        if (loadingProps.bIsTypeEditUnsaved || loadingProps.bIsProfileEditUnsaved) {
+            window.location = myhref;
+        }
     }
     const renderSearchUI = () => {
         // d-none d-lg-block - hide on small displays

@@ -226,7 +226,7 @@ function ProfileExplorer(props) {
                 <div style={{ paddingLeft: padding }}
                     className={`hierarchy-link d-flex pr-3`} >
                     {renderTypeIcon(p, props.activeAccount, 18, 'mr-2')}
-                    <span className="hierarchy-item text-break">{renderLinkedName(p, loadingProps.bIsTypeEditUnsaved, 'btn-link-flat')}</span>
+                    <span className="hierarchy-item text-break">{renderLinkedName(p, loadingProps.bIsTypeEditUnsaved, 'link-flat')}</span>
                     {/* Affordance for "go-to / view" */}
                     <SVGIcon name="chevron-right" fill={color.silver} className="view-affordance-icon float-right" />
                 </div>

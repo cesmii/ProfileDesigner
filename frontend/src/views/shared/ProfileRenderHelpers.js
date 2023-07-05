@@ -35,11 +35,13 @@ export const OnClickUnsavedCheck = (href, bUnsaved) => {
     }
 }
 
-export const renderLinkedName = (item, bUnsaved, cssClass = null ) => {
+export const renderLinkedName = (item, bUnsaved, variant=null, cssClass = null ) => {
     if (item == null || item.type == null) return;
     const href = getTypeDefEntityLink(item);
     return (
-            <Button key={item.id} onClick={() => OnClickUnsavedCheck(href, bUnsaved)} className={cssClass == null || cssClass === '' ? '' : cssClass} >{item.name}</Button>
+        <Button key={item.id} onClick={() => OnClickUnsavedCheck(href, bUnsaved)}
+            variant={variant == null || variant === '' ? '' : variant}
+            className={cssClass == null || cssClass === '' ? '' : cssClass} >{item.name}</Button>
     );
 };
 

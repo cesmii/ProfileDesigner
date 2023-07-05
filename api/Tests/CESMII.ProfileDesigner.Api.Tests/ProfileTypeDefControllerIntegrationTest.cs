@@ -48,11 +48,11 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
             "]," +
             "'sortByEnum':3,'query':null,'take':25,'skip':0}";
 
-        private const string _attributeComposition = "{'id':-4,'name':'AAA','dataType':{'id':1,'name':'Composition','customTypeId':null,'customType':null},'attributeType':{'name':'Composition','code':'Composition','lookupType':2,'typeId':2,'displayOrder':9999,'isActive':false,'id':9}," + 
+        private const string _attributeComposition = "{'id':-1,'name':'A Comp Attr','dataType':{'id':1,'name':'Composition','customTypeId':null,'customType':null},'attributeType':{'name':'Composition','code':'Composition','lookupType':2,'typeId':2,'displayOrder':9999,'isActive':false,'id':9}," + 
                                                      "'minValue':null,'maxValue':null,'engUnit':null,'compositionId':-999,'composition':{'id':-999,'name':'Test Comp Add','description':'','browseName':'','relatedProfileTypeDefinitionId':-999,'relatedName':'Test Comp Add'}," + 
                                                      "'interfaceId':-1,'interface':null,'description':'','displayName':'','typeDefinitionId':-888,'isArray':false,'isRequired':false,'enumValue':null}";
 
-        #region API constants
+    #region API constants
         private const string URL_INIT = "/api/profiletypedefinition/init";
         private const string URL_EXTEND = "/api/profiletypedefinition/extend";
         private const string URL_ADD = "/api/profiletypedefinition/add";

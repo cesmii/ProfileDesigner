@@ -48,7 +48,7 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
                                                      "'minValue':null,'maxValue':null,'engUnit':null,'compositionId':-999,'composition':{'id':-999,'name':'Test Comp Add','description':'','browseName':'','relatedProfileTypeDefinitionId':-999,'relatedName':'Test Comp Add'}," + 
                                                      "'interfaceId':-1,'interface':null,'description':'','displayName':'','typeDefinitionId':-888,'isArray':false,'isRequired':false,'enumValue':null}";
 
-    #region API constants
+        #region API constants
         private const string URL_INIT = "/api/profiletypedefinition/init";
         private const string URL_LIBRARY = "/api/profiletypedefinition/library";
         private const string URL_DELETE = "/api/profiletypedefinition/delete";
@@ -94,7 +94,7 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
             var apiClient = base.ApiClient;
 
             //create parent profile and entity to extend
-            var itemExtend = await InsertMockProfileAndExtendEntity(_guidCommon);
+            var itemExtend = await InsertMockProfileAndTypeDefinition(TYPE_ID_DEFAULT, _guidCommon);
 
             // ACT
             //extend item
@@ -130,7 +130,7 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
 
             //treat inbound item as the new type def. Once we call extend, we need to apply some updates to it and save. 
             //create parent profile and entity to extend
-            var itemExtend = await InsertMockProfileAndExtendEntity(_guidCommon);
+            var itemExtend = await InsertMockProfileAndTypeDefinition(TYPE_ID_DEFAULT, _guidCommon);
             var resultExtend = await MapModelToExtendedItem(apiClient, _guidCommon, itemExtend, model);
             ////extend item
             //var resultExtend = await apiClient.ApiGetItemAsync<ProfileTypeDefinitionModel>(URL_EXTEND, 
@@ -189,7 +189,7 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
             //add an item so that we can delete it
             //have to properly extend a base item, etc. before adding
             //then get the id of newly added item so we can call delete
-            var itemExtend = await InsertMockProfileAndExtendEntity(_guidCommon);
+            var itemExtend = await InsertMockProfileAndTypeDefinition(TYPE_ID_DEFAULT, _guidCommon);
             var resultExtend = await MapModelToExtendedItem(apiClient, _guidCommon, itemExtend, model);
             var resultAdd = await apiClient.ApiExecuteAsync<ResultMessageWithDataModel>(URL_ADD, resultExtend);
             var modelId = new IdIntModel() { ID = (int)resultAdd.Data };
@@ -217,7 +217,7 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
             var apiClient = base.ApiClient;
             //add an item to a parent item and then try to delete parent.
             //we should get a message indicating can't delete parent due to dependency. Must delete child then you can delete parent.
-            var entityParent = await InsertMockProfileAndExtendEntity(_guidCommon);
+            var entityParent = await InsertMockProfileAndTypeDefinition(TYPE_ID_DEFAULT, _guidCommon);
             var modelChildNew = await MapModelToExtendedItem(apiClient, _guidCommon, entityParent, model);
             var resultChild = await apiClient.ApiExecuteAsync<ResultMessageWithDataModel>(URL_ADD, modelChildNew);
             var parentId = new IdIntModel() { ID = entityParent.ID.Value };
@@ -243,7 +243,7 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
             var apiClient = base.ApiClient;
 
             //insert base parent
-            var entityParent = await InsertMockProfileAndExtendEntity(_guidCommon);
+            var entityParent = await InsertMockProfileAndTypeDefinition(TYPE_ID_DEFAULT, _guidCommon);
             //extend base parent as item 1 - use this as composition for item 2
             var modelChild1New = await MapModelToExtendedItem(apiClient, _guidCommon, entityParent, model);
             var resultChild1Added = await apiClient.ApiExecuteAsync<ResultMessageWithDataModel>(URL_ADD, modelChild1New);
@@ -251,6 +251,7 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
             //extend base parent as item 2 - add composition pointing to item 1
             var modelChild2New = await MapModelToExtendedItem(apiClient, _guidCommon, entityParent, model);
             //add composition attribute pointing to child 1
+            //var attr = CreateAttributeComposition($"Attribute-Comp",  );
             var attr = JsonConvert.DeserializeObject<ProfileAttributeModel>(_attributeComposition);
             attr.CompositionId = modelChild1Id.ID;
             attr.Composition.ID = modelChild1Id.ID;
@@ -402,24 +403,24 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
 
                 //create a parent type definition - make parents null so it doesn't impact the 
                 //search calls
-                var parentClass = CreateEntity(0, profileMine.ID, null, _guidCommon, Guid.NewGuid(), user);
+                var parentClass = CreateEntity(0, profileMine.ID, null, TYPE_ID_DEFAULT, _guidCommon, Guid.NewGuid(), user);
                 parentClass.AuthorId = null;
                 parentClass.OwnerId = null;
                 parentClass.ExternalAuthor = _guidCommon.ToString();
                 await repo.AddAsync(parentClass);
-                var parentInterface = CreateEntity(0, profileMine.ID, null, _guidCommon, Guid.NewGuid(), user);
+                var parentInterface = CreateEntity(0, profileMine.ID, null, TYPE_ID_DEFAULT, _guidCommon, Guid.NewGuid(), user);
                 parentInterface.ProfileTypeId = (int)ProfileItemTypeEnum.Interface;
                 parentInterface.AuthorId = null;
                 parentInterface.OwnerId = null;
                 parentInterface.ExternalAuthor = _guidCommon.ToString();
                 await repo.AddAsync(parentInterface);
-                var parentEnum = CreateEntity(0, profileMine.ID, null, _guidCommon, Guid.NewGuid(), user);
+                var parentEnum = CreateEntity(0, profileMine.ID, null, TYPE_ID_DEFAULT, _guidCommon, Guid.NewGuid(), user);
                 parentEnum.ProfileTypeId = (int)ProfileItemTypeEnum.Enumeration;
                 parentEnum.AuthorId = null;
                 parentEnum.OwnerId = null;
                 parentEnum.ExternalAuthor = _guidCommon.ToString();
                 await repo.AddAsync(parentEnum);
-                var parentStructure = CreateEntity(0, profileMine.ID, null, _guidCommon, Guid.NewGuid(), user);
+                var parentStructure = CreateEntity(0, profileMine.ID, null, TYPE_ID_DEFAULT, _guidCommon, Guid.NewGuid(), user);
                 parentStructure.ProfileTypeId = (int)ProfileItemTypeEnum.Structure;
                 parentStructure.AuthorId = null;
                 parentStructure.OwnerId = null;
@@ -445,7 +446,7 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
                     //distribute the parent type def assignment
                     var p = i % 5 == 0 ? parentInterface : i % 4 == 0 ? parentClass : i % 3 == 0 ? parentStructure : parentEnum;
                     //set owner to 2/3 of the items
-                    var entity = CreateEntity(i, i % 3 == 0 ? profileCore.ID : profileMine.ID, p, _guidCommon, uuid, user);
+                    var entity = CreateEntity(i, i % 3 == 0 ? profileCore.ID : profileMine.ID, p, p.ProfileTypeId.Value, _guidCommon, uuid, user);
                     int? authorId = i % 3 == 0 ? null : user.ID;
                     entity.AuthorId = authorId;
                     entity.OwnerId = authorId;

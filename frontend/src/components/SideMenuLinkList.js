@@ -7,16 +7,30 @@ import './styles/SideMenuLinkList.scss';
 import Fab from './Fab';
 import { isOwner } from '../views/shared/ProfileRenderHelpers';
 import { AppSettings } from '../utils/appsettings';
+import { useLoadingContext } from './contexts/LoadingContext';
 
 //import { generateLogMessageString } from '../utils/UtilityService'
 
 //const CLASS_NAME = "SideMenuLinkList";
 
-function SideMenuLinkList(props) { //props are subMenuItems, bgColor, iconName, navUrl
+export const OnClickUnsavedCheck = (href, bUnsaved) => {
+    var bOk = true;
+    if (bUnsaved != null && bUnsaved === true) {
+        bOk = window.confirm("Unsaved changes to your profile will be lost. Ok to continue?\n(Hint: To save, click Cancel, then click Save button.)")
+    }
+
+    if (bOk && href != null) {
+        window.open(href, "_self");
+    }
+}
+
+
+export function SideMenuLinkList(props) { //props are subMenuItems, bgColor, iconName, navUrl
     //-------------------------------------------------------------------
     // Region: Initialization
     //-------------------------------------------------------------------
     const [_toggleState, setToggleState] = useState(false);
+    const { loadingProps } = useLoadingContext();
 
     //-------------------------------------------------------------------
     // Region: Events
@@ -53,7 +67,7 @@ function SideMenuLinkList(props) { //props are subMenuItems, bgColor, iconName, 
     };
 
 
-    const renderListItem = (link, index) => {
+    const renderListItem = (link, index, bUnsaved) => {
         //backward compatible
         if (link.iconName === "profile" || link.iconName === "folder-profile") link.iconName = AppSettings.IconMapper.Profile;
 
@@ -61,14 +75,14 @@ function SideMenuLinkList(props) { //props are subMenuItems, bgColor, iconName, 
         const key = `li_${index.toString()}`;
         return (
             <li id={key} key={key} className="body-size">
-                <a href={link.url} >
+                <Button onClick={() => OnClickUnsavedCheck(link.url, bUnsaved)} className="btn-link-flat" >
                     {link.iconName == null ? "" :
                         <span className="mr-2">
                             <SVGIcon name={link.iconName} size="18" fill={iconColor} />
                         </span>
                     }
                     {link.caption}
-                </a>
+                </Button>
             </li>
         );
     }
@@ -89,7 +103,8 @@ function SideMenuLinkList(props) { //props are subMenuItems, bgColor, iconName, 
             // set childCount for section header
             // childCount = props.items.length;
             // console.log(childCount);
-            return renderListItem(l, i);
+            var bAnyUnsaved = loadingProps.bIsProfileEditUnsaved || loadingProps.bIsTypeEditUnsaved;
+            return renderListItem(l, i, bAnyUnsaved);
         });
 
         const toggleCss = _toggleState ? "expanded" : "collapsed";

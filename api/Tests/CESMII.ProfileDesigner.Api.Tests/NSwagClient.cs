@@ -1706,40 +1706,53 @@ namespace MyNamespace
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public virtual async Task<CESMII.ProfileDesigner.DAL.Models.DALResult<TModel>> ApiGetManyAsync<TModel>
-            (string url, dynamic body = null, 
+            (string url, dynamic body = null, string method = "POST", 
             System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) 
             where TModel : CESMII.ProfileDesigner.DAL.Models.AbstractModel
         {
-            return await ApiExecuteAsyncInternal<CESMII.ProfileDesigner.DAL.Models.DALResult<TModel>>(url, body, cancellationToken);
+            return await ApiExecuteAsyncInternal<CESMII.ProfileDesigner.DAL.Models.DALResult<TModel>>
+                (url, body, method, cancellationToken);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public virtual async Task<TModel> ApiGetItemAsync<TModel>
-            (string url, dynamic body = null,
+            (string url, dynamic body = null, string method = "POST",
             System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
             where TModel : CESMII.ProfileDesigner.DAL.Models.AbstractModel
         {
-            return await ApiExecuteAsyncInternal<TModel>(url, body, cancellationToken);
+            return await ApiExecuteAsyncInternal<TModel>(url, body, method, cancellationToken);
+        }
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>Success</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        public virtual async Task<TModel> ApiGetItemGenericAsync<TModel>
+            (string url, dynamic body = null, string method = "POST",
+            System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+            where TModel : class
+        {
+            return await ApiExecuteAsyncInternal<TModel>(url, body, method, cancellationToken);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public virtual async Task<TResultMessage> ApiExecuteAsync<TResultMessage>
-            (string url, dynamic body = null,
+            (string url, dynamic body = null, string method = "POST",
             System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
             where TResultMessage: CESMII.ProfileDesigner.Api.Shared.Models.ResultMessageModel
         {
-            return await ApiExecuteAsyncInternal<CESMII.ProfileDesigner.Api.Shared.Models.ResultMessageWithDataModel>(url, body, cancellationToken);
+            return await ApiExecuteAsyncInternal<CESMII.ProfileDesigner.Api.Shared.Models.ResultMessageWithDataModel>
+                (url, body, method, cancellationToken);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         private async Task<TObject> ApiExecuteAsyncInternal<TObject>
-            (string url, dynamic body = null,
+            (string url, dynamic body = null, string method = "POST",
             System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
             where TObject : class
         {
@@ -1756,7 +1769,7 @@ namespace MyNamespace
                     var content_ = new System.Net.Http.StringContent(json_);
                     content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json");
                     request_.Content = content_;
-                    request_.Method = new System.Net.Http.HttpMethod("POST");
+                    request_.Method = new System.Net.Http.HttpMethod(method);
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("text/plain"));
 
                     PrepareRequest(client_, request_, urlBuilder_);

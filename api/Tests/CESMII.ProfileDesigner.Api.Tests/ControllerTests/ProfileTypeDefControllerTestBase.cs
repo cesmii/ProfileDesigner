@@ -75,9 +75,6 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
             
             _serviceProvider = services.BuildServiceProvider();
 
-            //note - base.ApiClient - this will force creation of test user if not yet added, this is needed downstream
-            //if we run this from a pristine db
-            PrepareMockData(base.ApiClient);
         }
 
 #pragma warning disable xUnit1026  // Stop warnings related to parameters not used in test cases. 

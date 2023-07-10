@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using System.Linq;
 
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Configuration;
 
 using Xunit;
 using Xunit.Abstractions;
@@ -14,7 +13,6 @@ using CESMII.ProfileDesigner.Common.Enums;
 using CESMII.ProfileDesigner.DAL.Models;
 using CESMII.ProfileDesigner.Data.Repositories;
 using CESMII.ProfileDesigner.Data.Entities;
-using CESMII.ProfileDesigner.Data.Contexts;
 using CESMII.ProfileDesigner.Api.Shared.Models;
 
 namespace CESMII.ProfileDesigner.Api.Tests.Int
@@ -43,10 +41,6 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
             */
             "]," +
             "'sortByEnum':3,'query':null,'take':25,'skip':0}";
-
-        private const string _attributeComposition = "{'id':-1,'name':'A Comp Attr','dataType':{'id':1,'name':'Composition','customTypeId':null,'customType':null},'attributeType':{'name':'Composition','code':'Composition','lookupType':2,'typeId':2,'displayOrder':9999,'isActive':false,'id':9}," + 
-                                                     "'minValue':null,'maxValue':null,'engUnit':null,'compositionId':-999,'composition':{'id':-999,'name':'Test Comp Add','description':'','browseName':'','relatedProfileTypeDefinitionId':-999,'relatedName':'Test Comp Add'}," + 
-                                                     "'interfaceId':-1,'interface':null,'description':'','displayName':'','typeDefinitionId':-888,'isArray':false,'isRequired':false,'enumValue':null}";
 
         #region API constants
         private const string URL_INIT = "/api/profiletypedefinition/init";
@@ -234,18 +228,18 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
             var modelChild1New = await MapModelToExtendedItem(apiClient, _guidCommon, entityParent, model);
             var resultChild1Added = await apiClient.ApiExecuteAsync<ResultMessageWithDataModel>(URL_ADD, modelChild1New);
             var modelChild1Id = new IdIntModel() { ID = (int)resultChild1Added.Data };
+
+            //wait to call this until we create the dependent records first
+            _compositionRootId = entityParent.ID.Value;  //this will be how we get related compositions in the db
+            //get lookup data to be used when adding attributes
+            _lookupData = GetLookupData(apiClient, _guidCommon).Result;
+            //get related lookup data - variable types list, compositions, interfaces. Using mock data to keep this stateless.
+            _lookupRelated = GetRelatedData(entityParent.ProfileId.Value);
+
             //extend base parent as item 2 - add composition pointing to item 1
             var modelChild2New = await MapModelToExtendedItem(apiClient, _guidCommon, entityParent, model);
             //add composition attribute pointing to child 1
-            //var attr = CreateAttributeComposition($"Attribute-Comp",  );
-            var attr = JsonConvert.DeserializeObject<ProfileAttributeModel>(_attributeComposition);
-            attr.CompositionId = modelChild1Id.ID;
-            attr.Composition.ID = modelChild1Id.ID;
-            attr.Composition.SymbolicName = _guidCommon.ToString(); //so we can delete this item once done
-            attr.Composition.RelatedProfileTypeDefinitionId = modelChild1Id.ID;
-            //attr.Composition.RelatedProfileTypeDefinition.ID = modelChild1Id.ID;
-            //attr.Composition.RelatedProfileTypeDefinition.Name = modelChild1New.Name;
-            attr.Name = $"Comp-{modelChild1Id}-{DateTime.Now.Ticks}-{_guidCommon}";
+            var attr = CreateAttributeComposition($"Attribute-Comp-1", modelChild1New.Name, _guidCommon, _lookupRelated, _lookupData);
             modelChild2New.ProfileAttributes.Add(attr);
             var resultChild2Added = await apiClient.ApiExecuteAsync<ResultMessageWithDataModel>(URL_ADD, modelChild2New);
             var modelChild2Id = new IdIntModel() { ID = (int)resultChild2Added.Data };

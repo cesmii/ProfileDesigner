@@ -47,6 +47,10 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
             //get api client
             var apiClient = base.ApiClient;
 
+            //note - base.ApiClient - this will force creation of test user if not yet added, this is needed downstream
+            //if we run this from a pristine db
+            base.PrepareMockData(base.ApiClient);
+
             //create parent profile and entity to extend
             var itemExtend = await InsertMockProfileAndTypeDefinition(TYPE_ID_DEFAULT, _guidCommon);
             var model = CreateItemModel(1, itemExtend.ProfileId, itemExtend, _guidCommon, Guid.NewGuid());
@@ -93,6 +97,10 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
             // ARRANGE
             //get api client
             var apiClient = base.ApiClient;
+
+            //note - base.ApiClient - this will force creation of test user if not yet added, this is needed downstream
+            //if we run this from a pristine db
+            base.PrepareMockData(base.ApiClient);
 
             //create parent profile and entity to extend
             var itemExtend = await InsertMockProfileAndTypeDefinition(TYPE_ID_DEFAULT, _guidCommon);

@@ -132,20 +132,6 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
             //create parent profile and entity to extend
             var itemExtend = await InsertMockProfileAndTypeDefinition(TYPE_ID_DEFAULT, _guidCommon);
             var resultExtend = await MapModelToExtendedItem(apiClient, _guidCommon, itemExtend, model);
-            ////extend item
-            //var resultExtend = await apiClient.ApiGetItemAsync<ProfileTypeDefinitionModel>(URL_EXTEND, 
-            //    new IdIntModel() { ID = itemExtend.ID.Value });
-            ////map data to newly created extend
-            //resultExtend.OpcNodeId = model.OpcNodeId;
-            //resultExtend.Name = model.Name;
-            //resultExtend.BrowseName = model.BrowseName;
-            //resultExtend.SymbolicName = _guidCommon.ToString();  //so we can delete this item once done
-            //resultExtend.Description = model.Description;
-            //resultExtend.Created = model.Created;
-            //resultExtend.MetaTags = model.MetaTags;
-            //resultExtend.Attributes = model.Attributes;
-            //resultExtend.ProfileId = itemExtend.ProfileId;
-            //resultExtend.Profile = new ProfileModel() { ID = itemExtend.ProfileId };
 
             // ACT
             var resultAdd = await apiClient.ApiExecuteAsync<ResultMessageWithDataModel>(URL_ADD, resultExtend);

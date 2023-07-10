@@ -295,7 +295,7 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
                 },
                 AttributeType = attrType,
                 //matching happens on browse name - add unique portion to browse name
-                BrowseName = $"{Guid.NewGuid().ToString()}:::{guidCommon.ToString()}",
+                BrowseName = $"{Guid.NewGuid()}:::{guidCommon}",
                 SymbolicName = guidCommon.ToString(),
                 //DataType = dataType,
                 //DataTypeId = dataType.ID,

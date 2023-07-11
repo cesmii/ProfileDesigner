@@ -5,6 +5,7 @@ import { AppSettings } from '../../utils/appsettings'
 import { generateLogMessageString } from '../../utils/UtilityService'
 import { useLoadingContext } from "../../components/contexts/LoadingContext";
 import { ErrorModal } from '../../services/CommonUtil';
+import { useDeleteImportMessage } from '../../components/ImportMessage';
 
 const CLASS_NAME = "CloudLibraryImporter";
 
@@ -18,7 +19,7 @@ export function CloudLibraryImporter(props) {
     //-------------------------------------------------------------------
     const { loadingProps, setLoadingProps } = useLoadingContext();
     const [_error, setError] = useState({ show: false, message: null, caption: null });
-
+    const [_deleteImportId, setDeleteImportId] = useState(null);
 
     //-------------------------------------------------------------------
     // useEffect - if list of items is changed, then we update local state
@@ -32,6 +33,11 @@ export function CloudLibraryImporter(props) {
         }
 
     }, [props.items]);
+
+    //-------------------------------------------------------------------
+    // Region: hook - trigger delete of message on completion automatically
+    //-------------------------------------------------------------------
+    useDeleteImportMessage({ id: _deleteImportId });
 
     //-------------------------------------------------------------------
     // Region: Execute the import
@@ -59,6 +65,15 @@ export function CloudLibraryImporter(props) {
         });
 
         await axiosInstance.post(url, data).then(result => {
+
+            //if we had a previous import(s) that have completed successfully,
+            //clear the previous completed message to avoid confusion - this triggers server side delete of message
+            loadingProps.importingLogs.forEach((x) => {
+                if (x.status === AppSettings.ImportLogStatus.Completed || x.status === AppSettings.ImportLogStatus.Failed) {
+                    setDeleteImportId(x.id);
+                }
+            });
+
             if (result.status === 200) {
                 //check for success message OR check if some validation failed
                 //remove processing message, show a result message

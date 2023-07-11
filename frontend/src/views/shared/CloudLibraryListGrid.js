@@ -8,11 +8,10 @@ import { useLoadingContext } from "../../components/contexts/LoadingContext";
 import ConfirmationModal from '../../components/ConfirmationModal';
 import ProfileEntityModal from '../modals/ProfileEntityModal';
 import ProfileListGrid from './ProfileListGrid';
+import { CloudLibraryImporter } from './CloudLibraryImporter';
 
 import '../styles/ProfileList.scss';
 import '../../components/styles/InfoPanel.scss';
-
-import { CloudLibraryImporter } from './CloudLibraryImporter';
 
 const CLASS_NAME = "CloudLibraryListGrid";
 

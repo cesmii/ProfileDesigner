@@ -1277,14 +1277,33 @@
         public async Task UpgradeToProfileAsync(ProfileModel profileModel,
             IRepository<ProfileTypeDefinitionAnalytic> ptAnalyticsRepo,
             IRepository<ProfileTypeDefinitionFavorite> ptFavoritesRepo,
-            IRepository<LookupDataTypeRanked> dtRankRepo)
+            IRepository<LookupDataTypeRanked> dtRankRepo,
+            UserToken userToken,
+            bool deleteUpgradedProfiles)
         {
             _repo.StartTransaction();
             var profile = _profileDAL.GetRepo().GetAll().FirstOrDefault(p => p.Namespace == profileModel.Namespace && p.PublishDate == profileModel.PublishDate && p.Version == profileModel.Version);
             var profileRepo = _profileDAL.GetRepo();
             var dataTypeRepo = _dataTypeDAL.GetRepo();
 
-            var existingProfiles = profileRepo.GetAll().Where(p => p.Namespace == profile.Namespace).ToList();
+            _repo.StartTransaction();
+            Profile profile;
+            List<Profile> existingProfiles;
+            if (userToken.TargetTenantId == 0)
+            {
+                profile = _profileDAL.GetRepo().GetAll().FirstOrDefault(p => p.Namespace == profileModel.Namespace && p.PublishDate == profileModel.PublishDate && p.Version == profileModel.Version);
+                existingProfiles = profileRepo.GetAll().Where(p => p.Namespace == profile.Namespace).ToList();
+            }
+            else
+            {
+                profile = _profileDAL.CheckForExisting(profileModel, userToken);
+                if (profile == null)
+                {
+                    return;
+                }
+                var existingProfileModels = _profileDAL.Where(p => p.Namespace == profile.Namespace, userToken).Data;
+                existingProfiles = profileRepo.GetAll().Where(p => p.Namespace == profile.Namespace).ToList().Where(p => existingProfileModels.Any(ep => ep.ID == p.ID)).ToList();
+            }
             existingProfiles.Remove(profile);
             foreach (var existingProfile in existingProfiles)
             {
@@ -1474,7 +1493,13 @@
                 await _repo.SaveChangesAsync();
                 await _repo.CommitTransactionAsync();
             }
-
+            if (deleteUpgradedProfiles)
+            {
+                foreach (var existingProfile in existingProfiles)
+                {
+                    await _profileDAL.DeleteAsync(existingProfile.ID.Value, userToken, false);
+                }
+            }
         }
 
         internal void ChangeProfileNamespace(Profile entity, string oldNamespace)

@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using System.Linq;
 
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Configuration;
 
 using Xunit;
 using Xunit.Abstractions;
@@ -14,17 +13,12 @@ using CESMII.ProfileDesigner.Common.Enums;
 using CESMII.ProfileDesigner.DAL.Models;
 using CESMII.ProfileDesigner.Data.Repositories;
 using CESMII.ProfileDesigner.Data.Entities;
-using CESMII.ProfileDesigner.Data.Contexts;
 using CESMII.ProfileDesigner.Api.Shared.Models;
 
 namespace CESMII.ProfileDesigner.Api.Tests.Int
 {
-    public class ProfileTypeDefControllerIntegrationTest : ControllerTestBase
+    public class ProfileTypeDefControllerIntegrationTest : ProfileTypeDefControllerTestBase
     {
-        private readonly ServiceProvider _serviceProvider;
-        //for some tests, tie together a common guid so we can delete the created items at end of test. 
-        private Guid _guidCommon = Guid.NewGuid();
-
         //note - set user id in authors to 1 which is the test user created in base test code
         private const string _filterPayload = @"{'filters':[{'items':" +
             "[{'selected':false,'visible':true,'name':'My Types','code':null,'lookupType':0,'typeId':null,'displayOrder':0,'isActive':false,'id':1}],'name':'Author','id':1}," +
@@ -48,27 +42,17 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
             "]," +
             "'sortByEnum':3,'query':null,'take':25,'skip':0}";
 
-        private const string _attributeComposition = "{'id':-4,'name':'AAA','dataType':{'id':1,'name':'Composition','customTypeId':null,'customType':null},'attributeType':{'name':'Composition','code':'Composition','lookupType':2,'typeId':2,'displayOrder':9999,'isActive':false,'id':9}," + 
-                                                     "'minValue':null,'maxValue':null,'engUnit':null,'compositionId':-999,'composition':{'id':-999,'name':'Test Comp Add','description':'','browseName':'','relatedProfileTypeDefinitionId':-999,'relatedName':'Test Comp Add'}," + 
-                                                     "'interfaceId':-1,'interface':null,'description':'','displayName':'','typeDefinitionId':-888,'isArray':false,'isRequired':false,'enumValue':null}";
-
         #region API constants
         private const string URL_INIT = "/api/profiletypedefinition/init";
-        private const string URL_EXTEND = "/api/profiletypedefinition/extend";
-        private const string URL_ADD = "/api/profiletypedefinition/add";
         private const string URL_LIBRARY = "/api/profiletypedefinition/library";
-        private const string URL_GETBYID = "/api/profiletypedefinition/getbyid";
         private const string URL_DELETE = "/api/profiletypedefinition/delete";
         private const string URL_DELETE_MANY = "/api/profiletypedefinition/deletemany";
         #endregion
 
         #region data naming constants
         private const string NAME_PATTERN = "CESMII.TypeDef";
-        private const string PARENT_PROFILE_NAMESPACE = "https://CESMII.Profile.Mock.org/";
-        private const string TITLE_PATTERN = "CESMII.ProfileDesigner.Api.Tests.Integration";
         private const string CATEGORY_PATTERN = "category-test";
         private const string VERSION_PATTERN = "1.0.0.";
-        private const int TYPE_ID_DEFAULT = (int)ProfileItemTypeEnum.Class;  
         #endregion
 
         public ProfileTypeDefControllerIntegrationTest(
@@ -76,21 +60,6 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
             ITestOutputHelper output):
             base(factory, output)
         {
-            var services = new ServiceCollection();
-
-            //wire up db context to be used by repos
-            base.InitDBContext(services);
-            
-            // DI - directly inject repo so we can add some test data directly and then have API test against it.
-            // when running search tests. 
-            services.AddSingleton<IConfiguration>(factory.Config);
-            services.AddScoped<IRepository<Profile>, BaseRepo<Profile, ProfileDesignerPgContext>>();
-            services.AddScoped<IRepository<ProfileTypeDefinition>, BaseRepo<ProfileTypeDefinition, ProfileDesignerPgContext>>();
-            services.AddScoped<IRepository<ProfileTypeDefinitionAnalytic>, BaseRepo<ProfileTypeDefinitionAnalytic, ProfileDesignerPgContext>>();
-            //need to get user id of test user when we add profile
-            services.AddScoped<IRepository<User>, BaseRepo<User, ProfileDesignerPgContext>>();
-            
-            _serviceProvider = services.BuildServiceProvider();
         }
 
         protected ProfileTypeDefFilterModel TypeDefFilter
@@ -119,7 +88,7 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
             var apiClient = base.ApiClient;
 
             //create parent profile and entity to extend
-            var itemExtend = await InsertMockProfileAndExtendEntity(_guidCommon);
+            var itemExtend = await InsertMockProfileAndTypeDefinition(TYPE_ID_DEFAULT, _guidCommon);
 
             // ACT
             //extend item
@@ -155,22 +124,8 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
 
             //treat inbound item as the new type def. Once we call extend, we need to apply some updates to it and save. 
             //create parent profile and entity to extend
-            var itemExtend = await InsertMockProfileAndExtendEntity(_guidCommon);
+            var itemExtend = await InsertMockProfileAndTypeDefinition(TYPE_ID_DEFAULT, _guidCommon);
             var resultExtend = await MapModelToExtendedItem(apiClient, _guidCommon, itemExtend, model);
-            ////extend item
-            //var resultExtend = await apiClient.ApiGetItemAsync<ProfileTypeDefinitionModel>(URL_EXTEND, 
-            //    new IdIntModel() { ID = itemExtend.ID.Value });
-            ////map data to newly created extend
-            //resultExtend.OpcNodeId = model.OpcNodeId;
-            //resultExtend.Name = model.Name;
-            //resultExtend.BrowseName = model.BrowseName;
-            //resultExtend.SymbolicName = _guidCommon.ToString();  //so we can delete this item once done
-            //resultExtend.Description = model.Description;
-            //resultExtend.Created = model.Created;
-            //resultExtend.MetaTags = model.MetaTags;
-            //resultExtend.Attributes = model.Attributes;
-            //resultExtend.ProfileId = itemExtend.ProfileId;
-            //resultExtend.Profile = new ProfileModel() { ID = itemExtend.ProfileId };
 
             // ACT
             var resultAdd = await apiClient.ApiExecuteAsync<ResultMessageWithDataModel>(URL_ADD, resultExtend);
@@ -214,7 +169,7 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
             //add an item so that we can delete it
             //have to properly extend a base item, etc. before adding
             //then get the id of newly added item so we can call delete
-            var itemExtend = await InsertMockProfileAndExtendEntity(_guidCommon);
+            var itemExtend = await InsertMockProfileAndTypeDefinition(TYPE_ID_DEFAULT, _guidCommon);
             var resultExtend = await MapModelToExtendedItem(apiClient, _guidCommon, itemExtend, model);
             var resultAdd = await apiClient.ApiExecuteAsync<ResultMessageWithDataModel>(URL_ADD, resultExtend);
             var modelId = new IdIntModel() { ID = (int)resultAdd.Data };
@@ -242,7 +197,7 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
             var apiClient = base.ApiClient;
             //add an item to a parent item and then try to delete parent.
             //we should get a message indicating can't delete parent due to dependency. Must delete child then you can delete parent.
-            var entityParent = await InsertMockProfileAndExtendEntity(_guidCommon);
+            var entityParent = await InsertMockProfileAndTypeDefinition(TYPE_ID_DEFAULT, _guidCommon);
             var modelChildNew = await MapModelToExtendedItem(apiClient, _guidCommon, entityParent, model);
             var resultChild = await apiClient.ApiExecuteAsync<ResultMessageWithDataModel>(URL_ADD, modelChildNew);
             var parentId = new IdIntModel() { ID = entityParent.ID.Value };
@@ -268,22 +223,23 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
             var apiClient = base.ApiClient;
 
             //insert base parent
-            var entityParent = await InsertMockProfileAndExtendEntity(_guidCommon);
+            var entityParent = await InsertMockProfileAndTypeDefinition(TYPE_ID_DEFAULT, _guidCommon);
             //extend base parent as item 1 - use this as composition for item 2
             var modelChild1New = await MapModelToExtendedItem(apiClient, _guidCommon, entityParent, model);
             var resultChild1Added = await apiClient.ApiExecuteAsync<ResultMessageWithDataModel>(URL_ADD, modelChild1New);
             var modelChild1Id = new IdIntModel() { ID = (int)resultChild1Added.Data };
+
+            //wait to call this until we create the dependent records first
+            _compositionRootId = entityParent.ID.Value;  //this will be how we get related compositions in the db
+            //get lookup data to be used when adding attributes
+            _lookupData = GetLookupData(apiClient, _guidCommon).Result;
+            //get related lookup data - variable types list, compositions, interfaces. Using mock data to keep this stateless.
+            _lookupRelated = GetRelatedData(entityParent.ProfileId.Value);
+
             //extend base parent as item 2 - add composition pointing to item 1
             var modelChild2New = await MapModelToExtendedItem(apiClient, _guidCommon, entityParent, model);
             //add composition attribute pointing to child 1
-            var attr = JsonConvert.DeserializeObject<ProfileAttributeModel>(_attributeComposition);
-            attr.CompositionId = modelChild1Id.ID;
-            attr.Composition.ID = modelChild1Id.ID;
-            attr.Composition.SymbolicName = _guidCommon.ToString(); //so we can delete this item once done
-            attr.Composition.RelatedProfileTypeDefinitionId = modelChild1Id.ID;
-            //attr.Composition.RelatedProfileTypeDefinition.ID = modelChild1Id.ID;
-            //attr.Composition.RelatedProfileTypeDefinition.Name = modelChild1New.Name;
-            attr.Name = $"Comp-{modelChild1Id}-{DateTime.Now.Ticks}-{_guidCommon}";
+            var attr = CreateAttributeComposition($"Attribute-Comp-1", modelChild1New.Name, _guidCommon, _lookupRelated, _lookupData);
             modelChild2New.ProfileAttributes.Add(attr);
             var resultChild2Added = await apiClient.ApiExecuteAsync<ResultMessageWithDataModel>(URL_ADD, modelChild2New);
             var modelChild2Id = new IdIntModel() { ID = (int)resultChild2Added.Data };
@@ -311,38 +267,6 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
             await Assert.ThrowsAsync<MyNamespace.ApiException>(
                 async () => await apiClient.ApiGetItemAsync<ProfileTypeDefinitionModel>(URL_GETBYID, modelChild2Id));
         }
-
-        /*
-        [Theory]
-        [InlineData(CATEGORY_PATTERN, 5, 10)]
-        [InlineData(NAME_PATTERN, 3, 7)]
-        [InlineData(TITLE_PATTERN, 8, 16)]
-        [InlineData("zzzz", 5, 10)]
-        [InlineData("yyyy", 5, 10)]
-        [InlineData("xxxx", 0, 1)]
-        public async Task GetLibrary(string query, int expectedCount, int numItemsToAdd)
-        {
-            // ARRANGE
-            //get api client
-            var apiClient = base.ApiClient;
-            //get stock filter
-            var filter = this.TypeDefFilter;
-            //apply specifics to filter
-            filter.Query = query;
-
-            //add some test rows to search against
-            await InsertMockEntitiesForSearchTests(numItemsToAdd, query); //apply query to desc for 1/2 the items
-
-            // ACT
-            //get the list of items
-            //always add the extra where clause after the fact of _guidCommon in case another test is adding stuff in parallel. 
-            var items = (await apiClient.ApiGetManyAsync<ProfileTypeDefinitionModel>(URL_LIBRARY, filter)).Data
-                .Where(x => x.SymbolicName != null && x.SymbolicName.ToLower().Contains(_guidCommon.ToString())).ToList();
-
-            //ASSERT
-            Assert.Equal(expectedCount, items.Count);
-        }
-        */
 
         [Theory]
         [InlineData(TITLE_PATTERN, true, false, null, 16)]
@@ -431,60 +355,6 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
 
         #region Helper Methods
         /// <summary>
-        /// Create a mock parent item. Then set up a newly extended item with that parent item.
-        /// Finally, apply the model values to the newly extended item and return.
-        /// </summary>
-        /// <returns></returns>
-        private async Task<ProfileTypeDefinitionModel> MapModelToExtendedItem(MyNamespace.Client apiClient, Guid guidCommon,
-            ProfileTypeDefinition itemExtend, ProfileTypeDefinitionModel model)
-        {
-            //extend item
-            var result = await apiClient.ApiGetItemAsync<ProfileTypeDefinitionModel>(URL_EXTEND,
-                new IdIntModel() { ID = itemExtend.ID.Value });
-            //map data to newly created extend
-            result.OpcNodeId = model.OpcNodeId;
-            result.Name = model.Name;
-            result.BrowseName = model.BrowseName;
-            result.SymbolicName = guidCommon.ToString();  //so we can delete this item once done
-            result.Description = model.Description;
-            result.Created = model.Created;
-            result.MetaTags = model.MetaTags;
-            result.Attributes = model.Attributes;
-            result.ProfileId = itemExtend.ProfileId;
-            result.Profile = new ProfileModel() { ID = itemExtend.ProfileId };
-            return result;
-        }
-        
-        /// <summary>
-        /// Create a parent profile and an entity to extend from. 
-        /// </summary>
-        /// <param name="guidCommon"></param>
-        /// <returns></returns>
-        private async Task<ProfileTypeDefinition> InsertMockProfileAndExtendEntity(Guid guidCommon)
-        {
-            using (var scope = _serviceProvider.CreateScope())
-            {
-                var repoProfile = scope.ServiceProvider.GetService<IRepository<Profile>>();
-                var repo = scope.ServiceProvider.GetService<IRepository<ProfileTypeDefinition>>();
-                var repoUser = scope.ServiceProvider.GetService<IRepository<User>>();
-                var user = GetTestUser(repoUser);
-
-                //create a parent profile
-                var profile = CreateProfileEntity(guidCommon, user);
-                await repoProfile.AddAsync(profile);
-
-                //create a parent type definition
-                var result = CreateEntity(0, profile.ID, null, guidCommon, Guid.NewGuid(), user);
-                await repo.AddAsync(result);
-
-                //assign profile to type def in case caller needs it.
-                result.Profile = profile;
-                
-                return result;
-            }
-        }
-
-        /// <summary>
         /// Inserts parent profiles, parent type defs and then inserts types defs. 
         /// </summary>
         /// <remarks>Note there is lots of logic to disperse the data. 67% of items assigned to owner, 
@@ -513,24 +383,24 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
 
                 //create a parent type definition - make parents null so it doesn't impact the 
                 //search calls
-                var parentClass = CreateEntity(0, profileMine.ID, null, _guidCommon, Guid.NewGuid(), user);
+                var parentClass = CreateEntity(0, profileMine.ID, null, TYPE_ID_DEFAULT, _guidCommon, Guid.NewGuid(), user);
                 parentClass.AuthorId = null;
                 parentClass.OwnerId = null;
                 parentClass.ExternalAuthor = _guidCommon.ToString();
                 await repo.AddAsync(parentClass);
-                var parentInterface = CreateEntity(0, profileMine.ID, null, _guidCommon, Guid.NewGuid(), user);
+                var parentInterface = CreateEntity(0, profileMine.ID, null, TYPE_ID_DEFAULT, _guidCommon, Guid.NewGuid(), user);
                 parentInterface.ProfileTypeId = (int)ProfileItemTypeEnum.Interface;
                 parentInterface.AuthorId = null;
                 parentInterface.OwnerId = null;
                 parentInterface.ExternalAuthor = _guidCommon.ToString();
                 await repo.AddAsync(parentInterface);
-                var parentEnum = CreateEntity(0, profileMine.ID, null, _guidCommon, Guid.NewGuid(), user);
+                var parentEnum = CreateEntity(0, profileMine.ID, null, TYPE_ID_DEFAULT, _guidCommon, Guid.NewGuid(), user);
                 parentEnum.ProfileTypeId = (int)ProfileItemTypeEnum.Enumeration;
                 parentEnum.AuthorId = null;
                 parentEnum.OwnerId = null;
                 parentEnum.ExternalAuthor = _guidCommon.ToString();
                 await repo.AddAsync(parentEnum);
-                var parentStructure = CreateEntity(0, profileMine.ID, null, _guidCommon, Guid.NewGuid(), user);
+                var parentStructure = CreateEntity(0, profileMine.ID, null, TYPE_ID_DEFAULT, _guidCommon, Guid.NewGuid(), user);
                 parentStructure.ProfileTypeId = (int)ProfileItemTypeEnum.Structure;
                 parentStructure.AuthorId = null;
                 parentStructure.OwnerId = null;
@@ -556,7 +426,7 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
                     //distribute the parent type def assignment
                     var p = i % 5 == 0 ? parentInterface : i % 4 == 0 ? parentClass : i % 3 == 0 ? parentStructure : parentEnum;
                     //set owner to 2/3 of the items
-                    var entity = CreateEntity(i, i % 3 == 0 ? profileCore.ID : profileMine.ID, p, _guidCommon, uuid, user);
+                    var entity = CreateEntity(i, i % 3 == 0 ? profileCore.ID : profileMine.ID, p, p.ProfileTypeId.Value, _guidCommon, uuid, user);
                     int? authorId = i % 3 == 0 ? null : user.ID;
                     entity.AuthorId = authorId;
                     entity.OwnerId = authorId;
@@ -595,196 +465,6 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
                 //query
                 .Where(x => string.IsNullOrEmpty(query) || x.Description.ToLower().Contains(query.ToLower()))
                 .Count();
-        }
-
-
-        private static ProfileTypeDefinitionModel CreateItemModel(int i, int? profileId, ProfileTypeDefinition parent, Guid guidCommon, Guid uuid, string cloudLibraryId = null)
-        {
-            var entity = CreateEntity(i, profileId, parent, guidCommon, uuid, null);
-            return MapToModel(entity);
-        }
-
-        private static ProfileTypeDefinitionModel MapToModel(ProfileTypeDefinition entity)
-        {
-            var tags = string.IsNullOrEmpty(entity.MetaTags) ? new List<string>() :
-                    Newtonsoft.Json.JsonConvert.DeserializeObject<List<MetaTag>>(entity.MetaTags).Select(s => s.Name.Trim()).ToList();
-
-            return new ProfileTypeDefinitionModel()
-            {
-                ID = entity.ID,
-                OpcNodeId = entity.OpcNodeId,
-                Name = entity.Name,
-                ProfileId = entity.ProfileId != 0 ? entity.ProfileId : null,
-                //Profile = MapToModelProfile(entity.Profile),
-                BrowseName = entity.BrowseName,
-                SymbolicName = entity.SymbolicName,
-                Description = entity.Description,
-                TypeId = entity.ProfileTypeId,
-                Type = entity.ProfileType != null ?
-                        new LookupItemModel { ID = entity.ProfileType.ID, Name = entity.ProfileType.Name, TypeId = entity.ProfileType.ID }
-                        : null,
-                AuthorId = entity.AuthorId ?? null,
-                //Author = MapToModelSimpleUser(entity.Author),
-                ExternalAuthor = entity.ExternalAuthor,
-                DocumentUrl = entity.DocumentUrl,
-                IsAbstract = entity.IsAbstract,
-                Created = entity.Created,
-                Updated = entity.Updated,
-                MetaTags = tags,
-                MetaTagsConcatenated = string.IsNullOrEmpty(entity.MetaTags) ? "" :
-                    string.Join(", ", tags),
-                IsActive = entity.IsActive,
-                IsFavorite = entity.Favorite != null,
-                //calculated value which gives more emphasis on extending an item
-                //PopularityIndex = MapToModelPopularityIndex(entity)
-            };
-        }
-
-        private static ProfileTypeDefinitionSimpleModel MapToModelSimple(ProfileTypeDefinition entity)
-        {
-            return new ProfileTypeDefinitionSimpleModel()
-            {
-                ID = entity.ID,
-                OpcNodeId = entity.OpcNodeId,
-                Name = entity.Name,
-                ProfileId = entity.ProfileId != 0 ? entity.ProfileId : null,
-                //Profile = MapToModelProfile(entity.Profile),
-                BrowseName = entity.BrowseName,
-                SymbolicName = entity.SymbolicName,
-                Description = entity.Description,
-                Type = entity.ProfileType != null ?
-                        new LookupItemModel { ID = entity.ProfileType.ID, Name = entity.ProfileType.Name, TypeId = entity.ProfileType.ID }
-                        : null,
-                Author = new UserSimpleModel() {ID = entity.AuthorId } ,
-                IsAbstract = entity.IsAbstract,
-                MetaTags = string.IsNullOrEmpty(entity.MetaTags) ? new List<string>() :
-                    Newtonsoft.Json.JsonConvert.DeserializeObject<List<MetaTag>>(entity.MetaTags).Select(s => s.Name.Trim()).ToList(),
-            };
-        }
-
-        /// <summary>
-        /// This is used to create a row directly into DB. Bypasses everything except baseRepo
-        /// </summary>
-        /// <param name="i"></param>
-        /// <param name="uuid"></param>
-        /// <param name="creator"></param>
-        /// <param name="cloudLibraryId"></param>
-        /// <returns></returns>
-        private static ProfileTypeDefinition CreateEntity(int i, int? profileId, ProfileTypeDefinition parent, Guid guidCommon, Guid uuid, User user)
-        {
-            var parentName = parent == null ? "TypeDef" : $"{parent.Name}::Extend";
-            var dt = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc);
-            var tags = new List<MetaTag>() { 
-                new MetaTag() { Name = (i % 4 == 0 ? "abcd" : (i % 3 == 0) ? "efgh" : (i % 2 == 0) ? "ijkl" : "mnop") }
-            };
-            return new ProfileTypeDefinition()
-            {
-                OpcNodeId = uuid.ToString(),
-                Name = $"{parentName}-{i}",
-                ProfileId = profileId,
-                ParentId = parent?.ID,  //for some tests, we start with null parent and assign during test
-                BrowseName = $"browse-{i}-{guidCommon}-{uuid}",
-                SymbolicName = guidCommon.ToString(),
-                Description = (i % 3 == 0 ? "Unique description for 3" : (i % 2 == 0) ? "Unique description for 2" : "Common description"),
-                ProfileTypeId = parent == null ? TYPE_ID_DEFAULT : parent?.ProfileTypeId,
-                IsAbstract = i % 9 == 0,
-                Created = dt,
-                Updated = dt,
-                AuthorId = user?.ID,
-                OwnerId = user?.ID,
-                CreatedById = user == null ? 0 : user.ID.Value,
-                UpdatedById = user == null ? 0 : user.ID.Value,
-                MetaTags = Newtonsoft.Json.JsonConvert.SerializeObject(tags),
-                IsActive = true,
-            };
-        }
-
-        /// <summary>
-        /// This is used to create a row directly into DB. Bypasses everything except baseRepo
-        /// </summary>
-        private static Profile CreateProfileEntity(Guid guidCommon, User user)
-        {
-            var dt = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc);
-            return new Profile()
-            {
-                Namespace = $"{PARENT_PROFILE_NAMESPACE}/{guidCommon}",
-                Title = TITLE_PATTERN,
-                Version = "1.0.0.0",
-                CategoryName = "TEST",
-                PublishDate = dt,
-                AuthorId = user?.ID,
-                OwnerId = user != null ? user.ID : null,
-                Keywords = new string[] { guidCommon.ToString() }
-            };
-        }
-
-
-        /// <summary>
-        /// Delete profiles created during each test
-        /// User <_guidCommon> as way to find items to delete 
-        /// </summary>
-        /// <returns></returns>
-        private async Task CleanupEntities()
-        {
-            using (var scope = _serviceProvider.CreateScope())
-            {
-                //type defs
-                var repo = scope.ServiceProvider.GetService<IRepository<ProfileTypeDefinition>>();
-
-                //var repoUser = scope.ServiceProvider.GetService<IRepository<User>>();
-                //var user = GetTestUser(repoUser);
-                //var itemsAll = repo.FindByCondition(x => x.OwnerId.Equals(user.ID)).ToList();
-
-                //order by to account for some fk delete issues
-                var items = repo.FindByCondition(x =>
-                    x.SymbolicName != null && x.SymbolicName.ToLower().Contains(_guidCommon.ToString()))
-                    //.OrderBy(x => x.ParentId.HasValue)
-                    .OrderByDescending(x => !x.ParentId.HasValue ? 0 : x.ParentId.Value)
-                    .ToList();
-
-                //get items created server side that are related to items test created - intermediate objs
-                var itemsIntermediate = repo.FindByCondition(x =>
-                    string.IsNullOrEmpty(x.SymbolicName) && ((ProfileItemTypeEnum)x.ProfileTypeId).Equals(ProfileItemTypeEnum.Object) && (
-                    x.ParentId.HasValue && items.Select(y => y.ID.Value).Contains(x.ParentId.Value)))
-                    .ToList();
-
-                //type def analytics
-                var repoAnalytic = scope.ServiceProvider.GetService<IRepository<ProfileTypeDefinitionAnalytic>>();
-                //order to account for some fk delete issues
-                var itemsAnalytic = repoAnalytic.FindByCondition(x =>
-                    items.Select(y => y.ID.Value).Contains(x.ProfileTypeDefinitionId))
-                    .ToList();
-                foreach (var a in itemsAnalytic)
-                {
-                    await repoAnalytic.DeleteAsync(a);
-                }
-                await repoAnalytic.SaveChangesAsync();
-
-                //intermdiate items
-                foreach (var item in itemsIntermediate)
-                {
-                    await repo.DeleteAsync(item);
-                }
-                await repo.SaveChangesAsync();
-
-                //type defs
-                foreach (var item in items)
-                {
-                    await repo.DeleteAsync(item);
-                }
-                await repo.SaveChangesAsync();
-
-                //parent profiles
-                var repoProfile = scope.ServiceProvider.GetService<IRepository<Profile>>();
-                var itemsProfile = repoProfile.FindByCondition(x =>
-                    items.Select(y => y.ProfileId.Value).Contains(x.ID.Value))
-                    .ToList();
-                foreach (var item in itemsProfile)
-                { 
-                    await repoProfile.DeleteAsync(item);
-                }
-                await repoProfile.SaveChangesAsync();
-            }
         }
         #endregion
 

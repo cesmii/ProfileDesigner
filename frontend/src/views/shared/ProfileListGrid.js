@@ -61,12 +61,6 @@ function ProfileListGrid(props) {
         setProfilePageSize(pageSize);
     };
 
-    // Delete ONE - from row
-    const onDeleteItemClick = (item) => {
-        console.log(generateLogMessageString(`onDeleteItemClick`, CLASS_NAME));
-        if (props.onDeleteItemClick) props.onDeleteItemClick(item);
-    };
-
     const onEdit = (item) => {
         console.log(generateLogMessageString(`onEdit`, CLASS_NAME));
         //bubble up to parent
@@ -345,7 +339,7 @@ function ProfileListGrid(props) {
         const mainBody = _dataRows.all.map((item) => {
             return (<ProfileItemRow key={item.id} item={item} activeAccount={_activeAccount}
                 showActions={true} cssClass={`profile-list-item ${props.rowCssClass ?? ''}`} selectMode={props.selectMode}
-                onEditCallback={onEdit} onDeleteCallback={onDeleteItemClick} onRowSelect={onRowSelect} onRowChanged={onRowChanged}
+                onEditCallback={onEdit} onRowSelect={onRowSelect} onRowChanged={onRowChanged}
                 onImportCallback={onImport}
                 selectedItems={props.selectedItems} navigateModal={props.navigateModal}
             />)

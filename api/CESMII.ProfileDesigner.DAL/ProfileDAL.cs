@@ -89,7 +89,18 @@
         /// <param name="id">Id of the record to be deleted</param>
         /// <param name="userId">owner of the record. If set to -1 AuthorID is ignored (force delete)</param>
         /// <returns></returns>
-        public async Task<int?> DeleteAsync(int id, UserToken userToken)
+        public Task<int?> DeleteAsync(int id, UserToken userToken)
+        {
+            return DeleteAsync(id, userToken, true);
+        }
+
+        /// <summary>
+        /// Deletes a record from the Profile Cache
+        /// </summary>
+        /// <param name="id">Id of the record to be deleted</param>
+        /// <param name="userId">owner of the record. If set to -1 AuthorID is ignored (force delete)</param>
+        /// <returns></returns>
+        public async Task<int?> DeleteAsync(int id, UserToken userToken, bool saveChanges)
         {
             //TBD - delete needs to add some include statements to pull back related children.
             //do filter on author id so that the user can only delete their stuff
@@ -100,7 +111,10 @@
             //complex delete with many cascading implications, call stored proc which deletes all dependent objects 
             // in proper order, etc.
             await _repo.ExecStoredProcedureAsync("call public.sp_nodeset_delete({0})", _configUtil.ProfilesSettings.CommandTimeout, id.ToString());
-            await _repo.SaveChangesAsync(); // SP does not get executed until SaveChanges
+            if (saveChanges)
+            {
+                await _repo.SaveChangesAsync(); // SP does not get executed until SaveChanges
+            }
             return 1;
         }
 

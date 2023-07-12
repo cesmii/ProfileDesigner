@@ -161,7 +161,6 @@ namespace CESMII.ProfileDesigner.OpcUa
 
                 var profilesAndNodeSets = new List<ProfileModelAndNodeSet>();
 
-                //This area will be put in an interface that can be used by the Importer (after Friday Presentation)
                 try
                 {
                     //_logger.LogTrace($"Timestamp||ImportId:{logId}||Getting standard nodesets: {sw.Elapsed}");
@@ -179,15 +178,7 @@ namespace CESMII.ProfileDesigner.OpcUa
                     {
                         foreach (var tmodel in cachedNodeSetFiles.Models)
                         {
-                            string cloudLibId = null;
-                            if (nodeSetXmlList.Count == 1 && nodeSetXmlList[0].CloudLibraryId != null)
-                            {
-                                if (tmodel.RequestedForThisImport)
-                                {
-                                    cloudLibId = nodeSetXmlList[0].CloudLibraryId;
-                                }
-                            }
-                            var profile = FindOrCreateProfileForNodeSet(tmodel, cloudLibId, _profileDal, userToken, logId, sw, allowMultiVersion);
+                            var profile = FindOrCreateProfileForNodeSet(tmodel, _profileDal, userToken, logId, sw, allowMultiVersion);
 
                             profilesAndNodeSets.Add(new ProfileModelAndNodeSet
                             {
@@ -278,11 +269,13 @@ namespace CESMII.ProfileDesigner.OpcUa
                                         { ProfileId = profileAndNodeSet.Profile.ID.Value, Key = profileAndNodeSet.Profile.ToString(), Warnings = logList });
                                     }
                                 }
-                                if (upgradePreviousVersions)
+                                if (upgradePreviousVersions && !string.IsNullOrEmpty(profileAndNodeSet.Profile.CloudLibraryId))
                                 {
-                                    await UpgradeToProfileAsync(profileAndNodeSet.Profile, userToken);
+                                    // Only upgrade profiles that come from the cloud library
+                                    await UpgradeToProfileAsync(profileAndNodeSet.Profile, userToken, userToken.TargetTenantId != 0);
                                 }
                                 profileAndNodeSet.NodeSetModel.NewInThisImport = false;
+                                // Ensure we use a new OPC context for each import
                                 break;
                             }
                         }
@@ -324,12 +317,12 @@ namespace CESMII.ProfileDesigner.OpcUa
             return nodesetWarnings;
         }
 
-        private Task UpgradeToProfileAsync(ProfileModel profile, UserToken userToken)
+        private Task UpgradeToProfileAsync(ProfileModel profile, UserToken userToken, bool deleteUpgradedProfiles)
         {
-            return (_dal as ProfileTypeDefinitionDAL).UpgradeToProfileAsync(profile, _ptAnalyticsRepo, _ptFavoritesRepo, _dtRankRepo);
+            return (_dal as ProfileTypeDefinitionDAL).UpgradeToProfileAsync(profile, _ptAnalyticsRepo, _ptFavoritesRepo, _dtRankRepo, userToken, deleteUpgradedProfiles);
         }
 
-        private ProfileModel FindOrCreateProfileForNodeSet(ModelValue tModel, string cloudLibId, IDal<Profile, ProfileModel> dalProfile, UserToken userToken, int logId, Stopwatch sw, bool allowMultiVersion)
+        private ProfileModel FindOrCreateProfileForNodeSet(ModelValue tModel, IDal<Profile, ProfileModel> dalProfile, UserToken userToken, int logId, Stopwatch sw, bool allowMultiVersion)
         {
             var nsModel = tModel.NameVersion.CCacheId as NodeSetFileModel;
             _logger.LogTrace($"Timestamp||ImportId:{logId}||Loading nodeset {tModel.NameVersion.ModelUri}: {sw.Elapsed}");
@@ -344,28 +337,20 @@ namespace CESMII.ProfileDesigner.OpcUa
                     userToken, verbose: false)?.Data?.OrderByDescending(p => p.Version).FirstOrDefault();
                 if (otherProfileVersion != null && !allowMultiVersion)
                 {
-                    throw new Exception($"Profile {tModel.NameVersion.ModelUri} already has version {otherProfileVersion.Version} {otherProfileVersion.PublishDate}. Can not import {tModel.NameVersion.ModelVersion} {tModel.NameVersion.PublicationDate}");
+                    throw new Exception($"Newer version {tModel.NameVersion.ModelVersion} {tModel.NameVersion.PublicationDate} of Profile {tModel.NameVersion.ModelUri} is required. You currently have version {otherProfileVersion.Version} {otherProfileVersion.PublishDate} installed. Please uninstall before importing the newer version or a nodeset depending on the newer version. ");
                 }
-                CloudLibProfileModel cloudLibNodeSet = null;
-                if (cloudLibId != null)
-                {
-                    cloudLibNodeSet = _cloudLibDal.GetById(cloudLibId).Result;
-                }
+                var cloudLibNodeSet = _cloudLibDal.GetAsync(tModel.NameVersion.ModelUri, tModel.NameVersion.PublicationDate, true).Result;
                 if (cloudLibNodeSet == null)
                 {
-                    cloudLibNodeSet = _cloudLibDal.GetAsync(tModel.NameVersion.ModelUri, tModel.NameVersion.PublicationDate, true).Result;
-                    if (cloudLibNodeSet == null)
+                    // No exact match: use a newer one to prevent editing of older nodesets
+                    cloudLibNodeSet = _cloudLibDal.GetAsync(tModel.NameVersion.ModelUri, tModel.NameVersion.PublicationDate, false).Result;
+                    if (cloudLibNodeSet != null)
                     {
-                        // No exact match: use a newer one to prevent editing of older nodesets
-                        cloudLibNodeSet = _cloudLibDal.GetAsync(tModel.NameVersion.ModelUri, tModel.NameVersion.PublicationDate, false).Result;
-                        if (cloudLibNodeSet != null)
-                        {
-                            _logger.LogWarning($"Did not find exact match for {tModel.NameVersion}. Using standard nodeset with publication date {cloudLibNodeSet?.PublishDate} instead.");
-                        }
-                        else
-                        {
-                            _logger.LogWarning($"Did not find newer version for {tModel.NameVersion}. Not treating as standard node set to allow editing of future versions.");
-                        }
+                        _logger.LogWarning($"Did not find exact match for {tModel.NameVersion}. Using standard nodeset with publication date {cloudLibNodeSet?.PublishDate} instead.");
+                    }
+                    else
+                    {
+                        _logger.LogWarning($"Did not find newer version for {tModel.NameVersion}. Not treating as standard node set to allow editing of future versions.");
                     }
                 }
 
@@ -410,11 +395,12 @@ namespace CESMII.ProfileDesigner.OpcUa
             try
             {
                 _cloudLibResolver.OnDownloadNodeSet += callback;
-                //_cloudLibResolver.FilterPendingNodeSet = (n =>
-                //    {
-                //        return n.Metadata?.AdditionalProperties?.Any(p => p.Name == ICloudLibDal<CloudLibProfileModel>.strCESMIIUserInfo && p.Value.EndsWith($"PD{userToken.UserId}"))??false;
-                //    }
-                //);
+                _cloudLibResolver.FilterPendingNodeSet = (n =>
+                    {
+                        return n.Metadata.UserId == "" 
+                        ||(n.Metadata?.AdditionalProperties?.Any(p => p.Name == ICloudLibDal<CloudLibProfileModel>.strCESMIIUserInfo && p.Value.EndsWith($"PD{userToken.UserId}")) ?? false);
+                    }
+                );
                 var cacheManager = new UANodeSetCacheManager(myNodeSetCache, _cloudLibResolver);
                 resultSet = cacheManager.ImportNodeSets(nodeSetXmlStringList, false, userToken);
             }
@@ -503,8 +489,8 @@ namespace CESMII.ProfileDesigner.OpcUa
             if (profile.XmlSchemaUri == null && nodeSetModel.XmlSchemaUri != null)
             {
                 profile.XmlSchemaUri = nodeSetModel.XmlSchemaUri;
-                await _profileDal.UpsertAsync(profile, userToken, true);
             }
+            await _profileDal.UpsertAsync(profile, userToken, true);
 
             var sw = Stopwatch.StartNew();
             Logger.LogTrace($"Commiting transaction");
@@ -541,12 +527,16 @@ namespace CESMII.ProfileDesigner.OpcUa
 
         public (UANodeSet nodeSet, string xml, NodeSetModel model, Dictionary<string, NodeSetModel> requiredModels) ExportInternal(ProfileModel profileModel, UserToken userToken, UserToken authorId, bool bForceReexport)
         {
-            if (!string.IsNullOrEmpty(profileModel.CloudLibraryId) && !bForceReexport)
+            if (
+                (      !string.IsNullOrEmpty(profileModel.CloudLibraryId)
+                    || !(_dal as ProfileTypeDefinitionDAL).IsProfileModified(profileModel.ID.Value, userToken)
+                )
+                && !bForceReexport)
             {
                 // Use the original XML for profiles imported from the cloud library (if available)
                 var nodeSetFile = _nodeSetFileDal.Where(nsf => nsf.Profiles.Any(p => p.ID == profileModel.ID), userToken, verbose: true).Data?.FirstOrDefault();
                 var nodeSetXml = nodeSetFile?.FileCache;
-                if (nodeSetXml != null)
+                if (!string.IsNullOrEmpty(nodeSetXml))
                 {
                     using (MemoryStream ms = new(Encoding.UTF8.GetBytes(nodeSetXml)))
                     {
@@ -643,6 +633,7 @@ namespace CESMII.ProfileDesigner.OpcUa
                     
                 }
 #else
+                model.UpdateNamespaceMetaData(nodeSetModels[Namespaces.OpcUa]);
                 model.UpdateIndices();
 #endif
                 exportedNodeSet = UANodeSetModelExporter.ExportNodeSet(model, nodeSetModels, this.Aliases);

@@ -737,7 +737,18 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 }
             }
 
-            return await Import(importModels);
+            //kick off background process, logid is returned immediately so front end can track progress...
+            var userInfo = new ImportUserModel() { User = LocalUser, UserToken = base.DalUserToken };
+            var logId = await _svcImport.ImportOpcUaNodeSetAsync(importModels, userInfo, allowMultiVersion: true, upgradePreviousVersions: true);
+
+            return Ok(
+                new ResultMessageWithDataModel()
+                {
+                    IsSuccess = true,
+                    Message = "Import is processing...",
+                    Data = logId
+                }
+            );
         }
 
         /// <summary>
@@ -1278,61 +1289,6 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             return Task.FromResult<IActionResult>(Ok(new ResultMessageModel() { IsSuccess = true, Message = "Item was deleted." }));
         }
         */
-
-        /// <summary>
-        /// Re-purposed import items downloaded from Cloud Library
-        /// </summary>
-        /// <remarks>Non-standard nodesets are associated with the user doing the uploading. 
-        /// Standard OPC UA nodesets will go into the library of nodesets visible to all.
-        /// This method formerly named ImportMyOpcUaNodeSet.
-        /// </remarks>
-        /// <param name="nodeSetXmlList"></param>
-        /// <returns>Return result model with an isSuccess indicator.</returns>
-        //[HttpPost, Route("Import")]
-        //[ProducesResponseType(200, Type = typeof(ResultMessageWithDataModel))]
-        private async Task<IActionResult> Import([FromBody] List<ImportOPCModel> model)
-        {
-            if (!ModelState.IsValid)
-            {
-                var errors = ExtractModelStateErrors();
-                _logger.LogCritical($"ProfileController|Import|User Id:{LocalUser.ID}, Errors: {errors}");
-                
-                return Ok(
-                    new ResultMessageWithDataModel()
-                    {
-                        IsSuccess = false,
-                        Message = "The nodeset data is invalid."
-                    });
-            }
-
-            if (model == null || model.Count == 0)
-            {
-                _logger.LogWarning($"ProfileController|Import|No nodeset files to import. User Id:{LocalUser.ID}.");
-                return Ok(
-                    new ResultMessageWithDataModel()
-                    {
-                        IsSuccess = false,
-                        Message = "No nodesets to import."
-                    }
-                );
-            }
-
-            _logger.LogInformation($"ProfileController|ImportMyOpcUaProfile|Importing {model.Count} nodeset files. User Id:{LocalUser.ID}.");
-
-            //pass in the author id as current user
-            //kick off background process, logid is returned immediately so front end can track progress...
-            var userInfo = new ImportUserModel() { User = LocalUser, UserToken = base.DalUserToken };
-            var logId = await _svcImport.ImportOpcUaNodeSetAsync(model, userInfo, allowMultiVersion: false, upgradePreviousVersions: false);
-
-            return Ok(
-                new ResultMessageWithDataModel()
-                {
-                    IsSuccess = true,
-                    Message = "Import is processing...",
-                    Data = logId
-                }
-            );
-        }
 
         /*MOVED TO ImportLogController
         /// <summary>

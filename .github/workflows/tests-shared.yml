@@ -36,13 +36,13 @@ jobs:
         run: |
           echo "TEST_LABEL=" >> $GITHUB_ENV
           echo "TEST_FILTER=" >> $GITHUB_ENV
-        if: ${{inputs.TEST_FILTER}} == ''
+        if: ${{inputs.TEST_FILTER}} == ""
 
       - name: Dynamically set test filter based on filter val
         run: |
           echo "TEST_LABEL=Filter=${{inputs.TEST_FILTER}}" >> $GITHUB_ENV
           echo "TEST_FILTER=--filter ${{inputs.TEST_FILTER}}" >> $GITHUB_ENV
-        if: ${{inputs.TEST_FILTER}} != ''
+        if: ${{inputs.TEST_FILTER}} != ""
       
       - uses: actions/checkout@v3
         with:

@@ -290,6 +290,10 @@
                     if (source == null)
                     {
                         entity.NodeSetFiles.RemoveAt(i);
+                        if (current.ID != null)
+                        {
+                            _nodeSetFileDAL.DeleteAsync(current.ID.Value, userToken).Wait();
+                        }
                     }
                     else
                     {

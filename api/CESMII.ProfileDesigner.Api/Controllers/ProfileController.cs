@@ -1111,7 +1111,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 return new ResultMessageWithDataModel()
                 {
                     IsSuccess = false,
-                    Message = "There is already a profile with this namespace and publish date combination. Enter a different namespace or publish date.",
+                    Message = "There is already a profile with this namespace and publication date combination. Enter a different namespace or publish date.",
                     Data = null
                 };
             }
@@ -1145,10 +1145,25 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 };
             }
 
+            if (item.Namespace != model.Namespace
+                || item.PublishDate != model.PublishDate
+                || item.Version != model.Version)
+            {
+                // Remove the imported XML so we don't reexport it or use it for imports
+                model.NodeSetFiles = new List<NodeSetFileModel>();
+            }
+
+            _dal.StartTransaction();
+
             var result = await _dal.UpdateAsync(model, base.DalUserToken);
             if (result < 0)
             {
                 _logger.LogWarning($"ProfileController|Update|Could not update profile item. Invalid id:{model.ID}.");
+                try
+                {
+                    _dal.RollbackTransaction();
+                }
+                catch { }
                 return new ResultMessageWithDataModel()
                 {
                     IsSuccess = false,
@@ -1156,6 +1171,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                     Data = null
                 };
             }
+            await _dal.CommitTransactionAsync();
             _logger.LogInformation($"ProfileController|Update|Updated item. Id:{model.ID}.");
 
             //TBD - come back to this. Race condition. timing error - issue with update not completing and then calling get

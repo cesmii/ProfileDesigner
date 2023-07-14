@@ -8,11 +8,11 @@ on:
       BUILD_TARGET:
         required: true
         type: string
-	  #optional test filter (ie. filter on smoke test trait)
-	  TEST_FILTER: 
+      #optional test filter (ie. filter on smoke test trait)
+      TEST_FILTER: 
         required: true
         type: string
-	  #'--filter SmokeTest="true"'
+      #'--filter SmokeTest="true"'
 
 env:
   # set this to the path to your solution file, defaults to the repository root (this is the folder in the git repo)
@@ -66,8 +66,8 @@ jobs:
         run: dotnet restore ${{env.SOLUTION_FILE}}
         working-directory: ${{env.SOLUTION_DIRECTORY}}
       - name: Build (${{env.SOLUTION_FILE}})
-        run: dotnet build ${{env.SOLUTION_FILE}} --configuration Staging --no-restore
+        run: dotnet build ${{env.SOLUTION_FILE}} --configuration ${{inputs.BUILD_TARGET}} --no-restore
         working-directory: ${{env.SOLUTION_DIRECTORY}}
-      - name: Test (${{env.SOLUTION_FILE}}), Filter: ${{inputs.TEST_FILTER}}
+      - name: Test (${{env.SOLUTION_FILE}}), Filter ${{inputs.TEST_FILTER}}
         run: dotnet test ${{env.SOLUTION_FILE}} ${{env.TEST_FILTER}} ${{inputs.TEST_FILTER}} --configuration ${{ inputs.BUILD_TARGET }} --no-build --verbosity normal -l:"console;verbosity=normal"
         working-directory: ${{env.SOLUTION_DIRECTORY}}

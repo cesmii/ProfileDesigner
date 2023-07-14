@@ -7,7 +7,6 @@ on:
   # Trigger the workflow on push
   push:
     branches:
-      - feature/smoke-tests
       - develop
       - main
   pull_request:

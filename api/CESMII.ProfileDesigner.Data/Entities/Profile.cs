@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations.Schema;
 
-    public class Profile : AbstractEntityWithTenant
+    public class Profile : ProfileDesignerAbstractEntityWithTenant
     {
         [Column(name: "namespace")]
         public string Namespace { get; set; }

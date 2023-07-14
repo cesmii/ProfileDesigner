@@ -1,0 +1,25 @@
+# This workflow will build and test a .NET 6 web API.
+# The tests will be a subset of tests which run quickly while still getting good code coverage.
+name: Smoke Test|API|Profile Designer
+on:
+  #manually trigger deploy
+  workflow_dispatch:
+  # Trigger the workflow on push
+  push:
+    branches:
+      - feature/smoke-tests
+      - develop
+      - main
+  pull_request:
+    branches:
+      - develop
+      - main
+
+  
+jobs:
+  #call a common workflow which checks out, builds, publishes, zips, deploys to AWS Elastic beanstalk
+  call-workflow-publish-common-aws:
+    uses: ./.github/workflows/test-shared.yml
+    with:
+      TEST_FILTER: '--filter SmokeTest="true"'
+      BUILD_TARGET: 'Staging'

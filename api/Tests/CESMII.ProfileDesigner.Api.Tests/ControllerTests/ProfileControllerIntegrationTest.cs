@@ -16,7 +16,7 @@ using CESMII.ProfileDesigner.Data.Entities;
 using CESMII.ProfileDesigner.Data.Contexts;
 using CESMII.ProfileDesigner.Api.Shared.Models;
 
-namespace CESMII.ProfileDesigner.Api.Tests.Int
+namespace CESMII.ProfileDesigner.Api.Tests.Int.Controllers
 {
     public class ProfileControllerIntegrationTest : ControllerTestBase
     {
@@ -66,6 +66,7 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
 
 #pragma warning disable xUnit1026  // Stop warnings related to parameters not used in test cases. 
 
+        [Trait("SmokeTest", "true")]
         [Theory]
         [InlineData(NAMESPACE_CLOUD_PATTERN, 8, 8, 2)]
         [InlineData(NAMESPACE_PATTERN, 4, 6, 4)]
@@ -110,6 +111,7 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
+        [Trait("SmokeTest", "true")]
         [Theory]
         [MemberData(nameof(ProfileControllerTestData))]
         public async Task AddItem_GetItem(ProfileModel model)

@@ -12,7 +12,7 @@ using CESMII.ProfileDesigner.Api.Shared.Models;
 
 namespace CESMII.ProfileDesigner.Api.Tests.Int.Controllers
 {
-    [Trait("SmokeTest", "true")]
+    [Trait("SmokeTest", "true")] //trait can be applied at test or test class level
     public class TypeDefControllerAttributeIntegrationTest : ProfileTypeDefControllerTestBase
     {
         #region API constants

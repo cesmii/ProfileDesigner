@@ -17,7 +17,7 @@ using CESMII.ProfileDesigner.Data.Entities;
 using CESMII.ProfileDesigner.Data.Contexts;
 using CESMII.ProfileDesigner.Api.Shared.Models;
 
-namespace CESMII.ProfileDesigner.Api.Tests.Int
+namespace CESMII.ProfileDesigner.Api.Tests.Int.Controllers
 {
     public class ProfileTypeDefControllerTestBase : ControllerTestBase
     {

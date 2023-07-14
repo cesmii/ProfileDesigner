@@ -18,6 +18,7 @@ using CESMII.ProfileDesigner.Api.Shared.Models;
 
 namespace CESMII.ProfileDesigner.Api.Tests.Int.Controllers
 {
+    [Trait("SmokeTest", "true")] //trait can be applied at test or test class level
     public class ProfileControllerIntegrationTest : ControllerTestBase
     {
         private readonly ServiceProvider _serviceProvider;
@@ -66,7 +67,6 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int.Controllers
 
 #pragma warning disable xUnit1026  // Stop warnings related to parameters not used in test cases. 
 
-        [Trait("SmokeTest", "true")]
         [Theory]
         [InlineData(NAMESPACE_CLOUD_PATTERN, 8, 8, 2)]
         [InlineData(NAMESPACE_PATTERN, 4, 6, 4)]
@@ -111,8 +111,6 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int.Controllers
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
-        [Trait("SmokeTest", "true")]
-        [Trait("IntegrationTest", "true")]
         [Theory]
         [MemberData(nameof(ProfileControllerTestData))]
         public async Task AddItem_GetItem(ProfileModel model)

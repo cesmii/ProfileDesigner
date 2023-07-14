@@ -71,17 +71,17 @@ jobs:
         
         #dynamically set up env variables based on inputs
       - name: Dynamically set test filter based on no filter
-        run: 
+        run: |
           echo "TEST_LABEL=" >> $GITHUB_ENV
           echo "TEST_FILTER=" >> $GITHUB_ENV
         if: ${{inputs.TEST_FILTER}} == ''
 
       - name: Dynamically set test filter based on filter val
-        run: 
-          echo "TEST_LABEL=, Filter = ${{inputs.TEST_FILTER}}" >> $GITHUB_ENV
+        run: |
+          echo "TEST_LABEL=Filter=${{inputs.TEST_FILTER}}" >> $GITHUB_ENV
           echo "TEST_FILTER=--filter ${{inputs.TEST_FILTER}}" >> $GITHUB_ENV
         if: ${{inputs.TEST_FILTER}} != ''
         
-      - name: Test (${{env.SOLUTION_FILE}})${{env.TEST_LABEL}}
+      - name: Test (${{env.SOLUTION_FILE}}) ${{env.TEST_LABEL}}
         run: dotnet test ${{env.SOLUTION_FILE}} ${{env.TEST_FILTER}} --configuration ${{ inputs.BUILD_TARGET }} --no-build --verbosity normal -l:"console;verbosity=normal"
         working-directory: ${{env.SOLUTION_DIRECTORY}}

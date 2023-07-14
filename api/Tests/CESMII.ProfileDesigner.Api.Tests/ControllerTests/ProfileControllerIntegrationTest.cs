@@ -112,6 +112,7 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [Trait("SmokeTest", "true")]
+        [Trait("IntegrationTest", "true")]
         [Theory]
         [MemberData(nameof(ProfileControllerTestData))]
         public async Task AddItem_GetItem(ProfileModel model)

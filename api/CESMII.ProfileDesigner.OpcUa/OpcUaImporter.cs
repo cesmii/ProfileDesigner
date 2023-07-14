@@ -136,9 +136,10 @@ namespace CESMII.ProfileDesigner.OpcUa
                 _nodeSetCache.SetUser(userToken);
                 _profileDal.StartTransaction();
                 _logger.LogTrace($"Timestamp||ImportId:{logId}||Importing node sets: {sw.Elapsed}");
-
                 var nodeSetXmlStringList = nodeSetXmlList.Select(nodeSetXml => nodeSetXml.Data).ToList();
+
                 UANodeSetImportResult cachedNodeSetFiles = CacheAndDownloadNodeSetFiles(_nodeSetCache, userToken, nodeSetXmlStringList, logToImportLog);
+
                 _logger.LogTrace($"Timestamp||ImportId:{logId}||Imported node sets: {sw.Elapsed}");
                 if (!string.IsNullOrEmpty(cachedNodeSetFiles.ErrorMessage))
                 {
@@ -401,7 +402,10 @@ namespace CESMII.ProfileDesigner.OpcUa
                         ||(n.Metadata?.AdditionalProperties?.Any(p => p.Name == ICloudLibDal<CloudLibProfileModel>.strCESMIIUserInfo && p.Value.EndsWith($"PD{userToken.UserId}")) ?? false);
                     }
                 );
-                var cacheManager = new UANodeSetCacheManager(myNodeSetCache, _cloudLibResolver);
+
+                var dbResolver = new DBNodeSetResolver(_cloudLibResolver, _profileDal, userToken, (profile) => this.ExportInternal(profile, userToken, null, false).xml);
+
+                var cacheManager = new UANodeSetCacheManager(myNodeSetCache, dbResolver);
                 resultSet = cacheManager.ImportNodeSets(nodeSetXmlStringList, false, userToken);
             }
             finally
@@ -489,8 +493,8 @@ namespace CESMII.ProfileDesigner.OpcUa
             if (profile.XmlSchemaUri == null && nodeSetModel.XmlSchemaUri != null)
             {
                 profile.XmlSchemaUri = nodeSetModel.XmlSchemaUri;
+                await _profileDal.UpsertAsync(profile, userToken, true);
             }
-            await _profileDal.UpsertAsync(profile, userToken, true);
 
             var sw = Stopwatch.StartNew();
             Logger.LogTrace($"Commiting transaction");
@@ -527,11 +531,7 @@ namespace CESMII.ProfileDesigner.OpcUa
 
         public (UANodeSet nodeSet, string xml, NodeSetModel model, Dictionary<string, NodeSetModel> requiredModels) ExportInternal(ProfileModel profileModel, UserToken userToken, UserToken authorId, bool bForceReexport)
         {
-            if (
-                (      !string.IsNullOrEmpty(profileModel.CloudLibraryId)
-                    || !(_dal as ProfileTypeDefinitionDAL).IsProfileModified(profileModel.ID.Value, userToken)
-                )
-                && !bForceReexport)
+            if (!bForceReexport)
             {
                 // Use the original XML for profiles imported from the cloud library (if available)
                 var nodeSetFile = _nodeSetFileDal.Where(nsf => nsf.Profiles.Any(p => p.ID == profileModel.ID), userToken, verbose: true).Data?.FirstOrDefault();
@@ -634,6 +634,7 @@ namespace CESMII.ProfileDesigner.OpcUa
                 }
 #else
                 model.UpdateNamespaceMetaData(nodeSetModels[Namespaces.OpcUa]);
+                model.UpdateEncodings(nodeSetModels[Namespaces.OpcUa]);
                 model.UpdateIndices();
 #endif
                 exportedNodeSet = UANodeSetModelExporter.ExportNodeSet(model, nodeSetModels, this.Aliases);

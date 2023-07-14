@@ -8,11 +8,11 @@ on:
       BUILD_TARGET:
         required: true
         type: string
-	  #optional test filter (ie. filter on smoke test trait)
-	  TEST_FILTER: 
+      #optional test filter (ie. filter on smoke test trait)
+      TEST_FILTER: 
         required: true
         type: string
-	  #'--filter SmokeTest="true"'
+      #'--filter SmokeTest="true"'
 
 env:
   # set this to the path to your solution file, defaults to the repository root (this is the folder in the git repo)

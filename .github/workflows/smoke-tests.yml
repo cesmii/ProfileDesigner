@@ -19,7 +19,7 @@ on:
 jobs:
   #call a common workflow which checks out, builds, publishes, zips, deploys to AWS Elastic beanstalk
   call-workflow-publish-common-aws:
-    uses: ./.github/workflows/test-shared.yml
+    uses: ./.github/workflows/tests-shared.yml
     with:
       TEST_FILTER: '--filter SmokeTest="true"'
       BUILD_TARGET: 'Staging'

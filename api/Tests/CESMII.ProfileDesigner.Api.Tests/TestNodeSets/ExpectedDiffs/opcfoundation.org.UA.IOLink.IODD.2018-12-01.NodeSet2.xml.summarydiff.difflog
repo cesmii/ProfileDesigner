@@ -5,8 +5,10 @@
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2008/02/Types.xsd:Boolean' - comparing <NULL> to <uax:Boolean...> at /UANodeSet[1]/UAVariable[1]/Value[1]/Boolean[1]
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:DateTime' but was '' - comparing <DateTime...> at /UANodeSet[1]/UAVariable[2]/Value[1]/DateTime[1] to <NULL>
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2008/02/Types.xsd:DateTime' - comparing <NULL> to <uax:DateTime...> at /UANodeSet[1]/UAVariable[2]/Value[1]/DateTime[1]
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Value' but was '' - comparing <Value...> at /UANodeSet[1]/UAVariable[3]/Value[1] to <NULL>
-====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Value' but was '' - comparing <Value...> at /UANodeSet[1]/UAVariable[4]/Value[1] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:String' but was '' - comparing <String...> at /UANodeSet[1]/UAVariable[3]/Value[1]/String[1] to <NULL>
+====>Expected child '' but was 'http://opcfoundation.org/UA/2008/02/Types.xsd:String' - comparing <NULL> to <uax:String...> at /UANodeSet[1]/UAVariable[3]/Value[1]/String[1]
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:String' but was '' - comparing <String...> at /UANodeSet[1]/UAVariable[4]/Value[1]/String[1] to <NULL>
+====>Expected child '' but was 'http://opcfoundation.org/UA/2008/02/Types.xsd:String' - comparing <NULL> to <uax:String...> at /UANodeSet[1]/UAVariable[4]/Value[1]/String[1]
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Value' but was '' - comparing <Value...> at /UANodeSet[1]/UAVariable[5]/Value[1] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!--
  * Copyright (c) 2005-2020 The OPC Foundation, Inc. All rights reserved.

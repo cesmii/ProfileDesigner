@@ -8,6 +8,7 @@ using Npgsql;
 
 namespace CESMII.ProfileDesigner.Api.Tests
 {
+    [Trait("SmokeTest", "true")] //trait can be applied at test or test class level
     public class PostgresTableTests : IClassFixture<CustomWebApplicationFactory<Api.Startup>>, IDisposable
     {
         protected readonly CustomWebApplicationFactory<Api.Startup> _factory;

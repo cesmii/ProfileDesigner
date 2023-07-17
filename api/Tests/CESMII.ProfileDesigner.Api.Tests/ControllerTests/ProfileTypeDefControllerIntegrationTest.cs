@@ -15,8 +15,9 @@ using CESMII.ProfileDesigner.Data.Repositories;
 using CESMII.ProfileDesigner.Data.Entities;
 using CESMII.ProfileDesigner.Api.Shared.Models;
 
-namespace CESMII.ProfileDesigner.Api.Tests.Int
+namespace CESMII.ProfileDesigner.Api.Tests.Int.Controllers
 {
+    [Trait("SmokeTest", "true")] //trait can be applied at test or test class level
     public class ProfileTypeDefControllerIntegrationTest : ProfileTypeDefControllerTestBase
     {
         //note - set user id in authors to 1 which is the test user created in base test code

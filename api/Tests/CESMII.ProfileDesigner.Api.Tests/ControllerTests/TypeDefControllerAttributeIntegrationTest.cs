@@ -10,8 +10,9 @@ using CESMII.ProfileDesigner.Common.Enums;
 using CESMII.ProfileDesigner.DAL.Models;
 using CESMII.ProfileDesigner.Api.Shared.Models;
 
-namespace CESMII.ProfileDesigner.Api.Tests.Int
+namespace CESMII.ProfileDesigner.Api.Tests.Int.Controllers
 {
+    [Trait("SmokeTest", "true")] //trait can be applied at test or test class level
     public class TypeDefControllerAttributeIntegrationTest : ProfileTypeDefControllerTestBase
     {
         #region API constants

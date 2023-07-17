@@ -19,7 +19,7 @@ using CESMII.ProfileDesigner.Data.Contexts;
 using CESMII.ProfileDesigner.Api.Shared.Models;
 using Opc.Ua.Export;
 
-namespace CESMII.ProfileDesigner.Api.Tests.Int
+namespace CESMII.ProfileDesigner.Api.Tests.Int.Controllers
 {
     public class ImportLogControllerIntegrationTest : ControllerTestBase
     {

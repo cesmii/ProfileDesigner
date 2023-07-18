@@ -457,7 +457,6 @@ CREATE TABLE public.profile
     created_by_id integer NOT NULL,
     updated timestamp with time zone NOT NULL,
     updated_by_id integer NOT NULL,
-    is_active boolean NULL,
     --CONSTRAINT profile_standard_profile_id FOREIGN KEY (ua_standard_profile_id)
     --    REFERENCES public.standard_nodeset (id) MATCH SIMPLE
     --    ON UPDATE NO ACTION

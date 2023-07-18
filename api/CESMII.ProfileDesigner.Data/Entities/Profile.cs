@@ -115,6 +115,8 @@
         // Many-to-many relationship: EF managed
         virtual public List<NodeSetFile> NodeSetFiles { get; set; }
 
+        [NotMapped]
+        public override bool IsActive { get; set; }
     }
 
     public class UAProperty : AbstractEntity

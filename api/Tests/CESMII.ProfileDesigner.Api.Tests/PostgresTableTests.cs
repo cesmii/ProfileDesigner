@@ -36,7 +36,7 @@ namespace CESMII.ProfileDesigner.Api.Tests
         /// <param name="strTable"></param>
         /// <param name="expectedCount"></param>
         [Theory]
-        [InlineData("profile", 23)]
+        [InlineData("profile", 28)]
         [InlineData("profile_type_definition", 25)]
         [InlineData("profile_attribute", 44)]
         public void CheckTableColumnCount(string strTable, int expectedCount)

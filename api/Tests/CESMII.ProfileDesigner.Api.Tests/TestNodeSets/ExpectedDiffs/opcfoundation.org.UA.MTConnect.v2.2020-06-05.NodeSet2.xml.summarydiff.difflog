@@ -19,6 +19,7 @@
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[3]/@ValueRank' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[3]/@ValueRank to <UAVariable...> at /UANodeSet[1]/UAVariable[191]
 ====>Expected child '#comment' but was '' - comparing <!-- HasTypeDefinition -  - String i=68 PropertyType  --> at /UANodeSet[1]/UAVariable[3]/References[1]/comment()[1] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty - (Reverse) - http://opcfoundation.org/UA/MTConnect/2.0/ ns=1;i=3630   --> at /UANodeSet[1]/UAVariable[3]/References[1]/comment()[2] to <NULL>
+====>Expected text value 'http://opcfoundation.org/UA/MTConnect/2.0/' but was 'http://opcfoundation.org/UA/MTConnect/v2/' - comparing <String ...>http://opcfoundation.org/UA/MTConnect/2.0/</String> at /UANodeSet[1]/UAVariable[3]/Value[1]/String[1]/text()[1] to <uax:String ...>http://opcfoundation.org/UA/MTConnect/v2/</uax:String> at /UANodeSet[1]/UAVariable[191]/Value[1]/String[1]/text()[1]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[4]/@ValueRank' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[4]/@ValueRank to <UAVariable...> at /UANodeSet[1]/UAVariable[192]
 ====>Expected child '#comment' but was '' - comparing <!-- HasTypeDefinition -  - String i=68 PropertyType  --> at /UANodeSet[1]/UAVariable[4]/References[1]/comment()[1] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty - (Reverse) - http://opcfoundation.org/UA/MTConnect/2.0/ ns=1;i=3630   --> at /UANodeSet[1]/UAVariable[4]/References[1]/comment()[2] to <NULL>
@@ -36,27 +37,27 @@
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty -  - Name ns=1;i=2061 String  --> at /UANodeSet[1]/UAObjectType[1]/References[1]/comment()[5] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty -  - NextCalibrationDate ns=1;i=2064 UtcTime  --> at /UANodeSet[1]/UAObjectType[1]/References[1]/comment()[6] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty -  - Number ns=1;i=2060 Int32  --> at /UANodeSet[1]/UAObjectType[1]/References[1]/comment()[7] to <NULL>
-====>Expected attribute name '/UANodeSet[1]/UAVariable[14]/@ValueRank' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[14]/@ValueRank to <UAVariable...> at /UANodeSet[1]/UAVariable[20]
+====>Expected attribute name '/UANodeSet[1]/UAVariable[14]/@ValueRank' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[14]/@ValueRank to <UAVariable...> at /UANodeSet[1]/UAVariable[45]
 ====>Expected child '#comment' but was '' - comparing <!-- HasTypeDefinition -  - UtcTime i=68 PropertyType  --> at /UANodeSet[1]/UAVariable[14]/References[1]/comment()[1] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasModellingRule -  - Optional i=80   --> at /UANodeSet[1]/UAVariable[14]/References[1]/comment()[2] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty - (Reverse) - MTChannelType ns=1;i=2059   --> at /UANodeSet[1]/UAVariable[14]/References[1]/comment()[3] to <NULL>
-====>Expected attribute name '/UANodeSet[1]/UAVariable[15]/@ValueRank' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[15]/@ValueRank to <UAVariable...> at /UANodeSet[1]/UAVariable[22]
+====>Expected attribute name '/UANodeSet[1]/UAVariable[15]/@ValueRank' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[15]/@ValueRank to <UAVariable...> at /UANodeSet[1]/UAVariable[47]
 ====>Expected child '#comment' but was '' - comparing <!-- HasTypeDefinition -  - String i=68 PropertyType  --> at /UANodeSet[1]/UAVariable[15]/References[1]/comment()[1] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasModellingRule -  - Optional i=80   --> at /UANodeSet[1]/UAVariable[15]/References[1]/comment()[2] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty - (Reverse) - MTChannelType ns=1;i=2059   --> at /UANodeSet[1]/UAVariable[15]/References[1]/comment()[3] to <NULL>
-====>Expected attribute name '/UANodeSet[1]/UAVariable[16]/@ValueRank' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[16]/@ValueRank to <UAVariable...> at /UANodeSet[1]/UAVariable[19]
+====>Expected attribute name '/UANodeSet[1]/UAVariable[16]/@ValueRank' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[16]/@ValueRank to <UAVariable...> at /UANodeSet[1]/UAVariable[44]
 ====>Expected child '#comment' but was '' - comparing <!-- HasTypeDefinition -  - String i=68 PropertyType  --> at /UANodeSet[1]/UAVariable[16]/References[1]/comment()[1] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasModellingRule -  - Optional i=80   --> at /UANodeSet[1]/UAVariable[16]/References[1]/comment()[2] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty - (Reverse) - MTChannelType ns=1;i=2059   --> at /UANodeSet[1]/UAVariable[16]/References[1]/comment()[3] to <NULL>
-====>Expected attribute name '/UANodeSet[1]/UAVariable[17]/@ValueRank' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[17]/@ValueRank to <UAVariable...> at /UANodeSet[1]/UAVariable[18]
+====>Expected attribute name '/UANodeSet[1]/UAVariable[17]/@ValueRank' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[17]/@ValueRank to <UAVariable...> at /UANodeSet[1]/UAVariable[43]
 ====>Expected child '#comment' but was '' - comparing <!-- HasTypeDefinition -  - String i=68 PropertyType  --> at /UANodeSet[1]/UAVariable[17]/References[1]/comment()[1] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasModellingRule -  - Optional i=80   --> at /UANodeSet[1]/UAVariable[17]/References[1]/comment()[2] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty - (Reverse) - MTChannelType ns=1;i=2059   --> at /UANodeSet[1]/UAVariable[17]/References[1]/comment()[3] to <NULL>
-====>Expected attribute name '/UANodeSet[1]/UAVariable[18]/@ValueRank' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[18]/@ValueRank to <UAVariable...> at /UANodeSet[1]/UAVariable[21]
+====>Expected attribute name '/UANodeSet[1]/UAVariable[18]/@ValueRank' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[18]/@ValueRank to <UAVariable...> at /UANodeSet[1]/UAVariable[46]
 ====>Expected child '#comment' but was '' - comparing <!-- HasTypeDefinition -  - UtcTime i=68 PropertyType  --> at /UANodeSet[1]/UAVariable[18]/References[1]/comment()[1] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasModellingRule -  - Optional i=80   --> at /UANodeSet[1]/UAVariable[18]/References[1]/comment()[2] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty - (Reverse) - MTChannelType ns=1;i=2059   --> at /UANodeSet[1]/UAVariable[18]/References[1]/comment()[3] to <NULL>
-====>Expected attribute name '/UANodeSet[1]/UAVariable[19]/@ValueRank' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[19]/@ValueRank to <UAVariable...> at /UANodeSet[1]/UAVariable[17]
+====>Expected attribute name '/UANodeSet[1]/UAVariable[19]/@ValueRank' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[19]/@ValueRank to <UAVariable...> at /UANodeSet[1]/UAVariable[42]
 ====>Expected child '#comment' but was '' - comparing <!-- HasTypeDefinition -  - Int32 i=68 PropertyType  --> at /UANodeSet[1]/UAVariable[19]/References[1]/comment()[1] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasModellingRule -  - Mandatory i=78   --> at /UANodeSet[1]/UAVariable[19]/References[1]/comment()[2] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty - (Reverse) - MTChannelType ns=1;i=2059   --> at /UANodeSet[1]/UAVariable[19]/References[1]/comment()[3] to <NULL>
@@ -71,27 +72,27 @@
 ====>Expected child '#comment' but was '' - comparing <!-- HasComponent -  - Configuration ns=1;i=2029 MTConfigurationType  --> at /UANodeSet[1]/UAObjectType[2]/References[1]/comment()[9] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Organizes -  - Compositions ns=1;i=2043 FolderType  --> at /UANodeSet[1]/UAObjectType[2]/References[1]/comment()[10] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Organizes -  - Components ns=1;i=2042 FolderType  --> at /UANodeSet[1]/UAObjectType[2]/References[1]/comment()[11] to <NULL>
-====>Expected attribute name '/UANodeSet[1]/UAVariable[20]/@ValueRank' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[20]/@ValueRank to <UAVariable...> at /UANodeSet[1]/UAVariable[4]
+====>Expected attribute name '/UANodeSet[1]/UAVariable[20]/@ValueRank' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[20]/@ValueRank to <UAVariable...> at /UANodeSet[1]/UAVariable[29]
 ====>Expected child '#comment' but was '' - comparing <!-- HasTypeDefinition -  - String i=68 PropertyType  --> at /UANodeSet[1]/UAVariable[20]/References[1]/comment()[1] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasModellingRule -  - Optional i=80   --> at /UANodeSet[1]/UAVariable[20]/References[1]/comment()[2] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty - (Reverse) - MTComponentType ns=1;i=2021   --> at /UANodeSet[1]/UAVariable[20]/References[1]/comment()[3] to <NULL>
-====>Expected attribute name '/UANodeSet[1]/UAVariable[21]/@ValueRank' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[21]/@ValueRank to <UAVariable...> at /UANodeSet[1]/UAVariable[5]
+====>Expected attribute name '/UANodeSet[1]/UAVariable[21]/@ValueRank' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[21]/@ValueRank to <UAVariable...> at /UANodeSet[1]/UAVariable[30]
 ====>Expected child '#comment' but was '' - comparing <!-- HasTypeDefinition -  - String i=68 PropertyType  --> at /UANodeSet[1]/UAVariable[21]/References[1]/comment()[1] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasModellingRule -  - Optional i=80   --> at /UANodeSet[1]/UAVariable[21]/References[1]/comment()[2] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty - (Reverse) - MTComponentType ns=1;i=2021   --> at /UANodeSet[1]/UAVariable[21]/References[1]/comment()[3] to <NULL>
-====>Expected attribute name '/UANodeSet[1]/UAVariable[22]/@ValueRank' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[22]/@ValueRank to <UAVariable...> at /UANodeSet[1]/UAVariable[8]
+====>Expected attribute name '/UANodeSet[1]/UAVariable[22]/@ValueRank' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[22]/@ValueRank to <UAVariable...> at /UANodeSet[1]/UAVariable[33]
 ====>Expected child '#comment' but was '' - comparing <!-- HasTypeDefinition -  - Float i=68 PropertyType  --> at /UANodeSet[1]/UAVariable[22]/References[1]/comment()[1] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasModellingRule -  - Optional i=80   --> at /UANodeSet[1]/UAVariable[22]/References[1]/comment()[2] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty - (Reverse) - MTComponentType ns=1;i=2021   --> at /UANodeSet[1]/UAVariable[22]/References[1]/comment()[3] to <NULL>
-====>Expected attribute name '/UANodeSet[1]/UAVariable[23]/@ValueRank' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[23]/@ValueRank to <UAVariable...> at /UANodeSet[1]/UAVariable[7]
+====>Expected attribute name '/UANodeSet[1]/UAVariable[23]/@ValueRank' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[23]/@ValueRank to <UAVariable...> at /UANodeSet[1]/UAVariable[32]
 ====>Expected child '#comment' but was '' - comparing <!-- HasTypeDefinition -  - Float i=68 PropertyType  --> at /UANodeSet[1]/UAVariable[23]/References[1]/comment()[1] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasModellingRule -  - Optional i=80   --> at /UANodeSet[1]/UAVariable[23]/References[1]/comment()[2] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty - (Reverse) - MTComponentType ns=1;i=2021   --> at /UANodeSet[1]/UAVariable[23]/References[1]/comment()[3] to <NULL>
-====>Expected attribute name '/UANodeSet[1]/UAVariable[24]/@ValueRank' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[24]/@ValueRank to <UAVariable...> at /UANodeSet[1]/UAVariable[6]
+====>Expected attribute name '/UANodeSet[1]/UAVariable[24]/@ValueRank' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[24]/@ValueRank to <UAVariable...> at /UANodeSet[1]/UAVariable[31]
 ====>Expected child '#comment' but was '' - comparing <!-- HasTypeDefinition -  - String i=68 PropertyType  --> at /UANodeSet[1]/UAVariable[24]/References[1]/comment()[1] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasModellingRule -  - Optional i=80   --> at /UANodeSet[1]/UAVariable[24]/References[1]/comment()[2] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty - (Reverse) - MTComponentType ns=1;i=2021   --> at /UANodeSet[1]/UAVariable[24]/References[1]/comment()[3] to <NULL>
-====>Expected attribute name '/UANodeSet[1]/UAVariable[25]/@ValueRank' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[25]/@ValueRank to <UAVariable...> at /UANodeSet[1]/UAVariable[3]
+====>Expected attribute name '/UANodeSet[1]/UAVariable[25]/@ValueRank' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[25]/@ValueRank to <UAVariable...> at /UANodeSet[1]/UAVariable[28]
 ====>Expected child '#comment' but was '' - comparing <!-- HasTypeDefinition -  - String i=68 PropertyType  --> at /UANodeSet[1]/UAVariable[25]/References[1]/comment()[1] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasModellingRule -  - Mandatory i=78   --> at /UANodeSet[1]/UAVariable[25]/References[1]/comment()[2] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty - (Reverse) - MTComponentType ns=1;i=2021   --> at /UANodeSet[1]/UAVariable[25]/References[1]/comment()[3] to <NULL>
@@ -132,7 +133,7 @@
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty -  - Name ns=1;i=3668 String  --> at /UANodeSet[1]/UAObjectType[3]/References[1]/comment()[3] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty -  - Uuid ns=1;i=3669 String  --> at /UANodeSet[1]/UAObjectType[3]/References[1]/comment()[4] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty -  - Version ns=1;i=2016 String  --> at /UANodeSet[1]/UAObjectType[3]/References[1]/comment()[5] to <NULL>
-====>Expected attribute name '/UANodeSet[1]/UAVariable[30]/@ValueRank' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[30]/@ValueRank to <UAVariable...> at /UANodeSet[1]/UAVariable[2]
+====>Expected attribute name '/UANodeSet[1]/UAVariable[30]/@ValueRank' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[30]/@ValueRank to <UAVariable...> at /UANodeSet[1]/UAVariable[27]
 ====>Expected child '#comment' but was '' - comparing <!-- HasTypeDefinition -  - String i=68 PropertyType  --> at /UANodeSet[1]/UAVariable[30]/References[1]/comment()[1] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasModellingRule -  - Optional i=80   --> at /UANodeSet[1]/UAVariable[30]/References[1]/comment()[2] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty - (Reverse) - MTDeviceType ns=1;i=2015   --> at /UANodeSet[1]/UAVariable[30]/References[1]/comment()[3] to <NULL>
@@ -144,7 +145,7 @@
 ====>Expected child '#comment' but was '' - comparing <!-- HasTypeDefinition -  - String i=68 PropertyType  --> at /UANodeSet[1]/UAVariable[32]/References[1]/comment()[1] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasModellingRule -  - Mandatory i=78   --> at /UANodeSet[1]/UAVariable[32]/References[1]/comment()[2] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty - (Reverse) - MTDeviceType ns=1;i=2015   --> at /UANodeSet[1]/UAVariable[32]/References[1]/comment()[3] to <NULL>
-====>Expected attribute name '/UANodeSet[1]/UAVariable[33]/@ValueRank' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[33]/@ValueRank to <UAVariable...> at /UANodeSet[1]/UAVariable[1]
+====>Expected attribute name '/UANodeSet[1]/UAVariable[33]/@ValueRank' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[33]/@ValueRank to <UAVariable...> at /UANodeSet[1]/UAVariable[26]
 ====>Expected child '#comment' but was '' - comparing <!-- HasTypeDefinition -  - String i=68 PropertyType  --> at /UANodeSet[1]/UAVariable[33]/References[1]/comment()[1] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasModellingRule -  - Optional i=80   --> at /UANodeSet[1]/UAVariable[33]/References[1]/comment()[2] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty - (Reverse) - MTDeviceType ns=1;i=2015   --> at /UANodeSet[1]/UAVariable[33]/References[1]/comment()[3] to <NULL>
@@ -153,19 +154,19 @@
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty -  - Name ns=1;i=2071 String  --> at /UANodeSet[1]/UAObjectType[4]/References[1]/comment()[3] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty -  - Uuid ns=1;i=2070 String  --> at /UANodeSet[1]/UAObjectType[4]/References[1]/comment()[4] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty -  - XmlId ns=1;i=2068 String  --> at /UANodeSet[1]/UAObjectType[4]/References[1]/comment()[5] to <NULL>
-====>Expected attribute name '/UANodeSet[1]/UAVariable[34]/@ValueRank' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[34]/@ValueRank to <UAVariable...> at /UANodeSet[1]/UAVariable[24]
+====>Expected attribute name '/UANodeSet[1]/UAVariable[34]/@ValueRank' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[34]/@ValueRank to <UAVariable...> at /UANodeSet[1]/UAVariable[49]
 ====>Expected child '#comment' but was '' - comparing <!-- HasTypeDefinition -  - String i=68 PropertyType  --> at /UANodeSet[1]/UAVariable[34]/References[1]/comment()[1] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasModellingRule -  - Mandatory i=78   --> at /UANodeSet[1]/UAVariable[34]/References[1]/comment()[2] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty - (Reverse) - MTCompositionType ns=1;i=2067   --> at /UANodeSet[1]/UAVariable[34]/References[1]/comment()[3] to <NULL>
-====>Expected attribute name '/UANodeSet[1]/UAVariable[35]/@ValueRank' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[35]/@ValueRank to <UAVariable...> at /UANodeSet[1]/UAVariable[26]
+====>Expected attribute name '/UANodeSet[1]/UAVariable[35]/@ValueRank' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[35]/@ValueRank to <UAVariable...> at /UANodeSet[1]/UAVariable[51]
 ====>Expected child '#comment' but was '' - comparing <!-- HasTypeDefinition -  - String i=68 PropertyType  --> at /UANodeSet[1]/UAVariable[35]/References[1]/comment()[1] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasModellingRule -  - Optional i=80   --> at /UANodeSet[1]/UAVariable[35]/References[1]/comment()[2] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty - (Reverse) - MTCompositionType ns=1;i=2067   --> at /UANodeSet[1]/UAVariable[35]/References[1]/comment()[3] to <NULL>
-====>Expected attribute name '/UANodeSet[1]/UAVariable[36]/@ValueRank' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[36]/@ValueRank to <UAVariable...> at /UANodeSet[1]/UAVariable[25]
+====>Expected attribute name '/UANodeSet[1]/UAVariable[36]/@ValueRank' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[36]/@ValueRank to <UAVariable...> at /UANodeSet[1]/UAVariable[50]
 ====>Expected child '#comment' but was '' - comparing <!-- HasTypeDefinition -  - String i=68 PropertyType  --> at /UANodeSet[1]/UAVariable[36]/References[1]/comment()[1] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasModellingRule -  - Optional i=80   --> at /UANodeSet[1]/UAVariable[36]/References[1]/comment()[2] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty - (Reverse) - MTCompositionType ns=1;i=2067   --> at /UANodeSet[1]/UAVariable[36]/References[1]/comment()[3] to <NULL>
-====>Expected attribute name '/UANodeSet[1]/UAVariable[37]/@ValueRank' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[37]/@ValueRank to <UAVariable...> at /UANodeSet[1]/UAVariable[23]
+====>Expected attribute name '/UANodeSet[1]/UAVariable[37]/@ValueRank' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[37]/@ValueRank to <UAVariable...> at /UANodeSet[1]/UAVariable[48]
 ====>Expected child '#comment' but was '' - comparing <!-- HasTypeDefinition -  - String i=68 PropertyType  --> at /UANodeSet[1]/UAVariable[37]/References[1]/comment()[1] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasModellingRule -  - Mandatory i=78   --> at /UANodeSet[1]/UAVariable[37]/References[1]/comment()[2] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty - (Reverse) - MTCompositionType ns=1;i=2067   --> at /UANodeSet[1]/UAVariable[37]/References[1]/comment()[3] to <NULL>
@@ -176,19 +177,19 @@
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty -  - FirwareVersion ns=1;i=2047 String  --> at /UANodeSet[1]/UAObjectType[6]/References[1]/comment()[4] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty -  - NextCalibrationDate ns=1;i=2049 UtcTime  --> at /UANodeSet[1]/UAObjectType[6]/References[1]/comment()[5] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- Organizes -  - Channels ns=1;i=2052 FolderType  --> at /UANodeSet[1]/UAObjectType[6]/References[1]/comment()[6] to <NULL>
-====>Expected attribute name '/UANodeSet[1]/UAVariable[38]/@ValueRank' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[38]/@ValueRank to <UAVariable...> at /UANodeSet[1]/UAVariable[10]
+====>Expected attribute name '/UANodeSet[1]/UAVariable[38]/@ValueRank' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[38]/@ValueRank to <UAVariable...> at /UANodeSet[1]/UAVariable[35]
 ====>Expected child '#comment' but was '' - comparing <!-- HasTypeDefinition -  - UtcTime i=68 PropertyType  --> at /UANodeSet[1]/UAVariable[38]/References[1]/comment()[1] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasModellingRule -  - Optional i=80   --> at /UANodeSet[1]/UAVariable[38]/References[1]/comment()[2] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty - (Reverse) - MTSensorConfigurationType ns=1;i=2046   --> at /UANodeSet[1]/UAVariable[38]/References[1]/comment()[3] to <NULL>
-====>Expected attribute name '/UANodeSet[1]/UAVariable[39]/@ValueRank' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[39]/@ValueRank to <UAVariable...> at /UANodeSet[1]/UAVariable[12]
+====>Expected attribute name '/UANodeSet[1]/UAVariable[39]/@ValueRank' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[39]/@ValueRank to <UAVariable...> at /UANodeSet[1]/UAVariable[37]
 ====>Expected child '#comment' but was '' - comparing <!-- HasTypeDefinition -  - String i=68 PropertyType  --> at /UANodeSet[1]/UAVariable[39]/References[1]/comment()[1] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasModellingRule -  - Optional i=80   --> at /UANodeSet[1]/UAVariable[39]/References[1]/comment()[2] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty - (Reverse) - MTSensorConfigurationType ns=1;i=2046   --> at /UANodeSet[1]/UAVariable[39]/References[1]/comment()[3] to <NULL>
-====>Expected attribute name '/UANodeSet[1]/UAVariable[40]/@ValueRank' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[40]/@ValueRank to <UAVariable...> at /UANodeSet[1]/UAVariable[9]
+====>Expected attribute name '/UANodeSet[1]/UAVariable[40]/@ValueRank' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[40]/@ValueRank to <UAVariable...> at /UANodeSet[1]/UAVariable[34]
 ====>Expected child '#comment' but was '' - comparing <!-- HasTypeDefinition -  - String i=68 PropertyType  --> at /UANodeSet[1]/UAVariable[40]/References[1]/comment()[1] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasModellingRule -  - Mandatory i=78   --> at /UANodeSet[1]/UAVariable[40]/References[1]/comment()[2] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty - (Reverse) - MTSensorConfigurationType ns=1;i=2046   --> at /UANodeSet[1]/UAVariable[40]/References[1]/comment()[3] to <NULL>
-====>Expected attribute name '/UANodeSet[1]/UAVariable[41]/@ValueRank' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[41]/@ValueRank to <UAVariable...> at /UANodeSet[1]/UAVariable[11]
+====>Expected attribute name '/UANodeSet[1]/UAVariable[41]/@ValueRank' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[41]/@ValueRank to <UAVariable...> at /UANodeSet[1]/UAVariable[36]
 ====>Expected child '#comment' but was '' - comparing <!-- HasTypeDefinition -  - UtcTime i=68 PropertyType  --> at /UANodeSet[1]/UAVariable[41]/References[1]/comment()[1] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasModellingRule -  - Optional i=80   --> at /UANodeSet[1]/UAVariable[41]/References[1]/comment()[2] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty - (Reverse) - MTSensorConfigurationType ns=1;i=2046   --> at /UANodeSet[1]/UAVariable[41]/References[1]/comment()[3] to <NULL>
@@ -200,19 +201,19 @@
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty -  - Manufacturer ns=1;i=2056 String  --> at /UANodeSet[1]/UAObjectType[7]/References[1]/comment()[3] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty -  - SerialNumber ns=1;i=2055 String  --> at /UANodeSet[1]/UAObjectType[7]/References[1]/comment()[4] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty -  - Station ns=1;i=2054 String  --> at /UANodeSet[1]/UAObjectType[7]/References[1]/comment()[5] to <NULL>
-====>Expected attribute name '/UANodeSet[1]/UAVariable[42]/@ValueRank' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[42]/@ValueRank to <UAVariable...> at /UANodeSet[1]/UAVariable[16]
+====>Expected attribute name '/UANodeSet[1]/UAVariable[42]/@ValueRank' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[42]/@ValueRank to <UAVariable...> at /UANodeSet[1]/UAVariable[41]
 ====>Expected child '#comment' but was '' - comparing <!-- HasTypeDefinition -  - String i=68 PropertyType  --> at /UANodeSet[1]/UAVariable[42]/References[1]/comment()[1] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasModellingRule -  - Optional i=80   --> at /UANodeSet[1]/UAVariable[42]/References[1]/comment()[2] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty - (Reverse) - MTDescriptionType ns=1;i=2053   --> at /UANodeSet[1]/UAVariable[42]/References[1]/comment()[3] to <NULL>
-====>Expected attribute name '/UANodeSet[1]/UAVariable[43]/@ValueRank' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[43]/@ValueRank to <UAVariable...> at /UANodeSet[1]/UAVariable[15]
+====>Expected attribute name '/UANodeSet[1]/UAVariable[43]/@ValueRank' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[43]/@ValueRank to <UAVariable...> at /UANodeSet[1]/UAVariable[40]
 ====>Expected child '#comment' but was '' - comparing <!-- HasTypeDefinition -  - String i=68 PropertyType  --> at /UANodeSet[1]/UAVariable[43]/References[1]/comment()[1] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasModellingRule -  - Optional i=80   --> at /UANodeSet[1]/UAVariable[43]/References[1]/comment()[2] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty - (Reverse) - MTDescriptionType ns=1;i=2053   --> at /UANodeSet[1]/UAVariable[43]/References[1]/comment()[3] to <NULL>
-====>Expected attribute name '/UANodeSet[1]/UAVariable[44]/@ValueRank' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[44]/@ValueRank to <UAVariable...> at /UANodeSet[1]/UAVariable[14]
+====>Expected attribute name '/UANodeSet[1]/UAVariable[44]/@ValueRank' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[44]/@ValueRank to <UAVariable...> at /UANodeSet[1]/UAVariable[39]
 ====>Expected child '#comment' but was '' - comparing <!-- HasTypeDefinition -  - String i=68 PropertyType  --> at /UANodeSet[1]/UAVariable[44]/References[1]/comment()[1] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasModellingRule -  - Optional i=80   --> at /UANodeSet[1]/UAVariable[44]/References[1]/comment()[2] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty - (Reverse) - MTDescriptionType ns=1;i=2053   --> at /UANodeSet[1]/UAVariable[44]/References[1]/comment()[3] to <NULL>
-====>Expected attribute name '/UANodeSet[1]/UAVariable[45]/@ValueRank' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[45]/@ValueRank to <UAVariable...> at /UANodeSet[1]/UAVariable[13]
+====>Expected attribute name '/UANodeSet[1]/UAVariable[45]/@ValueRank' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[45]/@ValueRank to <UAVariable...> at /UANodeSet[1]/UAVariable[38]
 ====>Expected child '#comment' but was '' - comparing <!-- HasTypeDefinition -  - String i=68 PropertyType  --> at /UANodeSet[1]/UAVariable[45]/References[1]/comment()[1] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasModellingRule -  - Optional i=80   --> at /UANodeSet[1]/UAVariable[45]/References[1]/comment()[2] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty - (Reverse) - MTDescriptionType ns=1;i=2053   --> at /UANodeSet[1]/UAVariable[45]/References[1]/comment()[3] to <NULL>
@@ -340,7 +341,7 @@
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Description' but was '' - comparing <Description...> at /UANodeSet[1]/UADataType[2]/Description[2] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Definition' but was '' - comparing <Definition...> at /UANodeSet[1]/UADataType[2]/Definition[1] to <NULL>
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Definition' - comparing <NULL> to <Definition...> at /UANodeSet[1]/UADataType[21]/Definition[1]
-====>Expected attribute name '/UANodeSet[1]/UAVariable[62]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[62] to <UAVariable...> at /UANodeSet[1]/UAVariable[46]/@ArrayDimensions
+====>Expected attribute name '/UANodeSet[1]/UAVariable[62]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[62] to <UAVariable...> at /UANodeSet[1]/UAVariable[20]/@ArrayDimensions
 ====>Expected child '#comment' but was '' - comparing <!-- HasTypeDefinition -  - PropertyType i=68   --> at /UANodeSet[1]/UAVariable[62]/References[1]/comment()[1] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasModellingRule -  - Mandatory i=78   --> at /UANodeSet[1]/UAVariable[62]/References[1]/comment()[2] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty - (Reverse) - Owner ns=1;i=2634   --> at /UANodeSet[1]/UAVariable[62]/References[1]/comment()[3] to <NULL>
@@ -357,15 +358,15 @@
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty -  - Minimum ns=1;i=2649 Float  --> at /UANodeSet[1]/UAObjectType[44]/References[1]/comment()[3] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty -  - Nominal ns=1;i=2651 Float  --> at /UANodeSet[1]/UAObjectType[44]/References[1]/comment()[4] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty -  - Values ns=1;i=2648 String  --> at /UANodeSet[1]/UAObjectType[44]/References[1]/comment()[5] to <NULL>
-====>Expected attribute name '/UANodeSet[1]/UAVariable[64]/@ValueRank' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[64]/@ValueRank to <UAVariable...> at /UANodeSet[1]/UAVariable[52]
+====>Expected attribute name '/UANodeSet[1]/UAVariable[64]/@ValueRank' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[64]/@ValueRank to <UAVariable...> at /UANodeSet[1]/UAVariable[55]
 ====>Expected child '#comment' but was '' - comparing <!-- HasTypeDefinition -  - Float i=68 PropertyType  --> at /UANodeSet[1]/UAVariable[64]/References[1]/comment()[1] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasModellingRule -  - Optional i=80   --> at /UANodeSet[1]/UAVariable[64]/References[1]/comment()[2] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty - (Reverse) - MTConstraintType ns=1;i=2647   --> at /UANodeSet[1]/UAVariable[64]/References[1]/comment()[3] to <NULL>
-====>Expected attribute name '/UANodeSet[1]/UAVariable[65]/@ValueRank' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[65]/@ValueRank to <UAVariable...> at /UANodeSet[1]/UAVariable[51]
+====>Expected attribute name '/UANodeSet[1]/UAVariable[65]/@ValueRank' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[65]/@ValueRank to <UAVariable...> at /UANodeSet[1]/UAVariable[54]
 ====>Expected child '#comment' but was '' - comparing <!-- HasTypeDefinition -  - Float i=68 PropertyType  --> at /UANodeSet[1]/UAVariable[65]/References[1]/comment()[1] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasModellingRule -  - Optional i=80   --> at /UANodeSet[1]/UAVariable[65]/References[1]/comment()[2] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty - (Reverse) - MTConstraintType ns=1;i=2647   --> at /UANodeSet[1]/UAVariable[65]/References[1]/comment()[3] to <NULL>
-====>Expected attribute name '/UANodeSet[1]/UAVariable[66]/@ValueRank' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[66]/@ValueRank to <UAVariable...> at /UANodeSet[1]/UAVariable[53]
+====>Expected attribute name '/UANodeSet[1]/UAVariable[66]/@ValueRank' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[66]/@ValueRank to <UAVariable...> at /UANodeSet[1]/UAVariable[56]
 ====>Expected child '#comment' but was '' - comparing <!-- HasTypeDefinition -  - Float i=68 PropertyType  --> at /UANodeSet[1]/UAVariable[66]/References[1]/comment()[1] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasModellingRule -  - Optional i=80   --> at /UANodeSet[1]/UAVariable[66]/References[1]/comment()[2] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty - (Reverse) - MTConstraintType ns=1;i=2647   --> at /UANodeSet[1]/UAVariable[66]/References[1]/comment()[3] to <NULL>
@@ -452,7 +453,7 @@
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Description' but was '' - comparing <Description...> at /UANodeSet[1]/UADataType[3]/Description[2] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Definition' but was '' - comparing <Definition...> at /UANodeSet[1]/UADataType[3]/Definition[1] to <NULL>
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Definition' - comparing <NULL> to <Definition...> at /UANodeSet[1]/UADataType[22]/Definition[1]
-====>Expected attribute name '/UANodeSet[1]/UAVariable[82]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[82] to <UAVariable...> at /UANodeSet[1]/UAVariable[47]/@ArrayDimensions
+====>Expected attribute name '/UANodeSet[1]/UAVariable[82]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[82] to <UAVariable...> at /UANodeSet[1]/UAVariable[21]/@ArrayDimensions
 ====>Expected child '#comment' but was '' - comparing <!-- HasTypeDefinition -  - PropertyType i=68   --> at /UANodeSet[1]/UAVariable[82]/References[1]/comment()[1] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasModellingRule -  - Mandatory i=78   --> at /UANodeSet[1]/UAVariable[82]/References[1]/comment()[2] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty - (Reverse) - Owner ns=1;i=2635   --> at /UANodeSet[1]/UAVariable[82]/References[1]/comment()[3] to <NULL>
@@ -465,7 +466,7 @@
 ====>Expected child '#comment' but was '' - comparing <!-- HasSubtype - (Reverse) - MTDataItemClassType ns=1;i=2425   --> at /UANodeSet[1]/UAObjectType[45]/References[1]/comment()[1] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasSubtype - (Reverse) - BaseEventType i=2041   --> at /UANodeSet[1]/UAObjectType[46]/References[1]/comment()[1] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty -  - NativeCode ns=1;i=2657 String  --> at /UANodeSet[1]/UAObjectType[46]/References[1]/comment()[2] to <NULL>
-====>Expected attribute name '/UANodeSet[1]/UAVariable[84]/@ValueRank' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[84]/@ValueRank to <UAVariable...> at /UANodeSet[1]/UAVariable[54]
+====>Expected attribute name '/UANodeSet[1]/UAVariable[84]/@ValueRank' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[84]/@ValueRank to <UAVariable...> at /UANodeSet[1]/UAVariable[57]
 ====>Expected child '#comment' but was '' - comparing <!-- HasTypeDefinition -  - String i=68 PropertyType  --> at /UANodeSet[1]/UAVariable[84]/References[1]/comment()[1] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasModellingRule -  - Optional i=80   --> at /UANodeSet[1]/UAVariable[84]/References[1]/comment()[2] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty - (Reverse) - MTMessageEventType ns=1;i=2656   --> at /UANodeSet[1]/UAVariable[84]/References[1]/comment()[3] to <NULL>
@@ -664,7 +665,7 @@
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Description' but was '' - comparing <Description...> at /UANodeSet[1]/UADataType[4]/Description[2] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Definition' but was '' - comparing <Definition...> at /UANodeSet[1]/UADataType[4]/Definition[1] to <NULL>
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Definition' - comparing <NULL> to <Definition...> at /UANodeSet[1]/UADataType[20]/Definition[1]
-====>Expected attribute name '/UANodeSet[1]/UAVariable[121]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[121] to <UAVariable...> at /UANodeSet[1]/UAVariable[45]/@ArrayDimensions
+====>Expected attribute name '/UANodeSet[1]/UAVariable[121]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[121] to <UAVariable...> at /UANodeSet[1]/UAVariable[19]/@ArrayDimensions
 ====>Expected child '#comment' but was '' - comparing <!-- HasTypeDefinition -  - PropertyType i=68   --> at /UANodeSet[1]/UAVariable[121]/References[1]/comment()[1] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasModellingRule -  - Mandatory i=78   --> at /UANodeSet[1]/UAVariable[121]/References[1]/comment()[2] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty - (Reverse) - Owner ns=1;i=2633   --> at /UANodeSet[1]/UAVariable[121]/References[1]/comment()[3] to <NULL>
@@ -680,7 +681,7 @@
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Description' but was '' - comparing <Description...> at /UANodeSet[1]/UADataType[5]/Description[2] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Definition' but was '' - comparing <Definition...> at /UANodeSet[1]/UADataType[5]/Definition[1] to <NULL>
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Definition' - comparing <NULL> to <Definition...> at /UANodeSet[1]/UADataType[23]/Definition[1]
-====>Expected attribute name '/UANodeSet[1]/UAVariable[123]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[123] to <UAVariable...> at /UANodeSet[1]/UAVariable[48]/@ArrayDimensions
+====>Expected attribute name '/UANodeSet[1]/UAVariable[123]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[123] to <UAVariable...> at /UANodeSet[1]/UAVariable[22]/@ArrayDimensions
 ====>Expected child '#comment' but was '' - comparing <!-- HasTypeDefinition -  - PropertyType i=68   --> at /UANodeSet[1]/UAVariable[123]/References[1]/comment()[1] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasModellingRule -  - Mandatory i=78   --> at /UANodeSet[1]/UAVariable[123]/References[1]/comment()[2] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty - (Reverse) - Owner ns=1;i=2636   --> at /UANodeSet[1]/UAVariable[123]/References[1]/comment()[3] to <NULL>
@@ -821,7 +822,7 @@
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty -  - EnumStrings ns=1;i=2861   --> at /UANodeSet[1]/UADataType[6]/References[1]/comment()[2] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Definition' but was '' - comparing <Definition...> at /UANodeSet[1]/UADataType[6]/Definition[1] to <NULL>
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Definition' - comparing <NULL> to <Definition...> at /UANodeSet[1]/UADataType[26]/Definition[1]
-====>Expected attribute name '/UANodeSet[1]/UAVariable[148]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[148] to <UAVariable...> at /UANodeSet[1]/UAVariable[55]/@ArrayDimensions
+====>Expected attribute name '/UANodeSet[1]/UAVariable[148]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[148] to <UAVariable...> at /UANodeSet[1]/UAVariable[23]/@ArrayDimensions
 ====>Expected child '#comment' but was '' - comparing <!-- HasTypeDefinition -  - PropertyType i=68   --> at /UANodeSet[1]/UAVariable[148]/References[1]/comment()[1] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasModellingRule -  - Mandatory i=78   --> at /UANodeSet[1]/UAVariable[148]/References[1]/comment()[2] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty - (Reverse) - Owner ns=1;i=2659   --> at /UANodeSet[1]/UAVariable[148]/References[1]/comment()[3] to <NULL>
@@ -1028,7 +1029,7 @@
 ====>Expected child '#comment' but was '' - comparing <!-- HasTypeDefinition -  - String i=68 PropertyType  --> at /UANodeSet[1]/UAVariable[185]/References[1]/comment()[1] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasModellingRule -  - Optional i=80   --> at /UANodeSet[1]/UAVariable[185]/References[1]/comment()[2] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty - (Reverse) - MTThreeSpaceSampleType ns=1;i=2641   --> at /UANodeSet[1]/UAVariable[185]/References[1]/comment()[3] to <NULL>
-====>Expected attribute name '/UANodeSet[1]/UAVariable[186]/@ValueRank' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[186]/@ValueRank to <UAVariable...> at /UANodeSet[1]/UAVariable[49]
+====>Expected attribute name '/UANodeSet[1]/UAVariable[186]/@ValueRank' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[186]/@ValueRank to <UAVariable...> at /UANodeSet[1]/UAVariable[52]
 ====>Expected child '#comment' but was '' - comparing <!-- HasTypeDefinition -  - EUInformation i=68 PropertyType  --> at /UANodeSet[1]/UAVariable[186]/References[1]/comment()[1] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasModellingRule -  - Mandatory i=78   --> at /UANodeSet[1]/UAVariable[186]/References[1]/comment()[2] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty - (Reverse) - MTThreeSpaceSampleType ns=1;i=2641   --> at /UANodeSet[1]/UAVariable[186]/References[1]/comment()[3] to <NULL>
@@ -1173,7 +1174,7 @@
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty -  - EnumStrings ns=1;i=2937   --> at /UANodeSet[1]/UADataType[9]/References[1]/comment()[2] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Definition' but was '' - comparing <Definition...> at /UANodeSet[1]/UADataType[9]/Definition[1] to <NULL>
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Definition' - comparing <NULL> to <Definition...> at /UANodeSet[1]/UADataType[28]/Definition[1]
-====>Expected attribute name '/UANodeSet[1]/UAVariable[214]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[214] to <UAVariable...> at /UANodeSet[1]/UAVariable[57]/@ArrayDimensions
+====>Expected attribute name '/UANodeSet[1]/UAVariable[214]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[214] to <UAVariable...> at /UANodeSet[1]/UAVariable[25]/@ArrayDimensions
 ====>Expected child '#comment' but was '' - comparing <!-- HasTypeDefinition -  - PropertyType i=68   --> at /UANodeSet[1]/UAVariable[214]/References[1]/comment()[1] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasModellingRule -  - Mandatory i=78   --> at /UANodeSet[1]/UAVariable[214]/References[1]/comment()[2] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty - (Reverse) - Owner ns=1;i=2669   --> at /UANodeSet[1]/UAVariable[214]/References[1]/comment()[3] to <NULL>
@@ -1188,7 +1189,7 @@
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty -  - EnumStrings ns=1;i=2943   --> at /UANodeSet[1]/UADataType[10]/References[1]/comment()[2] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Definition' but was '' - comparing <Definition...> at /UANodeSet[1]/UADataType[10]/Definition[1] to <NULL>
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Definition' - comparing <NULL> to <Definition...> at /UANodeSet[1]/UADataType[27]/Definition[1]
-====>Expected attribute name '/UANodeSet[1]/UAVariable[216]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[216] to <UAVariable...> at /UANodeSet[1]/UAVariable[56]/@ArrayDimensions
+====>Expected attribute name '/UANodeSet[1]/UAVariable[216]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[216] to <UAVariable...> at /UANodeSet[1]/UAVariable[24]/@ArrayDimensions
 ====>Expected child '#comment' but was '' - comparing <!-- HasTypeDefinition -  - PropertyType i=68   --> at /UANodeSet[1]/UAVariable[216]/References[1]/comment()[1] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasModellingRule -  - Mandatory i=78   --> at /UANodeSet[1]/UAVariable[216]/References[1]/comment()[2] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty - (Reverse) - Owner ns=1;i=2668   --> at /UANodeSet[1]/UAVariable[216]/References[1]/comment()[3] to <NULL>
@@ -1246,7 +1247,7 @@
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty -  - EnumStrings ns=1;i=2949   --> at /UANodeSet[1]/UADataType[11]/References[1]/comment()[2] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Definition' but was '' - comparing <Definition...> at /UANodeSet[1]/UADataType[11]/Definition[1] to <NULL>
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Definition' - comparing <NULL> to <Definition...> at /UANodeSet[1]/UADataType[1]/Definition[1]
-====>Expected attribute name '/UANodeSet[1]/UAVariable[218]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[218] to <UAVariable...> at /UANodeSet[1]/UAVariable[27]/@ArrayDimensions
+====>Expected attribute name '/UANodeSet[1]/UAVariable[218]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[218] to <UAVariable...> at /UANodeSet[1]/UAVariable[1]/@ArrayDimensions
 ====>Expected child '#comment' but was '' - comparing <!-- HasTypeDefinition -  - PropertyType i=68   --> at /UANodeSet[1]/UAVariable[218]/References[1]/comment()[1] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasModellingRule -  - Mandatory i=78   --> at /UANodeSet[1]/UAVariable[218]/References[1]/comment()[2] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty - (Reverse) - Owner ns=1;i=2197   --> at /UANodeSet[1]/UAVariable[218]/References[1]/comment()[3] to <NULL>
@@ -1260,7 +1261,7 @@
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty -  - EnumStrings ns=1;i=2955   --> at /UANodeSet[1]/UADataType[12]/References[1]/comment()[2] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Definition' but was '' - comparing <Definition...> at /UANodeSet[1]/UADataType[12]/Definition[1] to <NULL>
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Definition' - comparing <NULL> to <Definition...> at /UANodeSet[1]/UADataType[2]/Definition[1]
-====>Expected attribute name '/UANodeSet[1]/UAVariable[220]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[220] to <UAVariable...> at /UANodeSet[1]/UAVariable[28]/@ArrayDimensions
+====>Expected attribute name '/UANodeSet[1]/UAVariable[220]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[220] to <UAVariable...> at /UANodeSet[1]/UAVariable[2]/@ArrayDimensions
 ====>Expected child '#comment' but was '' - comparing <!-- HasTypeDefinition -  - PropertyType i=68   --> at /UANodeSet[1]/UAVariable[220]/References[1]/comment()[1] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasModellingRule -  - Mandatory i=78   --> at /UANodeSet[1]/UAVariable[220]/References[1]/comment()[2] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty - (Reverse) - Owner ns=1;i=2198   --> at /UANodeSet[1]/UAVariable[220]/References[1]/comment()[3] to <NULL>
@@ -1274,7 +1275,7 @@
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty -  - EnumStrings ns=1;i=2961   --> at /UANodeSet[1]/UADataType[13]/References[1]/comment()[2] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Definition' but was '' - comparing <Definition...> at /UANodeSet[1]/UADataType[13]/Definition[1] to <NULL>
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Definition' - comparing <NULL> to <Definition...> at /UANodeSet[1]/UADataType[3]/Definition[1]
-====>Expected attribute name '/UANodeSet[1]/UAVariable[222]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[222] to <UAVariable...> at /UANodeSet[1]/UAVariable[29]/@ArrayDimensions
+====>Expected attribute name '/UANodeSet[1]/UAVariable[222]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[222] to <UAVariable...> at /UANodeSet[1]/UAVariable[3]/@ArrayDimensions
 ====>Expected child '#comment' but was '' - comparing <!-- HasTypeDefinition -  - PropertyType i=68   --> at /UANodeSet[1]/UAVariable[222]/References[1]/comment()[1] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasModellingRule -  - Mandatory i=78   --> at /UANodeSet[1]/UAVariable[222]/References[1]/comment()[2] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty - (Reverse) - Owner ns=1;i=2199   --> at /UANodeSet[1]/UAVariable[222]/References[1]/comment()[3] to <NULL>
@@ -1290,7 +1291,7 @@
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty -  - EnumStrings ns=1;i=2967   --> at /UANodeSet[1]/UADataType[14]/References[1]/comment()[2] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Definition' but was '' - comparing <Definition...> at /UANodeSet[1]/UADataType[14]/Definition[1] to <NULL>
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Definition' - comparing <NULL> to <Definition...> at /UANodeSet[1]/UADataType[4]/Definition[1]
-====>Expected attribute name '/UANodeSet[1]/UAVariable[224]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[224] to <UAVariable...> at /UANodeSet[1]/UAVariable[30]/@ArrayDimensions
+====>Expected attribute name '/UANodeSet[1]/UAVariable[224]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[224] to <UAVariable...> at /UANodeSet[1]/UAVariable[4]/@ArrayDimensions
 ====>Expected child '#comment' but was '' - comparing <!-- HasTypeDefinition -  - PropertyType i=68   --> at /UANodeSet[1]/UAVariable[224]/References[1]/comment()[1] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasModellingRule -  - Mandatory i=78   --> at /UANodeSet[1]/UAVariable[224]/References[1]/comment()[2] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty - (Reverse) - Owner ns=1;i=2200   --> at /UANodeSet[1]/UAVariable[224]/References[1]/comment()[3] to <NULL>
@@ -1306,7 +1307,7 @@
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty -  - EnumStrings ns=1;i=2973   --> at /UANodeSet[1]/UADataType[15]/References[1]/comment()[2] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Definition' but was '' - comparing <Definition...> at /UANodeSet[1]/UADataType[15]/Definition[1] to <NULL>
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Definition' - comparing <NULL> to <Definition...> at /UANodeSet[1]/UADataType[6]/Definition[1]
-====>Expected attribute name '/UANodeSet[1]/UAVariable[226]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[226] to <UAVariable...> at /UANodeSet[1]/UAVariable[32]/@ArrayDimensions
+====>Expected attribute name '/UANodeSet[1]/UAVariable[226]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[226] to <UAVariable...> at /UANodeSet[1]/UAVariable[6]/@ArrayDimensions
 ====>Expected child '#comment' but was '' - comparing <!-- HasTypeDefinition -  - PropertyType i=68   --> at /UANodeSet[1]/UAVariable[226]/References[1]/comment()[1] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasModellingRule -  - Mandatory i=78   --> at /UANodeSet[1]/UAVariable[226]/References[1]/comment()[2] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty - (Reverse) - Owner ns=1;i=2202   --> at /UANodeSet[1]/UAVariable[226]/References[1]/comment()[3] to <NULL>
@@ -1330,7 +1331,7 @@
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty -  - EnumStrings ns=1;i=2979   --> at /UANodeSet[1]/UADataType[16]/References[1]/comment()[2] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Definition' but was '' - comparing <Definition...> at /UANodeSet[1]/UADataType[16]/Definition[1] to <NULL>
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Definition' - comparing <NULL> to <Definition...> at /UANodeSet[1]/UADataType[7]/Definition[1]
-====>Expected attribute name '/UANodeSet[1]/UAVariable[228]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[228] to <UAVariable...> at /UANodeSet[1]/UAVariable[33]/@ArrayDimensions
+====>Expected attribute name '/UANodeSet[1]/UAVariable[228]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[228] to <UAVariable...> at /UANodeSet[1]/UAVariable[7]/@ArrayDimensions
 ====>Expected child '#comment' but was '' - comparing <!-- HasTypeDefinition -  - PropertyType i=68   --> at /UANodeSet[1]/UAVariable[228]/References[1]/comment()[1] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasModellingRule -  - Mandatory i=78   --> at /UANodeSet[1]/UAVariable[228]/References[1]/comment()[2] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty - (Reverse) - Owner ns=1;i=2203   --> at /UANodeSet[1]/UAVariable[228]/References[1]/comment()[3] to <NULL>
@@ -1347,7 +1348,7 @@
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty -  - EnumStrings ns=1;i=2985   --> at /UANodeSet[1]/UADataType[17]/References[1]/comment()[2] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Definition' but was '' - comparing <Definition...> at /UANodeSet[1]/UADataType[17]/Definition[1] to <NULL>
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Definition' - comparing <NULL> to <Definition...> at /UANodeSet[1]/UADataType[9]/Definition[1]
-====>Expected attribute name '/UANodeSet[1]/UAVariable[230]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[230] to <UAVariable...> at /UANodeSet[1]/UAVariable[35]/@ArrayDimensions
+====>Expected attribute name '/UANodeSet[1]/UAVariable[230]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[230] to <UAVariable...> at /UANodeSet[1]/UAVariable[9]/@ArrayDimensions
 ====>Expected child '#comment' but was '' - comparing <!-- HasTypeDefinition -  - PropertyType i=68   --> at /UANodeSet[1]/UAVariable[230]/References[1]/comment()[1] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasModellingRule -  - Mandatory i=78   --> at /UANodeSet[1]/UAVariable[230]/References[1]/comment()[2] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty - (Reverse) - Owner ns=1;i=2205   --> at /UANodeSet[1]/UAVariable[230]/References[1]/comment()[3] to <NULL>
@@ -1363,7 +1364,7 @@
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty -  - EnumStrings ns=1;i=2991   --> at /UANodeSet[1]/UADataType[18]/References[1]/comment()[2] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Definition' but was '' - comparing <Definition...> at /UANodeSet[1]/UADataType[18]/Definition[1] to <NULL>
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Definition' - comparing <NULL> to <Definition...> at /UANodeSet[1]/UADataType[11]/Definition[1]
-====>Expected attribute name '/UANodeSet[1]/UAVariable[232]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[232] to <UAVariable...> at /UANodeSet[1]/UAVariable[37]/@ArrayDimensions
+====>Expected attribute name '/UANodeSet[1]/UAVariable[232]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[232] to <UAVariable...> at /UANodeSet[1]/UAVariable[11]/@ArrayDimensions
 ====>Expected child '#comment' but was '' - comparing <!-- HasTypeDefinition -  - PropertyType i=68   --> at /UANodeSet[1]/UAVariable[232]/References[1]/comment()[1] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasModellingRule -  - Mandatory i=78   --> at /UANodeSet[1]/UAVariable[232]/References[1]/comment()[2] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty - (Reverse) - Owner ns=1;i=2207   --> at /UANodeSet[1]/UAVariable[232]/References[1]/comment()[3] to <NULL>
@@ -1377,7 +1378,7 @@
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty -  - EnumStrings ns=1;i=2997   --> at /UANodeSet[1]/UADataType[19]/References[1]/comment()[2] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Definition' but was '' - comparing <Definition...> at /UANodeSet[1]/UADataType[19]/Definition[1] to <NULL>
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Definition' - comparing <NULL> to <Definition...> at /UANodeSet[1]/UADataType[18]/Definition[1]
-====>Expected attribute name '/UANodeSet[1]/UAVariable[234]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[234] to <UAVariable...> at /UANodeSet[1]/UAVariable[44]/@ArrayDimensions
+====>Expected attribute name '/UANodeSet[1]/UAVariable[234]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[234] to <UAVariable...> at /UANodeSet[1]/UAVariable[18]/@ArrayDimensions
 ====>Expected child '#comment' but was '' - comparing <!-- HasTypeDefinition -  - PropertyType i=68   --> at /UANodeSet[1]/UAVariable[234]/References[1]/comment()[1] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasModellingRule -  - Mandatory i=78   --> at /UANodeSet[1]/UAVariable[234]/References[1]/comment()[2] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty - (Reverse) - Owner ns=1;i=2262   --> at /UANodeSet[1]/UAVariable[234]/References[1]/comment()[3] to <NULL>
@@ -1397,7 +1398,7 @@
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty -  - EnumStrings ns=1;i=3003   --> at /UANodeSet[1]/UADataType[20]/References[1]/comment()[2] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Definition' but was '' - comparing <Definition...> at /UANodeSet[1]/UADataType[20]/Definition[1] to <NULL>
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Definition' - comparing <NULL> to <Definition...> at /UANodeSet[1]/UADataType[12]/Definition[1]
-====>Expected attribute name '/UANodeSet[1]/UAVariable[236]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[236] to <UAVariable...> at /UANodeSet[1]/UAVariable[38]/@ArrayDimensions
+====>Expected attribute name '/UANodeSet[1]/UAVariable[236]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[236] to <UAVariable...> at /UANodeSet[1]/UAVariable[12]/@ArrayDimensions
 ====>Expected child '#comment' but was '' - comparing <!-- HasTypeDefinition -  - PropertyType i=68   --> at /UANodeSet[1]/UAVariable[236]/References[1]/comment()[1] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasModellingRule -  - Mandatory i=78   --> at /UANodeSet[1]/UAVariable[236]/References[1]/comment()[2] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty - (Reverse) - Owner ns=1;i=2208   --> at /UANodeSet[1]/UAVariable[236]/References[1]/comment()[3] to <NULL>
@@ -1414,15 +1415,15 @@
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty -  - EnumStrings ns=1;i=3009   --> at /UANodeSet[1]/UADataType[21]/References[1]/comment()[2] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Definition' but was '' - comparing <Definition...> at /UANodeSet[1]/UADataType[21]/Definition[1] to <NULL>
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Definition' - comparing <NULL> to <Definition...> at /UANodeSet[1]/UADataType[17]/Definition[1]
-====>Expected attribute value '1:EnumStrings' but was 'EnumValues' - comparing <UAVariable BrowseName="1:EnumStrings"...> at /UANodeSet[1]/UAVariable[238]/@BrowseName to <UAVariable BrowseName="EnumValues"...> at /UANodeSet[1]/UAVariable[43]/@BrowseName
-====>Expected attribute value 'LocalizedText' but was 'i=7594' - comparing <UAVariable DataType="LocalizedText"...> at /UANodeSet[1]/UAVariable[238]/@DataType to <UAVariable DataType="i=7594"...> at /UANodeSet[1]/UAVariable[43]/@DataType
-====>Expected attribute name '/UANodeSet[1]/UAVariable[238]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[238] to <UAVariable...> at /UANodeSet[1]/UAVariable[43]/@ArrayDimensions
-====>Expected text value 'EnumStrings' but was 'EnumValues' - comparing <DisplayName ...>EnumStrings</DisplayName> at /UANodeSet[1]/UAVariable[238]/DisplayName[1]/text()[1] to <DisplayName ...>EnumValues</DisplayName> at /UANodeSet[1]/UAVariable[43]/DisplayName[1]/text()[1]
+====>Expected attribute value '1:EnumStrings' but was 'EnumValues' - comparing <UAVariable BrowseName="1:EnumStrings"...> at /UANodeSet[1]/UAVariable[238]/@BrowseName to <UAVariable BrowseName="EnumValues"...> at /UANodeSet[1]/UAVariable[17]/@BrowseName
+====>Expected attribute value 'LocalizedText' but was 'i=7594' - comparing <UAVariable DataType="LocalizedText"...> at /UANodeSet[1]/UAVariable[238]/@DataType to <UAVariable DataType="i=7594"...> at /UANodeSet[1]/UAVariable[17]/@DataType
+====>Expected attribute name '/UANodeSet[1]/UAVariable[238]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[238] to <UAVariable...> at /UANodeSet[1]/UAVariable[17]/@ArrayDimensions
+====>Expected text value 'EnumStrings' but was 'EnumValues' - comparing <DisplayName ...>EnumStrings</DisplayName> at /UANodeSet[1]/UAVariable[238]/DisplayName[1]/text()[1] to <DisplayName ...>EnumValues</DisplayName> at /UANodeSet[1]/UAVariable[17]/DisplayName[1]/text()[1]
 ====>Expected child '#comment' but was '' - comparing <!-- HasTypeDefinition -  - PropertyType i=68   --> at /UANodeSet[1]/UAVariable[238]/References[1]/comment()[1] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasModellingRule -  - Mandatory i=78   --> at /UANodeSet[1]/UAVariable[238]/References[1]/comment()[2] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty - (Reverse) - Owner ns=1;i=2234   --> at /UANodeSet[1]/UAVariable[238]/References[1]/comment()[3] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2008/02/Types.xsd:ListOfLocalizedText' but was '' - comparing <ListOfLocalizedText...> at /UANodeSet[1]/UAVariable[238]/Value[1]/ListOfLocalizedText[1] to <NULL>
-====>Expected child '' but was 'http://opcfoundation.org/UA/2008/02/Types.xsd:ListOfExtensionObject' - comparing <NULL> to <uax:ListOfExtensionObject...> at /UANodeSet[1]/UAVariable[43]/Value[1]/ListOfExtensionObject[1]
+====>Expected child '' but was 'http://opcfoundation.org/UA/2008/02/Types.xsd:ListOfExtensionObject' - comparing <NULL> to <uax:ListOfExtensionObject...> at /UANodeSet[1]/UAVariable[17]/Value[1]/ListOfExtensionObject[1]
 ====>Expected child '#comment' but was '' - comparing <!-- HasEncoding - (Reverse) - InterfaceStateDataType ns=1;i=2234   --> at /UANodeSet[1]/UAObject[41]/References[1]/comment()[1] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasTypeDefinition -  - DataTypeEncodingType i=76   --> at /UANodeSet[1]/UAObject[41]/References[1]/comment()[2] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasDescription -  - HasDescription ns=1;i=3014   --> at /UANodeSet[1]/UAObject[41]/References[1]/comment()[3] to <NULL>
@@ -1431,7 +1432,7 @@
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty -  - EnumStrings ns=1;i=3015   --> at /UANodeSet[1]/UADataType[22]/References[1]/comment()[2] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Definition' but was '' - comparing <Definition...> at /UANodeSet[1]/UADataType[22]/Definition[1] to <NULL>
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Definition' - comparing <NULL> to <Definition...> at /UANodeSet[1]/UADataType[16]/Definition[1]
-====>Expected attribute name '/UANodeSet[1]/UAVariable[240]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[240] to <UAVariable...> at /UANodeSet[1]/UAVariable[42]/@ArrayDimensions
+====>Expected attribute name '/UANodeSet[1]/UAVariable[240]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[240] to <UAVariable...> at /UANodeSet[1]/UAVariable[16]/@ArrayDimensions
 ====>Expected child '#comment' but was '' - comparing <!-- HasTypeDefinition -  - PropertyType i=68   --> at /UANodeSet[1]/UAVariable[240]/References[1]/comment()[1] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasModellingRule -  - Mandatory i=78   --> at /UANodeSet[1]/UAVariable[240]/References[1]/comment()[2] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty - (Reverse) - Owner ns=1;i=2230   --> at /UANodeSet[1]/UAVariable[240]/References[1]/comment()[3] to <NULL>
@@ -1512,7 +1513,7 @@
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty -  - EnumStrings ns=1;i=3021   --> at /UANodeSet[1]/UADataType[23]/References[1]/comment()[2] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Definition' but was '' - comparing <Definition...> at /UANodeSet[1]/UADataType[23]/Definition[1] to <NULL>
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Definition' - comparing <NULL> to <Definition...> at /UANodeSet[1]/UADataType[8]/Definition[1]
-====>Expected attribute name '/UANodeSet[1]/UAVariable[242]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[242] to <UAVariable...> at /UANodeSet[1]/UAVariable[34]/@ArrayDimensions
+====>Expected attribute name '/UANodeSet[1]/UAVariable[242]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[242] to <UAVariable...> at /UANodeSet[1]/UAVariable[8]/@ArrayDimensions
 ====>Expected child '#comment' but was '' - comparing <!-- HasTypeDefinition -  - PropertyType i=68   --> at /UANodeSet[1]/UAVariable[242]/References[1]/comment()[1] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasModellingRule -  - Mandatory i=78   --> at /UANodeSet[1]/UAVariable[242]/References[1]/comment()[2] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty - (Reverse) - Owner ns=1;i=2204   --> at /UANodeSet[1]/UAVariable[242]/References[1]/comment()[3] to <NULL>
@@ -1526,7 +1527,7 @@
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty -  - EnumStrings ns=1;i=3027   --> at /UANodeSet[1]/UADataType[24]/References[1]/comment()[2] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Definition' but was '' - comparing <Definition...> at /UANodeSet[1]/UADataType[24]/Definition[1] to <NULL>
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Definition' - comparing <NULL> to <Definition...> at /UANodeSet[1]/UADataType[5]/Definition[1]
-====>Expected attribute name '/UANodeSet[1]/UAVariable[244]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[244] to <UAVariable...> at /UANodeSet[1]/UAVariable[31]/@ArrayDimensions
+====>Expected attribute name '/UANodeSet[1]/UAVariable[244]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[244] to <UAVariable...> at /UANodeSet[1]/UAVariable[5]/@ArrayDimensions
 ====>Expected child '#comment' but was '' - comparing <!-- HasTypeDefinition -  - PropertyType i=68   --> at /UANodeSet[1]/UAVariable[244]/References[1]/comment()[1] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasModellingRule -  - Mandatory i=78   --> at /UANodeSet[1]/UAVariable[244]/References[1]/comment()[2] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty - (Reverse) - Owner ns=1;i=2201   --> at /UANodeSet[1]/UAVariable[244]/References[1]/comment()[3] to <NULL>
@@ -1541,7 +1542,7 @@
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty -  - EnumStrings ns=1;i=3033   --> at /UANodeSet[1]/UADataType[25]/References[1]/comment()[2] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Definition' but was '' - comparing <Definition...> at /UANodeSet[1]/UADataType[25]/Definition[1] to <NULL>
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Definition' - comparing <NULL> to <Definition...> at /UANodeSet[1]/UADataType[13]/Definition[1]
-====>Expected attribute name '/UANodeSet[1]/UAVariable[246]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[246] to <UAVariable...> at /UANodeSet[1]/UAVariable[39]/@ArrayDimensions
+====>Expected attribute name '/UANodeSet[1]/UAVariable[246]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[246] to <UAVariable...> at /UANodeSet[1]/UAVariable[13]/@ArrayDimensions
 ====>Expected child '#comment' but was '' - comparing <!-- HasTypeDefinition -  - PropertyType i=68   --> at /UANodeSet[1]/UAVariable[246]/References[1]/comment()[1] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasModellingRule -  - Mandatory i=78   --> at /UANodeSet[1]/UAVariable[246]/References[1]/comment()[2] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty - (Reverse) - Owner ns=1;i=2209   --> at /UANodeSet[1]/UAVariable[246]/References[1]/comment()[3] to <NULL>
@@ -1557,7 +1558,7 @@
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty -  - EnumStrings ns=1;i=3039   --> at /UANodeSet[1]/UADataType[26]/References[1]/comment()[2] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Definition' but was '' - comparing <Definition...> at /UANodeSet[1]/UADataType[26]/Definition[1] to <NULL>
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Definition' - comparing <NULL> to <Definition...> at /UANodeSet[1]/UADataType[14]/Definition[1]
-====>Expected attribute name '/UANodeSet[1]/UAVariable[248]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[248] to <UAVariable...> at /UANodeSet[1]/UAVariable[40]/@ArrayDimensions
+====>Expected attribute name '/UANodeSet[1]/UAVariable[248]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[248] to <UAVariable...> at /UANodeSet[1]/UAVariable[14]/@ArrayDimensions
 ====>Expected child '#comment' but was '' - comparing <!-- HasTypeDefinition -  - PropertyType i=68   --> at /UANodeSet[1]/UAVariable[248]/References[1]/comment()[1] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasModellingRule -  - Mandatory i=78   --> at /UANodeSet[1]/UAVariable[248]/References[1]/comment()[2] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty - (Reverse) - Owner ns=1;i=2210   --> at /UANodeSet[1]/UAVariable[248]/References[1]/comment()[3] to <NULL>
@@ -1572,7 +1573,7 @@
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty -  - EnumStrings ns=1;i=3045   --> at /UANodeSet[1]/UADataType[27]/References[1]/comment()[2] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Definition' but was '' - comparing <Definition...> at /UANodeSet[1]/UADataType[27]/Definition[1] to <NULL>
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Definition' - comparing <NULL> to <Definition...> at /UANodeSet[1]/UADataType[15]/Definition[1]
-====>Expected attribute name '/UANodeSet[1]/UAVariable[250]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[250] to <UAVariable...> at /UANodeSet[1]/UAVariable[41]/@ArrayDimensions
+====>Expected attribute name '/UANodeSet[1]/UAVariable[250]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[250] to <UAVariable...> at /UANodeSet[1]/UAVariable[15]/@ArrayDimensions
 ====>Expected child '#comment' but was '' - comparing <!-- HasTypeDefinition -  - PropertyType i=68   --> at /UANodeSet[1]/UAVariable[250]/References[1]/comment()[1] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasModellingRule -  - Mandatory i=78   --> at /UANodeSet[1]/UAVariable[250]/References[1]/comment()[2] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty - (Reverse) - Owner ns=1;i=2211   --> at /UANodeSet[1]/UAVariable[250]/References[1]/comment()[3] to <NULL>
@@ -1587,7 +1588,7 @@
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty -  - EnumStrings ns=1;i=3051   --> at /UANodeSet[1]/UADataType[28]/References[1]/comment()[2] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Definition' but was '' - comparing <Definition...> at /UANodeSet[1]/UADataType[28]/Definition[1] to <NULL>
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Definition' - comparing <NULL> to <Definition...> at /UANodeSet[1]/UADataType[10]/Definition[1]
-====>Expected attribute name '/UANodeSet[1]/UAVariable[252]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[252] to <UAVariable...> at /UANodeSet[1]/UAVariable[36]/@ArrayDimensions
+====>Expected attribute name '/UANodeSet[1]/UAVariable[252]' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[252] to <UAVariable...> at /UANodeSet[1]/UAVariable[10]/@ArrayDimensions
 ====>Expected child '#comment' but was '' - comparing <!-- HasTypeDefinition -  - PropertyType i=68   --> at /UANodeSet[1]/UAVariable[252]/References[1]/comment()[1] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasModellingRule -  - Mandatory i=78   --> at /UANodeSet[1]/UAVariable[252]/References[1]/comment()[2] to <NULL>
 ====>Expected child '#comment' but was '' - comparing <!-- HasProperty - (Reverse) - Owner ns=1;i=2206   --> at /UANodeSet[1]/UAVariable[252]/References[1]/comment()[3] to <NULL>

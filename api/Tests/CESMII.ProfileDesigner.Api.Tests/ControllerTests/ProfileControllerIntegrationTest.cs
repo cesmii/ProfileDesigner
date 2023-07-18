@@ -313,6 +313,7 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int.Controllers
         {
             var namespacePattern = string.IsNullOrEmpty(cloudLibraryId) ? NAMESPACE_PATTERN : NAMESPACE_CLOUD_PATTERN;
             var dt = DateTime.SpecifyKind(new DateTime(DateTime.Now.Year, 1, i), DateTimeKind.Utc);
+            var userId = (user != null && i % 2 == 0) ? user.ID : null;
             return new Profile()
             {
                 Namespace = $"{namespacePattern}{i}/{uuid}",
@@ -327,7 +328,11 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int.Controllers
                 AuthorId = user?.ID,
                 //set some owners to null
                 OwnerId = (user != null && i % 2 == 0) ? user.ID : null,
-                Keywords = new string[] { guidCommon.ToString() }
+                Keywords = new string[] { guidCommon.ToString() },
+                UpdatedById = user?.ID ?? 0,
+                CreatedById = user?.ID ?? 0,
+                Updated = DateTime.UtcNow,
+                Created = DateTime.UtcNow,
             };
         }
 

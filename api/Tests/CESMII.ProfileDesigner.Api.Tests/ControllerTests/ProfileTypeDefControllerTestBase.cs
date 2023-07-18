@@ -267,7 +267,11 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int.Controllers
                 PublishDate = dt,
                 AuthorId = user?.ID,
                 OwnerId = user != null ? user.ID : null,
-                Keywords = new string[] { guidCommon.ToString() }
+                Keywords = new string[] { guidCommon.ToString() },
+                CreatedById = user == null ? 0 : user.ID.Value,
+                UpdatedById = user == null ? 0 : user.ID.Value,
+                Created = dt,
+                Updated = dt,
             };
         }
 

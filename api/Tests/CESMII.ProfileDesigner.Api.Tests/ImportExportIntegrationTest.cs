@@ -54,27 +54,46 @@ namespace CESMII.ProfileDesigner.Api.Tests
 
         public const string strTestNodeSetDirectory = "TestNodeSets";
 
+        [Trait("SmokeTest", "true")] //trait can be applied at test or test class level
+        [Theory]
+        [ClassData(typeof(SmokeTestNodeSetFiles))]
+
+        public Task ImportSmoke(string fileName)
+        {
+            return ImportInternal(fileName, true);
+        }
         [Theory]
         [ClassData(typeof(TestNodeSetFiles))]
 
-        public async Task Import(string file)
+        public Task Import(string fileName)
         {
-            file = Path.Combine(strTestNodeSetDirectory, file);
-            output.WriteLine($"Testing {file}");
+            return ImportInternal(fileName, true);
+
+        }
+        private async Task ImportInternal(string fileName, bool export)
+        {
+            var filePath = Path.Combine(strTestNodeSetDirectory, fileName);
+
+            output.WriteLine($"Testing {filePath}");
             // Arrange
             var apiClient = _factory.GetApiClientAuthenticated();
 
             // ACT
-            var importRequest = new List<ImportOPCModel> { new ImportOPCModel { FileName = file, Data = File.ReadAllText(file) } };
+            var importRequest = new List<ImportOPCModel> { new ImportOPCModel { FileName = filePath, Data = File.ReadAllText(filePath) } };
             await ImportNodeSets(apiClient, importRequest);
+            if (export)
+            {
+                await ExportInternal(fileName, false);
+            }
         }
 
-        [Theory]
-        [ClassData(typeof(TestNodeSetFiles))]
-        public Task Export(string file)
+        //[Theory]
+        //[ClassData(typeof(TestNodeSetFiles))]
+        internal Task Export(string file)
         {
             return ExportInternal(file, false);
         }
+
         [Theory]
         [ClassData(typeof(AASXTestNodeSetFiles))]
         public Task ExportAASX(string file)
@@ -347,14 +366,23 @@ namespace CESMII.ProfileDesigner.Api.Tests
 
                     if ((int?)(importLogItem?.Status) != (int)TaskStatusEnum.Completed)
                     {
-                        var errorText = $"Error importing nodeset {nextBatch.FirstOrDefault().FileName}: {importLogItem.Messages.FirstOrDefault().Message}";
-                        output.WriteLine(errorText);
-                        //show a clear message that the issue was we ran out of time rather than a failure
-                        if (sw.Elapsed >= TimeSpan.FromMinutes(timeLimit))
+                        var message = importLogItem.Messages.FirstOrDefault().Message;
+                        if (message.ToLower().Contains("already imported"))
                         {
-                            output.WriteLine($"PollImportStatus||Time limit of {timeLimit} minutes exceeded");
+                            output.WriteLine($"Warning: {message}. Should not occur on clean run.");
+                            importLogItem.Status = TaskStatusEnum.Completed;
                         }
-                        Assert.True(false, errorText);
+                        else
+                        {
+                            var errorText = $"Error importing nodeset {nextBatch.FirstOrDefault().FileName}: {message}";
+                            output.WriteLine(errorText);
+                            //show a clear message that the issue was we ran out of time rather than a failure
+                            if (sw.Elapsed >= TimeSpan.FromMinutes(timeLimit))
+                            {
+                                output.WriteLine($"PollImportStatus||Time limit of {timeLimit} minutes exceeded");
+                            }
+                            Assert.True(false, errorText);
+                        }
                     }
                     Assert.True((int?)(importLogItem?.Status) == (int)TaskStatusEnum.Completed);
                     //Assert.True(!status?.Messages?.Any());
@@ -513,8 +541,12 @@ namespace CESMII.ProfileDesigner.Api.Tests
                     {
                         if (!orderedImports.Any(imr => imr.Item2 == dependency))
                         {
-                            bDependenciesSatisfied = false;
-                            continue;
+                            if (importsAndModels.Any(imr => imr.modelUri == dependency))
+                            {
+                                // dependency is being imported but does not yet have it's dependencies satisfied
+                                bDependenciesSatisfied = false;
+                                continue;
+                            }
                         }
                     }
                     if (bDependenciesSatisfied)
@@ -637,16 +669,20 @@ namespace CESMII.ProfileDesigner.Api.Tests
 
     }
 
-    internal class TestNodeSetFiles : IEnumerable<object[]>
+    internal class TestNodeSetFilesBase : IEnumerable<object[]>
     {
-        internal static string[] GetFiles()
+        protected virtual string[] GetFiles(Func<string, bool> filter)
         {
             var nodeSetFiles = Directory.GetFiles(Integration.strTestNodeSetDirectory);
 
             var importRequest = new List<ImportOPCModel>();
             foreach (var file in nodeSetFiles)
             {
-                importRequest.Add(new ImportOPCModel { FileName = Path.GetFileName(file), Data = File.ReadAllText(file), });
+                var fileName = Path.GetFileName(file);
+                if (filter == null || filter(fileName))
+                {
+                    importRequest.Add(new ImportOPCModel { FileName = fileName, Data = File.ReadAllText(file), });
+                }
             }
             var orderedImportRequest = Integration.OrderImportsByDependencies(importRequest);
             var orderedNodeSetFiles = orderedImportRequest.Select(r => r.FileName).ToArray();
@@ -657,22 +693,52 @@ namespace CESMII.ProfileDesigner.Api.Tests
         public IEnumerator<object[]> GetEnumerator()
         {
             Integration._ImportExportPending = true;
-            var files = GetFiles();
+            var files = GetFiles(null);
             return files.Select(f => new object[] { f }).GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
-    internal class AASXTestNodeSetFiles : IEnumerable<object[]>
-    {
-        public IEnumerator<object[]> GetEnumerator()
-        {
-            Integration._ImportExportPending = true;
-            var files = TestNodeSetFiles.GetFiles().Skip(3).Take(3);
-            return files.Select(f => new object[] { f }).GetEnumerator();
-        }
 
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    internal class TestNodeSetFiles : TestNodeSetFilesBase
+    {
+        protected override string[] GetFiles(Func<string, bool> filter)
+        {
+            var smokeTestFileName = Path.Combine(Integration.strTestNodeSetDirectory, "ExpectedDiffs", "smoketests.txt");
+            string[] smokeTests = new string[0];
+            if (File.Exists(smokeTestFileName))
+            {
+                smokeTests = File.ReadAllLines(Path.Combine(Integration.strTestNodeSetDirectory, "ExpectedDiffs", "smoketests.txt"));
+            }
+
+            var files = base.GetFiles(f => !smokeTests.Contains(f) && (filter == null || filter(f)));
+            return files;
+        }
+    }
+
+
+    internal class SmokeTestNodeSetFiles : TestNodeSetFilesBase
+    {
+        protected override string[] GetFiles(Func<string, bool> filter)
+        {
+            var smokeTestFileName = Path.Combine(Integration.strTestNodeSetDirectory, "ExpectedDiffs", "smoketests.txt");
+            string[] smokeTests = new string[0];
+            if (File.Exists(smokeTestFileName))
+            {
+                smokeTests = File.ReadAllLines(Path.Combine(Integration.strTestNodeSetDirectory, "ExpectedDiffs", "smoketests.txt"));
+            }
+
+            var files = base.GetFiles(f => smokeTests.Contains(f) && (filter == null || filter(f)));
+            return files;
+        }
+    }
+
+    internal class AASXTestNodeSetFiles : SmokeTestNodeSetFiles
+    {
+        protected override string[] GetFiles(Func<string, bool> filter)
+        {
+            return base.GetFiles(filter).Take(3).ToArray();
+        }
     }
 
     public class ImportExportIntegrationTestCaseOrderer : ITestCaseOrderer
@@ -706,7 +772,7 @@ namespace CESMII.ProfileDesigner.Api.Tests
                     return bHasDiff;
                 }).ToList();
             }
-            var importTestCaseList = testCasesWithExpectedDiff.Where(t => t.TestMethod.Method.Name == nameof(Integration.Import)).ToList();
+            var importTestCaseList = testCasesWithExpectedDiff.Where(t => t.TestMethod.Method.Name == nameof(Integration.Import) || t.TestMethod.Method.Name == nameof(Integration.ImportSmoke)).ToList();
             var testFiles = importTestCaseList.Select(t => t.TestMethodArguments[0].ToString()).ToList();
             var importRequests = testFiles.Select(file =>
             {
@@ -726,7 +792,7 @@ namespace CESMII.ProfileDesigner.Api.Tests
             var unstableFileName = Path.Combine(Integration.strTestNodeSetDirectory, "ExpectedDiffs", "unstable.txt");
             if (File.Exists(unstableFileName))
             {
-                File.ReadAllLines(Path.Combine(Integration.strTestNodeSetDirectory, "ExpectedDiffs", "unstable.txt"));
+                unstableTests = File.ReadAllLines(Path.Combine(Integration.strTestNodeSetDirectory, "ExpectedDiffs", "unstable.txt"));
             }
             foreach (var remaining in remainingOrdered)
             {
@@ -752,12 +818,13 @@ namespace CESMII.ProfileDesigner.Api.Tests
             // Then all other tests
             var remainingUnorderedTests = testCasesWithExpectedDiff.Except(orderedTestCases).Except(excludedTestCases).ToList();
 
-            return orderedTestCases.Concat(remainingUnorderedTests).ToList();
+            var allTestCases = orderedTestCases.Concat(remainingUnorderedTests).ToList();
+            return allTestCases;
         }
 
         static bool IsImportExportTest(ITestCase t)
         {
-            return new[] { nameof(Integration.Import), nameof(Integration.Export), nameof(Integration.ExportAASX) }.Contains(t.TestMethod.Method.Name);
+            return new[] { nameof(Integration.Import), nameof(Integration.ImportSmoke), nameof(Integration.Export), nameof(Integration.ExportAASX) }.Contains(t.TestMethod.Method.Name);
         }
     }
 

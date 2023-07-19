@@ -58,19 +58,19 @@ namespace CESMII.ProfileDesigner.Api.Tests
         [Theory]
         [ClassData(typeof(SmokeTestNodeSetFiles))]
 
-        public Task ImportSmoke(string fileName)
+        public Task ImportExportSmoke(string fileName)
         {
-            return ImportInternal(fileName, true);
+            return ImportExportInternal(fileName, true);
         }
         [Theory]
         [ClassData(typeof(TestNodeSetFiles))]
 
-        public Task Import(string fileName)
+        public Task ImportExport(string fileName)
         {
-            return ImportInternal(fileName, true);
+            return ImportExportInternal(fileName, true);
 
         }
-        private async Task ImportInternal(string fileName, bool export)
+        private async Task ImportExportInternal(string fileName, bool export)
         {
             var filePath = Path.Combine(strTestNodeSetDirectory, fileName);
 
@@ -772,7 +772,7 @@ namespace CESMII.ProfileDesigner.Api.Tests
                     return bHasDiff;
                 }).ToList();
             }
-            var importTestCaseList = testCasesWithExpectedDiff.Where(t => t.TestMethod.Method.Name == nameof(Integration.Import) || t.TestMethod.Method.Name == nameof(Integration.ImportSmoke)).ToList();
+            var importTestCaseList = testCasesWithExpectedDiff.Where(t => t.TestMethod.Method.Name == nameof(Integration.ImportExport) || t.TestMethod.Method.Name == nameof(Integration.ImportExportSmoke)).ToList();
             var testFiles = importTestCaseList.Select(t => t.TestMethodArguments[0].ToString()).ToList();
             var importRequests = testFiles.Select(file =>
             {
@@ -824,7 +824,7 @@ namespace CESMII.ProfileDesigner.Api.Tests
 
         static bool IsImportExportTest(ITestCase t)
         {
-            return new[] { nameof(Integration.Import), nameof(Integration.ImportSmoke), nameof(Integration.Export), nameof(Integration.ExportAASX) }.Contains(t.TestMethod.Method.Name);
+            return new[] { nameof(Integration.ImportExport), nameof(Integration.ImportExportSmoke), nameof(Integration.Export), nameof(Integration.ExportAASX) }.Contains(t.TestMethod.Method.Name);
         }
     }
 

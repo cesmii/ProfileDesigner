@@ -223,11 +223,13 @@ function ProfileImporter(props) {
 
             //if we had a previous import(s) that have completed successfully, 
             //clear the previous completed message to avoid confusion - this triggers server side delete of message
-            loadingProps.importingLogs.forEach((x) => {
-                if (x.status === AppSettings.ImportLogStatus.Completed || x.status === AppSettings.ImportLogStatus.Failed) {
-                    setDeleteImportId(x.id);
-                }
-            });
+            if (loadingProps.importingLogs != null) {
+                loadingProps.importingLogs.forEach((x) => {
+                    if (x.status === AppSettings.ImportLogStatus.Completed || x.status === AppSettings.ImportLogStatus.Failed) {
+                        setDeleteImportId(x.id);
+                    }
+                });
+            }
 
             if (result.status === 200) {
                 //check for success message OR check if some validation failed

@@ -270,7 +270,7 @@ function ProfileExplorer(props) {
     const WhatAboutThis = (myhref) =>
     {
         if (loadingProps.bIsTypeEditUnsaved || loadingProps.bIsProfileEditUnsaved) {
-            window.location = myhref;
+            //window.location = myhref;
         }
     }
     const renderSearchUI = () => {

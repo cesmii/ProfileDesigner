@@ -452,13 +452,27 @@ CREATE TABLE public.profile
 	test_specification_url text NULL,
 	supported_locales text[] NULL,
 	-- End Cloud Library meta data
-	
+
+    created timestamp with time zone NOT NULL,
+    created_by_id integer NOT NULL,
+    updated timestamp with time zone NOT NULL,
+    updated_by_id integer NOT NULL,
     --CONSTRAINT profile_standard_profile_id FOREIGN KEY (ua_standard_profile_id)
     --    REFERENCES public.standard_nodeset (id) MATCH SIMPLE
     --    ON UPDATE NO ACTION
     --    ON DELETE NO ACTION
     --    DEFERRABLE INITIALLY DEFERRED,	
     CONSTRAINT profile_author_id FOREIGN KEY (author_id)
+        REFERENCES public.user (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+        DEFERRABLE INITIALLY DEFERRED,	
+    CONSTRAINT profile_created_by_id FOREIGN KEY (created_by_id)
+        REFERENCES public.user (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+        DEFERRABLE INITIALLY DEFERRED,
+    CONSTRAINT profile_updated_by_id FOREIGN KEY (updated_by_id)
         REFERENCES public.user (id) MATCH SIMPLE
         ON UPDATE NO ACTION
         ON DELETE NO ACTION

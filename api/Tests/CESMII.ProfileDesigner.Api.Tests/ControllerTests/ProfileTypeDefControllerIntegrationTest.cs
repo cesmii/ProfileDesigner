@@ -15,8 +15,9 @@ using CESMII.ProfileDesigner.Data.Repositories;
 using CESMII.ProfileDesigner.Data.Entities;
 using CESMII.ProfileDesigner.Api.Shared.Models;
 
-namespace CESMII.ProfileDesigner.Api.Tests.Int
+namespace CESMII.ProfileDesigner.Api.Tests.Int.Controllers
 {
+    [Trait("SmokeTest", "true")] //trait can be applied at test or test class level
     public class ProfileTypeDefControllerIntegrationTest : ProfileTypeDefControllerTestBase
     {
         //note - set user id in authors to 1 which is the test user created in base test code
@@ -332,10 +333,29 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
             var expectedCount = CalculateExpectedCountSearch(itemsAdded, query, isMine, isPopular, typeDefType);
 
             // ACT
+            List<ProfileTypeDefinitionModel> items = null;
+            bool bMore = false;
             //get the list of items
-            var result = await apiClient.ApiGetManyAsync<ProfileTypeDefinitionModel>(URL_LIBRARY, filter);
+            do 
+            {
+                if (items!= null)
+                {
+                    filter.Skip = items.Count;
+                }
+                var result = await apiClient.ApiGetManyAsync<ProfileTypeDefinitionModel>(URL_LIBRARY, filter);
+                if (items == null)
+                {
+                    items = result.Data;
+                }
+                else
+                {
+                    items.AddRange(result.Data);
+                }
+                bMore = result.Count > items.Count;
+            }
+            while (bMore);
             //always add the extra where clause after the fact of _guidCommon in case another test is adding stuff in parallel. 
-            var items = result.Data
+            items = items
                 .Where(x => x.SymbolicName != null && x.SymbolicName.ToLower().Contains(_guidCommon.ToString())).ToList();
             //always remove the parent type defs from result items - we denote those by putting external author = guidCommon. 
             items = items
@@ -376,7 +396,7 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
                 //create a parent profile - one that is mine, one that is generic
                 var profileMine = CreateProfileEntity(_guidCommon, user);
                 await repoProfile.AddAsync(profileMine);
-                var profileCore = CreateProfileEntity(_guidCommon, null);
+                var profileCore = CreateProfileEntity(_guidCommon, user);
                 profileCore.AuthorId = null;
                 profileCore.OwnerId = null;
                 await repoProfile.AddAsync(profileCore);

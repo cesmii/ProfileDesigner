@@ -17,7 +17,7 @@ using CESMII.ProfileDesigner.Data.Entities;
 using CESMII.ProfileDesigner.Data.Contexts;
 using CESMII.ProfileDesigner.Api.Shared.Models;
 
-namespace CESMII.ProfileDesigner.Api.Tests.Int
+namespace CESMII.ProfileDesigner.Api.Tests.Int.Controllers
 {
     public class ProfileTypeDefControllerTestBase : ControllerTestBase
     {
@@ -267,7 +267,11 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
                 PublishDate = dt,
                 AuthorId = user?.ID,
                 OwnerId = user != null ? user.ID : null,
-                Keywords = new string[] { guidCommon.ToString() }
+                Keywords = new string[] { guidCommon.ToString() },
+                CreatedById = user == null ? 0 : user.ID.Value,
+                UpdatedById = user == null ? 0 : user.ID.Value,
+                Created = dt,
+                Updated = dt,
             };
         }
 

@@ -17,7 +17,7 @@ namespace CESMII.OpcUa.NodeSetImporter
         public static IServiceCollection AddCloudLibraryResolver(this IServiceCollection services)
         {
             services
-                .AddScoped<IUANodeSetResolverWithProgress, UANodeSetCloudLibraryResolver>(sp => new UANodeSetCloudLibraryResolver(sp.GetRequiredService<IOptions<UACloudLibClient.Options>>().Value))
+                .AddScoped<IUANodeSetResolverWithPending, UANodeSetCloudLibraryResolver>(sp => new UANodeSetCloudLibraryResolver(sp.GetRequiredService<IOptions<UACloudLibClient.Options>>().Value))
                 ;
             return services;
         }
@@ -25,7 +25,7 @@ namespace CESMII.OpcUa.NodeSetImporter
         {
             services
                 .Configure<UACloudLibClient.Options>(configurationSection)
-                .AddScoped<IUANodeSetResolverWithProgress, UANodeSetCloudLibraryResolver>(sp => new UANodeSetCloudLibraryResolver(sp.GetRequiredService<IOptions<UACloudLibClient.Options>>().Value))
+                .AddScoped<IUANodeSetResolverWithPending, UANodeSetCloudLibraryResolver>(sp => new UANodeSetCloudLibraryResolver(sp.GetRequiredService<IOptions<UACloudLibClient.Options>>().Value))
                 ;
             return services;
         }

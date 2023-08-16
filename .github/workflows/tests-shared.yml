@@ -1,0 +1,87 @@
+# This workflow will build and test a .NET 6 web API.
+# The tests will be a subset of tests which run quickly while still getting good code coverage.
+name: Shared | Tests | Common Test Workflow
+on:
+  workflow_call:
+    inputs:
+      #ie Staging, Release
+      BUILD_TARGET:
+        required: true
+        type: string
+      #optional test filter (ie. filter on smoke test trait)
+      TEST_FILTER: 
+        required: true
+        type: string
+      #'--filter SmokeTest="true"'
+
+env:
+  # set this to the path to your solution file, defaults to the repository root (this is the folder in the git repo)
+  SOLUTION_DIRECTORY: './'      
+  # set this to the path to your web app project, defaults to the repository root (this is the folder in the git repo)
+  PROJECT_DIRECTORY: './api/CESMII.ProfileDesigner.Api'      
+  # Solution file to use
+  SOLUTION_FILE: 'CESMII.ProfileDesigner.sln'      
+  # Project file to use
+  PROJECT_NAME: 'CESMII.ProfileDesigner.Api'      
+  # set this to the .NET core version to use
+  NETCORE_VERSION: "6.0.x"
+  
+jobs:
+  build:
+    name: Build and Test .NET6 Web API 
+    runs-on: ubuntu-latest
+    steps:
+      #dynamically set up env variables based on inputs
+      - name: Dynamically set test filter based on input filter
+        run: |
+          if [ ${{inputs.TEST_FILTER}} != "" ]; then
+            echo "Test uses filter..."
+            echo "TEST_LABEL=Filter=${{inputs.TEST_FILTER}}" >> $GITHUB_ENV
+            echo "TEST_FILTER=--filter ${{inputs.TEST_FILTER}}" >> $GITHUB_ENV
+          else
+            echo "Test does not use filter..."
+            echo "TEST_LABEL=" >> $GITHUB_ENV
+            echo "TEST_FILTER=" >> $GITHUB_ENV
+          fi        
+      
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+      - name: Set up dotnet Core ${{ env.NETCORE_VERSION }}
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: ${{ env.NETCORE_VERSION }}
+
+      - name: Start PostgreSQL on Ubuntu for use by integration tests
+        run: |
+          sudo systemctl start postgresql.service
+          pg_isready
+      - name: Create additional user
+        run: |
+          sudo -u postgres psql --command="CREATE USER profiledesigner SUPERUSER PASSWORD 'cesmii'" --command="\du"
+      - name: List existing databases
+        run: |
+          sudo -u postgres psql -l
+      - name: Create database
+        run: |
+          sudo -u postgres psql --command="CREATE DATABASE profile_designer_local_test WITH OWNER = profiledesigner TABLESPACE = pg_default CONNECTION LIMIT = -1;"
+      - name: Create schema
+        run: |
+          ls -l ./sql
+          head -5 ./sql/CESMII.ProfileDesigner.DB.sql
+          sudo -u postgres psql -d profile_designer_local_test < ./sql/CESMII.ProfileDesigner.DB.sql
+          #sudo -u postgres psql -d profile_designer_local_test --file ./sql/CESMII.ProfileDesigner.DB.sql
+      - name: List existing databases
+        run: |
+          sudo -u postgres psql -l
+
+      - name: Restore dependencies (${{env.SOLUTION_FILE}})
+        run: dotnet restore ${{env.SOLUTION_FILE}}
+        working-directory: ${{env.SOLUTION_DIRECTORY}}
+      - name: Build (${{env.SOLUTION_FILE}})
+        run: dotnet build ${{env.SOLUTION_FILE}} --configuration ${{inputs.BUILD_TARGET}} --no-restore
+        working-directory: ${{env.SOLUTION_DIRECTORY}}
+        
+      - name: Test (${{env.SOLUTION_FILE}}) ${{env.TEST_LABEL}}
+        run: dotnet test ${{env.SOLUTION_FILE}} ${{env.TEST_FILTER}} --configuration ${{ inputs.BUILD_TARGET }} --no-build --verbosity normal -l:"console;verbosity=normal"
+        working-directory: ${{env.SOLUTION_DIRECTORY}}

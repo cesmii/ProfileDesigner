@@ -6,10 +6,12 @@
 --	Profile created, updated columns,
 ---------------------------------------------------------------------
 
+/*2023-08-24 - Sc - Cols already present in prod version of DB and set to nullable. So comment this for now. 
 ALTER TABLE public.profile ADD COLUMN created timestamp with time zone NULL;
 ALTER TABLE public.profile ADD COLUMN created_by_id integer NULL;
 ALTER TABLE public.profile ADD COLUMN updated timestamp with time zone NULL;
 ALTER TABLE public.profile ADD COLUMN updated_by_id integer NULL;
+*/
 
 UPDATE public.profile SET created = (select min(created) from public.profile_type_definition where profile.id = id);
 UPDATE public.profile SET created = to_timestamp(0) where created is null;

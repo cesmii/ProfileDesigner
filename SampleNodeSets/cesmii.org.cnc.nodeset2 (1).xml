@@ -1,0 +1,274 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<UANodeSet xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" LastModified="2023-03-09T00:30:15.9185696Z" xmlns="http://opcfoundation.org/UA/2011/03/UANodeSet.xsd">
+  <NamespaceUris>
+    <Uri>http://cesmii.org/CNC</Uri>
+  </NamespaceUris>
+  <Models>
+    <Model ModelUri="http://cesmii.org/CNC">
+      <RequiredModel ModelUri="http://opcfoundation.org/UA/" Version="1.05.02" PublicationDate="2022-11-01T00:00:00Z" />
+    </Model>
+  </Models>
+  <Aliases>
+    <Alias Alias="Double">i=11</Alias>
+    <Alias Alias="String">i=12</Alias>
+    <Alias Alias="HasModellingRule">i=37</Alias>
+    <Alias Alias="HasTypeDefinition">i=40</Alias>
+    <Alias Alias="HasSubtype">i=45</Alias>
+    <Alias Alias="HasProperty">i=46</Alias>
+    <Alias Alias="HasComponent">i=47</Alias>
+    <Alias Alias="BaseObjectType">i=58</Alias>
+    <Alias Alias="BaseDataVariableType">i=63</Alias>
+    <Alias Alias="PropertyType">i=68</Alias>
+    <Alias Alias="Optional">i=80</Alias>
+  </Aliases>
+  <UAVariable NodeId="ns=1;g=22160d3a-ba25-43ea-90ed-4c4f4be515be" BrowseName="1:LoadRate" ParentNodeId="ns=1;g=2b38c7c4-7988-4eb6-95ab-4aa5b04a9654" DataType="Double">
+    <DisplayName>LoadRate</DisplayName>
+    <Description></Description>
+    <References>
+      <Reference ReferenceType="HasTypeDefinition">BaseDataVariableType</Reference>
+      <Reference ReferenceType="HasModellingRule">Optional</Reference>
+      <Reference ReferenceType="HasComponent" IsForward="false">ns=1;g=2b38c7c4-7988-4eb6-95ab-4aa5b04a9654</Reference>
+    </References>
+  </UAVariable>
+  <UAVariable NodeId="ns=1;g=22a49710-9915-44b4-a536-3678bb937643" BrowseName="1:Voltage" ParentNodeId="ns=1;g=2b38c7c4-7988-4eb6-95ab-4aa5b04a9654" DataType="Double">
+    <DisplayName>Voltage</DisplayName>
+    <Description></Description>
+    <References>
+      <Reference ReferenceType="HasTypeDefinition">BaseDataVariableType</Reference>
+      <Reference ReferenceType="HasModellingRule">Optional</Reference>
+      <Reference ReferenceType="HasComponent" IsForward="false">ns=1;g=2b38c7c4-7988-4eb6-95ab-4aa5b04a9654</Reference>
+    </References>
+  </UAVariable>
+  <UAObjectType NodeId="ns=1;g=2b38c7c4-7988-4eb6-95ab-4aa5b04a9654" BrowseName="1:MotorType">
+    <DisplayName>MotorType</DisplayName>
+    <Description></Description>
+    <Category>Base Info Base Types</Category>
+    <References>
+      <Reference ReferenceType="HasProperty">ns=1;g=9004488b-482f-4e01-bfff-bf3656732ac4</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;g=8c9ed888-fbd9-434a-a987-ea3298c8b7e1</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;g=daadb288-a1f4-4615-9bff-bb38cc55b31d</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;g=22160d3a-ba25-43ea-90ed-4c4f4be515be</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;g=ec98581b-9b82-401a-93d3-52e1d457fab0</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;g=447f432a-aa91-40fc-8748-12dfb36a2257</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;g=22a49710-9915-44b4-a536-3678bb937643</Reference>
+      <Reference ReferenceType="HasSubtype" IsForward="false">BaseObjectType</Reference>
+    </References>
+  </UAObjectType>
+  <UAVariable NodeId="ns=1;g=2e5d6d54-b11b-49eb-9d28-40d2ae2b8aa8" BrowseName="1:RemainingDistance" ParentNodeId="ns=1;g=ade68b33-1d39-48bc-bce4-94bde9a5dcaf" DataType="Double">
+    <DisplayName>RemainingDistance</DisplayName>
+    <Description></Description>
+    <References>
+      <Reference ReferenceType="HasTypeDefinition">BaseDataVariableType</Reference>
+      <Reference ReferenceType="HasModellingRule">Optional</Reference>
+      <Reference ReferenceType="HasComponent" IsForward="false">ns=1;g=ade68b33-1d39-48bc-bce4-94bde9a5dcaf</Reference>
+    </References>
+  </UAVariable>
+  <UAVariable NodeId="ns=1;g=4219b117-b43b-4f03-ab53-dd7da8d7ea0e" BrowseName="1:CommandedPosition" ParentNodeId="ns=1;g=ade68b33-1d39-48bc-bce4-94bde9a5dcaf" DataType="Double">
+    <DisplayName>CommandedPosition</DisplayName>
+    <Description></Description>
+    <References>
+      <Reference ReferenceType="HasTypeDefinition">BaseDataVariableType</Reference>
+      <Reference ReferenceType="HasModellingRule">Optional</Reference>
+      <Reference ReferenceType="HasComponent" IsForward="false">ns=1;g=ade68b33-1d39-48bc-bce4-94bde9a5dcaf</Reference>
+    </References>
+  </UAVariable>
+  <UAVariable NodeId="ns=1;g=4429a2a8-c558-4406-8bac-fd648e5f2b66" BrowseName="1:Status" ParentNodeId="ns=1;g=96b47b56-51a9-4740-a594-625a916c379a" DataType="String">
+    <DisplayName>Status</DisplayName>
+    <Description></Description>
+    <References>
+      <Reference ReferenceType="HasTypeDefinition">BaseDataVariableType</Reference>
+      <Reference ReferenceType="HasModellingRule">Optional</Reference>
+      <Reference ReferenceType="HasComponent" IsForward="false">ns=1;g=96b47b56-51a9-4740-a594-625a916c379a</Reference>
+    </References>
+  </UAVariable>
+  <UAVariable NodeId="ns=1;g=44417775-be10-49b5-8651-82127d39066a" BrowseName="1:ActOverride" ParentNodeId="ns=1;g=9ddcec99-7832-4073-9fa9-9d4ec3923818" DataType="Double">
+    <DisplayName>ActOverride</DisplayName>
+    <Description></Description>
+    <References>
+      <Reference ReferenceType="HasTypeDefinition">BaseDataVariableType</Reference>
+      <Reference ReferenceType="HasModellingRule">Optional</Reference>
+      <Reference ReferenceType="HasComponent" IsForward="false">ns=1;g=9ddcec99-7832-4073-9fa9-9d4ec3923818</Reference>
+    </References>
+  </UAVariable>
+  <UAVariable NodeId="ns=1;g=447f432a-aa91-40fc-8748-12dfb36a2257" BrowseName="1:Vibration" ParentNodeId="ns=1;g=2b38c7c4-7988-4eb6-95ab-4aa5b04a9654" DataType="Double">
+    <DisplayName>Vibration</DisplayName>
+    <Description></Description>
+    <References>
+      <Reference ReferenceType="HasTypeDefinition">BaseDataVariableType</Reference>
+      <Reference ReferenceType="HasModellingRule">Optional</Reference>
+      <Reference ReferenceType="HasComponent" IsForward="false">ns=1;g=2b38c7c4-7988-4eb6-95ab-4aa5b04a9654</Reference>
+    </References>
+  </UAVariable>
+  <UAVariable NodeId="ns=1;g=58582b80-0c3c-4564-a9c7-4285e070a6c9" BrowseName="1:Type" ParentNodeId="ns=1;g=ade68b33-1d39-48bc-bce4-94bde9a5dcaf" DataType="String">
+    <DisplayName>Type</DisplayName>
+    <Description></Description>
+    <References>
+      <Reference ReferenceType="HasTypeDefinition">PropertyType</Reference>
+      <Reference ReferenceType="HasModellingRule">Optional</Reference>
+      <Reference ReferenceType="HasProperty" IsForward="false">ns=1;g=ade68b33-1d39-48bc-bce4-94bde9a5dcaf</Reference>
+    </References>
+  </UAVariable>
+  <UAObjectType NodeId="ns=1;g=5a9cb8f5-b7af-4f3a-b864-e67d3b7c4e1b" BrowseName="1:ChannelType">
+    <DisplayName>ChannelType</DisplayName>
+    <Description></Description>
+    <Category>Base Info Base Types</Category>
+    <References>
+      <Reference ReferenceType="HasProperty">ns=1;g=8d7c3165-90ee-4d52-a631-7b39df69fe5b</Reference>
+      <Reference ReferenceType="HasSubtype" IsForward="false">BaseObjectType</Reference>
+    </References>
+  </UAObjectType>
+  <UAVariable NodeId="ns=1;g=7a00d578-550a-4eea-b369-1bb89020656e" BrowseName="1:ActualRPM" ParentNodeId="ns=1;g=9ddcec99-7832-4073-9fa9-9d4ec3923818" DataType="Double">
+    <DisplayName>ActualRPM</DisplayName>
+    <Description></Description>
+    <References>
+      <Reference ReferenceType="HasTypeDefinition">BaseDataVariableType</Reference>
+      <Reference ReferenceType="HasModellingRule">Optional</Reference>
+      <Reference ReferenceType="HasComponent" IsForward="false">ns=1;g=9ddcec99-7832-4073-9fa9-9d4ec3923818</Reference>
+    </References>
+  </UAVariable>
+  <UAVariable NodeId="ns=1;g=7cd8f15c-bc2a-429e-a90a-a1ca726b2b8a" BrowseName="1:Status" ParentNodeId="ns=1;g=9ddcec99-7832-4073-9fa9-9d4ec3923818" DataType="String">
+    <DisplayName>Status</DisplayName>
+    <Description></Description>
+    <References>
+      <Reference ReferenceType="HasTypeDefinition">BaseDataVariableType</Reference>
+      <Reference ReferenceType="HasModellingRule">Optional</Reference>
+      <Reference ReferenceType="HasComponent" IsForward="false">ns=1;g=9ddcec99-7832-4073-9fa9-9d4ec3923818</Reference>
+    </References>
+  </UAVariable>
+  <UAVariable NodeId="ns=1;g=8c9ed888-fbd9-434a-a987-ea3298c8b7e1" BrowseName="1:Current" ParentNodeId="ns=1;g=2b38c7c4-7988-4eb6-95ab-4aa5b04a9654" DataType="Double">
+    <DisplayName>Current</DisplayName>
+    <Description></Description>
+    <References>
+      <Reference ReferenceType="HasTypeDefinition">BaseDataVariableType</Reference>
+      <Reference ReferenceType="HasModellingRule">Optional</Reference>
+      <Reference ReferenceType="HasComponent" IsForward="false">ns=1;g=2b38c7c4-7988-4eb6-95ab-4aa5b04a9654</Reference>
+    </References>
+  </UAVariable>
+  <UAVariable NodeId="ns=1;g=8d7c3165-90ee-4d52-a631-7b39df69fe5b" BrowseName="1:Id" ParentNodeId="ns=1;g=5a9cb8f5-b7af-4f3a-b864-e67d3b7c4e1b" DataType="String">
+    <DisplayName>Id</DisplayName>
+    <Description></Description>
+    <References>
+      <Reference ReferenceType="HasTypeDefinition">PropertyType</Reference>
+      <Reference ReferenceType="HasModellingRule">Optional</Reference>
+      <Reference ReferenceType="HasProperty" IsForward="false">ns=1;g=5a9cb8f5-b7af-4f3a-b864-e67d3b7c4e1b</Reference>
+    </References>
+  </UAVariable>
+  <UAVariable NodeId="ns=1;g=9004488b-482f-4e01-bfff-bf3656732ac4" BrowseName="1:Id" ParentNodeId="ns=1;g=2b38c7c4-7988-4eb6-95ab-4aa5b04a9654" DataType="String">
+    <DisplayName>Id</DisplayName>
+    <Description></Description>
+    <References>
+      <Reference ReferenceType="HasTypeDefinition">PropertyType</Reference>
+      <Reference ReferenceType="HasModellingRule">Optional</Reference>
+      <Reference ReferenceType="HasProperty" IsForward="false">ns=1;g=2b38c7c4-7988-4eb6-95ab-4aa5b04a9654</Reference>
+    </References>
+  </UAVariable>
+  <UAObjectType NodeId="ns=1;g=96b47b56-51a9-4740-a594-625a916c379a" BrowseName="1:AxisType">
+    <DisplayName>AxisType</DisplayName>
+    <Description></Description>
+    <Category>Base Info Base Types</Category>
+    <References>
+      <Reference ReferenceType="HasComponent">ns=1;g=eedbca9d-8ef3-4f26-9b32-1bc037825bae</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;g=4429a2a8-c558-4406-8bac-fd648e5f2b66</Reference>
+      <Reference ReferenceType="HasSubtype" IsForward="false">BaseObjectType</Reference>
+    </References>
+  </UAObjectType>
+  <UAVariable NodeId="ns=1;g=9c413cb2-c7dd-479d-8bae-285a94be2913" BrowseName="1:CmdOverride" ParentNodeId="ns=1;g=9ddcec99-7832-4073-9fa9-9d4ec3923818" DataType="Double">
+    <DisplayName>CmdOverride</DisplayName>
+    <Description></Description>
+    <References>
+      <Reference ReferenceType="HasTypeDefinition">BaseDataVariableType</Reference>
+      <Reference ReferenceType="HasModellingRule">Optional</Reference>
+      <Reference ReferenceType="HasComponent" IsForward="false">ns=1;g=9ddcec99-7832-4073-9fa9-9d4ec3923818</Reference>
+    </References>
+  </UAVariable>
+  <UAObjectType NodeId="ns=1;g=9ddcec99-7832-4073-9fa9-9d4ec3923818" BrowseName="1:SpindleType">
+    <DisplayName>SpindleType</DisplayName>
+    <Description></Description>
+    <Category>Base Info Base Types</Category>
+    <References>
+      <Reference ReferenceType="HasComponent">ns=1;g=44417775-be10-49b5-8651-82127d39066a</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;g=7a00d578-550a-4eea-b369-1bb89020656e</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;g=9c413cb2-c7dd-479d-8bae-285a94be2913</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;g=e5a973e6-bd44-46dd-97b0-a446b9f325c8</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;g=7cd8f15c-bc2a-429e-a90a-a1ca726b2b8a</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;g=a08fb2e0-c522-4bb0-ae49-1878831c9f21</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;g=a5402294-7386-4a62-8c3b-86b89a3855d7</Reference>
+      <Reference ReferenceType="HasSubtype" IsForward="false">BaseObjectType</Reference>
+    </References>
+  </UAObjectType>
+  <UAVariable NodeId="ns=1;g=a08fb2e0-c522-4bb0-ae49-1878831c9f21" BrowseName="1:Torque" ParentNodeId="ns=1;g=9ddcec99-7832-4073-9fa9-9d4ec3923818" DataType="Double">
+    <DisplayName>Torque</DisplayName>
+    <Description></Description>
+    <References>
+      <Reference ReferenceType="HasTypeDefinition">BaseDataVariableType</Reference>
+      <Reference ReferenceType="HasModellingRule">Optional</Reference>
+      <Reference ReferenceType="HasComponent" IsForward="false">ns=1;g=9ddcec99-7832-4073-9fa9-9d4ec3923818</Reference>
+    </References>
+  </UAVariable>
+  <UAVariable NodeId="ns=1;g=a5402294-7386-4a62-8c3b-86b89a3855d7" BrowseName="1:TurnDirection" ParentNodeId="ns=1;g=9ddcec99-7832-4073-9fa9-9d4ec3923818" DataType="String">
+    <DisplayName>TurnDirection</DisplayName>
+    <Description></Description>
+    <References>
+      <Reference ReferenceType="HasTypeDefinition">BaseDataVariableType</Reference>
+      <Reference ReferenceType="HasModellingRule">Optional</Reference>
+      <Reference ReferenceType="HasComponent" IsForward="false">ns=1;g=9ddcec99-7832-4073-9fa9-9d4ec3923818</Reference>
+    </References>
+  </UAVariable>
+  <UAObjectType NodeId="ns=1;g=ade68b33-1d39-48bc-bce4-94bde9a5dcaf" BrowseName="1:PositionType">
+    <DisplayName>PositionType</DisplayName>
+    <Description></Description>
+    <Category>Base Info Base Types</Category>
+    <References>
+      <Reference ReferenceType="HasProperty">ns=1;g=58582b80-0c3c-4564-a9c7-4285e070a6c9</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;g=e290d010-bb7d-42ed-8763-e38710666f35</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;g=4219b117-b43b-4f03-ab53-dd7da8d7ea0e</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;g=2e5d6d54-b11b-49eb-9d28-40d2ae2b8aa8</Reference>
+      <Reference ReferenceType="HasSubtype" IsForward="false">BaseObjectType</Reference>
+    </References>
+  </UAObjectType>
+  <UAVariable NodeId="ns=1;g=daadb288-a1f4-4615-9bff-bb38cc55b31d" BrowseName="1:Efficiency" ParentNodeId="ns=1;g=2b38c7c4-7988-4eb6-95ab-4aa5b04a9654" DataType="Double">
+    <DisplayName>Efficiency</DisplayName>
+    <Description></Description>
+    <References>
+      <Reference ReferenceType="HasTypeDefinition">BaseDataVariableType</Reference>
+      <Reference ReferenceType="HasModellingRule">Optional</Reference>
+      <Reference ReferenceType="HasComponent" IsForward="false">ns=1;g=2b38c7c4-7988-4eb6-95ab-4aa5b04a9654</Reference>
+    </References>
+  </UAVariable>
+  <UAVariable NodeId="ns=1;g=e290d010-bb7d-42ed-8763-e38710666f35" BrowseName="1:ActualPosition" ParentNodeId="ns=1;g=ade68b33-1d39-48bc-bce4-94bde9a5dcaf" DataType="Double">
+    <DisplayName>ActualPosition</DisplayName>
+    <Description></Description>
+    <References>
+      <Reference ReferenceType="HasTypeDefinition">BaseDataVariableType</Reference>
+      <Reference ReferenceType="HasModellingRule">Optional</Reference>
+      <Reference ReferenceType="HasComponent" IsForward="false">ns=1;g=ade68b33-1d39-48bc-bce4-94bde9a5dcaf</Reference>
+    </References>
+  </UAVariable>
+  <UAVariable NodeId="ns=1;g=e5a973e6-bd44-46dd-97b0-a446b9f325c8" BrowseName="1:CmdRPM" ParentNodeId="ns=1;g=9ddcec99-7832-4073-9fa9-9d4ec3923818" DataType="Double">
+    <DisplayName>CmdRPM</DisplayName>
+    <Description></Description>
+    <References>
+      <Reference ReferenceType="HasTypeDefinition">BaseDataVariableType</Reference>
+      <Reference ReferenceType="HasModellingRule">Optional</Reference>
+      <Reference ReferenceType="HasComponent" IsForward="false">ns=1;g=9ddcec99-7832-4073-9fa9-9d4ec3923818</Reference>
+    </References>
+  </UAVariable>
+  <UAVariable NodeId="ns=1;g=ec98581b-9b82-401a-93d3-52e1d457fab0" BrowseName="1:RPM" ParentNodeId="ns=1;g=2b38c7c4-7988-4eb6-95ab-4aa5b04a9654" DataType="Double">
+    <DisplayName>RPM</DisplayName>
+    <Description></Description>
+    <References>
+      <Reference ReferenceType="HasTypeDefinition">BaseDataVariableType</Reference>
+      <Reference ReferenceType="HasModellingRule">Optional</Reference>
+      <Reference ReferenceType="HasComponent" IsForward="false">ns=1;g=2b38c7c4-7988-4eb6-95ab-4aa5b04a9654</Reference>
+    </References>
+  </UAVariable>
+  <UAVariable NodeId="ns=1;g=eedbca9d-8ef3-4f26-9b32-1bc037825bae" BrowseName="1:Offset" ParentNodeId="ns=1;g=96b47b56-51a9-4740-a594-625a916c379a" DataType="Double">
+    <DisplayName>Offset</DisplayName>
+    <Description></Description>
+    <References>
+      <Reference ReferenceType="HasTypeDefinition">BaseDataVariableType</Reference>
+      <Reference ReferenceType="HasModellingRule">Optional</Reference>
+      <Reference ReferenceType="HasComponent" IsForward="false">ns=1;g=96b47b56-51a9-4740-a594-625a916c379a</Reference>
+    </References>
+  </UAVariable>
+</UANodeSet>

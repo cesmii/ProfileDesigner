@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UANodeSet xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" LastModified="2023-05-17T22:34:18.9668734Z" xmlns="http://opcfoundation.org/UA/2011/03/UANodeSet.xsd">
+  <NamespaceUris>
+    <Uri>http://cesmii.net/profiles/CNC</Uri>
+    <Uri>http://opcfoundation.org/UA/Machinery/</Uri>
+    <Uri>http://opcfoundation.org/UA/DI/</Uri>
+  </NamespaceUris>
+  <Models>
+    <Model ModelUri="http://cesmii.net/profiles/CNC" Version="1.0" PublicationDate="2023-05-17T00:00:00Z">
+      <RequiredModel ModelUri="http://opcfoundation.org/UA/" Version="1.05.02" PublicationDate="2022-11-01T00:00:00Z" />
+    </Model>
+  </Models>
+  <Aliases>
+    <Alias Alias="Boolean">i=1</Alias>
+    <Alias Alias="Double">i=11</Alias>
+    <Alias Alias="OptionalPlaceholder">i=11508</Alias>
+    <Alias Alias="String">i=12</Alias>
+    <Alias Alias="DateTime">i=13</Alias>
+    <Alias Alias="NetworkAddressDataType">i=15502</Alias>
+    <Alias Alias="BaseInterfaceType">i=17602</Alias>
+    <Alias Alias="HasInterface">i=17603</Alias>
+    <Alias Alias="LocalizedText">i=21</Alias>
+    <Alias Alias="AnalogItemType">i=2368</Alias>
+    <Alias Alias="Organizes">i=35</Alias>
+    <Alias Alias="HasModellingRule">i=37</Alias>
+    <Alias Alias="HasTypeDefinition">i=40</Alias>
+    <Alias Alias="HasSubtype">i=45</Alias>
+    <Alias Alias="HasProperty">i=46</Alias>
+    <Alias Alias="HasComponent">i=47</Alias>
+    <Alias Alias="BaseObjectType">i=58</Alias>
+    <Alias Alias="Int32">i=6</Alias>
+    <Alias Alias="FolderType">i=61</Alias>
+    <Alias Alias="BaseDataVariableType">i=63</Alias>
+    <Alias Alias="PropertyType">i=68</Alias>
+    <Alias Alias="Mandatory">i=78</Alias>
+    <Alias Alias="Optional">i=80</Alias>
+    <Alias Alias="UInt64">i=9</Alias>
+    <Alias Alias="IMachineVendorNameplateType">ns=2;i=1010</Alias>
+  </Aliases>
+  <UAObjectType NodeId="ns=1;g=5a9cb8f5-b7af-4f3a-b864-e67d3b7c4e1b" BrowseName="1:ChannelType">
+    <DisplayName>ChannelType</DisplayName>
+    <Description>The CNC ChannelType describes the key attributes necessary to describe a CNC Channel. It provides the position information of the channel's tool center point in each coordinate system, and organizes the list of Axes and Spindles administered by a given Channel. An instance or extension of types in the CNC Base Profile may define as many instances of ChannelType as necessary to represent the specific CNC Machine.</Description>
+    <References>
+      <Reference ReferenceType="HasComponent">ns=1;i=5003</Reference>
+      <Reference ReferenceType="HasSubtype" IsForward="false">BaseObjectType</Reference>
+    </References>
+  </UAObjectType>
+  <UAObjectType NodeId="ns=1;g=96b47b56-51a9-4740-a594-625a916c379a" BrowseName="1:AxisType">
+    <DisplayName>AxisType</DisplayName>
+    <Description>The CNC AxisType describes the key attributes necessary to describe a CNC Axis. An instance or extension of types in the CNC Base Profile may define as many instances of AxisType as necessary to represent the specific CNC Machine.</Description>
+    <References>
+      <Reference ReferenceType="HasSubtype" IsForward="false">BaseObjectType</Reference>
+    </References>
+  </UAObjectType>
+  <UAObject NodeId="ns=1;i=5003" BrowseName="1:AxisList" ParentNodeId="ns=1;g=5a9cb8f5-b7af-4f3a-b864-e67d3b7c4e1b">
+    <DisplayName>AxisList</DisplayName>
+    <References>
+      <Reference ReferenceType="Organizes">ns=1;i=5016</Reference>
+      <Reference ReferenceType="HasTypeDefinition">FolderType</Reference>
+      <Reference ReferenceType="HasModellingRule">Optional</Reference>
+      <Reference ReferenceType="HasComponent" IsForward="false">ns=1;g=5a9cb8f5-b7af-4f3a-b864-e67d3b7c4e1b</Reference>
+    </References>
+  </UAObject>
+<UAObject NodeId="ns=1;i=5016" BrowseName="1:&lt;Axis&gt;" SymbolicName="S_Axis_" ParentNodeId="ns=1;i=5003">
+    <DisplayName>&lt;Axis&gt;</DisplayName>
+    <References>
+      <Reference ReferenceType="Organizes" IsForward="false">ns=1;i=5003</Reference>
+      <Reference ReferenceType="HasTypeDefinition">ns=1;g=96b47b56-51a9-4740-a594-625a916c379a</Reference>
+      <Reference ReferenceType="HasModellingRule">OptionalPlaceholder</Reference>
+    </References>
+  </UAObject>
+  </UANodeSet>

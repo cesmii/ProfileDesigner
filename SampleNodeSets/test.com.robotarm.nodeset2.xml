@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<UANodeSet xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://opcfoundation.org/UA/2011/03/UANodeSet.xsd">
+  <NamespaceUris>
+    <Uri>http://test.com/robotarm</Uri>
+    <Uri>http://opcfoundation.org/UA/Robotics/</Uri>
+  </NamespaceUris>
+  <Models>
+    <Model ModelUri="http://test.com/robotarm">
+      <RequiredModel ModelUri="http://opcfoundation.org/UA/" Version="1.04.7" PublicationDate="2020-07-15T00:00:00Z" />
+      <RequiredModel ModelUri="http://opcfoundation.org/UA/Robotics/" Version="1.01.2" PublicationDate="2021-05-20T00:00:00Z" />
+    </Model>
+  </Models>
+  <Aliases>
+    <Alias Alias="Double">i=11</Alias>
+    <Alias Alias="HasModellingRule">i=37</Alias>
+    <Alias Alias="HasTypeDefinition">i=40</Alias>
+    <Alias Alias="HasSubtype">i=45</Alias>
+    <Alias Alias="HasComponent">i=47</Alias>
+    <Alias Alias="BaseDataVariableType">i=63</Alias>
+    <Alias Alias="Optional">i=80</Alias>
+    <Alias Alias="AxisType">ns=2;i=16601</Alias>
+  </Aliases>
+  <UAObjectType NodeId="ns=1;g=37288022-241d-4cb3-9146-20ad097e0acb" BrowseName="1:MyRobotArm">
+    <DisplayName>MyRobotArm</DisplayName>
+    <Description></Description>
+    <References>
+      <Reference ReferenceType="HasComponent">ns=1;g=f625d8c5-fb0b-46f9-840b-62fa86840153</Reference>
+      <Reference ReferenceType="HasSubtype" IsForward="false">AxisType</Reference>
+    </References>
+  </UAObjectType>
+  <UAVariable NodeId="ns=1;g=f625d8c5-fb0b-46f9-840b-62fa86840153" BrowseName="1:ArmPosition" ParentNodeId="ns=1;g=37288022-241d-4cb3-9146-20ad097e0acb" DataType="Double">
+    <DisplayName>ArmPosition</DisplayName>
+    <Description></Description>
+    <References>
+      <Reference ReferenceType="HasTypeDefinition">BaseDataVariableType</Reference>
+      <Reference ReferenceType="HasModellingRule">Optional</Reference>
+      <Reference ReferenceType="HasComponent" IsForward="false">ns=1;g=37288022-241d-4cb3-9146-20ad097e0acb</Reference>
+    </References>
+  </UAVariable>
+</UANodeSet>

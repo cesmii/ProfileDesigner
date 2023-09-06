@@ -22,7 +22,7 @@ namespace CESMII.ProfileDesigner.DAL.Utils
         private readonly IStoredProcedureDal<ProfileTypeDefinitionSimpleModel> _dalRelated;
         private readonly Common.ConfigUtil _config;
         
-        private readonly static List<int?> _excludedProfileTypes = new() { (int)ProfileItemTypeEnum.Object, (int)ProfileItemTypeEnum.Method };
+        private readonly static List<int?> _excludedProfileTypes = new() { /*(int)ProfileItemTypeEnum.Object,*/ (int)ProfileItemTypeEnum.Method };
         public static List<int?> ExcludedProfileTypes { 
             get { return _excludedProfileTypes; }
         }

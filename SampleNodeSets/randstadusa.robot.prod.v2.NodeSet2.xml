@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UANodeSet xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://opcfoundation.org/UA/2011/03/UANodeSet.xsd">
+<NamespaceUris>
+<Uri>http://randstadusa.com/robot/prod/v2</Uri>
+<Uri>http://opcfoundation.org/UA/DI/</Uri>
+<Uri>http://opcfoundation.org/UA/CommercialKitchenEquipment/</Uri>
+</NamespaceUris>
+<Models>
+<Model ModelUri="http://randstadusa.com/robot/prod/v2" Version="1.0.0.1" PublicationDate="2022-05-23T00:00:00Z">
+<RequiredModel ModelUri="http://opcfoundation.org/UA/" Version="1.04.7" PublicationDate="2020-07-15T00:00:00Z" />
+<RequiredModel ModelUri="http://opcfoundation.org/UA/DI/" Version="1.03.0" PublicationDate="2021-03-09T00:00:00Z" />
+<RequiredModel ModelUri="http://opcfoundation.org/UA/CommercialKitchenEquipment/" Version="1.0" PublicationDate="2019-07-12T00:00:00Z" />
+</Model>
+</Models>
+<Aliases>
+<Alias Alias="Boolean">i=1</Alias>
+<Alias Alias="AliasNameType">i=23455</Alias>
+<Alias Alias="Number">i=26</Alias>
+<Alias Alias="Duration">i=290</Alias>
+<Alias Alias="HasModellingRule">i=37</Alias>
+<Alias Alias="HasTypeDefinition">i=40</Alias>
+<Alias Alias="HasSubtype">i=45</Alias>
+<Alias Alias="HasProperty">i=46</Alias>
+<Alias Alias="HasComponent">i=47</Alias>
+<Alias Alias="BaseDataVariableType">i=63</Alias>
+<Alias Alias="PropertyType">i=68</Alias>
+<Alias Alias="Mandatory">i=78</Alias>
+<Alias Alias="Optional">i=80</Alias>
+<Alias Alias="ComponentType">ns=2;i=15063</Alias>
+<Alias Alias="CoffeeMachineDeviceType">ns=3;i=1024</Alias>
+</Aliases>
+<UAObjectType NodeId="ns=1;g=2d0ebb39-a422-47da-96e9-e39204ed6632" BrowseName="1:RobotEar" IsAbstract="true">
+<DisplayName>RobotEar</DisplayName>
+<Description>Prod</Description>
+<Category>DI Information Model</Category>
+<References>
+<Reference ReferenceType="HasProperty">ns=1;g=ce1d75d2-aa26-4d88-8666-769dc2759b0d</Reference>
+<Reference ReferenceType="HasProperty">ns=1;g=9b6bfb83-8400-47a2-b11b-79e9ee3efa31</Reference>
+<Reference ReferenceType="HasComponent">ns=1;i=0</Reference>
+<Reference ReferenceType="HasSubtype" IsForward="false">ComponentType</Reference>
+</References>
+</UAObjectType>
+<UAObjectType NodeId="ns=1;g=9471efd5-f6d5-45c2-8d5d-169906739a9a" BrowseName="1:RobotEye" IsAbstract="true">
+<DisplayName>RobotEye</DisplayName>
+<Category>DI Information Model</Category>
+<References>
+<Reference ReferenceType="HasProperty">ns=1;g=a0fff1bd-734a-4a86-b5e9-fd396590dd35</Reference>
+<Reference ReferenceType="HasComponent">ns=1;g=f3157533-14ce-4ac2-8496-31256b491ecf</Reference>
+<Reference ReferenceType="HasSubtype" IsForward="false">ComponentType</Reference>
+</References>
+</UAObjectType>
+<UAVariable NodeId="ns=1;g=9b6bfb83-8400-47a2-b11b-79e9ee3efa31" BrowseName="1:A Duration" ParentNodeId="ns=1;g=2d0ebb39-a422-47da-96e9-e39204ed6632" DataType="Duration">
+<DisplayName>A Duration</DisplayName>
+<References>
+<Reference ReferenceType="HasTypeDefinition">PropertyType</Reference>
+<Reference ReferenceType="HasModellingRule">Optional</Reference>
+<Reference ReferenceType="HasProperty" IsForward="false">ns=1;g=2d0ebb39-a422-47da-96e9-e39204ed6632</Reference>
+</References>
+</UAVariable>
+<UAObjectType NodeId="ns=1;g=9f32d8d8-4cbe-457d-b978-c7ba12a32a05" BrowseName="1:RobotJaw" IsAbstract="true">
+<DisplayName>RobotJaw</DisplayName>
+<Category>DI Information Model</Category>
+<References>
+<Reference ReferenceType="HasComponent">ns=1;g=f79a2fd8-3c9a-4679-9070-0015f09703a6</Reference>
+<Reference ReferenceType="HasSubtype" IsForward="false">ComponentType</Reference>
+</References>
+</UAObjectType>
+<UAVariable NodeId="ns=1;g=a0fff1bd-734a-4a86-b5e9-fd396590dd35" BrowseName="1:a variable" ParentNodeId="ns=1;g=9471efd5-f6d5-45c2-8d5d-169906739a9a" DataType="Number">
+<DisplayName>a variable</DisplayName>
+<References>
+<Reference ReferenceType="HasTypeDefinition">PropertyType</Reference>
+<Reference ReferenceType="HasModellingRule">Optional</Reference>
+<Reference ReferenceType="HasProperty">ns=1;g=aa961496-b22c-4827-be70-cbca1a74bb52</Reference>
+<Reference ReferenceType="HasProperty" IsForward="false">ns=1;g=9471efd5-f6d5-45c2-8d5d-169906739a9a</Reference>
+</References>
+</UAVariable>
+<UAVariable NodeId="ns=1;g=aa961496-b22c-4827-be70-cbca1a74bb52" BrowseName="EngineeringUnits" ParentNodeId="ns=1;g=a0fff1bd-734a-4a86-b5e9-fd396590dd35" DataType="i=887">
+<DisplayName>EngineeringUnits</DisplayName>
+<References>
+<Reference ReferenceType="HasTypeDefinition">PropertyType</Reference>
+<Reference ReferenceType="HasModellingRule">Mandatory</Reference>
+<Reference ReferenceType="HasProperty" IsForward="false">ns=1;g=a0fff1bd-734a-4a86-b5e9-fd396590dd35</Reference>
+</References>
+<Value>
+<uax:ExtensionObject xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:uax="http://opcfoundation.org/UA/2008/02/Types.xsd">
+<uax:TypeId>
+<uax:Identifier>i=888</uax:Identifier>
+</uax:TypeId>
+<uax:Body>
+<uax:EUInformation>
+<uax:NamespaceUri>http://www.opcfoundation.org/UA/units/un/cefact</uax:NamespaceUri>
+<uax:UnitId>4733240</uax:UnitId>
+<uax:DisplayName>
+<uax:Text>%/in</uax:Text>
+</uax:DisplayName>
+<uax:Description>
+<uax:Text>percent per inch</uax:Text>
+</uax:Description>
+</uax:EUInformation>
+</uax:Body>
+</uax:ExtensionObject>
+</Value>
+</UAVariable>
+<UAVariable NodeId="ns=1;g=ce1d75d2-aa26-4d88-8666-769dc2759b0d" BrowseName="1:A Bool" ParentNodeId="ns=1;g=2d0ebb39-a422-47da-96e9-e39204ed6632" DataType="Boolean">
+<DisplayName>A Bool</DisplayName>
+<References>
+<Reference ReferenceType="HasTypeDefinition">PropertyType</Reference>
+<Reference ReferenceType="HasModellingRule">Optional</Reference>
+<Reference ReferenceType="HasProperty" IsForward="false">ns=1;g=2d0ebb39-a422-47da-96e9-e39204ed6632</Reference>
+</References>
+</UAVariable>
+<UAVariable NodeId="ns=1;g=f3157533-14ce-4ac2-8496-31256b491ecf" BrowseName="1:A Time" ParentNodeId="ns=1;g=9471efd5-f6d5-45c2-8d5d-169906739a9a" DataType="Duration">
+<DisplayName>A Time</DisplayName>
+<References>
+<Reference ReferenceType="HasTypeDefinition">BaseDataVariableType</Reference>
+<Reference ReferenceType="HasModellingRule">Optional</Reference>
+<Reference ReferenceType="HasComponent" IsForward="false">ns=1;g=9471efd5-f6d5-45c2-8d5d-169906739a9a</Reference>
+</References>
+</UAVariable>
+<UAObjectType NodeId="ns=1;g=f62b6421-8578-43a1-9d4c-b9e9bd85b204" BrowseName="1:AbdomenCoffeeMaker">
+<DisplayName>AbdomenCoffeeMaker</DisplayName>
+<Description></Description>
+<References>
+<Reference ReferenceType="HasSubtype" IsForward="false">CoffeeMachineDeviceType</Reference>
+</References>
+</UAObjectType>
+<UAVariable NodeId="ns=1;g=f79a2fd8-3c9a-4679-9070-0015f09703a6" BrowseName="1:MyNumber" ParentNodeId="ns=1;g=9f32d8d8-4cbe-457d-b978-c7ba12a32a05" DataType="Number">
+<DisplayName>MyNumber</DisplayName>
+<References>
+<Reference ReferenceType="HasTypeDefinition">BaseDataVariableType</Reference>
+<Reference ReferenceType="HasModellingRule">Optional</Reference>
+<Reference ReferenceType="HasComponent" IsForward="false">ns=1;g=9f32d8d8-4cbe-457d-b978-c7ba12a32a05</Reference>
+</References>
+</UAVariable>
+<UAObject NodeId="ns=1;i=0" BrowseName="1:A Composition" ParentNodeId="ns=1;g=2d0ebb39-a422-47da-96e9-e39204ed6632">
+<DisplayName>A Composition</DisplayName>
+<References>
+<Reference ReferenceType="HasTypeDefinition">AliasNameType</Reference>
+<Reference ReferenceType="HasComponent" IsForward="false">ns=1;g=2d0ebb39-a422-47da-96e9-e39204ed6632</Reference>
+</References>
+</UAObject>
+</UANodeSet>
+

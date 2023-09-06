@@ -1,0 +1,618 @@
+<?xml version='1.0' encoding='utf-8'?>
+<UANodeSet xmlns="http://opcfoundation.org/UA/2011/03/UANodeSet.xsd" xmlns:uax="http://opcfoundation.org/UA/2008/02/Types.xsd" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <NamespaceUris>
+    <Uri>http://cesmii.org/cesmii_demo_22_7_4/</Uri>
+  </NamespaceUris>
+  <Aliases>
+    <Alias Alias="String">i=12</Alias>
+    <Alias Alias="HasModellingRule">i=37</Alias>
+    <Alias Alias="HasTypeDefinition">i=40</Alias>
+    <Alias Alias="HasSubtype">i=45</Alias>
+    <Alias Alias="HasComponent">i=47</Alias>
+  </Aliases>
+  <UAObjectType BrowseName="1:Order" NodeId="ns=1;i=2001">
+    <DisplayName>Order</DisplayName>
+    <Description>Order</Description>
+    <References>
+      <Reference IsForward="false" ReferenceType="HasSubtype">i=58</Reference>
+      <Reference ReferenceType="HasSubtype">ns=1;i=2002</Reference>
+    </References>
+  </UAObjectType>
+  <UAObjectType BrowseName="1:Job" NodeId="ns=1;i=2002">
+    <DisplayName>Job</DisplayName>
+    <Description>Job</Description>
+    <References>
+      <Reference IsForward="false" ReferenceType="HasSubtype">ns=1;i=2001</Reference>
+      <Reference ReferenceType="HasSubtype">ns=1;i=2003</Reference>
+    </References>
+  </UAObjectType>
+  <UAObjectType BrowseName="1:Document" NodeId="ns=1;i=2003">
+    <DisplayName>Document</DisplayName>
+    <Description>Document</Description>
+    <References>
+      <Reference IsForward="false" ReferenceType="HasSubtype">ns=1;i=2002</Reference>
+      <Reference ReferenceType="HasSubtype">ns=1;i=2004</Reference>
+      <Reference ReferenceType="HasSubtype">ns=1;i=2009</Reference>
+      <Reference ReferenceType="HasSubtype">ns=1;i=2010</Reference>
+      <Reference ReferenceType="HasSubtype">ns=1;i=2011</Reference>
+      <Reference ReferenceType="HasSubtype">ns=1;i=2012</Reference>
+      <Reference ReferenceType="HasSubtype">ns=1;i=2013</Reference>
+      <Reference ReferenceType="HasSubtype">ns=1;i=2014</Reference>
+    </References>
+  </UAObjectType>
+  <UAObjectType BrowseName="1:Documentation" NodeId="ns=1;i=2004">
+    <DisplayName>Documentation</DisplayName>
+    <Description>Documentation</Description>
+    <References>
+      <Reference IsForward="false" ReferenceType="HasSubtype">ns=1;i=2003</Reference>
+    </References>
+  </UAObjectType>
+  <UAObjectType BrowseName="1:Inspection_Report" NodeId="ns=1;i=2009">
+    <DisplayName>Inspection_Report</DisplayName>
+    <Description>Inspection_Report</Description>
+    <References>
+      <Reference IsForward="false" ReferenceType="HasSubtype">ns=1;i=2003</Reference>
+    </References>
+  </UAObjectType>
+  <UAObjectType BrowseName="1:Melt_Charge" NodeId="ns=1;i=2010">
+    <DisplayName>Melt_Charge</DisplayName>
+    <Description>Melt_Charge</Description>
+    <References>
+      <Reference IsForward="false" ReferenceType="HasSubtype">ns=1;i=2003</Reference>
+    </References>
+  </UAObjectType>
+  <UAObjectType BrowseName="1:Mold" NodeId="ns=1;i=2011">
+    <DisplayName>Mold</DisplayName>
+    <Description>Mold</Description>
+    <References>
+      <Reference IsForward="false" ReferenceType="HasSubtype">ns=1;i=2003</Reference>
+    </References>
+  </UAObjectType>
+  <UAObjectType BrowseName="1:Part" NodeId="ns=1;i=2012">
+    <DisplayName>Part</DisplayName>
+    <Description>Part</Description>
+    <References>
+      <Reference IsForward="false" ReferenceType="HasSubtype">ns=1;i=2003</Reference>
+    </References>
+  </UAObjectType>
+  <UAObjectType BrowseName="1:Pour" NodeId="ns=1;i=2013">
+    <DisplayName>Pour</DisplayName>
+    <Description>Pour</Description>
+    <References>
+      <Reference IsForward="false" ReferenceType="HasSubtype">ns=1;i=2003</Reference>
+    </References>
+  </UAObjectType>
+  <UAObjectType BrowseName="1:Sand_Batch" NodeId="ns=1;i=2014">
+    <DisplayName>Sand_Batch</DisplayName>
+    <Description>Sand_Batch</Description>
+    <References>
+      <Reference IsForward="false" ReferenceType="HasSubtype">ns=1;i=2003</Reference>
+    </References>
+  </UAObjectType>
+  <UAObjectType BrowseName="1:Processual_Entity" NodeId="ns=1;i=2016">
+    <DisplayName>Processual_Entity</DisplayName>
+    <Description>Processual_Entity</Description>
+    <References>
+      <Reference IsForward="false" ReferenceType="HasSubtype">i=58</Reference>
+      <Reference ReferenceType="HasSubtype">ns=1;i=2024</Reference>
+      <Reference ReferenceType="HasSubtype">ns=1;i=2030</Reference>
+      <Reference ReferenceType="HasSubtype">ns=1;i=2036</Reference>
+      <Reference ReferenceType="HasSubtype">ns=1;i=2040</Reference>
+      <Reference ReferenceType="HasSubtype">ns=1;i=2044</Reference>
+      <Reference ReferenceType="HasSubtype">ns=1;i=2047</Reference>
+      <Reference ReferenceType="HasSubtype">ns=1;i=2050</Reference>
+      <Reference ReferenceType="HasSubtype">ns=1;i=2054</Reference>
+    </References>
+  </UAObjectType>
+  <UAObjectType BrowseName="1:Engineering" NodeId="ns=1;i=2024">
+    <DisplayName>Engineering</DisplayName>
+    <Description>Engineering</Description>
+    <References>
+      <Reference IsForward="false" ReferenceType="HasSubtype">ns=1;i=2016</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;i=2025</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;i=2026</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;i=2027</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;i=2028</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;i=2029</Reference>
+    </References>
+  </UAObjectType>
+  <UAVariable BrowseName="1:Engineering_Cad" DataType="String" Historizing="true" NodeId="ns=1;i=2025" ParentNodeId="ns=1;i=2024">
+    <DisplayName>Engineering_Cad</DisplayName>
+    <Description>Engineering_Cad</Description>
+    <References>
+      <Reference IsForward="false" ReferenceType="HasComponent">ns=1;i=2024</Reference>
+      <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
+      <Reference ReferenceType="HasModellingRule">i=78</Reference>
+    </References>
+    <Value>
+      <uax:String>Null</uax:String>
+    </Value>
+  </UAVariable>
+  <UAVariable BrowseName="1:Engineering_Calculation" DataType="String" Historizing="true" NodeId="ns=1;i=2026" ParentNodeId="ns=1;i=2024">
+    <DisplayName>Engineering_Calculation</DisplayName>
+    <Description>Engineering_Calculation</Description>
+    <References>
+      <Reference IsForward="false" ReferenceType="HasComponent">ns=1;i=2024</Reference>
+      <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
+      <Reference ReferenceType="HasModellingRule">i=78</Reference>
+    </References>
+    <Value>
+      <uax:String>Null</uax:String>
+    </Value>
+  </UAVariable>
+  <UAVariable BrowseName="1:Engineering_Report" DataType="String" Historizing="true" NodeId="ns=1;i=2027" ParentNodeId="ns=1;i=2024">
+    <DisplayName>Engineering_Report</DisplayName>
+    <Description>Engineering_Report</Description>
+    <References>
+      <Reference IsForward="false" ReferenceType="HasComponent">ns=1;i=2024</Reference>
+      <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
+      <Reference ReferenceType="HasModellingRule">i=78</Reference>
+    </References>
+    <Value>
+      <uax:String>Null</uax:String>
+    </Value>
+  </UAVariable>
+  <UAVariable BrowseName="1:Engineering_Simulation" DataType="String" Historizing="true" NodeId="ns=1;i=2028" ParentNodeId="ns=1;i=2024">
+    <DisplayName>Engineering_Simulation</DisplayName>
+    <Description>Engineering_Simulation</Description>
+    <References>
+      <Reference IsForward="false" ReferenceType="HasComponent">ns=1;i=2024</Reference>
+      <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
+      <Reference ReferenceType="HasModellingRule">i=78</Reference>
+    </References>
+    <Value>
+      <uax:String>Null</uax:String>
+    </Value>
+  </UAVariable>
+  <UAVariable BrowseName="1:Engineering_Timeline" DataType="String" Historizing="true" NodeId="ns=1;i=2029" ParentNodeId="ns=1;i=2024">
+    <DisplayName>Engineering_Timeline</DisplayName>
+    <Description>Engineering_Timeline</Description>
+    <References>
+      <Reference IsForward="false" ReferenceType="HasComponent">ns=1;i=2024</Reference>
+      <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
+      <Reference ReferenceType="HasModellingRule">i=78</Reference>
+    </References>
+    <Value>
+      <uax:String>Null</uax:String>
+    </Value>
+  </UAVariable>
+  <UAObjectType BrowseName="1:Inspection" NodeId="ns=1;i=2030">
+    <DisplayName>Inspection</DisplayName>
+    <Description>Inspection</Description>
+    <References>
+      <Reference IsForward="false" ReferenceType="HasSubtype">ns=1;i=2016</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;i=2031</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;i=2032</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;i=2033</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;i=2034</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;i=2035</Reference>
+    </References>
+  </UAObjectType>
+  <UAVariable BrowseName="1:Inspection_Dimension" DataType="String" Historizing="true" NodeId="ns=1;i=2031" ParentNodeId="ns=1;i=2030">
+    <DisplayName>Inspection_Dimension</DisplayName>
+    <Description>Inspection_Dimension</Description>
+    <References>
+      <Reference IsForward="false" ReferenceType="HasComponent">ns=1;i=2030</Reference>
+      <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
+      <Reference ReferenceType="HasModellingRule">i=78</Reference>
+    </References>
+    <Value>
+      <uax:String>Null</uax:String>
+    </Value>
+  </UAVariable>
+  <UAVariable BrowseName="1:Inspection_etc" DataType="String" Historizing="true" NodeId="ns=1;i=2032" ParentNodeId="ns=1;i=2030">
+    <DisplayName>Inspection_etc</DisplayName>
+    <Description>Inspection_etc</Description>
+    <References>
+      <Reference IsForward="false" ReferenceType="HasComponent">ns=1;i=2030</Reference>
+      <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
+      <Reference ReferenceType="HasModellingRule">i=78</Reference>
+    </References>
+    <Value>
+      <uax:String>Null</uax:String>
+    </Value>
+  </UAVariable>
+  <UAVariable BrowseName="1:Inspection_Mech_Prop" DataType="String" Historizing="true" NodeId="ns=1;i=2033" ParentNodeId="ns=1;i=2030">
+    <DisplayName>Inspection_Mech_Prop</DisplayName>
+    <Description>Inspection_Mech_Prop</Description>
+    <References>
+      <Reference IsForward="false" ReferenceType="HasComponent">ns=1;i=2030</Reference>
+      <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
+      <Reference ReferenceType="HasModellingRule">i=78</Reference>
+    </References>
+    <Value>
+      <uax:String>Null</uax:String>
+    </Value>
+  </UAVariable>
+  <UAVariable BrowseName="1:Inspection_Microstr" DataType="String" Historizing="true" NodeId="ns=1;i=2034" ParentNodeId="ns=1;i=2030">
+    <DisplayName>Inspection_Microstr</DisplayName>
+    <Description>Inspection_Microstr</Description>
+    <References>
+      <Reference IsForward="false" ReferenceType="HasComponent">ns=1;i=2030</Reference>
+      <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
+      <Reference ReferenceType="HasModellingRule">i=78</Reference>
+    </References>
+    <Value>
+      <uax:String>Null</uax:String>
+    </Value>
+  </UAVariable>
+  <UAVariable BrowseName="1:Inspection_Report" DataType="String" Historizing="true" NodeId="ns=1;i=2035" ParentNodeId="ns=1;i=2030">
+    <DisplayName>Inspection_Report</DisplayName>
+    <Description>Inspection_Report</Description>
+    <References>
+      <Reference IsForward="false" ReferenceType="HasComponent">ns=1;i=2030</Reference>
+      <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
+      <Reference ReferenceType="HasModellingRule">i=78</Reference>
+    </References>
+    <Value>
+      <uax:String>Null</uax:String>
+    </Value>
+  </UAVariable>
+  <UAObjectType BrowseName="1:Melting" NodeId="ns=1;i=2036">
+    <DisplayName>Melting</DisplayName>
+    <Description>Melting</Description>
+    <References>
+      <Reference IsForward="false" ReferenceType="HasSubtype">ns=1;i=2016</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;i=2037</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;i=2038</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;i=2039</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;i=2005</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;i=2006</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;i=2007</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;i=2008</Reference>
+    </References>
+  </UAObjectType>
+  <UAVariable BrowseName="1:Melting_Properties" DataType="String" Historizing="true" NodeId="ns=1;i=2037" ParentNodeId="ns=1;i=2036">
+    <DisplayName>Melting_Properties</DisplayName>
+    <Description>Melting_Properties</Description>
+    <References>
+      <Reference IsForward="false" ReferenceType="HasComponent">ns=1;i=2036</Reference>
+      <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
+      <Reference ReferenceType="HasModellingRule">i=78</Reference>
+    </References>
+    <Value>
+      <uax:String>Null</uax:String>
+    </Value>
+  </UAVariable>
+  <UAVariable BrowseName="1:Melting_DateTime" DataType="String" Historizing="true" NodeId="ns=1;i=2038" ParentNodeId="ns=1;i=2036">
+    <DisplayName>Melting_DateTime</DisplayName>
+    <Description>Melting_DateTime</Description>
+    <References>
+      <Reference IsForward="false" ReferenceType="HasComponent">ns=1;i=2036</Reference>
+      <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
+      <Reference ReferenceType="HasModellingRule">i=78</Reference>
+    </References>
+    <Value>
+      <uax:String>Null</uax:String>
+    </Value>
+  </UAVariable>
+  <UAVariable BrowseName="1:Melting_Process_parameters" DataType="String" Historizing="true" NodeId="ns=1;i=2039" ParentNodeId="ns=1;i=2036">
+    <DisplayName>Melting_Process_parameters</DisplayName>
+    <Description>Melting_Process_parameters</Description>
+    <References>
+      <Reference IsForward="false" ReferenceType="HasComponent">ns=1;i=2036</Reference>
+      <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
+      <Reference ReferenceType="HasModellingRule">i=78</Reference>
+    </References>
+    <Value>
+      <uax:String>Null</uax:String>
+    </Value>
+  </UAVariable>
+  <UAObjectType BrowseName="1:Molding" NodeId="ns=1;i=2040">
+    <DisplayName>Molding</DisplayName>
+    <Description>Molding</Description>
+    <References>
+      <Reference IsForward="false" ReferenceType="HasSubtype">ns=1;i=2016</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;i=2041</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;i=2042</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;i=2043</Reference>
+    </References>
+  </UAObjectType>
+  <UAVariable BrowseName="1:Modling_DateTime" DataType="String" Historizing="true" NodeId="ns=1;i=2041" ParentNodeId="ns=1;i=2040">
+    <DisplayName>Modling_DateTime</DisplayName>
+    <Description>Modling_DateTime</Description>
+    <References>
+      <Reference IsForward="false" ReferenceType="HasComponent">ns=1;i=2040</Reference>
+      <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
+      <Reference ReferenceType="HasModellingRule">i=78</Reference>
+    </References>
+    <Value>
+      <uax:String>Null</uax:String>
+    </Value>
+  </UAVariable>
+  <UAVariable BrowseName="1:Modling_Process_parameters" DataType="String" Historizing="true" NodeId="ns=1;i=2042" ParentNodeId="ns=1;i=2040">
+    <DisplayName>Modling_Process_parameters</DisplayName>
+    <Description>Modling_Process_parameters</Description>
+    <References>
+      <Reference IsForward="false" ReferenceType="HasComponent">ns=1;i=2040</Reference>
+      <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
+      <Reference ReferenceType="HasModellingRule">i=78</Reference>
+    </References>
+    <Value>
+      <uax:String>Null</uax:String>
+    </Value>
+  </UAVariable>
+  <UAVariable BrowseName="1:Mold_Hardness" DataType="String" Historizing="true" NodeId="ns=1;i=2043" ParentNodeId="ns=1;i=2040">
+    <DisplayName>Mold_Hardness</DisplayName>
+    <Description>Mold_Hardness</Description>
+    <References>
+      <Reference IsForward="false" ReferenceType="HasComponent">ns=1;i=2040</Reference>
+      <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
+      <Reference ReferenceType="HasModellingRule">i=78</Reference>
+    </References>
+    <Value>
+      <uax:String>Null</uax:String>
+    </Value>
+  </UAVariable>
+  <UAObjectType BrowseName="1:Postprocessing" NodeId="ns=1;i=2044">
+    <DisplayName>Postprocessing</DisplayName>
+    <Description>Postprocessing</Description>
+    <References>
+      <Reference IsForward="false" ReferenceType="HasSubtype">ns=1;i=2016</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;i=2045</Reference>
+    </References>
+  </UAObjectType>
+  <UAVariable BrowseName="1:Postprosessing_DateTime" DataType="String" Historizing="true" NodeId="ns=1;i=2045" ParentNodeId="ns=1;i=2044">
+    <DisplayName>Postprosessing_DateTime</DisplayName>
+    <Description>Postprosessing_DateTime</Description>
+    <References>
+      <Reference IsForward="false" ReferenceType="HasComponent">ns=1;i=2044</Reference>
+      <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
+      <Reference ReferenceType="HasModellingRule">i=78</Reference>
+    </References>
+    <Value>
+      <uax:String>Null</uax:String>
+    </Value>
+  </UAVariable>
+  <UAObjectType BrowseName="1:Pouring" NodeId="ns=1;i=2047">
+    <DisplayName>Pouring</DisplayName>
+    <Description>Pouring</Description>
+    <References>
+      <Reference IsForward="false" ReferenceType="HasSubtype">ns=1;i=2016</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;i=2048</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;i=2049</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;i=2020</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;i=2021</Reference>
+    </References>
+  </UAObjectType>
+  <UAVariable BrowseName="1:Pouring_DateTime" DataType="String" Historizing="true" NodeId="ns=1;i=2048" ParentNodeId="ns=1;i=2047">
+    <DisplayName>Pouring_DateTime</DisplayName>
+    <Description>Pouring_DateTime</Description>
+    <References>
+      <Reference IsForward="false" ReferenceType="HasComponent">ns=1;i=2047</Reference>
+      <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
+      <Reference ReferenceType="HasModellingRule">i=78</Reference>
+    </References>
+    <Value>
+      <uax:String>Null</uax:String>
+    </Value>
+  </UAVariable>
+  <UAVariable BrowseName="1:Pouring_Process_parameters" DataType="String" Historizing="true" NodeId="ns=1;i=2049" ParentNodeId="ns=1;i=2047">
+    <DisplayName>Pouring_Process_parameters</DisplayName>
+    <Description>Pouring_Process_parameters</Description>
+    <References>
+      <Reference IsForward="false" ReferenceType="HasComponent">ns=1;i=2047</Reference>
+      <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
+      <Reference ReferenceType="HasModellingRule">i=78</Reference>
+    </References>
+    <Value>
+      <uax:String>Null</uax:String>
+    </Value>
+  </UAVariable>
+  <UAObjectType BrowseName="1:Sand_Preparation" NodeId="ns=1;i=2050">
+    <DisplayName>Sand_Preparation</DisplayName>
+    <Description>Sand_Preparation</Description>
+    <References>
+      <Reference IsForward="false" ReferenceType="HasSubtype">ns=1;i=2016</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;i=2051</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;i=2052</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;i=2053</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;i=2015</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;i=2017</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;i=2018</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;i=2019</Reference>
+    </References>
+  </UAObjectType>
+  <UAVariable BrowseName="1:Sand_DateTime" DataType="String" Historizing="true" NodeId="ns=1;i=2051" ParentNodeId="ns=1;i=2050">
+    <DisplayName>Sand_DateTime</DisplayName>
+    <Description>Sand_DateTime</Description>
+    <References>
+      <Reference IsForward="false" ReferenceType="HasComponent">ns=1;i=2050</Reference>
+      <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
+      <Reference ReferenceType="HasModellingRule">i=78</Reference>
+    </References>
+    <Value>
+      <uax:String>Null</uax:String>
+    </Value>
+  </UAVariable>
+  <UAVariable BrowseName="1:Sand_Process_parameters" DataType="String" Historizing="true" NodeId="ns=1;i=2052" ParentNodeId="ns=1;i=2050">
+    <DisplayName>Sand_Process_parameters</DisplayName>
+    <Description>Sand_Process_parameters</Description>
+    <References>
+      <Reference IsForward="false" ReferenceType="HasComponent">ns=1;i=2050</Reference>
+      <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
+      <Reference ReferenceType="HasModellingRule">i=78</Reference>
+    </References>
+    <Value>
+      <uax:String>Null</uax:String>
+    </Value>
+  </UAVariable>
+  <UAVariable BrowseName="1:Sand_Properties" DataType="String" Historizing="true" NodeId="ns=1;i=2053" ParentNodeId="ns=1;i=2050">
+    <DisplayName>Sand_Properties</DisplayName>
+    <Description>Sand_Properties</Description>
+    <References>
+      <Reference IsForward="false" ReferenceType="HasComponent">ns=1;i=2050</Reference>
+      <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
+      <Reference ReferenceType="HasModellingRule">i=78</Reference>
+    </References>
+    <Value>
+      <uax:String>Null</uax:String>
+    </Value>
+  </UAVariable>
+  <UAObjectType BrowseName="1:Tooling" NodeId="ns=1;i=2054">
+    <DisplayName>Tooling</DisplayName>
+    <Description>Tooling</Description>
+    <References>
+      <Reference IsForward="false" ReferenceType="HasSubtype">ns=1;i=2016</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;i=2055</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;i=2056</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;i=2057</Reference>
+    </References>
+  </UAObjectType>
+  <UAVariable BrowseName="1:Physical_Tooling" DataType="String" Historizing="true" NodeId="ns=1;i=2055" ParentNodeId="ns=1;i=2054">
+    <DisplayName>Physical_Tooling</DisplayName>
+    <Description>Physical_Tooling</Description>
+    <References>
+      <Reference IsForward="false" ReferenceType="HasComponent">ns=1;i=2054</Reference>
+      <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
+      <Reference ReferenceType="HasModellingRule">i=78</Reference>
+    </References>
+    <Value>
+      <uax:String>Null</uax:String>
+    </Value>
+  </UAVariable>
+  <UAVariable BrowseName="1:Tooling_Operation_Details" DataType="String" Historizing="true" NodeId="ns=1;i=2056" ParentNodeId="ns=1;i=2054">
+    <DisplayName>Tooling_Operation_Details</DisplayName>
+    <Description>Tooling_Operation_Details</Description>
+    <References>
+      <Reference IsForward="false" ReferenceType="HasComponent">ns=1;i=2054</Reference>
+      <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
+      <Reference ReferenceType="HasModellingRule">i=78</Reference>
+    </References>
+    <Value>
+      <uax:String>Null</uax:String>
+    </Value>
+  </UAVariable>
+  <UAVariable BrowseName="1:Tooling_Timeline" DataType="String" Historizing="true" NodeId="ns=1;i=2057" ParentNodeId="ns=1;i=2054">
+    <DisplayName>Tooling_Timeline</DisplayName>
+    <Description>Tooling_Timeline</Description>
+    <References>
+      <Reference IsForward="false" ReferenceType="HasComponent">ns=1;i=2054</Reference>
+      <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
+      <Reference ReferenceType="HasModellingRule">i=78</Reference>
+    </References>
+    <Value>
+      <uax:String>Null</uax:String>
+    </Value>
+  </UAVariable>
+  <UAVariable BrowseName="1:Melting_Temp" DataType="String" NodeId="ns=1;i=2005" ParentNodeId="ns=1;i=2036">
+    <DisplayName>Melting_Temp</DisplayName>
+    <Description>Melting_Temp</Description>
+    <References>
+      <Reference IsForward="false" ReferenceType="HasComponent">ns=1;i=2036</Reference>
+      <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
+      <Reference ReferenceType="HasModellingRule">i=78</Reference>
+    </References>
+    <Value>
+      <uax:String>Null</uax:String>
+    </Value>
+  </UAVariable>
+  <UAVariable BrowseName="1:Melting_FlueGas_Temp" DataType="String" NodeId="ns=1;i=2006" ParentNodeId="ns=1;i=2036">
+    <DisplayName>Melting_FlueGas_Temp</DisplayName>
+    <Description>Melting_FlueGas_Temp</Description>
+    <References>
+      <Reference IsForward="false" ReferenceType="HasComponent">ns=1;i=2036</Reference>
+      <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
+      <Reference ReferenceType="HasModellingRule">i=78</Reference>
+    </References>
+    <Value>
+      <uax:String>Null</uax:String>
+    </Value>
+  </UAVariable>
+  <UAVariable BrowseName="1:Melting_OvenT" DataType="String" NodeId="ns=1;i=2007" ParentNodeId="ns=1;i=2036">
+    <DisplayName>Melting_OvenT</DisplayName>
+    <Description>Melting_OvenT</Description>
+    <References>
+      <Reference IsForward="false" ReferenceType="HasComponent">ns=1;i=2036</Reference>
+      <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
+      <Reference ReferenceType="HasModellingRule">i=78</Reference>
+    </References>
+    <Value>
+      <uax:String>Null</uax:String>
+    </Value>
+  </UAVariable>
+  <UAVariable BrowseName="1:Melting_Ag_FlowRate" DataType="String" NodeId="ns=1;i=2008" ParentNodeId="ns=1;i=2036">
+    <DisplayName>Melting_Ag_FlowRate</DisplayName>
+    <Description>Melting_Ag_FlowRate</Description>
+    <References>
+      <Reference IsForward="false" ReferenceType="HasComponent">ns=1;i=2036</Reference>
+      <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
+      <Reference ReferenceType="HasModellingRule">i=78</Reference>
+    </References>
+    <Value>
+      <uax:String>Null</uax:String>
+    </Value>
+  </UAVariable>
+  <UAVariable BrowseName="1:Sand_Compatibility" DataType="String" NodeId="ns=1;i=2015" ParentNodeId="ns=1;i=2050">
+    <DisplayName>Sand_Compatibility</DisplayName>
+    <Description>Sand_Compatibility</Description>
+    <References>
+      <Reference IsForward="false" ReferenceType="HasComponent">ns=1;i=2050</Reference>
+      <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
+      <Reference ReferenceType="HasModellingRule">i=78</Reference>
+    </References>
+    <Value>
+      <uax:String>Null</uax:String>
+    </Value>
+  </UAVariable>
+  <UAVariable BrowseName="1:Sand_Strength" DataType="String" NodeId="ns=1;i=2017" ParentNodeId="ns=1;i=2050">
+    <DisplayName>Sand_Strength</DisplayName>
+    <Description>Sand_Strength</Description>
+    <References>
+      <Reference IsForward="false" ReferenceType="HasComponent">ns=1;i=2050</Reference>
+      <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
+      <Reference ReferenceType="HasModellingRule">i=78</Reference>
+    </References>
+    <Value>
+      <uax:String>Null</uax:String>
+    </Value>
+  </UAVariable>
+  <UAVariable BrowseName="1:Sand_Moisture" DataType="String" NodeId="ns=1;i=2018" ParentNodeId="ns=1;i=2050">
+    <DisplayName>Sand_Moisture</DisplayName>
+    <Description>Sand_Moisture</Description>
+    <References>
+      <Reference IsForward="false" ReferenceType="HasComponent">ns=1;i=2050</Reference>
+      <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
+      <Reference ReferenceType="HasModellingRule">i=78</Reference>
+    </References>
+    <Value>
+      <uax:String>Null</uax:String>
+    </Value>
+  </UAVariable>
+  <UAVariable BrowseName="1:Sand_Bentonite" DataType="String" NodeId="ns=1;i=2019" ParentNodeId="ns=1;i=2050">
+    <DisplayName>Sand_Bentonite</DisplayName>
+    <Description>Sand_Bentonite</Description>
+    <References>
+      <Reference IsForward="false" ReferenceType="HasComponent">ns=1;i=2050</Reference>
+      <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
+      <Reference ReferenceType="HasModellingRule">i=78</Reference>
+    </References>
+    <Value>
+      <uax:String>Null</uax:String>
+    </Value>
+  </UAVariable>
+  <UAVariable BrowseName="1:Pouring_Rate" DataType="String" NodeId="ns=1;i=2020" ParentNodeId="ns=1;i=2047">
+    <DisplayName>Pouring_Rate</DisplayName>
+    <Description>Pouring_Rate</Description>
+    <References>
+      <Reference IsForward="false" ReferenceType="HasComponent">ns=1;i=2047</Reference>
+      <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
+      <Reference ReferenceType="HasModellingRule">i=78</Reference>
+    </References>
+    <Value>
+      <uax:String>Null</uax:String>
+    </Value>
+  </UAVariable>
+  <UAVariable BrowseName="1:Pouring_Temp" DataType="String" NodeId="ns=1;i=2021" ParentNodeId="ns=1;i=2047">
+    <DisplayName>Pouring_Temp</DisplayName>
+    <Description>Pouring_Temp</Description>
+    <References>
+      <Reference IsForward="false" ReferenceType="HasComponent">ns=1;i=2047</Reference>
+      <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
+      <Reference ReferenceType="HasModellingRule">i=78</Reference>
+    </References>
+    <Value>
+      <uax:String>Null</uax:String>
+    </Value>
+  </UAVariable>
+</UANodeSet>

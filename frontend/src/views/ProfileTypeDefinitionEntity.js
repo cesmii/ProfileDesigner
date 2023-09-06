@@ -900,6 +900,10 @@ function ProfileTypeDefinitionEntity() {
                         <Form.Label htmlFor="type">Data Type of the Variable</Form.Label>
                         <Form.Control id="type" type="" value={_item.variableDataType != null ? _item.variableDataType.name : ""} readOnly={_isReadOnly} />
                     </Form.Group>
+                    <Form.Group>
+                        <Form.Label htmlFor="type">Default Value</Form.Label>
+                        <Form.Control id="type" type="" value={_item.variableValue != null ? _item.variableValue : ""} readOnly={_isReadOnly} />
+                    </Form.Group>
                 </div>
             );
         }
@@ -946,7 +950,7 @@ function ProfileTypeDefinitionEntity() {
             return (
                 <>
                     <Button variant="text-solo" className="mx-1 d-none d-lg-block btn-auto auto-width" href={urlCancel} >{captionCancel}</Button>
-                    <Button variant="secondary" type="button" className="mx-3 d-none d-lg-block" onClick={onSave} >Save</Button>
+                    <Button variant="secondary" type="button" className={"mx-3 d-none d-lg-block" + (loadingProps.bIsTypeEditUnsaved ? "" : " disabled")} onClick={onSave} >Save</Button>
                     <Button variant="icon-solo" type="button" className="mx-1 d-lg-none" href={urlCancel} title={captionCancel} ><i className="material-icons">close</i></Button>
                     <Button variant="icon-solo" type="button" className="mx-1 d-lg-none" onClick={onSave} title="Save" ><i className="material-icons">save</i></Button>
                 </>

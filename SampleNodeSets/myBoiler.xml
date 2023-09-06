@@ -1,0 +1,69 @@
+<?xml version='1.0' encoding='utf-8'?>
+<UANodeSet xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:uax="http://opcfoundation.org/UA/2008/02/Types.xsd" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://opcfoundation.org/UA/2011/03/UANodeSet.xsd">
+  <NamespaceUris>
+    <Uri>myFactory</Uri>
+  </NamespaceUris>
+  <Aliases>
+    <Alias Alias="Organizes">i=35</Alias>
+    <Alias Alias="HasTypeDefinition">i=40</Alias>
+    <Alias Alias="HasComponent">i=47</Alias>
+    <Alias Alias="Boolean">i=1</Alias>
+    <Alias Alias="Float">i=10</Alias>
+    <Alias Alias="NormalizedString">i=12877</Alias>
+  </Aliases>
+  <UAObject NodeId="ns=1;i=1" BrowseName="1:Boiler" ParentNodeId="i=85">
+    <DisplayName>Boiler</DisplayName>
+    <References>
+      <Reference ReferenceType="Organizes" IsForward="false">i=85</Reference>
+      <Reference ReferenceType="HasTypeDefinition">i=58</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;i=2</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;i=3</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;i=4</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;i=5</Reference>
+    </References>
+  </UAObject>
+  <UAVariable NodeId="ns=1;i=2" BrowseName="1:ManufacturerName" ParentNodeId="ns=1;i=1" DataType="NormalizedString">
+    <DisplayName>ManufacturerName</DisplayName>
+    <Description>ManufacturerName</Description>
+    <References>
+      <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=1</Reference>
+      <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
+    </References>
+    <Value>
+      <uax:String>"Boiler Maker"</uax:String>
+    </Value>
+  </UAVariable>
+  <UAVariable NodeId="ns=1;i=3" BrowseName="1:Temperature" ParentNodeId="ns=1;i=1" DataType="Float">
+    <DisplayName>Temperature</DisplayName>
+    <Description>Temperature</Description>
+    <References>
+      <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=1</Reference>
+      <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
+    </References>
+    <Value>
+      <uax:Float>80.0</uax:Float>
+    </Value>
+  </UAVariable>
+  <UAVariable NodeId="ns=1;i=4" BrowseName="1:Pressure" ParentNodeId="ns=1;i=1" DataType="Float">
+    <DisplayName>Pressure</DisplayName>
+    <Description>Pressure</Description>
+    <References>
+      <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=1</Reference>
+      <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
+    </References>
+    <Value>
+      <uax:Float>300.0</uax:Float>
+    </Value>
+  </UAVariable>
+  <UAVariable NodeId="ns=1;i=5" BrowseName="1:state" ParentNodeId="ns=1;i=1" DataType="Boolean">
+    <DisplayName>state</DisplayName>
+    <Description>state</Description>
+    <References>
+      <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=1</Reference>
+      <Reference ReferenceType="HasTypeDefinition">i=63</Reference>
+    </References>
+    <Value>
+      <uax:Boolean>false</uax:Boolean>
+    </Value>
+  </UAVariable>
+</UANodeSet>

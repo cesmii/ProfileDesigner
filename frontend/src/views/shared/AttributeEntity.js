@@ -647,10 +647,10 @@ function AttributeEntity(props) { //props are item, showActions
         return (
             <div className="row mb-2">
                 <div className="col-sm-12 col-md-6">
-            <Form.Group className="flex-grow-1 align-self-center">
+                    <Form.Group className="flex-grow-1 align-self-center">
                         <Form.Check type="checkbox" id="isRequired" label="Is Required" checked={_editItem.isRequired} onChange={onIsRequiredCheckChange}
-                    disabled={isReadOnly ? "disabled" : ""} />
-            </Form.Group>
+                            disabled={isReadOnly ? "disabled" : ""} />
+                    </Form.Group>
                 </div>
                 <div className="col-sm-12 col-md-6">
                     <Form.Group className="flex-grow-1 align-self-center">
@@ -690,12 +690,12 @@ function AttributeEntity(props) { //props are item, showActions
                 {!_isValid.minMax &&
                     <span className="invalid-field-message inline">
                         Min &gt; Max
-                        </span>
+                    </span>
                 }
                 {!_isValid.minIsNumeric &&
                     <span className="invalid-field-message inline">
                         Invalid (ie. ####)
-                        </span>
+                    </span>
                 }
                 <Form.Control id="minValue" type="" value={_editItem.minValue == null ? '' : _editItem.minValue} readOnly={isReadOnly}
                     onChange={onChangeMinMax} onBlur={validateForm_minMax} title={tip}
@@ -717,7 +717,7 @@ function AttributeEntity(props) { //props are item, showActions
                 {!_isValid.maxIsNumeric &&
                     <span className="invalid-field-message inline">
                         Invalid (ie. ####)
-                        </span>
+                    </span>
                 }
                 <Form.Control id="maxValue" type="" value={_editItem.maxValue == null ? '' : _editItem.maxValue} readOnly={isReadOnly}
                     onChange={onChangeMinMax} onBlur={validateForm_minMax} title={tip}
@@ -765,7 +765,7 @@ function AttributeEntity(props) { //props are item, showActions
                 {!_isValid.instrumentMaxIsNumeric &&
                     <span className="invalid-field-message inline">
                         Invalid (ie. ####)
-                        </span>
+                    </span>
                 }
                 <Form.Control id="instrumentMaxValue" type="" value={_editItem.instrumentMaxValue == null ? '' : _editItem.instrumentMaxValue} readOnly={isReadOnly}
                     onChange={onChangeMinMax} onBlur={validateForm_instrumentMinMax} title={tip}
@@ -798,7 +798,27 @@ function AttributeEntity(props) { //props are item, showActions
             return (
                 <Form.Group>
                     <Form.Label className="mb-0" >Eng Unit</Form.Label>
-                        <Form.Control id="engUnit" value={selectedText} readOnly={isReadOnly} title={tip} />
+                    <Form.Control id="engUnit" value={selectedText} readOnly={isReadOnly} title={tip} />
+                </Form.Group>
+            );
+        }
+    };
+
+    const renderDefaultValue = () => {
+        //if (props.lookupEngUnits == null || props.lookupEngUnits.length === 0 || !_editSettings.useEngUnit) return;
+
+        const isReadOnly = (render_CheckReadOnly());
+
+        //if (!isReadOnly) {
+        //    return renderEngUnitUIShared(_editItem, props.lookupEngUnits, _isValid.engUnit, onChangeEngUnit, validateForm_engUnit);
+        //}
+        //else
+        {
+            let tip = "";
+            return (
+                <Form.Group>
+                    <Form.Label className="mb-0" >Default Value</Form.Label>
+                    <Form.Control id="defaultValue" value={_editItem.additionalData} readOnly={isReadOnly} title={tip} />
                 </Form.Group>
             );
         }
@@ -870,6 +890,9 @@ function AttributeEntity(props) { //props are item, showActions
                     </div>
                 </div>
             }
+            <div className="col-sm-6" >
+                {renderDefaultValue()}
+            </div>
             <div className="row mb-2" >
                 <div className="col-sm-12" >
                     {renderBrowseName()}

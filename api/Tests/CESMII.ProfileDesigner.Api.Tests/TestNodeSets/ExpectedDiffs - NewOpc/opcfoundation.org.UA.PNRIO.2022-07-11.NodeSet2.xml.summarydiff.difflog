@@ -1,0 +1,201 @@
+====>Expected attribute name '/UANodeSet[1]' - comparing <UANodeSet...> at /UANodeSet[1] to <UANodeSet...> at /UANodeSet[1]/@LastModified
+====>Expected attribute value '1.04.7' but was '1.05.02' - comparing <RequiredModel Version="1.04.7"...> at /UANodeSet[1]/Models[1]/Model[1]/RequiredModel[1]/@Version to <RequiredModel Version="1.05.02"...> at /UANodeSet[1]/Models[1]/Model[1]/RequiredModel[1]/@Version
+====>Expected attribute value '2020-07-15T00:00:00Z' but was '2022-11-01T00:00:00Z' - comparing <RequiredModel PublicationDate="2020-07-15T00:00:00Z"...> at /UANodeSet[1]/Models[1]/Model[1]/RequiredModel[1]/@PublicationDate to <RequiredModel PublicationDate="2022-11-01T00:00:00Z"...> at /UANodeSet[1]/Models[1]/Model[1]/RequiredModel[1]/@PublicationDate
+====>Expected attribute value '1.02.2' but was '1.04.0' - comparing <RequiredModel Version="1.02.2"...> at /UANodeSet[1]/Models[1]/Model[1]/RequiredModel[2]/@Version to <RequiredModel Version="1.04.0"...> at /UANodeSet[1]/Models[1]/Model[1]/RequiredModel[2]/@Version
+====>Expected attribute value '2020-06-02T00:00:00Z' but was '2022-11-03T00:00:00Z' - comparing <RequiredModel PublicationDate="2020-06-02T00:00:00Z"...> at /UANodeSet[1]/Models[1]/Model[1]/RequiredModel[2]/@PublicationDate to <RequiredModel PublicationDate="2022-11-03T00:00:00Z"...> at /UANodeSet[1]/Models[1]/Model[1]/RequiredModel[2]/@PublicationDate
+====>Expected text value 'For ConsumerStatus: The submodule’s IO data object could be successfully processed by the application process.
+For ProviderStatus: The content of the submodule’s IO data object is valid.
+' but was 'For ConsumerStatus: The submodule’s IO data object could be successfully processed by the application process.
+For ProviderStatus: The content of the submodule’s IO data object is valid.' - comparing <uax:Text ...>For ConsumerStatus: The submodule’s IO data object could be successfully processed by the application process.
+For ProviderStatus: The content of the submodule’s IO data object is valid.
+</uax:Text> at /UANodeSet[1]/UAVariable[1]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[1]/Body[1]/EnumValueType[1]/Description[1]/Text[1]/text()[1] to <uax:Text ...>For ConsumerStatus: The submodule’s IO data object could be successfully processed by the application process.
+For ProviderStatus: The content of the submodule’s IO data object is valid.</uax:Text> at /UANodeSet[1]/UAVariable[5]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[1]/Body[1]/EnumValueType[1]/Description[1]/Text[1]/text()[1]
+====>Expected text value 'For ConsumerStatus: not used.
+For ProviderStatus: The content of the submodule’s IO data object is invalid. The condition was detected by the submodule.
+' but was 'For ConsumerStatus: not used.
+For ProviderStatus: The content of the submodule’s IO data object is invalid. The condition was detected by the submodule.' - comparing <uax:Text ...>For ConsumerStatus: not used.
+For ProviderStatus: The content of the submodule’s IO data object is invalid. The condition was detected by the submodule.
+</uax:Text> at /UANodeSet[1]/UAVariable[1]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[2]/Body[1]/EnumValueType[1]/Description[1]/Text[1]/text()[1] to <uax:Text ...>For ConsumerStatus: not used.
+For ProviderStatus: The content of the submodule’s IO data object is invalid. The condition was detected by the submodule.</uax:Text> at /UANodeSet[1]/UAVariable[5]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[2]/Body[1]/EnumValueType[1]/Description[1]/Text[1]/text()[1]
+====>Expected text value 'For ConsumerStatus: not used.
+For ProviderStatus: . The content of the submodule’s IO data object is invalid. The condition was detected by the module.
+' but was 'For ConsumerStatus: not used.
+For ProviderStatus: . The content of the submodule’s IO data object is invalid. The condition was detected by the module.' - comparing <uax:Text ...>For ConsumerStatus: not used.
+For ProviderStatus: . The content of the submodule’s IO data object is invalid. The condition was detected by the module.
+</uax:Text> at /UANodeSet[1]/UAVariable[1]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[3]/Body[1]/EnumValueType[1]/Description[1]/Text[1]/text()[1] to <uax:Text ...>For ConsumerStatus: not used.
+For ProviderStatus: . The content of the submodule’s IO data object is invalid. The condition was detected by the module.</uax:Text> at /UANodeSet[1]/UAVariable[5]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[3]/Body[1]/EnumValueType[1]/Description[1]/Text[1]/text()[1]
+====>Expected text value 'For ConsumerStatus: The IO device has locally detected problems to convey data.
+For ProviderStatus: The content of the submodule’s IO data object is invalid. The condition was detected by the device.
+' but was 'For ConsumerStatus: The IO device has locally detected problems to convey data.
+For ProviderStatus: The content of the submodule’s IO data object is invalid. The condition was detected by the device.' - comparing <uax:Text ...>For ConsumerStatus: The IO device has locally detected problems to convey data.
+For ProviderStatus: The content of the submodule’s IO data object is invalid. The condition was detected by the device.
+</uax:Text> at /UANodeSet[1]/UAVariable[1]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[4]/Body[1]/EnumValueType[1]/Description[1]/Text[1]/text()[1] to <uax:Text ...>For ConsumerStatus: The IO device has locally detected problems to convey data.
+For ProviderStatus: The content of the submodule’s IO data object is invalid. The condition was detected by the device.</uax:Text> at /UANodeSet[1]/UAVariable[5]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[4]/Body[1]/EnumValueType[1]/Description[1]/Text[1]/text()[1]
+====>Expected text value 'For ConsumerStatus: The submodule’s IO data object could not be successfully processed by the application of the Controller (e.g. because of the operation state “stop”).
+For ProviderStatus: The content of the submodule’s IO data object is invalid. The condition was only locally detected by the Controller.
+' but was 'For ConsumerStatus: The submodule’s IO data object could not be successfully processed by the application of the Controller (e.g. because of the operation state “stop”).
+For ProviderStatus: The content of the submodule’s IO data object is invalid. The condition was only locally detected by the Controller.' - comparing <uax:Text ...>For ConsumerStatus: The submodule’s IO data object could not be successfully processed by the application of the Controller (e.g. because of the operation state “stop”).
+For ProviderStatus: The content of the submodule’s IO data object is invalid. The condition was only locally detected by the Controller.
+</uax:Text> at /UANodeSet[1]/UAVariable[1]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[5]/Body[1]/EnumValueType[1]/Description[1]/Text[1]/text()[1] to <uax:Text ...>For ConsumerStatus: The submodule’s IO data object could not be successfully processed by the application of the Controller (e.g. because of the operation state “stop”).
+For ProviderStatus: The content of the submodule’s IO data object is invalid. The condition was only locally detected by the Controller.</uax:Text> at /UANodeSet[1]/UAVariable[5]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[5]/Body[1]/EnumValueType[1]/Description[1]/Text[1]/text()[1]
+====>Expected child nodelist sequence '22' but was '24' - comparing <Field...> at /UANodeSet[1]/UADataType[5]/Definition[1]/Field[23] to <Field...> at /UANodeSet[1]/UADataType[9]/Definition[1]/Field[25]
+====>Expected child nodelist sequence '23' but was '25' - comparing <Field...> at /UANodeSet[1]/UADataType[5]/Definition[1]/Field[24] to <Field...> at /UANodeSet[1]/UADataType[9]/Definition[1]/Field[26]
+====>Expected child nodelist sequence '24' but was '26' - comparing <Field...> at /UANodeSet[1]/UADataType[5]/Definition[1]/Field[25] to <Field...> at /UANodeSet[1]/UADataType[9]/Definition[1]/Field[27]
+====>Expected child nodelist sequence '25' but was '27' - comparing <Field...> at /UANodeSet[1]/UADataType[5]/Definition[1]/Field[26] to <Field...> at /UANodeSet[1]/UADataType[9]/Definition[1]/Field[28]
+====>Expected child nodelist sequence '26' but was '28' - comparing <Field...> at /UANodeSet[1]/UADataType[5]/Definition[1]/Field[27] to <Field...> at /UANodeSet[1]/UADataType[9]/Definition[1]/Field[29]
+====>Expected child nodelist sequence '27' but was '22' - comparing <Field...> at /UANodeSet[1]/UADataType[5]/Definition[1]/Field[28] to <Field...> at /UANodeSet[1]/UADataType[9]/Definition[1]/Field[23]
+====>Expected child nodelist sequence '28' but was '23' - comparing <Field...> at /UANodeSet[1]/UADataType[5]/Definition[1]/Field[29] to <Field...> at /UANodeSet[1]/UADataType[9]/Definition[1]/Field[24]
+====>Expected attribute name '/UANodeSet[1]/UADataType[7]/Definition[1]/Field[1]/@SymbolicName' - comparing <Field...> at /UANodeSet[1]/UADataType[7]/Definition[1]/Field[1]/@SymbolicName to <Field...> at /UANodeSet[1]/UADataType[4]/Definition[1]/Field[1]
+====>Expected attribute name '/UANodeSet[1]/UADataType[7]/Definition[1]/Field[2]/@SymbolicName' - comparing <Field...> at /UANodeSet[1]/UADataType[7]/Definition[1]/Field[2]/@SymbolicName to <Field...> at /UANodeSet[1]/UADataType[4]/Definition[1]/Field[2]
+====>Expected attribute name '/UANodeSet[1]/UADataType[7]/Definition[1]/Field[3]/@SymbolicName' - comparing <Field...> at /UANodeSet[1]/UADataType[7]/Definition[1]/Field[3]/@SymbolicName to <Field...> at /UANodeSet[1]/UADataType[4]/Definition[1]/Field[3]
+====>Expected attribute name '/UANodeSet[1]/UADataType[7]/Definition[1]/Field[4]/@SymbolicName' - comparing <Field...> at /UANodeSet[1]/UADataType[7]/Definition[1]/Field[4]/@SymbolicName to <Field...> at /UANodeSet[1]/UADataType[4]/Definition[1]/Field[4]
+====>Expected attribute name '/UANodeSet[1]/UADataType[7]/Definition[1]/Field[6]/@SymbolicName' - comparing <Field...> at /UANodeSet[1]/UADataType[7]/Definition[1]/Field[6]/@SymbolicName to <Field...> at /UANodeSet[1]/UADataType[4]/Definition[1]/Field[6]
+====>Expected attribute name '/UANodeSet[1]/UADataType[27]/Definition[1]/@IsUnion' - comparing <Definition...> at /UANodeSet[1]/UADataType[27]/Definition[1]/@IsUnion to <Definition...> at /UANodeSet[1]/UADataType[19]/Definition[1]
+====>Expected child nodelist sequence '0' but was '1' - comparing <Value...> at /UANodeSet[1]/UAVariableType[7]/Value[1]/ExtensionObject[1]/Body[1]/RioFaDigitalProcessValueDataType[1]/Value[1] to <Value...> at /UANodeSet[1]/UAVariableType[4]/Value[1]/ExtensionObject[1]/Body[1]/RioFaDigitalProcessValueDataType[1]/Value[1]
+====>Expected child nodelist sequence '1' but was '2' - comparing <Qualifier...> at /UANodeSet[1]/UAVariableType[7]/Value[1]/ExtensionObject[1]/Body[1]/RioFaDigitalProcessValueDataType[1]/Qualifier[1] to <Qualifier...> at /UANodeSet[1]/UAVariableType[4]/Value[1]/ExtensionObject[1]/Body[1]/RioFaDigitalProcessValueDataType[1]/Qualifier[1]
+====>Expected child nodelist sequence '2' but was '0' - comparing <Quality...> at /UANodeSet[1]/UAVariableType[7]/Value[1]/ExtensionObject[1]/Body[1]/RioFaDigitalProcessValueDataType[1]/Quality[1] to <Quality...> at /UANodeSet[1]/UAVariableType[4]/Value[1]/ExtensionObject[1]/Body[1]/RioFaDigitalProcessValueDataType[1]/Quality[1]
+====>Expected child nodelist sequence '0' but was '3' - comparing <Value...> at /UANodeSet[1]/UAVariableType[14]/Value[1]/ExtensionObject[1]/Body[1]/RioPaDigitalProcessValueDataType[1]/Value[1] to <Value...> at /UANodeSet[1]/UAVariableType[3]/Value[1]/ExtensionObject[1]/Body[1]/RioPaDigitalProcessValueDataType[1]/Value[1]
+====>Expected child nodelist sequence '1' but was '4' - comparing <Qualifier...> at /UANodeSet[1]/UAVariableType[14]/Value[1]/ExtensionObject[1]/Body[1]/RioPaDigitalProcessValueDataType[1]/Qualifier[1] to <Qualifier...> at /UANodeSet[1]/UAVariableType[3]/Value[1]/ExtensionObject[1]/Body[1]/RioPaDigitalProcessValueDataType[1]/Qualifier[1]
+====>Expected child nodelist sequence '2' but was '0' - comparing <Quality...> at /UANodeSet[1]/UAVariableType[14]/Value[1]/ExtensionObject[1]/Body[1]/RioPaDigitalProcessValueDataType[1]/Quality[1] to <Quality...> at /UANodeSet[1]/UAVariableType[3]/Value[1]/ExtensionObject[1]/Body[1]/RioPaDigitalProcessValueDataType[1]/Quality[1]
+====>Expected child nodelist sequence '3' but was '1' - comparing <NE_107...> at /UANodeSet[1]/UAVariableType[14]/Value[1]/ExtensionObject[1]/Body[1]/RioPaDigitalProcessValueDataType[1]/NE_107[1] to <NE_107...> at /UANodeSet[1]/UAVariableType[3]/Value[1]/ExtensionObject[1]/Body[1]/RioPaDigitalProcessValueDataType[1]/NE_107[1]
+====>Expected child nodelist sequence '4' but was '2' - comparing <Status_full...> at /UANodeSet[1]/UAVariableType[14]/Value[1]/ExtensionObject[1]/Body[1]/RioPaDigitalProcessValueDataType[1]/Status_full[1] to <Status_full...> at /UANodeSet[1]/UAVariableType[3]/Value[1]/ExtensionObject[1]/Body[1]/RioPaDigitalProcessValueDataType[1]/Status_full[1]
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObjectType[8]/References[1]/Reference[1] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObjectType[8]/References[1]/Reference[2] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObjectType[8]/References[1]/Reference[3] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObjectType[8]/References[1]/Reference[4] to <NULL>
+====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAObjectType[13]/References[1]/Reference[1]
+====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAObjectType[13]/References[1]/Reference[2]
+====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAObjectType[13]/References[1]/Reference[3]
+====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAObjectType[13]/References[1]/Reference[4]
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAVariable[168]/References[1]/Reference[1] to <NULL>
+====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[145]/References[1]/Reference[3]
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAVariable[169]/References[1]/Reference[2] to <NULL>
+====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[144]/References[1]/Reference[3]
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAVariable[170]/References[1]/Reference[2] to <NULL>
+====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[146]/References[1]/Reference[3]
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAVariable[171]/References[1]/Reference[3] to <NULL>
+====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[147]/References[1]/Reference[3]
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObjectType[9]/References[1]/Reference[1] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObjectType[9]/References[1]/Reference[2] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObjectType[9]/References[1]/Reference[3] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObjectType[9]/References[1]/Reference[4] to <NULL>
+====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAObjectType[15]/References[1]/Reference[1]
+====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAObjectType[15]/References[1]/Reference[2]
+====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAObjectType[15]/References[1]/Reference[3]
+====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAObjectType[15]/References[1]/Reference[4]
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAVariable[172]/References[1]/Reference[1] to <NULL>
+====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[148]/References[1]/Reference[3]
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAVariable[173]/References[1]/Reference[1] to <NULL>
+====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[149]/References[1]/Reference[3]
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAVariable[174]/References[1]/Reference[2] to <NULL>
+====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[152]/References[1]/Reference[3]
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAVariable[175]/References[1]/Reference[2] to <NULL>
+====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[153]/References[1]/Reference[3]
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObjectType[10]/References[1]/Reference[1] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObjectType[10]/References[1]/Reference[2] to <NULL>
+====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAObjectType[12]/References[1]/Reference[4]
+====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAObjectType[12]/References[1]/Reference[5]
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAVariable[176]/References[1]/Reference[2] to <NULL>
+====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[142]/References[1]/Reference[3]
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAVariable[177]/References[1]/Reference[3] to <NULL>
+====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[143]/References[1]/Reference[3]
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObjectType[11]/References[1]/Reference[1] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObjectType[11]/References[1]/Reference[2] to <NULL>
+====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAObjectType[14]/References[1]/Reference[4]
+====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAObjectType[14]/References[1]/Reference[5]
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAVariable[182]/References[1]/Reference[2] to <NULL>
+====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[150]/References[1]/Reference[3]
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAVariable[183]/References[1]/Reference[3] to <NULL>
+====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[151]/References[1]/Reference[3]
+====>Expected child nodelist sequence '0' but was '1' - comparing <Value...> at /UANodeSet[1]/UAVariable[213]/Value[1]/ExtensionObject[1]/Body[1]/RioFaDigitalProcessValueDataType[1]/Value[1] to <Value...> at /UANodeSet[1]/UAVariable[119]/Value[1]/ExtensionObject[1]/Body[1]/RioFaDigitalProcessValueDataType[1]/Value[1]
+====>Expected child nodelist sequence '1' but was '2' - comparing <Qualifier...> at /UANodeSet[1]/UAVariable[213]/Value[1]/ExtensionObject[1]/Body[1]/RioFaDigitalProcessValueDataType[1]/Qualifier[1] to <Qualifier...> at /UANodeSet[1]/UAVariable[119]/Value[1]/ExtensionObject[1]/Body[1]/RioFaDigitalProcessValueDataType[1]/Qualifier[1]
+====>Expected child nodelist sequence '2' but was '0' - comparing <Quality...> at /UANodeSet[1]/UAVariable[213]/Value[1]/ExtensionObject[1]/Body[1]/RioFaDigitalProcessValueDataType[1]/Quality[1] to <Quality...> at /UANodeSet[1]/UAVariable[119]/Value[1]/ExtensionObject[1]/Body[1]/RioFaDigitalProcessValueDataType[1]/Quality[1]
+====>Expected child nodelist sequence '0' but was '1' - comparing <Value...> at /UANodeSet[1]/UAVariable[216]/Value[1]/ExtensionObject[1]/Body[1]/RioFaDigitalProcessValueDataType[1]/Value[1] to <Value...> at /UANodeSet[1]/UAVariable[131]/Value[1]/ExtensionObject[1]/Body[1]/RioFaDigitalProcessValueDataType[1]/Value[1]
+====>Expected child nodelist sequence '1' but was '2' - comparing <Qualifier...> at /UANodeSet[1]/UAVariable[216]/Value[1]/ExtensionObject[1]/Body[1]/RioFaDigitalProcessValueDataType[1]/Qualifier[1] to <Qualifier...> at /UANodeSet[1]/UAVariable[131]/Value[1]/ExtensionObject[1]/Body[1]/RioFaDigitalProcessValueDataType[1]/Qualifier[1]
+====>Expected child nodelist sequence '2' but was '0' - comparing <Quality...> at /UANodeSet[1]/UAVariable[216]/Value[1]/ExtensionObject[1]/Body[1]/RioFaDigitalProcessValueDataType[1]/Quality[1] to <Quality...> at /UANodeSet[1]/UAVariable[131]/Value[1]/ExtensionObject[1]/Body[1]/RioFaDigitalProcessValueDataType[1]/Quality[1]
+====>Expected child nodelist sequence '0' but was '1' - comparing <Value...> at /UANodeSet[1]/UAVariable[217]/Value[1]/ExtensionObject[1]/Body[1]/RioFaDigitalProcessValueDataType[1]/Value[1] to <Value...> at /UANodeSet[1]/UAVariable[132]/Value[1]/ExtensionObject[1]/Body[1]/RioFaDigitalProcessValueDataType[1]/Value[1]
+====>Expected child nodelist sequence '1' but was '2' - comparing <Qualifier...> at /UANodeSet[1]/UAVariable[217]/Value[1]/ExtensionObject[1]/Body[1]/RioFaDigitalProcessValueDataType[1]/Qualifier[1] to <Qualifier...> at /UANodeSet[1]/UAVariable[132]/Value[1]/ExtensionObject[1]/Body[1]/RioFaDigitalProcessValueDataType[1]/Qualifier[1]
+====>Expected child nodelist sequence '2' but was '0' - comparing <Quality...> at /UANodeSet[1]/UAVariable[217]/Value[1]/ExtensionObject[1]/Body[1]/RioFaDigitalProcessValueDataType[1]/Quality[1] to <Quality...> at /UANodeSet[1]/UAVariable[132]/Value[1]/ExtensionObject[1]/Body[1]/RioFaDigitalProcessValueDataType[1]/Quality[1]
+====>Expected child nodelist sequence '0' but was '3' - comparing <Value...> at /UANodeSet[1]/UAVariable[247]/Value[1]/ExtensionObject[1]/Body[1]/RioPaDigitalProcessValueDataType[1]/Value[1] to <Value...> at /UANodeSet[1]/UAVariable[112]/Value[1]/ExtensionObject[1]/Body[1]/RioPaDigitalProcessValueDataType[1]/Value[1]
+====>Expected child nodelist sequence '1' but was '4' - comparing <Qualifier...> at /UANodeSet[1]/UAVariable[247]/Value[1]/ExtensionObject[1]/Body[1]/RioPaDigitalProcessValueDataType[1]/Qualifier[1] to <Qualifier...> at /UANodeSet[1]/UAVariable[112]/Value[1]/ExtensionObject[1]/Body[1]/RioPaDigitalProcessValueDataType[1]/Qualifier[1]
+====>Expected child nodelist sequence '2' but was '0' - comparing <Quality...> at /UANodeSet[1]/UAVariable[247]/Value[1]/ExtensionObject[1]/Body[1]/RioPaDigitalProcessValueDataType[1]/Quality[1] to <Quality...> at /UANodeSet[1]/UAVariable[112]/Value[1]/ExtensionObject[1]/Body[1]/RioPaDigitalProcessValueDataType[1]/Quality[1]
+====>Expected child nodelist sequence '3' but was '1' - comparing <NE_107...> at /UANodeSet[1]/UAVariable[247]/Value[1]/ExtensionObject[1]/Body[1]/RioPaDigitalProcessValueDataType[1]/NE_107[1] to <NE_107...> at /UANodeSet[1]/UAVariable[112]/Value[1]/ExtensionObject[1]/Body[1]/RioPaDigitalProcessValueDataType[1]/NE_107[1]
+====>Expected child nodelist sequence '4' but was '2' - comparing <Status_full...> at /UANodeSet[1]/UAVariable[247]/Value[1]/ExtensionObject[1]/Body[1]/RioPaDigitalProcessValueDataType[1]/Status_full[1] to <Status_full...> at /UANodeSet[1]/UAVariable[112]/Value[1]/ExtensionObject[1]/Body[1]/RioPaDigitalProcessValueDataType[1]/Status_full[1]
+====>Expected child nodelist sequence '0' but was '3' - comparing <Value...> at /UANodeSet[1]/UAVariable[258]/Value[1]/ExtensionObject[1]/Body[1]/RioPaDigitalProcessValueDataType[1]/Value[1] to <Value...> at /UANodeSet[1]/UAVariable[122]/Value[1]/ExtensionObject[1]/Body[1]/RioPaDigitalProcessValueDataType[1]/Value[1]
+====>Expected child nodelist sequence '1' but was '4' - comparing <Qualifier...> at /UANodeSet[1]/UAVariable[258]/Value[1]/ExtensionObject[1]/Body[1]/RioPaDigitalProcessValueDataType[1]/Qualifier[1] to <Qualifier...> at /UANodeSet[1]/UAVariable[122]/Value[1]/ExtensionObject[1]/Body[1]/RioPaDigitalProcessValueDataType[1]/Qualifier[1]
+====>Expected child nodelist sequence '2' but was '0' - comparing <Quality...> at /UANodeSet[1]/UAVariable[258]/Value[1]/ExtensionObject[1]/Body[1]/RioPaDigitalProcessValueDataType[1]/Quality[1] to <Quality...> at /UANodeSet[1]/UAVariable[122]/Value[1]/ExtensionObject[1]/Body[1]/RioPaDigitalProcessValueDataType[1]/Quality[1]
+====>Expected child nodelist sequence '3' but was '1' - comparing <NE_107...> at /UANodeSet[1]/UAVariable[258]/Value[1]/ExtensionObject[1]/Body[1]/RioPaDigitalProcessValueDataType[1]/NE_107[1] to <NE_107...> at /UANodeSet[1]/UAVariable[122]/Value[1]/ExtensionObject[1]/Body[1]/RioPaDigitalProcessValueDataType[1]/NE_107[1]
+====>Expected child nodelist sequence '4' but was '2' - comparing <Status_full...> at /UANodeSet[1]/UAVariable[258]/Value[1]/ExtensionObject[1]/Body[1]/RioPaDigitalProcessValueDataType[1]/Status_full[1] to <Status_full...> at /UANodeSet[1]/UAVariable[122]/Value[1]/ExtensionObject[1]/Body[1]/RioPaDigitalProcessValueDataType[1]/Status_full[1]
+====>Expected child nodelist sequence '0' but was '3' - comparing <Value...> at /UANodeSet[1]/UAVariable[259]/Value[1]/ExtensionObject[1]/Body[1]/RioPaDigitalProcessValueDataType[1]/Value[1] to <Value...> at /UANodeSet[1]/UAVariable[123]/Value[1]/ExtensionObject[1]/Body[1]/RioPaDigitalProcessValueDataType[1]/Value[1]
+====>Expected child nodelist sequence '1' but was '4' - comparing <Qualifier...> at /UANodeSet[1]/UAVariable[259]/Value[1]/ExtensionObject[1]/Body[1]/RioPaDigitalProcessValueDataType[1]/Qualifier[1] to <Qualifier...> at /UANodeSet[1]/UAVariable[123]/Value[1]/ExtensionObject[1]/Body[1]/RioPaDigitalProcessValueDataType[1]/Qualifier[1]
+====>Expected child nodelist sequence '2' but was '0' - comparing <Quality...> at /UANodeSet[1]/UAVariable[259]/Value[1]/ExtensionObject[1]/Body[1]/RioPaDigitalProcessValueDataType[1]/Quality[1] to <Quality...> at /UANodeSet[1]/UAVariable[123]/Value[1]/ExtensionObject[1]/Body[1]/RioPaDigitalProcessValueDataType[1]/Quality[1]
+====>Expected child nodelist sequence '3' but was '1' - comparing <NE_107...> at /UANodeSet[1]/UAVariable[259]/Value[1]/ExtensionObject[1]/Body[1]/RioPaDigitalProcessValueDataType[1]/NE_107[1] to <NE_107...> at /UANodeSet[1]/UAVariable[123]/Value[1]/ExtensionObject[1]/Body[1]/RioPaDigitalProcessValueDataType[1]/NE_107[1]
+====>Expected child nodelist sequence '4' but was '2' - comparing <Status_full...> at /UANodeSet[1]/UAVariable[259]/Value[1]/ExtensionObject[1]/Body[1]/RioPaDigitalProcessValueDataType[1]/Status_full[1] to <Status_full...> at /UANodeSet[1]/UAVariable[123]/Value[1]/ExtensionObject[1]/Body[1]/RioPaDigitalProcessValueDataType[1]/Status_full[1]
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[10]/References[1]/Reference[3] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[11]/References[1]/Reference[3] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[13]/References[1]/Reference[3] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[14]/References[1]/Reference[3] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[16]/References[1]/Reference[3] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[17]/References[1]/Reference[3] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[19]/References[1]/Reference[3] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[20]/References[1]/Reference[3] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[22]/References[1]/Reference[3] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[23]/References[1]/Reference[3] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[25]/References[1]/Reference[3] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[26]/References[1]/Reference[3] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[28]/References[1]/Reference[3] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[29]/References[1]/Reference[3] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[31]/References[1]/Reference[3] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[32]/References[1]/Reference[3] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[34]/References[1]/Reference[3] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[35]/References[1]/Reference[3] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[36]/References[1]/Reference[3] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[37]/References[1]/Reference[3] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[39]/References[1]/Reference[3] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[40]/References[1]/Reference[3] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[43]/References[1]/Reference[3] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[44]/References[1]/Reference[3] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[45]/References[1]/Reference[3] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[46]/References[1]/Reference[3] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[48]/References[1]/Reference[3] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[49]/References[1]/Reference[3] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[52]/References[1]/Reference[3] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[53]/References[1]/Reference[3] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[55]/References[1]/Reference[3] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[56]/References[1]/Reference[3] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[58]/References[1]/Reference[3] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[59]/References[1]/Reference[3] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[61]/References[1]/Reference[3] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[62]/References[1]/Reference[3] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAReferenceType' but was '' - comparing <UAReferenceType...> at /UANodeSet[1]/UAReferenceType[1] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAReferenceType' but was '' - comparing <UAReferenceType...> at /UANodeSet[1]/UAReferenceType[2] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAReferenceType' but was '' - comparing <UAReferenceType...> at /UANodeSet[1]/UAReferenceType[3] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAReferenceType' but was '' - comparing <UAReferenceType...> at /UANodeSet[1]/UAReferenceType[4] to <NULL>
+====>Expected child '#comment' but was '' - comparing <!--
+ * Copyright (c) 2005-2022 The OPC Foundation, Inc. All rights reserved.
+ *
+ * OPC Foundation MIT License 1.00
+ * 
+ * Permission is hereby granted, free of charge, to any person
+ * obtaining a copy of this software and associated documentation
+ * files (the "Software"), to deal in the Software without
+ * restriction, including without limitation the rights to use,
+ * copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following
+ * conditions:
+ * 
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+ * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+ * OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * The complete license agreement can be found here:
+ * http://opcfoundation.org/License/MIT/1.00/
+--> at /comment()[1] to <NULL>

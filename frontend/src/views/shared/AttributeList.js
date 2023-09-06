@@ -81,15 +81,20 @@ function AttributeList(props) {
                     a._itemType = 'profile';
             });
         }
+        let filteredExtended = extendedProfileAttributes;
         if (extendedProfileAttributes != null) {
             extendedProfileAttributes.forEach((a) => {
                 if (a._itemType == null)
                     a._itemType = 'extended';
             });
+            // Ignore inherited attributes
+            filteredExtended = profileAttributes != null/* && _ignoreInherited*/
+                ? extendedProfileAttributes.filter((a) => profileAttributes.find(pa => pa.browseName == a.browseName) == null)
+                : extendedProfileAttributes;
         }
 
         //merge together two attributes collections, sort enum val (if present) then name
-        var result = (profileAttributes == null ? [] : profileAttributes).concat(extendedProfileAttributes == null ? [] : extendedProfileAttributes)
+        var result = (profileAttributes == null ? [] : profileAttributes).concat(filteredExtended == null ? [] : filteredExtended)
         result.sort((a, b) => {
             const enumValA = a.enumValue == null ? 999999 : a.enumValue;
             const enumValB = b.enumValue == null ? 999999 : b.enumValue;

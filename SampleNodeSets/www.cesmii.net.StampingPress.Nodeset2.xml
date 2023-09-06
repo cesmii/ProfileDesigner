@@ -1,0 +1,337 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<UANodeSet xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://opcfoundation.org/UA/2011/03/UANodeSet.xsd">
+  <NamespaceUris>
+    <Uri>http://www.cesmii.net/StampingPress</Uri>
+    <Uri>http://opcfoundation.org/UA/DI/</Uri>
+  </NamespaceUris>
+  <Models>
+    <Model ModelUri="http://www.cesmii.net/StampingPress" Version="1" PublicationDate="2022-02-04T00:00:00Z">
+      <RequiredModel ModelUri="http://opcfoundation.org/UA/" Version="1.04.7" PublicationDate="2020-07-15T00:00:00Z" />
+      <RequiredModel ModelUri="http://opcfoundation.org/UA/DI/" Version="1.03.0" PublicationDate="2021-03-09T00:00:00Z" />
+    </Model>
+  </Models>
+  <Aliases>
+    <Alias Alias="Boolean">i=1</Alias>
+    <Alias Alias="SByte">i=2</Alias>
+    <Alias Alias="Byte">i=3</Alias>
+    <Alias Alias="Int16">i=4</Alias>
+    <Alias Alias="UInt16">i=5</Alias>
+    <Alias Alias="Int32">i=6</Alias>
+    <Alias Alias="UInt32">i=7</Alias>
+    <Alias Alias="Int64">i=8</Alias>
+    <Alias Alias="UInt64">i=9</Alias>
+    <Alias Alias="Float">i=10</Alias>
+    <Alias Alias="Double">i=11</Alias>
+    <Alias Alias="DateTime">i=13</Alias>
+    <Alias Alias="String">i=12</Alias>
+    <Alias Alias="ByteString">i=15</Alias>
+    <Alias Alias="Guid">i=14</Alias>
+    <Alias Alias="XmlElement">i=16</Alias>
+    <Alias Alias="NodeId">i=17</Alias>
+    <Alias Alias="ExpandedNodeId">i=18</Alias>
+    <Alias Alias="QualifiedName">i=20</Alias>
+    <Alias Alias="LocalizedText">i=21</Alias>
+    <Alias Alias="StatusCode">i=19</Alias>
+    <Alias Alias="Structure">i=22</Alias>
+    <Alias Alias="Number">i=26</Alias>
+    <Alias Alias="Integer">i=27</Alias>
+    <Alias Alias="UInteger">i=28</Alias>
+    <Alias Alias="HasComponent">i=47</Alias>
+    <Alias Alias="HasProperty">i=46</Alias>
+    <Alias Alias="Organizes">i=35</Alias>
+    <Alias Alias="HasEventSource">i=36</Alias>
+    <Alias Alias="HasNotifier">i=48</Alias>
+    <Alias Alias="HasSubtype">i=45</Alias>
+    <Alias Alias="HasTypeDefinition">i=40</Alias>
+    <Alias Alias="HasModellingRule">i=37</Alias>
+    <Alias Alias="HasEncoding">i=38</Alias>
+    <Alias Alias="HasDescription">i=39</Alias>
+  </Aliases>
+  <UAObjectType NodeId="ns=1;g=ae1b400b-d4d0-41b5-9764-01ded037b916" BrowseName="1:StampingPress" IsAbstract="true">
+    <DisplayName>StampingPress</DisplayName>
+    <Description>Stamping Press Information Model</Description>
+    <Category>DI Information Model</Category>
+    <References>
+      <Reference ReferenceType="HasComponent">ns=1;s=nsu=http://www.cesmii.net/StampingPress;g=7669fe4e-f358-4e2a-9236-6777e641428d</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;s=nsu=http://www.cesmii.net/StampingPress;g=942e0d1f-9536-4c8d-b661-86e49a85aff5</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;s=nsu=http://www.cesmii.net/StampingPress;g=57a732a8-8bad-4d39-b326-030ae8ba7b25</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;s=nsu=http://www.cesmii.net/StampingPress;g=1d445ea6-4dc2-4252-ab11-82e366e024f1</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;s=nsu=http://www.cesmii.net/StampingPress;g=a7430e65-355c-4c0f-b3db-1698c258d22b</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;s=nsu=http://www.cesmii.net/StampingPress;g=7ef7f4b2-d2d8-4dea-a3b1-e0bcae0c2398</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;s=nsu=http://www.cesmii.net/StampingPress;g=87943ebb-b355-465e-a9f2-ef9c5c44baf9</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;s=nsu=http://www.cesmii.net/StampingPress;g=9f480019-3d21-4e60-bdab-d31685ec342f</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;s=nsu=http://www.cesmii.net/StampingPress;g=e05d2d20-7c8e-48e2-be60-824697e2405c</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;s=nsu=http://www.cesmii.net/StampingPress;g=c8c1ddb3-c592-4fa7-b6f9-9132c838c052</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;s=nsu=http://www.cesmii.net/StampingPress;g=56538701-a7a9-49ca-bf50-fb3766428981</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;s=nsu=http://www.cesmii.net/StampingPress;g=65f74697-74c3-40a7-bc02-d4e9c1723051</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;s=nsu=http://www.cesmii.net/StampingPress;g=43ee81b2-a8a5-413c-a125-35fa9b407390</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;s=nsu=http://www.cesmii.net/StampingPress;g=3e1532f5-d110-4613-b6ac-084463d275c3</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;s=nsu=http://www.cesmii.net/StampingPress;g=c2faa5a2-d3da-429d-a008-f9991e4dc0db</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;s=nsu=http://www.cesmii.net/StampingPress;g=d6db59d0-7ce2-45e5-930d-e60a036d7384</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;s=nsu=http://www.cesmii.net/StampingPress;g=d7cfb1c2-611f-404e-8caf-c77649704c5d</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;s=nsu=http://www.cesmii.net/StampingPress;g=d2f13d65-f7c5-4f6f-89a1-13cf7cd82b9a</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;s=nsu=http://www.cesmii.net/StampingPress;g=c0197161-5967-4bd5-92db-7d4616324679</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;s=nsu=http://www.cesmii.net/StampingPress;g=b5832075-e713-40eb-b7d0-afb49b900dd2</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;s=nsu=http://www.cesmii.net/StampingPress;g=c8cb62cd-2bb2-4f2c-a5f0-4652c9221786</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;s=nsu=http://www.cesmii.net/StampingPress;g=d734f385-80e3-4c69-96df-82b27945ef33</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;s=nsu=http://www.cesmii.net/StampingPress;g=f274147e-2740-4c93-bc3f-2ef94105be7b</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;s=nsu=http://www.cesmii.net/StampingPress;g=7fc063d7-76ef-44c1-983f-57bf4848ac7f</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;s=nsu=http://www.cesmii.net/StampingPress;g=3973ab43-8cf2-464e-98da-e43fa67609df</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;s=nsu=http://www.cesmii.net/StampingPress;g=0a62ba40-2c29-4228-bda6-27ee179d1060</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;s=nsu=http://www.cesmii.net/StampingPress;g=e795a91b-704c-4e57-81c5-ca4eaa74bae6</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;s=nsu=http://www.cesmii.net/StampingPress;g=405c1acb-f4d1-4c16-b1be-3ec99db3fb6c</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;s=nsu=http://www.cesmii.net/StampingPress;g=d1dfaa18-981c-4b0f-a063-07cfbe1866a4</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;s=nsu=http://www.cesmii.net/StampingPress;g=66939532-4678-4967-88dc-0dc2ef14365f</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;s=nsu=http://www.cesmii.net/StampingPress;g=31d12d5e-e8cb-46f9-9c18-3a74f85dbe4b</Reference>
+      <Reference ReferenceType="HasSubtype" IsForward="false">ns=2;i=15063</Reference>
+    </References>
+  </UAObjectType>
+  <UAVariable NodeId="ns=1;s=nsu=http://www.cesmii.net/StampingPress;g=0a62ba40-2c29-4228-bda6-27ee179d1060" BrowseName="1:TimeBlocked" ParentNodeId="ns=1;g=ae1b400b-d4d0-41b5-9764-01ded037b916" DataType="i=290">
+    <DisplayName>TimeBlocked</DisplayName>
+    <Description />
+    <References>
+      <Reference ReferenceType="HasModellingRule">i=80</Reference>
+      <Reference ReferenceType="HasComponent" IsForward="false">ns=1;g=ae1b400b-d4d0-41b5-9764-01ded037b916</Reference>
+    </References>
+  </UAVariable>
+  <UAVariable NodeId="ns=1;s=nsu=http://www.cesmii.net/StampingPress;g=1d445ea6-4dc2-4252-ab11-82e366e024f1" BrowseName="1:CurrentTemperature" ParentNodeId="ns=1;g=ae1b400b-d4d0-41b5-9764-01ded037b916" DataType="Float">
+    <DisplayName>CurrentTemperature</DisplayName>
+    <Description />
+    <References>
+      <Reference ReferenceType="HasModellingRule">i=80</Reference>
+      <Reference ReferenceType="HasComponent" IsForward="false">ns=1;g=ae1b400b-d4d0-41b5-9764-01ded037b916</Reference>
+    </References>
+  </UAVariable>
+  <UAVariable NodeId="ns=1;s=nsu=http://www.cesmii.net/StampingPress;g=31d12d5e-e8cb-46f9-9c18-3a74f85dbe4b" BrowseName="1:UnplannedDowntime" ParentNodeId="ns=1;g=ae1b400b-d4d0-41b5-9764-01ded037b916" DataType="i=290">
+    <DisplayName>UnplannedDowntime</DisplayName>
+    <Description />
+    <References>
+      <Reference ReferenceType="HasModellingRule">i=80</Reference>
+      <Reference ReferenceType="HasComponent" IsForward="false">ns=1;g=ae1b400b-d4d0-41b5-9764-01ded037b916</Reference>
+    </References>
+  </UAVariable>
+  <UAVariable NodeId="ns=1;s=nsu=http://www.cesmii.net/StampingPress;g=3973ab43-8cf2-464e-98da-e43fa67609df" BrowseName="1:StrokesPerPart" ParentNodeId="ns=1;g=ae1b400b-d4d0-41b5-9764-01ded037b916" DataType="Int64">
+    <DisplayName>StrokesPerPart</DisplayName>
+    <Description>No Of Stamping Press Strokes per Produced Part</Description>
+    <References>
+      <Reference ReferenceType="HasModellingRule">i=80</Reference>
+      <Reference ReferenceType="HasComponent" IsForward="false">ns=1;g=ae1b400b-d4d0-41b5-9764-01ded037b916</Reference>
+    </References>
+  </UAVariable>
+  <UAVariable NodeId="ns=1;s=nsu=http://www.cesmii.net/StampingPress;g=3e1532f5-d110-4613-b6ac-084463d275c3" BrowseName="1:RatedPressure" ParentNodeId="ns=1;g=ae1b400b-d4d0-41b5-9764-01ded037b916" DataType="Float">
+    <DisplayName>RatedPressure</DisplayName>
+    <Description>Stamping Press Rated Pressure</Description>
+    <References>
+      <Reference ReferenceType="HasModellingRule">i=80</Reference>
+      <Reference ReferenceType="HasComponent" IsForward="false">ns=1;g=ae1b400b-d4d0-41b5-9764-01ded037b916</Reference>
+    </References>
+  </UAVariable>
+  <UAVariable NodeId="ns=1;s=nsu=http://www.cesmii.net/StampingPress;g=405c1acb-f4d1-4c16-b1be-3ec99db3fb6c" BrowseName="1:TimeRunning" ParentNodeId="ns=1;g=ae1b400b-d4d0-41b5-9764-01ded037b916" DataType="i=290">
+    <DisplayName>TimeRunning</DisplayName>
+    <Description />
+    <References>
+      <Reference ReferenceType="HasModellingRule">i=80</Reference>
+      <Reference ReferenceType="HasComponent" IsForward="false">ns=1;g=ae1b400b-d4d0-41b5-9764-01ded037b916</Reference>
+    </References>
+  </UAVariable>
+  <UAVariable NodeId="ns=1;s=nsu=http://www.cesmii.net/StampingPress;g=43ee81b2-a8a5-413c-a125-35fa9b407390" BrowseName="1:PressPositioningAngle" ParentNodeId="ns=1;g=ae1b400b-d4d0-41b5-9764-01ded037b916" DataType="Float">
+    <DisplayName>PressPositioningAngle</DisplayName>
+    <Description>Press Positioning Angle</Description>
+    <References>
+      <Reference ReferenceType="HasModellingRule">i=80</Reference>
+      <Reference ReferenceType="HasComponent" IsForward="false">ns=1;g=ae1b400b-d4d0-41b5-9764-01ded037b916</Reference>
+    </References>
+  </UAVariable>
+  <UAVariable NodeId="ns=1;s=nsu=http://www.cesmii.net/StampingPress;g=56538701-a7a9-49ca-bf50-fb3766428981" BrowseName="1:PlannedDowntime" ParentNodeId="ns=1;g=ae1b400b-d4d0-41b5-9764-01ded037b916" DataType="i=290">
+    <DisplayName>PlannedDowntime</DisplayName>
+    <Description />
+    <References>
+      <Reference ReferenceType="HasModellingRule">i=80</Reference>
+      <Reference ReferenceType="HasComponent" IsForward="false">ns=1;g=ae1b400b-d4d0-41b5-9764-01ded037b916</Reference>
+    </References>
+  </UAVariable>
+  <UAVariable NodeId="ns=1;s=nsu=http://www.cesmii.net/StampingPress;g=57a732a8-8bad-4d39-b326-030ae8ba7b25" BrowseName="1:CurrentState" ParentNodeId="ns=1;g=ae1b400b-d4d0-41b5-9764-01ded037b916" DataType="Boolean">
+    <DisplayName>CurrentState</DisplayName>
+    <Description />
+    <References>
+      <Reference ReferenceType="HasModellingRule">i=80</Reference>
+      <Reference ReferenceType="HasComponent" IsForward="false">ns=1;g=ae1b400b-d4d0-41b5-9764-01ded037b916</Reference>
+    </References>
+  </UAVariable>
+  <UAVariable NodeId="ns=1;s=nsu=http://www.cesmii.net/StampingPress;g=65f74697-74c3-40a7-bc02-d4e9c1723051" BrowseName="1:PressOfflineDowntime" ParentNodeId="ns=1;g=ae1b400b-d4d0-41b5-9764-01ded037b916" DataType="i=290">
+    <DisplayName>PressOfflineDowntime</DisplayName>
+    <Description />
+    <References>
+      <Reference ReferenceType="HasModellingRule">i=80</Reference>
+      <Reference ReferenceType="HasComponent" IsForward="false">ns=1;g=ae1b400b-d4d0-41b5-9764-01ded037b916</Reference>
+    </References>
+  </UAVariable>
+  <UAVariable NodeId="ns=1;s=nsu=http://www.cesmii.net/StampingPress;g=66939532-4678-4967-88dc-0dc2ef14365f" BrowseName="1:TotalProductionCount" ParentNodeId="ns=1;g=ae1b400b-d4d0-41b5-9764-01ded037b916" DataType="Int64">
+    <DisplayName>TotalProductionCount</DisplayName>
+    <Description />
+    <References>
+      <Reference ReferenceType="HasModellingRule">i=80</Reference>
+      <Reference ReferenceType="HasComponent" IsForward="false">ns=1;g=ae1b400b-d4d0-41b5-9764-01ded037b916</Reference>
+    </References>
+  </UAVariable>
+  <UAVariable NodeId="ns=1;s=nsu=http://www.cesmii.net/StampingPress;g=7669fe4e-f358-4e2a-9236-6777e641428d" BrowseName="1:CurrentPressure" ParentNodeId="ns=1;g=ae1b400b-d4d0-41b5-9764-01ded037b916" DataType="Float">
+    <DisplayName>CurrentPressure</DisplayName>
+    <Description />
+    <References>
+      <Reference ReferenceType="HasModellingRule">i=80</Reference>
+      <Reference ReferenceType="HasComponent" IsForward="false">ns=1;g=ae1b400b-d4d0-41b5-9764-01ded037b916</Reference>
+    </References>
+  </UAVariable>
+  <UAVariable NodeId="ns=1;s=nsu=http://www.cesmii.net/StampingPress;g=7ef7f4b2-d2d8-4dea-a3b1-e0bcae0c2398" BrowseName="1:CyclesPerShift" ParentNodeId="ns=1;g=ae1b400b-d4d0-41b5-9764-01ded037b916" DataType="Int64">
+    <DisplayName>CyclesPerShift</DisplayName>
+    <Description>No of Parts Produced Per Shift</Description>
+    <References>
+      <Reference ReferenceType="HasModellingRule">i=80</Reference>
+      <Reference ReferenceType="HasComponent" IsForward="false">ns=1;g=ae1b400b-d4d0-41b5-9764-01ded037b916</Reference>
+    </References>
+  </UAVariable>
+  <UAVariable NodeId="ns=1;s=nsu=http://www.cesmii.net/StampingPress;g=7fc063d7-76ef-44c1-983f-57bf4848ac7f" BrowseName="1:StrokesPerCycle" ParentNodeId="ns=1;g=ae1b400b-d4d0-41b5-9764-01ded037b916" DataType="Int64">
+    <DisplayName>StrokesPerCycle</DisplayName>
+    <Description>No Of Stamping Press Strokes per Cycle</Description>
+    <References>
+      <Reference ReferenceType="HasModellingRule">i=80</Reference>
+      <Reference ReferenceType="HasComponent" IsForward="false">ns=1;g=ae1b400b-d4d0-41b5-9764-01ded037b916</Reference>
+    </References>
+  </UAVariable>
+  <UAVariable NodeId="ns=1;s=nsu=http://www.cesmii.net/StampingPress;g=87943ebb-b355-465e-a9f2-ef9c5c44baf9" BrowseName="1:CycleTime" ParentNodeId="ns=1;g=ae1b400b-d4d0-41b5-9764-01ded037b916" DataType="Float">
+    <DisplayName>CycleTime</DisplayName>
+    <Description>Cycle Time per produced part</Description>
+    <References>
+      <Reference ReferenceType="HasModellingRule">i=80</Reference>
+      <Reference ReferenceType="HasComponent" IsForward="false">ns=1;g=ae1b400b-d4d0-41b5-9764-01ded037b916</Reference>
+    </References>
+  </UAVariable>
+  <UAVariable NodeId="ns=1;s=nsu=http://www.cesmii.net/StampingPress;g=942e0d1f-9536-4c8d-b661-86e49a85aff5" BrowseName="1:CurrentSpeed" ParentNodeId="ns=1;g=ae1b400b-d4d0-41b5-9764-01ded037b916" DataType="Float">
+    <DisplayName>CurrentSpeed</DisplayName>
+    <Description />
+    <References>
+      <Reference ReferenceType="HasModellingRule">i=80</Reference>
+      <Reference ReferenceType="HasComponent" IsForward="false">ns=1;g=ae1b400b-d4d0-41b5-9764-01ded037b916</Reference>
+    </References>
+  </UAVariable>
+  <UAVariable NodeId="ns=1;s=nsu=http://www.cesmii.net/StampingPress;g=9f480019-3d21-4e60-bdab-d31685ec342f" BrowseName="1:GoodPartsCount" ParentNodeId="ns=1;g=ae1b400b-d4d0-41b5-9764-01ded037b916" DataType="Int64">
+    <DisplayName>GoodPartsCount</DisplayName>
+    <Description />
+    <References>
+      <Reference ReferenceType="HasModellingRule">i=80</Reference>
+      <Reference ReferenceType="HasComponent" IsForward="false">ns=1;g=ae1b400b-d4d0-41b5-9764-01ded037b916</Reference>
+    </References>
+  </UAVariable>
+  <UAVariable NodeId="ns=1;s=nsu=http://www.cesmii.net/StampingPress;g=a7430e65-355c-4c0f-b3db-1698c258d22b" BrowseName="1:CurrentTorque" ParentNodeId="ns=1;g=ae1b400b-d4d0-41b5-9764-01ded037b916" DataType="Float">
+    <DisplayName>CurrentTorque</DisplayName>
+    <Description />
+    <References>
+      <Reference ReferenceType="HasModellingRule">i=80</Reference>
+      <Reference ReferenceType="HasComponent" IsForward="false">ns=1;g=ae1b400b-d4d0-41b5-9764-01ded037b916</Reference>
+    </References>
+  </UAVariable>
+  <UAVariable NodeId="ns=1;s=nsu=http://www.cesmii.net/StampingPress;g=b5832075-e713-40eb-b7d0-afb49b900dd2" BrowseName="1:StampingPressBaseType" ParentNodeId="ns=1;g=ae1b400b-d4d0-41b5-9764-01ded037b916">
+    <DisplayName>StampingPressBaseType</DisplayName>
+    <Description />
+    <References>
+      <Reference ReferenceType="HasModellingRule">i=80</Reference>
+      <Reference ReferenceType="HasComponent" IsForward="false">ns=1;g=ae1b400b-d4d0-41b5-9764-01ded037b916</Reference>
+    </References>
+  </UAVariable>
+  <UAVariable NodeId="ns=1;s=nsu=http://www.cesmii.net/StampingPress;g=c0197161-5967-4bd5-92db-7d4616324679" BrowseName="1:SetupTime" ParentNodeId="ns=1;g=ae1b400b-d4d0-41b5-9764-01ded037b916" DataType="i=290">
+    <DisplayName>SetupTime</DisplayName>
+    <Description />
+    <References>
+      <Reference ReferenceType="HasModellingRule">i=80</Reference>
+      <Reference ReferenceType="HasComponent" IsForward="false">ns=1;g=ae1b400b-d4d0-41b5-9764-01ded037b916</Reference>
+    </References>
+  </UAVariable>
+  <UAVariable NodeId="ns=1;s=nsu=http://www.cesmii.net/StampingPress;g=c2faa5a2-d3da-429d-a008-f9991e4dc0db" BrowseName="1:RatedSpeed" ParentNodeId="ns=1;g=ae1b400b-d4d0-41b5-9764-01ded037b916" DataType="Float">
+    <DisplayName>RatedSpeed</DisplayName>
+    <Description>Stamping Press Rated Speed</Description>
+    <References>
+      <Reference ReferenceType="HasModellingRule">i=80</Reference>
+      <Reference ReferenceType="HasComponent" IsForward="false">ns=1;g=ae1b400b-d4d0-41b5-9764-01ded037b916</Reference>
+    </References>
+  </UAVariable>
+  <UAVariable NodeId="ns=1;s=nsu=http://www.cesmii.net/StampingPress;g=c8c1ddb3-c592-4fa7-b6f9-9132c838c052" BrowseName="1:OperatorId" ParentNodeId="ns=1;g=ae1b400b-d4d0-41b5-9764-01ded037b916" DataType="String">
+    <DisplayName>OperatorId</DisplayName>
+    <Description>Operator Login Info</Description>
+    <References>
+      <Reference ReferenceType="HasModellingRule">i=80</Reference>
+      <Reference ReferenceType="HasComponent" IsForward="false">ns=1;g=ae1b400b-d4d0-41b5-9764-01ded037b916</Reference>
+    </References>
+  </UAVariable>
+  <UAVariable NodeId="ns=1;s=nsu=http://www.cesmii.net/StampingPress;g=c8cb62cd-2bb2-4f2c-a5f0-4652c9221786" BrowseName="1:StampingPressConditionZone" ParentNodeId="ns=1;g=ae1b400b-d4d0-41b5-9764-01ded037b916">
+    <DisplayName>StampingPressConditionZone</DisplayName>
+    <Description />
+    <References>
+      <Reference ReferenceType="HasModellingRule">i=80</Reference>
+      <Reference ReferenceType="HasComponent" IsForward="false">ns=1;g=ae1b400b-d4d0-41b5-9764-01ded037b916</Reference>
+    </References>
+  </UAVariable>
+  <UAVariable NodeId="ns=1;s=nsu=http://www.cesmii.net/StampingPress;g=d1dfaa18-981c-4b0f-a063-07cfbe1866a4" BrowseName="1:TimeStarved" ParentNodeId="ns=1;g=ae1b400b-d4d0-41b5-9764-01ded037b916" DataType="i=290">
+    <DisplayName>TimeStarved</DisplayName>
+    <Description />
+    <References>
+      <Reference ReferenceType="HasModellingRule">i=80</Reference>
+      <Reference ReferenceType="HasComponent" IsForward="false">ns=1;g=ae1b400b-d4d0-41b5-9764-01ded037b916</Reference>
+    </References>
+  </UAVariable>
+  <UAVariable NodeId="ns=1;s=nsu=http://www.cesmii.net/StampingPress;g=d2f13d65-f7c5-4f6f-89a1-13cf7cd82b9a" BrowseName="1:ScrapPartCount" ParentNodeId="ns=1;g=ae1b400b-d4d0-41b5-9764-01ded037b916" DataType="Int64">
+    <DisplayName>ScrapPartCount</DisplayName>
+    <Description />
+    <References>
+      <Reference ReferenceType="HasModellingRule">i=80</Reference>
+      <Reference ReferenceType="HasComponent" IsForward="false">ns=1;g=ae1b400b-d4d0-41b5-9764-01ded037b916</Reference>
+    </References>
+  </UAVariable>
+  <UAVariable NodeId="ns=1;s=nsu=http://www.cesmii.net/StampingPress;g=d6db59d0-7ce2-45e5-930d-e60a036d7384" BrowseName="1:RatedTemperature" ParentNodeId="ns=1;g=ae1b400b-d4d0-41b5-9764-01ded037b916" DataType="Float">
+    <DisplayName>RatedTemperature</DisplayName>
+    <Description>Stamping Press Rated Temperature</Description>
+    <References>
+      <Reference ReferenceType="HasModellingRule">i=80</Reference>
+      <Reference ReferenceType="HasComponent" IsForward="false">ns=1;g=ae1b400b-d4d0-41b5-9764-01ded037b916</Reference>
+    </References>
+  </UAVariable>
+  <UAVariable NodeId="ns=1;s=nsu=http://www.cesmii.net/StampingPress;g=d734f385-80e3-4c69-96df-82b27945ef33" BrowseName="1:StampingPressLubricationData" ParentNodeId="ns=1;g=ae1b400b-d4d0-41b5-9764-01ded037b916">
+    <DisplayName>StampingPressLubricationData</DisplayName>
+    <Description />
+    <References>
+      <Reference ReferenceType="HasModellingRule">i=80</Reference>
+      <Reference ReferenceType="HasComponent" IsForward="false">ns=1;g=ae1b400b-d4d0-41b5-9764-01ded037b916</Reference>
+    </References>
+  </UAVariable>
+  <UAVariable NodeId="ns=1;s=nsu=http://www.cesmii.net/StampingPress;g=d7cfb1c2-611f-404e-8caf-c77649704c5d" BrowseName="1:RatedTorque" ParentNodeId="ns=1;g=ae1b400b-d4d0-41b5-9764-01ded037b916" DataType="Float">
+    <DisplayName>RatedTorque</DisplayName>
+    <Description>Stamping Press Rated Torque</Description>
+    <References>
+      <Reference ReferenceType="HasModellingRule">i=80</Reference>
+      <Reference ReferenceType="HasComponent" IsForward="false">ns=1;g=ae1b400b-d4d0-41b5-9764-01ded037b916</Reference>
+    </References>
+  </UAVariable>
+  <UAVariable NodeId="ns=1;s=nsu=http://www.cesmii.net/StampingPress;g=e05d2d20-7c8e-48e2-be60-824697e2405c" BrowseName="1:LastMaintenancePerformed" ParentNodeId="ns=1;g=ae1b400b-d4d0-41b5-9764-01ded037b916" DataType="DateTime">
+    <DisplayName>LastMaintenancePerformed</DisplayName>
+    <Description />
+    <References>
+      <Reference ReferenceType="HasModellingRule">i=80</Reference>
+      <Reference ReferenceType="HasComponent" IsForward="false">ns=1;g=ae1b400b-d4d0-41b5-9764-01ded037b916</Reference>
+    </References>
+  </UAVariable>
+  <UAVariable NodeId="ns=1;s=nsu=http://www.cesmii.net/StampingPress;g=e795a91b-704c-4e57-81c5-ca4eaa74bae6" BrowseName="1:TimeFaulted" ParentNodeId="ns=1;g=ae1b400b-d4d0-41b5-9764-01ded037b916" DataType="i=290">
+    <DisplayName>TimeFaulted</DisplayName>
+    <Description />
+    <References>
+      <Reference ReferenceType="HasModellingRule">i=80</Reference>
+      <Reference ReferenceType="HasComponent" IsForward="false">ns=1;g=ae1b400b-d4d0-41b5-9764-01ded037b916</Reference>
+    </References>
+  </UAVariable>
+  <UAVariable NodeId="ns=1;s=nsu=http://www.cesmii.net/StampingPress;g=f274147e-2740-4c93-bc3f-2ef94105be7b" BrowseName="1:StampingPressPerformance" ParentNodeId="ns=1;g=ae1b400b-d4d0-41b5-9764-01ded037b916" DataType="NodeId">
+    <DisplayName>StampingPressPerformance</DisplayName>
+    <Description />
+    <References>
+      <Reference ReferenceType="HasModellingRule">i=80</Reference>
+      <Reference ReferenceType="HasComponent" IsForward="false">ns=1;g=ae1b400b-d4d0-41b5-9764-01ded037b916</Reference>
+    </References>
+  </UAVariable>
+</UANodeSet>

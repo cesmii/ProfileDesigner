@@ -1,0 +1,1707 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?><UANodeSet xmlns="http://opcfoundation.org/UA/2011/03/UANodeSet.xsd" xmlns:uax="http://opcfoundation.org/UA/2008/02/Types.xsd" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <NamespaceUris>
+        <Uri>http://c-labs.com/UA/EnergyDevices</Uri>
+    </NamespaceUris>
+    <UAVariable AccessLevel="3" BrowseName="1:time_passed" DataType="i=12" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6324" ValueRank="-1" WriteMask="0">
+        <DisplayName>Status Time Passed</DisplayName>
+        <Description>Time passsed since current status beginning.</Description>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5003</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:time_left" DataType="i=12" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6323" ValueRank="-1" WriteMask="0">
+        <DisplayName>Status Time Left</DisplayName>
+        <Description>Time left till current status end.</Description>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5003</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:temp3" DataType="i=10" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6322" ValueRank="-1" WriteMask="0">
+        <DisplayName>Temperature 3</DisplayName>
+        <Description>Related components are TT03, H103, F102.</Description>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5003</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:temp2" DataType="i=10" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6321" ValueRank="-1" WriteMask="0">
+        <DisplayName>Temperature 2</DisplayName>
+        <Description>Related components are TT02, H102, F101.</Description>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5003</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:temp1" DataType="i=10" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6320" ValueRank="-1" WriteMask="0">
+        <DisplayName>Temperature 1</DisplayName>
+        <Description>Related components are TT01, H101, F102.</Description>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5003</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:temp0" DataType="i=10" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6319" ValueRank="-1" WriteMask="0">
+        <DisplayName>Temperature 0</DisplayName>
+        <Description>Related components are TT00, H100, F101.</Description>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5003</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:status" DataType="i=12" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6318" ValueRank="-1" WriteMask="0">
+        <DisplayName>Dryer Status</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5003</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:reboot_count" DataType="i=12" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6317" ValueRank="-1" WriteMask="0">
+        <DisplayName>System Reboots Count</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5003</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:read_time" DataType="i=12" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6316" ValueRank="-1" WriteMask="0">
+        <DisplayName>Modbus Read Time</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5003</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:pr1" DataType="i=10" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6315" ValueRank="-1" WriteMask="0">
+        <DisplayName>Output Pressure</DisplayName>
+        <Description>Related sensor is PT01.</Description>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5003</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:pr0" DataType="i=10" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6314" ValueRank="-1" WriteMask="0">
+        <DisplayName>Input Pressure</DisplayName>
+        <Description>Related sensor is PT00.</Description>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5003</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:min_heap_size" DataType="i=12" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6313" ValueRank="-1" WriteMask="0">
+        <DisplayName>Minimal Heap Size</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5003</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:manually_stopped" DataType="i=1" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6312" ValueRank="-1" WriteMask="0">
+        <DisplayName>Manually Stopped</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5003</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:locate" DataType="i=1" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6311" ValueRank="-1" WriteMask="0">
+        <DisplayName>Locate Mode On</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5003</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:lifetime" DataType="i=12" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6310" ValueRank="-1" WriteMask="0">
+        <DisplayName>System Lifetime</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5003</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:fan2" DataType="i=12" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6309" ValueRank="-1" WriteMask="0">
+        <DisplayName>Fan 2 RPM</DisplayName>
+        <Description>Related component is F102.</Description>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5003</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:fan1" DataType="i=12" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6308" ValueRank="-1" WriteMask="0">
+        <DisplayName>Fan 1 RPM</DisplayName>
+        <Description>Related component is F101.</Description>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5003</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:fan0" DataType="i=12" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6307" ValueRank="-1" WriteMask="0">
+        <DisplayName>Fan 0 RPM</DisplayName>
+        <Description>Related component is F100.</Description>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5003</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:digital_outputs" DataType="i=12" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6306" ValueRank="-1" WriteMask="0">
+        <DisplayName>Digital Outputs</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5003</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:digital_inputs" DataType="i=12" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6305" ValueRank="-1" WriteMask="0">
+        <DisplayName>Digital Inputs</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5003</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:curr_heap_size" DataType="i=12" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6304" ValueRank="-1" WriteMask="0">
+        <DisplayName>Current Heap Size</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5003</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:chip_temperature" DataType="i=10" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6303" ValueRank="-1" WriteMask="0">
+        <DisplayName>Chip Temperature</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5003</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:button_broken" DataType="i=1" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6302" ValueRank="-1" WriteMask="0">
+        <DisplayName>Button is Broken</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5003</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:PS01_in_active" DataType="i=1" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6301" ValueRank="-1" WriteMask="0">
+        <DisplayName>PS01 Active</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5003</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:PS00_in_active" DataType="i=1" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6300" ValueRank="-1" WriteMask="0">
+        <DisplayName>PS00 Active</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5003</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:water_quality" DataType="i=12" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6217" ValueRank="-1" WriteMask="0">
+        <DisplayName>Water Quality</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5002</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:status" DataType="i=12" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6216" ValueRank="-1" WriteMask="0">
+        <DisplayName>Status</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5002</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:mcu_temperature" DataType="i=10" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6215" ValueRank="-1" WriteMask="0">
+        <DisplayName>MCU Temperature</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5002</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:last_calibration" DataType="i=10" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6214" ValueRank="-1" WriteMask="0">
+        <DisplayName>Last Calibration</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5002</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:WPS01_in" DataType="i=1" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6213" ValueRank="-1" WriteMask="0">
+        <DisplayName>WPS01 In</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5002</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:TT02_in_c" DataType="i=10" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6212" ValueRank="-1" WriteMask="0">
+        <DisplayName>Tank Temperature</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5002</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:TT01_in_c" DataType="i=10" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6211" ValueRank="-1" WriteMask="0">
+        <DisplayName>Inlet Water Temperature</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5002</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:SV01_out_open" DataType="i=1" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6210" ValueRank="-1" WriteMask="0">
+        <DisplayName>SV01 Out Open</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5002</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:PUMP_out_power" DataType="i=1" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6209" ValueRank="-1" WriteMask="0">
+        <DisplayName>Pump Out Power</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5002</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:LT01_in_v" DataType="i=10" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6208" ValueRank="-1" WriteMask="0">
+        <DisplayName>Level Transmitter Voltage</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5002</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:LT01_in_l" DataType="i=10" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6207" ValueRank="-1" WriteMask="0">
+        <DisplayName>Water Volume</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5002</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:LSL_in" DataType="i=1" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6206" ValueRank="-1" WriteMask="0">
+        <DisplayName>LSL In</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5002</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:LSH_in" DataType="i=1" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6205" ValueRank="-1" WriteMask="0">
+        <DisplayName>LSH In</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5002</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:CT01_in_v" DataType="i=10" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6204" ValueRank="-1" WriteMask="0">
+        <DisplayName>Conductivity Transmitter Voltage</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5002</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:CT01_in_uscm_comp" DataType="i=10" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6203" ValueRank="-1" WriteMask="0">
+        <DisplayName>Compensated Conductivity</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5002</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:CT01_in_uscm" DataType="i=10" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6202" ValueRank="-1" WriteMask="0">
+        <DisplayName>Inlet Water Conductivity</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5002</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:CS01_in_v" DataType="i=10" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6201" ValueRank="-1" WriteMask="0">
+        <DisplayName>Pump Voltage</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5002</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:CS01_in_a" DataType="i=10" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6200" ValueRank="-1" WriteMask="0">
+        <DisplayName>Pump Amperage</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5002</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:waterrefilling" DataType="i=12" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6162" ValueRank="-1" WriteMask="0">
+        <DisplayName>Water Refilling State</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5001</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:voltage_5" DataType="i=10" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6161" ValueRank="-1" WriteMask="0">
+        <DisplayName>Voltage 5V</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5001</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:voltage_24" DataType="i=10" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6160" ValueRank="-1" WriteMask="0">
+        <DisplayName>Voltage 24V</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5001</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:voltage_12" DataType="i=10" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6159" ValueRank="-1" WriteMask="0">
+        <DisplayName>Voltage 12V</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5001</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:system" DataType="i=12" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6158" ValueRank="-1" WriteMask="0">
+        <DisplayName>Main Board State</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5001</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:status" DataType="i=12" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6157" ValueRank="-1" WriteMask="0">
+        <DisplayName>State</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5001</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:stack_runtime" DataType="i=10" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6156" ValueRank="-1" WriteMask="0">
+        <DisplayName>Stack Runtime</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5001</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:stack_cycles" DataType="i=10" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6155" ValueRank="-1" WriteMask="0">
+        <DisplayName>Stack Cycles</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5001</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:stack" DataType="i=12" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6154" ValueRank="-1" WriteMask="0">
+        <DisplayName>Stack State</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5001</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:service" DataType="i=12" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6153" ValueRank="-1" WriteMask="0">
+        <DisplayName>Service Mode State</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5001</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:production_rate" DataType="i=10" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6152" ValueRank="-1" WriteMask="0">
+        <DisplayName>Production Rate</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=1010</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=68</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:mcu_temperature" DataType="i=10" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6151" ValueRank="-1" WriteMask="0">
+        <DisplayName>MCU Temperature</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5001</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:locate" DataType="i=1" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6150" ValueRank="-1" WriteMask="0">
+        <DisplayName>Locate Mode</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5001</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:lifetime" DataType="i=10" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6149" ValueRank="-1" WriteMask="0">
+        <DisplayName>System Lifetime</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5001</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:leds_yellow" DataType="i=12" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6148" ValueRank="-1" WriteMask="0">
+        <DisplayName>Yellow LED</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5001</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:leds_red" DataType="i=12" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6147" ValueRank="-1" WriteMask="0">
+        <DisplayName>Red LED</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5001</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:leds_green" DataType="i=12" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6146" ValueRank="-1" WriteMask="0">
+        <DisplayName>Green LED</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5001</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:hvac" DataType="i=12" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6145" ValueRank="-1" WriteMask="0">
+        <DisplayName>HVAC State</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5001</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:heap_free" DataType="i=10" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6144" ValueRank="-1" WriteMask="0">
+        <DisplayName>Free Heap Memory</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5001</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:h2_total" DataType="i=10" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6143" ValueRank="-1" WriteMask="0">
+        <DisplayName>Total H2 Produced</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5001</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:h2_flow" DataType="i=10" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6142" ValueRank="-1" WriteMask="0">
+        <DisplayName>H2 Flow</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5001</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:eth_ip" DataType="i=12" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6141" ValueRank="-1" WriteMask="0">
+        <DisplayName>Ethernet IP</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5001</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:electrolyte_replacement_time" DataType="i=12" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6140" ValueRank="-1" WriteMask="0">
+        <DisplayName>Electrolyte Replacement Timestamp</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5001</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:electrolyser" DataType="i=12" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6139" ValueRank="-1" WriteMask="0">
+        <DisplayName>Electrolyser State</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5001</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:board_temperature" DataType="i=10" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6138" ValueRank="-1" WriteMask="0">
+        <DisplayName>Board Temperature</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5001</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:WPS104_in" DataType="i=1" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6137" ValueRank="-1" WriteMask="0">
+        <DisplayName>WPS104 in</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5001</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:V106_out_open" DataType="i=1" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6136" ValueRank="-1" WriteMask="0">
+        <DisplayName>V106 out open</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5001</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:V105_out_open" DataType="i=1" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6135" ValueRank="-1" WriteMask="0">
+        <DisplayName>V105 out open</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5001</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:V101_out_open" DataType="i=1" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6134" ValueRank="-1" WriteMask="0">
+        <DisplayName>V101 out open</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5001</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:TT106_in_c" DataType="i=10" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6133" ValueRank="-1" WriteMask="0">
+        <DisplayName>TT106 in c</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5001</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:TT102A_in_c" DataType="i=10" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6132" ValueRank="-1" WriteMask="0">
+        <DisplayName>Electrolyte Temperature</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5001</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:TSLL102B_in" DataType="i=1" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6131" ValueRank="-1" WriteMask="0">
+        <DisplayName>TSLL102B in</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5001</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:TSH106_in" DataType="i=1" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6130" ValueRank="-1" WriteMask="0">
+        <DisplayName>TSH106 in</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5001</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:TE109_in_c" DataType="i=10" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6129" ValueRank="-1" WriteMask="0">
+        <DisplayName>Recombiner Temperature</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5001</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:PT105_in_bar" DataType="i=10" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6128" ValueRank="-1" WriteMask="0">
+        <DisplayName>Water Inlet Pressure</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5001</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:PT101C_in_v" DataType="i=10" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6127" ValueRank="-1" WriteMask="0">
+        <DisplayName>PT101C in v</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5001</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:PT101C_in_bar" DataType="i=10" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6126" ValueRank="-1" WriteMask="0">
+        <DisplayName>Outlet Pressure</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5001</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:PT101A_in_v" DataType="i=10" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6125" ValueRank="-1" WriteMask="0">
+        <DisplayName>PT101A in v</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5001</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:PT101A_in_bar" DataType="i=10" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6124" ValueRank="-1" WriteMask="0">
+        <DisplayName>Stack Pressure</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5001</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:PSU_out_v" DataType="i=10" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6123" ValueRank="-1" WriteMask="0">
+        <DisplayName>PSU out v</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5001</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:PSU_out_power" DataType="i=1" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6122" ValueRank="-1" WriteMask="0">
+        <DisplayName>PSU out power</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5001</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:PSU_in_v" DataType="i=10" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6121" ValueRank="-1" WriteMask="0">
+        <DisplayName>PSU in v</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5001</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:PSHH101B_in" DataType="i=1" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6120" ValueRank="-1" WriteMask="0">
+        <DisplayName>PSHH101B in</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5001</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:PSH102_in" DataType="i=1" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6119" ValueRank="-1" WriteMask="0">
+        <DisplayName>PSH102 in</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5001</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:P107_out_v" DataType="i=10" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6118" ValueRank="-1" WriteMask="0">
+        <DisplayName>P107 out v</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5001</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:P107_out_power" DataType="i=1" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6117" ValueRank="-1" WriteMask="0">
+        <DisplayName>P107 out power</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5001</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:LSM102C_in" DataType="i=1" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6116" ValueRank="-1" WriteMask="0">
+        <DisplayName>LSM102C in</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5001</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:LSL102D_in" DataType="i=1" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6115" ValueRank="-1" WriteMask="0">
+        <DisplayName>LSL102D in</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5001</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:LSHH102A_in" DataType="i=1" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6114" ValueRank="-1" WriteMask="0">
+        <DisplayName>LSHH102A in</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5001</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:LSH102B_in" DataType="i=1" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6113" ValueRank="-1" WriteMask="0">
+        <DisplayName>LSH102B in</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5001</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:HASS_in_v" DataType="i=10" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6112" ValueRank="-1" WriteMask="0">
+        <DisplayName>HASS in v</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5001</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:HASS_in_a" DataType="i=10" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6111" ValueRank="-1" WriteMask="0">
+        <DisplayName>HASS in a</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5001</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:H109_out_power" DataType="i=1" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6110" ValueRank="-1" WriteMask="0">
+        <DisplayName>H109 out power</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5001</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:H102_out_power" DataType="i=1" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6109" ValueRank="-1" WriteMask="0">
+        <DisplayName>H102 out power</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5001</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:FM106_in_lmin" DataType="i=10" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6108" ValueRank="-1" WriteMask="0">
+        <DisplayName>FM106 in lmin</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5001</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:F108C_out_pwm" DataType="i=10" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6107" ValueRank="-1" WriteMask="0">
+        <DisplayName>F108C out pwm</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5001</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:F108C_in_rpm" DataType="i=10" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6106" ValueRank="-1" WriteMask="0">
+        <DisplayName>F108C in rpm</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5001</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:F104B_in_rpm" DataType="i=10" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6105" ValueRank="-1" WriteMask="0">
+        <DisplayName>F104B in rpm</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5001</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:F103A_out_pwm" DataType="i=10" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6104" ValueRank="-1" WriteMask="0">
+        <DisplayName>F103A out pwm</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5001</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:F103A_out_power" DataType="i=1" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6103" ValueRank="-1" WriteMask="0">
+        <DisplayName>F103A out power</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5001</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:F103A_in_rpm" DataType="i=10" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6102" ValueRank="-1" WriteMask="0">
+        <DisplayName>F103A in rpm</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5001</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:DRYCONTACT_in" DataType="i=1" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6101" ValueRank="-1" WriteMask="0">
+        <DisplayName>DRYCONTACT in</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5001</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:BAT_in_v" DataType="i=10" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6100" ValueRank="-1" WriteMask="0">
+        <DisplayName>BAT in v</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5001</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:IsUsedForBackup" DataType="i=1" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6057" ValueRank="-2" WriteMask="0">
+        <DisplayName>IsUsedForBackup</DisplayName>
+        <Description>If true, this device is used as backup</Description>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=46">ns=1;i=1005</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=68</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:Status" DataType="i=12877" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6056" ValueRank="-2" WriteMask="0">
+        <DisplayName>Status</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=46">ns=1;i=1001</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:OperatingState" DataType="i=12877" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6055" ValueRank="-2" WriteMask="0">
+        <DisplayName>OperatingState</DisplayName>
+        <Description>Current operating state of the battery (idle, off, discharging, charging)</Description>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=46">ns=1;i=1005</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=78</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=68</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:CurrentAmps" DataType="i=10" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6054" ValueRank="-2" WriteMask="0">
+        <DisplayName>CurrentAmps</DisplayName>
+        <Description>Amps meassured by the meter</Description>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=46">ns=1;i=1015</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:CurrentVolt" DataType="i=24" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6053" ValueRank="-2" WriteMask="0">
+        <DisplayName>CurrentVolt</DisplayName>
+        <Description>Volts measured by the meter</Description>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=46">ns=1;i=1015</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:Voltage" DataType="i=4" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6052" ValueRank="-2" WriteMask="0">
+        <DisplayName>Voltage</DisplayName>
+        <Description>Voltage Rating of Breaker</Description>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=46">ns=1;i=1012</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=68</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:MinimumLoad" DataType="i=10" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6051" ValueRank="-2" WriteMask="0">
+        <DisplayName>MinimumLoad</DisplayName>
+        <Description>Breaker will only shutoff if load is lower than this</Description>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=46">ns=1;i=1012</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=68</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:ShutoffPercentage" DataType="i=10" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6050" ValueRank="-2" WriteMask="0">
+        <DisplayName>ShutoffPercentage</DisplayName>
+        <Description>Percentage of Energy Storage Capacity to trigger shutoff</Description>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=46">ns=1;i=1012</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=68</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:AmpRating" DataType="i=4" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6049" ValueRank="-2" WriteMask="0">
+        <DisplayName>AmpRating</DisplayName>
+        <Description>AMP Rating of Breaker</Description>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=46">ns=1;i=1012</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=68</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:CurrentPower" DataType="i=10" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6046" ValueRank="-2" WriteMask="0">
+        <DisplayName>CurrentPower</DisplayName>
+        <Description>Current power used by-, produced by or flowing through the device</Description>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=46">ns=1;i=1001</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=78</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:IsManualMode" DataType="i=1" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6045" ValueRank="-2" WriteMask="0">
+        <DisplayName>IsManualMode</DisplayName>
+        <Description>If true, the breaker can be toggled manually</Description>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=46">ns=1;i=1012</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:IsRelayClosed" DataType="i=1" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6044" ValueRank="-2" WriteMask="0">
+        <DisplayName>IsRelayClosed</DisplayName>
+        <Description>true if breaker is closed (powered)</Description>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=46">ns=1;i=1012</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:ErrorLevel" DataType="i=10" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6043" ValueRank="-2" WriteMask="0">
+        <DisplayName>ErrorLevel</DisplayName>
+        <Description>Percentage of Current Power triggering error alarm</Description>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=46">ns=1;i=1001</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:WarnLevel" DataType="i=10" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6042" ValueRank="-2" WriteMask="0">
+        <DisplayName>WarnLevel</DisplayName>
+        <Description>Percentage of Current Power triggering warning</Description>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=46">ns=1;i=1001</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=68</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:Description" DataType="i=12877" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6041" ValueRank="-2" WriteMask="0">
+        <DisplayName>Description</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=46">ns=1;i=1001</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=68</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:cartridge_num" DataType="i=8" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6038" ValueRank="-1" WriteMask="0">
+        <DisplayName>Cartridges Number</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=46">ns=1;i=1022</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=68</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:FriendlyName" DataType="i=12877" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6037" ValueRank="-2" WriteMask="0">
+        <DisplayName>FriendlyName</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=46">ns=1;i=1001</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=68</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=78</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:EnergyPerYear" DataType="i=10" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6036" ValueRank="-2" WriteMask="0">
+        <DisplayName>EnergyPerYear</DisplayName>
+        <Description>Energy used per year</Description>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=46">ns=1;i=1001</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:EnergyPerMonth" DataType="i=10" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6035" ValueRank="-2" WriteMask="0">
+        <DisplayName>EnergyPerMonth</DisplayName>
+        <Description>Energy used per month</Description>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=46">ns=1;i=1001</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:EnergyPerHour" DataType="i=10" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6034" ValueRank="-2" WriteMask="0">
+        <DisplayName>EnergyPerHour</DisplayName>
+        <Description>Energy used over 1h</Description>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=46">ns=1;i=1001</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:bar_id" DataType="i=12" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6033" ValueRank="-1" WriteMask="0">
+        <DisplayName>Pressure Mode</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=46">ns=1;i=1022</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=68</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:AmpRating" DataType="i=4" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6032" ValueRank="-2" WriteMask="0">
+        <DisplayName>AmpRating</DisplayName>
+        <Description>Breaker Panel AMP Rating</Description>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=46">ns=1;i=1011</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=68</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=78</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:InPowerSaverMode" DataType="i=24" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6031" ValueRank="-2" WriteMask="0">
+        <DisplayName>InPowerSaverMode</DisplayName>
+        <Description>If true, the panel is in Power Saver Mode</Description>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=46">ns=1;i=1011</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=68</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:Temperature" DataType="i=10" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6030" ValueRank="-1" WriteMask="0">
+        <DisplayName>Temperature</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=1006</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:FillLevel" DataType="i=10" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6029" ValueRank="-1" WriteMask="0">
+        <DisplayName>FillLevel</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=1006</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:IsOnline" DataType="i=1" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6028" ValueRank="-1" WriteMask="0">
+        <DisplayName>IsOnline</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=46">ns=1;i=1001</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=68</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:StackSerialNumber" DataType="i=12" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6027" ValueRank="-1" WriteMask="0">
+        <DisplayName>StackSerialNumber</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=46">ns=1;i=1010</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=68</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:System" DataType="i=12" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6026" ValueRank="-1" WriteMask="0">
+        <DisplayName>System</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">ns=1;i=5001</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:MainboardId" DataType="i=12" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6025" ValueRank="-1" WriteMask="0">
+        <DisplayName>MainboardId</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=46">ns=1;i=1010</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=68</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:SerialNumber" DataType="i=12" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6024" ValueRank="-1" WriteMask="0">
+        <DisplayName>SerialNumber</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=46">ns=1;i=1001</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=68</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:CarbonFootprintAtPurchase" DataType="i=10" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6023" ValueRank="-2" WriteMask="0">
+        <DisplayName>CarbonFootprintAtPurchase</DisplayName>
+        <Description>Amount of Carbon Footprint required to produce this Device in kg</Description>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=46">ns=1;i=1001</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=68</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=78</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:ProductRevision" DataType="i=12" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6022" ValueRank="-1" WriteMask="0">
+        <DisplayName>ProductRevision</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=46">ns=1;i=1001</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=68</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:eFusePreconfig" DataType="i=12" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6021" ValueRank="-1" WriteMask="0">
+        <DisplayName>eFusePreconfig</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=46">ns=1;i=1010</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=68</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:BreakerCount" DataType="i=4" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6020" ValueRank="-1" WriteMask="0">
+        <DisplayName>BreakerCount</DisplayName>
+        <Description>Amount of breaker in Panel</Description>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=46">ns=1;i=1011</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=68</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=78</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:eFuseBoard" DataType="i=12" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6019" ValueRank="-1" WriteMask="0">
+        <DisplayName>eFuseBoard</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=46">ns=1;i=1010</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=68</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:eFuse" DataType="i=24" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6018" ValueRank="-1" WriteMask="0">
+        <DisplayName>eFuse</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=46">ns=1;i=1001</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=68</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:FirmwareVersion" DataType="i=24" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6017" ValueRank="-1" WriteMask="0">
+        <DisplayName>FirmwareVersion</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=46">ns=1;i=1001</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=68</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:ProductCode" DataType="i=12" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6016" ValueRank="-1" WriteMask="0">
+        <DisplayName>ProductCode</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=46">ns=1;i=1001</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=68</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:EthernetMAC" DataType="i=12" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6015" ValueRank="-1" WriteMask="0">
+        <DisplayName>EthernetMAC</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=46">ns=1;i=1010</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=68</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:Address" DataType="i=12877" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6014" ValueRank="-1" WriteMask="0">
+        <DisplayName>Address</DisplayName>
+        <Description>Address of the Energy Device</Description>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=46">ns=1;i=1001</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=68</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=78</Reference>
+        </References>
+        <Value>
+            <String>127.0.0.1</String>
+        </Value>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:Model" DataType="i=24" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6013" ValueRank="-1" WriteMask="0">
+        <DisplayName>Model</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=46">ns=1;i=1001</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=68</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAVariable AccessLevel="3" BrowseName="1:CarbonFootprintAtRuntime" DataType="i=10" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6012" ValueRank="-2" WriteMask="0">
+        <DisplayName>CarbonFootprintAtRuntime</DisplayName>
+        <Description>Amount of Carbon Footprint required during Runtime of this Device in kg</Description>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=46">ns=1;i=1001</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=68</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=78</Reference>
+        </References>
+    </UAVariable>
+    <UAObjectType BrowseName="1:WaterTankType" IsAbstract="false" NodeId="ns=1;i=1026" WriteMask="0">
+        <DisplayName>WaterTankType</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=45">ns=1;i=1006</Reference>
+            <Reference IsForward="true" ReferenceType="i=35">ns=1;i=5002</Reference>
+        </References>
+    </UAObjectType>
+    <UAVariable AccessLevel="3" BrowseName="1:BackupReserve" DataType="i=10" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6011" ValueRank="-2" WriteMask="0">
+        <DisplayName>BackupReserve</DisplayName>
+        <Description>Percentage of Battery remaining for Backup</Description>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=46">ns=1;i=1005</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=68</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAObjectType BrowseName="1:HydrogenCompressorType" IsAbstract="false" NodeId="ns=1;i=1025" WriteMask="0">
+        <DisplayName>HydrogenCompressorType</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=45">ns=1;i=1021</Reference>
+        </References>
+    </UAObjectType>
+    <UAVariable AccessLevel="3" BrowseName="1:MaxKWh" DataType="i=10" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6010" ValueRank="-1" WriteMask="0">
+        <DisplayName>MaxKWh</DisplayName>
+        <Description>Maximum kWh rating of battery</Description>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=46">ns=1;i=1005</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=68</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=78</Reference>
+        </References>
+        <Value>
+            <Float>10.000000</Float>
+        </Value>
+    </UAVariable>
+    <UAObjectType BrowseName="1:GeneratorType" IsAbstract="false" NodeId="ns=1;i=1024" WriteMask="0">
+        <DisplayName>GeneratorType</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=45">ns=1;i=1004</Reference>
+        </References>
+    </UAObjectType>
+    <UAVariable AccessLevel="3" BrowseName="1:IsMSCOn" DataType="i=1" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6009" ValueRank="-2" WriteMask="0">
+        <DisplayName>IsMSCOn</DisplayName>
+        <Description>If true, the Battery is in MSC (Most Self Consumption) Mode</Description>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=46">ns=1;i=1005</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=68</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+        </References>
+    </UAVariable>
+    <UAObjectType BrowseName="1:PowerTransformerType" IsAbstract="false" NodeId="ns=1;i=1023" WriteMask="0">
+        <DisplayName>PowerTransformerType</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=45">ns=1;i=1021</Reference>
+        </References>
+    </UAObjectType>
+    <UAVariable AccessLevel="3" BrowseName="1:SoC" DataType="i=10" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6008" ValueRank="-1" WriteMask="0">
+        <DisplayName>SoC</DisplayName>
+        <Description>State of Charge</Description>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=46">ns=1;i=1005</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=78</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=63</Reference>
+        </References>
+        <Value>
+            <Float>99.000000</Float>
+        </Value>
+    </UAVariable>
+    <UAObjectType BrowseName="1:HydrogenDryerType" IsAbstract="false" NodeId="ns=1;i=1022" WriteMask="0">
+        <DisplayName>HydrogenDryerType</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=45">ns=1;i=1021</Reference>
+            <Reference IsForward="true" ReferenceType="i=35">ns=1;i=5003</Reference>
+            <Reference IsForward="true" ReferenceType="i=46">ns=1;i=6033</Reference>
+            <Reference IsForward="true" ReferenceType="i=46">ns=1;i=6038</Reference>
+        </References>
+    </UAObjectType>
+    <UAVariable AccessLevel="1" BrowseName="DefaultRolePermissions" DataType="i=96" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6007" ValueRank="1" WriteMask="0">
+        <DisplayName>DefaultRolePermissions</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=46">ns=1;i=5000</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=68</Reference>
+        </References>
+    </UAVariable>
+    <UAObjectType BrowseName="1:EnergyTransformationType" IsAbstract="false" NodeId="ns=1;i=1021" WriteMask="0">
+        <DisplayName>EnergyTransformationType</DisplayName>
+        <References>
+            <Reference IsForward="true" ReferenceType="i=45">ns=1;i=1010</Reference>
+            <Reference IsForward="false" ReferenceType="i=45">ns=1;i=1001</Reference>
+            <Reference IsForward="true" ReferenceType="i=45">ns=1;i=1022</Reference>
+            <Reference IsForward="true" ReferenceType="i=45">ns=1;i=1023</Reference>
+            <Reference IsForward="true" ReferenceType="i=45">ns=1;i=1025</Reference>
+        </References>
+    </UAObjectType>
+    <UAVariable AccessLevel="1" BrowseName="StaticStringNodeIdPattern" DataType="i=12" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6006" ValueRank="-1" WriteMask="0">
+        <DisplayName>StaticStringNodeIdPattern</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=46">ns=1;i=5000</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=68</Reference>
+        </References>
+    </UAVariable>
+    <UAObjectType BrowseName="1:HyrdoPowerType" IsAbstract="false" NodeId="ns=1;i=1020" WriteMask="0">
+        <DisplayName>HyrdoPowerType</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=45">ns=1;i=1004</Reference>
+        </References>
+    </UAObjectType>
+    <UAVariable AccessLevel="1" BrowseName="StaticNumericNodeIdRange" DataType="i=291" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6005" ValueRank="1" WriteMask="0">
+        <DisplayName>StaticNumericNodeIdRange</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=46">ns=1;i=5000</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=68</Reference>
+        </References>
+    </UAVariable>
+    <UAObjectType BrowseName="1:WindTurbineType" IsAbstract="false" NodeId="ns=1;i=1019" WriteMask="0">
+        <DisplayName>WindTurbineType</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=45">ns=1;i=1004</Reference>
+        </References>
+    </UAObjectType>
+    <UAVariable AccessLevel="1" BrowseName="StaticNodeIdTypes" DataType="i=256" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6004" ValueRank="1" WriteMask="0">
+        <DisplayName>StaticNodeIdTypes</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=46">ns=1;i=5000</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=68</Reference>
+        </References>
+    </UAVariable>
+    <UAObjectType BrowseName="1:SolarPanelType" IsAbstract="false" NodeId="ns=1;i=1018" WriteMask="0">
+        <DisplayName>SolarPanelType</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=45">ns=1;i=1004</Reference>
+        </References>
+    </UAObjectType>
+    <UAVariable AccessLevel="1" BrowseName="NamespaceVersion" DataType="i=12" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6003" ValueRank="-1" WriteMask="0">
+        <DisplayName>NamespaceVersion</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=46">ns=1;i=5000</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=68</Reference>
+        </References>
+        <Value>
+            <String>1.00</String>
+        </Value>
+    </UAVariable>
+    <UAObjectType BrowseName="1:SolarInverter" IsAbstract="false" NodeId="ns=1;i=1017" WriteMask="0">
+        <DisplayName>SolarInverter</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=45">ns=1;i=1004</Reference>
+        </References>
+    </UAObjectType>
+    <UAVariable AccessLevel="1" BrowseName="NamespaceUri" DataType="i=12" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6002" ValueRank="-1" WriteMask="0">
+        <DisplayName>NamespaceUri</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=46">ns=1;i=5000</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=68</Reference>
+        </References>
+        <Value>
+            <String>http://c-labs.com/UA/EnergyDevices</String>
+        </Value>
+    </UAVariable>
+    <UAObjectType BrowseName="1:SmartApplianceType" IsAbstract="false" NodeId="ns=1;i=1016" WriteMask="0">
+        <DisplayName>SmartApplianceType</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=45">ns=1;i=1003</Reference>
+        </References>
+    </UAObjectType>
+    <UAVariable AccessLevel="1" BrowseName="NamespacePublicationDate" DataType="i=13" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6001" ValueRank="-1" WriteMask="0">
+        <DisplayName>NamespacePublicationDate</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=46">ns=1;i=5000</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=68</Reference>
+        </References>
+        <Value>
+            <DateTime>2022-02-27T00:00:00Z</DateTime>
+        </Value>
+    </UAVariable>
+    <UAObject BrowseName="1:Telemetry" EventNotifier="0" NodeId="ns=1;i=5003" WriteMask="0">
+        <DisplayName>Telemetry</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=35">ns=1;i=1022</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=61</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6300</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6301</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6302</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6303</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6304</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6305</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6306</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6307</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6308</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6309</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6310</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6311</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6312</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6313</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6314</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6315</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6316</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6317</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6318</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6319</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6320</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6321</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6322</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6323</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6324</Reference>
+        </References>
+    </UAObject>
+    <UAObjectType BrowseName="1:PowerMeterType" IsAbstract="false" NodeId="ns=1;i=1015" WriteMask="0">
+        <DisplayName>PowerMeterType</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=45">ns=1;i=1013</Reference>
+            <Reference IsForward="true" ReferenceType="i=46">ns=1;i=6053</Reference>
+            <Reference IsForward="true" ReferenceType="i=46">ns=1;i=6054</Reference>
+        </References>
+    </UAObjectType>
+    <UAVariable AccessLevel="1" BrowseName="IsNamespaceSubset" DataType="i=1" Historizing="0" MinimumSamplingInterval="-1.000000" NodeId="ns=1;i=6000" ValueRank="-1" WriteMask="0">
+        <DisplayName>IsNamespaceSubset</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=46">ns=1;i=5000</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=68</Reference>
+        </References>
+    </UAVariable>
+    <UAObject BrowseName="1:Telemetry" EventNotifier="0" NodeId="ns=1;i=5002" WriteMask="0">
+        <DisplayName>Telemetry</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=35">ns=1;i=1026</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=61</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6200</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6201</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6202</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6203</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6204</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6205</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6206</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6207</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6208</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6209</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6210</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6211</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6212</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6213</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6214</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6215</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6216</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6217</Reference>
+        </References>
+    </UAObject>
+    <UAObject BrowseName="1:Telemetry" EventNotifier="0" NodeId="ns=1;i=5001" WriteMask="0">
+        <DisplayName>Telemetry</DisplayName>
+        <References>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6026</Reference>
+            <Reference IsForward="false" ReferenceType="i=35">ns=1;i=1010</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=61</Reference>
+            <Reference IsForward="true" ReferenceType="i=37">i=80</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6100</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6101</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6102</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6103</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6104</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6105</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6106</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6107</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6108</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6109</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6110</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6111</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6112</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6113</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6114</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6115</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6116</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6117</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6118</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6119</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6120</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6121</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6122</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6123</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6124</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6125</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6126</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6127</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6128</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6129</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6130</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6131</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6132</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6133</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6134</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6135</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6136</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6137</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6138</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6139</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6140</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6141</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6142</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6143</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6144</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6145</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6146</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6147</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6148</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6149</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6150</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6151</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6153</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6154</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6155</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6156</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6157</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6158</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6159</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6160</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6161</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6162</Reference>
+        </References>
+    </UAObject>
+    <UAObjectType BrowseName="1:EnergySensorType" IsAbstract="false" NodeId="ns=1;i=1013" WriteMask="0">
+        <DisplayName>EnergySensorType</DisplayName>
+        <References>
+            <Reference IsForward="true" ReferenceType="i=45">ns=1;i=1015</Reference>
+            <Reference IsForward="false" ReferenceType="i=45">ns=1;i=1001</Reference>
+        </References>
+    </UAObjectType>
+    <UAObjectType BrowseName="1:BreakerType" IsAbstract="false" NodeId="ns=1;i=1012" WriteMask="0">
+        <DisplayName>BreakerType</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=45">ns=1;i=1003</Reference>
+            <Reference IsForward="true" ReferenceType="i=46">ns=1;i=6044</Reference>
+            <Reference IsForward="true" ReferenceType="i=46">ns=1;i=6045</Reference>
+            <Reference IsForward="true" ReferenceType="i=46">ns=1;i=6049</Reference>
+            <Reference IsForward="true" ReferenceType="i=46">ns=1;i=6050</Reference>
+            <Reference IsForward="true" ReferenceType="i=46">ns=1;i=6051</Reference>
+            <Reference IsForward="true" ReferenceType="i=46">ns=1;i=6052</Reference>
+        </References>
+    </UAObjectType>
+    <UAObject BrowseName="1:http://c-labs.com/UA/EnergyDevices" EventNotifier="0" NodeId="ns=1;i=5000" WriteMask="0">
+        <DisplayName>http://c-labs.com/UA/EnergyDevices</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=47">i=11715</Reference>
+            <Reference IsForward="true" ReferenceType="i=40">i=11616</Reference>
+            <Reference IsForward="true" ReferenceType="i=46">ns=1;i=6000</Reference>
+            <Reference IsForward="true" ReferenceType="i=46">ns=1;i=6001</Reference>
+            <Reference IsForward="true" ReferenceType="i=46">ns=1;i=6002</Reference>
+            <Reference IsForward="true" ReferenceType="i=46">ns=1;i=6003</Reference>
+            <Reference IsForward="true" ReferenceType="i=46">ns=1;i=6004</Reference>
+            <Reference IsForward="true" ReferenceType="i=46">ns=1;i=6005</Reference>
+            <Reference IsForward="true" ReferenceType="i=46">ns=1;i=6006</Reference>
+            <Reference IsForward="true" ReferenceType="i=46">ns=1;i=6007</Reference>
+        </References>
+    </UAObject>
+    <UAObjectType BrowseName="1:BreakerPanelType" IsAbstract="false" NodeId="ns=1;i=1011" WriteMask="0">
+        <DisplayName>BreakerPanelType</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=45">ns=1;i=1003</Reference>
+            <Reference IsForward="true" ReferenceType="i=46">ns=1;i=6020</Reference>
+            <Reference IsForward="true" ReferenceType="i=46">ns=1;i=6031</Reference>
+            <Reference IsForward="true" ReferenceType="i=46">ns=1;i=6032</Reference>
+        </References>
+    </UAObjectType>
+    <UAObjectType BrowseName="1:ElectrolyserType" IsAbstract="false" NodeId="ns=1;i=1010" WriteMask="0">
+        <DisplayName>ElectrolyserType</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=45">ns=1;i=1021</Reference>
+            <Reference IsForward="true" ReferenceType="i=46">ns=1;i=6019</Reference>
+            <Reference IsForward="true" ReferenceType="i=46">ns=1;i=6021</Reference>
+            <Reference IsForward="true" ReferenceType="i=46">ns=1;i=6025</Reference>
+            <Reference IsForward="true" ReferenceType="i=46">ns=1;i=6015</Reference>
+            <Reference IsForward="true" ReferenceType="i=46">ns=1;i=6027</Reference>
+            <Reference IsForward="true" ReferenceType="i=35">ns=1;i=5001</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6152</Reference>
+        </References>
+    </UAObjectType>
+    <UAObjectType BrowseName="1:NaturalGasTankType" IsAbstract="false" NodeId="ns=1;i=1009" WriteMask="0">
+        <DisplayName>NaturalGasTankType</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=45">ns=1;i=1006</Reference>
+        </References>
+    </UAObjectType>
+    <UAObjectType BrowseName="1:PropaneTankType" IsAbstract="false" NodeId="ns=1;i=1008" WriteMask="0">
+        <DisplayName>PropaneTankType</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=45">ns=1;i=1006</Reference>
+        </References>
+    </UAObjectType>
+    <UAObjectType BrowseName="1:HydrogenTankType" IsAbstract="false" NodeId="ns=1;i=1007" WriteMask="0">
+        <DisplayName>HydrogenTankType</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=45">ns=1;i=1006</Reference>
+        </References>
+    </UAObjectType>
+    <UAObjectType BrowseName="1:TankType" IsAbstract="false" NodeId="ns=1;i=1006" WriteMask="0">
+        <DisplayName>TankType</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=45">ns=1;i=1002</Reference>
+            <Reference IsForward="true" ReferenceType="i=45">ns=1;i=1007</Reference>
+            <Reference IsForward="true" ReferenceType="i=45">ns=1;i=1008</Reference>
+            <Reference IsForward="true" ReferenceType="i=45">ns=1;i=1009</Reference>
+            <Reference IsForward="true" ReferenceType="i=45">ns=1;i=1026</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6029</Reference>
+            <Reference IsForward="true" ReferenceType="i=47">ns=1;i=6030</Reference>
+        </References>
+    </UAObjectType>
+    <UAObjectType BrowseName="1:BatteryType" IsAbstract="false" NodeId="ns=1;i=1005" WriteMask="0">
+        <DisplayName>BatteryType</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=45">ns=1;i=1002</Reference>
+            <Reference IsForward="true" ReferenceType="i=46">ns=1;i=6008</Reference>
+            <Reference IsForward="true" ReferenceType="i=46">ns=1;i=6010</Reference>
+            <Reference IsForward="true" ReferenceType="i=46">ns=1;i=6055</Reference>
+            <Reference IsForward="true" ReferenceType="i=46">ns=1;i=6057</Reference>
+            <Reference IsForward="true" ReferenceType="i=46">ns=1;i=6009</Reference>
+            <Reference IsForward="true" ReferenceType="i=46">ns=1;i=6011</Reference>
+        </References>
+    </UAObjectType>
+    <UAObjectType BrowseName="1:EnergyProducerType" IsAbstract="false" NodeId="ns=1;i=1004" WriteMask="0">
+        <DisplayName>EnergyProducerType</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=45">ns=1;i=1001</Reference>
+            <Reference IsForward="true" ReferenceType="i=45">ns=1;i=1017</Reference>
+            <Reference IsForward="true" ReferenceType="i=45">ns=1;i=1018</Reference>
+            <Reference IsForward="true" ReferenceType="i=45">ns=1;i=1019</Reference>
+            <Reference IsForward="true" ReferenceType="i=45">ns=1;i=1020</Reference>
+            <Reference IsForward="true" ReferenceType="i=45">ns=1;i=1024</Reference>
+        </References>
+    </UAObjectType>
+    <UAObjectType BrowseName="1:EnergyConsumerType" IsAbstract="false" NodeId="ns=1;i=1003" WriteMask="0">
+        <DisplayName>EnergyConsumerType</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=45">ns=1;i=1001</Reference>
+            <Reference IsForward="true" ReferenceType="i=45">ns=1;i=1011</Reference>
+            <Reference IsForward="true" ReferenceType="i=45">ns=1;i=1012</Reference>
+            <Reference IsForward="true" ReferenceType="i=45">ns=1;i=1016</Reference>
+        </References>
+    </UAObjectType>
+    <UAObjectType BrowseName="1:EnergyStorageType" IsAbstract="false" NodeId="ns=1;i=1002" WriteMask="0">
+        <DisplayName>EnergyStorageType</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=45">ns=1;i=1001</Reference>
+            <Reference IsForward="true" ReferenceType="i=45">ns=1;i=1005</Reference>
+            <Reference IsForward="true" ReferenceType="i=45">ns=1;i=1006</Reference>
+        </References>
+    </UAObjectType>
+    <UAObjectType BrowseName="1:EnergyDeviceType" IsAbstract="false" NodeId="ns=1;i=1001" WriteMask="0">
+        <DisplayName>EnergyDeviceType</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=45">i=58</Reference>
+            <Reference IsForward="true" ReferenceType="i=45">ns=1;i=1002</Reference>
+            <Reference IsForward="true" ReferenceType="i=45">ns=1;i=1003</Reference>
+            <Reference IsForward="true" ReferenceType="i=45">ns=1;i=1004</Reference>
+            <Reference IsForward="true" ReferenceType="i=46">ns=1;i=6014</Reference>
+            <Reference IsForward="true" ReferenceType="i=45">ns=1;i=1000</Reference>
+            <Reference IsForward="true" ReferenceType="i=46">ns=1;i=6023</Reference>
+            <Reference IsForward="true" ReferenceType="i=46">ns=1;i=6034</Reference>
+            <Reference IsForward="true" ReferenceType="i=46">ns=1;i=6035</Reference>
+            <Reference IsForward="true" ReferenceType="i=46">ns=1;i=6036</Reference>
+            <Reference IsForward="true" ReferenceType="i=46">ns=1;i=6037</Reference>
+            <Reference IsForward="true" ReferenceType="i=46">ns=1;i=6041</Reference>
+            <Reference IsForward="true" ReferenceType="i=46">ns=1;i=6042</Reference>
+            <Reference IsForward="true" ReferenceType="i=46">ns=1;i=6043</Reference>
+            <Reference IsForward="true" ReferenceType="i=46">ns=1;i=6046</Reference>
+            <Reference IsForward="true" ReferenceType="i=46">ns=1;i=6056</Reference>
+            <Reference IsForward="true" ReferenceType="i=46">ns=1;i=6012</Reference>
+            <Reference IsForward="true" ReferenceType="i=45">ns=1;i=1013</Reference>
+            <Reference IsForward="true" ReferenceType="i=45">ns=1;i=1021</Reference>
+            <Reference IsForward="true" ReferenceType="i=46">ns=1;i=6013</Reference>
+            <Reference IsForward="true" ReferenceType="i=46">ns=1;i=6016</Reference>
+            <Reference IsForward="true" ReferenceType="i=46">ns=1;i=6017</Reference>
+            <Reference IsForward="true" ReferenceType="i=46">ns=1;i=6018</Reference>
+            <Reference IsForward="true" ReferenceType="i=46">ns=1;i=6022</Reference>
+            <Reference IsForward="true" ReferenceType="i=46">ns=1;i=6024</Reference>
+            <Reference IsForward="true" ReferenceType="i=46">ns=1;i=6028</Reference>
+        </References>
+    </UAObjectType>
+    <UAObjectType BrowseName="1:EnergyDistributionType" IsAbstract="false" NodeId="ns=1;i=1000" WriteMask="0">
+        <DisplayName>EnergyDistributionType</DisplayName>
+        <References>
+            <Reference IsForward="false" ReferenceType="i=45">ns=1;i=1001</Reference>
+        </References>
+    </UAObjectType>
+</UANodeSet>

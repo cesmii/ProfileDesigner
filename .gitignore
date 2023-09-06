@@ -130,3 +130,6 @@ frontend/.env.development
 /api/sonar.bat
 /api/.sonarqube
 /api/CESMII.ProfileDesigner.Api/appsettings.Development.json
+/.sonarqube/conf
+/api/certs
+/sql/Backups

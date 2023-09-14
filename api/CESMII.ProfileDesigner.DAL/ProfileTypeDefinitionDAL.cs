@@ -484,6 +484,7 @@
                 InstrumentRangeAccessLevel = item.InstrumentRangeAccessLevel,
                 EnumValue = item.EnumValue,
                 IsRequired = item.IsRequired,
+                AllowSubTypes = item.AllowSubTypes,
                 ModelingRule = item.ModelingRule,
                 IsArray = item.IsArray,
                 ValueRank = item.ValueRank,
@@ -872,6 +873,7 @@
                         }
                         current.EnumValue = source.EnumValue;
                         current.IsRequired = source.IsRequired;
+                        current.AllowSubTypes = source.AllowSubTypes;
                         current.ModelingRule = source.ModelingRule;
                         current.IsArray = source.IsArray;
                         current.ValueRank = source.ValueRank;
@@ -960,6 +962,7 @@
                             AttributeTypeId = attr.AttributeType?.ID ?? 0,
                             EnumValue = attr.EnumValue,
                             IsRequired = attr.IsRequired,
+                            AllowSubTypes = attr.AllowSubTypes,
                             ModelingRule = attr.ModelingRule,
                             IsArray = attr.IsArray,
                             ValueRank = attr.ValueRank,

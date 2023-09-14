@@ -21,12 +21,12 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="OPCFoundation.NetStandard.Opc.Ua.Core" Version="1.4.371.86" />
+		<PackageReference Include="OPCFoundation.NetStandard.Opc.Ua.Core" Version="1.4.372.56" />
 		<!--<PackageReference Include="OPCFoundation.NetStandard.Opc.Ua.CloudLib.Client" Version="*-*" />-->
 	</ItemGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="CESMII.OpcUa.NodeSetImporter" Version="1.0.16" />
+	  <PackageReference Include="CESMII.OpcUa.NodeSetImporter" Version="1.0.17" />
 	  <ProjectReference Include="..\..\common\Opc.Ua.Cloud.Library.Client\Opc.Ua.Cloud.Library.Client.csproj" />
 	</ItemGroup>
 

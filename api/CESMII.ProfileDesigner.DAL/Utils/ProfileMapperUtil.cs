@@ -574,6 +574,7 @@ namespace CESMII.ProfileDesigner.DAL.Utils
                     SymbolicName = comp.SymbolicName,
                     Description = comp.Description,
                     IsRequired = comp.IsRequired,
+                    AllowSubTypes = null,
                     ModelingRule = comp.ModelingRule,
                     TypeDefinitionId = item.ID,
                     //TypeDefinition = item, // Results in cycle during serialization
@@ -656,6 +657,7 @@ namespace CESMII.ProfileDesigner.DAL.Utils
                     Description = a.Description,
                     BrowseName = a.BrowseName,
                     IsRequired = a.IsRequired,
+                    // AllowSubTypes: not needed for compositions
                     ModelingRule = a.ModelingRule,
                     Author = a.Composition.Author
                 });

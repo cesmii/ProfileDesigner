@@ -22,6 +22,10 @@ import ProfileEntityModal from './modals/ProfileEntityModal';
 import ProfileItemRow from './shared/ProfileItemRow';
 import TypeDefinitionActions from './shared/TypeDefinitionActions';
 
+import JSONInput from 'react-json-editor-ajrm';
+import locale from 'react-json-editor-ajrm/locale/en';
+import color from "../components/Constants";
+
 import { SVGIcon } from "../components/SVGIcon";
 import { getWizardNavInfo, renderWizardBreadcrumbs, WizardSettings } from '../services/WizardUtil';
 import { isOwner } from './shared/ProfileRenderHelpers';
@@ -57,7 +61,7 @@ function ProfileTypeDefinitionEntity() {
     const [_lookupDataTypes, setLookupDataTypes] = useState([]);
     const [_permittedDataTypes, setPermittedDataTypes] = useState(null);
     const [_isReadOnly, setIsReadOnly] = useState(true);
-    const [_isValid, setIsValid] = useState({ name: true, profile: true, description: true, type: true, symbolicName: true, variableDataType: true });
+    const [_isValid, setIsValid] = useState({ name: true, profile: true, description: true, type: true, symbolicName: true, variableDataType: true, defaultValue: true });
     //const [_lookupProfiles, setLookupProfiles] = useState([]);
     //used in popup profile add/edit ui. Default to new version
     const [_profileEntityModal, setProfileEntityModal] = useState({ show: false, item: null, autoSave: false  });
@@ -67,7 +71,7 @@ function ProfileTypeDefinitionEntity() {
     const { wizardProps, setWizardProps } = useWizardContext();
     const _navInfo = history.location.pathname.indexOf('/wizard/') === - 1 ? null : getWizardNavInfo(wizardProps.mode, 'ExtendBaseType');
     const _currentPage = history.location.pathname.indexOf('/wizard/') === - 1 ? null : WizardSettings.panels.find(p => { return p.id === 'ExtendBaseType'; });
-    
+
     //-------------------------------------------------------------------
     // Region: hooks - Execute once after component loads
     //-------------------------------------------------------------------
@@ -163,7 +167,7 @@ function ProfileTypeDefinitionEntity() {
             setIsLoading(false);
             setLoadingProps({ isLoading: false, message: null });
             setMode(thisMode);
-    
+
             // set form to readonly if we're in viewmode            
             setIsReadOnly(thisMode.toLowerCase() === "view");
             //setIsReadOnly(true);
@@ -773,10 +777,10 @@ function ProfileTypeDefinitionEntity() {
     const onChangeVariableDataType = (e) => {
         var lookupItem = _lookupDataTypes.find(dt => { return dt.id.toString() === e.value.toString(); });
 
-        _item.variableDataType = 
+        _item.variableDataType =
             lookupItem != null ?
-            { id: lookupItem.customTypeId, name: lookupItem.name }
-            : { id: -1, name: '' };
+                { id: lookupItem.customTypeId, name: lookupItem.name }
+                : { id: -1, name: '' };
         setItem(JSON.parse(JSON.stringify(_item)));
     }
 
@@ -912,9 +916,61 @@ function ProfileTypeDefinitionEntity() {
         }
     };
 
+    const renderVariableDefaultValue = () => {
+        if (_item.typeId !== AppSettings.ProfileTypeDefaults.VariableTypeId) {
+            return null;
+        }
+        return (
+            <div className="col-md-12">
+                <Form.Group>
+                    <Form.Label className="mb-0" >Default Value</Form.Label>
+                    {!_isValid.defaultValue &&
+                        <span className="invalid-field-message inline">
+                            Invalid JSON structure
+                        </span>
+                    }
+                    <JSONInput
+                        id='data'
+                        placeholder={_item.variableValue == null ? {} : JSON.parse(_item.variableValue)}
+                        locale={locale}
+                        colors={{
+                            // overrides theme colors with whatever color value you want
+                            default: color.textPrimary,
+                            keys: color.cardinal,
+                            colon: color.cardinal,
+                            background: "#ffffff",
+                            background_warning: color.transparent,
+                            error: color.textSecondary
+                        }}
+                        height='auto'
+                        width="100%"
+                        waitAfterKeyPress={2000}
+                        onBlur={onBlurDefaultValue}
+                        viewOnly={_isReadOnly}
+                    />
+                </Form.Group>
+            </div>
+        );
+    };
+
+
+    //on change handler to update state
+    const onBlurDefaultValue = (e) => {
+        console.log(generateLogMessageString('onBlurData||data', CLASS_NAME));
+        //console.log(e);
+        if (e.error) {
+            setIsValid({ ..._isValid, defaultValue: false });
+        }
+        else {
+            setIsValid({ ..._isValid, defaultValue: true });
+            setItem({ ..._item, variableValue: JSON.stringify(e.jsObject) });
+            setLoadingProps({ bIsTypeEditUnsaved: true });
+        }
+    }
+
     const renderVariableDataTypeUI = () => {
         var lookupItem = _lookupDataTypes.find(dt => { return dt.customTypeId.toString() === _item.variableDataType?.id?.toString(); });
-            //set isValid === true always - not required here...
+        //set isValid === true always - not required here...
         return renderDataTypeUIShared(lookupItem, _permittedDataTypes, null, _isValid.variableDataType, true, "Data Type of the Variable", onChangeVariableDataType, validateForm_variableDataType)
     }
 
@@ -1009,6 +1065,9 @@ function ProfileTypeDefinitionEntity() {
                     <div className="col-lg-3 col-md-6">
                         {renderProfileDefType()}
                     </div>
+                </div>
+                <div className="row mb-3">
+                    {renderVariableDefaultValue()}
                 </div>
                 <div className="row mb-3">
                     <div className="col-md-12">

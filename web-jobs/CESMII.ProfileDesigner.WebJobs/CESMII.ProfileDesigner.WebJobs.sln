@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32414.318
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CESMII.ProfileDesigner.WebJobs", "CESMII.ProfileDesigner.WebJobs.csproj", "{B2D03BDC-FBD1-4F88-A6F5-38B36461AE68}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B2D03BDC-FBD1-4F88-A6F5-38B36461AE68}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B2D03BDC-FBD1-4F88-A6F5-38B36461AE68}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B2D03BDC-FBD1-4F88-A6F5-38B36461AE68}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B2D03BDC-FBD1-4F88-A6F5-38B36461AE68}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {F2F23634-92A9-4EB5-9B93-12C36926B4A7}
+	EndGlobalSection
+EndGlobal

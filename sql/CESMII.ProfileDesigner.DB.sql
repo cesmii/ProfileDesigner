@@ -1099,6 +1099,7 @@ CREATE TABLE public.import_log
     created timestamp with time zone NOT NULL,
     updated timestamp with time zone NOT NULL,
     completed timestamp with time zone NULL,
+    queue_data character varying NULL,
     CONSTRAINT import_log_status_id_304b6874_fk FOREIGN KEY (status_id)
         REFERENCES public.lookup (id) MATCH SIMPLE
         ON UPDATE NO ACTION

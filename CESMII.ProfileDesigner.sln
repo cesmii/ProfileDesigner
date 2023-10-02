@@ -53,6 +53,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SmipJson", "SmipJson", "{32
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CESMII.Common.SelfServiceSignUp", "common\CESMII.Common.SelfServiceSignUp\CESMII.Common.SelfServiceSignUp.csproj", "{EC9943CD-4E5E-4835-AA5D-45520C78D146}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CESMII.ProfileDesigner.Importer", "api\CESMII.ProfileDesigner.Importer\CESMII.ProfileDesigner.Importer.csproj", "{1C4575BC-6DEE-4A40-BA9E-09C31E8FF7BA}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CESMII.ProfileDesigner.WebJobs", "web-jobs\CESMII.ProfileDesigner.WebJobs\CESMII.ProfileDesigner.WebJobs.csproj", "{A34969B2-EAB2-4C98-92D9-F40D7FCDB1A8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -143,6 +147,18 @@ Global
 		{EC9943CD-4E5E-4835-AA5D-45520C78D146}.Release|Any CPU.Build.0 = Release|Any CPU
 		{EC9943CD-4E5E-4835-AA5D-45520C78D146}.Staging|Any CPU.ActiveCfg = Debug|Any CPU
 		{EC9943CD-4E5E-4835-AA5D-45520C78D146}.Staging|Any CPU.Build.0 = Debug|Any CPU
+		{1C4575BC-6DEE-4A40-BA9E-09C31E8FF7BA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1C4575BC-6DEE-4A40-BA9E-09C31E8FF7BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1C4575BC-6DEE-4A40-BA9E-09C31E8FF7BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1C4575BC-6DEE-4A40-BA9E-09C31E8FF7BA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1C4575BC-6DEE-4A40-BA9E-09C31E8FF7BA}.Staging|Any CPU.ActiveCfg = Staging|Any CPU
+		{1C4575BC-6DEE-4A40-BA9E-09C31E8FF7BA}.Staging|Any CPU.Build.0 = Staging|Any CPU
+		{A34969B2-EAB2-4C98-92D9-F40D7FCDB1A8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A34969B2-EAB2-4C98-92D9-F40D7FCDB1A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A34969B2-EAB2-4C98-92D9-F40D7FCDB1A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A34969B2-EAB2-4C98-92D9-F40D7FCDB1A8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A34969B2-EAB2-4C98-92D9-F40D7FCDB1A8}.Staging|Any CPU.ActiveCfg = Debug|Any CPU
+		{A34969B2-EAB2-4C98-92D9-F40D7FCDB1A8}.Staging|Any CPU.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

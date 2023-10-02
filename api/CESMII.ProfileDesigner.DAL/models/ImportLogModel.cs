@@ -48,6 +48,11 @@
 
         public bool NotifyOnComplete { get; set; }
 
+        /// <summary>
+        /// Designed for webJob use. Store the data to be used in an out of process
+        /// scenario where we take this data and kick off the import.
+        /// </summary>
+        public string QueueData { get; set; }
     }
 
     public class ImportLogMessageModel : AbstractModel

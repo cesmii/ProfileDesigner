@@ -166,7 +166,8 @@
                     Created = entity.Created,
                     Updated = entity.Updated,
                     OwnerId = entity.OwnerId??0,
-                    IsActive = entity.IsActive
+                    IsActive = entity.IsActive, 
+                    QueueData = entity.QueueData
                 };
 
                 //if !verbose, get files but not underlying content, get last message if not verbose, always get all warnings
@@ -255,6 +256,7 @@
             {
                 entity.Completed = model.Completed;
             }
+            entity.QueueData = model.QueueData;
             MapToEntityMessages(ref entity, model.Messages);
             MapToEntityProfileWarnings(ref entity, model.ProfileWarnings);
             MapToEntityFiles(ref entity, model.Files);

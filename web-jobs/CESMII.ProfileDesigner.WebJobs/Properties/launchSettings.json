@@ -1,0 +1,22 @@
+{
+  "profiles": {
+    "Prod-CESMII.ProfileDesigner.WebJobs": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "MyHostingEnvironment": "Production"
+      }
+    },
+    "Stage-CESMII.ProfileDesigner.WebJobs": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "MyHostingEnvironment": "Staging"
+      }
+    },
+    "Dev-CESMII.ProfileDesigner.WebJobs": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "MyHostingEnvironment": "Development"
+      }
+    }
+  }
+}

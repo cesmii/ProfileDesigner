@@ -130,3 +130,5 @@ frontend/.env.development
 /api/sonar.bat
 /api/.sonarqube
 /api/CESMII.ProfileDesigner.Api/appsettings.Development.json
+/azure-functions/CESMII.ProfileDesigner.Functions/appSettings.Development.json
+/web-jobs/CESMII.ProfileDesigner.WebJobs/appsettings.Development.json

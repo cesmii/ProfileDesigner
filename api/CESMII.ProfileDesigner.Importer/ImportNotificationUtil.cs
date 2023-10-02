@@ -14,7 +14,7 @@ using CESMII.ProfileDesigner.DAL.Models;
 using CESMII.ProfileDesigner.Api.Shared.Utils;
 using CESMII.ProfileDesigner.Common;
 
-namespace CESMII.ProfileDesigner.Api.Utils
+namespace CESMII.ProfileDesigner.Importer
 {
     /// <summary>
     /// Small class to facilitate notifying user upon completion of import. Separate it out to make DI easier

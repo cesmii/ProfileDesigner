@@ -14,19 +14,20 @@ using Newtonsoft.Json;
 
 using Opc.Ua.Cloud.Library.Client;
 
-using CESMII.ProfileDesigner.OpcUa.AASX;
 using CESMII.ProfileDesigner.Api.Shared.Controllers;
 using CESMII.ProfileDesigner.Api.Shared.Models;
+using CESMII.ProfileDesigner.Api.Utils;
 using CESMII.ProfileDesigner.Common;
 using CESMII.ProfileDesigner.Common.Enums;
 using CESMII.ProfileDesigner.DAL;
 using CESMII.ProfileDesigner.DAL.Models;
 using CESMII.ProfileDesigner.Data.Entities;
 using CESMII.ProfileDesigner.Data.Extensions;
+using CESMII.ProfileDesigner.Importer;
+using CESMII.ProfileDesigner.Importer.Utils;
 using CESMII.ProfileDesigner.OpcUa;
-using CESMII.ProfileDesigner.Api.Utils;
+using CESMII.ProfileDesigner.OpcUa.AASX;
 
-using CESMII.OpcUa.NodeSetImporter;
 using CESMII.OpcUa.NodeSetModel.Factory.Smip;
 using CESMII.Common.CloudLibClient;
 
@@ -40,7 +41,10 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         private readonly ICloudLibDal<CloudLibProfileModel> _cloudLibDal;
         private readonly CloudLibraryUtil _cloudLibUtil;
 
-        private readonly Utils.ImportService _svcImport;
+        private readonly ImportService _svcImport;
+        private readonly IImportWrapper _importFunctionWrapper;
+        private readonly IImportWrapper _importWebJobWrapper;
+        private readonly ImportDirectWrapper _importDirectWrapper;
         private readonly OpcUaImporter _exporter;
         private readonly List<string> _permissibleLicenses = new() { "MIT", "BSD-3-Clause" };
 
@@ -48,7 +52,10 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             ProfileTypeDefinitionDAL dalProfileType,
             ICloudLibDal<CloudLibProfileModel> cloudLibDal,
             UserDAL dalUser,
-            Utils.ImportService svcImport,
+            ImportService svcImport,
+            IImportWrapper importFunctionWrapper,
+            IImportWrapper importWebJobWrapper,
+            ImportDirectWrapper importDirectWrapper,
             OpcUaImporter exporter,
             ConfigUtil config, ILogger<ProfileController> logger,
             CloudLibraryUtil cloudLibUtil)
@@ -58,6 +65,9 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             _dalProfileType = dalProfileType;
             _cloudLibDal = cloudLibDal;
             _svcImport = svcImport;
+            _importFunctionWrapper = importFunctionWrapper;
+            _importWebJobWrapper = importWebJobWrapper;
+            _importDirectWrapper = importDirectWrapper;
             _exporter = exporter;
             _cloudLibUtil = cloudLibUtil;
         }
@@ -699,56 +709,43 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 return BadRequest("Profile|CloudLibrary||Import|Invalid model");
             }
 
-            List<ImportOPCModel> importModels = new();
-            foreach (var modelId in model.Select(m => m.ID))
+            //init the import log record. do it here so we can pass it downstream for both scenarios.
+            var importId = await _svcImport.InitializeImportLog(
+                new ImportUserModel() { User = LocalUser, UserToken = base.DalUserToken });
+
+            //prepare model to pass to certain modes
+            var modelImport = new ImportQueueCloudModel()
             {
-                try
-                {
-                    var nodeSetToImport = await _cloudLibDal.DownloadAsync(modelId);
-                    if (nodeSetToImport == null)
-                    {
-                        _logger.LogWarning($"ProfileController|ImportFromCloudLibrary|Did not find nodeset in Cloud Library: {modelId}.");
-                        return Ok(
-                            new ResultMessageWithDataModel()
-                            {
-                                IsSuccess = false,
-                                Message = "NodeSet not found in Cloud Library."
-                            }
-                        );
-                    }
-                    var importModel = new ImportOPCModel
-                    {
-                        Data = nodeSetToImport.NodesetXml,
-                        FileName = nodeSetToImport.Namespace,
-                        CloudLibraryId = nodeSetToImport.CloudLibraryId,
-                    };
-                    importModels.Add(importModel);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError($"ProfileController|ImportFromCloudLibrary|Failed to download from Cloud Library: {modelId} {ex.Message}.");
-                    return Ok(
-                        new ResultMessageWithDataModel()
-                        {
-                            IsSuccess = false,
-                            Message = "Error downloading NodeSet from Cloud Library."
-                        }
-                    );
-                }
+                Items = model,
+                BearerToken = _configUtil.ImportSettings.CloudImportMode == ImportModeEnum.AzureFunction ?
+                    Request.Headers["Authorization"].ToString().Replace("Bearer ", "") : null,
+                AllowMultiVersion = true,
+                UpgradePreviousVersions = true
+            };
+
+            //if localhost or test, don't call Azure function
+            ResultMessageModel result;
+            switch (_configUtil.ImportSettings.CloudImportMode)
+            {
+                case ImportModeEnum.AzureFunction:
+                    result = await _importFunctionWrapper.ProcessCloudImport(importId, base.DalUserToken, modelImport);
+                    break;
+                case ImportModeEnum.AzureWebJob:
+                    result = await _importWebJobWrapper.ProcessCloudImport(importId, base.DalUserToken, modelImport);
+                    break;
+                case ImportModeEnum.Direct:
+                default:
+                    //call the existing import code. 
+                    //pass in the author id as current user
+                    //kick off background process, logid is returned immediately so front end can track progress...
+                    result = await _importDirectWrapper.ProcessCloudImport(importId, model, LocalUser, base.DalUserToken, allowMultiVersion: true, upgradePreviousVersions: true, isAsync: true);
+                    //result = await _importWrapper.ProcessCloudImportDirect(model, LocalUser, base.DalUserToken, allowMultiVersion: true, upgradePreviousVersions: true);
+                    break;
             }
 
-            //kick off background process, logid is returned immediately so front end can track progress...
-            var userInfo = new ImportUserModel() { User = LocalUser, UserToken = base.DalUserToken };
-            var logId = await _svcImport.ImportOpcUaNodeSetAsync(importModels, userInfo, allowMultiVersion: true, upgradePreviousVersions: true);
+            //import log id contained in data property
+            return Ok(result);
 
-            return Ok(
-                new ResultMessageWithDataModel()
-                {
-                    IsSuccess = true,
-                    Message = "Import is processing...",
-                    Data = logId
-                }
-            );
         }
 
         /// <summary>

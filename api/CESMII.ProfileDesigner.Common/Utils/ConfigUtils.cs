@@ -87,5 +87,15 @@
             }
         }
 
+        public ImportConfig ImportSettings
+        {
+            get
+            {
+                var result = new ImportConfig();
+                _configuration.GetSection("ImportSettings").Bind(result);
+                return result;
+            }
+        }
+
     }
 }

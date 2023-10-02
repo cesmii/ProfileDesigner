@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using CESMII.ProfileDesigner.Common.Enums;
 using CESMII.ProfileDesigner.DAL;
 using CESMII.ProfileDesigner.DAL.Models;
 
@@ -67,6 +68,33 @@ namespace CESMII.ProfileDesigner.Api.Shared.Models
         /// used in email template to determine proper link
         /// </summary>
         public string BaseUrl { get; set; }
+    }
+
+    /// <summary>
+    /// This will be used to pass a model to an Azure function to process Cloud library import
+    /// </summary>
+    public class ImportQueueModel 
+    {
+        public bool AllowMultiVersion { get; set; }
+        public bool UpgradePreviousVersions { get; set; }
+        public string BearerToken { get; set; }
+    }
+
+    /// <summary>
+    /// This will be used to pass a model to an Azure function to process Cloud library import
+    /// </summary>
+    public class ImportQueueCloudModel : ImportQueueModel
+    {
+        public List<IdStringModel> Items { get; set; }
+    }
+
+    /// <summary>
+    /// This will be used to pass a model to an Azure function to process Cloud library import
+    /// </summary>
+    public class ImportJobDataModel : IdIntModel
+    {
+        public UserToken UserToken { get; set; }
+        public ImportSourceEnum ImportSource { get; set; }
     }
 
 

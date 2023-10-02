@@ -3,7 +3,6 @@ using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Runtime.Serialization;
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
@@ -16,6 +15,8 @@ using CESMII.ProfileDesigner.DAL.Models;
 using CESMII.ProfileDesigner.DAL;
 using CESMII.ProfileDesigner.Api.Shared.Controllers;
 using CESMII.ProfileDesigner.Api.Shared.Models;
+using CESMII.ProfileDesigner.Importer;
+using CESMII.ProfileDesigner.Importer.Utils;
 
 namespace CESMII.ProfileDesigner.Api.Controllers
 {
@@ -23,15 +24,21 @@ namespace CESMII.ProfileDesigner.Api.Controllers
     public class ImportLogController : BaseController<ImportLogController>
     {
         private readonly IDal<ImportLog, ImportLogModel> _dal;
-        private readonly Utils.ImportService _svcImport;
+        private readonly ImportService _svcImport;
+        private readonly IImportWrapper _importFunctionWrapper;
+        private readonly IImportWrapper _importWebJobWrapper;
 
         public ImportLogController(IDal<ImportLog, ImportLogModel> dal, UserDAL dalUser,
-            Utils.ImportService svcImport,
+            ImportService svcImport,
+            IImportWrapper importFunctionWrapper,
+            IImportWrapper importWebJobWrapper,
             ConfigUtil config, ILogger<ImportLogController> logger)
             : base(config, logger, dalUser)
         {
             _dal = dal;
             _svcImport = svcImport;
+            _importFunctionWrapper = importFunctionWrapper;
+            _importWebJobWrapper = importWebJobWrapper;
         }
 
         [HttpPost, Route("GetByID")]
@@ -350,28 +357,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
 
                 //loop over and reassemble chunked files.
                 //create an importopcmodel for each file.
-                var importItems = new List<ImportOPCModel>();
-                foreach (var file in importItem.Files)
-                {
-                    if (file.Chunks == null || file.Chunks.Count == 0)
-                    {
-                        _logger.LogCritical($"ProfileController|ImportProcessFiles|Failed. Invalid file chunks for id: {file.ID}, {file.FileName}");
-                        throw new ImportException($"The import has failed.An error occurred completing the upload process for {file.FileName}. ");
-                    }
-
-                    //prepare merged byte array for this file
-                    var merged = MergeChunks(file);
-
-                    ///validate / compare file to expected size, number of chunks
-                    if (!ValidateChunkedFile(file, merged.Length, out string msgValidation))
-                    {
-                        throw new ImportException(msgValidation);
-                    }
-
-                    //assemble the file and create model used during import
-                    //var contentString = merged == null ? "" : System.Text.Encoding.UTF8.GetString(merged, 0, merged.Length);
-                    importItems.Add(new ImportOPCModel() { FileName = file.FileName, Data = merged });
-                }
+                var importItems = ImportUtils.MergeChunkedFiles(importItem, _logger);
 
                 //update import messages, clean out import chunk files to keep db size manageable. 
                 importItem.Messages.Add(new ImportLogMessageModel() { Message = $"Raw files uploaded. Starting processing of {fileNames}..." });
@@ -382,7 +368,33 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 //pass in the author id as current user
                 //kick off background process, logid is returned immediately so front end can track progress...
                 var userInfo = new ImportUserModel() { User = LocalUser, UserToken = base.DalUserToken };
-                _svcImport.ImportOpcUaNodeSet(importItem.ID.Value, importItems, userInfo, allowMultiVersion: allowMultiVersion, upgradePreviousVersions: upgradePreviousVersions);
+
+                //prepare model to pass to certain modes
+                var modelImport = new ImportQueueModel()
+                {
+                    BearerToken = _configUtil.ImportSettings.CloudImportMode == ImportModeEnum.AzureFunction ?
+                        Request.Headers["Authorization"].ToString().Replace("Bearer ", "") : null,
+                    AllowMultiVersion = true,
+                    UpgradePreviousVersions = true
+                };
+
+                //if localhost or test, don't call Azure function
+                ResultMessageModel result;
+                switch (_configUtil.ImportSettings.FileImportMode)
+                {
+                    case ImportModeEnum.AzureFunction:
+                        result = await _importFunctionWrapper.ProcessFileImport(importItem.ID.Value, base.DalUserToken, modelImport);
+                        break;
+                    case ImportModeEnum.AzureWebJob:
+                        result = await _importWebJobWrapper.ProcessFileImport(importItem.ID.Value, base.DalUserToken, modelImport);
+                        break;
+                    case ImportModeEnum.Direct:
+                    default:
+                        //call the existing import code. 
+                        //kick off background process, logid is returned immediately so front end can track progress...
+                        _svcImport.ImportOpcUaNodeSet(importItem.ID.Value, importItems, userInfo, allowMultiVersion: allowMultiVersion, upgradePreviousVersions: upgradePreviousVersions);
+                        break;
+                }
 
                 return Ok(
                     new ResultMessageWithDataModel()
@@ -457,81 +469,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
             return true;
         }
 
-        private string MergeChunks(ImportFileModel file)
-        {
-            return string.Join("", 
-                file.Chunks
-                .OrderBy(x => x.ChunkOrder)
-                //.ToList()
-                .Select(x => x.Contents));
-        }
-        
-        /*
-        private byte[] MergeChunks(ImportFileModel file)
-        {
-            //if one chunk, return it as is
-            if (file.Chunks.Count == 1)
-            {
-                return file.Chunks[0].Contents;
-            }
-
-            //multiple files - merge into single byte array in proper order.
-            file.Chunks = file.Chunks.OrderBy(x => x.ChunkOrder).ToList();
-            byte[] result = null;
-            foreach (var chunk in file.Chunks)
-            {
-                result = result == null ? chunk.Contents : result.Concat(chunk.Contents).ToArray();
-            }
-            return result;
-        }
-        */
-
-        /*
-        private static void MergeChunks(string chunk1, string chunk2)
-        {
-            FileStream fs1 = null;
-            FileStream fs2 = null;
-            try
-            {
-                fs1 = System.IO.File.Open(chunk1, FileMode.Append);
-                fs2 = System.IO.File.Open(chunk2, FileMode.Open);
-                byte[] fs2Content = new byte[fs2.Length];
-                fs2.Read(fs2Content, 0, (int)fs2.Length);
-                fs1.Write(fs2Content, 0, (int)fs2.Length);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message + " : " + ex.StackTrace);
-            }
-            finally
-            {
-                if (fs1 != null) fs1.Close();
-                if (fs2 != null) fs2.Close();
-                System.IO.File.Delete(chunk2);
-            }
-        }
-        */
         #endregion
-    }
-
-    [Serializable]
-    public class ImportException : Exception
-    {
-        public ImportException()
-        {
-        }
-
-        public ImportException(string message) : base(message)
-        {
-        }
-
-        public ImportException(string message, Exception innerException) : base(message, innerException)
-        {
-        }
-
-        protected ImportException(SerializationInfo info, StreamingContext context) : base(info, context)
-        {
-        }
     }
 
 }

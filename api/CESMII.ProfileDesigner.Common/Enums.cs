@@ -157,4 +157,17 @@
         [Description("UserAzureADMapped")]
         UserAzureADMapped = 130
     }
+
+    public enum ImportModeEnum
+    { 
+        Direct = 1,
+        AzureFunction = 2,
+        AzureWebJob = 3
+    }
+
+    public enum ImportSourceEnum
+    {
+        Cloud = 1,
+        File = 2
+    }
 }

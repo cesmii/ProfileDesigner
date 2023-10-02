@@ -281,14 +281,17 @@ namespace CESMII.ProfileDesigner.OpcUa
                             }
                         }
                     } while (profilesAndNodeSets.Any(pn => pn.NodeSetModel.NewInThisImport));
+
+                    //return success message object
+                    filesImportedMsg = $"Imported Nodeset{(nodeSetXmlList.Count.Equals(1) ? "" : "s")}: {fileNames}";
+                    _logger.LogInformation($"OPCUaImporter||ImportUaNodeSets||Status: completed||Message: {filesImportedMsg}");
+                    await logToImportLog($"{filesImportedMsg}", TaskStatusEnum.Completed);
+
                     sw.Stop();
                     var elapsed = sw.Elapsed;
                     var elapsedMsg = $"{elapsed.Minutes}:{elapsed.Seconds} (min:sec)";
                     _logger.LogTrace($"Timestamp||ImportId:{logId}||Import time: {elapsedMsg}, Nodesets: {fileNames} "); //use warning so it shows in app log in db
 
-                    //return success message object
-                    filesImportedMsg = $"Imported Nodeset{(nodeSetXmlList.Count.Equals(1) ? "" : "s")}: {fileNames}";
-                    await logToImportLog($"{filesImportedMsg}", TaskStatusEnum.Completed);
                 }
                 catch (Exception e)
                 {

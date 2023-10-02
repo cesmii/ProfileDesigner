@@ -30,6 +30,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+    <PackageReference Include="Azure.Storage.Queues" Version="12.16.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.4" />
 
 	<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.5" />
@@ -56,6 +57,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\common\CESMII.Common.SelfServiceSignUp\CESMII.Common.SelfServiceSignUp.csproj" />
+    <ProjectReference Include="..\CESMII.ProfileDesigner.Importer\CESMII.ProfileDesigner.Importer.csproj" />
     <ProjectReference Include="..\CESMII.ProfileDesigner.OpcUa\CESMII.ProfileDesigner.OpcUa.csproj" />
     <ProjectReference Include="..\CESMII.ProfileDesigner.Api.Shared\CESMII.ProfileDesigner.Api.Shared.csproj" />
     <ProjectReference Include="..\CESMII.ProfileDesigner.Common\CESMII.ProfileDesigner.Common.csproj" />

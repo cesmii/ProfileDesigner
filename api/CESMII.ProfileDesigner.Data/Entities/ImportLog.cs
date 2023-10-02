@@ -36,6 +36,13 @@
         [Column(name: "notify_on_complete")]
         public bool NotifyOnComplete { get; set; }
 
+        /// <summary>
+        /// Designed for webJob use. Store the data to be used in an out of process
+        /// scenario where we take this data and kick off the import.
+        /// </summary>
+        /// TBD - update the column name in the db
+        [Column(name: "queue_data")]
+        public string QueueData { get; set; }
     }
 
     public class ImportLogMessage : AbstractEntity

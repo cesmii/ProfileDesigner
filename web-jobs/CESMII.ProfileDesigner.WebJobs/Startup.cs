@@ -110,7 +110,7 @@ namespace CESMII.ProfileDesigner.WebJobs
             services.AddSingleton<System.Diagnostics.DiagnosticListener>(diagnosticSource);
             services.AddSingleton<System.Diagnostics.DiagnosticSource>(diagnosticSource);
             services.AddRazorPages();
-            services.AddMvc();  
+            services.AddMvc();
         }
 
         public void ConfigureLogging(ILoggingBuilder b, IConfiguration config)

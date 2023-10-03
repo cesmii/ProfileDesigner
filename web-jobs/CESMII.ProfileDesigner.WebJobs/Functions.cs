@@ -20,6 +20,7 @@ namespace CESMII.ProfileDesigner.WebJobs
         private readonly ImportDirectWrapper _importWrapper;
         private readonly ImportService _svcImport;
         private readonly IDal<ImportLog, ImportLogModel> _dalImportLog;
+        private readonly ImportNotificationUtil _importNotifyUtil;
         private readonly UserDAL _dalUser;
         private readonly ILogger<Functions> _logger;
 
@@ -27,6 +28,7 @@ namespace CESMII.ProfileDesigner.WebJobs
             ImportDirectWrapper importWrapper,
             ImportService svcImport,
             IDal<ImportLog, ImportLogModel> dalImportLog,
+            ImportNotificationUtil importNotifyUtil,
             UserDAL dalUser,
             ILogger<Functions> logger
         )
@@ -34,6 +36,7 @@ namespace CESMII.ProfileDesigner.WebJobs
             _importWrapper = importWrapper;
             _svcImport = svcImport;
             _dalImportLog = dalImportLog;
+            _importNotifyUtil = importNotifyUtil;
             _dalUser = dalUser;
             _logger = logger;
         }
@@ -67,15 +70,35 @@ namespace CESMII.ProfileDesigner.WebJobs
             ILogger logger)
         {
             //call import, process file
-            logger.LogWarning("WebJob|TestWebJob|test-queue|handle message.");
-            //logger.LogWarning("WebJob|ProcessImport|import-queue|handle message.");
+            logger.LogInformation("WebJob|TestWebJob|test-queue|handle message.");
 
-            logger.LogWarning($"Raw data: {msg}");
+            logger.LogInformation($"Raw data: {msg}");
 
             //tbd - cycle through config values and confirm presence of settings
 
             //log that import completed
-            logger.LogWarning("WebJob|TestWebJob|test-queue|complete.");
+            logger.LogInformation("WebJob|TestWebJob|test-queue|complete.");
+        }
+
+
+        [FunctionName("TestEmail")]
+        public async Task TestEmail(
+            [QueueTrigger("import-email-queue")] string msg,
+            ILogger logger)
+        {
+            //call import, process file
+            logger.LogInformation("WebJob|TestEmail|import-email-queue|handle message.");
+
+            logger.LogInformation($"Raw data: {msg}");
+
+            //send an email to a recipient with the status information from the import
+            ImportJobDataModel model = JsonConvert.DeserializeObject<ImportJobDataModel>(msg);
+            var item = await _dalImportLog.GetByIdAsync(model.ID, model.UserToken);
+            var user = await _dalUser.GetByIdAsync(model.UserToken.UserId, model.UserToken);
+            await _importNotifyUtil.SendEmailNotification(item, user);
+
+            //log that import completed
+            logger.LogInformation("WebJob|TestWebJob|test-queue|complete.");
         }
 
 
@@ -86,7 +109,6 @@ namespace CESMII.ProfileDesigner.WebJobs
         {
             //call import, process file
             logger.LogInformation("WebJob|ProcessImport|import-queue|handle message.");
-            //logger.LogWarning("WebJob|ProcessImport|import-queue|handle message.");
 
             if (string.IsNullOrEmpty(msg))
             {
@@ -124,7 +146,7 @@ namespace CESMII.ProfileDesigner.WebJobs
                 logger.LogError(exD, $"WebJob|ProcessImport|Error deserializing data: {exD.Message}. Data: {msg}");
             }
             //log that import completed
-            logger.LogWarning($"WebJob|ProcessImport|Import Completed|Data: {msg}");
+            logger.LogInformation($"WebJob|ProcessImport|Import Completed|Data: {msg}");
         }
 
         private async Task ProcessCloudImport(ImportJobDataModel model)

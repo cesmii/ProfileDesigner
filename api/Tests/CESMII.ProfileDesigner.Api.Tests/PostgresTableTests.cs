@@ -38,7 +38,7 @@ namespace CESMII.ProfileDesigner.Api.Tests
         [Theory]
         [InlineData("profile", 27)]
         [InlineData("profile_type_definition", 25)]
-        [InlineData("profile_attribute", 44)]
+        [InlineData("profile_attribute", 45)]
         public void CheckTableColumnCount(string strTable, int expectedCount)
         {
             //IConfiguration MyConfig = new ConfigurationBuilder().AddJsonFile("appsettings.Development.json", true, true).Build();

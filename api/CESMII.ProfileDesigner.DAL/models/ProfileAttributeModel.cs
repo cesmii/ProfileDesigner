@@ -118,6 +118,7 @@
         public string ArrayDimensions { get; set; }
         public uint? MaxStringLength { get; set; }
         public bool? IsRequired { get; set; }
+        public bool? AllowSubTypes { get; set; }
         public string ModelingRule { get; set; }
         public double? MinimumSamplingInterval { get; set; }
 

@@ -328,6 +328,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
                     MaxStringLength = attribute.MaxStringLength,
                     Description = NodeModel.LocalizedText.ListFromText(attribute.Description),
                     IsOptional = !attribute.IsRequired ?? false,
+                    AllowSubTypes = attribute.AllowSubTypes ?? false,
                     FieldOrder = (int)(attribute.EnumValue ?? 0),
                 };
                 if (structure.StructureFields == null)

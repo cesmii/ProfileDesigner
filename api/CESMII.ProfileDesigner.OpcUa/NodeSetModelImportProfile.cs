@@ -16,7 +16,7 @@ using Opc.Ua;
 
 namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
 {
-    public class NodeModelImportProfile: NodeModelImportProfile<NodeModel>
+    public class NodeModelImportProfile : NodeModelImportProfile<NodeModel>
     {
 
     }
@@ -153,7 +153,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
             {
                 if (_model.OtherReferencedNodes.Any(nr => nr.Node == opcObject
                     && nr.ReferenceType.NodeId != "nsu=http://opcfoundation.org/UA/;i=47"
-                    && ((ReferenceTypeModel) nr.ReferenceType).HasBaseType("nsu=http://opcfoundation.org/UA/;i=47")))
+                    && ((ReferenceTypeModel)nr.ReferenceType).HasBaseType("nsu=http://opcfoundation.org/UA/;i=47")))
                 {
                     // There is a derived reference in OtherReferencedNodes that will be imported later: ignore this one
                     continue;
@@ -450,6 +450,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
                     BrowseName = _model.BrowseName,
                     Namespace = NodeModelUtils.GetNamespaceFromNodeId(_model.NodeId),
                     IsRequired = ObjectModelImportProfile.GetModelingRuleForProfile(_model.ModellingRule),
+                    AllowSubTypes = null, // only for structure fields
                     ModelingRule = _model.ModellingRule,
                     IsArray = (_model.ValueRank ?? -1) != -1,
                     ValueRank = _model.ValueRank,
@@ -617,7 +618,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
     }
     public class DataTypeModelImportProfile : BaseTypeModelImportProfile<DataTypeModel>
     {
-        protected override void UpdateProfileItem(ProfileTypeDefinitionModel profileItem, IDALContext dalContext )
+        protected override void UpdateProfileItem(ProfileTypeDefinitionModel profileItem, IDALContext dalContext)
         {
             profileItem.TypeId = (int)ProfileItemTypeEnum.CustomDataType;
             base.UpdateProfileItem(profileItem, dalContext);
@@ -629,7 +630,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
             var attributeNamespace = NodeModelUtils.GetNamespaceFromNodeId(_model.NodeId);
             if (_model.StructureFields?.Any() == true || _model.HasBaseType("nsu=http://opcfoundation.org/UA/;i=22"))
             {
-                profileItem.TypeId = (int) ProfileItemTypeEnum.Structure;
+                profileItem.TypeId = (int)ProfileItemTypeEnum.Structure;
 
                 if (profileItem.Attributes == null)
                 {
@@ -655,6 +656,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
                         SymbolicName = field.SymbolicName,
                         Namespace = attributeNamespace,
                         IsRequired = !field.IsOptional,
+                        AllowSubTypes = field.AllowSubTypes,
                         Description = field.Description?.FirstOrDefault()?.Text,
                         AttributeType = new LookupItemModel { ID = (int)AttributeTypeIdEnum.StructureField },
                         DataType = attributeDataType,
@@ -670,7 +672,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
             }
             if (_model.EnumFields?.Any() == true || _model.HasBaseType("nsu=http://opcfoundation.org/UA/;i=29"))
             {
-                profileItem.TypeId = (int) ProfileItemTypeEnum.Enumeration;
+                profileItem.TypeId = (int)ProfileItemTypeEnum.Enumeration;
                 if (profileItem.Attributes == null)
                 {
                     profileItem.Attributes = new List<ProfileAttributeModel>();

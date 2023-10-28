@@ -39,6 +39,7 @@ namespace CESMII.ProfileDesigner.OpcUa
             _importer = importer;
             _authorToken = authorToken;
             _userToken = userToken;
+            ReencodeExtensionsAsJson = true;
         }
 
         public void SetUser(UserToken userToken, UserToken authorToken)

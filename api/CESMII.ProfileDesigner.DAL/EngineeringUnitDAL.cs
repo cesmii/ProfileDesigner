@@ -39,8 +39,12 @@
             var entity = base.FindByCondition(userToken, dt =>
                 (
                   (model.ID != 0 && model.ID != null && dt.ID == model.ID)
-                  || (dt.UnitId != null && model.UnitId == dt.UnitId)
-                  || (dt.UnitId == null && dt.DisplayName == model.DisplayName && dt.NamespaceUri == model.NamespaceUri)
+                  // UnitId matches within unit namespace
+                  || (!string.IsNullOrEmpty(model.NamespaceUri) && model.UnitId != null && dt.NamespaceUri == model.NamespaceUri && model.UnitId == dt.UnitId)
+                  // No unit id: match on displayname
+                  || (model.UnitId == null && !string.IsNullOrEmpty(model.DisplayName) && dt.DisplayName == model.DisplayName && dt.NamespaceUri == model.NamespaceUri)
+                  // everthing matches
+                  || (model.UnitId == dt.UnitId && model.NamespaceUri == dt.NamespaceUri && model.DisplayName == dt.DisplayName && model.Description == dt.Description)
                 )
                 , cacheOnly).FirstOrDefault();
             return entity;

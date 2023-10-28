@@ -117,6 +117,8 @@
         public uint? MaxStringLength { get; set; }
         [Column(name: "is_required")]
         public bool? IsRequired { get; set; }
+        [Column(name: "allow_sub_types")]
+        public bool? AllowSubTypes { get; set; }
         [Column(name: "modeling_rule")]
         public string ModelingRule { get; set; }
 

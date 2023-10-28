@@ -879,6 +879,7 @@ CREATE TABLE public.profile_attribute
 	array_dimensions character varying(256) NULL,
 	max_string_length integer NULL,
     is_required boolean NULL,
+    allow_sub_types boolean NULL,
 	modeling_rule character varying(256) NULL,
     enum_value bigint NULL,
 

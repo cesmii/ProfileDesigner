@@ -1,6 +1,4 @@
 ﻿using System;
-using System.IO;
-using System.Text;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -12,7 +10,6 @@ using Microsoft.Extensions.Logging;
 
 using Newtonsoft.Json;
 
-using CESMII.ProfileDesigner.Api.Shared.Extensions;
 using CESMII.ProfileDesigner.Api.Shared.Models;
 using CESMII.ProfileDesigner.Api.Shared.Controllers;
 using CESMII.ProfileDesigner.Common;
@@ -22,7 +19,6 @@ using CESMII.ProfileDesigner.DAL;
 using CESMII.ProfileDesigner.DAL.Models;
 using CESMII.ProfileDesigner.DAL.Utils;
 using CESMII.ProfileDesigner.Common.Enums;
-using CESMII.ProfileDesigner.OpcUa;
 
 namespace CESMII.ProfileDesigner.Api.Controllers
 {
@@ -606,6 +602,11 @@ namespace CESMII.ProfileDesigner.Api.Controllers
                 return BadRequest($"Could not {(isAdd ? "add" : "update")} profile type definition.");
             }
             _logger.LogInformation($"ProfileTypeDefinitionController|UpdateInternal|{(isAdd ? "Added" : "Updated")} profile type definition. Id:{id}.");
+
+            // Remove the imported XML so we don't reexport it or use it for imports
+            var profile = _dalProfile.GetById(model.ProfileId.Value, base.DalUserToken);
+            profile.NodeSetFiles = new List<NodeSetFileModel>();
+            await _dalProfile.UpdateAsync(profile, base.DalUserToken);
 
             //return result object plus id.
             return Ok(new ResultMessageWithDataModel()

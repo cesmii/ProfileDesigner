@@ -10,8 +10,9 @@ using CESMII.ProfileDesigner.Common.Enums;
 using CESMII.ProfileDesigner.DAL.Models;
 using CESMII.ProfileDesigner.Api.Shared.Models;
 
-namespace CESMII.ProfileDesigner.Api.Tests.Int
+namespace CESMII.ProfileDesigner.Api.Tests.Int.Controllers
 {
+    [Trait("SmokeTest", "true")] //trait can be applied at test or test class level
     public class TypeDefControllerAttributeIntegrationTest : ProfileTypeDefControllerTestBase
     {
         #region API constants
@@ -46,6 +47,10 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
             // ARRANGE
             //get api client
             var apiClient = base.ApiClient;
+
+            //note - base.ApiClient - this will force creation of test user if not yet added, this is needed downstream
+            //if we run this from a pristine db
+            base.PrepareMockData(base.ApiClient);
 
             //create parent profile and entity to extend
             var itemExtend = await InsertMockProfileAndTypeDefinition(TYPE_ID_DEFAULT, _guidCommon);
@@ -93,6 +98,10 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
             // ARRANGE
             //get api client
             var apiClient = base.ApiClient;
+
+            //note - base.ApiClient - this will force creation of test user if not yet added, this is needed downstream
+            //if we run this from a pristine db
+            base.PrepareMockData(base.ApiClient);
 
             //create parent profile and entity to extend
             var itemExtend = await InsertMockProfileAndTypeDefinition(TYPE_ID_DEFAULT, _guidCommon);

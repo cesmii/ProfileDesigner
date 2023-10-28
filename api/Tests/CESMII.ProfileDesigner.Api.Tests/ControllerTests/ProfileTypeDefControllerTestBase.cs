@@ -17,7 +17,7 @@ using CESMII.ProfileDesigner.Data.Entities;
 using CESMII.ProfileDesigner.Data.Contexts;
 using CESMII.ProfileDesigner.Api.Shared.Models;
 
-namespace CESMII.ProfileDesigner.Api.Tests.Int
+namespace CESMII.ProfileDesigner.Api.Tests.Int.Controllers
 {
     public class ProfileTypeDefControllerTestBase : ControllerTestBase
     {
@@ -75,9 +75,6 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
             
             _serviceProvider = services.BuildServiceProvider();
 
-            //note - base.ApiClient - this will force creation of test user if not yet added, this is needed downstream
-            //if we run this from a pristine db
-            PrepareMockData(base.ApiClient);
         }
 
 #pragma warning disable xUnit1026  // Stop warnings related to parameters not used in test cases. 
@@ -270,7 +267,11 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
                 PublishDate = dt,
                 AuthorId = user?.ID,
                 OwnerId = user != null ? user.ID : null,
-                Keywords = new string[] { guidCommon.ToString() }
+                Keywords = new string[] { guidCommon.ToString() },
+                CreatedById = user == null ? 0 : user.ID.Value,
+                UpdatedById = user == null ? 0 : user.ID.Value,
+                Created = dt,
+                Updated = dt,
             };
         }
 
@@ -298,7 +299,7 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int
                 },
                 AttributeType = attrType,
                 //matching happens on browse name - add unique portion to browse name
-                BrowseName = $"{Guid.NewGuid().ToString()}:::{guidCommon.ToString()}",
+                BrowseName = $"{Guid.NewGuid()}:::{guidCommon}",
                 SymbolicName = guidCommon.ToString(),
                 //DataType = dataType,
                 //DataTypeId = dataType.ID,

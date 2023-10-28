@@ -8,6 +8,7 @@ using Npgsql;
 
 namespace CESMII.ProfileDesigner.Api.Tests
 {
+    [Trait("SmokeTest", "true")] //trait can be applied at test or test class level
     public class PostgresTableTests : IClassFixture<CustomWebApplicationFactory<Api.Startup>>, IDisposable
     {
         protected readonly CustomWebApplicationFactory<Api.Startup> _factory;
@@ -35,7 +36,7 @@ namespace CESMII.ProfileDesigner.Api.Tests
         /// <param name="strTable"></param>
         /// <param name="expectedCount"></param>
         [Theory]
-        [InlineData("profile", 23)]
+        [InlineData("profile", 27)]
         [InlineData("profile_type_definition", 25)]
         [InlineData("profile_attribute", 44)]
         public void CheckTableColumnCount(string strTable, int expectedCount)

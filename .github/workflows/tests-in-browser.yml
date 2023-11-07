@@ -1,0 +1,262 @@
+# CESMII Profile Designer - Setup and test Profile Designer Web Page using Selenium Tests
+#
+# For more samples to get started with GitHub Action workflows to deploy to Azure, refer to https://github.com/Azure/actions-workflow-samples
+name: Test|In Browser|Profile Designer
+on:
+  #manually trigger deploy
+  workflow_dispatch:
+  # Trigger the workflow on push
+  #push:
+  #  branches:
+  #    - develop
+  #    - main
+  #pull_request:
+  #  branches:
+  #    - develop
+  #    - main
+
+env:
+  # Flags that is set automatically to determine whether we 
+  # are running on Github.com or within nektos/act (on Desktop).
+  ONGITHUB: true
+
+  # Main project path
+  PROFILEDESIGNER_PROJECT_DIRECTORY: './api/CESMII.ProfileDesigner.API/'
+  # Main project file name
+  PROFILEDESIGNER_PROJECT_FILE: 'CESMII.ProfileDesigner.API.csproj'
+  # Main project fqn
+  PROFILEDESIGNER_PROJECT_FQDN: './api/CESMII.ProfileDesigner.API/CESMII.ProfileDesigner.API.csproj'
+  
+
+  # set this to the .NET core version to use
+  NETCORE_VERSION: "6.0.x"
+  # set this to the NODE JS version to use
+  NODEJS_VERSION: "16.17.0"
+  # set this to npm working directory
+  NPM_WORKING_DIRECTORY: 'frontend'
+
+  # # Access to our MongoDB
+  # MONGODB_DATABASE_NAME: "test"
+
+  # MONGODB_LOCAL_CONNECTION: "mongodb://testuser:password@localhost:27017"
+  # MONGODB_BRIDGE_CONNECTION: "mongodb://testuser:password@XX.XX.XX.XX:27017"
+
+  PROFILEDESIGNER_BRIDGE_CONNECTION: "http://XX.XX.XX.XX"
+
+  # # # # # MOUNT_SOURCE_GITHUB: '/home/runner/work/Pr/Marketplace/mongo-data'  
+  # # # # # MOUNT_SOURCE_DESKTOP: 'c:/CESMII.github/Marketplace/mongo-data'
+
+
+jobs:
+  runner-job:
+    runs-on: ubuntu-latest
+    steps:
+    # Automating the setting of a flag that helps resolves
+    # differences between Github Actions on github.com and
+    # using nektos/act on Windows using Docker Desktop.
+    - name: 0__Github - Update ONGITHUB Flag
+      if: github.actor == 'nektos/act'
+      run: echo "ONGITHUB=false" >> $GITHUB_ENV
+
+    - name: 1__ProfileDesigner API - Check out the repo
+      uses: actions/checkout@v3
+      with:
+        submodules: true
+
+    # Create bridge network for communication between containers
+    - name: 2__Docker - Set up networking
+      run: |
+          docker network remove --force mysubnet1 ;
+          docker network create mysubnet1 ;
+
+    # # # # # ############################################################
+    # # # # # # Run one of these two
+    # # # # # # Initialize a Mongo DB database (on Github)
+    # # # # # # Note: the "env" section seems not to work and so the -e switches are necessary
+    # # # # # - name: 3__MongoDB - Create MongoDB Docker container (On Github)
+    # # # # #   if: env.ONGITHUB == 'true'
+    # # # # #   run: docker run -d --name=MyMongoDB -p 27017:27017  --network mysubnet1 -e MONGO_INIT_DATABASE=test -e MONGO_INITDB_ROOT_USERNAME=testuser -e MONGO_INITDB_ROOT_PASSWORD=password --mount src="${{env.MOUNT_SOURCE_GITHUB}}",target=/data,type=bind mongo:6.0
+    # # # # #   env:
+    # # # # #      MONGO_INIT_DATABASE: test 
+    # # # # #      MONGO_INITDB_ROOT_USERNAME: testuser
+    # # # # #      MONGO_INITDB_ROOT_PASSWORD: password
+
+    # # # # # # Initialize a Mongo DB database (on the Desktop)
+    # # # # # - name: 4__MongoDB - Create MongoDB Docker container (On Desktop)
+    # # # # #   if: env.ONGITHUB == 'false'
+    # # # # #   run: docker run -d --name=MyMongoDB -p 27017:27017  --network mysubnet1 -e MONGO_INIT_DATABASE=test -e MONGO_INITDB_ROOT_USERNAME=testuser -e MONGO_INITDB_ROOT_PASSWORD=password --mount src="${{env.MOUNT_SOURCE_DESKTOP}}",target=/data,type=bind mongo:6.0
+    # # # # #   env:
+    # # # # #      MONGO_INIT_DATABASE: test 
+    # # # # #      MONGO_INITDB_ROOT_USERNAME: testuser
+    # # # # #      MONGO_INITDB_ROOT_PASSWORD: password
+    # # # # # ############################################################
+
+    # # # # # - name: 5__MongoDB - Query Bridge Connection to MyMongoDB Container
+    # # # # #   run:
+    # # # # #      export TEMPIPVALUE=$(docker exec -i MyMongoDB hostname -i) ;
+    # # # # #      echo "MONGODB_BRIDGE_CONNECTION=mongodb://testuser:password@$TEMPIPVALUE:27017" >> $GITHUB_ENV
+
+    - name: 3__Database - Start PostgreSQL Service
+      if: env.ONGITHUB == 'true'
+      run: |
+        sudo systemctl start postgresql.service
+        pg_isready
+
+    - name: 4__Database - Create user
+      if: env.ONGITHUB == 'true'
+      run: |
+        sudo -u postgres psql --command="CREATE USER profiledesigner SUPERUSER PASSWORD 'cesmii'" --command="\du"
+
+    - name: 5__Database - List existing databases
+      if: env.ONGITHUB == 'true'
+      run: |
+        sudo -u postgres psql -l
+
+    - name: 6__Database - Create database
+      if: env.ONGITHUB == 'true'
+      run: |
+        sudo -u postgres psql --command="CREATE DATABASE profile_designer_local_test WITH OWNER = profiledesigner TABLESPACE = pg_default CONNECTION LIMIT = -1;"
+
+    - name: 7__Database - Create schema
+      if: env.ONGITHUB == 'true'
+      run: |
+        ls -l ./sql
+        head -5 ./sql/CESMII.ProfileDesigner.DB.sql
+        sudo -u postgres psql -d profile_designer_local_test < ./sql/CESMII.ProfileDesigner.DB.sql
+        #sudo -u postgres psql -d profile_designer_local_test --file ./sql/CESMII.ProfileDesigner.DB.sql
+
+    - name: 8__Database - List existing databases
+      if: env.ONGITHUB == 'true'
+      run: |
+         sudo -u postgres psql -l
+
+    # Putting steps 6, 7 & 8 between "Create mongoDB container" and "Populate mongo database" 
+    # seems to help the mongo container settle down so it can pass its tests
+    - name: 9__ProfileDesigner API - Set up dotnet core ${{ env.NETCORE_VERSION }}
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: ${{ env.NETCORE_VERSION }}
+
+    # Marketplace API
+    - name: 10__ProfileDesigner - Restore dependencies (${{env.PROFILEDESIGNER_PROJECT_FQDN}})
+      run: dotnet restore ${{env.PROFILEDESIGNER_PROJECT_FILE}}
+      working-directory: ${{env.PROFILEDESIGNER_PROJECT_DIRECTORY}}
+
+    # Publish the app and the tests
+    - name: 11__ProfileDesigner - Publish Marketplace Api
+      run: |
+        dotnet publish --framework:net6.0 ${{env.PROFILEDESIGNER_PROJECT_FQDN}} -c Release -o ./publish ;
+        dotnet publish ./DumpAppLog/DumpAppLog.csproj
+
+
+    # Create a Docker Container for Marketplace
+    - name: 12__ProfileDesigner - Build Docker Image CESMII.ProfileDesigner.API
+      run: docker build -f "./api/CESMII.ProfileDesigner.API/Dockerfile" --force-rm -t cesmiimarketplaceapi:dev --target base  --label "com.microsoft.created-by=visual-studio" --label "com.microsoft.visual-studio.project-name=CESMII.ProfileDesigner.API" "./"
+
+    # # # # # # Populate mongo database - 
+    # # # # # - name: 10__MongoDB - Populate mongo database
+    # # # # #   run: docker exec -i MyMongoDB mongoimport  --authenticationDatabase=admin --collection=app_log --file=/data/app_log.json  --uri="${{env.MONGODB_LOCAL_CONNECTION}}" ;
+    # # # # #        docker exec -i MyMongoDB mongoimport  --authenticationDatabase=admin --collection=JobLog --file=/data/JobLog.json  --uri="${{env.MONGODB_LOCAL_CONNECTION}}" ;
+    # # # # #        docker exec -i MyMongoDB mongoimport  --authenticationDatabase=admin --collection=LookupItem --file=/data/LookupItem.json  --uri="${{env.MONGODB_LOCAL_CONNECTION}}" ;
+    # # # # #        docker exec -i MyMongoDB mongoimport  --authenticationDatabase=admin --collection=MarketplaceItem --file=/data/MarketplaceItem.json  --uri="${{env.MONGODB_LOCAL_CONNECTION}}" ;
+    # # # # #        docker exec -i MyMongoDB mongoimport  --authenticationDatabase=admin --collection=MarketplaceItemAnalytics --file=/data/MarketplaceItemAnalytics.json  --uri="${{env.MONGODB_LOCAL_CONNECTION}}" ;
+    # # # # #        docker exec -i MyMongoDB mongoimport  --authenticationDatabase=admin --collection=Organization --file=/data/Organization.json  --uri="${{env.MONGODB_LOCAL_CONNECTION}}" ;
+    # # # # #        docker exec -i MyMongoDB mongoimport  --authenticationDatabase=admin --collection=Permission --file=/data/Permission.json  --uri="${{env.MONGODB_LOCAL_CONNECTION}}" ;
+    # # # # #        docker exec -i MyMongoDB mongoimport  --authenticationDatabase=admin --collection=ProfileItem --file=/data/ProfileItem.json  --uri="${{env.MONGODB_LOCAL_CONNECTION}}" ;
+    # # # # #        docker exec -i MyMongoDB mongoimport  --authenticationDatabase=admin --collection=Publisher --file=/data/Publisher.json  --uri="${{env.MONGODB_LOCAL_CONNECTION}}" ;
+    # # # # #        docker exec -i MyMongoDB mongoimport  --authenticationDatabase=admin --collection=RequestInfo --file=/data/RequestInfo.json  --uri="${{env.MONGODB_LOCAL_CONNECTION}}" ;
+    # # # # #        docker exec -i MyMongoDB mongoimport  --authenticationDatabase=admin --collection=SearchKeyword --file=/data/SearchKeyword.json  --uri="${{env.MONGODB_LOCAL_CONNECTION}}" ;
+
+    # # # # # - name: 11__MongoDB - Test access to Mongo database
+    # # # # #   run: dotnet test ${{env.TEST_MONGO_DIRECTORY}}${{env.TEST_MONGO_FILE}}
+    # # # # #   env:
+    # # # # #      MARKETPLACE_MONGODB_CONNECTIONSTRING: ${{env.MONGODB_LOCAL_CONNECTION}}
+    # # # # #      MARKETPLACE_MONGODB_DATABASE: ${{env.MONGODB_DATABASE_NAME}}
+
+    ############################################################
+    # Run one of these two
+    # Start Marketplace Container (On Github)
+    - name: 13__ProfileDesigner - Start the Container (On Github)
+      if: env.ONGITHUB == 'true'
+      run: |
+           docker run -dt --name CESMII.ProfileDesigner.API --network mysubnet1 -v "/home/runner/work/ProfileDesigner/ProfileDesigner/api/CESMII.ProfileDesigner.API:/app" -v "/home/runner/work/Marketplace/Marketplace:/src/" -e "ASPNETCORE_LOGGING__CONSOLE__DISABLECOLORS=true" -e "ASPNETCORE_ENVIRONMENT=Development" -e "DOTNET_USE_POLLING_FILE_WATCHER=1" -e "EnableCloudLibSearch=false" -e "ASPNETCORE_URLS=http://+:80" -e "PROFILEDESIGNER_GITHUB_WORKFLOW_COMMANDS=true" -e "MARKETPLACE_MONGODB_CONNECTIONSTRING=${{env.MONGODB_BRIDGE_CONNECTION}}" -e "MARKETPLACE_MONGODB_DATABASE=test" -p 5000:80  --entrypoint tail cesmiimarketplaceapi:dev -f /dev/null
+
+    # Start Marketplace Container (On Desktop)
+    - name: 14__ProfileDesigner - Start the Container (On Desktop)
+      if: env.ONGITHUB == 'false'
+      run: |
+           docker run -dt --name CESMII.ProfileDesigner.API --network mysubnet1 -v "C:\Users\paul\AppData\Roaming\Microsoft\UserSecrets:/root/.microsoft/usersecrets:ro" -v "C:\Users\paul\AppData\Roaming\ASP.NET\Https:/root/.aspnet/https:ro" -v "C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Sdks\Microsoft.Docker.Sdk\tools\TokenService.Proxy\linux-x64\net6.0:/TokenService.Proxy:ro" -v "C:\CESMII.github\Marketplace\api\CESMII.ProfileDesigner.API:/app" -v "C:\CESMII.github\Marketplace:/src/" -v "C:\Users\paul\.nuget\packages\:/root/.nuget/fallbackpackages" -e "ASPNETCORE_LOGGING__CONSOLE__DISABLECOLORS=true" -e "ASPNETCORE_ENVIRONMENT=Development" -e "ASPNETCORE_URLS=http://+:80" -e "DOTNET_USE_POLLING_FILE_WATCHER=1" -e "NUGET_PACKAGES=/root/.nuget/fallbackpackages" -e "NUGET_FALLBACK_PACKAGES=/root/.nuget/fallbackpackages" -e "EnableCloudLibSearch=false" -e "MARKETPLACE_GITHUB_WORKFLOW_COMMANDS=true" -e "MARKETPLACE_MONGODB_CONNECTIONSTRING=${{env.MONGODB_BRIDGE_CONNECTION}}" -e "MARKETPLACE_MONGODB_DATABASE=test" -p 5000:80 --entrypoint tail cesmiimarketplaceapi:dev -f /dev/null
+
+    - name: 15__ProfileDesigner - Query Bridge Connection to CESMII.ProfileDesigner.API Container
+      run:
+         export TEMPIPVALUE=$(docker exec -i CESMII.ProfileDesigner.API hostname -i) ;
+         echo "PROFILEDESIGNER_BRIDGE_CONNECTION=http://$TEMPIPVALUE" >> $GITHUB_ENV
+    ############################################################
+
+
+    ############################################################
+    # Run one of these two
+    # Start the Main Dll in the Container (On Github)
+    ##  Github can accommodate "docker exec -i.... & ", ampersand at the end!!!)
+    ##  In Windows, docker exec -id works better
+    - name: 16__ProfileDesigner - Start the Main Dll in the Container (Github)
+      if: env.ONGITHUB == 'true'
+      run: |
+        docker exec -di CESMII.ProfileDesigner.API dotnet /src/publish/CESMII.ProfileDesigner.API.dll
+    
+    # Start the Main Dll in the Container (On the Desktop)
+    - name: 17__ProfileDesigner - Start the Main Dll in the Container (Desktop)
+      if: env.ONGITHUB == 'false'
+      run: |
+        docker exec -di CESMII.ProfileDesigner.API dotnet /src/publish/CESMII.ProfileDesigner.API.dll
+    ############################################################
+
+
+    # Testing -- Call into Marketplace Rest Api from runner
+    - name: 18__ProfileDesigner - Rest API Basic Test
+      if: always()
+      run: dotnet test -e "PROFILEDESIGNER_URL1=http://localhost:5000/api" ./api/Tests/CESMII.ProfileDesigner.Tests.RestApi/CESMII.ProfileDesigner.Tests.RestApi.csproj
+
+    - name: 19__NodeJS - Create and Start Docker Container for frontend
+      run: |
+        docker build . -t cesmii-marketplace/node-web-app
+        docker run -d --name=MyNodeJS -p 3000:3000 --network mysubnet1  -e "REACT_APP_BASE_API_URL=${{env.PROFILEDESIGNER_BRIDGE_CONNECTION}}/api" cesmii-marketplace/node-web-app npm run-script start-in-browser-test
+      working-directory: ./frontend
+
+    - name: 20__NodeJS - Query Bridge Connection to NodeJS (FrontEnd)
+      run:
+         export TEMPIPVALUE=$(docker exec -i MyNodeJS hostname -i) ;
+         echo "NODEJS_BRIDGE_CONNECTION=http://$TEMPIPVALUE" >> $GITHUB_ENV
+
+    ############################################################
+    # Run one of these two
+    - name: 21__Docker - Create container for selenium (Github)
+      if: env.ONGITHUB == 'true'
+      run: |
+         docker run -d --name=MySelenium --network mysubnet1 --mount src="/home/runner/work/Marketplace/Marketplace",target=/src,type=bind -p 4444:4444 selenium/standalone-chrome
+
+    - name: 22__Docker - Create container for selenium (Desktop)
+      if: env.ONGITHUB == 'false'
+      run: |
+         docker run -d --name=MySelenium --network mysubnet1 --mount src="C:/CESMII.github/Marketplace",target=/src,type=bind -p 4444:4444 selenium/standalone-chrome
+    ############################################################
+
+    - name: 23__Selenium - Dotnet SDK Prerequisites
+      run:
+        docker exec -i MySelenium sudo wget https://packages.microsoft.com/config/debian/12/packages-microsoft-prod.deb -O packages-microsoft-prod.deb ;
+        docker exec -i MySelenium sudo dpkg -i packages-microsoft-prod.deb ;
+        docker exec -i MySelenium sudo rm packages-microsoft-prod.deb
+
+    - name: 24__Selenium - Dotnet SDK 6.0 Installation
+      run:
+        docker exec -i MySelenium sudo apt-get update ;
+        docker exec -i MySelenium sudo apt-get install -y dotnet-sdk-6.0
+
+    - name: 25__In-Browser Testing - Integrity of Marketplace Web Page
+      run: |
+          docker exec -i MySelenium sudo dotnet test -e NODEJS=${{env.NODEJS_BRIDGE_CONNECTION}} /src/api/Tests/CESMII.MP.Tests.InBrowser.WebPages/CESMII.MP.Tests.InBrowser.WebPages.csproj
+
+    - name: 26__In-Browser Testing - Library Searches
+      run: |
+          docker exec -i MySelenium sudo dotnet test -e NODEJS=${{env.NODEJS_BRIDGE_CONNECTION}} /src/api/Tests/CESMII.MP.Tests.InBrowser.LibrarySearch/CESMII.MP.Tests.InBrowser.LibrarySearch.csproj
+

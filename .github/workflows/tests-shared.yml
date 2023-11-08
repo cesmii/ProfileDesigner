@@ -59,6 +59,9 @@ jobs:
       - name: Create additional user
         run: |
           sudo -u postgres psql --command="CREATE USER profiledesigner SUPERUSER PASSWORD 'cesmii'" --command="\du"
+      - name: What version of Postgres?
+        run: |
+          sudo -u postgres psql --version
       - name: List existing databases
         run: |
           sudo -u postgres psql -l

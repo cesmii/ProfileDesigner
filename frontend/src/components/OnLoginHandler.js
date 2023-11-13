@@ -369,7 +369,7 @@ export const handleMSALEvent = (message, setLoadingProps) => {
                 //refresh token from the server. 
                 //break the cycle by forcing a logout, then starting fresh.
                 if (message.interactionType === InteractionType.Silent) {
-                    await forceLogout(instance);
+                    forceLogout(instance);
                     instance.loginRedirect(loginRequest);
                 }
                 else {
@@ -626,7 +626,7 @@ export const doLogout = (history, instance, redirectUrl = `/login`, silent = tru
 // Region: doLogout
 //-------------------------------------------------------------------
 export const forceLogout = (instance) => {
-    await instance.logoutRedirect({
+    instance.logoutRedirect({
         onRedirectNavigate: (url) => {
             return false;
         }

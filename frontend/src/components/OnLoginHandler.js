@@ -370,7 +370,7 @@ export const handleMSALEvent = (message, setLoadingProps) => {
                 //break the cycle by forcing a logout, then starting fresh.
                 if (message.interactionType === InteractionType.Silent) {
                     forceLogout(instance);
-                    instance.loginRedirect(loginRequest);
+                    //instance.loginRedirect(loginRequest);
                 }
                 else {
                     instance.acquireTokenRedirect(loginRequest);

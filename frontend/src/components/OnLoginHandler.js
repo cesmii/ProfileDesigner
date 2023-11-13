@@ -361,8 +361,21 @@ export const handleMSALEvent = (message, setLoadingProps) => {
                     prompt: 'select_account'  //always present the account selection - even if already logged in cached.
                 };
 
-                Msal_Instance.acquireTokenRedirect(loginRequest);
                 console.error(generateLogMessageString(`handleMSALEvent||${message.eventType}||${message.error}`, CLASS_NAME));
+
+                //if it is a token failure AND the interaction mode is silent, it will go into a 
+                //loop of trying to login, failing, trying to login, failing, etc. 
+                //it seems to happen when the access token expires and then the site cannot get a 
+                //refresh token from the server. 
+                //break the cycle by forcing a logout, then starting fresh.
+                if (message.interactionType === InteractionType.Silent) {
+                    forceLogout(instance);
+                    //instance.loginRedirect(loginRequest);
+                }
+                else {
+                    instance.acquireTokenRedirect(loginRequest);
+                }
+
             }
             else {
                 handleLoginError(message.error, setLoadingProps);

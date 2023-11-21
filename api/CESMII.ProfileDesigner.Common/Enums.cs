@@ -27,7 +27,9 @@
         Property = 5,
         DataVariable = 6,
         StructureField = 7,
-        EnumField = 8
+        EnumField = 8,
+        MethodInputArgument = 9,
+        MethodOutputArgument = 10,
     }
 
     public enum TaskStatusEnum

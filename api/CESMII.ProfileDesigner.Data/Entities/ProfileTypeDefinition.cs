@@ -50,6 +50,12 @@
         [Column(name: "description")]
         public string Description { get; set; }
 
+        [Column(name: "release_status")]
+        public string ReleaseStatus { get; set; }
+        [Column(name: "event_notifier")]
+        public byte? EventNotifier { get; set; }
+
+
         /// <remarks>
         /// This is equivalent to super in the nodeset.
         /// </remarks>

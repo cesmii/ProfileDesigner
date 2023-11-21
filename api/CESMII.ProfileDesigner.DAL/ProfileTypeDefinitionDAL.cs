@@ -543,6 +543,8 @@
                         SymbolicName = i.Interface.SymbolicName,
                         AuthorId = 99,  //just populate with some value for now to prevent model state errors on save. 
                         Description = i.Interface.Description,
+                        ReleaseStatus = i.Interface.ReleaseStatus,
+                        EventNotifier = i.Interface.EventNotifier,
                         DocumentUrl = i.Interface.DocumentUrl,
                         TypeId = i.Interface.ProfileTypeId,
                         Type = new LookupItemModel { ID = i.Interface.ProfileType?.ID, Name = i.Interface.ProfileType?.Name },
@@ -678,6 +680,8 @@
             entity.SymbolicName = model.SymbolicName;
             entity.ProfileTypeId = model.TypeId;
             entity.Description = model.Description;
+            entity.ReleaseStatus = model.ReleaseStatus;
+            entity.EventNotifier = model.EventNotifier;
             entity.DocumentUrl = model.DocumentUrl;
             entity.IsAbstract = model.IsAbstract;
             entity.Updated = DateTime.UtcNow;

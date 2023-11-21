@@ -134,6 +134,7 @@
             }
         }
 
+        public string HeaderComment { get; set; }
     }
 
     public class AdditionalProperty
@@ -163,6 +164,7 @@
                 PublishDate = profile.PublishDate,
                 Version = profile.Version,
                 XmlSchemaUri = profile.XmlSchemaUri,
+                HeaderComment = profile.HeaderComment,
                 AuthorId = profile.AuthorId,
                 NodeSetFiles = profile.NodeSetFiles,
                 HasLocalProfile = true,

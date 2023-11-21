@@ -176,7 +176,17 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
                     if (composition.Type.ID == (int)ProfileItemTypeEnum.Method)
                     {
                         var uaMethod = MethodModelFromProfileFactory.Create(composition, profileItem, opcContext, dalContext);
-                        _model.Methods.Add(uaMethod);
+                        if (uaMethod != null)
+                        {
+                            if (!_model.Methods.Contains(uaMethod))
+                            {
+                                _model.Methods.Add(uaMethod);
+                            }
+                        }
+                        else
+                        {
+
+                        }
                     }
                     else if (composition.RelatedIsEvent == true)
                     {
@@ -207,7 +217,10 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
                             }
                             if (string.IsNullOrEmpty(composition.RelatedReferenceId))
                             {
-                                _model.Objects.Add(uaObjectModel);
+                                if (!_model.Objects.Contains(uaObjectModel))
+                                {
+                                    _model.Objects.Add(uaObjectModel);
+                                }
                             }
                         }
                         else
@@ -219,7 +232,12 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
                         }
                         if (!string.IsNullOrEmpty(composition.RelatedReferenceId))
                         {
-                            var referenceType = new ReferenceTypeModel { NodeId = composition.RelatedReferenceId, }; //opcContext.GetModelForNode<ReferenceTypeModel>(composition.RelatedReferenceId);
+                            var referenceType = opcContext.GetModelForNode<NodeModel>(composition.RelatedReferenceId);
+                            if (referenceType == null)
+                            {
+                                var refTypeNamespace = composition.RelatedReferenceId.Split(new[] { ';' }, 2)[0].Substring("nsu=".Length);
+                                referenceType = new ReferenceTypeModel { NodeSet = opcContext.NodeSetModels[refTypeNamespace], NodeId = composition.RelatedReferenceId, }; //opcContext.GetModelForNode<ReferenceTypeModel>(composition.RelatedReferenceId);
+                            }
                             if (composition.RelatedReferenceIsInverse != true)
                             {
                                 AddIfNotExists(_model.OtherReferencedNodes, new NodeModel.NodeAndReference { Node = nodeModel, /*Reference = composition.RelatedReferenceId, */ReferenceType = referenceType });
@@ -303,6 +321,11 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
                         enumeration.EnumFields = new List<DataTypeModel.UaEnumField>();
                     }
                     enumeration.EnumFields.Add(field);
+                }
+                else if (attribute.AttributeType?.ID == (int)AttributeTypeIdEnum.MethodInputArgument
+                    || attribute.AttributeType?.ID == (int)AttributeTypeIdEnum.MethodOutputArgument)
+                {
+                    // Will be processed in Method factory
                 }
                 else
                 {
@@ -403,6 +426,10 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
             var modelingRule = GetModelingRuleFromProfile(objectTypeRelated.IsRequired, objectTypeRelated.ModelingRule);
             if (string.IsNullOrEmpty(objectTypeRelated.OpcNodeId))
             {
+                if (objectOrTypeModel is ObjectModel objectModel)
+                {
+                    objectModel.EventNotifier = objectProfile.EventNotifier;
+                }
                 if (objectOrTypeModel is InstanceModelBase instanceModel)
                 {
                     instanceModel.ModellingRule = modelingRule;
@@ -415,15 +442,12 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
                 // In the profile designer we allow composition directly with a class: create the intermediate OPC Object required
                 try
                 {
-                    var objectModel = NodeModelFactoryOpc<NodeModel>.Create<ObjectModel>(opcContext, GetProfileItemNodeId(objectTypeRelated), GetModelForProfile(objectTypeRelated.Profile ?? composingProfile.Profile), objectTypeRelated.Profile, out var created);
-                    if (created)
-                    {
-                        objectModel.DisplayName = NodeModel.LocalizedText.ListFromText(objectTypeRelated.Name);
-                        objectModel.SymbolicName = objectTypeRelated.SymbolicName;
-                        objectModel.BrowseName = objectTypeRelated.BrowseName;
-                        objectModel.TypeDefinition = objectTypeModel;
-                        objectModel.ModellingRule = modelingRule;
-                    }
+                    var objectModel = NodeModelFactoryOpc<NodeModel>.Create<ObjectModel>(opcContext, GetProfileItemNodeId(objectTypeRelated), GetModelForProfile(objectTypeRelated.Profile ?? composingProfile.Profile), objectTypeRelated.Profile, out var objectCreated);
+                    objectModel.DisplayName = NodeModel.LocalizedText.ListFromText(objectTypeRelated.Name);
+                    objectModel.SymbolicName = objectTypeRelated.SymbolicName;
+                    objectModel.BrowseName = objectTypeRelated.BrowseName;
+                    objectModel.TypeDefinition = objectTypeModel;
+                    objectModel.ModellingRule = modelingRule;
                     return objectModel;
                 }
                 catch (Exception ex)
@@ -585,7 +609,9 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
                             : NodeModelFactoryOpc.Create<DataVariableModel>(opcContext, mapEntry.NodeId, variableProfile, profile, out dvCreated);
                     if (dvCreated)
                     {
-                        dataVariable.DataType = typeDataVariable.DataType;
+                        dataVariable.DataType = mapEntry.DataTypeNodeId != null ?
+                            NodeModelFactoryOpc.Create<DataTypeModel>(opcContext, mapEntry.DataTypeNodeId, variableProfile, profile, out _)
+                            : typeDataVariable.DataType;
                         dataVariable.BrowseName = typeDataVariable.BrowseName;
                         //dataVariable.CustomState = typeDataVariable.CustomState;
                         dataVariable.ArrayDimensions = mapEntry.ArrayDimensions;
@@ -639,6 +665,48 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
             var nodeModel = ObjectModelFromProfileFactory.Create(methodRelated, composingProfile, opcContext, dalContext);
             if (nodeModel is MethodModel methodModel)
             {
+                var methodAttributes = methodRelated?.RelatedProfileTypeDefinition?.Attributes;
+                if (methodAttributes?.Any() != true)
+                {
+                    methodAttributes = dalContext.GetProfileItemById(methodRelated.RelatedProfileTypeDefinition.ID)?.Attributes;
+                }
+                if (methodAttributes?.Any() == true && methodModel.InputArguments == null && methodModel.OutputArguments == null)
+                {
+                    foreach (var attr in methodAttributes.OrderBy(m => m.EnumValue).ToList()) // EnumValue captures the argument order
+                    {
+                        var inputArg = new VariableModel
+                        {
+                            NodeSet = methodModel.NodeSet,
+                            NodeId = attr.OpcNodeId,
+                            ArrayDimensions = attr.ArrayDimensions,
+                            BrowseName = attr.BrowseName,
+                            DataType = DataTypeModelFromProfileFactory.GetDataTypeModel(attr, opcContext, dalContext),
+                            Description = NodeModel.LocalizedText.ListFromText(attr.Description),
+                            DisplayName = NodeModel.LocalizedText.ListFromText(attr.DisplayName),
+                            ModellingRule = attr.ModelingRule,
+                            SymbolicName = attr.SymbolicName,
+                            Value = attr.AdditionalData,
+                            ValueRank = attr.ValueRank,
+                        };
+                        if (attr.AttributeType.ID == (int)AttributeTypeIdEnum.MethodInputArgument)
+                        {
+                            if (methodModel.InputArguments == null)
+                            {
+                                methodModel.InputArguments = new List<VariableModel>();
+                            }
+                            methodModel.InputArguments.Add(inputArg);
+                        }
+                        else if (attr.AttributeType.ID == (int)AttributeTypeIdEnum.MethodOutputArgument)
+                        {
+                            if (methodModel.OutputArguments == null)
+                            {
+                                methodModel.OutputArguments = new List<VariableModel>();
+                            }
+                            methodModel.OutputArguments.Add(inputArg);
+                        }
+
+                    }
+                }
                 return methodModel;
             }
             else

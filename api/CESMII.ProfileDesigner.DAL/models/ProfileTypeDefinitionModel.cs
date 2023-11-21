@@ -150,6 +150,9 @@
             }
         }
 
+        public byte? EventNotifier { get; set; }
+        public string ReleaseStatus { get; set; }
+
         public override string ToString()
         {
             return $"{Name} ({Profile?.Namespace};{OpcNodeId})";

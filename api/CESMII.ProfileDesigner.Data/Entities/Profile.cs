@@ -18,6 +18,9 @@
         [Column(name: "xml_schema_uri")]
         public string XmlSchemaUri { get; set; }
 
+        [Column(name: "header_comment")]
+        public string HeaderComment { get; set; }
+
         [Column(name: "cloud_library_id")]
         public string CloudLibraryId { get; set; }
         [Column(name: "cloud_library_pending_approval")]

@@ -53,6 +53,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
                 ExternalAuthor = "<nodeset author tbd>", // TODO fill in nodeset author information
                 MetaTags = _model.Categories?.Any() == true ? new List<string>(_model.Categories) : null,
                 DocumentUrl = this._model.Documentation,
+                ReleaseStatus = _model.ReleaseStatus,
             };
             existingProfileItem = dalContext.CheckExisting(profileItem);
             if (existingProfileItem != null)
@@ -344,6 +345,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
         {
             profileItem.TypeId = (int)ProfileItemTypeEnum.Object;
             base.UpdateProfileItem(profileItem, dalContext);
+            profileItem.EventNotifier = _model.EventNotifier;
             if (profileItem.TypeId != (int)ProfileItemTypeEnum.Object)
             {
                 throw new Exception();
@@ -537,6 +539,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
                         Value = dataVariable.Value,
                         ValueRank = dataVariable.ValueRank,
                         ArrayDimensions = dataVariable.ArrayDimensions,
+                        DataTypeNodeId = dataVariable.DataType?.NodeId,
                         Map = GetDataVariableNodeIds(dataVariable, dataVariable.TypeDefinition)
                     };
                     dataVariableNodeIdMap.DataVariableNodeIdsByBrowseName.Add(dataVariable.BrowseName, map);
@@ -558,6 +561,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
         public int? ValueRank { get; set; }
         public string ArrayDimensions { get; set; }
         public string Value { get; set; }
+        public string DataTypeNodeId { get; set; }
         public DataVariableNodeIdMap Map { get; set; }
     }
     public class DataVariableNodeIdMap
@@ -594,6 +598,44 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
             if (profileItem.TypeId != (int)ProfileItemTypeEnum.Method)
             {
                 throw new Exception();
+            }
+            AddMethodArguments(profileItem, _model.InputArguments, AttributeTypeIdEnum.MethodInputArgument, dalContext);
+            AddMethodArguments(profileItem, _model.OutputArguments, AttributeTypeIdEnum.MethodOutputArgument, dalContext);
+        }
+
+        private static void AddMethodArguments(ProfileTypeDefinitionModel profileItem, List<VariableModel> modelArguments, AttributeTypeIdEnum attributeType, IDALContext dalContext)
+        {
+            if (modelArguments != null)
+            {
+                int argumentOrder = 0;
+                foreach (var arg in modelArguments)
+                {
+                    var argAttribute = new ProfileAttributeModel
+                    {
+                        AttributeType = new LookupItemModel { ID = (int)attributeType },
+                        Name = arg.DisplayName?.FirstOrDefault()?.Text,
+                        BrowseName = arg.BrowseName,
+                        ArrayDimensions = arg.ArrayDimensions,
+                        DataType = arg.DataType.GetAttributeDataType(profileItem, dalContext),
+                        Description = arg.Description?.FirstOrDefault()?.Text,
+                        IsActive = true,
+                        IsRequired = ObjectModelImportProfile.GetModelingRuleForProfile(arg.ModellingRule),
+                        ModelingRule = arg.ModellingRule,
+                        TypeDefinition = profileItem,
+                        SymbolicName = arg.SymbolicName,
+                        OpcNodeId = arg.NodeId,
+                        ValueRank = arg.ValueRank,
+                        AdditionalData = arg.Value,
+                        EnumValue = argumentOrder, 
+                    };
+                    if (profileItem.Attributes == null)
+                    {
+                        profileItem.Attributes = new List<ProfileAttributeModel>();
+                    }
+
+                    profileItem.Attributes.Add(argAttribute);
+                    argumentOrder++;
+                }
             }
         }
     }
@@ -709,8 +751,8 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
         {
             var bUpdated = base.OnProfileItemCreated(profileItem, dalContext);
 
-
-            var isNumeric = _model.HasBaseType("nsu=http://opcfoundation.org/UA/;i=26");
+            var isNumeric = _model.HasBaseType($"{Namespaces.OpcUa};{DataTypeIds.Number}");
+            bool isJsonScalar = _model.IsJsonScalar();
 
             var dataTypeLookup = dalContext.GetCustomDataTypeAsync(profileItem, true).Result;
             if (dataTypeLookup == null)
@@ -732,6 +774,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
             dataTypeLookup.UseEngUnit = isNumeric;
             dataTypeLookup.UseMinMax = isNumeric;
             dataTypeLookup.IsNumeric = isNumeric;
+            dataTypeLookup.IsJsonScalar = isJsonScalar;
             //For standard (UA, UA/DI), AuthorId is null.
             //For standard imported by owner (UA/Robotics), AuthorId has value and we use this to keep the separation by owner.
             //For custom (myNodeset), AuthorId has value and we use this to keep the separation by owner.

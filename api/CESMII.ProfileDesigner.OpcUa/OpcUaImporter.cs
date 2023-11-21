@@ -101,7 +101,6 @@ namespace CESMII.ProfileDesigner.OpcUa
         private readonly IUANodeSetResolverWithPending _cloudLibResolver;
         private readonly IDal<NodeSetFile, NodeSetFileModel> _nodeSetFileDal;
         private readonly UANodeSetDBCache _nodeSetCache;
-        readonly Dictionary<string, string> Aliases = new();
 
 
         public async Task<List<WarningsByNodeSet>> ImportUaNodeSets(List<ImportOPCModel> nodeSetXmlList, UserToken userToken, Func<string, TaskStatusEnum, Task> logToImportLog, int logId, bool allowMultiVersion, bool upgradePreviousVersions)
@@ -372,6 +371,7 @@ namespace CESMII.ProfileDesigner.OpcUa
                 {
                     profile.XmlSchemaUri = xmlSchemaUri;
                 }
+                profile.HeaderComment = tModel.HeaderComment;
                 profile.AuthorId = nsModel.AuthorId;
             }
 
@@ -448,7 +448,7 @@ namespace CESMII.ProfileDesigner.OpcUa
                 //throw new Exception(message);
             }
 
-            return NodeModelFactoryOpc.LoadNodeSetAsync(opcContext, nodeSet, profile, this.Aliases, doNotReimport);
+            return NodeModelFactoryOpc.LoadNodeSetAsync(opcContext, nodeSet, profile, null, doNotReimport);
         }
 
         public static readonly ImmutableList<string> _coreNodeSetUris = ImmutableList<string>.Empty.AddRange(new[] { strOpcNamespaceUri, strOpcDiNamespaceUri });
@@ -574,14 +574,14 @@ namespace CESMII.ProfileDesigner.OpcUa
                             //TODO - this next line is time consuming, but still faster than loading from database.
                             this.LoadNodeSetAsync(dalOpcContext, nodeSet, opcProfile, true).Wait();
                         }
-                        else
-                        {
-                            // For core nodeset testing, populate the aliases (for easier diffing) but load the actual nodes from profile database
-                            foreach (var alias in nodeSet.Aliases)
-                            {
-                                this.Aliases.TryAdd(alias.Value, alias.Alias);
-                            }
-                        }
+                        //else
+                        //{
+                        //    // For core nodeset testing, populate the aliases (for easier diffing) but load the actual nodes from profile database
+                        //    foreach (var alias in nodeSet.Aliases)
+                        //    {
+                        //        this.Aliases.TryAdd(alias.Value, alias.Alias);
+                        //    }
+                        //}
                     }
                 }
                 catch (Exception ex)
@@ -591,7 +591,7 @@ namespace CESMII.ProfileDesigner.OpcUa
             }
 
             // populate the model being exported with proper version and publication date
-            dalOpcContext.GetOrAddNodesetModel(
+            var nodeSetModel = dalOpcContext.GetOrAddNodesetModel(
                 new ModelTableEntry
                 {
                     ModelUri = profileModel.Namespace,
@@ -612,6 +612,8 @@ namespace CESMII.ProfileDesigner.OpcUa
 
             // Export the nodesets
             UANodeSet exportedNodeSet = null;
+            string exportedNodeSetXml = null;
+
             var modelsToExport = nodeSetModels.Values.Where(model =>
                 ((ProfileModel)model.CustomState).Namespace == profileModel.Namespace
                 && ((ProfileModel)model.CustomState).PublishDate == profileModel.PublishDate).ToList();
@@ -633,30 +635,12 @@ namespace CESMII.ProfileDesigner.OpcUa
                     
                 }
 #else
-                model.UpdateNamespaceMetaData(nodeSetModels[Namespaces.OpcUa]);
-                model.UpdateEncodings(nodeSetModels[Namespaces.OpcUa]);
+                model.UpdateNamespaceMetaData(dalOpcContext, false);
+                model.UpdateEncodings(dalOpcContext);
+                model.UpdateAllMethodArgumentVariables(dalOpcContext);
                 model.UpdateIndices();
 #endif
-                exportedNodeSet = UANodeSetModelExporter.ExportNodeSet(model, nodeSetModels, this.Aliases);
-            }
-            // .Net6 changed the default to no-identation: https://github.com/dotnet/runtime/issues/64885
-            string exportedNodeSetXml;
-            using (MemoryStream ms = new())
-            {
-                using (StreamWriter writer = new(ms, Encoding.UTF8))
-                {
-                    try
-                    {
-                        var xmlWriter = XmlWriter.Create(writer, new XmlWriterSettings { Indent = true, });
-                        XmlSerializer serializer = new XmlSerializer(typeof(UANodeSet));
-                        serializer.Serialize(xmlWriter, exportedNodeSet);
-                    }
-                    finally
-                    {
-                        writer.Flush();
-                    }
-                }
-                exportedNodeSetXml = Encoding.UTF8.GetString(ms.ToArray());
+                (exportedNodeSetXml, exportedNodeSet) = UANodeSetModelExporter.ExportNodeSetAsXmlAndNodeSet(model, nodeSetModels, this.Logger, encodeJsonScalarsAsValue: true);
             }
             return (exportedNodeSet, exportedNodeSetXml, modelsToExport.FirstOrDefault(), nodeSetModels);
         }
@@ -690,6 +674,10 @@ namespace CESMII.ProfileDesigner.OpcUa
             foreach (var uaObject in nodesetModel.Objects)
             {
                 uaObject.ImportProfileItem(dalContext);
+            }
+            foreach (var uaMethod in nodesetModel.Methods)
+            {
+                uaMethod.ImportProfileItem(dalContext);
             }
 
             foreach (var uaVariable in nodesetModel.DataVariables)

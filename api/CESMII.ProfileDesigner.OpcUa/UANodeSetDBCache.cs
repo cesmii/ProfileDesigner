@@ -6,6 +6,7 @@
  */
 using CESMII.OpcUa.NodeSetImporter;
 using CESMII.OpcUa.NodeSetModel;
+using CESMII.OpcUa.NodeSetModel.Factory.Opc;
 using CESMII.OpcUa.NodeSetModel.Opc.Extensions;
 using CESMII.ProfileDesigner.DAL;
 using CESMII.ProfileDesigner.DAL.Models;
@@ -108,9 +109,10 @@ namespace CESMII.ProfileDesigner.Opc.Ua.NodeSetDBCache
                 using (var nodeSetStream = new MemoryStream(Encoding.UTF8.GetBytes(fileCachepatched)))
                 {
                     UANodeSet nodeSet = UANodeSet.Read(nodeSetStream);
+                    var headerComment = NodeModelUtils.ReadHeaderComment(fileCachepatched);
                     foreach (var ns in nodeSet.Models)
                     {
-                        added |= results.AddModelAndDependencies(nodeSet, ns, null, false, _logger).Added;
+                        added |= results.AddModelAndDependencies(nodeSet, headerComment, ns, null, false, _logger).Added;
                         foreach (var model in results.Models)
                         {
                             if (model.NameVersion.CCacheId == null)
@@ -193,6 +195,7 @@ namespace CESMII.ProfileDesigner.Opc.Ua.NodeSetDBCache
             {
                 nodeSet = UANodeSet.Read(nodesetBytes);
             }
+            var headerComment = NodeModelUtils.ReadHeaderComment(nodeSetXmlPatched);
 
             if (nodeSet.Models?.Any() != true)
             {
@@ -270,7 +273,7 @@ namespace CESMII.ProfileDesigner.Opc.Ua.NodeSetDBCache
                     // Defer the updates to the import transaction
                     WasNewSet = true;
                 }
-                var addModelResult = results.AddModelAndDependencies(nodeSet, ns, null, WasNewSet, _logger);
+                var addModelResult = results.AddModelAndDependencies(nodeSet, headerComment, ns, null, WasNewSet, _logger);
                 var tModel = addModelResult.Model;
                 tModel.RequestedForThisImport = requested;
                 if (tModel?.NameVersion != null && myModel != null)

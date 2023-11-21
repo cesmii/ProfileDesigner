@@ -122,8 +122,8 @@ export function CloudLibraryImporter(props) {
                     //,inlineMessages: [{ id: new Date().getTime(), severity: "danger", body: e.response.data ? e.response.data : `An error occurred saving the imported profile.`, isTimed: false, isImporting: false }]
                 });
                 setError({ show: true, caption: 'Import Error', message: e.response && e.response.data ? e.response.data : `A system error has occurred during the profile import. Please contact your system administrator.` });
-                console.log(generateLogMessageString('handleOnSave||saveFile||' + JSON.stringify(e), CLASS_NAME, 'error'));
-                console.log(e);
+                console.error(generateLogMessageString('handleOnSave||saveFile||' + JSON.stringify(e), CLASS_NAME, 'error'));
+                console.error(e);
             }
         })
 
@@ -135,6 +135,8 @@ export function CloudLibraryImporter(props) {
     const onErrorModalClose = () => {
         //console.log(generateLogMessageString(`onErrorMessageOK`, CLASS_NAME));
         setError({ show: false, caption: null, message: null });
+        //bubble up to parent so they can update state of imported items after failed attempt
+        if (props.onImportFailed) props.onImportFailed();
     }
 
     //-------------------------------------------------------------------

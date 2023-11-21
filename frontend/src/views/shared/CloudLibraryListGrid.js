@@ -120,6 +120,12 @@ function CloudLibraryListGrid(props) {
         if (props.onImportStarted) props.onImportStarted(importLogId);
     }
 
+    const onImportFailed = () => {
+        console.log(generateLogMessageString(`onImportFailed`, CLASS_NAME));
+        setCloudLibImportItems([]);
+        if (props.onImportFailed) props.onImportFailed();
+    }
+
     const onImportSelectedClick = () => {
         console.log(generateLogMessageString(`onImportSelectedClick`, CLASS_NAME));
         setImportConfirmModal({ show: true, items: _selectedCloudProfiles });
@@ -271,7 +277,7 @@ function CloudLibraryListGrid(props) {
                         <ErrorModal modalData={_error} callback={onErrorModalClose} />
                     */}
                     {_cloudLibImportItems.length > 0 &&
-                        <CloudLibraryImporter onImportStarted={onImportStarted} items={_cloudLibImportItems} bypassConfirmation={true} />
+                        <CloudLibraryImporter onImportStarted={onImportStarted} onImportFailed={onImportFailed} items={_cloudLibImportItems} bypassConfirmation={true} />
                     }
                 </div>
             </div>

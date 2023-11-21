@@ -69,7 +69,7 @@
         public DateTime? LastLogin { get; set; }
 
         public OrganizationModel Organization { get; set; }
-        public string? SelfServiceSignUp_Organization_Name { get; set; }
+        public string SelfServiceSignUp_Organization_Name { get; set; }
 
         public bool? SelfServiceSignUp_IsCesmiiMember { get; set; }
 

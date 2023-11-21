@@ -39,7 +39,7 @@
         /// we synch up the organization information (organization_id, etc.)
         /// </summary>
         [Column(name: "sssu_organization")]
-        public string? Oranization_Name { get; set; }
+        public string Oranization_Name { get; set; }
         [Column(name: "sssu_cesmii_member")]
         public bool? CesmiiMember { get; set; }
         public virtual Organization Organization { get; set; }

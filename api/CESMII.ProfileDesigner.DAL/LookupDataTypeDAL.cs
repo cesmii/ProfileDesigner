@@ -161,6 +161,7 @@
                     Name = entity.Name,
                     Code = entity.Code,
                     IsNumeric = entity.IsNumeric,
+                    IsJsonScalar = entity.IsJsonScalar,
                     DisplayOrder = entity.DisplayOrder,
                     UseMinMax = entity.UseMinMax,
                     UseEngUnit = entity.UseEngUnit, 
@@ -188,6 +189,7 @@
             entity.Code = model.Code;
             entity.DisplayOrder = model.DisplayOrder;
             entity.IsNumeric = model.IsNumeric;
+            entity.IsJsonScalar = model.IsJsonScalar;
             entity.UseMinMax = model.UseMinMax;
             entity.UseEngUnit = model.UseEngUnit;
 

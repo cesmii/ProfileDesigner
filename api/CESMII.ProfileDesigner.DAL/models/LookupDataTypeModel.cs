@@ -11,6 +11,7 @@
         public bool UseEngUnit { get; set; }
 
         public bool IsNumeric { get; set; }
+        public bool? IsJsonScalar { get; set; }
 
         public int DisplayOrder { get; set; } = 9999;  //default to same value for all new data types. This will help downstream on sorting with other data types.
 

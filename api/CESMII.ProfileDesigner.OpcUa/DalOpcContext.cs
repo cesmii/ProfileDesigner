@@ -40,6 +40,7 @@ namespace CESMII.ProfileDesigner.OpcUa
             _authorToken = authorToken;
             _userToken = userToken;
             ReencodeExtensionsAsJson = true;
+            EncodeJsonScalarsAsValue = true;
         }
 
         public void SetUser(UserToken userToken, UserToken authorToken)
@@ -53,8 +54,6 @@ namespace CESMII.ProfileDesigner.OpcUa
 
         public bool UpdateExisting { get; set; }
         public Dictionary<string, ProfileTypeDefinitionModel> profileItemsByNodeId { get; } = new Dictionary<string, ProfileTypeDefinitionModel>();
-
-        public ILogger Logger => _importer.Logger;
 
         Dictionary<ProfileTypeDefinitionModel, LookupDataTypeModel> _resolvedDataTypes = new();
 
@@ -226,6 +225,7 @@ namespace CESMII.ProfileDesigner.OpcUa
                 if (profile != null)
                 {
                     nodesetModel.CustomState = profile;
+                    nodesetModel.HeaderComments = profile.HeaderComment;
                 }
 #if NODESETDBTEST
                 if (nodesetModel.PublicationDate == null)

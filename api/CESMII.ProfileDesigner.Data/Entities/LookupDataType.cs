@@ -23,6 +23,13 @@
         [Column(name: "is_numeric")]
         public bool IsNumeric { get; set; }
 
+        /// <summary>
+        /// Indicates if a value / default value of this data type can be captured as a JSON string of number. If false, the JSON representation has one or more fields.
+        /// Used to determine if to use a JSON editor vs. simple edit field in the UI
+        /// </summary>
+        [Column(name: "is_json_scalar")]
+        public bool? IsJsonScalar { get; set; }
+
         [Column(name: "display_order")]
         public int DisplayOrder { get; set; }
 

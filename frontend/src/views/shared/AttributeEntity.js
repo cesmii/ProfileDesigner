@@ -11,7 +11,7 @@ import { generateLogMessageString, onChangeNumericKeysOnly, validateNumeric, con
 import { AppSettings } from '../../utils/appsettings';
 import {
     validate_name, validate_nameDuplicate, validate_dataType, validate_minMax, validate_engUnit, validate_All, 
-    onChangeDataTypeShared, renderAttributeIcon, validate_attributeType, onChangeAttributeTypeShared, validate_enumValueDuplicate, validate_enumValueNumeric, onChangeInterfaceShared, onChangeCompositionShared, onChangeEngUnitShared, validate_symbolicName, renderDataTypeUIShared, renderEngUnitUIShared, renderCompositionSelectUIShared, renderVariableTypeUIShared, onChangeVariableTypeShared, getPermittedDataTypesForAttribute
+    onChangeDataTypeShared, renderAttributeIcon, validate_attributeType, onChangeAttributeTypeShared, validate_enumValueDuplicate, validate_enumValueNumeric, validate_defaultValue, onChangeInterfaceShared, onChangeCompositionShared, onChangeEngUnitShared, validate_symbolicName, renderDataTypeUIShared, renderEngUnitUIShared, renderCompositionSelectUIShared, renderVariableTypeUIShared, onChangeVariableTypeShared, getPermittedDataTypesForAttribute
 } from '../../services/AttributesService';
 
 const CLASS_NAME = "AttributeEntity";
@@ -173,6 +173,12 @@ function AttributeEntity(props) { //props are item, showActions
         setIsValid({ ..._isValid, enumValue: isValidValue, enumValueDuplicate: isValidDup });
     }
 
+    const validateForm_defaultValue = () => {
+        var isValid = validate_defaultValue(_editItem.additionalData, _editItem.dataType);
+        setIsValid({ ..._isValid, defaultValue: isValid });
+        return isValid;
+    };
+
     //validate all - call from button click
     const validateForm = () => {
         console.log(generateLogMessageString(`validateForm`, CLASS_NAME));
@@ -181,7 +187,7 @@ function AttributeEntity(props) { //props are item, showActions
 
         setIsValid(JSON.parse(JSON.stringify(isValid)));
         return (isValid.name && isValid.nameDuplicate && isValid.minMax && isValid.dataType && isValid.attributeType && isValid.engUnit
-            && isValid.minIsNumeric && isValid.maxIsNumeric && isValid.enumValue && isValid.enumValueDuplicate);
+            && isValid.minIsNumeric && isValid.maxIsNumeric && isValid.enumValue && isValid.enumValueDuplicate && isValid.defaultValue);
     }
 
     //-------------------------------------------------------------------
@@ -812,6 +818,36 @@ function AttributeEntity(props) { //props are item, showActions
     const renderDefaultValue = () => {
         const isReadOnly = (render_CheckReadOnly());
 
+
+        if (_editItem.dataType.isJsonScalar) {
+            return (
+                <Form.Group>
+                    <Form.Label className="mb-0" >Default Value</Form.Label>
+                    {!_isValid.defaultValue &&
+                        <span className="invalid-field-message inline">
+                            Boolean must be 'true' or 'false'.
+                        </span>
+                    }
+                    <Form.Control id="additionalData" value={_editItem.additionalData} onChange={onChange} readOnly={isReadOnly} onBlur={validateForm_defaultValue} />
+                </Form.Group>
+
+            );
+        }
+
+        var jsonValue = {};
+        if (_editItem.additionalData != null) {
+            try {
+                jsonValue = JSON.parse(_editItem.additionalData);
+                if (typeof jsonValue !== 'object' && typeof jsonValue !== 'array') {
+                    jsonValue = {};
+                } 
+            }
+            catch {
+                // ignore invalid value: can happen when switching between datatypes, i.e.string to Nodeid
+            }
+        }
+
+
         return (
             <Form.Group>
                 <Form.Label className="mb-0" >Default Value</Form.Label>
@@ -823,7 +859,7 @@ function AttributeEntity(props) { //props are item, showActions
                 }
                 <JSONInput
                     id='data'
-                    placeholder={_editItem.additionalData == null ? {} : JSON.parse(_editItem.additionalData)}
+                    placeholder={jsonValue}
                     locale={locale}
                     colors={{
                         // overrides theme colors with whatever color value you want

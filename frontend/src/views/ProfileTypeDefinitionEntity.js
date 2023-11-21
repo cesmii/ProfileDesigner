@@ -14,7 +14,7 @@ import { useLoadingContext, UpdateRecentFileList } from "../components/contexts/
 import { useWizardContext } from '../components/contexts/WizardContext';
 import { AppSettings } from '../utils/appsettings';
 import { generateLogMessageString, getTypeDefIconName, getProfileTypeCaption, getIconColorByProfileState, isDerivedFromDataType, getPermittedDataTypesForVariableTypeById } from '../utils/UtilityService'
-import { renderDataTypeUIShared } from '../services/AttributesService';
+import { renderDataTypeUIShared, validate_defaultValue } from '../services/AttributesService';
 import AttributeList from './shared/AttributeList';
 import DependencyList from './shared/DependencyList';
 import ProfileBreadcrumbs from './shared/ProfileBreadcrumbs';
@@ -61,7 +61,7 @@ function ProfileTypeDefinitionEntity() {
     const [_lookupDataTypes, setLookupDataTypes] = useState([]);
     const [_permittedDataTypes, setPermittedDataTypes] = useState(null);
     const [_isReadOnly, setIsReadOnly] = useState(true);
-    const [_isValid, setIsValid] = useState({ name: true, profile: true, description: true, type: true, symbolicName: true, variableDataType: true, defaultValue: true });
+    const [_isValid, setIsValid] = useState({ name: true, profile: true, description: true, type: true, symbolicName: true, variableDataType: true, defaultValue: true, variableValue: true });
     //const [_lookupProfiles, setLookupProfiles] = useState([]);
     //used in popup profile add/edit ui. Default to new version
     const [_profileEntityModal, setProfileEntityModal] = useState({ show: false, item: null, autoSave: false  });
@@ -78,7 +78,7 @@ function ProfileTypeDefinitionEntity() {
     useEffect(() => {
         // Init flags to detect unsaved changes and warn a user when they try to leave the page
         setLoadingProps({ bIsTypeEditUnsaved: false });
-    }, []);
+    }, [setLoadingProps]);
 
     //-------------------------------------------------------------------
     // Region: hooks
@@ -432,6 +432,12 @@ function ProfileTypeDefinitionEntity() {
         return lookupDataType == baseVTDataType; // ok if both are null or if they are identical
     }
 
+    const validateForm_variableValue = () => {
+        var isValid = validate_defaultValue(_item.variableValue, _item.variableDataType);
+        setIsValid({ ..._isValid, variableValue: isValid });
+        return isValid;
+    };
+
     ////update state for when search click happens
     const validateForm = () => {
         console.log(generateLogMessageString(`validateForm`, CLASS_NAME));
@@ -442,9 +448,10 @@ function ProfileTypeDefinitionEntity() {
         _isValid.type = _item.type != null && _item.type.id !== -1 && _item.type.id !== "-1";
         _isValid.symbolicName = validate_symbolicName(_item.symbolicName);
         _isValid.variableDataType = validate_variableDataType(_item.variableDataType);
+        _isValid.variableValue = validateForm_variableValue();
 
         setIsValid(JSON.parse(JSON.stringify(_isValid)));
-        return (_isValid.name && _isValid.profile && _isValid.description && _isValid.type && _isValid.symbolicName && _isValid.variableDataType);
+        return (_isValid.name && _isValid.profile && _isValid.description && _isValid.type && _isValid.symbolicName && _isValid.variableDataType && _isValid.variableValue);
     }
 
     //-------------------------------------------------------------------
@@ -593,6 +600,10 @@ function ProfileTypeDefinitionEntity() {
                 else {
                     _item.type = { id: e.target.value, name: e.target.options[e.target.selectedIndex].text };
                 }
+                break;
+            case "variableValue":
+                _item.variableValue = e.target.value;
+                validateForm_variableValue();
                 break;
             default:
                 return;
@@ -782,6 +793,7 @@ function ProfileTypeDefinitionEntity() {
                 { id: lookupItem.customTypeId, name: lookupItem.name }
                 : { id: -1, name: '' };
         setItem(JSON.parse(JSON.stringify(_item)));
+        validateForm_variableValue();
     }
 
 
@@ -857,7 +869,8 @@ function ProfileTypeDefinitionEntity() {
         if (!_isValid.description) fieldError.push(`Description is required.`);
         if (!_isValid.type) fieldError.push(`Type is required.`);
         if (!_isValid.symbolicName) fieldError.push(`Symbolic Name is invalid (Advanced tab).`);
-        if (!_isValid.variableDataType) fieldError.push(`Variable Data Tyype is required.`);
+        if (!_isValid.variableDataType) fieldError.push(`Variable Data Type is required.`);
+        if (!_isValid.variableValue) fieldError.push(`Invalid default value (Boolean must be 'true' or 'false').`);
 
         if (fieldError.length === 0) return null;
 
@@ -920,6 +933,33 @@ function ProfileTypeDefinitionEntity() {
         if (_item.typeId !== AppSettings.ProfileTypeDefaults.VariableTypeId) {
             return null;
         }
+        var lookupItem = _lookupDataTypes.find(dt => { return dt.customTypeId.toString() === _item.variableDataType.id.toString(); });
+
+        if (lookupItem?.isJsonScalar) {
+            return (
+                <div className="col-md-12">
+                    <Form.Group>
+                        <Form.Label className="mb-0" >Default Value</Form.Label>
+                        <Form.Control id="variableValue" value={_item.variableValue} onChange={onChange} readOnly={_isReadOnly} />
+                    </Form.Group>
+                </div>
+            );
+        }
+
+        var jsonValue = {};
+        if (_item.variableValue != null) {
+            try {
+                jsonValue = JSON.parse(_item.variableValue);
+                if (typeof jsonValue !== 'object' && typeof jsonValue !== 'array') {
+                    jsonValue = {};
+                } 
+
+            }
+            catch {
+                // ignore invalid value: can happen when switching between datatypes, i.e.string to Nodeid
+            }
+        }
+
         return (
             <div className="col-md-12">
                 <Form.Group>
@@ -931,7 +971,7 @@ function ProfileTypeDefinitionEntity() {
                     }
                     <JSONInput
                         id='data'
-                        placeholder={_item.variableValue == null ? {} : JSON.parse(_item.variableValue)}
+                        placeholder={jsonValue}
                         locale={locale}
                         colors={{
                             // overrides theme colors with whatever color value you want

@@ -1,5 +1,3 @@
-====>Expected attribute name '/UANodeSet[1]' - comparing <UANodeSet...> at /UANodeSet[1] to <UANodeSet...> at /UANodeSet[1]/@LastModified
-====>Expected attribute name '/UANodeSet[1]/Models[1]/Model[1]' - comparing <Model...> at /UANodeSet[1]/Models[1]/Model[1] to <Model...> at /UANodeSet[1]/Models[1]/Model[1]/@XmlSchemaUri
 ====>Expected attribute value '1.03' but was '1.05.02' - comparing <RequiredModel Version="1.03"...> at /UANodeSet[1]/Models[1]/Model[1]/RequiredModel[1]/@Version to <RequiredModel Version="1.05.02"...> at /UANodeSet[1]/Models[1]/Model[1]/RequiredModel[1]/@Version
 ====>Expected attribute value '2016-04-15T00:00:00Z' but was '2022-11-01T00:00:00Z' - comparing <RequiredModel PublicationDate="2016-04-15T00:00:00Z"...> at /UANodeSet[1]/Models[1]/Model[1]/RequiredModel[1]/@PublicationDate to <RequiredModel PublicationDate="2022-11-01T00:00:00Z"...> at /UANodeSet[1]/Models[1]/Model[1]/RequiredModel[1]/@PublicationDate
 ====>Expected attribute value '1.01' but was '1.04.0' - comparing <RequiredModel Version="1.01"...> at /UANodeSet[1]/Models[1]/Model[1]/RequiredModel[2]/@Version to <RequiredModel Version="1.04.0"...> at /UANodeSet[1]/Models[1]/Model[1]/RequiredModel[2]/@Version
@@ -103,17 +101,12 @@
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAMethod[40]/References[1]/Reference[4] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[25]/References[1]/Reference[5] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[25]/References[1]/Reference[6] to <NULL>
-====>Expected attribute name '/UANodeSet[1]/UAObject[27]/@EventNotifier' - comparing <UAObject...> at /UANodeSet[1]/UAObject[27]/@EventNotifier to <UAObject...> at /UANodeSet[1]/UAObject[47]
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAVariable[414]/References[1]/Reference[4] to <NULL>
-====>Expected attribute name '/UANodeSet[1]/UAObject[28]/@EventNotifier' - comparing <UAObject...> at /UANodeSet[1]/UAObject[28]/@EventNotifier to <UAObject...> at /UANodeSet[1]/UAObject[52]
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAVariable[429]/References[1]/Reference[1] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAVariable[429]/References[1]/Reference[5] to <NULL>
-====>Expected attribute name '/UANodeSet[1]/UAObject[30]/@EventNotifier' - comparing <UAObject...> at /UANodeSet[1]/UAObject[30]/@EventNotifier to <UAObject...> at /UANodeSet[1]/UAObject[51]
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAVariable[430]/References[1]/Reference[2] to <NULL>
-====>Expected attribute name '/UANodeSet[1]/UAObject[31]/@EventNotifier' - comparing <UAObject...> at /UANodeSet[1]/UAObject[31]/@EventNotifier to <UAObject...> at /UANodeSet[1]/UAObject[35]
 ====>Expected child 'http://opcfoundation.org/UA/TMC/Types.xsd:DataValues' but was '' - comparing <DataValues...> at /UANodeSet[1]/UAVariable[435]/Value[1]/ExtensionObject[1]/Body[1]/DataSetType[1]/DataValues[1] to <NULL>
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2008/02/Types.xsd:DataValues' - comparing <NULL> to <uax:DataValues...> at /UANodeSet[1]/UAVariable[135]/Value[1]/ExtensionObject[1]/Body[1]/DataSetType[1]/DataValues[1]
-====>Expected attribute name '/UANodeSet[1]/UAObject[33]/@EventNotifier' - comparing <UAObject...> at /UANodeSet[1]/UAObject[33]/@EventNotifier to <UAObject...> at /UANodeSet[1]/UAObject[48]
 ====>Expected child 'http://opcfoundation.org/UA/TMC/Types.xsd:MaterialCapability' but was '' - comparing <MaterialCapability...> at /UANodeSet[1]/UAVariable[444]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[1]/Body[1]/LoadUnloadPointType[1]/MaterialCapability[1] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/TMC/Types.xsd:UserName' but was '' - comparing <UserName...> at /UANodeSet[1]/UAVariable[444]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[1]/Body[1]/LoadUnloadPointType[1]/UserName[1] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/TMC/Types.xsd:MES_ID' but was '' - comparing <MES_ID...> at /UANodeSet[1]/UAVariable[444]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[1]/Body[1]/LoadUnloadPointType[1]/MES_ID[1] to <NULL>
@@ -322,31 +315,3 @@
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[575] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[576] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAVariable' but was '' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[577] to <NULL>
-====>Expected child '#comment' but was '' - comparing <!--
- * Copyright (c) 2005-2021 The OPC Foundation, Inc. All rights reserved.
- *
- * OPC Foundation MIT License 1.00
- * 
- * Permission is hereby granted, free of charge, to any person
- * obtaining a copy of this software and associated documentation
- * files (the "Software"), to deal in the Software without
- * restriction, including without limitation the rights to use,
- * copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the
- * Software is furnished to do so, subject to the following
- * conditions:
- * 
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
- * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
- * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
- * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
- * OTHER DEALINGS IN THE SOFTWARE.
- *
- * The complete license agreement can be found here:
- * http://opcfoundation.org/License/MIT/1.00/
---> at /comment()[1] to <NULL>

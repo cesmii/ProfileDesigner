@@ -1,6 +1,6 @@
 ###1#Feature#DataType definition support#1
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Definition' but was '' - comparing <Definition...> at /UANodeSet[1]/UADataType[5]/Definition[1] to <NULL>
-###1142#Feature#DataType definition support,ReleaseStatus, MinimumSampling Interval, top-level variables#1
+###1141#Feature#DataType definition support,ReleaseStatus, MinimumSampling Interval, top-level variables#1
 ====>Expected attribute name '/UANodeSet[1]/UAVariableType[4]/@ReleaseStatus' - comparing <UAVariableType...> at /UANodeSet[1]/UAVariableType[4]/@ReleaseStatus to <UAVariableType...> at /UANodeSet[1]/UAVariableType[4]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[1]/@ReleaseStatus' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[1]/@ReleaseStatus to <UAVariable...> at /UANodeSet[1]/UAVariable[58]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[2]/@ReleaseStatus' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[2]/@ReleaseStatus to <UAVariable...> at /UANodeSet[1]/UAVariable[59]
@@ -21,31 +21,18 @@
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[46]/@MinimumSamplingInterval' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[46]/@MinimumSamplingInterval to <UAVariable...> at /UANodeSet[1]/UAVariable[364]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[47]/@MinimumSamplingInterval' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[47]/@MinimumSamplingInterval to <UAVariable...> at /UANodeSet[1]/UAVariable[365]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[48]/@MinimumSamplingInterval' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[48]/@MinimumSamplingInterval to <UAVariable...> at /UANodeSet[1]/UAVariable[366]
-====>Expected text value 'Auditing NodeManagement' but was 'Auditing History Services' - comparing <Category ...>Auditing NodeManagement</Category> at /UANodeSet[1]/UAObjectType[22]/Category[2]/text()[1] to <Category ...>Auditing History Services</Category> at /UANodeSet[1]/UAObjectType[16]/Category[2]/text()[1]
-====>Expected text value 'Auditing History Services' but was 'Auditing Method' - comparing <Category ...>Auditing History Services</Category> at /UANodeSet[1]/UAObjectType[22]/Category[3]/text()[1] to <Category ...>Auditing Method</Category> at /UANodeSet[1]/UAObjectType[16]/Category[3]/text()[1]
-====>Expected text value 'Auditing Write' but was 'Auditing NodeManagement' - comparing <Category ...>Auditing Write</Category> at /UANodeSet[1]/UAObjectType[22]/Category[4]/text()[1] to <Category ...>Auditing NodeManagement</Category> at /UANodeSet[1]/UAObjectType[16]/Category[4]/text()[1]
-====>Expected text value 'Auditing Method' but was 'Auditing Write' - comparing <Category ...>Auditing Method</Category> at /UANodeSet[1]/UAObjectType[22]/Category[5]/text()[1] to <Category ...>Auditing Write</Category> at /UANodeSet[1]/UAObjectType[16]/Category[5]/text()[1]
-====>Expected text value 'Base Info System Status Underlying System' but was 'Base Info System Status' - comparing <Category ...>Base Info System Status Underlying System</Category> at /UANodeSet[1]/UAObjectType[47]/Category[2]/text()[1] to <Category ...>Base Info System Status</Category> at /UANodeSet[1]/UAObjectType[40]/Category[2]/text()[1]
-====>Expected text value 'Base Info System Status' but was 'Base Info System Status Underlying System' - comparing <Category ...>Base Info System Status</Category> at /UANodeSet[1]/UAObjectType[47]/Category[3]/text()[1] to <Category ...>Base Info System Status Underlying System</Category> at /UANodeSet[1]/UAObjectType[40]/Category[3]/text()[1]
-====>Expected text value 'Base Info System Status Underlying System' but was 'Base Info System Status' - comparing <Category ...>Base Info System Status Underlying System</Category> at /UANodeSet[1]/UAObjectType[49]/Category[1]/text()[1] to <Category ...>Base Info System Status</Category> at /UANodeSet[1]/UAObjectType[100]/Category[1]/text()[1]
-====>Expected text value 'Base Info System Status' but was 'Base Info System Status Underlying System' - comparing <Category ...>Base Info System Status</Category> at /UANodeSet[1]/UAObjectType[49]/Category[2]/text()[1] to <Category ...>Base Info System Status Underlying System</Category> at /UANodeSet[1]/UAObjectType[100]/Category[2]/text()[1]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[369]/@MinimumSamplingInterval' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[369]/@MinimumSamplingInterval to <UAVariable...> at /UANodeSet[1]/UAVariable[459]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[370]/@MinimumSamplingInterval' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[370]/@MinimumSamplingInterval to <UAVariable...> at /UANodeSet[1]/UAVariable[460]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[371]/@MinimumSamplingInterval' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[371]/@MinimumSamplingInterval to <UAVariable...> at /UANodeSet[1]/UAVariable[461]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[372]/@MinimumSamplingInterval' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[372]/@MinimumSamplingInterval to <UAVariable...> at /UANodeSet[1]/UAVariable[462]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[373]/@MinimumSamplingInterval' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[373]/@MinimumSamplingInterval to <UAVariable...> at /UANodeSet[1]/UAVariable[463]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[374]/@MinimumSamplingInterval' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[374]/@MinimumSamplingInterval to <UAVariable...> at /UANodeSet[1]/UAVariable[464]
-====>Expected attribute name '/UANodeSet[1]/UAObject[37]/@EventNotifier' - comparing <UAObject...> at /UANodeSet[1]/UAObject[37]/@EventNotifier to <UAObject...> at /UANodeSet[1]/UAObject[421]
-====>Expected text value 'Base Info Core Structure 2' but was 'Address Space Events 2' - comparing <Category ...>Base Info Core Structure 2</Category> at /UANodeSet[1]/UAObject[37]/Category[1]/text()[1] to <Category ...>Address Space Events 2</Category> at /UANodeSet[1]/UAObject[421]/Category[1]/text()[1]
-====>Expected text value 'Address Space Events 2' but was 'Base Info Core Structure 2' - comparing <Category ...>Address Space Events 2</Category> at /UANodeSet[1]/UAObject[37]/Category[2]/text()[1] to <Category ...>Base Info Core Structure 2</Category> at /UANodeSet[1]/UAObject[421]/Category[2]/text()[1]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[589]/@MinimumSamplingInterval' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[589]/@MinimumSamplingInterval to <UAVariable...> at /UANodeSet[1]/UAVariable[210]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[590]/@MinimumSamplingInterval' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[590]/@MinimumSamplingInterval to <UAVariable...> at /UANodeSet[1]/UAVariable[211]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[591]/@MinimumSamplingInterval' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[591]/@MinimumSamplingInterval to <UAVariable...> at /UANodeSet[1]/UAVariable[209]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[592]/@MinimumSamplingInterval' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[592]/@MinimumSamplingInterval to <UAVariable...> at /UANodeSet[1]/UAVariable[212]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[593]/@MinimumSamplingInterval' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[593]/@MinimumSamplingInterval to <UAVariable...> at /UANodeSet[1]/UAVariable[213]
 ====>Expected attribute name '/UANodeSet[1]/UAVariable[594]/@MinimumSamplingInterval' - comparing <UAVariable...> at /UANodeSet[1]/UAVariable[594]/@MinimumSamplingInterval to <UAVariable...> at /UANodeSet[1]/UAVariable[214]
-====>Expected text value 'Base Info Finite State Machine Instance' but was 'Base Info Available States and Transitions' - comparing <Category ...>Base Info Finite State Machine Instance</Category> at /UANodeSet[1]/UAObjectType[59]/Category[1]/text()[1] to <Category ...>Base Info Available States and Transitions</Category> at /UANodeSet[1]/UAObjectType[57]/Category[1]/text()[1]
-====>Expected text value 'Base Info Available States and Transitions' but was 'Base Info Finite State Machine Instance' - comparing <Category ...>Base Info Available States and Transitions</Category> at /UANodeSet[1]/UAObjectType[59]/Category[2]/text()[1] to <Category ...>Base Info Finite State Machine Instance</Category> at /UANodeSet[1]/UAObjectType[57]/Category[2]/text()[1]
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Definition' but was '' - comparing <Definition...> at /UANodeSet[1]/UADataType[49]/Definition[1] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Definition' but was '' - comparing <Definition...> at /UANodeSet[1]/UADataType[51]/Definition[1] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Definition' but was '' - comparing <Definition...> at /UANodeSet[1]/UADataType[53]/Definition[1] to <NULL>
@@ -1143,32 +1130,3 @@
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAReferenceType' but was '' - comparing <UAReferenceType...> at /UANodeSet[1]/UAReferenceType[66] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:UAReferenceType' but was '' - comparing <UAReferenceType...> at /UANodeSet[1]/UAReferenceType[67] to <NULL>
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:NamespaceUris' - comparing <NULL> to <NamespaceUris...> at /UANodeSet[1]/NamespaceUris[1]
-###28#Feature#Preserve comments#C2-194
-====>Expected child '#comment' but was '' - comparing <!--
- * Copyright (c) 2005-2022 The OPC Foundation, Inc. All rights reserved.
- *
- * OPC Foundation MIT License 1.00
- * 
- * Permission is hereby granted, free of charge, to any person
- * obtaining a copy of this software and associated documentation
- * files (the "Software"), to deal in the Software without
- * restriction, including without limitation the rights to use,
- * copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the
- * Software is furnished to do so, subject to the following
- * conditions:
- * 
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
- * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
- * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
- * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
- * OTHER DEALINGS IN THE SOFTWARE.
- *
- * The complete license agreement can be found here:
- * http://opcfoundation.org/License/MIT/1.00/
---> at /comment()[1] to <NULL>

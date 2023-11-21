@@ -80,7 +80,7 @@ namespace CESMII.OpcUa.NodeSetImporter
                             }
                         }
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
 
                     }

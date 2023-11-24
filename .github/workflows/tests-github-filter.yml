@@ -1,0 +1,29 @@
+name: Test-Error-In-DotNet
+on: 
+  # Manually trigger deploy
+  workflow_dispatch:
+
+# # # on: 
+# # #   push:
+# # #     branches: [ main, cesmii/main, cesmii/develop ]
+# # #   pull_request:
+# # #     branches: [ main, cesmii/main, cesmii/develop ]
+
+jobs:
+  dotnet-setup:
+    runs-on: windows-latest
+    steps:
+      - name: Step 1
+        run: |
+          mkdir TestProject
+          cd TestProject
+          dotnet new console
+          dotnet new tool-manifest
+          dotnet tool install dotnet-format
+          dotnet tool run dotnet-format --fix-analyzers
+
+
+
+
+
+

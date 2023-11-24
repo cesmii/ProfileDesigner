@@ -1,4 +1,4 @@
-name: Test-Error-In-DotNet
+name: Test|Error|DotNet|Filtering
 on: 
   # Manually trigger deploy
   workflow_dispatch:

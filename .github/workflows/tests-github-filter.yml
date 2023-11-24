@@ -1,0 +1,5 @@
+# Adding this here to allow this YML file to appear in other branches.
+name: Test|Error|DotNet|Filtering
+on: 
+  # Manually trigger deploy
+  workflow_dispatch:

@@ -19,7 +19,7 @@ jobs:
           cd TestProject
           dotnet new console
           dotnet new tool-manifest
-          dotnet tool install dotnet-format
+          dotnet tool run dotnet-format
           dotnet tool run dotnet-format --fix-analyzers
 
 

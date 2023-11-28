@@ -64,10 +64,10 @@ jobs:
       run: |
         docker run --name MyPostgres -e POSTGRES_PASSWORD=password -p 5432:5432  --network mysubnet1 -d postgres:14.10
 
-    # # # - name: 4__Database - Add SUDO command to container MyPostgres
-    # # #   run: | 
-    # # #     docker exec -i MyPostgres apt update
-    # # #     docker exec -i MyPostgres apt install sudo
+    - name: 4__Database - Add SUDO command to container MyPostgres
+      run: | 
+        docker exec -i MyPostgres apt update
+        docker exec -i MyPostgres apt install sudo
 
     # # # - name: 5__Database - Create user
     # # #   run: |

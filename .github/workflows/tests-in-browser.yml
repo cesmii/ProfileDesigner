@@ -69,9 +69,9 @@ jobs:
         docker exec -i MyPostgres apt update
         docker exec -i MyPostgres apt install sudo
 
-    # # # - name: 5__Database - Create user
-    # # #   run: |
-    # # #     docker exec -i MyPostgres sudo -u postgres psql --command="CREATE USER profiledesigner SUPERUSER PASSWORD 'cesmii'" --command="\du"
+    - name: 5__Database - Create user
+      run: |
+        docker exec -i MyPostgres sudo -u postgres psql --command="CREATE USER profiledesigner SUPERUSER PASSWORD 'cesmii'" --command="\du"
 
     # # # - name: 6__Database - List existing databases
     # # #   run: |

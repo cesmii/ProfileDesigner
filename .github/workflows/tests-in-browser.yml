@@ -64,33 +64,33 @@ jobs:
       run: |
         docker run --name MyPostgres -e POSTGRES_PASSWORD=password -p 5432:5432  --network mysubnet1 -d postgres:14.10
 
-    - name: 4__Database - Add SUDO command to container MyPostgres
-      run: | 
-        docker exec -i MyPostgres apt update
-        docker exec -i MyPostgres apt install sudo
+    # # # - name: 4__Database - Add SUDO command to container MyPostgres
+    # # #   run: | 
+    # # #     docker exec -i MyPostgres apt update
+    # # #     docker exec -i MyPostgres apt install sudo
 
-    - name: 5__Database - Create user
-      run: |
-        docker exec -i MyPostgres sudo -u postgres psql --command="CREATE USER profiledesigner SUPERUSER PASSWORD 'cesmii'" --command="\du"
+    # # # - name: 5__Database - Create user
+    # # #   run: |
+    # # #     docker exec -i MyPostgres sudo -u postgres psql --command="CREATE USER profiledesigner SUPERUSER PASSWORD 'cesmii'" --command="\du"
 
-    - name: 6__Database - List existing databases
-      run: |
-        docker exec -i MyPostgres sudo -u postgres psql -l
+    # # # - name: 6__Database - List existing databases
+    # # #   run: |
+    # # #     docker exec -i MyPostgres sudo -u postgres psql -l
 
-    - name: 7__Database - Create database
-      run: |
-        docker exec -i MyPostgres sudo -u postgres psql --command="CREATE DATABASE profile_designer_local_test WITH OWNER = profiledesigner TABLESPACE = pg_default CONNECTION LIMIT = -1;"
+    # # # - name: 7__Database - Create database
+    # # #   run: |
+    # # #     docker exec -i MyPostgres sudo -u postgres psql --command="CREATE DATABASE profile_designer_local_test WITH OWNER = profiledesigner TABLESPACE = pg_default CONNECTION LIMIT = -1;"
 
-    - name: 8__Database - Create schema
-      run: |
-        ls -l ./sql
-        head -5 ./sql/CESMII.ProfileDesigner.DB.sql
-        docker exec -i MyPostgres sudo -u postgres psql -d profile_designer_local_test < ./sql/CESMII.ProfileDesigner.DB.sql
-        #sudo -u postgres psql -d profile_designer_local_test --file ./sql/CESMII.ProfileDesigner.DB.sql
+    # # # - name: 8__Database - Create schema
+    # # #   run: |
+    # # #     ls -l ./sql
+    # # #     head -5 ./sql/CESMII.ProfileDesigner.DB.sql
+    # # #     docker exec -i MyPostgres sudo -u postgres psql -d profile_designer_local_test < ./sql/CESMII.ProfileDesigner.DB.sql
+    # # #     #sudo -u postgres psql -d profile_designer_local_test --file ./sql/CESMII.ProfileDesigner.DB.sql
 
-    - name: 9__Database - List existing databases
-      run: |
-        docker exec -i MyPostgres sudo -u postgres psql -l
+    # # # - name: 9__Database - List existing databases
+    # # #   run: |
+    # # #     docker exec -i MyPostgres sudo -u postgres psql -l
 
     # # # - name: 10__ProfileDesigner API - Set up dotnet core ${{ env.NETCORE_VERSION }}
     # # #   uses: actions/setup-dotnet@v3

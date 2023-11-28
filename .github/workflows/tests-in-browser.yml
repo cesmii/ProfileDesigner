@@ -73,56 +73,56 @@ jobs:
       run: |
         docker exec -i MyPostgres sudo -u postgres psql --command="CREATE USER profiledesigner SUPERUSER PASSWORD 'cesmii'" --command="\du"
 
-    # # # - name: 6__Database - List existing databases
-    # # #   run: |
-    # # #     docker exec -i MyPostgres sudo -u postgres psql -l
+    - name: 6__Database - List existing databases
+      run: |
+        docker exec -i MyPostgres sudo -u postgres psql -l
 
-    # # # - name: 7__Database - Create database
-    # # #   run: |
-    # # #     docker exec -i MyPostgres sudo -u postgres psql --command="CREATE DATABASE profile_designer_local_test WITH OWNER = profiledesigner TABLESPACE = pg_default CONNECTION LIMIT = -1;"
+    - name: 7__Database - Create database
+      run: |
+        docker exec -i MyPostgres sudo -u postgres psql --command="CREATE DATABASE profile_designer_local_test WITH OWNER = profiledesigner TABLESPACE = pg_default CONNECTION LIMIT = -1;"
 
-    # # # - name: 8__Database - Create schema
-    # # #   run: |
-    # # #     ls -l ./sql
-    # # #     head -5 ./sql/CESMII.ProfileDesigner.DB.sql
-    # # #     docker exec -i MyPostgres sudo -u postgres psql -d profile_designer_local_test < ./sql/CESMII.ProfileDesigner.DB.sql
-    # # #     #sudo -u postgres psql -d profile_designer_local_test --file ./sql/CESMII.ProfileDesigner.DB.sql
+    - name: 8__Database - Create schema
+      run: |
+        ls -l ./sql
+        head -5 ./sql/CESMII.ProfileDesigner.DB.sql
+        docker exec -i MyPostgres sudo -u postgres psql -d profile_designer_local_test < ./sql/CESMII.ProfileDesigner.DB.sql
+        #sudo -u postgres psql -d profile_designer_local_test --file ./sql/CESMII.ProfileDesigner.DB.sql
 
-    # # # - name: 9__Database - List existing databases
-    # # #   run: |
-    # # #     docker exec -i MyPostgres sudo -u postgres psql -l
+    - name: 9__Database - List existing databases
+      run: |
+        docker exec -i MyPostgres sudo -u postgres psql -l
 
-    # # # - name: 10__ProfileDesigner API - Set up dotnet core ${{ env.NETCORE_VERSION }}
-    # # #   uses: actions/setup-dotnet@v3
-    # # #   with:
-    # # #     dotnet-version: ${{ env.NETCORE_VERSION }}
+    - name: 10__ProfileDesigner API - Set up dotnet core ${{ env.NETCORE_VERSION }}
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: ${{ env.NETCORE_VERSION }}
 
-    # # # # Profile Designer API
-    # # # - name: 11__ProfileDesigner - Restore dependencies (${{env.PROFILEDESIGNER_PROJECT_FQDN}})
-    # # #   run: dotnet restore ${{env.PROFILEDESIGNER_PROJECT_FILE}}
-    # # #   working-directory: ${{env.PROFILEDESIGNER_PROJECT_DIRECTORY}}
+    # Profile Designer API
+    - name: 11__ProfileDesigner - Restore dependencies (${{env.PROFILEDESIGNER_PROJECT_FQDN}})
+      run: dotnet restore ${{env.PROFILEDESIGNER_PROJECT_FILE}}
+      working-directory: ${{env.PROFILEDESIGNER_PROJECT_DIRECTORY}}
 
-    # # # # Publish the app and the tests
-    # # # - name: 12__ProfileDesigner - Publish Profile Designer Api
-    # # #   run: |
-    # # #     dotnet publish --framework:net6.0 ${{env.PROFILEDESIGNER_PROJECT_FQDN}} -c Release -o ./publish ;
+    # Publish the app and the tests
+    - name: 12__ProfileDesigner - Publish Profile Designer Api
+      run: |
+        dotnet publish --framework:net6.0 ${{env.PROFILEDESIGNER_PROJECT_FQDN}} -c Release -o ./publish ;
 
-    # # # # Create a Docker Container for Api
-    # # # - name: 13__ProfileDesigner - Build Docker Image CESMII.ProfileDesigner.Api
-    # # #   run: docker build -f "./api/CESMII.ProfileDesigner.Api/Dockerfile" --force-rm -t profile-designer-api:dev --target base  --label "com.microsoft.created-by=visual-studio" --label "com.microsoft.visual-studio.project-name=CESMII.ProfileDesigner.Api" "./"
+    # Create a Docker Container for Api
+    - name: 13__ProfileDesigner - Build Docker Image CESMII.ProfileDesigner.Api
+      run: docker build -f "./api/CESMII.ProfileDesigner.Api/Dockerfile" --force-rm -t profile-designer-api:dev --target base  --label "com.microsoft.created-by=visual-studio" --label "com.microsoft.visual-studio.project-name=CESMII.ProfileDesigner.Api" "./"
 
-    # # # # Run one of these two
-    # # # # Start Profile Designer Container (On Github)
-    # # # - name: 14__ProfileDesigner - Start the Container (On Github)
-    # # #   if: env.ONGITHUB == 'true'
-    # # #   run: |
-    # # #        docker run -dt --name CESMII.ProfileDesigner.Api --network mysubnet1 -v "/home/runner/work/ProfileDesigner/ProfileDesigner/api/CESMII.ProfileDesigner.Api:/app" -v "/home/runner/work/ProfileDesigner/ProfileDesigner:/src/" -e "ASPNETCORE_LOGGING__CONSOLE__DISABLECOLORS=true" -e "ASPNETCORE_ENVIRONMENT=Development" -e "DOTNET_USE_POLLING_FILE_WATCHER=1" -e "EnableCloudLibSearch=false" -e "ASPNETCORE_URLS=http://+:80" -e "PROFILEDESIGNER_GITHUB_WORKFLOW_COMMANDS=true" -e "MARKETPLACE_MONGODB_CONNECTIONSTRING=${{env.MONGODB_BRIDGE_CONNECTION}}" -e "MARKETPLACE_MONGODB_DATABASE=test" -p 5000:80  --entrypoint tail profile-designer-api:dev -f /dev/null
+    # Run one of these two
+    # Start Profile Designer Container (On Github)
+    - name: 14__ProfileDesigner - Start the Container (On Github)
+      if: env.ONGITHUB == 'true'
+      run: |
+           docker run -dt --name CESMII.ProfileDesigner.Api --network mysubnet1 -v "/home/runner/work/ProfileDesigner/ProfileDesigner/api/CESMII.ProfileDesigner.Api:/app" -v "/home/runner/work/ProfileDesigner/ProfileDesigner:/src/" -e "ASPNETCORE_LOGGING__CONSOLE__DISABLECOLORS=true" -e "ASPNETCORE_ENVIRONMENT=Development" -e "DOTNET_USE_POLLING_FILE_WATCHER=1" -e "EnableCloudLibSearch=false" -e "ASPNETCORE_URLS=http://+:80" -e "PROFILEDESIGNER_GITHUB_WORKFLOW_COMMANDS=true" -e "MARKETPLACE_MONGODB_CONNECTIONSTRING=${{env.MONGODB_BRIDGE_CONNECTION}}" -e "MARKETPLACE_MONGODB_DATABASE=test" -p 5000:80  --entrypoint tail profile-designer-api:dev -f /dev/null
 
-    # # # # Start Profile Designer Container (On Desktop)
-    # # # - name: 15__ProfileDesigner - Start the Container (On Desktop)
-    # # #   if: env.ONGITHUB == 'false'
-    # # #   run: |
-    # # #        docker run -dt --name CESMII.ProfileDesigner.Api --network mysubnet1 -v "C:\Users\paul\AppData\Roaming\Microsoft\UserSecrets:/root/.microsoft/usersecrets:ro" -v "C:\Users\paul\AppData\Roaming\ASP.NET\Https:/root/.aspnet/https:ro" -v "C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Sdks\Microsoft.Docker.Sdk\tools\TokenService.Proxy\linux-x64\net6.0:/TokenService.Proxy:ro" -v "C:\CESMII.github\ProfileDesigner\api\CESMII.ProfileDesigner.Api:/app" -v "C:\CESMII.github\ProfileDesigner:/src/" -v "C:\Users\paul\.nuget\packages\:/root/.nuget/fallbackpackages" -e "ASPNETCORE_LOGGING__CONSOLE__DISABLECOLORS=true" -e "ASPNETCORE_ENVIRONMENT=Development" -e "ASPNETCORE_URLS=http://+:80" -e "DOTNET_USE_POLLING_FILE_WATCHER=1" -e "NUGET_PACKAGES=/root/.nuget/fallbackpackages" -e "NUGET_FALLBACK_PACKAGES=/root/.nuget/fallbackpackages" -e "EnableCloudLibSearch=false" -e "MARKETPLACE_GITHUB_WORKFLOW_COMMANDS=true" -e "MARKETPLACE_MONGODB_CONNECTIONSTRING=${{env.MONGODB_BRIDGE_CONNECTION}}" -e "MARKETPLACE_MONGODB_DATABASE=test" -p 5000:80 --entrypoint tail profile-designer-api:dev -f /dev/null
+    # Start Profile Designer Container (On Desktop)
+    - name: 15__ProfileDesigner - Start the Container (On Desktop)
+      if: env.ONGITHUB == 'false'
+      run: |
+           docker run -dt --name CESMII.ProfileDesigner.Api --network mysubnet1 -v "C:\Users\paul\AppData\Roaming\Microsoft\UserSecrets:/root/.microsoft/usersecrets:ro" -v "C:\Users\paul\AppData\Roaming\ASP.NET\Https:/root/.aspnet/https:ro" -v "C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Sdks\Microsoft.Docker.Sdk\tools\TokenService.Proxy\linux-x64\net6.0:/TokenService.Proxy:ro" -v "C:\CESMII.github\ProfileDesigner\api\CESMII.ProfileDesigner.Api:/app" -v "C:\CESMII.github\ProfileDesigner:/src/" -v "C:\Users\paul\.nuget\packages\:/root/.nuget/fallbackpackages" -e "ASPNETCORE_LOGGING__CONSOLE__DISABLECOLORS=true" -e "ASPNETCORE_ENVIRONMENT=Development" -e "ASPNETCORE_URLS=http://+:80" -e "DOTNET_USE_POLLING_FILE_WATCHER=1" -e "NUGET_PACKAGES=/root/.nuget/fallbackpackages" -e "NUGET_FALLBACK_PACKAGES=/root/.nuget/fallbackpackages" -e "EnableCloudLibSearch=false" -e "MARKETPLACE_GITHUB_WORKFLOW_COMMANDS=true" -e "MARKETPLACE_MONGODB_CONNECTIONSTRING=${{env.MONGODB_BRIDGE_CONNECTION}}" -e "MARKETPLACE_MONGODB_DATABASE=test" -p 5000:80 --entrypoint tail profile-designer-api:dev -f /dev/null
 
     # # # - name: 16__ProfileDesigner - Query Bridge Connection to CESMII.ProfileDesigner.Api Container
     # # #   run:

@@ -124,29 +124,29 @@ jobs:
       run: |
            docker run -dt --name CESMII.ProfileDesigner.Api --network mysubnet1 -v "C:\Users\paul\AppData\Roaming\Microsoft\UserSecrets:/root/.microsoft/usersecrets:ro" -v "C:\Users\paul\AppData\Roaming\ASP.NET\Https:/root/.aspnet/https:ro" -v "C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Sdks\Microsoft.Docker.Sdk\tools\TokenService.Proxy\linux-x64\net6.0:/TokenService.Proxy:ro" -v "C:\CESMII.github\ProfileDesigner\api\CESMII.ProfileDesigner.Api:/app" -v "C:\CESMII.github\ProfileDesigner:/src/" -v "C:\Users\paul\.nuget\packages\:/root/.nuget/fallbackpackages" -e "ASPNETCORE_LOGGING__CONSOLE__DISABLECOLORS=true" -e "ASPNETCORE_ENVIRONMENT=Development" -e "ASPNETCORE_URLS=http://+:80" -e "DOTNET_USE_POLLING_FILE_WATCHER=1" -e "NUGET_PACKAGES=/root/.nuget/fallbackpackages" -e "NUGET_FALLBACK_PACKAGES=/root/.nuget/fallbackpackages" -e "EnableCloudLibSearch=false" -e "MARKETPLACE_GITHUB_WORKFLOW_COMMANDS=true" -e "MARKETPLACE_MONGODB_CONNECTIONSTRING=${{env.MONGODB_BRIDGE_CONNECTION}}" -e "MARKETPLACE_MONGODB_DATABASE=test" -p 5000:80 --entrypoint tail profile-designer-api:dev -f /dev/null
 
-    # # # - name: 16__ProfileDesigner - Query Bridge Connection to CESMII.ProfileDesigner.Api Container
-    # # #   run:
-    # # #      export TEMPIPVALUE=$(docker exec -i CESMII.ProfileDesigner.Api hostname -i) ;
-    # # #      echo "PROFILEDESIGNER_BRIDGE_CONNECTION=http://$TEMPIPVALUE" >> $GITHUB_ENV
-    # # # ############################################################
+    - name: 16__ProfileDesigner - Query Bridge Connection to CESMII.ProfileDesigner.Api Container
+      run:
+         export TEMPIPVALUE=$(docker exec -i CESMII.ProfileDesigner.Api hostname -i) ;
+         echo "PROFILEDESIGNER_BRIDGE_CONNECTION=http://$TEMPIPVALUE" >> $GITHUB_ENV
+    ############################################################
 
 
-    # # # ############################################################
-    # # # # Run one of these two
-    # # # # Start the Main Dll in the Container (On Github)
-    # # # ##  Github can accommodate "docker exec -i.... & ", ampersand at the end!!!)
-    # # # ##  In Windows, docker exec -id works better
-    # # # - name: 17__ProfileDesigner - Start the Main Dll in the Container (Github)
-    # # #   if: env.ONGITHUB == 'true'
-    # # #   run: |
-    # # #     docker exec -di CESMII.ProfileDesigner.Api dotnet /src/publish/CESMII.ProfileDesigner.Api.dll
+    ############################################################
+    # Run one of these two
+    # Start the Main Dll in the Container (On Github)
+    ##  Github can accommodate "docker exec -i.... & ", ampersand at the end!!!)
+    ##  In Windows, docker exec -id works better
+    - name: 17__ProfileDesigner - Start the Main Dll in the Container (Github)
+      if: env.ONGITHUB == 'true'
+      run: |
+        docker exec -di CESMII.ProfileDesigner.Api dotnet /src/publish/CESMII.ProfileDesigner.Api.dll
     
-    # # # # Start the Main Dll in the Container (On the Desktop)
-    # # # - name: 18__ProfileDesigner - Start the Main Dll in the Container (Desktop)
-    # # #   if: env.ONGITHUB == 'false'
-    # # #   run: |
-    # # #     docker exec -di CESMII.ProfileDesigner.Api dotnet /src/publish/CESMII.ProfileDesigner.Api.dll
-    # # # ############################################################
+    # Start the Main Dll in the Container (On the Desktop)
+    - name: 18__ProfileDesigner - Start the Main Dll in the Container (Desktop)
+      if: env.ONGITHUB == 'false'
+      run: |
+        docker exec -di CESMII.ProfileDesigner.Api dotnet /src/publish/CESMII.ProfileDesigner.Api.dll
+    ############################################################
 
 
     # # # # Testing -- Call into ProfileDesigner Rest Api from runner

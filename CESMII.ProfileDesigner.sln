@@ -25,7 +25,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CESMII.OpcUa.CloudLibraryRe
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CESMII.OpcUa.CloudLibraryResolver.DependencyInjection", "api\CESMII.OpcUa.CloudLibraryResolver.DependencyInjection\CESMII.OpcUa.CloudLibraryResolver.DependencyInjection.csproj", "{FA2B77D7-79E8-4815-90E6-1A1DFD755A9A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Opc.Ua.Cloud.Library.Client", "common\Opc.Ua.Cloud.Library.Client\Opc.Ua.Cloud.Library.Client.csproj", "{A94716E0-17B6-4FFE-BFAB-23C9582B4ABD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CESMII.Opc.Ua.Cloud.Library.Client", "common\Opc.Ua.Cloud.Library.Client\CESMII.Opc.Ua.Cloud.Library.Client.csproj", "{A94716E0-17B6-4FFE-BFAB-23C9582B4ABD}"
 EndProject
 Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "frontend", "frontend\frontend.esproj", "{E82C3AA8-E104-49B3-9402-C1ABF3C2B5DA}"
 EndProject

@@ -8,10 +8,10 @@
   <ItemGroup>
 	  <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
 	  <PackageReference Include="OPCFoundation.NetStandard.Opc.Ua.Core" Version="1.4.372.76" />
+	  <PackageReference Include="CESMII.OpcUa.CloudLibraryResolver.DependencyInjection" Version="2.0.3" />
   </ItemGroup>
 
   <ItemGroup>
-	<ProjectReference Include="..\CESMII.OpcUa.CloudLibraryResolver.DependencyInjection\CESMII.OpcUa.CloudLibraryResolver.DependencyInjection.csproj" />
 	<ProjectReference Include="..\CESMII.ProfileDesigner.Api.Shared\CESMII.ProfileDesigner.Api.Shared.csproj" />
 	<ProjectReference Include="..\CESMII.ProfileDesigner.Common\CESMII.ProfileDesigner.Common.csproj" />
     <ProjectReference Include="..\CESMII.ProfileDesigner.DAL\CESMII.ProfileDesigner.DAL.csproj" />

@@ -118,6 +118,7 @@
         public string ArrayDimensions { get; set; }
         public uint? MaxStringLength { get; set; }
         public bool? IsRequired { get; set; }
+        public bool? AllowSubTypes { get; set; }
         public string ModelingRule { get; set; }
         public double? MinimumSamplingInterval { get; set; }
 
@@ -127,9 +128,10 @@
         public uint? UserWriteMask { get; set; }
 
         /// <summary>
-        /// This allows for additional data to be captured and stored in a JSON string. 
+        /// Captures the value or default value of the attribute JSON encoded as follows:
+        /// For scalar JSON encodings (per NodeModelOpcExtensions.IsJsonScalar) it is the value of the Body field (string or number)
+        /// For all others, it is the OPC UA Json encoding as defined in https://reference.opcfoundation.org/Core/Part6/v105/docs/5.4.
         /// </summary>
-        /// <remarks>This is not yet in use by the front end.</remarks>
         public string AdditionalData { get; set; }
 
         public override string ToString() => $"{Name} ({Namespace};{OpcNodeId})";

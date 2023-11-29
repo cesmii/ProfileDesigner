@@ -79,7 +79,7 @@
         /// <param name="id">Id of the record to be deleted</param>
         /// <param name="userId">owner of the record. If set to -1 AuthorID is ignored (force delete)</param>
         /// <returns></returns>
-        public Task<int?> DeleteAsync(int id, UserToken userToken)
+        public override Task<int?> DeleteAsync(int id, UserToken userToken)
         {
             return DeleteAsync(id, userToken, true);
         }
@@ -179,6 +179,7 @@
                     Author = MapToModelSimpleUser(entity.Author),
                     Version = entity.Version,
                     XmlSchemaUri = entity.XmlSchemaUri,
+                    HeaderComment = entity.HeaderComment,
                     PublishDate = entity.PublishDate,
                     // Cloud Library meta data
                     Title = entity.Title,
@@ -224,6 +225,7 @@
             entity.AuthorId = model.AuthorId;
             entity.Version = model.Version;
             entity.XmlSchemaUri = model.XmlSchemaUri;
+            entity.HeaderComment = model.HeaderComment;
             entity.PublishDate = model.PublishDate;
 
             // Cloud Library meta data

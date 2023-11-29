@@ -77,6 +77,14 @@ export const validate_enumValueDuplicate = (val, item, allAttributes) => {
         (allAttributes.find((a) => { return a.id !== item.id && parseInt(a.enumValue) === parseInt(val) }) == null);
 };
 
+export const validate_defaultValue = (val, dataType) => {
+    var isValid = true;
+    if (dataType?.name === "Boolean") {
+        isValid = (val === "true" || val === "false" || val == null || val === "");
+    }
+    return isValid;
+}
+
 export const validate_enumValueNumeric = (val, item) => {
     if (item.attributeType.id !== AppSettings.AttributeTypeDefaults.EnumerationId) return true;
     if (val == null || val === '' || val === '-' || val === '.' || val === '-.') return true;
@@ -116,6 +124,7 @@ export const validate_All = (item, editSettings, allAttributes, permittedDataTyp
             item.engUnit == null || validate_engUnit(item.engUnit.id, editSettings),
         enumValue: validate_enumValueNumeric(item.enumValue, item),
         enumValueDuplicate: validate_enumValueDuplicate(item.enumValue, item, allAttributes),
+        defaultValue: validate_defaultValue(item.additionalData, item.dataType),
     };
 
     return result;

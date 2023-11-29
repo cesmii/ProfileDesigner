@@ -2,12 +2,16 @@ import React, { useState, useEffect } from 'react'
 import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
 
-//import color from './Constants'
+import JSONInput from 'react-json-editor-ajrm';
+import locale from 'react-json-editor-ajrm/locale/en';
+
+import color from "../../components/Constants";
+
 import { generateLogMessageString, onChangeNumericKeysOnly, validateNumeric, convertToNumeric, toInt } from '../../utils/UtilityService'
 import { AppSettings } from '../../utils/appsettings';
 import {
     validate_name, validate_nameDuplicate, validate_dataType, validate_minMax, validate_engUnit, validate_All, 
-    onChangeDataTypeShared, renderAttributeIcon, validate_attributeType, onChangeAttributeTypeShared, validate_enumValueDuplicate, validate_enumValueNumeric, onChangeInterfaceShared, onChangeCompositionShared, onChangeEngUnitShared, validate_symbolicName, renderDataTypeUIShared, renderEngUnitUIShared, renderCompositionSelectUIShared, renderVariableTypeUIShared, onChangeVariableTypeShared, getPermittedDataTypesForAttribute
+    onChangeDataTypeShared, renderAttributeIcon, validate_attributeType, onChangeAttributeTypeShared, validate_enumValueDuplicate, validate_enumValueNumeric, validate_defaultValue, onChangeInterfaceShared, onChangeCompositionShared, onChangeEngUnitShared, validate_symbolicName, renderDataTypeUIShared, renderEngUnitUIShared, renderCompositionSelectUIShared, renderVariableTypeUIShared, onChangeVariableTypeShared, getPermittedDataTypesForAttribute
 } from '../../services/AttributesService';
 
 const CLASS_NAME = "AttributeEntity";
@@ -82,7 +86,8 @@ function AttributeEntity(props) { //props are item, showActions
         instrumentMaxIsNumeric: true,
         engUnit: true,
         enumValue: true,
-        enumValueDuplicate: true
+        enumValueDuplicate: true,
+        defaultValue: true,
     });
     const [_editSettings, setEditSettings] = useState(initEditSettings());
     const [_permittedDataTypes, setPermittedDataTypes] = useState(null);
@@ -168,6 +173,12 @@ function AttributeEntity(props) { //props are item, showActions
         setIsValid({ ..._isValid, enumValue: isValidValue, enumValueDuplicate: isValidDup });
     }
 
+    const validateForm_defaultValue = () => {
+        var isValid = validate_defaultValue(_editItem.additionalData, _editItem.dataType);
+        setIsValid({ ..._isValid, defaultValue: isValid });
+        return isValid;
+    };
+
     //validate all - call from button click
     const validateForm = () => {
         console.log(generateLogMessageString(`validateForm`, CLASS_NAME));
@@ -176,7 +187,7 @@ function AttributeEntity(props) { //props are item, showActions
 
         setIsValid(JSON.parse(JSON.stringify(isValid)));
         return (isValid.name && isValid.nameDuplicate && isValid.minMax && isValid.dataType && isValid.attributeType && isValid.engUnit
-            && isValid.minIsNumeric && isValid.maxIsNumeric && isValid.enumValue && isValid.enumValueDuplicate);
+            && isValid.minIsNumeric && isValid.maxIsNumeric && isValid.enumValue && isValid.enumValueDuplicate && isValid.defaultValue);
     }
 
     //-------------------------------------------------------------------
@@ -647,10 +658,10 @@ function AttributeEntity(props) { //props are item, showActions
         return (
             <div className="row mb-2">
                 <div className="col-sm-12 col-md-6">
-            <Form.Group className="flex-grow-1 align-self-center">
+                    <Form.Group className="flex-grow-1 align-self-center">
                         <Form.Check type="checkbox" id="isRequired" label="Is Required" checked={_editItem.isRequired} onChange={onIsRequiredCheckChange}
-                    disabled={isReadOnly ? "disabled" : ""} />
-            </Form.Group>
+                            disabled={isReadOnly ? "disabled" : ""} />
+                    </Form.Group>
                 </div>
                 <div className="col-sm-12 col-md-6">
                     <Form.Group className="flex-grow-1 align-self-center">
@@ -690,12 +701,12 @@ function AttributeEntity(props) { //props are item, showActions
                 {!_isValid.minMax &&
                     <span className="invalid-field-message inline">
                         Min &gt; Max
-                        </span>
+                    </span>
                 }
                 {!_isValid.minIsNumeric &&
                     <span className="invalid-field-message inline">
                         Invalid (ie. ####)
-                        </span>
+                    </span>
                 }
                 <Form.Control id="minValue" type="" value={_editItem.minValue == null ? '' : _editItem.minValue} readOnly={isReadOnly}
                     onChange={onChangeMinMax} onBlur={validateForm_minMax} title={tip}
@@ -717,7 +728,7 @@ function AttributeEntity(props) { //props are item, showActions
                 {!_isValid.maxIsNumeric &&
                     <span className="invalid-field-message inline">
                         Invalid (ie. ####)
-                        </span>
+                    </span>
                 }
                 <Form.Control id="maxValue" type="" value={_editItem.maxValue == null ? '' : _editItem.maxValue} readOnly={isReadOnly}
                     onChange={onChangeMinMax} onBlur={validateForm_minMax} title={tip}
@@ -765,7 +776,7 @@ function AttributeEntity(props) { //props are item, showActions
                 {!_isValid.instrumentMaxIsNumeric &&
                     <span className="invalid-field-message inline">
                         Invalid (ie. ####)
-                        </span>
+                    </span>
                 }
                 <Form.Control id="instrumentMaxValue" type="" value={_editItem.instrumentMaxValue == null ? '' : _editItem.instrumentMaxValue} readOnly={isReadOnly}
                     onChange={onChangeMinMax} onBlur={validateForm_instrumentMinMax} title={tip}
@@ -798,11 +809,91 @@ function AttributeEntity(props) { //props are item, showActions
             return (
                 <Form.Group>
                     <Form.Label className="mb-0" >Eng Unit</Form.Label>
-                        <Form.Control id="engUnit" value={selectedText} readOnly={isReadOnly} title={tip} />
+                    <Form.Control id="engUnit" value={selectedText} readOnly={isReadOnly} title={tip} />
                 </Form.Group>
             );
         }
     };
+
+    const renderDefaultValue = () => {
+        const isReadOnly = (render_CheckReadOnly());
+
+
+        if (_editItem.dataType.isJsonScalar) {
+            return (
+                <Form.Group>
+                    <Form.Label className="mb-0" >Default Value</Form.Label>
+                    {!_isValid.defaultValue &&
+                        <span className="invalid-field-message inline">
+                            Boolean must be 'true' or 'false'.
+                        </span>
+                    }
+                    <Form.Control id="additionalData" value={_editItem.additionalData} onChange={onChange} readOnly={isReadOnly} onBlur={validateForm_defaultValue} />
+                </Form.Group>
+
+            );
+        }
+
+        var jsonValue = {};
+        if (_editItem.additionalData != null) {
+            try {
+                jsonValue = JSON.parse(_editItem.additionalData);
+                if (typeof jsonValue !== 'object' && typeof jsonValue !== 'array') {
+                    jsonValue = {};
+                } 
+            }
+            catch {
+                // ignore invalid value: can happen when switching between datatypes, i.e.string to Nodeid
+            }
+        }
+
+
+        return (
+            <Form.Group>
+                <Form.Label className="mb-0" >Default Value</Form.Label>
+                {/*    <Form.Control id="defaultValue" value={_editItem.additionalData} readOnly={isReadOnly} title={tip} />*/}
+                {!_isValid.defaultValue &&
+                    <span className="invalid-field-message inline">
+                        Invalid JSON structure
+                    </span>
+                }
+                <JSONInput
+                    id='data'
+                    placeholder={jsonValue}
+                    locale={locale}
+                    colors={{
+                        // overrides theme colors with whatever color value you want
+                        default: color.textPrimary,
+                        keys: color.cardinal,
+                        colon: color.cardinal,
+                        background: "#ffffff",
+                        background_warning: color.transparent,
+                        error: color.textSecondary
+                    }}
+                    height='auto'
+                    width="100%"
+                    waitAfterKeyPress={2000}
+                    onBlur={onBlurDefaultValue}
+                    viewOnly={isReadOnly}
+                />
+            </Form.Group>
+        );
+    };
+
+    //on change handler to update state
+    const onBlurDefaultValue= (e) => {
+        console.log(generateLogMessageString('onBlurData||data', CLASS_NAME));
+        //console.log(e);
+        if (e.error) {
+            setIsValid({ ..._isValid, defaultValue: false });
+        }
+        else {
+            setIsValid({ ..._isValid, defaultValue: true });
+            setEditItem({..._editItem, additionalData: JSON.stringify(e.jsObject) });
+            //setItem({ ..._editItem, data: JSON.stringify(e.jsObject) });
+        }
+    }
+
 
     //render the actions col. in edit mode, we swap out the icons
     const renderButtons = () => {
@@ -870,6 +961,9 @@ function AttributeEntity(props) { //props are item, showActions
                     </div>
                 </div>
             }
+            <div className="col-sm-12" >
+                {renderDefaultValue()}
+            </div>
             <div className="row mb-2" >
                 <div className="col-sm-12" >
                     {renderBrowseName()}

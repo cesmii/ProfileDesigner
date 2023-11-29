@@ -79,8 +79,14 @@ namespace CESMII.ProfileDesigner.Api.Tests
             var apiClient = _factory.GetApiClientAuthenticated();
 
             // ACT
+            var sw = Stopwatch.StartNew();
+
             var importRequest = new List<ImportOPCModel> { new ImportOPCModel { FileName = filePath, Data = File.ReadAllText(filePath) } };
             await ImportNodeSets(apiClient, importRequest);
+
+            var importTime = sw.Elapsed;
+            output.WriteLine($"Import time: {importTime}");
+
             if (export)
             {
                 await ExportInternal(fileName, false);

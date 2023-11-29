@@ -2,21 +2,7 @@
 ====>Expected attribute name '/UANodeSet[1]/Models[1]/Model[1]/RequiredModel[1]' - comparing <RequiredModel...> at /UANodeSet[1]/Models[1]/Model[1]/RequiredModel[1] to <RequiredModel...> at /UANodeSet[1]/Models[1]/Model[1]/RequiredModel[1]/@Version
 ====>Expected attribute name '/UANodeSet[1]/Models[1]/Model[1]/RequiredModel[1]' - comparing <RequiredModel...> at /UANodeSet[1]/Models[1]/Model[1]/RequiredModel[1] to <RequiredModel...> at /UANodeSet[1]/Models[1]/Model[1]/RequiredModel[1]/@PublicationDate
 ====>Expected attribute name '/UANodeSet[1]/UADataType[2]/Definition[1]/@IsUnion' - comparing <Definition...> at /UANodeSet[1]/UADataType[2]/Definition[1]/@IsUnion to <Definition...> at /UANodeSet[1]/UADataType[2]/Definition[1]
-====>Expected text value 'Scheduler Scheduling Base' but was 'Scheduler Calendar Base' - comparing <Category ...>Scheduler Scheduling Base</Category> at /UANodeSet[1]/UADataType[3]/Category[1]/text()[1] to <Category ...>Scheduler Calendar Base</Category> at /UANodeSet[1]/UADataType[3]/Category[1]/text()[1]
-====>Expected text value 'Scheduler Calendar Base' but was 'Scheduler Scheduling Base' - comparing <Category ...>Scheduler Calendar Base</Category> at /UANodeSet[1]/UADataType[3]/Category[2]/text()[1] to <Category ...>Scheduler Scheduling Base</Category> at /UANodeSet[1]/UADataType[3]/Category[2]/text()[1]
 ====>Expected attribute name '/UANodeSet[1]/UADataType[3]/Definition[1]/@IsUnion' - comparing <Definition...> at /UANodeSet[1]/UADataType[3]/Definition[1]/@IsUnion to <Definition...> at /UANodeSet[1]/UADataType[3]/Definition[1]
-====>Expected text value 'Scheduler Scheduling Base' but was 'Scheduler Calendar Base' - comparing <Category ...>Scheduler Scheduling Base</Category> at /UANodeSet[1]/UADataType[4]/Category[1]/text()[1] to <Category ...>Scheduler Calendar Base</Category> at /UANodeSet[1]/UADataType[4]/Category[1]/text()[1]
-====>Expected text value 'Scheduler Calendar Base' but was 'Scheduler Scheduling Base' - comparing <Category ...>Scheduler Calendar Base</Category> at /UANodeSet[1]/UADataType[4]/Category[2]/text()[1] to <Category ...>Scheduler Scheduling Base</Category> at /UANodeSet[1]/UADataType[4]/Category[2]/text()[1]
-====>Expected text value 'Scheduler Scheduling Base' but was 'Scheduler Calendar Base' - comparing <Category ...>Scheduler Scheduling Base</Category> at /UANodeSet[1]/UADataType[5]/Category[1]/text()[1] to <Category ...>Scheduler Calendar Base</Category> at /UANodeSet[1]/UADataType[5]/Category[1]/text()[1]
-====>Expected text value 'Scheduler Calendar Base' but was 'Scheduler Scheduling Base' - comparing <Category ...>Scheduler Calendar Base</Category> at /UANodeSet[1]/UADataType[5]/Category[2]/text()[1] to <Category ...>Scheduler Scheduling Base</Category> at /UANodeSet[1]/UADataType[5]/Category[2]/text()[1]
-====>Expected text value 'Scheduler Scheduling Base' but was 'Scheduler Calendar Base' - comparing <Category ...>Scheduler Scheduling Base</Category> at /UANodeSet[1]/UADataType[6]/Category[1]/text()[1] to <Category ...>Scheduler Calendar Base</Category> at /UANodeSet[1]/UADataType[6]/Category[1]/text()[1]
-====>Expected text value 'Scheduler Calendar Base' but was 'Scheduler Scheduling Base' - comparing <Category ...>Scheduler Calendar Base</Category> at /UANodeSet[1]/UADataType[6]/Category[2]/text()[1] to <Category ...>Scheduler Scheduling Base</Category> at /UANodeSet[1]/UADataType[6]/Category[2]/text()[1]
-====>Expected text value 'Scheduler Scheduling Base' but was 'Scheduler Calendar Base' - comparing <Category ...>Scheduler Scheduling Base</Category> at /UANodeSet[1]/UADataType[7]/Category[1]/text()[1] to <Category ...>Scheduler Calendar Base</Category> at /UANodeSet[1]/UADataType[7]/Category[1]/text()[1]
-====>Expected text value 'Scheduler Calendar Base' but was 'Scheduler Scheduling Base' - comparing <Category ...>Scheduler Calendar Base</Category> at /UANodeSet[1]/UADataType[7]/Category[2]/text()[1] to <Category ...>Scheduler Scheduling Base</Category> at /UANodeSet[1]/UADataType[7]/Category[2]/text()[1]
-====>Expected text value 'Scheduler Scheduling Base' but was 'Scheduler Calendar Base' - comparing <Category ...>Scheduler Scheduling Base</Category> at /UANodeSet[1]/UADataType[8]/Category[1]/text()[1] to <Category ...>Scheduler Calendar Base</Category> at /UANodeSet[1]/UADataType[8]/Category[1]/text()[1]
-====>Expected text value 'Scheduler Calendar Base' but was 'Scheduler Scheduling Base' - comparing <Category ...>Scheduler Calendar Base</Category> at /UANodeSet[1]/UADataType[8]/Category[2]/text()[1] to <Category ...>Scheduler Scheduling Base</Category> at /UANodeSet[1]/UADataType[8]/Category[2]/text()[1]
-====>Expected attribute name '/UANodeSet[1]/UADataType[9]/Definition[1]/Field[2]/@AllowSubTypes' - comparing <Field...> at /UANodeSet[1]/UADataType[9]/Definition[1]/Field[2]/@AllowSubTypes to <Field...> at /UANodeSet[1]/UADataType[9]/Definition[1]/Field[2]
-====>Expected attribute name '/UANodeSet[1]/UADataType[9]/Definition[1]/Field[2]' - comparing <Field...> at /UANodeSet[1]/UADataType[9]/Definition[1]/Field[2] to <Field...> at /UANodeSet[1]/UADataType[9]/Definition[1]/Field[2]/@IsOptional
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[2]/References[1]/Reference[2] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[3]/References[1]/Reference[2] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[4]/References[1]/Reference[2] to <NULL>
@@ -39,31 +25,3 @@
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[21]/References[1]/Reference[2] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[22]/References[1]/Reference[2] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[23]/References[1]/Reference[2] to <NULL>
-====>Expected child '#comment' but was '' - comparing <!--
- * Copyright (c) 2005-2022 The OPC Foundation, Inc. All rights reserved.
- *
- * OPC Foundation MIT License 1.00
- * 
- * Permission is hereby granted, free of charge, to any person
- * obtaining a copy of this software and associated documentation
- * files (the "Software"), to deal in the Software without
- * restriction, including without limitation the rights to use,
- * copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the
- * Software is furnished to do so, subject to the following
- * conditions:
- * 
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
- * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
- * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
- * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
- * OTHER DEALINGS IN THE SOFTWARE.
- *
- * The complete license agreement can be found here:
- * http://opcfoundation.org/License/MIT/1.00/
---> at /comment()[1] to <NULL>

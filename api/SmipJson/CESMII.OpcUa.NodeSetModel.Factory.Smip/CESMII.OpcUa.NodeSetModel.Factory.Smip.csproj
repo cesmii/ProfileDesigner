@@ -21,11 +21,11 @@
   </ItemGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="OPCFoundation.NetStandard.Opc.Ua.Core" Version="1.4.371.86" />
+	  <PackageReference Include="OPCFoundation.NetStandard.Opc.Ua.Core" Version="1.4.372.76" />
   </ItemGroup>
 
   <ItemGroup>
-	  <PackageReference Include="CESMII.OpcUa.NodeSetModel" Version="1.0.16" />
+	  <PackageReference Include="CESMII.OpcUa.NodeSetModel" Version="2.0.3" />
 	  <!--<ProjectReference Include="..\CESMII.OpcUa.NodeSetModel\CESMII.OpcUa.NodeSetModel.csproj" />-->
   </ItemGroup>
 

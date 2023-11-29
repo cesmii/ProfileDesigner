@@ -294,6 +294,7 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int.Controllers
                 CategoryName = entity.CategoryName,
                 PublishDate = entity.PublishDate,
                 XmlSchemaUri = entity.XmlSchemaUri,
+                HeaderComment = entity.HeaderComment,
                 License = entity.License,
                 Description = entity.Description,
                 CloudLibraryId = entity.CloudLibraryId, 

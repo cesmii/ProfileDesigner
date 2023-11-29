@@ -103,6 +103,7 @@
                     Name = entity.Name,
                     Code = entity.Code,
                     IsNumeric = entity.IsNumeric,
+                    IsJsonScalar = entity.IsJsonScalar,
                     DisplayOrder = entity.DisplayOrder,
                     UseMinMax = entity.UseMinMax,
                     UseEngUnit = entity.UseEngUnit, 

@@ -1,68 +1,32 @@
-====>Expected attribute name '/UANodeSet[1]' - comparing <UANodeSet...> at /UANodeSet[1] to <UANodeSet...> at /UANodeSet[1]/@LastModified
-====>Expected attribute name '/UANodeSet[1]/Models[1]/Model[1]' - comparing <Model...> at /UANodeSet[1]/Models[1]/Model[1] to <Model...> at /UANodeSet[1]/Models[1]/Model[1]/@XmlSchemaUri
 ====>Expected attribute value '1.04.3' but was '1.05.02' - comparing <RequiredModel Version="1.04.3"...> at /UANodeSet[1]/Models[1]/Model[1]/RequiredModel[1]/@Version to <RequiredModel Version="1.05.02"...> at /UANodeSet[1]/Models[1]/Model[1]/RequiredModel[1]/@Version
 ====>Expected attribute value '2019-09-09T00:00:00Z' but was '2022-11-01T00:00:00Z' - comparing <RequiredModel PublicationDate="2019-09-09T00:00:00Z"...> at /UANodeSet[1]/Models[1]/Model[1]/RequiredModel[1]/@PublicationDate to <RequiredModel PublicationDate="2022-11-01T00:00:00Z"...> at /UANodeSet[1]/Models[1]/Model[1]/RequiredModel[1]/@PublicationDate
 ====>Expected attribute value '1.02' but was '1.04.0' - comparing <RequiredModel Version="1.02"...> at /UANodeSet[1]/Models[1]/Model[1]/RequiredModel[2]/@Version to <RequiredModel Version="1.04.0"...> at /UANodeSet[1]/Models[1]/Model[1]/RequiredModel[3]/@Version
 ====>Expected attribute value '2019-05-01T00:00:00Z' but was '2022-11-03T00:00:00Z' - comparing <RequiredModel PublicationDate="2019-05-01T00:00:00Z"...> at /UANodeSet[1]/Models[1]/Model[1]/RequiredModel[2]/@PublicationDate to <RequiredModel PublicationDate="2022-11-03T00:00:00Z"...> at /UANodeSet[1]/Models[1]/Model[1]/RequiredModel[3]/@PublicationDate
 ====>Expected attribute value '1.02' but was '1.03' - comparing <RequiredModel Version="1.02"...> at /UANodeSet[1]/Models[1]/Model[1]/RequiredModel[3]/@Version to <RequiredModel Version="1.03"...> at /UANodeSet[1]/Models[1]/Model[1]/RequiredModel[2]/@Version
 ====>Expected attribute value '2020-06-01T00:00:00Z' but was '2021-05-10T12:00:00Z' - comparing <RequiredModel PublicationDate="2020-06-01T00:00:00Z"...> at /UANodeSet[1]/Models[1]/Model[1]/RequiredModel[3]/@PublicationDate to <RequiredModel PublicationDate="2021-05-10T12:00:00Z"...> at /UANodeSet[1]/Models[1]/Model[1]/RequiredModel[2]/@PublicationDate
-====>Expected attribute name '/UANodeSet[1]/UAObject[2]/@EventNotifier' - comparing <UAObject...> at /UANodeSet[1]/UAObject[2]/@EventNotifier to <UAObject...> at /UANodeSet[1]/UAObject[4]
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAVariable[15]/References[1]/Reference[4] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAVariable[47]/References[1]/Reference[4] to <NULL>
-====>Expected attribute name '/UANodeSet[1]/UAObject[9]/@EventNotifier' - comparing <UAObject...> at /UANodeSet[1]/UAObject[9]/@EventNotifier to <UAObject...> at /UANodeSet[1]/UAObject[11]
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAVariable[96]/References[1]/Reference[2] to <NULL>
-====>Expected attribute name '/UANodeSet[1]/UAObject[20]/@EventNotifier' - comparing <UAObject...> at /UANodeSet[1]/UAObject[20]/@EventNotifier to <UAObject...> at /UANodeSet[1]/UAObject[20]
-====>Expected attribute name '/UANodeSet[1]/UAObject[21]/@EventNotifier' - comparing <UAObject...> at /UANodeSet[1]/UAObject[21]/@EventNotifier to <UAObject...> at /UANodeSet[1]/UAObject[8]
-====>Expected child '' but was 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' - comparing <NULL> to <uax:Text...> at /UANodeSet[1]/UAVariable[124]/Value[1]/ExtensionObject[1]/Body[1]/EUInformation[1]/DisplayName[1]/Text[1]
-====>Expected child '' but was 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' - comparing <NULL> to <uax:Text...> at /UANodeSet[1]/UAVariable[132]/Value[1]/ExtensionObject[1]/Body[1]/EUInformation[1]/DisplayName[1]/Text[1]
-====>Expected child '' but was 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' - comparing <NULL> to <uax:Text...> at /UANodeSet[1]/UAVariable[135]/Value[1]/ExtensionObject[1]/Body[1]/EUInformation[1]/DisplayName[1]/Text[1]
-====>Expected child '' but was 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' - comparing <NULL> to <uax:Text...> at /UANodeSet[1]/UAVariable[61]/Value[1]/ExtensionObject[1]/Body[1]/EUInformation[1]/DisplayName[1]/Text[1]
-====>Expected child '' but was 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' - comparing <NULL> to <uax:Text...> at /UANodeSet[1]/UAVariable[150]/Value[1]/ExtensionObject[1]/Body[1]/EUInformation[1]/DisplayName[1]/Text[1]
-====>Expected child '' but was 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' - comparing <NULL> to <uax:Text...> at /UANodeSet[1]/UAVariable[153]/Value[1]/ExtensionObject[1]/Body[1]/EUInformation[1]/DisplayName[1]/Text[1]
-====>Expected child '' but was 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' - comparing <NULL> to <uax:Text...> at /UANodeSet[1]/UAVariable[156]/Value[1]/ExtensionObject[1]/Body[1]/EUInformation[1]/DisplayName[1]/Text[1]
-====>Expected child '' but was 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' - comparing <NULL> to <uax:Text...> at /UANodeSet[1]/UAVariable[159]/Value[1]/ExtensionObject[1]/Body[1]/EUInformation[1]/DisplayName[1]/Text[1]
-====>Expected child '' but was 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' - comparing <NULL> to <uax:Text...> at /UANodeSet[1]/UAVariable[199]/Value[1]/ExtensionObject[1]/Body[1]/EUInformation[1]/DisplayName[1]/Text[1]
-====>Expected child '' but was 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' - comparing <NULL> to <uax:Text...> at /UANodeSet[1]/UAVariable[222]/Value[1]/ExtensionObject[1]/Body[1]/EUInformation[1]/DisplayName[1]/Text[1]
-====>Expected child '' but was 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' - comparing <NULL> to <uax:Text...> at /UANodeSet[1]/UAVariable[226]/Value[1]/ExtensionObject[1]/Body[1]/EUInformation[1]/DisplayName[1]/Text[1]
-====>Expected child '' but was 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' - comparing <NULL> to <uax:Text...> at /UANodeSet[1]/UAVariable[210]/Value[1]/ExtensionObject[1]/Body[1]/EUInformation[1]/DisplayName[1]/Text[1]
-====>Expected child '' but was 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' - comparing <NULL> to <uax:Text...> at /UANodeSet[1]/UAVariable[237]/Value[1]/ExtensionObject[1]/Body[1]/EUInformation[1]/DisplayName[1]/Text[1]
-====>Expected child '' but was 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' - comparing <NULL> to <uax:Text...> at /UANodeSet[1]/UAVariable[240]/Value[1]/ExtensionObject[1]/Body[1]/EUInformation[1]/DisplayName[1]/Text[1]
-====>Expected child '' but was 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' - comparing <NULL> to <uax:Text...> at /UANodeSet[1]/UAVariable[58]/Value[1]/ExtensionObject[1]/Body[1]/EUInformation[1]/DisplayName[1]/Text[1]
-====>Expected child '' but was 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' - comparing <NULL> to <uax:Text...> at /UANodeSet[1]/UAVariable[246]/Value[1]/ExtensionObject[1]/Body[1]/EUInformation[1]/DisplayName[1]/Text[1]
-====>Expected child '' but was 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' - comparing <NULL> to <uax:Text...> at /UANodeSet[1]/UAVariable[121]/Value[1]/ExtensionObject[1]/Body[1]/EUInformation[1]/DisplayName[1]/Text[1]
-====>Expected child '' but was 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' - comparing <NULL> to <uax:Text...> at /UANodeSet[1]/UAVariable[164]/Value[1]/ExtensionObject[1]/Body[1]/EUInformation[1]/DisplayName[1]/Text[1]
-====>Expected child '' but was 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' - comparing <NULL> to <uax:Text...> at /UANodeSet[1]/UAVariable[243]/Value[1]/ExtensionObject[1]/Body[1]/EUInformation[1]/DisplayName[1]/Text[1]
-====>Expected child '' but was 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' - comparing <NULL> to <uax:Text...> at /UANodeSet[1]/UAVariable[249]/Value[1]/ExtensionObject[1]/Body[1]/EUInformation[1]/DisplayName[1]/Text[1]
-====>Expected child '' but was 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' - comparing <NULL> to <uax:Text...> at /UANodeSet[1]/UAVariable[192]/Value[1]/ExtensionObject[1]/Body[1]/EUInformation[1]/DisplayName[1]/Text[1]
-====>Expected child '' but was 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' - comparing <NULL> to <uax:Text...> at /UANodeSet[1]/UAVariable[196]/Value[1]/ExtensionObject[1]/Body[1]/EUInformation[1]/DisplayName[1]/Text[1]
-====>Expected child '' but was 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' - comparing <NULL> to <uax:Text...> at /UANodeSet[1]/UAVariable[101]/Value[1]/ExtensionObject[1]/Body[1]/EUInformation[1]/DisplayName[1]/Text[1]
-====>Expected child '' but was 'http://opcfoundation.org/UA/2008/02/Types.xsd:Text' - comparing <NULL> to <uax:Text...> at /UANodeSet[1]/UAVariable[107]/Value[1]/ExtensionObject[1]/Body[1]/EUInformation[1]/DisplayName[1]/Text[1]
+====>Expected child 'http://opcfoundation.org/UA/PlasticsRubber/GeneralTypes/Types.xsd:Components' but was '' - comparing <Components...> at /UANodeSet[1]/UAVariable[103]/Value[1]/ExtensionObject[1]/Body[1]/ProductionDatasetInformationType[1]/Components[1] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/PlasticsRubber/GeneralTypes/Types.xsd:Manufacturer' but was '' - comparing <Manufacturer...> at /UANodeSet[1]/UAVariable[103]/Value[1]/ExtensionObject[1]/Body[1]/ProductionDatasetInformationType[1]/Manufacturer[1] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/PlasticsRubber/GeneralTypes/Types.xsd:SerialNumber' but was '' - comparing <SerialNumber...> at /UANodeSet[1]/UAVariable[103]/Value[1]/ExtensionObject[1]/Body[1]/ProductionDatasetInformationType[1]/SerialNumber[1] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/PlasticsRubber/GeneralTypes/Types.xsd:Model' but was '' - comparing <Model...> at /UANodeSet[1]/UAVariable[103]/Value[1]/ExtensionObject[1]/Body[1]/ProductionDatasetInformationType[1]/Model[1] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/PlasticsRubber/GeneralTypes/Types.xsd:ControllerName' but was '' - comparing <ControllerName...> at /UANodeSet[1]/UAVariable[103]/Value[1]/ExtensionObject[1]/Body[1]/ProductionDatasetInformationType[1]/ControllerName[1] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/PlasticsRubber/GeneralTypes/Types.xsd:UserMachineName' but was '' - comparing <UserMachineName...> at /UANodeSet[1]/UAVariable[103]/Value[1]/ExtensionObject[1]/Body[1]/ProductionDatasetInformationType[1]/UserMachineName[1] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/PlasticsRubber/GeneralTypes/Types.xsd:LocationName' but was '' - comparing <LocationName...> at /UANodeSet[1]/UAVariable[103]/Value[1]/ExtensionObject[1]/Body[1]/ProductionDatasetInformationType[1]/LocationName[1] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/PlasticsRubber/GeneralTypes/Types.xsd:ProductName' but was '' - comparing <ProductName...> at /UANodeSet[1]/UAVariable[103]/Value[1]/ExtensionObject[1]/Body[1]/ProductionDatasetInformationType[1]/ProductName[1] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/PlasticsRubber/GeneralTypes/Types.xsd:MouldId' but was '' - comparing <MouldId...> at /UANodeSet[1]/UAVariable[103]/Value[1]/ExtensionObject[1]/Body[1]/ProductionDatasetInformationType[1]/MouldId[1] to <NULL>
+====>Expected child '' but was 'http://opcfoundation.org/UA/2008/02/Types.xsd:Components' - comparing <NULL> to <uax:Components...> at /UANodeSet[1]/UAVariable[18]/Value[1]/ExtensionObject[1]/Body[1]/ProductionDatasetInformationType[1]/Components[1]
+====>Expected child '' but was 'http://opcfoundation.org/UA/2008/02/Types.xsd:ProductName' - comparing <NULL> to <uax:ProductName...> at /UANodeSet[1]/UAVariable[18]/Value[1]/ExtensionObject[1]/Body[1]/ProductionDatasetInformationType[1]/ProductName[1]
+====>Expected child 'http://opcfoundation.org/UA/PlasticsRubber/GeneralTypes/Types.xsd:Components' but was '' - comparing <Components...> at /UANodeSet[1]/UAVariable[110]/Value[1]/ExtensionObject[1]/Body[1]/ProductionDatasetInformationType[1]/Components[1] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/PlasticsRubber/GeneralTypes/Types.xsd:Manufacturer' but was '' - comparing <Manufacturer...> at /UANodeSet[1]/UAVariable[110]/Value[1]/ExtensionObject[1]/Body[1]/ProductionDatasetInformationType[1]/Manufacturer[1] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/PlasticsRubber/GeneralTypes/Types.xsd:SerialNumber' but was '' - comparing <SerialNumber...> at /UANodeSet[1]/UAVariable[110]/Value[1]/ExtensionObject[1]/Body[1]/ProductionDatasetInformationType[1]/SerialNumber[1] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/PlasticsRubber/GeneralTypes/Types.xsd:Model' but was '' - comparing <Model...> at /UANodeSet[1]/UAVariable[110]/Value[1]/ExtensionObject[1]/Body[1]/ProductionDatasetInformationType[1]/Model[1] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/PlasticsRubber/GeneralTypes/Types.xsd:ControllerName' but was '' - comparing <ControllerName...> at /UANodeSet[1]/UAVariable[110]/Value[1]/ExtensionObject[1]/Body[1]/ProductionDatasetInformationType[1]/ControllerName[1] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/PlasticsRubber/GeneralTypes/Types.xsd:UserMachineName' but was '' - comparing <UserMachineName...> at /UANodeSet[1]/UAVariable[110]/Value[1]/ExtensionObject[1]/Body[1]/ProductionDatasetInformationType[1]/UserMachineName[1] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/PlasticsRubber/GeneralTypes/Types.xsd:LocationName' but was '' - comparing <LocationName...> at /UANodeSet[1]/UAVariable[110]/Value[1]/ExtensionObject[1]/Body[1]/ProductionDatasetInformationType[1]/LocationName[1] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/PlasticsRubber/GeneralTypes/Types.xsd:ProductName' but was '' - comparing <ProductName...> at /UANodeSet[1]/UAVariable[110]/Value[1]/ExtensionObject[1]/Body[1]/ProductionDatasetInformationType[1]/ProductName[1] to <NULL>
+====>Expected child 'http://opcfoundation.org/UA/PlasticsRubber/GeneralTypes/Types.xsd:MouldId' but was '' - comparing <MouldId...> at /UANodeSet[1]/UAVariable[110]/Value[1]/ExtensionObject[1]/Body[1]/ProductionDatasetInformationType[1]/MouldId[1] to <NULL>
+====>Expected child '' but was 'http://opcfoundation.org/UA/2008/02/Types.xsd:Components' - comparing <NULL> to <uax:Components...> at /UANodeSet[1]/UAVariable[129]/Value[1]/ExtensionObject[1]/Body[1]/ProductionDatasetInformationType[1]/Components[1]
+====>Expected child '' but was 'http://opcfoundation.org/UA/2008/02/Types.xsd:ProductName' - comparing <NULL> to <uax:ProductName...> at /UANodeSet[1]/UAVariable[129]/Value[1]/ExtensionObject[1]/Body[1]/ProductionDatasetInformationType[1]/ProductName[1]
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Extensions' but was '' - comparing <Extensions...> at /UANodeSet[1]/Extensions[1] to <NULL>
-====>Expected child '#comment' but was '' - comparing <!--
- * Copyright (c) 2005-2021 The OPC Foundation, Inc. All rights reserved.
- *
- * OPC Foundation MIT License 1.00
- * 
- * Permission is hereby granted, free of charge, to any person
- * obtaining a copy of this software and associated documentation
- * files (the "Software"), to deal in the Software without
- * restriction, including without limitation the rights to use,
- * copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the
- * Software is furnished to do so, subject to the following
- * conditions:
- * 
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
- * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
- * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
- * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
- * OTHER DEALINGS IN THE SOFTWARE.
- *
- * The complete license agreement can be found here:
- * http://opcfoundation.org/License/MIT/1.00/
---> at /comment()[1] to <NULL>

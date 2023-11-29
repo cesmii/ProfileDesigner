@@ -17,6 +17,7 @@
                       <Rule Match="Any">
                         <Property Name="DisplayName" Value="CESMII.ProfileDesigner.Api.Tests.Integration.Import(file: &quot;opcfoundation.org.UA.1.05.2022-11-01.NodeSet2.xml&quot;)" />
                         <Property Name="DisplayName" Value="CESMII.ProfileDesigner.Api.Tests.Integration.Import(file: &quot;opcfoundation.org.UA.DI.2022-11-03.NodeSet2.xml&quot;)" />
+                        <Property Name="DisplayName" Value="CESMII.ProfileDesigner.Api.Tests.Integration.Import(file: &quot;opcfoundation.org.UA.Robotics.2021-05-20.NodeSet2.&quot;...)" />
                       </Rule>
                     </Rule>
                     <Rule Match="All">
@@ -24,6 +25,7 @@
                       <Rule Match="Any">
                         <Property Name="DisplayName" Value="CESMII.ProfileDesigner.Api.Tests.Integration.Export(file: &quot;opcfoundation.org.UA.1.05.2022-11-01.NodeSet2.xml&quot;)" />
                         <Property Name="DisplayName" Value="CESMII.ProfileDesigner.Api.Tests.Integration.Export(file: &quot;opcfoundation.org.UA.DI.2022-11-03.NodeSet2.xml&quot;)" />
+                        <Property Name="DisplayName" Value="CESMII.ProfileDesigner.Api.Tests.Integration.Export(file: &quot;opcfoundation.org.UA.Robotics.2021-05-20.NodeSet2.&quot;...)" />
                       </Rule>
                     </Rule>
                   </Rule>

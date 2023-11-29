@@ -14,13 +14,17 @@ import { useLoadingContext, UpdateRecentFileList } from "../components/contexts/
 import { useWizardContext } from '../components/contexts/WizardContext';
 import { AppSettings } from '../utils/appsettings';
 import { generateLogMessageString, getTypeDefIconName, getProfileTypeCaption, getIconColorByProfileState, isDerivedFromDataType, getPermittedDataTypesForVariableTypeById } from '../utils/UtilityService'
-import { renderDataTypeUIShared } from '../services/AttributesService';
+import { renderDataTypeUIShared, validate_defaultValue } from '../services/AttributesService';
 import AttributeList from './shared/AttributeList';
 import DependencyList from './shared/DependencyList';
 import ProfileBreadcrumbs from './shared/ProfileBreadcrumbs';
 import ProfileEntityModal from './modals/ProfileEntityModal';
 import ProfileItemRow from './shared/ProfileItemRow';
 import TypeDefinitionActions from './shared/TypeDefinitionActions';
+
+import JSONInput from 'react-json-editor-ajrm';
+import locale from 'react-json-editor-ajrm/locale/en';
+import color from "../components/Constants";
 
 import { SVGIcon } from "../components/SVGIcon";
 import { getWizardNavInfo, renderWizardBreadcrumbs, WizardSettings } from '../services/WizardUtil';
@@ -57,7 +61,7 @@ function ProfileTypeDefinitionEntity() {
     const [_lookupDataTypes, setLookupDataTypes] = useState([]);
     const [_permittedDataTypes, setPermittedDataTypes] = useState(null);
     const [_isReadOnly, setIsReadOnly] = useState(true);
-    const [_isValid, setIsValid] = useState({ name: true, profile: true, description: true, type: true, symbolicName: true, variableDataType: true });
+    const [_isValid, setIsValid] = useState({ name: true, profile: true, description: true, type: true, symbolicName: true, variableDataType: true, defaultValue: true, variableValue: true });
     //const [_lookupProfiles, setLookupProfiles] = useState([]);
     //used in popup profile add/edit ui. Default to new version
     const [_profileEntityModal, setProfileEntityModal] = useState({ show: false, item: null, autoSave: false  });
@@ -67,14 +71,14 @@ function ProfileTypeDefinitionEntity() {
     const { wizardProps, setWizardProps } = useWizardContext();
     const _navInfo = history.location.pathname.indexOf('/wizard/') === - 1 ? null : getWizardNavInfo(wizardProps.mode, 'ExtendBaseType');
     const _currentPage = history.location.pathname.indexOf('/wizard/') === - 1 ? null : WizardSettings.panels.find(p => { return p.id === 'ExtendBaseType'; });
-    
+
     //-------------------------------------------------------------------
     // Region: hooks - Execute once after component loads
     //-------------------------------------------------------------------
     useEffect(() => {
         // Init flags to detect unsaved changes and warn a user when they try to leave the page
         setLoadingProps({ bIsTypeEditUnsaved: false });
-    }, []);
+    }, [setLoadingProps]);
 
     //-------------------------------------------------------------------
     // Region: hooks
@@ -163,7 +167,7 @@ function ProfileTypeDefinitionEntity() {
             setIsLoading(false);
             setLoadingProps({ isLoading: false, message: null });
             setMode(thisMode);
-    
+
             // set form to readonly if we're in viewmode            
             setIsReadOnly(thisMode.toLowerCase() === "view");
             //setIsReadOnly(true);
@@ -428,6 +432,12 @@ function ProfileTypeDefinitionEntity() {
         return lookupDataType == baseVTDataType; // ok if both are null or if they are identical
     }
 
+    const validateForm_variableValue = () => {
+        var isValid = validate_defaultValue(_item.variableValue, _item.variableDataType);
+        setIsValid({ ..._isValid, variableValue: isValid });
+        return isValid;
+    };
+
     ////update state for when search click happens
     const validateForm = () => {
         console.log(generateLogMessageString(`validateForm`, CLASS_NAME));
@@ -438,9 +448,10 @@ function ProfileTypeDefinitionEntity() {
         _isValid.type = _item.type != null && _item.type.id !== -1 && _item.type.id !== "-1";
         _isValid.symbolicName = validate_symbolicName(_item.symbolicName);
         _isValid.variableDataType = validate_variableDataType(_item.variableDataType);
+        _isValid.variableValue = validateForm_variableValue();
 
         setIsValid(JSON.parse(JSON.stringify(_isValid)));
-        return (_isValid.name && _isValid.profile && _isValid.description && _isValid.type && _isValid.symbolicName && _isValid.variableDataType);
+        return (_isValid.name && _isValid.profile && _isValid.description && _isValid.type && _isValid.symbolicName && _isValid.variableDataType && _isValid.variableValue);
     }
 
     //-------------------------------------------------------------------
@@ -589,6 +600,10 @@ function ProfileTypeDefinitionEntity() {
                 else {
                     _item.type = { id: e.target.value, name: e.target.options[e.target.selectedIndex].text };
                 }
+                break;
+            case "variableValue":
+                _item.variableValue = e.target.value;
+                validateForm_variableValue();
                 break;
             default:
                 return;
@@ -773,11 +788,12 @@ function ProfileTypeDefinitionEntity() {
     const onChangeVariableDataType = (e) => {
         var lookupItem = _lookupDataTypes.find(dt => { return dt.id.toString() === e.value.toString(); });
 
-        _item.variableDataType = 
+        _item.variableDataType =
             lookupItem != null ?
-            { id: lookupItem.customTypeId, name: lookupItem.name }
-            : { id: -1, name: '' };
+                { id: lookupItem.customTypeId, name: lookupItem.name }
+                : { id: -1, name: '' };
         setItem(JSON.parse(JSON.stringify(_item)));
+        validateForm_variableValue();
     }
 
 
@@ -853,7 +869,8 @@ function ProfileTypeDefinitionEntity() {
         if (!_isValid.description) fieldError.push(`Description is required.`);
         if (!_isValid.type) fieldError.push(`Type is required.`);
         if (!_isValid.symbolicName) fieldError.push(`Symbolic Name is invalid (Advanced tab).`);
-        if (!_isValid.variableDataType) fieldError.push(`Variable Data Tyype is required.`);
+        if (!_isValid.variableDataType) fieldError.push(`Variable Data Type is required.`);
+        if (!_isValid.variableValue) fieldError.push(`Invalid default value (Boolean must be 'true' or 'false').`);
 
         if (fieldError.length === 0) return null;
 
@@ -912,9 +929,88 @@ function ProfileTypeDefinitionEntity() {
         }
     };
 
+    const renderVariableDefaultValue = () => {
+        if (_item.typeId !== AppSettings.ProfileTypeDefaults.VariableTypeId) {
+            return null;
+        }
+        var lookupItem = _lookupDataTypes.find(dt => { return dt.customTypeId.toString() === _item.variableDataType.id.toString(); });
+
+        if (lookupItem?.isJsonScalar) {
+            return (
+                <div className="col-md-12">
+                    <Form.Group>
+                        <Form.Label className="mb-0" >Default Value</Form.Label>
+                        <Form.Control id="variableValue" value={_item.variableValue} onChange={onChange} readOnly={_isReadOnly} />
+                    </Form.Group>
+                </div>
+            );
+        }
+
+        var jsonValue = {};
+        if (_item.variableValue != null) {
+            try {
+                jsonValue = JSON.parse(_item.variableValue);
+                if (typeof jsonValue !== 'object' && typeof jsonValue !== 'array') {
+                    jsonValue = {};
+                } 
+
+            }
+            catch {
+                // ignore invalid value: can happen when switching between datatypes, i.e.string to Nodeid
+            }
+        }
+
+        return (
+            <div className="col-md-12">
+                <Form.Group>
+                    <Form.Label className="mb-0" >Default Value</Form.Label>
+                    {!_isValid.defaultValue &&
+                        <span className="invalid-field-message inline">
+                            Invalid JSON structure
+                        </span>
+                    }
+                    <JSONInput
+                        id='data'
+                        placeholder={jsonValue}
+                        locale={locale}
+                        colors={{
+                            // overrides theme colors with whatever color value you want
+                            default: color.textPrimary,
+                            keys: color.cardinal,
+                            colon: color.cardinal,
+                            background: "#ffffff",
+                            background_warning: color.transparent,
+                            error: color.textSecondary
+                        }}
+                        height='auto'
+                        width="100%"
+                        waitAfterKeyPress={2000}
+                        onBlur={onBlurDefaultValue}
+                        viewOnly={_isReadOnly}
+                    />
+                </Form.Group>
+            </div>
+        );
+    };
+
+
+    //on change handler to update state
+    const onBlurDefaultValue = (e) => {
+        console.log(generateLogMessageString('onBlurData||data', CLASS_NAME));
+        //console.log(e);
+        if (e.error) {
+            setIsValid({ ..._isValid, defaultValue: false });
+        }
+        else {
+            setIsValid({ ..._isValid, defaultValue: true });
+            setItem({ ..._item, variableValue: JSON.stringify(e.jsObject) });
+            setLoadingProps({ bIsTypeEditUnsaved: true });
+        }
+    }
+
     const renderVariableDataTypeUI = () => {
         var lookupItem = _lookupDataTypes.find(dt => { return dt.customTypeId.toString() === _item.variableDataType?.id?.toString(); });
-            //set isValid === true always - not required here...
+        //set isValid === true always - not required here...
         return renderDataTypeUIShared(lookupItem, _permittedDataTypes, null, _isValid.variableDataType, true, "Data Type of the Variable", onChangeVariableDataType, validateForm_variableDataType)
     }
 
@@ -1009,6 +1105,9 @@ function ProfileTypeDefinitionEntity() {
                     <div className="col-lg-3 col-md-6">
                         {renderProfileDefType()}
                     </div>
+                </div>
+                <div className="row mb-3">
+                    {renderVariableDefaultValue()}
                 </div>
                 <div className="row mb-3">
                     <div className="col-md-12">

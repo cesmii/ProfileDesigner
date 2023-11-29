@@ -331,6 +331,8 @@
                     BrowseName = entity.BrowseName,
                     SymbolicName = entity.SymbolicName,
                     Description = entity.Description,
+                    ReleaseStatus = entity.ReleaseStatus,
+                    EventNotifier = entity.EventNotifier,
                     TypeId = entity.ProfileTypeId,
                     Type = entity.ProfileType != null ?
                         new LookupItemModel { ID = entity.ProfileType.ID, Name = entity.ProfileType.Name, TypeId = entity.ProfileType.ID }
@@ -484,6 +486,7 @@
                 InstrumentRangeAccessLevel = item.InstrumentRangeAccessLevel,
                 EnumValue = item.EnumValue,
                 IsRequired = item.IsRequired,
+                AllowSubTypes = item.AllowSubTypes,
                 ModelingRule = item.ModelingRule,
                 IsArray = item.IsArray,
                 ValueRank = item.ValueRank,
@@ -522,6 +525,7 @@
                 CustomTypeId = item.DataType.CustomTypeId,
                 CustomType = item.DataType.CustomType != null ?
                              MapToModel(item.DataType.CustomType, false) : null,
+                IsJsonScalar = item.DataType.IsJsonScalar,
             };
         }
 
@@ -542,6 +546,8 @@
                         SymbolicName = i.Interface.SymbolicName,
                         AuthorId = 99,  //just populate with some value for now to prevent model state errors on save. 
                         Description = i.Interface.Description,
+                        ReleaseStatus = i.Interface.ReleaseStatus,
+                        EventNotifier = i.Interface.EventNotifier,
                         DocumentUrl = i.Interface.DocumentUrl,
                         TypeId = i.Interface.ProfileTypeId,
                         Type = new LookupItemModel { ID = i.Interface.ProfileType?.ID, Name = i.Interface.ProfileType?.Name },
@@ -677,6 +683,8 @@
             entity.SymbolicName = model.SymbolicName;
             entity.ProfileTypeId = model.TypeId;
             entity.Description = model.Description;
+            entity.ReleaseStatus = model.ReleaseStatus;
+            entity.EventNotifier = model.EventNotifier;
             entity.DocumentUrl = model.DocumentUrl;
             entity.IsAbstract = model.IsAbstract;
             entity.Updated = DateTime.UtcNow;
@@ -872,6 +880,7 @@
                         }
                         current.EnumValue = source.EnumValue;
                         current.IsRequired = source.IsRequired;
+                        current.AllowSubTypes = source.AllowSubTypes;
                         current.ModelingRule = source.ModelingRule;
                         current.IsArray = source.IsArray;
                         current.ValueRank = source.ValueRank;
@@ -960,6 +969,7 @@
                             AttributeTypeId = attr.AttributeType?.ID ?? 0,
                             EnumValue = attr.EnumValue,
                             IsRequired = attr.IsRequired,
+                            AllowSubTypes = attr.AllowSubTypes,
                             ModelingRule = attr.ModelingRule,
                             IsArray = attr.IsArray,
                             ValueRank = attr.ValueRank,

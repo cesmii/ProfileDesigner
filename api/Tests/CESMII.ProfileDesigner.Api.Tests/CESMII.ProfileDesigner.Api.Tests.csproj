@@ -35,8 +35,8 @@
   </ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="OPCFoundation.NetStandard.Opc.Ua.Core" Version="1.4.371.86" />
-		<PackageReference Include="CESMII.OpcUa.NodeSetDiff" Version="1.0.16" />
+		<PackageReference Include="OPCFoundation.NetStandard.Opc.Ua.Core" Version="1.4.372.76" />
+		<PackageReference Include="CESMII.OpcUa.NodeSetDiff" Version="2.0.3" />
 	</ItemGroup>
 
 	<ItemGroup>

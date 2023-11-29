@@ -435,6 +435,8 @@ namespace CESMII.ProfileDesigner.Api.Tests.Int.Controllers
                 BrowseName = entity.BrowseName,
                 SymbolicName = entity.SymbolicName,
                 Description = entity.Description,
+                ReleaseStatus = entity.ReleaseStatus,
+                EventNotifier = entity.EventNotifier,
                 TypeId = entity.ProfileTypeId,
                 Type = entity.ProfileType != null ?
                         new LookupItemModel { ID = entity.ProfileType.ID, Name = entity.ProfileType.Name, TypeId = entity.ProfileType.ID }

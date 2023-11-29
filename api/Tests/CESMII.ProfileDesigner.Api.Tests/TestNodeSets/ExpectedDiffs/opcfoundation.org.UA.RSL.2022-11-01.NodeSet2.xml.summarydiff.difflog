@@ -1,38 +1,9 @@
-====>Expected attribute name '/UANodeSet[1]' - comparing <UANodeSet...> at /UANodeSet[1] to <UANodeSet...> at /UANodeSet[1]/@LastModified
+###4#By design#Original Nodeset violates spec by using AngelUnit instead of EngineeringUnits
 ====>Expected attribute value 'AngleUnit' but was 'EngineeringUnits' - comparing <UAVariable BrowseName="AngleUnit"...> at /UANodeSet[1]/UAVariable[11]/@BrowseName to <UAVariable BrowseName="EngineeringUnits"...> at /UANodeSet[1]/UAVariable[7]/@BrowseName
 ====>Expected text value 'AngleUnit' but was 'EngineeringUnits' - comparing <DisplayName ...>AngleUnit</DisplayName> at /UANodeSet[1]/UAVariable[11]/DisplayName[1]/text()[1] to <DisplayName ...>EngineeringUnits</DisplayName> at /UANodeSet[1]/UAVariable[7]/DisplayName[1]/text()[1]
 ====>Expected attribute value 'LengthUnit' but was 'EngineeringUnits' - comparing <UAVariable BrowseName="LengthUnit"...> at /UANodeSet[1]/UAVariable[15]/@BrowseName to <UAVariable BrowseName="EngineeringUnits"...> at /UANodeSet[1]/UAVariable[9]/@BrowseName
 ====>Expected text value 'LengthUnit' but was 'EngineeringUnits' - comparing <DisplayName ...>LengthUnit</DisplayName> at /UANodeSet[1]/UAVariable[15]/DisplayName[1]/text()[1] to <DisplayName ...>EngineeringUnits</DisplayName> at /UANodeSet[1]/UAVariable[9]/DisplayName[1]/text()[1]
+###1#Feature#Nested data variable support
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Description' but was '' - comparing <Description...> at /UANodeSet[1]/UAVariable[25]/Description[1] to <NULL>
-====>Expected text value 'RSL SpatialObject Identifier' but was 'RSL SpatialObject AlternativeFrames' - comparing <Category ...>RSL SpatialObject Identifier</Category> at /UANodeSet[1]/UAObjectType[2]/Category[2]/text()[1] to <Category ...>RSL SpatialObject AlternativeFrames</Category> at /UANodeSet[1]/UAObjectType[1]/Category[2]/text()[1]
-====>Expected text value 'RSL SpatialObject InternalFrames' but was 'RSL SpatialObject Identifier' - comparing <Category ...>RSL SpatialObject InternalFrames</Category> at /UANodeSet[1]/UAObjectType[2]/Category[4]/text()[1] to <Category ...>RSL SpatialObject Identifier</Category> at /UANodeSet[1]/UAObjectType[1]/Category[4]/text()[1]
-====>Expected text value 'RSL SpatialObject AlternativeFrames' but was 'RSL SpatialObject InternalFrames' - comparing <Category ...>RSL SpatialObject AlternativeFrames</Category> at /UANodeSet[1]/UAObjectType[2]/Category[5]/text()[1] to <Category ...>RSL SpatialObject InternalFrames</Category> at /UANodeSet[1]/UAObjectType[1]/Category[5]/text()[1]
+###1#Feature#Extension support
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Extensions' but was '' - comparing <Extensions...> at /UANodeSet[1]/Extensions[1] to <NULL>
-====>Expected child '#comment' but was '' - comparing <!--
- * Copyright (c) 2005-2022 The OPC Foundation, Inc. All rights reserved.
- *
- * OPC Foundation MIT License 1.00
- * 
- * Permission is hereby granted, free of charge, to any person
- * obtaining a copy of this software and associated documentation
- * files (the "Software"), to deal in the Software without
- * restriction, including without limitation the rights to use,
- * copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the
- * Software is furnished to do so, subject to the following
- * conditions:
- * 
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
- * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
- * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
- * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
- * OTHER DEALINGS IN THE SOFTWARE.
- *
- * The complete license agreement can be found here:
- * http://opcfoundation.org/License/MIT/1.00/
---> at /comment()[1] to <NULL>

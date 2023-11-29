@@ -17,7 +17,7 @@ namespace CESMII.ProfileDesigner.Api.Shared.Configuration
 //            var configuration = builder.Build();
 //            return configuration.GetConnectionString("ProfileDesignerDB");
               throw new System.Exception("Maybe Unused Code?");
-              return "";
+              //return "";
         }
     }
 }

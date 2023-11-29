@@ -431,6 +431,7 @@ CREATE TABLE public.profile
     version character varying(25) COLLATE pg_catalog."default",
     publish_date timestamp with time zone NULL,
     xml_schema_uri character varying(400) COLLATE pg_catalog."default" NULL,
+    header_comment character varying COLLATE pg_catalog."default" NULL,
     --ua_standard_profile_id integer NULL,
     author_id integer NULL,
 	
@@ -552,6 +553,8 @@ CREATE TABLE public.profile_type_definition
     browse_name character varying(256) COLLATE pg_catalog."default" NULL,
     symbolic_name character varying(256) COLLATE pg_catalog."default" NULL,
     description character varying COLLATE pg_catalog."default" NULL,
+    release_status character varying(10) COLLATE pg_catalog."default" NULL,
+    event_notifier integer NULL,
     metatags varchar NULL,
     author_id integer NULL,
     author_name character varying(512) COLLATE pg_catalog."default" NULL,
@@ -802,6 +805,7 @@ CREATE TABLE public.data_type
     use_min_max boolean NOT NULL,
     use_eng_unit boolean NOT NULL,
     is_numeric boolean NOT NULL,
+    is_json_scalar boolean NULL,
     custom_type_id integer NULL, --optional - FK to profile of type custom data type
     is_active boolean NOT NULL,
     CONSTRAINT data_type_profile_fk FOREIGN KEY (custom_type_id)
@@ -825,8 +829,8 @@ ALTER TABLE public.data_type
 --	TABLE Data TYPE
 ---------------------------------------------------------------------
 --special data types used in front end
-INSERT INTO public.data_type(id, code, name, display_order, is_active, use_min_max, use_eng_unit, is_numeric )
-SELECT  1, 'composition', 'Composition', 1, true, false, false, false 
+INSERT INTO public.data_type(id, code, name, display_order, is_active, use_min_max, use_eng_unit, is_numeric, is_json_scalar )
+SELECT  1, 'composition', 'Composition', 1, true, false, false, false, false 
 ;
 
 --manually adjust the identity starting val
@@ -879,6 +883,7 @@ CREATE TABLE public.profile_attribute
 	array_dimensions character varying(256) NULL,
 	max_string_length integer NULL,
     is_required boolean NULL,
+    allow_sub_types boolean NULL,
 	modeling_rule character varying(256) NULL,
     enum_value bigint NULL,
 

@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 
 using CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile;
 using Opc.Ua.Export;
+using Opc.Ua;
 
 namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
 {
@@ -46,7 +47,12 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
     {
         public T _model;
         protected ILogger Logger;
+        [Obsolete("Use Create with out created parameter")]
         public static NodeModel Create(ProfileTypeDefinitionModel profileItem, IOpcUaContext opcContext, IDALContext dalContext)
+        {
+            return Create(profileItem, opcContext, dalContext, out _);
+        }
+        public static NodeModel Create(ProfileTypeDefinitionModel profileItem, IOpcUaContext opcContext, IDALContext dalContext, out bool created)
         {
             NodeModel nodeModel;
             if (string.IsNullOrEmpty(profileItem.OpcNodeId))
@@ -57,25 +63,25 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
             switch ((ProfileItemTypeEnum)profileItem.TypeId)
             {
                 case ProfileItemTypeEnum.Class:
-                    nodeModel = Create<ObjectTypeModelFromProfileFactory, ObjectTypeModel>(profileItem, opcContext, dalContext);
+                    nodeModel = Create<ObjectTypeModelFromProfileFactory, ObjectTypeModel>(profileItem, opcContext, dalContext, out created);
                     break;
                 case ProfileItemTypeEnum.Interface:
-                    nodeModel = Create<InterfaceModelFromProfileFactory, InterfaceModel>(profileItem, opcContext, dalContext);
+                    nodeModel = Create<InterfaceModelFromProfileFactory, InterfaceModel>(profileItem, opcContext, dalContext, out created);
                     break;
                 case ProfileItemTypeEnum.VariableType:
-                    nodeModel = Create<VariableTypeModelFromProfileFactory, VariableTypeModel>(profileItem, opcContext, dalContext);
+                    nodeModel = Create<VariableTypeModelFromProfileFactory, VariableTypeModel>(profileItem, opcContext, dalContext, out created);
                     break;
                 case ProfileItemTypeEnum.CustomDataType:
                 case ProfileItemTypeEnum.Structure:
                 case ProfileItemTypeEnum.Enumeration:
                     // OPC Custom Data Type
-                    nodeModel = Create<DataTypeModelFromProfileFactory, DataTypeModel>(profileItem, opcContext, dalContext);
+                    nodeModel = Create<DataTypeModelFromProfileFactory, DataTypeModel>(profileItem, opcContext, dalContext, out created);
                     break;
                 case ProfileItemTypeEnum.Object:
-                    nodeModel = Create<ObjectModelFromProfileFactory, ObjectModel>(profileItem, opcContext, dalContext);
+                    nodeModel = Create<ObjectModelFromProfileFactory, ObjectModel>(profileItem, opcContext, dalContext, out created);
                     break;
                 case ProfileItemTypeEnum.Method:
-                    nodeModel = Create<MethodModelFromProfileFactory, MethodModel>(profileItem, opcContext, dalContext);
+                    nodeModel = Create<MethodModelFromProfileFactory, MethodModel>(profileItem, opcContext, dalContext, out created);
                     break;
                 default:
                     throw new Exception($"Unknown profile type {profileItem.TypeId}");
@@ -83,11 +89,11 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
             return nodeModel;
         }
 
-        private static TNodeModel Create<TNodeModelFactory, TNodeModel>(ProfileTypeDefinitionModel profileItem, IOpcUaContext opcContext, IDALContext dalContext)
+        private static TNodeModel Create<TNodeModelFactory, TNodeModel>(ProfileTypeDefinitionModel profileItem, IOpcUaContext opcContext, IDALContext dalContext, out bool created)
             where TNodeModel : NodeModel, new()
             where TNodeModelFactory : NodeModelFromProfileFactory<TNodeModel>, new()
         {
-            var nodeModel = NodeModelFactoryOpc<TNodeModel>.Create<TNodeModel>(opcContext, GetProfileItemNodeId(profileItem), GetModelForProfile(profileItem.Profile), profileItem.Profile, out var created);
+            var nodeModel = NodeModelFactoryOpc<TNodeModel>.Create<TNodeModel>(opcContext, GetProfileItemNodeId(profileItem), GetModelForProfile(profileItem.Profile), profileItem.Profile, out created);
             var nodeModelFactory = new TNodeModelFactory { _model = nodeModel, Logger = opcContext.Logger };
             if (created)
             {
@@ -175,7 +181,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
                 {
                     if (composition.Type.ID == (int)ProfileItemTypeEnum.Method)
                     {
-                        var uaMethod = MethodModelFromProfileFactory.Create(composition, profileItem, opcContext, dalContext);
+                        var uaMethod = MethodModelFromProfileFactory.Create(composition, profileItem, opcContext, dalContext, out bool created);
                         if (uaMethod != null)
                         {
                             if (!_model.Methods.Contains(uaMethod))
@@ -208,7 +214,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
                     }
                     else
                     {
-                        var nodeModel = ObjectModelFromProfileFactory.Create(composition, profileItem, opcContext, dalContext);
+                        var nodeModel = ObjectModelFromProfileFactory.Create(composition, profileItem, opcContext, dalContext, out var created);
                         if (nodeModel is ObjectModel uaObjectModel)
                         {
                             if (uaObjectModel.Parent == null)
@@ -232,6 +238,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
                         }
                         if (!string.IsNullOrEmpty(composition.RelatedReferenceId))
                         {
+                            //var referenceType = BaseTypeModelFromProfileFactory<ReferenceTypeModel>.Create(composition.RelatedReferenceTypeDefinition, opcContext, dalContext, out _); 
                             var referenceType = opcContext.GetModelForNode<NodeModel>(composition.RelatedReferenceId);
                             if (referenceType == null)
                             {
@@ -325,7 +332,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
                 else if (attribute.AttributeType?.ID == (int)AttributeTypeIdEnum.MethodInputArgument
                     || attribute.AttributeType?.ID == (int)AttributeTypeIdEnum.MethodOutputArgument)
                 {
-                    // Will be processed in Method factory
+                    // Processed in Method factory
                 }
                 else
                 {
@@ -415,14 +422,14 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
 
     public class ObjectModelFromProfileFactory : InstanceModelFromProfileFactory<ObjectModel, ObjectTypeModel>
     {
-        internal static NodeModel Create(ProfileTypeDefinitionRelatedModel objectTypeRelated, ProfileTypeDefinitionModel composingProfile, IOpcUaContext opcContext, IDALContext dalContext)
+        internal static NodeModel Create(ProfileTypeDefinitionRelatedModel objectTypeRelated, ProfileTypeDefinitionModel composingProfile, IOpcUaContext opcContext, IDALContext dalContext, out bool created)
         {
             var objectProfile = objectTypeRelated.IntermediateObject ?? objectTypeRelated.RelatedProfileTypeDefinition;
             if (objectProfile == null)
             {
                 objectProfile = dalContext.GetProfileItemById(objectTypeRelated.IntermediateObjectId ?? objectTypeRelated.RelatedProfileTypeDefinitionId);
             }
-            var objectOrTypeModel = Create(objectProfile, opcContext, dalContext);
+            var objectOrTypeModel = Create(objectProfile, opcContext, dalContext, out created);
             var modelingRule = GetModelingRuleFromProfile(objectTypeRelated.IsRequired, objectTypeRelated.ModelingRule);
             if (string.IsNullOrEmpty(objectTypeRelated.OpcNodeId))
             {
@@ -660,9 +667,9 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
 
     public class MethodModelFromProfileFactory : InstanceModelFromProfileFactory<MethodModel, MethodModel>
     {
-        internal static MethodModel Create(ProfileTypeDefinitionRelatedModel methodRelated, ProfileTypeDefinitionModel composingProfile, IOpcUaContext opcContext, IDALContext dalContext)
+        internal static MethodModel Create(ProfileTypeDefinitionRelatedModel methodRelated, ProfileTypeDefinitionModel composingProfile, IOpcUaContext opcContext, IDALContext dalContext, out bool created)
         {
-            var nodeModel = ObjectModelFromProfileFactory.Create(methodRelated, composingProfile, opcContext, dalContext);
+            var nodeModel = ObjectModelFromProfileFactory.Create(methodRelated, composingProfile, opcContext, dalContext, out created);
             if (nodeModel is MethodModel methodModel)
             {
                 var methodAttributes = methodRelated?.RelatedProfileTypeDefinition?.Attributes;

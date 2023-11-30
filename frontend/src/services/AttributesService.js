@@ -391,7 +391,7 @@ export const renderAttributeIcon = (item, readOnly, className = '') => {
     if (item.interface != null) iconName = AppSettings.IconMapper.Interface;
 
     return (
-        <span className={`mr-2 ${className}`}>
+        <span className={`me-2 ${className}`}>
             <SVGIcon name={iconName} size="20" fill={iconColor} />
         </span>
     );

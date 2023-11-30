@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import ReactDOM from 'react-dom/client';
 
 import { PublicClientApplication } from "@azure/msal-browser";
 import { MsalProvider } from "@azure/msal-react";
@@ -11,7 +11,7 @@ import { AppSettings } from './utils/appsettings';
 
 import './index.css';
 
-require('dotenv').config()
+//require('dotenv').config()
 //create PublicClientApplication instance
 //export it so that our non-component code can access this instance.
 export const Msal_Instance = new PublicClientApplication(AppSettings.MsalConfig);
@@ -24,7 +24,8 @@ export const Msal_Instance = new PublicClientApplication(AppSettings.MsalConfig)
 //server.use('/', express.static('/home/site/wwwroot', options));
 //server.listen(process.env.PORT);
 
-ReactDOM.render(
+const root = ReactDOM.createRoot(document.getElementById('root') || document.createElement('div'));
+root.render(
     <React.StrictMode>
         <MsalProvider instance={Msal_Instance}>
             <LoadingContextProvider>
@@ -32,7 +33,6 @@ ReactDOM.render(
             </LoadingContextProvider>
         </MsalProvider>
     </React.StrictMode>,
-    document.getElementById('root')
 );
 
 // If you want to start measuring performance in your app, pass a function

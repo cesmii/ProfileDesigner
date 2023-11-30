@@ -21,6 +21,10 @@
 
         a {
             color: color("shark");
+
+            &:hover {
+                text-decoration-line: none;
+            }
         }
 
         .page-item.active .page-link {

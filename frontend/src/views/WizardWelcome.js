@@ -59,7 +59,7 @@ function WizardWelcome() {
                 <div className={`card d-flex flex-column h-100`} >
                     <div className={`card-body p-4 pt-3 d-flex flex-column h-100`} >
                         <div className="">
-                            <h2 className="font-weight-bold">{pg.caption}</h2>
+                            <h2 className="fw-bold">{pg.caption}</h2>
                             {content}
                         </div>
                         <div className="mt-auto mx-auto">
@@ -76,7 +76,7 @@ function WizardWelcome() {
             <>
                 <p>Create a new profile & type definition - start from scratch.</p>
                 {pg.introContent}
-                <ul className="p-0 pl-3 mb-0">
+                <ul className="p-0 ps-3 mb-0">
                     <li>Step 1 - Create a new profile</li>
                     <li>Step 2 - Select dependent profiles</li>
                     <li>Step 3 - Select base type to extend</li>
@@ -94,7 +94,7 @@ function WizardWelcome() {
                     If you are the profile author, you can edit and add types to the imported profile, in all other cases, you will extend or re-use the starting point Profiles.
                 </p>
                 
-                <ul className="p-0 pl-3 mb-0">
+                <ul className="p-0 ps-3 mb-0">
                     <li>Step 1 - Import one or many profiles you want to re-use or extend</li>
                     <li>Step 2 - Find a Type to start from in the <strong>Type Library</strong></li>
                     <li>Step 3 - Select Type to extend</li>
@@ -108,7 +108,7 @@ function WizardWelcome() {
         return (
             <>
                 <p>Your Profiles contain the Type definitions and extensions that you have created. You can import from file, or continue work you've previously started in this tool.</p>
-                <ul className="p-0 pl-3 mb-0">
+                <ul className="p-0 ps-3 mb-0">
                     <li>Step 1 - Find your Profile in the <strong>Profile Library</strong></li>
                     <li>Step 2 - Select base type to extend</li>
                     <li>Step 3 - Save the newly extended Type to your own Profile</li>

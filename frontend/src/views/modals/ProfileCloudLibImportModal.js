@@ -247,7 +247,7 @@ function ProfileCloudLibImportModal(props) {
             return (
                 <>
                     {props.icon != null &&
-                            <SVGIcon name={props.icon.name} size="36" fill={props.icon.color} className="mr-2" />
+                            <SVGIcon name={props.icon.name} size="36" fill={props.icon.color} className="me-2" />
                     }
                     <div className="py-2" >{ caption}</div>
                 </>

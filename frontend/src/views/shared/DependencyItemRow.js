@@ -25,16 +25,16 @@ function DependencyItemRow(props) { //props are item, showActions
     if (!props.isHeader && props.item.name == null) return null;
 
     const cssClass = "row py-1 align-items-center " + props.cssClass + (props.isHeader ? " bottom header" : " center");
-    const avatarCss = `col-avatar mt-1 mr-2 rounded-circle avatar info elevated`;
+    const avatarCss = `col-avatar mt-1 me-2 rounded-circle avatar info elevated`;
 
     //header row - controlled by props flag
     if (props.isHeader) {
         return (
             <div className={cssClass}>
-                <div className={`font-weight-bold`} >Name</div>
-                <div className="col-sm-3 left font-weight-bold" ></div>
-                <div className="col-sm-4 left font-weight-bold" >Profile</div>
-                <div className="col-sm-4 left font-weight-bold" >Description</div>
+                <div className={`fw-bold`} >Name</div>
+                <div className="col-sm-3 left fw-bold" ></div>
+                <div className="col-sm-4 left fw-bold" >Profile</div>
+                <div className="col-sm-4 left fw-bold" >Description</div>
             </div>
         );
     }

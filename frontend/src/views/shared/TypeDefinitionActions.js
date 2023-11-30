@@ -180,7 +180,7 @@ function TypeDefinitionActions(props) {
                 </Dropdown.Toggle>
                 <Dropdown.Menu>
                     {/*{(props.currentUserId != null && props.currentUserId === item.authorId) &&*/}
-                    {/*    <Dropdown.Item key="moreVert2" href={getTypeDefinitionNewUrl()} ><span className="mr-3" alt="extend"><SVGIcon name="extend" /></span>New Type Definition</Dropdown.Item>*/}
+                    {/*    <Dropdown.Item key="moreVert2" href={getTypeDefinitionNewUrl()} ><span className="me-3" alt="extend"><SVGIcon name="extend" /></span>New Type Definition</Dropdown.Item>*/}
                     {/*}*/}
                     {!props.isReadOnly &&
                         <>

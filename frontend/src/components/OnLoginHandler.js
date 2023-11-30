@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Redirect } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import { useIsAuthenticated, useMsal } from "@azure/msal-react";
 import { BrowserAuthError, EventType, InteractionRequiredAuthError, InteractionStatus, InteractionType } from "@azure/msal-browser";
 
@@ -156,7 +156,7 @@ export const onAADLogin = (setLoadingProps) => {
 // run the post login popup code
 //-------------------------------------------------------------------
 //call API to setup user on API side and clear the way to get lookup data.
-export const onAADLoginComplete = (instance, history, setLoadingProps, statusCode) => {
+export const onAADLoginComplete = (instance, navigate, setLoadingProps, statusCode) => {
     switch (statusCode) {
         case 200:
             setLoadingProps({
@@ -165,18 +165,18 @@ export const onAADLoginComplete = (instance, history, setLoadingProps, statusCod
                 refreshCloudLibImporterSearchCriteria: true,
                 refreshFavorites: true
             });
-            history.push('/');
+            navigate('/');
             break;
         case 401:
             console.error(generateLogMessageString(`onAADLoginComplete||statusCode||${statusCode}`, CLASS_NAME));
             //history.push('/notauthorized');
-            doLogout(history, instance, '/notauthorized');
+            doLogout(navigate, instance, '/notauthorized');
             setLoadingProps({ organizationName: null });
             break;
         case 403:
             console.error(generateLogMessageString(`onAADLoginComplete||statusCode||${statusCode}`, CLASS_NAME));
             //history.push('/notpermitted');
-            doLogout(history, instance, '/notpermitted', true, true);
+            doLogout(navigate, instance, '/notpermitted', true, true);
             setLoadingProps({ organizationName: null });
             break;
         case 399:
@@ -187,7 +187,7 @@ export const onAADLoginComplete = (instance, history, setLoadingProps, statusCod
                 isLoading: false, message: null, modalMessages:
                     [{ id: new Date().getTime(), severity: "danger", body: 'An error occurred processing your login request. Please try again.', isTimed: false }]
             });
-            history.push('/login');
+            navigate('/login');
             break;
     }
 };
@@ -413,7 +413,6 @@ export const useLoginSilent = () => {
     //-------------------------------------------------------------------
     // Region: Initialization
     //-------------------------------------------------------------------
-    //const history = useHistory();
     const { loadingProps, setLoadingProps } = useLoadingContext();
     const { instance, inProgress, accounts } = useMsal();
     const _activeAccount = instance.getActiveAccount();
@@ -567,16 +566,16 @@ export const useOnLoginComplete = () => {
 
     switch (statusCode) {
         case 200:
-            return ( <Redirect to={'/'} /> );
+            return ( <Navigate to={'/'} /> );
             //history.push('/');
             //break;
         case 401:
-            return (<Redirect to={'/notauthorized'} />);
+            return (<Navigate to={'/notauthorized'} />);
             //history.push('/notauthorized');
             //doLogout(history, instance, '/notauthorized');
             //break;
         case 403:
-            return (<Redirect to={'/notpermitted'} />);
+            return (<Navigate to={'/notpermitted'} />);
             //history.push('/notpermitted');
             //doLogout(history, instance, '/notpermitted', true, false);
             //break;
@@ -584,7 +583,7 @@ export const useOnLoginComplete = () => {
         case 400:
         case 500:
         default:
-            return (<Redirect to={'/login'} />);
+            return (<Navigate to={'/login'} />);
             //history.push('/login');
             //break;
     }
@@ -594,14 +593,14 @@ export const useOnLoginComplete = () => {
 //-------------------------------------------------------------------
 // Region: doLogout
 //-------------------------------------------------------------------
-export const doLogout = (history, instance, redirectUrl = `/login`, silent = true, logoutLocalOnly = true) => {
+export const doLogout = (navigate, instance, redirectUrl = `/login`, silent = true, logoutLocalOnly = true) => {
     //scenario 1 - logout of everything
     if (!logoutLocalOnly) {
         instance.logoutPopup({
             onRedirectNavigate: (url) => {
                 //return false if you would like to stop after local logout - ie don't logout of server instance
                 if (redirectUrl != null) {
-                    history.push(redirectUrl);
+                    navigate.push(redirectUrl);
                 }
                 return false;
             }
@@ -613,7 +612,7 @@ export const doLogout = (history, instance, redirectUrl = `/login`, silent = tru
             onRedirectNavigate: (url) => {
                 //return false if you would like to stop after local logout - ie don't logout of server instance
                 if (redirectUrl != null) {
-                    history.push(redirectUrl);
+                    navigate(redirectUrl);
                 }
                 //control 
                 if (silent) return false;

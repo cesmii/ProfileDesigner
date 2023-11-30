@@ -55,7 +55,7 @@ function AttributeSlideOut(props) { //props are item, showActions
                     {(props.item != null && !props.showDetail) &&
                         <div className="h5 d-flex m-0 align-items-center">{props.item == null || props.item === {} ? "" : props.item.name}</div>
                     }
-                    <div className="d-flex align-items-center ml-auto" >
+                    <div className="d-flex align-items-center ms-auto" >
                         <Button variant="icon-solo" onClick={closePanel} className="align-items-center" >
                             <span>
                                 <SVGIcon name="close" />

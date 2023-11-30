@@ -5,8 +5,8 @@ import { generateLogMessageString } from '../../utils/UtilityService';
 import { Button, Form, FormControl, InputGroup } from 'react-bootstrap';
 import { SVGIcon } from '../../components/SVGIcon';
 
-import '../../components/styles/InfoPanel.scss';
 import { clearSearchCriteria, toggleSearchFilterSelected } from '../../services/ProfileService';
+import '../../components/styles/InfoPanel.scss';
 
 const CLASS_NAME = "ProfileFilter";
 function ProfileFilter(props) {
@@ -137,7 +137,7 @@ function ProfileFilter(props) {
     const renderSearchUI = () => {
         return (
             <Form onSubmit={onSearchClick} className={`header-search-block`}>
-                <Form.Row>
+                <div className="row">
                     <InputGroup className="global-search">
                         <FormControl
                             type="text"
@@ -146,13 +146,11 @@ function ProfileFilter(props) {
                             value={_profileFilterVal != null ? _profileFilterVal : ""}
                             onChange={onSearchChange}
                         />
-                        <InputGroup.Append>
-                            <Button variant="search" className="p-0 pl-2 pr-2 border-left-0" onClick={onSearchClick} type="submit" title="Run Search." >
-                                <SVGIcon name="search" />
-                            </Button>
-                        </InputGroup.Append>
+                        <Button variant="search" onClick={onSearchClick} type="submit" title="Run Search." >
+                            <SVGIcon name="search" />
+                        </Button>
                     </InputGroup>
-                </Form.Row>
+                </div>
             </Form>
         );
     }
@@ -225,10 +223,10 @@ function ProfileFilter(props) {
         // No tile view for profiles yet
         //(
         //    <>
-        //        <Button variant="icon-solo" onClick={onListViewToggle} className={props.displayMode !== "list" ? "mr-2" : "mr-2 inactive"} ><i className="material-icons"><span className="material-icons">
+        //        <Button variant="icon-solo" onClick={onListViewToggle} className={props.displayMode !== "list" ? "me-2" : "me-2 inactive"} ><i className="material-icons"><span className="material-icons">
         //            view_headline
         //        </span></i></Button>
-        //        <Button variant="icon-solo" onClick={onTileViewToggle} className={props.displayMode !== "tile" ? "mr-2" : "mr-2 inactive"}  ><i className="material-icons">grid_view</i></Button>
+        //        <Button variant="icon-solo" onClick={onTileViewToggle} className={props.displayMode !== "tile" ? "me-2" : "me-2 inactive"}  ><i className="material-icons">grid_view</i></Button>
         //    </>
         //);
     }
@@ -242,7 +240,7 @@ function ProfileFilter(props) {
             <div className={`row selected-panel px-3 py-1 mb-1 rounded d-flex ${props.cssClass ?? ''}`} >
                 <div className="col-sm-12 px-0 align-items-start d-block d-lg-flex align-items-center" >
                     {props.hideSearchBox !== true &&
-                        <div className="d-flex mr-lg-3 mb-2 mb-lg-0" >
+                        <div className="d-flex me-lg-3 mb-2 mb-lg-0" >
                             {renderSearchUI()}
                         </div>
                     }
@@ -250,8 +248,8 @@ function ProfileFilter(props) {
                         {renderSections()}
                     </div>
                     {!props.hideClearAll &&
-                        <div className="ml-auto justify-content-end text-nowrap d-flex align-items-center" >
-                            <button onClick={onClearAll} className="ml-2 px-2 btn-auto btn btn-text-solo d-flex align-items-center" >Clear All<i className="pl-1 material-icons">update</i></button>
+                        <div className="ms-auto justify-content-end text-nowrap d-flex align-items-center" >
+                            <button onClick={onClearAll} className="ms-2 px-2 btn-auto btn btn-text-solo d-flex align-items-center" >Clear All<i className="ps-1 material-icons">update</i></button>
                         </div>
                     }
                 </div>
@@ -259,9 +257,9 @@ function ProfileFilter(props) {
             <div className={`row d-flex ${props.cssClass ?? ''}`} >
                 <div className="col-12 align-items-center d-flex mb-2" >
                     {(props.itemCount != null && props.itemCount > 0) &&
-                        <span className="font-weight-bold text-nowrap mr-3">{props.itemCount}{props.itemCount === 1 ? ' item' : ' items'}</span>
+                        <span className="fw-bold text-nowrap me-3">{props.itemCount}{props.itemCount === 1 ? ' item' : ' items'}</span>
                     }
-                    <div className="ml-auto justify-content-end text-nowrap d-flex align-items-center" >
+                    <div className="ms-auto justify-content-end text-nowrap d-flex align-items-center" >
                         {renderDisplayMode()}
                         {renderSortBy()}
                     </div>

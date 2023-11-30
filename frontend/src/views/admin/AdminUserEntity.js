@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { useParams, useHistory } from 'react-router-dom'
+import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import { Helmet } from "react-helmet"
 import axiosInstance from "../../services/AxiosService";
 
@@ -22,7 +22,8 @@ function AdminUserEntity() {
     //-------------------------------------------------------------------
     // Region: Initialization
     //-------------------------------------------------------------------
-    const history = useHistory();
+    const navigate = useNavigate();
+    const location = useLocation();
 
     const { id, copyId } = useParams();
     //var pageMode = //state is not always present. If user types a url or we use an href link, state is null. history.location.state.viewMode;
@@ -63,13 +64,13 @@ function AdminUserEntity() {
                 //console.log(err.response.status);
                 if (err != null && err.response != null && err.response.status === 404) {
                     msg += ' This user was not found.';
-                    history.push('/404');
+                    navigate('/404');
                 }
                 //403 error - user may be allowed to log in but not permitted to perform the API call they are attempting
                 else if (err != null && err.response != null && err.response.status === 403) {
                     console.log(generateLogMessageString('useEffect||fetchData||Permissions error - 403', CLASS_NAME, 'error'));
                     msg += ' You are not permitted to edit users.';
-                    history.goBack();
+                    navigate(-1);
                 }
                 setLoadingProps({
                     isLoading: false, message: null, inlineMessages: [
@@ -105,7 +106,7 @@ function AdminUserEntity() {
                 //console.log(err.response.status);
                 if (err != null && err.response != null && err.response.status === 404) {
                     msg += ' A problem occurred with the add user screen.';
-                    history.push('/404');
+                    navigate('/404');
                 }
                 setLoadingProps({
                     isLoading: false, message: null, inlineMessages: [
@@ -143,7 +144,7 @@ function AdminUserEntity() {
     function initPageMode() {
         //if path contains copy and parent id is set, mode is copy
         //else - we won't know the author ownership till we fetch data, default view
-        if (copyId != null && history.location.pathname.indexOf('/copy/') > -1) return 'copy';
+        if (copyId != null && location.pathname.indexOf('/copy/') > -1) return 'copy';
 
         //if path contains new, then go into a new mode
         if (id === 'new') {
@@ -240,7 +241,7 @@ function AdminUserEntity() {
                             }
                         ]
                     });
-                    history.push('/admin/user/list');
+                    navigate('/admin/user/list');
                 }
                 else {
                     //update spinner, messages
@@ -269,7 +270,7 @@ function AdminUserEntity() {
     const onCancel = () => {
         //raised from header nav
         console.log(generateLogMessageString('onCancel', CLASS_NAME));
-        history.push('/admin/user/list');
+        navigate('/admin/user/list');
     };
 
     const onSave = () => {
@@ -303,7 +304,7 @@ function AdminUserEntity() {
                     });
 
                     //now redirect to user list
-                    history.push(`/admin/user/list`);
+                    navigate(`/admin/user/list`);
                 }
                 else {
                     setError({ show: true, caption: 'Save Error', message: resp.data.message });
@@ -360,7 +361,7 @@ function AdminUserEntity() {
 
         //React-bootstrap bug if you launch modal, then the dropdowns don't work. Add onclick code to the drop down as a workaround - https://github.com/react-bootstrap/react-bootstrap/issues/5561
         return (
-            <Dropdown className="action-menu icon-dropdown ml-2" onClick={(e) => e.stopPropagation()} >
+            <Dropdown className="action-menu icon-dropdown ms-2" onClick={(e) => e.stopPropagation()} >
                 <Dropdown.Toggle drop="left">
                     <SVGIcon name="more-vert" />
                 </Dropdown.Toggle>
@@ -377,8 +378,8 @@ function AdminUserEntity() {
         if (mode.toLowerCase() !== "view") {
             return (
                 <>
-                    <Button variant="text-solo" className="ml-1" onClick={onCancel} >Cancel</Button>
-                    <Button variant="secondary" type="button" className="ml-2" onClick={onSave} >Save</Button>
+                    <Button variant="text-solo" className="ms-1" onClick={onCancel} >Cancel</Button>
+                    <Button variant="secondary" type="button" className="ms-2" onClick={onSave} >Save</Button>
                 </>
             );
         }
@@ -566,10 +567,10 @@ function AdminUserEntity() {
 
         return (
             <>
-                <h1 className="m-0 mr-2">
+                <h1 className="m-0 me-2">
                     Admin | {caption}
                 </h1>
-                <div className="ml-auto d-flex align-items-center" >
+                <div className="ms-auto d-flex align-items-center" >
                     {renderButtons()}
                     {renderMoreDropDown()}
                 </div>

@@ -245,7 +245,7 @@ function CloudLibraryListGrid(props) {
                         Type definitions within these Profiles can then be viewed or extended to make new Type definitions, which can become part of one of your SM Profiles.
                     </p>
                 </div>
-                <div className="col-md-5 col-lg-3 text-right">
+                <div className="col-md-5 col-lg-3 text-end">
                     <Button variant="secondary" type="button"
                         disabled={_selectedCloudProfiles.length === 0}
                         className="auto-width" onClick={onImportSelectedClick} >Import selected...</Button>

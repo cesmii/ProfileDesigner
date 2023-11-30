@@ -27,7 +27,7 @@ function CloudLibList() {
     const renderHeaderRow = () => {
         return (
             <div className="row pb-3">
-                <div className="col-sm-7 mr-auto d-flex">
+                <div className="col-sm-7 me-auto d-flex">
                     {renderTitleBlock(caption, iconName, iconColor)}
                 </div>
             </div>

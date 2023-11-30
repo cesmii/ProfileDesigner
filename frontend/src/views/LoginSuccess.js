@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import { Helmet } from "react-helmet"
-import { useHistory, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 //import { useLoadingContext } from '../components/contexts/LoadingContext';
 import { LoadingOverlayInline } from '../components/LoadingOverlay';
 import { useLoginStatus } from '../components/OnLoginHandler';
@@ -11,7 +11,7 @@ import { AppSettings } from '../utils/appsettings'
 
 function LoginSuccess() {
 
-    const history = useHistory();
+    const navigate = useNavigate();
     const { returnUrl } = useParams();
     //const { loadingProps, setLoadingProps } = useLoadingContext();
     const { isAuthenticated, isAuthorized } = useLoginStatus(null, null /*[AppSettings.AADUserRole]*/);
@@ -23,7 +23,7 @@ function LoginSuccess() {
 
         //check for logged in status - redirect to home page if already logged in.
         if (isAuthenticated && isAuthorized) {
-            history.push(returnUrl ? decodeURIComponent(returnUrl) : '/');
+            navigate(returnUrl ? decodeURIComponent(returnUrl) : '/');
         }
 
     }, [isAuthenticated, isAuthorized]);

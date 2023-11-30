@@ -23,7 +23,6 @@ class Fab extends React.Component {
         return (
             <div className={`fab ${this.props.css != null ? this.props.css : ""}`} style={fabStyle}>
                 <SVGIcon name={iconName} fill={iconColor} />
-                {/* <MaterialIcon icon={iconName} /> */}
             </div>
         );
 

@@ -144,7 +144,7 @@ function AdvancedSearchRow(props) {
             <div className="col col-30 left" >{renderOperatorDDL(props.item)}</div>
             <div className="col auto-size left" >
                 <Form.Control id="val" onBlur={validateForm_val}
-                    className={(!props.item.isValid.val ? 'invalid-field mr-3' : 'mr-3')} 
+                    className={(!props.item.isValid.val ? 'invalid-field me-3' : 'me-3')} 
                     type="" placeholder="Criteria" value={props.item.val} onChange={onChange} />
             </div>
             <div className="col col-x-small right nowrap" >

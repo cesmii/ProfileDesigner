@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { useHistory } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { Helmet } from "react-helmet"
 import { useMsal } from "@azure/msal-react";
 
@@ -23,15 +23,16 @@ function WizardSelectProfile() {
     //-------------------------------------------------------------------
     // Region: Initialization
     //-------------------------------------------------------------------
-    const history = useHistory();
+    const navigate = useNavigate();
+    const location = useLocation();
     const { instance } = useMsal();
     const _activeAccount = instance.getActiveAccount();
 
-    const _pageId = history.location.pathname.indexOf('/select-existing-profile') > -1 ? 'SelectExistingProfile' : 'SelectProfile';
+    const _pageId = location.pathname.indexOf('/select-existing-profile') > -1 ? 'SelectExistingProfile' : 'SelectProfile';
     const { wizardProps, setWizardProps } = useWizardContext();
     //if we come into this page in the continue work flow, we need to update mode value for downstream
     const _currentPage = WizardSettings.panels.find(p => { return p.id === _pageId; });
-    const _mode = history.location.pathname.indexOf('/select-existing-profile') > -1 ? WizardSettings.mode.SelectProfile : wizardProps.mode;
+    const _mode = location.pathname.indexOf('/select-existing-profile') > -1 ? WizardSettings.mode.SelectProfile : wizardProps.mode;
     const _navInfo = getWizardNavInfo(_mode, _pageId);
     const [_error, setError] = useState({ show: false, message: null, caption: null });
 
@@ -108,9 +109,7 @@ function WizardSelectProfile() {
             return;
         }
 
-        history.push({
-            pathname: _navInfo.next.href
-        });
+        navigate(_navInfo.next.href);
     };
 
     const onErrorModalClose = () => {

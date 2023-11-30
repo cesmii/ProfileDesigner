@@ -1,5 +1,5 @@
 import React, { useState,useEffect } from 'react'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { Helmet } from "react-helmet"
 import Form from 'react-bootstrap/Form'
 
@@ -23,7 +23,7 @@ function WizardNewProfile() {
     // Region: Initialization
     //-------------------------------------------------------------------
     const _pageId = 'CreateProfile';
-    const history = useHistory();
+    const navigate = useNavigate();
     const { setLoadingProps } = useLoadingContext();
     const { wizardProps, setWizardProps } = useWizardContext();
     const [_isValid, setIsValid] = useState({ namespace: true, namespaceFormat: true, selectedItem: true });
@@ -80,9 +80,7 @@ function WizardNewProfile() {
         //set wizard props profile item value before we proceed.
         setWizardProps({ profile: JSON.parse(JSON.stringify(_item)), parentId: null });
 
-        history.push({
-            pathname: _navInfo.next.href
-        });
+        navigate(_navInfo.next.href);
     };
 
     const onNextStep = () => {

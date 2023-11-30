@@ -458,7 +458,7 @@ export const renderTitleBlock = (caption, iconName, iconColor ) => {
     return (
         <div className="header-title-block d-flex mb-2">
             {(iconName != null && iconName !== "") &&
-                <span className="mr-2">
+                <span className="me-2">
                     <SVGIcon name={iconName} size="36" fill={iconColor} alt={caption} />
                 </span>
             }
@@ -536,7 +536,7 @@ export function useQueryString(key) {
 ///--------------------------------------------------------------------------
 /// menu icon convenience code
 //--------------------------------------------------------------------------
-export function renderMenuIcon(iconName, alt, className='mr-3') {
+export function renderMenuIcon(iconName, alt, className='me-3') {
     if (iconName == null || iconName === '') return null;
     return (
         <span className={className} alt={`${alt == null ? iconName : alt}`}><SVGIcon name={iconName} size={24} /></span>
@@ -546,7 +546,7 @@ export function renderMenuIcon(iconName, alt, className='mr-3') {
 ///--------------------------------------------------------------------------
 /// menu icon convenience code
 //--------------------------------------------------------------------------
-export function renderMenuColorIcon(iconName, alt, colorFill, className='mr-3') {
+export function renderMenuColorIcon(iconName, alt, colorFill, className='me-3') {
     if (iconName == null || iconName === '') return null;
     return (
         <span className={className} alt={`${alt == null ? iconName : alt}`}><SVGIcon name={iconName} fill={colorFill} size={24} /></span>

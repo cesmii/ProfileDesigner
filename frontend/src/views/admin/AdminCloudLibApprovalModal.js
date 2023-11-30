@@ -65,7 +65,7 @@ function AdminCloudLibApprovalModal(props) { //props are item and config.callbac
                 <Modal.Header closeButton>
                     <Modal.Title>
                         {props.icon != null &&
-                            <SVGIcon name={props.icon.name} size="36" fill={props.icon.color} className="mr-2" />
+                            <SVGIcon name={props.icon.name} size="36" fill={props.icon.color} className="me-2" />
                         }
                         {(props.caption == null || props.caption === '') ?
                             "Confirm" : props.caption

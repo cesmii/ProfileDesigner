@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { Helmet } from "react-helmet"
 
 import { AppSettings } from '../utils/appsettings'
@@ -19,7 +19,7 @@ function WizardImportProfile() {
     // Region: Initialization
     //-------------------------------------------------------------------
     const _pageId = 'ImportProfile';
-    const history = useHistory();
+    const navigate = useNavigate();
     const { loadingProps, setLoadingProps } = useLoadingContext();
     const { wizardProps, setWizardProps } = useWizardContext();
     const _currentPage = WizardSettings.panels.find(p => { return p.id === _pageId; });
@@ -145,9 +145,7 @@ function WizardImportProfile() {
     const onNextStep = () => {
         console.log(generateLogMessageString(`onNextStep`, CLASS_NAME));
 
-        history.push({
-            pathname: _navInfo.next.href
-        });
+        navigate(_navInfo.next.href);
     };
 
     const onImportStarted = (id) => {
@@ -191,14 +189,14 @@ function WizardImportProfile() {
             <div className="row pb-3">
                 <div className="col-12 d-flex" >
                     <div>
-                        <a className="mb-2 btn btn-secondary d-flex align-items-center" href={_navInfo.prev.href} ><i className="material-icons mr-1">{_navInfo.prev.icon == null ? "arrow_left" : _navInfo.prev.icon}</i>{_navInfo.prev.caption}</a>
+                        <a className="mb-2 btn btn-secondary d-flex align-items-center" href={_navInfo.prev.href} ><i className="material-icons me-1">{_navInfo.prev.icon == null ? "arrow_left" : _navInfo.prev.icon}</i>{_navInfo.prev.caption}</a>
                     </div>
-                    <div className="ml-auto">
+                    <div className="ms-auto">
                         <p>
-                            <ProfileImporter caption={!processing || !sourceNodeSetXml ? "Import from Node Set file(s)" : "Processing NodeSet file import..."} cssClass="ml-auto" disabled={_importLogId != null} onImportStarted={onImportStarted} />
+                            <ProfileImporter caption={!processing || !sourceNodeSetXml ? "Import from Node Set file(s)" : "Processing NodeSet file import..."} cssClass="ms-auto" disabled={_importLogId != null} onImportStarted={onImportStarted} />
                         </p>
                         <p>
-                            <label className={"mb-2 btn btn-secondary auto-width ml-auto" + (_importLogId != null ? " disabled" : "")} onClick={onCloudLibImportClicked}>
+                            <label className={"mb-2 btn btn-secondary auto-width ms-auto" + (_importLogId != null ? " disabled" : "")} onClick={onCloudLibImportClicked}>
                                 {!processing || !sourceCloudLib ? "Import from Cloud Library" : "Processing Cloud Library Import..."}
                             </label>
                         </p>

@@ -54,7 +54,7 @@ export function SideMenuLinkList(props) { //props are subMenuItems, bgColor, ico
                     {caption}
                 </span>
                 {(itemCount > 0) &&
-                    <span key="toggle" className="ml-auto d-none d-md-inline">
+                    <span key="toggle" className="ms-auto d-none d-md-inline">
                     <Button variant="accordion" className="btn" title={toggleState ? "Collapse" : "Expand"} >
                             <span>
                                 <SVGIcon name={toggleIcon} fill={color.gris} alt={caption} />
@@ -77,7 +77,7 @@ export function SideMenuLinkList(props) { //props are subMenuItems, bgColor, ico
             <li id={key} key={key} className="body-size">
                 <Button onClick={() => OnClickUnsavedCheck(link.url, bUnsaved)} className="btn-link-flat" >
                     {link.iconName == null ? "" :
-                        <span className="mr-2">
+                        <span className="me-2">
                             <SVGIcon name={link.iconName} size="18" fill={iconColor} />
                         </span>
                     }

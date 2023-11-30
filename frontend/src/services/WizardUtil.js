@@ -144,8 +144,8 @@ export const renderWizardButtonRow = (navInfo) => {
     return (
         <div className="row pb-3">
             <div className="col-12 d-flex" >
-                <a className="mb-2 auto-width btn btn-secondary d-flex align-items-center" href={navInfo.prev.href} ><i className="material-icons mr-1">{navInfo.prev.icon == null ? "arrow_left" : navInfo.prev.icon}</i>{navInfo.prev.caption}</a>
-                <Button variant="primary" type="button" className="mb-2 ml-auto auto-width d-flex align-items-center" onClick={navInfo.next.callbackAction} >{navInfo.next.captionNext != null ? navInfo.next.captionNext : navInfo.next.caption}<i className="material-icons">{navInfo.next.icon == null ? "arrow_right" : navInfo.next.icon}</i></Button>
+                <a className="mb-2 auto-width btn btn-secondary d-flex align-items-center" href={navInfo.prev.href} ><i className="material-icons me-1">{navInfo.prev.icon == null ? "arrow_left" : navInfo.prev.icon}</i>{navInfo.prev.caption}</a>
+                <Button variant="primary" type="button" className="mb-2 ms-auto auto-width d-flex align-items-center" onClick={navInfo.next.callbackAction} >{navInfo.next.captionNext != null ? navInfo.next.captionNext : navInfo.next.caption}<i className="material-icons">{navInfo.next.icon == null ? "arrow_right" : navInfo.next.icon}</i></Button>
             </div>
         </div>
     );
@@ -155,8 +155,8 @@ export const renderWizardButtonRow_OLD = (prevInfo, nextInfo) => {
     return (
         <div className="row pb-3">
             <div className="col-12 d-flex" >
-                <a className="mb-2 auto-width btn btn-secondary d-flex align-items-center" href={prevInfo.url} ><i className="material-icons mr-1">{prevInfo.icon == null ? "arrow_left" : prevInfo.icon}</i>{prevInfo.caption}</a>
-                <Button variant="secondary" type="button" className="mb-2 ml-auto auto-width d-flex align-items-center" onClick={nextInfo.callbackAction} >{nextInfo.caption}<i className="material-icons">{nextInfo.icon == null ? "arrow_right" : nextInfo.icon}</i></Button>
+                <a className="mb-2 auto-width btn btn-secondary d-flex align-items-center" href={prevInfo.url} ><i className="material-icons me-1">{prevInfo.icon == null ? "arrow_left" : prevInfo.icon}</i>{prevInfo.caption}</a>
+                <Button variant="secondary" type="button" className="mb-2 ms-auto auto-width d-flex align-items-center" onClick={nextInfo.callbackAction} >{nextInfo.caption}<i className="material-icons">{nextInfo.icon == null ? "arrow_right" : nextInfo.icon}</i></Button>
             </div>
         </div>
     );
@@ -175,7 +175,7 @@ export const renderWizardBreadcrumbs = (modeId, currentStepNum) => {
         }
         if (item.stepNum === currentStepNum) {
             return (
-                <Breadcrumb.Item key={`${modeId}.${item.stepNum}`} className="font-weight-bold" active >{ item.caption }</Breadcrumb.Item >
+                <Breadcrumb.Item key={`${modeId}.${item.stepNum}`} className="fw-bold" active >{ item.caption }</Breadcrumb.Item >
             );
         }
         else if (item.stepNum < currentStepNum) {

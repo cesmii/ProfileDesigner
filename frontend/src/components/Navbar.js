@@ -1,5 +1,5 @@
 import React from 'react'
-import { useHistory } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 import { InteractionStatus } from "@azure/msal-browser";
 import { useMsal } from "@azure/msal-react";
 
@@ -23,7 +23,7 @@ function Navbar() {
     //-------------------------------------------------------------------
     // Region: Initialization
     //-------------------------------------------------------------------
-    const history = useHistory();
+    const navigate = useNavigate();
     const { instance, inProgress } = useMsal();
     const _activeAccount = instance.getActiveAccount();
     const { isAuthenticated, isAuthorized } = useLoginStatus(null, null /*[AppSettings.AADUserRole]*/);
@@ -37,7 +37,7 @@ function Navbar() {
     // Region: event handlers
     //-------------------------------------------------------------------
     const onLogoutClick = (e) => {
-        doLogout(history, instance, '/login', true, true);
+        doLogout(navigate, instance, '/login', true, true);
         setLoadingProps({ organizationName: null});
         e.preventDefault();
     }
@@ -50,17 +50,17 @@ function Navbar() {
         return (
             <nav className="navbar navbar-expand-md navbar-dark bg-primary">
                 <div className={`container-fluid ${isAuthenticated && _activeAccount != null ? "" : "container-lg"}`}>
-                    <a className="navbar-brand d-flex align-items-center" href="/">
-                        <img className="mr-3 mb-2 d-none d-md-block" src={logo} alt="CESMII Logo"></img>
+                    <a className="navbar-brand d-flex align-items-center text-decoration-none" href="/">
+                        <img className="me-3 mb-2 d-none d-md-block" src={logo} alt="CESMII Logo"></img>
                         <span className="headline-2">{AppSettings.Titles.Caption}</span>
                     </a>
                     {isAuthenticated && _activeAccount != null &&
-                        <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
+                        <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
                             <span className="navbar-toggler-icon"></span>
                         </button>
                     }
                     <div className="navbar-collapse collapse" id="navbarMain">
-                        <div className="ml-auto my-2 my-lg-0 nav navbar-nav  align-items-md-center" >
+                        <div className="ms-auto my-2 my-lg-0 nav navbar-nav  align-items-md-center" >
                             {renderAdminMenu()}
                         </div>
                     </div>
@@ -75,7 +75,7 @@ function Navbar() {
             <div className="nav-item" >
                 <Dropdown>
                     <Dropdown.Toggle className="ml-0 ml-md-2 px-1 dropdown-custom-components d-flex align-items-center" title={_activeAccount?.username}>
-                        <SVGIcon name="account-circle" size="32" fill={Color.white} className="mr-2" />
+                        <SVGIcon name="account-circle" size="32" fill={Color.white} className="me-2" />
                         {_activeAccount?.name}
                     </Dropdown.Toggle>
                     <Dropdown.Menu>

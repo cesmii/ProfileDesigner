@@ -1,6 +1,6 @@
 @import "../../components/styles/constants";
 
-.nav-link {
+.nav-link.profile-modal {
     padding-left: 0px;
     font-size: 1.1rem;
 
@@ -9,8 +9,9 @@
     }
 
     &.active {
-        font-size: 1.3rem;
-        color: unset;
+        //font-size: 1.3rem;
+        color: unset !important;
+        background-color: unset !important;
         font-weight: 600;
         opacity: 0.8;
     }

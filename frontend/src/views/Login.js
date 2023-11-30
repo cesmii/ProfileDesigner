@@ -3,7 +3,7 @@ import { useMsal } from '@azure/msal-react';
 import { InteractionStatus } from '@azure/msal-browser';
 
 import { Helmet } from "react-helmet"
-import { useHistory, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useLoadingContext } from '../components/contexts/LoadingContext';
 import { useLoginSilent, useLoginStatus } from '../components/OnLoginHandler';
 
@@ -16,7 +16,7 @@ const CLASS_NAME = "Login";
 
 function Login() {
 
-    const history = useHistory();
+    const navigate = useNavigate();
     const { returnUrl } = useParams();
     const { loadingProps, setLoadingProps } = useLoadingContext();
     const { isAuthenticated, isAuthorized } = useLoginStatus(null, null /*[AppSettings.AADUserRole]*/);
@@ -31,7 +31,7 @@ function Login() {
 
         //check for logged in status - redirect to home page if already logged in.
         if (isAuthenticated && isAuthorized) {
-            history.push(returnUrl ? decodeURIComponent(returnUrl) : '/');
+            navigate(returnUrl ? decodeURIComponent(returnUrl) : '/');
         }
 
     }, [isAuthenticated, isAuthorized]);

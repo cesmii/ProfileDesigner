@@ -57,7 +57,7 @@ function ProfileBreadcrumbs(props) {
     //final render
     return (
         <Breadcrumb>
-            <i className="material-icons mr-1 mr-md-2">schema</i>
+            <i className="material-icons me-1 me-md-2">schema</i>
             {mainContent}
         </Breadcrumb>
     );

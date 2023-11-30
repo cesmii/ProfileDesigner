@@ -60,7 +60,7 @@ function InlineMessage() {
                     {isProcessing &&
                         <LoadingIcon size="20" />
                     }
-                    <span className={isProcessing ? 'ml-1' : ''} dangerouslySetInnerHTML={{ __html: msg.body }} />
+                    <span className={isProcessing ? 'ms-1' : ''} dangerouslySetInnerHTML={{ __html: msg.body }} />
                 </div>
             </div>
             </div >

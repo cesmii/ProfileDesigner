@@ -361,7 +361,7 @@ function AdminUserEntity() {
 
         //React-bootstrap bug if you launch modal, then the dropdowns don't work. Add onclick code to the drop down as a workaround - https://github.com/react-bootstrap/react-bootstrap/issues/5561
         return (
-            <Dropdown className="action-menu icon-dropdown ml-2" onClick={(e) => e.stopPropagation()} >
+            <Dropdown className="action-menu icon-dropdown ms-2" onClick={(e) => e.stopPropagation()} >
                 <Dropdown.Toggle drop="left">
                     <SVGIcon name="more-vert" />
                 </Dropdown.Toggle>
@@ -378,8 +378,8 @@ function AdminUserEntity() {
         if (mode.toLowerCase() !== "view") {
             return (
                 <>
-                    <Button variant="text-solo" className="ml-1" onClick={onCancel} >Cancel</Button>
-                    <Button variant="secondary" type="button" className="ml-2" onClick={onSave} >Save</Button>
+                    <Button variant="text-solo" className="ms-1" onClick={onCancel} >Cancel</Button>
+                    <Button variant="secondary" type="button" className="ms-2" onClick={onSave} >Save</Button>
                 </>
             );
         }
@@ -567,10 +567,10 @@ function AdminUserEntity() {
 
         return (
             <>
-                <h1 className="m-0 mr-2">
+                <h1 className="m-0 me-2">
                     Admin | {caption}
                 </h1>
-                <div className="ml-auto d-flex align-items-center" >
+                <div className="ms-auto d-flex align-items-center" >
                     {renderButtons()}
                     {renderMoreDropDown()}
                 </div>

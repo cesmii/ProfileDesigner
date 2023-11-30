@@ -936,7 +936,7 @@ function ProfileTypeDefinitionEntity() {
 
         //React-bootstrap bug if you launch modal, then the dropdowns don't work. Add onclick code to the drop down as a workaround - https://github.com/react-bootstrap/react-bootstrap/issues/5561
         return (
-            <TypeDefinitionActions item={_item} activeAccount={_activeAccount} onDeleteCallback={onDelete} showExtend={true} className='ml-2' isReadOnly={_isReadOnly} />
+            <TypeDefinitionActions item={_item} activeAccount={_activeAccount} onDeleteCallback={onDelete} showExtend={true} className='ms-2' isReadOnly={_isReadOnly} />
         );
     }
 
@@ -971,8 +971,8 @@ function ProfileTypeDefinitionEntity() {
                 {renderValidationMessage()}
                 <div className="row my-1">
                     <div className="col-sm-9 col-md-8 align-self-center" >
-                        <h1 className="mb-0 pl-3">
-                            <SVGIcon name={iconName} fill={iconColor} alt={iconName} size="24" className="mr-1 mr-md-2" />
+                        <h1 className="mb-0 ps-3">
+                            <SVGIcon name={iconName} fill={iconColor} alt={iconName} size="24" className="me-1 me-md-2" />
                             Type Definition
                             {(_item.name != null && _item.name.trim() !== '') &&
                                 <>
@@ -998,7 +998,7 @@ function ProfileTypeDefinitionEntity() {
                         <div className="col-lg-5 col-md-6">
                             <Form.Label htmlFor="name" >Name</Form.Label>
                             {!_isValid.name &&
-                                <span className="ml-2 d-inline invalid-field-message">Required</span>
+                                <span className="ms-2 d-inline invalid-field-message">Required</span>
                             }
                             <div className={`input-group ${(!_isValid.name ? "invalid-group" : "")}`} >
                                 <Form.Group className="flex-grow-1 m-0">

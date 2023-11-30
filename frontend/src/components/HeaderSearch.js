@@ -71,7 +71,7 @@ function HeaderSearch(props) { //(caption, iconName, showSearch, searchValue, on
         return (
             <>
                 {(props.itemCount != null && props.itemCount > 0) &&
-                    <span className="text-right text-nowrap">{props.itemCount}{props.itemCount === 1 ? ' item' : ' items'}</span>
+                    <span className="text-end text-nowrap">{props.itemCount}{props.itemCount === 1 ? ' item' : ' items'}</span>
                 }
                 <Form onSubmit={onSearchClick} className={`header-search-block ${props.className == null ? "mx-3" : props.className}`}>
                     <div className="row">

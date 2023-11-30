@@ -90,7 +90,7 @@ function ErrorPage({ error, resetErrorBoundary }) {
                                 Please contact your system administrator or try again.
                             </p>
                             <p>
-                                <span className="font-weight-bold d-block" >Error Details:</span>
+                                <span className="fw-bold d-block" >Error Details:</span>
                                 {error.message}
                             </p>
                         </div>
@@ -99,12 +99,12 @@ function ErrorPage({ error, resetErrorBoundary }) {
                                 Home
                             </Button>
                             {resetErrorBoundary &&
-                                <Button variant="secondary" className="ml-2" onClick={resetErrorBoundary} >
+                                <Button variant="secondary" className="ms-2" onClick={resetErrorBoundary} >
                                     Try Again
                                 </Button>
                             }
                             {(_isAuthenticated && _activeAccount != null) &&
-                                <Button variant="primary" className="ml-2" onClick={onLogoutClick} >
+                                <Button variant="primary" className="ms-2" onClick={onLogoutClick} >
                                     Logout
                                 </Button>
                             }

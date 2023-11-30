@@ -828,7 +828,7 @@ function AttributeList(props) {
         const captionFiltered = _dataRows.filtered.length !== _dataRows.all.length ? ` (${_dataRows.filtered.length} filtered)` : '';
 
         return (
-            <span className="small-size mt-2 mr-3">{captionAll}{captionFiltered}</span>
+            <span className="small-size mt-2 me-3">{captionAll}{captionFiltered}</span>
         );
     }
 
@@ -1000,7 +1000,7 @@ function AttributeList(props) {
         if (props.readOnly) {
             return (
                 <div className="d-flex align-items-end mb-3">
-                    <div className="ml-auto">
+                    <div className="ms-auto">
                         {renderSearchUI()}
                     </div>
                 </div>
@@ -1010,7 +1010,7 @@ function AttributeList(props) {
         return (
             <>
                 <div className="d-flex align-items-end mb-2">
-                    <div className="ml-auto">
+                    <div className="ms-auto">
                         {renderSearchUI()}
                     </div>
                 </div>

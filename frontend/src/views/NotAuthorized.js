@@ -34,7 +34,7 @@ function NotAuthorized() {
             <div className="card p-4">
                 <div className="row">
                     <div className="col-12">
-                        <p className="font-weight-bold" >{ msg }</p>
+                        <p className="fw-bold" >{ msg }</p>
                         <p>
                             Please re-check your account information or contact the system administrator about your account.
                         </p>

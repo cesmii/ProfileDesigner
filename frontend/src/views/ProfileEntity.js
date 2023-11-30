@@ -301,7 +301,7 @@ function ProfileEntity() {
         const iconColor = getIconColorByProfileState(_item?.profileState);
         return (
             <div className="row pb-3">
-                <div className="col-sm-7 mr-auto d-flex">
+                <div className="col-sm-7 me-auto d-flex">
                     {renderTitleBlock(caption, _iconName, iconColor)}
                 </div>
                 <div className="col-sm-5 d-flex align-items-center justify-content-end">

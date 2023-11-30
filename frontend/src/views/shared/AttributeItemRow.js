@@ -398,7 +398,7 @@ function AttributeItemRow(props) { //props are item, showActions
         tip = !_isValid.enumValueIsNumeric ? tip + ' Integer required.' : tip;
         return (
             <Form.Group className="form-inline">
-                <Form.Label className="mr-2" htmlFor="enumValue" >Enum:</Form.Label>
+                <Form.Label className="me-2" htmlFor="enumValue" >Enum:</Form.Label>
                 <Form.Control id="enumValue" type="" value={_editItem.enumValue == null ? '' : _editItem.enumValue} readOnly={isReadOnly}
                     onChange={onChangeEnumValue} onBlur={validateForm_enumValue} title={tip}
                     className={(!_isValid.enumValue || !_isValid.enumValueDuplicate ? 'invalid-field' : '')} />
@@ -771,7 +771,7 @@ function AttributeItemRow(props) { //props are item, showActions
 
         return (
             <>
-                <Button variant="icon-solo" onClick={onUpdateClick} className="align-items-center mr-1" title="Apply inline edits" >
+                <Button variant="icon-solo" onClick={onUpdateClick} className="align-items-center me-1" title="Apply inline edits" >
                     <span>
                         <SVGCheckIcon name="check" />
                     </span>
@@ -871,7 +871,7 @@ function AttributeItemRow(props) { //props are item, showActions
     if (props.isHeader) {
         return (
             <tr className="" >
-                <td className="pl-1">&nbsp;</td>
+                <td className="ps-1">&nbsp;</td>
                 <th className="px-2" >
                     <div className="row" >
                         <div className="d-none d-sm-block col-sm-5" >Name</div>
@@ -893,7 +893,7 @@ function AttributeItemRow(props) { //props are item, showActions
     return (
         <>
             <tr style={renderInterfaceStyle()} className="" >
-                <td className="pl-1 col-icon" >{renderAttributeIcon(_editItem, props.readOnly)}</td>
+                <td className="ps-1 col-icon" >{renderAttributeIcon(_editItem, props.readOnly)}</td>
                 <td className="px-2" >
                     <div className={`row ${_isEditMode ? "mt-2" : ""}`} >
                         <div className={`col-sm-5 align-self-${_isEditMode ? 'start' : 'center'}`} >{renderName()}</div>
@@ -917,7 +917,7 @@ function AttributeItemRow(props) { //props are item, showActions
                         }
                     </div>
                 </td>
-                <td className="text-right" >
+                <td className="text-end" >
                     <div className="d-flex justify-content-end">{renderActionIcons()}</div>
                     {renderDeleteConfirmation()}
                     {renderDeleteInterfaceConfirmation()}

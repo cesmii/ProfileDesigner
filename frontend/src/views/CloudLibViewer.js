@@ -213,11 +213,11 @@ function CloudLibViewer() {
     const renderHeaderRow = (caption) => {
         return (
             <div className="row pb-3">
-                <div className="col-sm-8 mr-auto d-flex">
+                <div className="col-sm-8 me-auto d-flex">
                     {renderTitleBlock(caption, _iconName, _iconColor)}
                 </div>
                 <div className="col-sm-4 d-flex align-items-center justify-content-end">
-                    <span className="my-0 mr-2"><a href={`/profiles/library`} >Profile Library</a></span>
+                    <span className="my-0 me-2"><a href={`/profiles/library`} >Profile Library</a></span>
                 </div>
             </div>
         );

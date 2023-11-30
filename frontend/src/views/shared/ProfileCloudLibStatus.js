@@ -263,8 +263,8 @@ function ProfileCloudLibStatus(props) {
     const renderButton = () => {
         if (props.item.profileState === AppSettings.ProfileStateEnum.Local) {
             return (
-                <button onClick={onPublish} className="btn btn-primary med-width d-inline-flex align-content-center mr-2" >
-                    <span className="mr-1" alt="upload"><SVGIcon name="cloud-upload" size={18} fill={color.white} /></span>
+                <button onClick={onPublish} className="btn btn-primary med-width d-inline-flex align-content-center me-2" >
+                    <span className="me-1" alt="upload"><SVGIcon name="cloud-upload" size={18} fill={color.white} /></span>
                     <span className="" >Publish</span>
                 </button>
             );
@@ -273,7 +273,7 @@ function ProfileCloudLibStatus(props) {
         if (props.item.profileState === AppSettings.ProfileStateEnum.CloudLibPending ||
             props.item.profileState === AppSettings.ProfileStateEnum.CloudLibRejected) {
             return (
-                <button onClick={onWithdrawProfile} className="btn btn-secondary med-width px-0 mr-2" >
+                <button onClick={onWithdrawProfile} className="btn btn-secondary med-width px-0 me-2" >
                     Cancel Publish
                 </button>
             );
@@ -286,8 +286,8 @@ function ProfileCloudLibStatus(props) {
     const renderButton = () => {
         if (props.item.profileState === AppSettings.ProfileStateEnum.Local) {
             return (
-                <button onClick={onPublish} className="btn btn-primary med-width d-inline-flex align-content-center mr-2" >
-                    <span className="mr-1" alt="upload"><SVGIcon name="cloud-upload" size={18} fill={color.white} /></span>
+                <button onClick={onPublish} className="btn btn-primary med-width d-inline-flex align-content-center me-2" >
+                    <span className="me-1" alt="upload"><SVGIcon name="cloud-upload" size={18} fill={color.white} /></span>
                     <span className="" >Publish</span>
                 </button>
             );
@@ -298,8 +298,8 @@ function ProfileCloudLibStatus(props) {
             return (
                 <div className={`d-inline-flex align-items-center`} >
                     <Dropdown className="" onClick={(e) => e.stopPropagation()} >
-                        <Dropdown.Toggle drop="left" title="Click to change" variant="tertiary" className="d-flex align-items-center mr-2" >
-                            {renderProfilePublishStatus(props.item, '', '', 'mr-1')}
+                        <Dropdown.Toggle drop="left" title="Click to change" variant="tertiary" className="d-flex align-items-center me-2" >
+                            {renderProfilePublishStatus(props.item, '', '', 'me-1')}
                         </Dropdown.Toggle>
                         <Dropdown.Menu>
                             <Dropdown.Item key="moreVert1" onClick={onWithdrawProfile} >{renderMenuIcon("undo")}Cancel Publish Request</Dropdown.Item>
@@ -325,7 +325,7 @@ function ProfileCloudLibStatus(props) {
     return (
         <>
             {props.showStatus &&
-                renderProfilePublishStatus(props.item, 'Publish Status', '', 'mr-2')
+                renderProfilePublishStatus(props.item, 'Publish Status', '', 'me-2')
             }
             {props.showButton &&
                 <>

@@ -126,6 +126,11 @@ a {
     font-weight: normal;
     font-size: .9rem;
     color: color('link');
+    text-decoration: none;
+
+    &:hover {
+        text-decoration: underline;
+    }
 }
 
 .bitter {
@@ -341,6 +346,10 @@ div.dropdown-menu {
 // }
 a.dropdown-item {
     font-family: $font-family-base;
+
+    &:hover {
+        text-decoration: none;
+    }
 }
 
 .dropdown-toggle {
@@ -367,6 +376,10 @@ option.selected {
         border: 1px solid #ced4da;
         background-color: color("cararra");
         color: color("textPrimary");
+    }
+
+    &:hover, &:focus, &:active {
+        text-decoration: none;
     }
 
     &.auto-width {
@@ -400,8 +413,8 @@ option.selected {
     border-radius: $button-radius;
     border: none;
 
-    &:hover {
-        color: #fff;
+    &:hover, &:focus, &:active {
+        color: #fff !important;
     }
 
     &.auto-width {

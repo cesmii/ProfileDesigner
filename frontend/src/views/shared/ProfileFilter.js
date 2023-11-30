@@ -5,8 +5,8 @@ import { generateLogMessageString } from '../../utils/UtilityService';
 import { Button, Form, FormControl, InputGroup } from 'react-bootstrap';
 import { SVGIcon } from '../../components/SVGIcon';
 
-import '../../components/styles/InfoPanel.scss';
 import { clearSearchCriteria, toggleSearchFilterSelected } from '../../services/ProfileService';
+import '../../components/styles/InfoPanel.scss';
 
 const CLASS_NAME = "ProfileFilter";
 function ProfileFilter(props) {
@@ -137,7 +137,7 @@ function ProfileFilter(props) {
     const renderSearchUI = () => {
         return (
             <Form onSubmit={onSearchClick} className={`header-search-block`}>
-                <Form.Row>
+                <div className="row">
                     <InputGroup className="global-search">
                         <FormControl
                             type="text"
@@ -146,13 +146,11 @@ function ProfileFilter(props) {
                             value={_profileFilterVal != null ? _profileFilterVal : ""}
                             onChange={onSearchChange}
                         />
-                        <InputGroup.Append>
-                            <Button variant="search" className="p-0 pl-2 pr-2 border-left-0" onClick={onSearchClick} type="submit" title="Run Search." >
-                                <SVGIcon name="search" />
-                            </Button>
-                        </InputGroup.Append>
+                        <Button variant="search" onClick={onSearchClick} type="submit" title="Run Search." >
+                            <SVGIcon name="search" />
+                        </Button>
                     </InputGroup>
-                </Form.Row>
+                </div>
             </Form>
         );
     }

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useHistory } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Button, Card } from "react-bootstrap";
 import { Helmet } from "react-helmet";
 import { useIsAuthenticated, useMsal } from "@azure/msal-react";
@@ -15,7 +15,8 @@ function ErrorPage({ error, resetErrorBoundary }) {
     //-------------------------------------------------------------------
     // Region: Initialization
     //-------------------------------------------------------------------
-    const history = useHistory();
+    const navigate = useNavigate();
+    const location = useLocation();
     const { instance } = useMsal();
     const _isAuthenticated = useIsAuthenticated();
     const _activeAccount = instance.getActiveAccount();
@@ -45,7 +46,7 @@ function ErrorPage({ error, resetErrorBoundary }) {
         console.log(JSON.stringify(error));
 
         //Call API to log message
-        var data = { message: error.message, url: history.location.pathname };
+        var data = { message: error.message, url: location.pathname };
         var url = `system/log/${(!_isAuthenticated ? "public" : "private")}`;
         axiosInstance.post(url, data).then(result => {
             if (result.status === 200) {
@@ -63,7 +64,7 @@ function ErrorPage({ error, resetErrorBoundary }) {
     const onLogoutClick = () => {
         //MSAL logout
         instance.logoutPopup();
-        history.push(`/`);
+        navigate.push(`/`);
     }
 
     //-------------------------------------------------------------------

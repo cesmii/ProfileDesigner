@@ -236,6 +236,7 @@ a {
     font-size: .8rem;
     line-height: 1.2rem;
     margin-bottom: 0px;
+    margin-right: 3px;
 }
 
 .form-group {
@@ -399,6 +400,10 @@ option.selected {
     border-radius: $button-radius;
     border: none;
 
+    &:hover {
+        color: #fff;
+    }
+
     &.auto-width {
         min-width: unset;
         white-space: nowrap;
@@ -501,8 +506,10 @@ option.selected {
     background-color: color("white") !important;
     color: color("textPrimary");
     border: 1px solid #ced4da;
+    border-left: 1px solid #fff;
     // border-left: none;
-    border-radius: 0.25rem;
+    border-radius: $inputControl-radius;
+    padding: 0 0.75rem;
 
     i.material-icons {
         font-size: 20px;
@@ -658,18 +665,22 @@ option.selected {
         border-bottom-right-radius: 0px;
     }
 
-    .input-group-append button {
-        border-radius: $inputControl-radius;
-        border-top-left-radius: 0px;
-        border-bottom-left-radius: 0px;
-    }
-
     @media (min-width: 992px) {
         width: 220px;
     }
 
     @media (min-width: 1200px) {
         width: 300px;
+    }
+}
+
+.quick-search {
+    align-self: stretch;
+
+    input.form-control {
+        border-radius: $inputControl-radius !important;
+        border-top-right-radius: 0px !important;
+        border-bottom-right-radius: 0px !important;
     }
 }
 
@@ -784,6 +795,25 @@ select.minimal:focus {
         &.contain {
             background-size: contain;
         }
+    }
+}
+
+//tab strip
+.nav-link {
+    padding-left: 0px;
+    font-family: $font-family-headings;
+    font-weight: 600;
+
+    &:hover {
+        opacity: 0.8;
+    }
+
+    &.active {
+        //font-size: 1.3rem;
+        color: #fff !important;
+        background-color: color('cornflower') !important;
+        font-weight: 600;
+        opacity: 0.8;
     }
 }
 

@@ -6,8 +6,6 @@ import Button from 'react-bootstrap/Button'
 
 import axiosInstance from "../../services/AxiosService";
 
-import { SVGIcon } from '../../components/SVGIcon'
-
 import { generateLogMessageString, pageDataRows, convertToNumeric, toInt, onChangeNumericKeysOnly } from '../../utils/UtilityService'
 import {
     getAttributesPreferences, setAttributesPageSize, attributeNew, validate_All, validate_nameDuplicate,
@@ -20,6 +18,8 @@ import GridPager from '../../components/GridPager'
 import { AppSettings } from '../../utils/appsettings';
 import { useLoadingContext } from '../../components/contexts/LoadingContext'
 import { isOwner } from './ProfileRenderHelpers'
+
+import { SVGIcon } from '../../components/SVGIcon'
 
 const CLASS_NAME = "AttributeList";
 
@@ -962,11 +962,10 @@ function AttributeList(props) {
     //render an add form that sits on top of the grid.
     const renderSearchUI = () => {
         return (
-                <Form.Row className="m-0" >
+                <div className="row m-0" >
                     <InputGroup className="quick-search">
                         {renderAttributeCount()}
                         <FormControl
-
                             type="text"
                             placeholder="Quick filter"
                             aria-label="Enter text to filter by"
@@ -975,13 +974,11 @@ function AttributeList(props) {
                             onKeyPress={(e) => e.key === 'Enter' && onSearchClick()}
                             className="border-right-0"
                         />
-                    <InputGroup.Append>
-                        <Button variant="search" className="p-0 pl-3 pr-2 border-left-0" onClick={onSearchClick} title="Filter attribute list" >
-                                <SVGIcon name="search" />
-                            </Button>
-                        </InputGroup.Append>
+                        <Button variant="search" onClick={onSearchClick} title="Filter attribute list" >
+                            <SVGIcon name="search" />
+                        </Button>
                     </InputGroup>
-                </Form.Row>
+                </div>
         );
     }
 

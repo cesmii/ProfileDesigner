@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { Helmet } from "react-helmet"
 import axiosInstance from "../services/AxiosService";
 
@@ -19,7 +19,7 @@ function WizardSelectBaseType() {
     // Region: Initialization
     //-------------------------------------------------------------------
     const _pageId = 'SelectBaseType';
-    const history = useHistory();
+    const navigate = useNavigate();
     const { setLoadingProps } = useLoadingContext();
     const { wizardProps, setWizardProps } = useWizardContext();
     const _currentPage = WizardSettings.panels.find(p => { return p.id === _pageId; });
@@ -87,7 +87,7 @@ function WizardSelectBaseType() {
             setError({ show: true, caption: _currentPage.caption, message: msg });
 
             //nav to relevant screen
-            history.push({ pathname: url });
+            navigate(url);
             return false;
         }
 
@@ -172,11 +172,10 @@ function WizardSelectBaseType() {
     const onNextStepComplete = (profileId) => {
         console.log(generateLogMessageString(`onNextStepComplete||Finish`, CLASS_NAME));
         //nav next
-        history.push({
-            pathname: profileId == null ?
-                `/wizard/extend/${wizardProps.parentId}` :
-                `/wizard/extend/${wizardProps.parentId}/p=${profileId}`
-        });
+        navigate(profileId == null ?
+            `/wizard/extend/${wizardProps.parentId}` :
+            `/wizard/extend/${wizardProps.parentId}/${profileId}`
+        );
     };
 
     const onErrorModalClose = () => {

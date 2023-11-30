@@ -1,12 +1,12 @@
 import React, { useEffect } from 'react'
+// 2023-11-22 - Prompt removed from react-router v6, have to develop an alternative. 
+//import { Prompt } from 'react-router'
 import Form from 'react-bootstrap/Form'
 import { useMsal } from "@azure/msal-react";
 
 import { generateLogMessageString, validate_namespaceFormat, validate_Required } from '../../utils/UtilityService'
 import '../styles/ProfileEntity.scss';
 import { isOwner } from './ProfileRenderHelpers';
-
-import { Prompt } from 'react-router'
 
 import spdxExpressionValidate from 'spdx-expression-validate';
 import { useLoadingContext } from "../../components/contexts/LoadingContext";
@@ -158,10 +158,12 @@ function ProfileEntityForm(props) {
         var isReadOnly = mode === "view";
         return (
             <>
+                {/* 2023-11-22 - Prompt removed from react-router v6, have to develop an alternative.
                 <Prompt
                     when={loadingProps.bIsProfileEditUnsaved}
                     message="Unsaved changes to your profile will be lost. Ok to continue?   (Hint: To save, click Cancel then click Save.)"
                 />
+                */}
                 <div className="row">
                     <div className="col-md-12">
                         <Form.Group>

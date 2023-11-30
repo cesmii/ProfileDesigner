@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { Helmet } from "react-helmet"
 
 import { AppSettings } from '../utils/appsettings'
@@ -19,7 +19,7 @@ function WizardImportProfile() {
     // Region: Initialization
     //-------------------------------------------------------------------
     const _pageId = 'ImportProfile';
-    const history = useHistory();
+    const navigate = useNavigate();
     const { loadingProps, setLoadingProps } = useLoadingContext();
     const { wizardProps, setWizardProps } = useWizardContext();
     const _currentPage = WizardSettings.panels.find(p => { return p.id === _pageId; });
@@ -145,9 +145,7 @@ function WizardImportProfile() {
     const onNextStep = () => {
         console.log(generateLogMessageString(`onNextStep`, CLASS_NAME));
 
-        history.push({
-            pathname: _navInfo.next.href
-        });
+        navigate(_navInfo.next.href);
     };
 
     const onImportStarted = (id) => {

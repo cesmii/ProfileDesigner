@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { Button } from 'react-bootstrap'
 import axiosInstance from "../services/AxiosService";
 
@@ -19,7 +19,7 @@ function AdvancedSearch() {
     //-------------------------------------------------------------------
     // Region: Initialization
     //-------------------------------------------------------------------
-    const history = useHistory();
+    const navigate = useNavigate();
 
     const _profilePreferences = getTypeDefPreferences();
     const _scrollToRef = useRef(null);
@@ -139,7 +139,7 @@ function AdvancedSearch() {
     //-------------------------------------------------------------------
     const onCancel = () => {
         console.log(generateLogMessageString('onCancel', CLASS_NAME));
-        history.goBack();
+        navigate(window.history.state && window.history.state.idx > 0 ? -1 : '/');
     };
 
     const onSearch = () => {

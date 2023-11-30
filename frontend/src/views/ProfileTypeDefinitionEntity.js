@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react'
-import { useParams, useHistory } from 'react-router-dom'
+import { useParams, useNavigate, useLocation } from 'react-router-dom'
+//2023-11-22 - Prompt removed from react-router v6, have to develop an alternative.
+//import { Prompt } from 'react-router'
 import { Helmet } from "react-helmet"
 import { useMsal } from "@azure/msal-react";
 import axiosInstance from "../services/AxiosService";
@@ -7,7 +9,6 @@ import axiosInstance from "../services/AxiosService";
 import Form from 'react-bootstrap/Form'
 import Card from 'react-bootstrap/Card'
 import Button from 'react-bootstrap/Button'
-import Tab from 'react-bootstrap/Tab'
 import Nav from 'react-bootstrap/Nav'
 
 import { useLoadingContext, UpdateRecentFileList } from "../components/contexts/LoadingContext";
@@ -26,7 +27,6 @@ import { SVGIcon } from "../components/SVGIcon";
 import { getWizardNavInfo, renderWizardBreadcrumbs, WizardSettings } from '../services/WizardUtil';
 import { isOwner } from './shared/ProfileRenderHelpers';
 import './styles/ProfileTypeDefinitionEntity.scss';
-import { Prompt } from 'react-router'
 
 const CLASS_NAME = "ProfileTypeDefinitionEntity";
 const entityInfo = {
@@ -42,7 +42,8 @@ function ProfileTypeDefinitionEntity() {
     //-------------------------------------------------------------------
     // Region: Initialization
     //-------------------------------------------------------------------
-    const history = useHistory();
+    const navigate = useNavigate();
+    const location = useLocation();
     const { instance } = useMsal();
     const _activeAccount = instance.getActiveAccount();
 
@@ -65,8 +66,8 @@ function ProfileTypeDefinitionEntity() {
     const [_lookupRelated, setLookupRelated] = useState({ compositions: [], interfaces: [], variableTypes: [] });
 
     const { wizardProps, setWizardProps } = useWizardContext();
-    const _navInfo = history.location.pathname.indexOf('/wizard/') === - 1 ? null : getWizardNavInfo(wizardProps.mode, 'ExtendBaseType');
-    const _currentPage = history.location.pathname.indexOf('/wizard/') === - 1 ? null : WizardSettings.panels.find(p => { return p.id === 'ExtendBaseType'; });
+    const _navInfo = location.pathname.indexOf('/wizard/') === - 1 ? null : getWizardNavInfo(wizardProps.mode, 'ExtendBaseType');
+    const _currentPage = location.pathname.indexOf('/wizard/') === - 1 ? null : WizardSettings.panels.find(p => { return p.id === 'ExtendBaseType'; });
     
     //-------------------------------------------------------------------
     // Region: hooks - Execute once after component loads
@@ -82,7 +83,7 @@ function ProfileTypeDefinitionEntity() {
     useEffect(() => {
 
         //only run this in wizard mode
-        if (history.location.pathname.indexOf('/wizard/') === -1) return;
+        if (location.pathname.indexOf('/wizard/') === -1) return;
 
         //only want this to run once on load
         if (wizardProps != null && wizardProps.currentPage === _currentPage.id) {
@@ -115,7 +116,7 @@ function ProfileTypeDefinitionEntity() {
                 //add logic for wizard scenario
                 let data = { id: (parentId != null ? parentId : id) };
                 let url = `profiletypedefinition/getbyid`;
-                if (parentId != null && history.location.pathname.indexOf('/wizard/') > -1) {
+                if (parentId != null && location.pathname.indexOf('/wizard/') > -1) {
                     url = `profiletypedefinition/wizard/extend`;
                     //add profile id in
                     data = { id: parentId, profileId: profileId }
@@ -132,7 +133,7 @@ function ProfileTypeDefinitionEntity() {
                 //console.log(err.response.status);
                 if (err != null && err.response != null && err.response.status === 404) {
                     msg += ' This type was not found.';
-                    history.push('/404');
+                    navigate('/404');
                 }
                 setLoadingProps({
                     isLoading: false, message: null, inlineMessages: [
@@ -171,7 +172,7 @@ function ProfileTypeDefinitionEntity() {
             //add to the recent file list to keep track of where we have been
             if (thisMode.toLowerCase() === "view" || thisMode.toLowerCase() === "edit") {
                 const revisedList = UpdateRecentFileList(loadingProps.recentFileList, {
-                    url: history.location.pathname, caption: result.data.name, iconName: getTypeDefIconName(result.data),
+                    url: location.pathname, caption: result.data.name, iconName: getTypeDefIconName(result.data),
                     authorId: result.data.author != null && result.data.isReadOnly === false ? result.data.author.objectIdAAD : null
                 });
                 setLoadingProps({ recentFileList: revisedList });
@@ -196,7 +197,7 @@ function ProfileTypeDefinitionEntity() {
                 //console.log(err.response.status);
                 if (err != null && err.response != null && err.response.status === 404) {
                     msg += ' A problem occurred with the Add type screen.';
-                    history.push('/404');
+                    navigate('/404');
                 }
                 setLoadingProps({
                     isLoading: false, message: null, inlineMessages: [
@@ -356,7 +357,7 @@ function ProfileTypeDefinitionEntity() {
     function initPageMode() {
         //if path contains extend and parent id is set, mode is extend
         //else - we won't know the author ownership till we fetch data, default view
-        if (parentId != null && history.location.pathname.indexOf('/extend/') > -1) return 'extend';
+        if (parentId != null && location.pathname.indexOf('/extend/') > -1) return 'extend';
 
         //if path contains new, then go into a new mode
         if (id === 'new') {
@@ -490,17 +491,17 @@ function ProfileTypeDefinitionEntity() {
 
                 //On Add, redirect to edit type page in edit mode
                 if (mode.toLowerCase() === "extend" || mode.toLowerCase() === "new") {
-                    history.push(entityInfo.entityUrl.replace(':id', resp.data.data));
+                    navigate(entityInfo.entityUrl.replace(':id', resp.data.data));
                 }
                 else {
                     //TBD - on edit, for now, re-get the item fresh from server. Having trouble server side returning the
                     //fully updated item
-                    history.push(entityInfo.entityUrl.replace(':id', resp.data.data));
+                    navigate(entityInfo.entityUrl.replace(':id', resp.data.data));
 
                 }
                 //do this as final step so we don't cause issues for something looking for wizardProps before navigation
                 //if we were using wizard, then clear out wizard props
-                if (history.location.pathname.indexOf('/wizard/') > - 1) {
+                if (location.pathname.indexOf('/wizard/') > - 1) {
                     setWizardProps({
                         currentPage: null, mode: null, profile: null, parentId: null
                     });
@@ -765,7 +766,7 @@ function ProfileTypeDefinitionEntity() {
     const onDelete = (success) => {
         console.log(generateLogMessageString(`onDelete || ${success}`, CLASS_NAME));
         if (success) {
-            history.push(`/types/library`);
+            navigate(`/types/library`);
         }
     };
 
@@ -787,7 +788,7 @@ function ProfileTypeDefinitionEntity() {
     const renderProfileBreadcrumbs = () => {
         if (_item == null || _item.parent == null) return;
 
-        if (history.location.pathname.indexOf('/wizard/') > - 1) {
+        if (location.pathname.indexOf('/wizard/') > - 1) {
             return (
                 <>
                     {renderWizardBreadcrumbs(wizardProps.mode, _navInfo.stepNum)}
@@ -940,8 +941,8 @@ function ProfileTypeDefinitionEntity() {
     }
 
     const renderButtons = () => {
-        const urlCancel = history.location.pathname.indexOf('/wizard/') > - 1 ? _navInfo.prev.href : '/types/library';
-        const captionCancel = history.location.pathname.indexOf('/wizard/') > - 1 ? 'Back' : 'Cancel';
+        const urlCancel = location.pathname.indexOf('/wizard/') > - 1 ? _navInfo.prev.href : '/types/library';
+        const captionCancel = location.pathname.indexOf('/wizard/') > - 1 ? 'Back' : 'Cancel';
         if (mode.toLowerCase() !== "view") {
             return (
                 <>
@@ -961,10 +962,12 @@ function ProfileTypeDefinitionEntity() {
 
         return (
             <>
+                {/* 2023-11-22 - Prompt removed from react-router v6, have to develop an alternative. 
                 <Prompt
                     when={loadingProps.bIsTypeEditUnsaved}
                     message="Unsaved changes to your profile will be lost. Ok to continue?   (Hint: To save, click Cancel then click Save.)"
                 />
+                */}
                 {renderValidationMessage()}
                 <div className="row my-1">
                     <div className="col-sm-9 col-md-8 align-self-center" >
@@ -1108,11 +1111,6 @@ function ProfileTypeDefinitionEntity() {
         );
     }
 
-    // TBD: need loop to remove and add styles for "nav-item" CSS animations
-    const tabListener = (eventKey) => {
-    }
-
-
     //-------------------------------------------------------------------
     // Region: Render
     //-------------------------------------------------------------------
@@ -1127,60 +1125,47 @@ function ProfileTypeDefinitionEntity() {
                     {renderCommonSection()}
 
                     <div className="entity-details">
-                        {/* TABS */}
-                        <Tab.Container id="profile-definition" defaultActiveKey="attributes" onSelect={tabListener}>
-                            <Nav variant="pills" className="row mt-1 px-2 pr-md-3">
-                                <Nav.Item className="col-sm-4 rounded p-0 pl-2" >
-                                    <Nav.Link eventKey="attributes" className="text-center text-md-left p-1 px-2 h-100" >
-                                        <span className="headline-3">Attributes</span>
-                                        {/*<span className="d-none d-md-inline"><br />The properties that define this type definition</span>*/}
-                                    </Nav.Link>
-                                </Nav.Item>
-                                <Nav.Item className="col-sm-4 rounded p-0 px-md-0" >
-                                    <Nav.Link eventKey="dependencies" className="text-center text-md-left p-1 px-2 h-100" >
-                                        <span className="headline-3">Extended By</span>
-                                        {/*<span className="d-none d-md-inline"><br />Type Definitions that depend on 'me'</span>*/}
-                                    </Nav.Link>
-                                </Nav.Item>
-                                <Nav.Item className="col-sm-4 rounded p-0 pr-2">
-                                    <Nav.Link eventKey="advanced" className="text-center text-md-left p-1 px-2 h-100" >
-                                        <span className="headline-3">Advanced</span>
-                                        {/*<span className="d-none d-md-inline"><br />Optional and advanced settings</span>*/}
-                                    </Nav.Link>
-                                </Nav.Item>
-                            </Nav>
-
-                            <Tab.Content>
-                                <Tab.Pane eventKey="attributes">
-                                    {/* ATTRIBUTES CONTENT */}
-                                    <Card className="">
-                                        <Card.Body className="pt-3">
-                                            <AttributeList typeDefinition={_item} profileAttributes={_item.profileAttributes} extendedProfileAttributes={_item.extendedProfileAttributes} readOnly={mode === "view"}
-                                                onAttributeAdd={onAttributeAdd} onAttributeInterfaceAdd={onAttributeInterfaceAdd} activeAccount={_activeAccount}
-                                                onAttributeDelete={onAttributeDelete} onAttributeInterfaceDelete={onAttributeInterfaceDelete} onAttributeUpdate={onAttributeUpdate}
-                                                lookupRelated={_lookupRelated}
-                                            />
-                                        </Card.Body>
-                                    </Card>
-                                </Tab.Pane>
-                                <Tab.Pane eventKey="dependencies">
-                                    {/* DEPENDENCIES CONTENT */}
-                                    <Card className="">
-                                        <Card.Body className="pt-3">
-                                            <DependencyList typeDefinition={_item} activeAccount={_activeAccount} />
-                                        </Card.Body>
-                                    </Card>
-                                </Tab.Pane>
-                                <Tab.Pane eventKey="advanced">
-                                    {/* advanced CONTENT */}
-                                    <Card className="">
-                                        <Card.Body className="pt-3">
-                                            {renderAdvancedPane()}
-                                        </Card.Body>
-                                    </Card>
-                                </Tab.Pane>
-                            </Tab.Content>
-                        </Tab.Container>
+                        <ul className="nav nav-tabs nav-fill" role="tablist">
+                            <li className="nav-item">
+                                <a className="nav-link active" id="attributes-tab" data-toggle="tab" href="#attributesPane" role="tab" aria-controls="attributesPane" aria-selected="true">Attributes</a>
+                            </li>
+                            <li className="nav-item">
+                                <a className="nav-link" id="extendedby-tab" data-toggle="tab" href="#extendedByPane" role="tab" aria-controls="extendedByPane" aria-selected="false">Extended By</a>
+                            </li>
+                            <li className="nav-item">
+                                <a className="nav-link" id="advanced-tab" data-toggle="tab" href="#advancedPane" role="tab" aria-controls="advancedPane" aria-selected="false">Advanced</a>
+                            </li>
+                        </ul>
+                        <div className="tab-content" >
+                            <div className="tab-pane fade show active" id="attributesPane" role="tabpanel" aria-labelledby="attributes-tab">
+                                {/* ATTRIBUTES CONTENT */}
+                                <Card className="rounded-0 rounded-bottom border-top-0">
+                                    <Card.Body className="pt-3">
+                                        <AttributeList typeDefinition={_item} profileAttributes={_item.profileAttributes} extendedProfileAttributes={_item.extendedProfileAttributes} readOnly={mode === "view"}
+                                            onAttributeAdd={onAttributeAdd} onAttributeInterfaceAdd={onAttributeInterfaceAdd} activeAccount={_activeAccount}
+                                            onAttributeDelete={onAttributeDelete} onAttributeInterfaceDelete={onAttributeInterfaceDelete} onAttributeUpdate={onAttributeUpdate}
+                                            lookupRelated={_lookupRelated}
+                                        />
+                                    </Card.Body>
+                                </Card>
+                            </div>
+                            <div className="tab-pane fade" id="extendedByPane" role="tabpanel" aria-labelledby="extendedby-tab">
+                                {/* DEPENDENCIES CONTENT */}
+                                <Card className="rounded-0 rounded-bottom border-top-0">
+                                    <Card.Body className="pt-3">
+                                        <DependencyList typeDefinition={_item} activeAccount={_activeAccount} />
+                                    </Card.Body>
+                                </Card>
+                            </div>
+                            <div className="tab-pane fade" id="advancedPane" role="tabpanel" aria-labelledby="advanced-tab">
+                                {/* advanced CONTENT */}
+                                <Card className="rounded-0 rounded-bottom border-top-0">
+                                    <Card.Body className="pt-3">
+                                        {renderAdvancedPane()}
+                                    </Card.Body>
+                                </Card>
+                            </div>
+                        </div>
                     </div>
                     <div className="d-flex align-items-center justify-content-end">
                         <div className="d-flex align-items-center">

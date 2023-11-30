@@ -1,12 +1,11 @@
 import React from 'react'
-import {Switch } from "react-router-dom"
+import { Routes as SwitchRoutes, Route } from 'react-router-dom';
 
 //common components
 import PrivateRoute from './authentication/PrivateRoute'
 import WizardRoute from './authentication/WizardRoute'
-import { AdminRoute } from './authentication/AdminRoute'
-import { PublicFixedRoute } from './PublicRoute'
-//import LoginSuccessRoute from './authentication/LoginSuccessRoute'
+import AdminRoute from './authentication/AdminRoute'
+import { PublicRoute, PublicFixedRoute } from './PublicRoute'
 
 //page level imports
 import ProfileTypeDefinitionList from "../views/ProfileTypeDefinitionList"
@@ -35,6 +34,8 @@ import { AppSettings } from '../utils/appsettings'
 
 //const CLASS_NAME = "Routes";
 
+//Upgrade from 5.2 to v6
+//https://github.com/remix-run/react-router/blob/main/docs/upgrading/v5.md
 
 function Routes() {
 
@@ -42,40 +43,51 @@ function Routes() {
     //  Routes
     //-------------------------------------------------------------------
     return(
-        <Switch>
-            <WizardRoute exact path="/" component={WizardWelcome} />
-            <PublicFixedRoute exact path="/login/success" component={LoginSuccess} />
-            <PublicFixedRoute path="/login/returnUrl=:returnUrl" component={Login} />
-            <PublicFixedRoute exact path="/login" component={Login} />
-            <PrivateRoute path="/profiles/library" component={ProfileList} />
-            <PrivateRoute path="/profile/:id" component={ProfileEntity} />
-            <PrivateRoute path="/cloudlibrary/search" component={CloudLibList} />
-            <PrivateRoute path="/cloudlibrary/viewer/:id" component={CloudLibViewer} />
-            {/*Handles types/all and types/mine in the component*/}
-            <PrivateRoute path="/types/library/profile/:profileId" component={ProfileTypeDefinitionList} />
-            <PrivateRoute path="/types/library" component={ProfileTypeDefinitionList} />
+        <SwitchRoutes>
+            <Route path='/' element={<WizardRoute />}>
+                <Route path='/' element={<WizardWelcome />} />
+            </Route>
+            <Route element={<PublicFixedRoute />}>
+                <Route path='/login' element={<Login />} />
+                <Route path='/login/success' element={<LoginSuccess />} />
+                <Route path='/login/returnUrl/:returnUrl' element={<Login />} />
+            </Route>
             {/* order matters in the profile/ routes*/}
-            {/* ProfileTypeDefinitionEntity - Depending on entry point, this is not always part of the wizard - 
+            <Route element={<PrivateRoute />}>
+                <Route path='/profiles/library' element={<ProfileList />} />
+                <Route path="/profile/:id" element={<ProfileEntity />} />
+                <Route path="/cloudlibrary/search" element={<CloudLibList />} />
+                <Route path="/cloudlibrary/viewer/:id" element={<CloudLibViewer />} />
+                <Route path="/types/library/profile/:profileId" element={<ProfileTypeDefinitionList />} />
+                <Route path="/types/library" element={<ProfileTypeDefinitionList />} />
+            </Route>
+            <Route element={<AdminRoute roles={[AppSettings.AADAdminRole]} />} >
+                <Route path="/admin/user/list" element={<AdminUserList />} />
+                <Route path="/admin/user/:id" element={<AdminUserEntity />} />
+                <Route path="/admin/cloudlibrary/approval/list" element={<AdminCloudLibApprovalList />} />
+            </Route>
+            {/* ProfileTypeDefinitionEntity - Depending on entry point, this is not always part of the wizard -
              * But the wizardContext is initialized in either case*/}
-            <WizardRoute path="/type/extend/:parentId" component={ProfileTypeDefinitionEntity} />
-            <WizardRoute path="/type/:id/p=:profileId" component={ProfileTypeDefinitionEntity} />
-            <WizardRoute path="/type/:id" component={ProfileTypeDefinitionEntity} />
-            <WizardRoute path="/wizard/welcome" component={WizardWelcome} />
-            <WizardRoute path="/wizard/create-profile" component={WizardNewProfile} />
-            <WizardRoute path="/wizard/import-profile" component={WizardImportProfile} />
-            <WizardRoute path="/wizard/select-profile" component={WizardSelectProfile} />
-            <WizardRoute path="/wizard/select-existing-profile" component={WizardSelectProfile} />
-            <WizardRoute path="/wizard/filter-profile" component={WizardFilterProfile} />
-            <WizardRoute path="/wizard/select-base-type" component={WizardSelectBaseType} />
-            <WizardRoute path="/wizard/extend/:parentId/p=:profileId" component={ProfileTypeDefinitionEntity} />
-            <WizardRoute path="/wizard/extend/:parentId" component={ProfileTypeDefinitionEntity} />
-            <AdminRoute path="/admin/user/list" component={AdminUserList} roles={[AppSettings.AADAdminRole]} />
-            <AdminRoute path="/admin/user/:id" component={AdminUserEntity} roles={[AppSettings.AADAdminRole]} />
-            <AdminRoute path="/admin/cloudlibrary/approval/list" component={AdminCloudLibApprovalList} roles={[AppSettings.AADAdminRole]} />
-            <PublicFixedRoute path="/notpermitted" component={NotAuthorized} />
-            <PublicFixedRoute path="/notauthorized" component={NotAuthorized} />
-            <PublicFixedRoute component={PageNotFound} />
-        </Switch>
+            <Route element={<WizardRoute />}>
+                <Route path="/type/extend/:parentId" element={<ProfileTypeDefinitionEntity />} />
+                <Route path="/type/:id/p=:profileId" element={<ProfileTypeDefinitionEntity />} />
+                <Route path="/type/:id" element={<ProfileTypeDefinitionEntity />} />
+                <Route path="/wizard/welcome" element={<WizardWelcome />} />
+                <Route path="/wizard/create-profile" element={<WizardNewProfile />} />
+                <Route path="/wizard/import-profile" element={<WizardImportProfile />} />
+                <Route path="/wizard/select-profile" element={<WizardSelectProfile />} />
+                <Route path="/wizard/select-existing-profile" element={<WizardSelectProfile />} />
+                <Route path="/wizard/filter-profile" element={<WizardFilterProfile />} />
+                <Route path="/wizard/select-base-type" element={<WizardSelectBaseType />} />
+                <Route path="/wizard/extend/:parentId/:profileId" element={<ProfileTypeDefinitionEntity />} />
+                <Route path="/wizard/extend/:parentId" element={<ProfileTypeDefinitionEntity />} />
+            </Route>
+            <Route element={<PublicFixedRoute />}>
+                <Route path='/notpermitted' element={<NotAuthorized />} />
+                <Route path='/notauthorized' element={<NotAuthorized />} />
+                <Route element={<PageNotFound />} />
+            </Route>
+        </SwitchRoutes>
 
     )
 

@@ -1,5 +1,5 @@
 import React from 'react'
-import { useHistory } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 import { InteractionStatus } from "@azure/msal-browser";
 import { useMsal } from "@azure/msal-react";
 
@@ -23,7 +23,7 @@ function Navbar() {
     //-------------------------------------------------------------------
     // Region: Initialization
     //-------------------------------------------------------------------
-    const history = useHistory();
+    const navigate = useNavigate();
     const { instance, inProgress } = useMsal();
     const _activeAccount = instance.getActiveAccount();
     const { isAuthenticated, isAuthorized } = useLoginStatus(null, null /*[AppSettings.AADUserRole]*/);
@@ -37,7 +37,7 @@ function Navbar() {
     // Region: event handlers
     //-------------------------------------------------------------------
     const onLogoutClick = (e) => {
-        doLogout(history, instance, '/login', true, true);
+        doLogout(navigate, instance, '/login', true, true);
         setLoadingProps({ organizationName: null});
         e.preventDefault();
     }

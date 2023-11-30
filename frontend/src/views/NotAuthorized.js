@@ -1,5 +1,5 @@
 import React from 'react'
-import { useHistory } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 
 import { AppSettings } from '../utils/appsettings';
@@ -8,10 +8,10 @@ import { renderTitleBlock } from '../utils/UtilityService';
 //TBD - add in some nicely formatted message
 function NotAuthorized() {
 
-    const history = useHistory();
+    const location = useLocation();
 
-    const caption = history.location.pathname.indexOf('/notpermitted') > -1 ? "Not Permitted" : "Not Authorized";
-    const msg = history.location.pathname.indexOf('/notpermitted') > -1 ?
+    const caption = location.pathname.indexOf('/notpermitted') > -1 ? "Not Permitted" : "Not Authorized";
+    const msg = location.pathname.indexOf('/notpermitted') > -1 ?
         "Restricted Area." :
         "Unauthorized Area.";
 

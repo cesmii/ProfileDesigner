@@ -277,8 +277,7 @@ function ProfileExplorer(props) {
         // d-none d-lg-block - hide on small displays
         return (
             <Form className="header-search-block d-none d-md-block">
-                <Form.Row className="m-0" >
-
+                <div className="row m-0" >
                     <InputGroup className="quick-search">
                         <FormControl
                             type="text"
@@ -288,15 +287,11 @@ function ProfileExplorer(props) {
                             onBlur={onSearchBlur}
                             className="border-right-0"
                         />
-                        <InputGroup.Append>
-                            <Button variant="search" className="p-0 pl-2 pr-2 border-left-0" title="Filter explorer">
-                                <SVGIcon name="search" />
-                            </Button>
-                        </InputGroup.Append>
+                        <Button variant="search" title="Filter explorer">
+                            <SVGIcon name="search" />
+                        </Button>
                     </InputGroup>
-
-
-                </Form.Row>
+                </div>
             </Form>
         );
     }

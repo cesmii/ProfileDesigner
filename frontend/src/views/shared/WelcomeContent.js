@@ -30,7 +30,7 @@ function WelcomeContent(props) {
         return (
             <>
                 <div className={`row mx-0 p-0 pt-4 mb-5`}>
-                    <div className="col-md-6 col-lg-7 p-0 d-none d-sm-block" >
+                    <div className="col-md-6 col-lg-8 p-0 d-none d-sm-block" >
                         <h1>Welcome!</h1>
                         <p className="p-0 py-1 mb-2 lh-intro" >
                             SM Profiles are an innovative way of representing data in structured information models that provide
@@ -47,9 +47,11 @@ function WelcomeContent(props) {
                             <div className="overlay-icon cover rounded shadow" style={bgImageStyle1} >&nbsp;</div>
                         </div>
                     </div>
-                    <div className="col-md-6 col-lg-5 px-0 pl-md-3 pl-lg-5" >
+                    <div className="col-md-6 col-lg-4" >
                         {props.showLogin &&
-                            <LoginButton />
+                            <div className="px-0 pl-md-3 pl-lg-4">
+                                <LoginButton />
+                            </div>
                         }
                         <p className="p-0 py-1 mb-2 lh-intro" style={{ display: "none" }} >
                             SM Profiles are an innovative way of representing data in structured information models that provide
@@ -65,12 +67,12 @@ function WelcomeContent(props) {
                     </div>
                 </div>
                 <div className={`row mx-0 p-0 mb-5`}>
-                    <div className="col-sm-6 col-md-5 p-0 d-none d-sm-block pr-5" >
-                        <div className="image-bg" >
+                    <div className="col-sm-6 col-md-4 p-0 d-none d-sm-block" >
+                        <div className="image-bg pr-5" >
                             <div className="overlay-icon cover rounded shadow" style={bgImageStyle2} >&nbsp;</div>
                         </div>
                     </div>
-                    <div className="col-sm-6 col-md-7 px-0 " >
+                    <div className="col-sm-6 col-md-8 px-0 " >
                         <h2>How it Works</h2>
                         <p className="p-0 py-1 mb-2 lh-intro" >
                             The SM Profile Designer &trade; allows disparate manufacturers and engineers to build manufacturing profiles that could be shared amongst a community of smart manufacturing entities. The profile is a class definition (or collection of class definitions) describing a piece of manufacturing equipment (or conceivably, a manufacturing process or manufactured good). Profiles have relationships to other profiles within the scope of the user's work context. These relationships are of the kinds typically seen in a UML (Unified Modeling Language) diagram, including inheritance, aggregation (or composition), interface implementation, and dependency.

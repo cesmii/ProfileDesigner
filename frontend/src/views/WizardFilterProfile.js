@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Helmet } from "react-helmet"
 
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import ProfileListGrid from './shared/ProfileListGrid';
 
@@ -19,7 +19,7 @@ function WizardFilterProfile() {
     // Region: Initialization
     //-------------------------------------------------------------------
     const _pageId = 'FilterProfile';
-    const history = useHistory();
+    const navigate = useNavigate();
     const { wizardProps, setWizardProps } = useWizardContext();
     const { loadingProps, setLoadingProps } = useLoadingContext();
     const _currentPage = WizardSettings.panels.find(p => { return p.id === _pageId; });
@@ -94,9 +94,7 @@ function WizardFilterProfile() {
         }
 
         //nav next
-        history.push({
-            pathname: _navInfo.next.href
-        });
+        navigate(_navInfo.next.href);
     };
 
     //-------------------------------------------------------------------

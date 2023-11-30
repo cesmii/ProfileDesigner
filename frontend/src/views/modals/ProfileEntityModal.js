@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+    import React, { useEffect, useState } from 'react'
 import Modal from 'react-bootstrap/Modal'
 import { useMsal } from "@azure/msal-react";
 import axiosInstance from "../../services/AxiosService";
@@ -319,10 +319,10 @@ function ProfileEntityModal(props) {
             return (
                 <Nav activeKey={_activeTab} onSelect={(selectedKey) => setActiveTab(selectedKey)} className="align-items-baseline" >
                     <Nav.Item>
-                        <Nav.Link eventKey="profile-select" >Select Profile</Nav.Link>
+                        <Nav.Link eventKey="profile-select" className="profile-modal" >Select Profile</Nav.Link>
                     </Nav.Item>
                     <Nav.Item>
-                        <Nav.Link eventKey="profile-new" >New Profile</Nav.Link>
+                        <Nav.Link eventKey="profile-new" className="profile-modal" >New Profile</Nav.Link>
                     </Nav.Item>
                 </Nav>
             );

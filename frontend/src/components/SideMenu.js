@@ -1,5 +1,5 @@
 import React from 'react'
-import { useHistory } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { useMsal } from "@azure/msal-react";
 
 import SideMenuItem from './SideMenuItem'
@@ -18,7 +18,8 @@ function SideMenu() {
     //-------------------------------------------------------------------
     // Region: Initialization
     //-------------------------------------------------------------------
-    const history = useHistory();
+    const navigate = useNavigate();
+    const location = useLocation();
     const { loadingProps } = useLoadingContext();
     const { instance } = useMsal();
     const _activeAccount = instance.getActiveAccount();
@@ -105,12 +106,12 @@ function SideMenu() {
     //-------------------------------------------------------------------
     const renderProfileExplorer = () => {
         //parse relative url. If pattern matches profile edit/add pattern, then extract the id
-        var path = history.location.pathname.split("/");
+        var path = location.pathname.split("/");
 
-        if (path == null || path.length < 2 || history.location.pathname.toLowerCase().indexOf('/type/') === -1) return;
+        if (path == null || path.length < 2 || location.pathname.toLowerCase().indexOf('/type/') === -1) return;
         //TBD - handle extend and new scenario better
-        if (history.location.pathname.toLowerCase().indexOf('/type/extend') > -1) return;
-        if (history.location.pathname.toLowerCase().indexOf('/type/new') > -1) return;
+        if (location.pathname.toLowerCase().indexOf('/type/extend') > -1) return;
+        if (location.pathname.toLowerCase().indexOf('/type/new') > -1) return;
 
         //if we get here, the is an edit/view profile
         var id = parseInt(path[2]);

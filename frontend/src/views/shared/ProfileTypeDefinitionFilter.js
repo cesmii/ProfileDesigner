@@ -112,7 +112,7 @@ function ProfileTypeDefinitionFilter(props) {
     const renderSearchUI = () => {
         return (
             <Form onSubmit={onSearchClick} className={`header-search-block`}>
-                <Form.Row>
+                <div className="row">
                     <InputGroup className="global-search">
                         <FormControl
                             type="text"
@@ -121,13 +121,11 @@ function ProfileTypeDefinitionFilter(props) {
                             value={_filterVal != null ? _filterVal : ""}
                             onChange={onSearchChange}
                         />
-                        <InputGroup.Append>
-                            <Button variant="search" className="p-0 pl-2 pr-2 border-left-0" onClick={onSearchClick} type="submit" title="Run Search." >
-                                <SVGIcon name="search" />
-                            </Button>
-                        </InputGroup.Append>
+                        <Button variant="search" onClick={onSearchClick} type="submit" title="Run Search." >
+                            <SVGIcon name="search" />
+                        </Button>
                     </InputGroup>
-                </Form.Row>
+                </div>
             </Form>
         );
     }

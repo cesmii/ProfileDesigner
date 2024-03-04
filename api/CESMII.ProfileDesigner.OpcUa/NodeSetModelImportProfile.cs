@@ -652,7 +652,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
                         IsActive = true,
                         Name = field.Name,
                         BrowseName = $"{attributeNamespace};{field.Name}",
-                        //No SymbolicName for structure fields
+                        SymbolicName = field.SymbolicName,
                         Namespace = attributeNamespace,
                         IsRequired = !field.IsOptional,
                         Description = field.Description?.FirstOrDefault()?.Text,
@@ -688,8 +688,8 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelImport.Profile
                         {
                             IsActive = true,
                             Name = field.Name,
+                            SymbolicName = field.SymbolicName,
                             BrowseName = $"{attributeNamespace};{field.Name}",
-                            // No SymbolicName for enum fields
                             DisplayName = field.DisplayName?.FirstOrDefault()?.Text,
                             Description = field.Description?.FirstOrDefault()?.Text,
                             AttributeType = new LookupItemModel { ID = (int)AttributeTypeIdEnum.EnumField },

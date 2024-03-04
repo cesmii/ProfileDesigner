@@ -12,7 +12,7 @@
     using CESMII.ProfileDesigner.Data.Repositories;
     using Microsoft.Extensions.DependencyInjection;
 
-    public class ProfileDAL : TenantBaseDAL<Profile, ProfileModel>, IDal<Profile, ProfileModel>
+    public class ProfileDAL : TenantBasePdDAL<Profile, ProfileModel>, IDal<Profile, ProfileModel>
     {
         private readonly NodeSetFileDAL _nodeSetFileDAL;
         private readonly IServiceProvider _serviceProvider;
@@ -33,8 +33,6 @@
                 ID = null
             };
 
-            this.MapToEntity(ref entity, model, userToken);
-
             //this will add and call saveChanges
             await base.AddAsync(entity, model, userToken);
 
@@ -45,17 +43,9 @@
 
         public override async Task<int?> UpdateAsync(ProfileModel model, UserToken userToken)
         {
-            Profile entity = base.FindByCondition(userToken, x => x.ID == model.ID && x.AuthorId == model.AuthorId)
-                .FirstOrDefault();
-            if (entity == null)
-            {
-                throw new ArgumentNullException("NodeSet not found during update or access was denied.");
-            }
-            this.MapToEntity(ref entity, model, userToken);
-
-            await _repo.UpdateAsync(entity);
+            var id = await base.UpdateAsync(model, userToken);
             await _repo.SaveChangesAsync();
-            return entity.ID;
+            return id;
         }
 
         public override Profile CheckForExisting(ProfileModel model, UserToken userToken, bool cacheOnly = false)
@@ -89,7 +79,18 @@
         /// <param name="id">Id of the record to be deleted</param>
         /// <param name="userId">owner of the record. If set to -1 AuthorID is ignored (force delete)</param>
         /// <returns></returns>
-        public async Task<int?> DeleteAsync(int id, UserToken userToken)
+        public Task<int?> DeleteAsync(int id, UserToken userToken)
+        {
+            return DeleteAsync(id, userToken, true);
+        }
+
+        /// <summary>
+        /// Deletes a record from the Profile Cache
+        /// </summary>
+        /// <param name="id">Id of the record to be deleted</param>
+        /// <param name="userId">owner of the record. If set to -1 AuthorID is ignored (force delete)</param>
+        /// <returns></returns>
+        public async Task<int?> DeleteAsync(int id, UserToken userToken, bool saveChanges)
         {
             //TBD - delete needs to add some include statements to pull back related children.
             //do filter on author id so that the user can only delete their stuff
@@ -100,7 +101,10 @@
             //complex delete with many cascading implications, call stored proc which deletes all dependent objects 
             // in proper order, etc.
             await _repo.ExecStoredProcedureAsync("call public.sp_nodeset_delete({0})", _configUtil.ProfilesSettings.CommandTimeout, id.ToString());
-            await _repo.SaveChangesAsync(); // SP does not get executed until SaveChanges
+            if (saveChanges)
+            {
+                await _repo.SaveChangesAsync(); // SP does not get executed until SaveChanges
+            }
             return 1;
         }
 
@@ -129,18 +133,50 @@
         }
         protected override ProfileModel MapToModel(Profile entity, bool verbose = true)
         {
+            MapToModelNonVerbose(entity);
+            if (entity != null)
+            {
+                var result = MapToModelNonVerbose(entity);
+                if (verbose)
+                {
+                    result.NodeSetFiles = entity.NodeSetFiles.Select(nsf => _nodeSetFileDAL.MapToModelPublic(nsf, verbose)).ToList();
+
+                    //pull list of warnings - only used for export scenario (uncommon so 
+                    //we may consider not pulling these all the time. 
+                    result.ImportWarnings = entity.ImportWarnings?.OrderBy(x => x.Message).Select(i =>
+                        new ImportProfileWarningModel
+                        {
+                            Created = i.Created,
+                            Message = i.Message,
+                            ProfileId = i.ProfileId
+                        }).ToList();
+                }
+                return result;
+            }
+            else
+            {
+                return null;
+            }
+
+        }
+
+        public static ProfileModel MapToModelNonVerbose(Profile entity)
+        {
             if (entity != null)
             {
                 var result = new ProfileModel()
                 {
                     ID = entity.ID,
+                    Created = entity.Created,
+                    CreatedBy = MapToModelSimpleUser(entity.CreatedBy),
+                    Updated = entity.Updated,
+                    UpdatedBy = MapToModelSimpleUser(entity.UpdatedBy),
                     Namespace = entity.Namespace,
                     //TBD - may be able to do away with this field in model side.
                     CloudLibraryId = entity.CloudLibraryId,
                     CloudLibPendingApproval = entity.CloudLibPendingApproval,
                     AuthorId = entity.AuthorId,
                     Author = MapToModelSimpleUser(entity.Author),
-                    NodeSetFiles = verbose ? entity.NodeSetFiles.Select(nsf => _nodeSetFileDAL.MapToModelPublic(nsf, verbose)).ToList() : null,
                     Version = entity.Version,
                     XmlSchemaUri = entity.XmlSchemaUri,
                     PublishDate = entity.PublishDate,
@@ -161,19 +197,6 @@
                     SupportedLocales = entity.SupportedLocales?.ToList(),
                     AdditionalProperties = entity.AdditionalProperties?.Select(p => new AdditionalProperty { Name = p.Name, Value = p.Value })?.ToList(),
                 };
-
-                if (verbose)
-                {
-                    //pull list of warnings - only used for export scenario (uncommon so 
-                    //we may consider not pulling these all the time. 
-                    result.ImportWarnings = entity.ImportWarnings?.OrderBy(x => x.Message).Select(i =>
-                        new ImportProfileWarningModel
-                        {
-                            Created = i.Created,
-                            Message = i.Message,
-                            ProfileId = i.ProfileId
-                        }).ToList();
-                }
                 return result;
             }
             else
@@ -276,6 +299,10 @@
                     if (source == null)
                     {
                         entity.NodeSetFiles.RemoveAt(i);
+                        if (current.ID != null)
+                        {
+                            _nodeSetFileDAL.DeleteAsync(current.ID.Value, userToken).Wait();
+                        }
                     }
                     else
                     {

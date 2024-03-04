@@ -549,6 +549,20 @@ function AttributeEntity(props) { //props are item, showActions
         );
     };
 
+    //render the OPC Node Id ui
+    const renderOpcNodeId = () => {
+        const isReadOnly = (props.readOnly || _editItem._itemType == null || _editItem._itemType === "extended" || _editItem.interface != null);
+
+        return (
+            <Form.Group>
+                <Form.Label className="mb-0" >OPC Node Id</Form.Label>
+                <Form.Control id="opcNodeId" type="" placeholder="Enter an OPC Node Id, for example i=1234" value={_editItem.opcNodeId == null ? '' : _editItem.opcNodeId} readOnly={isReadOnly}
+                    onChange={onChange} />
+            </Form.Group>
+        );
+    };
+
+
     //render data type ui
     const renderDataTypeUI = () => {
         const isReadOnly = (props.readOnly || _editItem._itemType == null || _editItem._itemType === "extended" || _editItem.interface != null);
@@ -864,6 +878,11 @@ function AttributeEntity(props) { //props are item, showActions
             <div className="row mb-2" >
                 <div className="col-sm-12" >
                     {renderSymbolicName()}
+                </div>
+            </div>
+            <div className="row mb-2" >
+                <div className="col-sm-12" >
+                    {renderOpcNodeId()}
                 </div>
             </div>
             <div className="row mb-2" >

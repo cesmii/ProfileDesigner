@@ -112,6 +112,10 @@ function ProfileActions(props) {
                         isLoading: false, message: null, inlineMessages: null
                     });
                 }
+
+                //scroll back to top
+                scrollTop();
+
                 //raise callback
                 if (props.onDeleteCallback != null) props.onDeleteCallback(result.data.isSuccess);
 

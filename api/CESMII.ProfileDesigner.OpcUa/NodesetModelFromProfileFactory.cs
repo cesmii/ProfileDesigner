@@ -293,6 +293,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
                     var field = new DataTypeModel.UaEnumField
                     {
                         Name = attribute.Name,
+                        SymbolicName = attribute.SymbolicName,
                         DisplayName = NodeModel.LocalizedText.ListFromText(attribute.DisplayName),
                         Description = NodeModel.LocalizedText.ListFromText(attribute.Description),
                         Value = attribute.EnumValue.Value,
@@ -320,6 +321,7 @@ namespace CESMII.ProfileDesigner.OpcUa.NodeSetModelFactory.Profile
                 var field = new DataTypeModel.StructureField
                 {
                     Name = attribute.Name,
+                    SymbolicName = attribute.SymbolicName,
                     DataType = fieldDataType,
                     ValueRank = attribute.ValueRank,
                     ArrayDimensions = attribute.ArrayDimensions,

@@ -1,3 +1,4 @@
+import { useEffect } from "react"
 import { BrowserRouter as Router } from "react-router-dom"
 import { Helmet } from "react-helmet"
 import { ErrorBoundary } from 'react-error-boundary'
@@ -35,12 +36,12 @@ function App() {
     const OnApiResponseError = (err) => {
         //401 - unauthorized - session expired - due to token expiration or unauthorized attempt
         if (err.response && err.response.status === 401) {
-            console.log(generateLogMessageString(`axiosInstance.interceptors.response||error||${err.response.status}||${err.config.baseURL}${err.config.url}`, CLASS_NAME));
+            console.error(generateLogMessageString(`OnApiResponseError||error||${err.response.status}||${err.config.baseURL}${err.config.url}`, CLASS_NAME));
             setLoadingProps({ isLoading: false, message: null });
         }
         //403 error - user may be allowed to log in but not permitted to perform the API call they are attempting
         else if (err.response && err.response.status === 403) {
-            console.log(generateLogMessageString(`axiosInstance.interceptors.response||error||${err.response.status}||${err.config.baseURL}${err.config.url}`, CLASS_NAME));
+            console.error(generateLogMessageString(`OnApiResponseError||error||${err.response.status}||${err.config.baseURL}${err.config.url}`, CLASS_NAME));
             setLoadingProps({
                 isLoading: false, message: null, inlineMessages: [
                     { id: new Date().getTime(), severity: "danger", body: 'You are not permitted to access this area. Please contact your system administrator.', isTimed: true }]
@@ -48,7 +49,7 @@ function App() {
         }
         //no status is our only indicator the API is not up and running
         else if (!err.status) {
-            console.log(generateLogMessageString(`axiosInstance.interceptors.response||error||${err.config.baseURL}${err.config.url}||${err}`, CLASS_NAME));
+            console.error(generateLogMessageString(`OnApiResponseError||error||${err.config.baseURL}${err.config.url}||${err}`, CLASS_NAME));
             if (err.message != null && err.message.toLowerCase().indexOf('request aborted') > -1) {
                 //do nothing...
             }
@@ -63,27 +64,40 @@ function App() {
 
     };
 
-    //Catch exceptions in the flow when we use our axiosInstance
-    axiosInstance.interceptors.response.use(
-        response => {
-            return response
-        },
-        err => {
-            OnApiResponseError(err);
-            return Promise.reject(err)
-        }
-    )
 
-    //Catch exceptions in the flow when we use axios not as part of our axiosInstance
-    axios.interceptors.response.use(
-        response => {
-            return response
-        },
-        err => {
-            OnApiResponseError(err);
-            return Promise.reject(err)
-        }
-    )
+    //-------------------------------------------------------------------
+    // Region: hooks
+    // Wrap the interceptor response in useEffect so that it doesn't go into endless loop 
+    //  on each render that occurs as a result of the exception.
+    // The reason for 2 interceptors is to handle scenario where we use axiosInstance (a wrapper class)
+    //  and the scenario where a component may use axios directly.
+    //-------------------------------------------------------------------
+    useEffect(() => {
+        //Catch exceptions in the flow when we use our axiosInstance
+        axiosInstance.interceptors.response.use(
+            response => {
+                return response
+            },
+            err => {
+                console.error(generateLogMessageString(`axiosInstance.interceptors.response.use||event`, CLASS_NAME));
+                OnApiResponseError(err);
+                return Promise.reject(err)
+            }
+        )
+
+        //Catch exceptions in the flow when we use axios not as part of our axiosInstance
+        axios.interceptors.response.use(
+            response => {
+                return response
+            },
+            err => {
+                console.error(generateLogMessageString(`axios.interceptors.response.use||event`, CLASS_NAME));
+                OnApiResponseError(err);
+                return Promise.reject(err)
+            }
+        )
+    }, [])
+
 
     //-------------------------------------------------------------------
     // Region: hooks

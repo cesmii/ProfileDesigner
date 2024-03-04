@@ -14,11 +14,10 @@ using Newtonsoft.Json;
 
 using CESMII.ProfileDesigner.Common.Enums;
 using CESMII.ProfileDesigner.Data.Contexts;
-using CESMII.ProfileDesigner.DAL.Models;
 using CESMII.ProfileDesigner.Api.Shared.Models;
 using CESMII.ProfileDesigner.Data.Entities;
 
-namespace CESMII.ProfileDesigner.Api.Tests.Int
+namespace CESMII.ProfileDesigner.Api.Tests.Int.Controllers
 {
     public class ControllerTestBase : IClassFixture<CustomWebApplicationFactory<Api.Startup>>, IDisposable
     {

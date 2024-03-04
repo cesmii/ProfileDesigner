@@ -1,5 +1,4 @@
 ###2#Feature#Export: XmlSchemaUri#1
-====>Expected attribute name '/UANodeSet[1]/Models[1]/Model[1]/@XmlSchemaUri' - comparing <Model...> at /UANodeSet[1]/Models[1]/Model[1]/@XmlSchemaUri to <Model...> at /UANodeSet[1]/Models[1]/Model[1]
 ====>Expected attribute name '/UANodeSet[1]/Models[1]/Model[1]/RequiredModel[1]/@XmlSchemaUri' - comparing <RequiredModel...> at /UANodeSet[1]/Models[1]/Model[1]/RequiredModel[1]/@XmlSchemaUri to <RequiredModel...> at /UANodeSet[1]/Models[1]/Model[1]/RequiredModel[1]
 ###2#Feature#Export: Allow specifying versions of dependent profiles that are lower than the imported one#C2-193
 ====>Expected attribute value '1.05.01' but was '1.05.02' - comparing <RequiredModel Version="1.05.01"...> at /UANodeSet[1]/Models[1]/Model[1]/RequiredModel[1]/@Version to <RequiredModel Version="1.05.02"...> at /UANodeSet[1]/Models[1]/Model[1]/RequiredModel[1]/@Version

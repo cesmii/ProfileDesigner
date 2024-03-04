@@ -5,7 +5,7 @@
     using System.Linq;
     using CESMII.ProfileDesigner.Common.Enums;
 
-    public class ProfileModel : AbstractModel
+    public class ProfileModel : AbstractProfileDesignerModel
     {
         public string Namespace { get; set; }
 
@@ -134,7 +134,6 @@
             }
         }
 
-
     }
 
     public class AdditionalProperty
@@ -156,6 +155,10 @@
             return new CloudLibProfileModel
             {
                 ID = profile.ID,
+                Created = profile.Created,
+                CreatedBy = profile.CreatedBy,
+                Updated = profile.Updated,
+                UpdatedBy = profile.UpdatedBy,
                 Namespace = profile.Namespace,
                 PublishDate = profile.PublishDate,
                 Version = profile.Version,

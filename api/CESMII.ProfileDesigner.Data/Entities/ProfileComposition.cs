@@ -63,9 +63,13 @@
         /// </summary>
         [Column(name: "description")]
         public string Description { get; set; }
-
+        /// <summary>
+        /// The referencing profile type
+        /// </summary>
         public virtual ProfileTypeDefinition ProfileTypeDefinition { get; set; }
-
+        /// <summary>
+        /// The composed profile type
+        /// </summary>
         public virtual ProfileTypeDefinition Composition { get; set; }
     }
 }

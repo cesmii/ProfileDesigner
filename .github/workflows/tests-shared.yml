@@ -44,7 +44,7 @@ jobs:
             echo "TEST_FILTER=" >> $GITHUB_ENV
           fi        
       
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v2
         with:
           submodules: true
       - name: Set up dotnet Core ${{ env.NETCORE_VERSION }}

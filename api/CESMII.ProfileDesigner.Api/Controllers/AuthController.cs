@@ -147,8 +147,8 @@
                     // listMatchEmailAddress.Sort((em1, em2) => DateTime?.Compare(em1.LastLogin, em2.LastLogin));
                     listMatchEmailAddress.Sort((em1, em2) => 
                         { 
-                            DateTime dt1 = new DateTime(em1.LastLogin.Value.Ticks);
-                            DateTime dt2 = new DateTime(em2.LastLogin.Value.Ticks);
+                            DateTime dt1 = new DateTime(em1.Created.Value.Ticks);
+                            DateTime dt2 = new DateTime(em2.Created.Value.Ticks);
                             return DateTime.Compare(dt1, dt2);
                         });
 

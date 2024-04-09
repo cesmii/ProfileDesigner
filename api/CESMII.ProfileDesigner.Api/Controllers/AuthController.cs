@@ -12,6 +12,7 @@
     using Microsoft.Extensions.Logging;
     using System;
     using System.Threading;
+    using System.Threading.Tasks;
 
     [Authorize, Route("api/[controller]")]
     public class AuthController : BaseController<AuthController>
@@ -30,7 +31,7 @@
             //extract user name from identity passed in via token
             //check if that user record is in DB. If not, add it.
             //InitLocalUser: this property checks for user, adds to db and returns a fully formed user model if one does not exist. 
-            var returned = InitLocalUser();
+            var returned = InitLocalUser().Result;
             UserModel user = returned.Item1;
             String strError = returned.Item2;
 
@@ -62,7 +63,7 @@
         /// </summary>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        protected (UserModel,string) InitLocalUser()
+        protected async Task<(UserModel, string)> InitLocalUser()
         {
             bool bCheckOrganization = false;
             bool bUpdateUser = false;
@@ -143,7 +144,7 @@
                 else
                 {
                     // When more than 1 record, it means they have signed up (and then left) more than 
-                    // once. This is okay, but we pick the most recent one.
+                    // once. This is okay, but we pick the most recent (newest) one.
                     // listMatchEmailAddress.Sort((em1, em2) => DateTime?.Compare(em1.Created, em2.Created));
                     listMatchEmailAddress.Sort((em1, em2) => 
                         { 
@@ -152,8 +153,8 @@
                             return DateTime.Compare(dt1, dt2);
                         });
 
-                    // We must have at least 2 records or this line gives an exception
-                    int iItem = listMatchEmailAddress.Count - 1;
+                    int iItem = listMatchEmailAddress.Count - 1;   // We must have at least 2 records this index causes an exception
+                    if (iItem < 0) iItem = 0;                      // Just to make sure this is within range
 
                     // We use the most recent records that we have for this user.
                     um = listMatchEmailAddress[iItem];
@@ -165,20 +166,19 @@
                     bUpdateUser = true;         // Synch UserModel changes
                     bCheckOrganization = true;  // Check the user's organization.
 
-                    // Note: If we want to automate the removal of duplicate records and logging of it,
-                    // we would do that here with code like the following:
+                    // Removing duplicate records.
+                    // We log it, just so there is a record of it.
 
-                    ////////for (int iDeleteMe = 0;  iDeleteMe < listMatchEmailAddress.Count - 1; iDeleteMe++)
-                    ////////{
-                    ////////    if (listMatchEmailAddress[iDeleteMe].ID != null)
-                    ////////    {
-                    ////////        string strWarning = $"InitLocalUser|| About to delete record {iDeleteMe} of {listMatchEmailAddress.Count} from public.user. Id: {listMatchEmailAddress[iDeleteMe].ID.Value} Email: {listMatchEmailAddress[iDeleteMe].Email}";
-                    ////////        _logger.LogWarning(strWarning);
+                    for (int iDeleteMe = 0; iDeleteMe < listMatchEmailAddress.Count - 1; iDeleteMe++)
+                    {
+                        if (listMatchEmailAddress[iDeleteMe].ID != null)
+                        {
+                            string strWarning = $"InitLocalUser|| About to delete record {iDeleteMe} of {listMatchEmailAddress.Count} from public.user. Id: {listMatchEmailAddress[iDeleteMe].ID.Value} Email: {listMatchEmailAddress[iDeleteMe].Email}";
+                            _logger.LogWarning(strWarning);
 
-                    ////////        await _dalUser.DeleteAsync(listMatchEmailAddress[iDeleteMe].ID.Value, base.DalUserToken);
-                    ////////    }
-                    ////////}
-
+                            await _dalUser.DeleteAsync(listMatchEmailAddress[iDeleteMe].ID.Value, base.DalUserToken);
+                        }
+                    }
                 }
             }
 
@@ -233,6 +233,5 @@
             return (um,null);
 
         }
-
     }
 }

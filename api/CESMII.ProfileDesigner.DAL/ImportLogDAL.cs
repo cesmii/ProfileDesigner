@@ -109,6 +109,10 @@
         public async Task<int?> DeleteAsync(int id, UserToken userToken)
         {
             ImportLog entity = base.FindByCondition(userToken, x => x.ID == id && x.OwnerId == userToken.UserId).FirstOrDefault();
+            if (entity == null)
+            {
+                return null;
+            }
             entity.IsActive = false;
             //clean out file chunks when we delete this item. This has a lot of data and it is no longer needed once the import concludes.
             foreach (var f in entity.Files)

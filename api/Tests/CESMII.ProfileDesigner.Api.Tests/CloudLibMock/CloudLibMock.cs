@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace CESMII.ProfileDesigner.Api.Tests
 {
@@ -17,6 +18,11 @@ namespace CESMII.ProfileDesigner.Api.Tests
         const string strSearchDataFile = "CloudLibMock/Searchdata.json";
         public CloudLibMock()
         {
+        }
+
+        public Task<GraphQlResult<Nodeset>> SearchAsync(int? param1, string param2, bool param3, List<string> param4, List<string> param5, bool param6)
+        {
+            throw new NotImplementedException();
         }
 
         public CloudLibMock(CloudLibWrapper wrapper)
@@ -91,7 +97,7 @@ namespace CESMII.ProfileDesigner.Api.Tests
         public OnNodeSet OnNodeSetFound { get; set; }
         public OnNodeSet OnNodeSetNotFound { get; set; }
 
-        public async Task<GraphQlResult<Nodeset>> SearchAsync(int? limit, string cursor, bool pageBackwards, List<string> keywords, List<string> exclude, bool noTotalCount)
+        public async Task<GraphQlResult<Nodeset>> SearchAsync(int? limit, string cursor, bool pageBackwards, List<string> keywords, List<string> exclude, bool noTotalCount, object order = null)
         {
             var inputs = new SearchInputs
             {

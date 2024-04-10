@@ -1,0 +1,6 @@
+opcfoundation.org.UA.1.05.2022-11-01.NodeSet2.xml
+opcfoundation.org.UA.DI.2022-11-03.NodeSet2.xml
+opcfoundation.org.UA.Robotics.2021-05-20.NodeSet2.xml
+clabs.com.UA.HumanRobot.2021-07-05.NodeSet2.xml
+opcfoundation.org.UA.CNC.2017-06-19.NodeSet2.xml
+opcfoundation.org.UA.Machinery.2022-05-01.NodeSet2.xml

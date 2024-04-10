@@ -46,7 +46,7 @@ jobs:
     name: Build and Deploy .NET6 Web API
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v2
         with:
           submodules: true
       - name: Set up dotnet Core ${{ env.NETCORE_VERSION }}

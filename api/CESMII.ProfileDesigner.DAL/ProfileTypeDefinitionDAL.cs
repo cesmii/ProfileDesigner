@@ -90,6 +90,26 @@
             return count;
         }
 
+        public DateTime? GetProfileLastUpdated(int profileId, UserToken userToken)
+        {
+            var profile = _profileDAL.GetById(profileId, userToken);
+            if (profile == null)
+            {
+                return null;
+            }
+            return GetProfileLastUpdatedInternal(profile, userToken);
+        }
+
+        private DateTime? GetProfileLastUpdatedInternal(ProfileModel profile, UserToken userToken)
+        {
+            var lastUpdated = profile.Updated;
+            var lastUpdateTypes = FindByCondition(userToken, pt => pt.ProfileId == profile.ID).Max(p => p.Updated);
+            if (lastUpdated == null || lastUpdateTypes > lastUpdated)
+            {
+                lastUpdated = lastUpdateTypes;
+            }
+            return lastUpdated;
+        }
 
         /// <summary>
         /// Get all 
@@ -307,7 +327,7 @@
                     OpcNodeId = entity.OpcNodeId,
                     Name = entity.Name,
                     ProfileId = entity.ProfileId != 0 ? entity.ProfileId : null,
-                    Profile = MapToModelProfile(entity.Profile),
+                    Profile = this._profileDAL.MapToModelPublic(entity.Profile, false),
                     BrowseName = entity.BrowseName,
                     SymbolicName = entity.SymbolicName,
                     Description = entity.Description,
@@ -377,33 +397,6 @@
 
         }
 
-        protected static ProfileModel MapToModelProfile(Profile entity)
-        {
-            if (entity != null)
-            {
-                var result = new ProfileModel
-                {
-                    ID = entity.ID,
-                    Namespace = entity.Namespace,
-                    CloudLibraryId = entity.CloudLibraryId,
-                    CloudLibPendingApproval = entity.CloudLibPendingApproval,
-                    Version = entity.Version,
-                    XmlSchemaUri = entity.XmlSchemaUri,
-                    PublishDate = entity.PublishDate,
-                    AuthorId = entity.AuthorId,
-                    Author = MapToModelSimpleUser(entity.Author)
-                    //for space saving, performance, don't populate these values in this scenario
-                    //FileCache = entity.NodeSetId,  
-                };
-                return result;
-            }
-            else
-            {
-                return null;
-            }
-
-        }
-
         protected static ProfileTypeDefinitionSimpleModel MapToModelProfileTypDefSimple(ProfileTypeDefinition entity)
         {
             if (entity != null)
@@ -418,7 +411,7 @@
                     DocumentationUrl = entity.DocumentUrl,
                     MetaTags = entity.MetaTags != null ? JsonConvert.DeserializeObject<List<MetaTag>>(entity.MetaTags).Select(s => s.Name.Trim()).ToList() : new(),
                     ProfileId = entity.ProfileId,
-                    Profile = MapToModelProfile(entity.Profile),
+                    Profile = ProfileDAL.MapToModelNonVerbose(entity.Profile),
                     IsAbstract = entity.IsAbstract,
                     Description = entity.Description,
                     Type = entity.ProfileType != null ?
@@ -1187,7 +1180,7 @@
                             InstanceParent = MapToModel(composition.ProfileTypeDefinition, false),
                             Parent = ProfileMapperUtil.MapToModelProfileSimple(source.RelatedProfileTypeDefinition),
                             ProfileId = composition.ProfileTypeDefinition.ProfileId,
-                            Profile = MapToModelProfile(composition.ProfileTypeDefinition.Profile) ?? _profileDAL.GetById(composition.ProfileTypeDefinition.ProfileId.Value, userToken),
+                            Profile = _profileDAL.MapToModelPublic(composition.ProfileTypeDefinition.Profile) ?? _profileDAL.GetById(composition.ProfileTypeDefinition.ProfileId.Value, userToken),
                         };
                         this.AddAsync(source.IntermediateObject, userToken).Wait();
                     }
@@ -1277,14 +1270,31 @@
         public async Task UpgradeToProfileAsync(ProfileModel profileModel,
             IRepository<ProfileTypeDefinitionAnalytic> ptAnalyticsRepo,
             IRepository<ProfileTypeDefinitionFavorite> ptFavoritesRepo,
-            IRepository<LookupDataTypeRanked> dtRankRepo)
+            IRepository<LookupDataTypeRanked> dtRankRepo,
+            UserToken userToken,
+            bool deleteUpgradedProfiles)
         {
-            _repo.StartTransaction();
-            var profile = _profileDAL.GetRepo().GetAll().FirstOrDefault(p => p.Namespace == profileModel.Namespace && p.PublishDate == profileModel.PublishDate && p.Version == profileModel.Version);
             var profileRepo = _profileDAL.GetRepo();
             var dataTypeRepo = _dataTypeDAL.GetRepo();
 
-            var existingProfiles = profileRepo.GetAll().Where(p => p.Namespace == profile.Namespace).ToList();
+            _repo.StartTransaction();
+            Profile profile;
+            List<Profile> existingProfiles;
+            if (userToken.TargetTenantId == 0)
+            {
+                profile = _profileDAL.GetRepo().GetAll().FirstOrDefault(p => p.Namespace == profileModel.Namespace && p.PublishDate == profileModel.PublishDate && p.Version == profileModel.Version);
+                existingProfiles = profileRepo.GetAll().Where(p => p.Namespace == profile.Namespace).ToList();
+            }
+            else
+            {
+                profile = _profileDAL.CheckForExisting(profileModel, userToken);
+                if (profile == null)
+                {
+                    return;
+                }
+                var existingProfileModels = _profileDAL.Where(p => p.Namespace == profile.Namespace, userToken).Data;
+                existingProfiles = profileRepo.GetAll().Where(p => p.Namespace == profile.Namespace).ToList().Where(p => existingProfileModels.Any(ep => ep.ID == p.ID)).ToList();
+            }
             existingProfiles.Remove(profile);
             foreach (var existingProfile in existingProfiles)
             {
@@ -1474,7 +1484,13 @@
                 await _repo.SaveChangesAsync();
                 await _repo.CommitTransactionAsync();
             }
-
+            if (deleteUpgradedProfiles)
+            {
+                foreach (var existingProfile in existingProfiles)
+                {
+                    await _profileDAL.DeleteAsync(existingProfile.ID.Value, userToken, false);
+                }
+            }
         }
 
         internal void ChangeProfileNamespace(Profile entity, string oldNamespace)

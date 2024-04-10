@@ -130,9 +130,11 @@
         font-size: .9rem;
         display: inline;
         margin-right: 2px;
+        border: 1px solid color("silver");
+        border-radius: 12px;
 
-        span:hover {
-            @include background-opacity(color("silver"), .5);
+        &:hover {
+            @include background-opacity(color("silver"), 0.8);
             border-radius: 12px;
             cursor: pointer;
         }
@@ -147,11 +149,11 @@
         }*/
 
         .selected {
-            @include background-opacity(color("silver"), .8);
+            @include background-opacity(color("silver"), 1);
             border-radius: 12px;
 
             &::after {
-                font-size: 1rem;
+                font-size: 0.9rem;
                 font-weight: normal;
                 margin-left: 4px;
                 padding-right: 1px;

@@ -14,12 +14,14 @@ using System.Threading.Tasks;
 
 namespace CESMII.OpcUa.NodeSetImporter
 {
-    public class UANodeSetCloudLibraryResolver : IUANodeSetResolverWithProgress
+    public class UANodeSetCloudLibraryResolver : IUANodeSetResolverWithPending
     {
         public OnResolveNodeSets OnResolveNodeSets { get; set; }
         public OnNodeSet OnDownloadNodeSet { get; set; }
         public OnNodeSet OnNodeSetFound { get; set; }
         public OnNodeSet OnNodeSetNotFound { get; set; }
+
+        public Func<Nodeset, bool> FilterPendingNodeSet { get; set; }
 
         public UANodeSetCloudLibraryResolver(string strUserName, string strPassword)
         {
@@ -62,9 +64,29 @@ namespace CESMII.OpcUa.NodeSetImporter
                     {
                         nodesetWithURIAndDate.Add((nodeSet.NamespaceUri.OriginalString, nodeSet.PublicationDate, nodeSet.Identifier.ToString(CultureInfo.InvariantCulture), nodeSet.NodesetXml));
                     }
+                    try
+                    {
+                        if (FilterPendingNodeSet != null)
+                        {
+                            var pendingNodeSets = await _client.GetNodeSetsPendingApprovalAsync(namespaceUri: missingModel.ModelUri).ConfigureAwait(false);
+                            var filteredPending = pendingNodeSets.Nodes.Where(FilterPendingNodeSet).ToList();
+                            foreach(var pending in filteredPending)
+                            {
+                                var pendingNodeSetDownload = await _client.GetNodeSetDependencies(identifier: pending.Identifier.ToString(CultureInfo.InvariantCulture)).ConfigureAwait(false);
+                                foreach (var nodeSet in pendingNodeSetDownload)
+                                {
+                                    nodesetWithURIAndDate.Add((nodeSet.NamespaceUri.OriginalString, nodeSet.PublicationDate, nodeSet.Identifier.ToString(CultureInfo.InvariantCulture), nodeSet.NodesetXml));
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+
+                    }
                 }
             }
-            catch (Exception) // TODO more specific exception to detect if cloudlib doesn't support GetNodeSetDependencies
+            catch (GraphQlNotSupportedException)
             {
                 // Fall back to retrieving and downloading all matching namespaces
                 var namespacesAndIds = await _client.GetNamespaceIdsAsync().ConfigureAwait(false);

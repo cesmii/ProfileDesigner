@@ -285,7 +285,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         [ProducesResponseType(200, Type = typeof(ResultMessageWithDataModel))]
         public async Task<IActionResult> ImportProcessFiles([FromBody] IdIntModel model)
         {
-            return await ImportProcessFilesInternal(model, false, false);
+            return await ImportProcessFilesInternal(model, true, true);
         }
 
         /// <summary>
@@ -299,7 +299,7 @@ namespace CESMII.ProfileDesigner.Api.Controllers
         [Authorize(Roles = "cesmii.profiledesigner.admin")]
         public async Task<IActionResult> ImportProcessFilesAdmin([FromBody] IdIntModel model)
         {
-            return await ImportProcessFilesInternal(model, true, false);
+            return await ImportProcessFilesInternal(model, false, false);
         }
 
         /// <summary>

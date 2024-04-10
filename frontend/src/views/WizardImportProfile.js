@@ -9,7 +9,6 @@ import { useWizardContext } from '../components/contexts/WizardContext';
 import { getWizardNavInfo, renderWizardBreadcrumbs, renderWizardHeader, renderWizardIntroContent, WizardSettings } from '../services/WizardUtil';
 import ProfileImporter from './shared/ProfileImporter';
 import CloudLibSlideOut from './shared/CloudLibSlideOut.js'
-//import CloudLibraryImporterModal from './modals/CloudLibraryImporterModal';
 import { ErrorModal } from '../services/CommonUtil'
 
 const CLASS_NAME = "WizardImportProfile";
@@ -208,15 +207,6 @@ function WizardImportProfile() {
             </div>
         );
     };
-
-    //const renderProfileCloudLibImport = () => {
-
-    //    if (!_cloudLibImport.show) return;
-
-    //    return (
-    //        <CloudLibraryImporterModal showModal={_cloudLibImport.show} onImportCanceled={onCloudLibImportCanceled} onImportStarted={onCloudLibImportStarted} />
-    //    );
-    //};
 
     const renderMainContent = () => {
         return (

@@ -53,8 +53,11 @@
 
         public override async Task<int?> UpdateAsync(TModel model, UserToken userToken)
         {
-            TEntity entity = base.GetAllEntities(userToken)
-                    .Where(e => e.ID == model.ID).FirstOrDefault();
+            TEntity entity = CheckForExisting(model, userToken);
+            if (entity == null)
+            {
+                throw new ArgumentNullException("Entity not found during update or access was denied.");
+            }
             entity.UpdatedById = userToken.UserId;
             entity.Updated = DateTime.UtcNow;
             this.MapToEntity(ref entity, model, userToken);

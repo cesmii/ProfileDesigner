@@ -109,107 +109,6 @@ function ProfileList() {
         setError({ show: false, caption: null, message: null });
     }
 
-    //-------------------------------------------------------------------
-    // Region: Delete event handlers
-    //-------------------------------------------------------------------
-    // Delete ONE - from row
-    const onDeleteItemClick = (item) => {
-        console.log(generateLogMessageString(`onDeleteItemClick`, CLASS_NAME));
-        setDeleteModal({ show: true, items: [item] });
-    };
-
-    //// Delete MANY - from button above grid
-    //const onDeleteManyClick = () => {
-    //    console.log(generateLogMessageString(`onDeleteManyClick`, CLASS_NAME));
-    //    setDeleteModal({ show: true, items: _dataRows.all });
-    //};
-
-    //on confirm click within the modal, this callback will then trigger the next step (ie call the API)
-    const onDeleteConfirm = () => {
-        console.log(generateLogMessageString(`onDeleteConfirm`, CLASS_NAME));
-        deleteItems(_deleteModal.items);
-        setDeleteModal({ show: false, item: null });
-    };
-
-    //render the delete modal when show flag is set to true
-    //callbacks are tied to each button click to proceed or cancel
-    const renderDeleteConfirmation = () => {
-
-        if (!_deleteModal.show) return;
-
-        const message = _deleteModal.items.length === 1 ?
-            `You are about to delete your profile '${_deleteModal.items[0].namespace}'. This will delete all type definitions associated with this profile. This action cannot be undone. Are you sure?` :
-            `You are about to delete ${_deleteModal.items.length} profiles. This will delete all type definitions associated with these profiles. This action cannot be undone. Are you sure?`;
-        const caption = `Delete Profile${_deleteModal.items.length === 1 ? "" : "s"}`;
-
-        return (
-            <>
-                <ConfirmationModal showModal={_deleteModal.show} caption={caption} message={message}
-                    icon={{ name: "warning", color: color.trinidad }}
-                    confirm={{ caption: "Delete", callback: onDeleteConfirm, buttonVariant: "danger" }}
-                    cancel={{
-                        caption: "Cancel",
-                        callback: () => {
-                            console.log(generateLogMessageString(`onDeleteCancel`, CLASS_NAME));
-                            setDeleteModal({ show: false, item: null });
-                        },
-                        buttonVariant: null
-                    }} />
-            </>
-        );
-    };
-
-    const deleteItems = (items) => {
-        console.log(generateLogMessageString(`deleteItems||Count:${items.length}`, CLASS_NAME));
-
-        //show a spinner
-        setLoadingProps({ isLoading: true, message: "" });
-
-        //perform delete call
-        const data = items.length === 1 ? { id: items[0].id } :
-            items.map((item) => { return { id: item.id }; });
-        const url = items.length === 1 ? `profile/delete` : `profile/deletemany`;
-        axiosInstance.post(url, data)  //api allows one or many
-            .then(result => {
-
-                if (result.data.isSuccess) {
-                    //hide a spinner, show a message
-                    setLoadingProps({
-                        isLoading: false, message: null, inlineMessages: [
-                            {
-                                id: new Date().getTime(), severity: "success",
-                                body: items.length === 1 ? `Profile was deleted` : `${items.length} Profiles were deleted`, isTimed: true
-                            }
-                        ],
-                        //get profile count from server...this will trigger that call on the side menu
-                        refreshProfileCount: true,
-                        refreshProfileList: true,
-                        refreshSearchCriteria: true //refresh this list to make sure list of profiles is accurate in the filters
-                    });
-                }
-                else {
-                    setError({ show: true, caption: 'Delete Error', message: `An error occurred deleting ${items.length === 1 ? "this profile" : "these profiles"} : ${result.data.message}` });
-                    //update spinner, messages
-                    setLoadingProps({
-                        isLoading: false, message: null, inlineMessages: null
-                    });
-                }
-
-            })
-            .catch(error => {
-                //hide a spinner, show a message
-                setLoadingProps({
-                    isLoading: false, message: null, inlineMessages: [
-                        { id: new Date().getTime(), severity: "danger", body: `An error occurred deleting ${items.length === 1 ? "this profile" : "these profiles"}.`, isTimed: false }
-                    ]
-                });
-                console.log(generateLogMessageString('deleteProfiles||error||' + JSON.stringify(error), CLASS_NAME, 'error'));
-                console.log(error);
-                //scroll back to top
-                scrollTop();
-            });
-    };
-
     //bubble up search criteria changed so the parent page can control the search criteria
     const onSearchCriteriaChanged = (criteria) => {
         console.log(generateLogMessageString(`onSearchCriteriaChanged`, CLASS_NAME));
@@ -279,10 +178,9 @@ function ProfileList() {
             {renderIntroContent()}
             {(_searchCriteria != null) &&
                 <ProfileListGrid searchCriteria={_searchCriteria} mode={AppSettings.ProfileListMode.Profile}
-                    onGridRowSelect={onGridRowSelect} onDeleteItemClick={onDeleteItemClick}
+                    onGridRowSelect={onGridRowSelect} 
                     onSearchCriteriaChanged={onSearchCriteriaChanged} searchCriteriaChanged={_searchCriteriaChanged} hideSearchBox={false} />
             }
-            {renderDeleteConfirmation()}
             <ErrorModal modalData={_error} callback={onErrorModalClose} />
             <CloudLibSlideOut isOpen={_cloudLibSlideOut.isOpen} onClosePanel={onCloseSlideOut} onImportStarted={onCloseSlideOut} />
         </>

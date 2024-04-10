@@ -166,19 +166,23 @@
                     bUpdateUser = true;         // Synch UserModel changes
                     bCheckOrganization = true;  // Check the user's organization.
 
+                    // ***********************************************************************************************
+                    // For whatever reason, we are unable to delete the duplicate records here.
+                    // Perhaps the user permission does not allow it.
                     // Removing duplicate records.
                     // We log it, just so there is a record of it.
 
-                    for (int iDeleteMe = 0; iDeleteMe < listMatchEmailAddress.Count - 1; iDeleteMe++)
-                    {
-                        if (listMatchEmailAddress[iDeleteMe].ID != null)
-                        {
-                            string strWarning = $"InitLocalUser|| About to delete record {iDeleteMe} of {listMatchEmailAddress.Count} from public.user. Id: {listMatchEmailAddress[iDeleteMe].ID.Value} Email: {listMatchEmailAddress[iDeleteMe].Email}";
-                            _logger.LogWarning(strWarning);
+                    //for (int iDeleteMe = 0; iDeleteMe < listMatchEmailAddress.Count - 1; iDeleteMe++)
+                    //{
+                    //    if (listMatchEmailAddress[iDeleteMe].ID != null)
+                    //    {
+                    //        string strWarning = $"InitLocalUser|| About to delete record {iDeleteMe} of {listMatchEmailAddress.Count} from public.user. Id: {listMatchEmailAddress[iDeleteMe].ID.Value} Email: {listMatchEmailAddress[iDeleteMe].Email}";
+                    //        _logger.LogWarning(strWarning);
 
-                            await _dalUser.DeleteAsync(listMatchEmailAddress[iDeleteMe].ID.Value, base.DalUserToken);
-                        }
-                    }
+                    //        await _dalUser.DeleteAsync(listMatchEmailAddress[iDeleteMe].ID.Value, base.DalUserToken);
+                    //    }
+                    //}
+                    // ***********************************************************************************************
                 }
             }
 

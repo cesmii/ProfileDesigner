@@ -1416,8 +1416,11 @@
                     foreach (var ptFavoritesRecord in ptFavoritesRecords)
                     {
                         var ptfNew = ptFavoritesRepo.GetAll().Where(pta => pta.ProfileTypeDefinition.Profile == profile && pta.ProfileTypeDefinition.OpcNodeId == ptFavoritesRecord.ProfileTypeDefinition.OpcNodeId).FirstOrDefault();
-                        ptfNew.IsFavorite = ptFavoritesRecord.IsFavorite;
-                        ptFavoritesRepo.Update(ptfNew);
+                        if (ptfNew != null)
+                        {
+                            ptfNew.IsFavorite = ptFavoritesRecord.IsFavorite;
+                            ptFavoritesRepo.Update(ptfNew);
+                        }
                     }
                 }
                 // Move over data type rank

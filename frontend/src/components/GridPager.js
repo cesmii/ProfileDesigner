@@ -135,7 +135,7 @@ function GridPager(props) { //(currentPage, pageSize, itemCount, onChangePage)
             result.push(<Pagination.Item key="next" title="Go to next page" active={pager.currentPage === pager.totalPages} onClick={() => onPageClick(pager.currentPage + 1)}>{nextCaption}</Pagination.Item>);
             result.push(<Pagination.Item key="last" title="Go to last page" active={pager.currentPage === pager.totalPages} onClick={() => onPageClick(pager.totalPages)}>{lastCaption}</Pagination.Item>);
         }
-        return (<div className="mr-auto mb-3 mb-lg-0"><Pagination >{result}</Pagination></div>);
+        return (<div className="me-auto mb-3 mb-lg-0"><Pagination >{result}</Pagination></div>);
     }
 
     const renderPageSizeOptions = (pageSize) => {
@@ -154,7 +154,7 @@ function GridPager(props) { //(currentPage, pageSize, itemCount, onChangePage)
             </Dropdown.Toggle>
         );
         const pageOptionsHTML = pageSizeOptions.map((item) => {
-            return (<Dropdown.Item key={item} onSelect={() => onPageSizeSelect(item)} >{item} per page</Dropdown.Item>);
+            return (<Dropdown.Item key={item} onClick={() => onPageSizeSelect(item)} >{item} per page</Dropdown.Item>);
         });
 
         return (

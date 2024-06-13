@@ -224,11 +224,11 @@ function ProfileExplorer(props) {
         return (
             <li id={key} key={key} className={cssClass} title={getProfileCaption(p.profile)} >
                 <div style={{ paddingLeft: padding }}
-                    className={`hierarchy-link d-flex pr-3`} >
-                    {renderTypeIcon(p, props.activeAccount, 18, 'mr-2')}
+                    className={`hierarchy-link d-flex pe-3`} >
+                    {renderTypeIcon(p, props.activeAccount, 18, 'me-2')}
                     <span className="hierarchy-item text-break">{renderLinkedName(p, loadingProps.bIsTypeEditUnsaved, 'link-flat')}</span>
                     {/* Affordance for "go-to / view" */}
-                    <SVGIcon name="chevron-right" fill={color.silver} className="view-affordance-icon float-right" />
+                    <SVGIcon name="chevron-right" fill={color.silver} className="view-affordance-icon float-end" />
                 </div>
                 {/*recursively build out children*/}
                 {renderChildren(p.children, level, `ul_${level.toString()}_${p.id.toString()}`)}
@@ -247,11 +247,11 @@ function ProfileExplorer(props) {
 
         return (
             <li id={key} key={key} className={cssClass} >
-                <div className="composition-link d-flex pr-3">
-                    {renderTypeIcon(c, props.activeAccount, 18, 'mr-2')}
+                <div className="composition-link d-flex pe-3">
+                    {renderTypeIcon(c, props.activeAccount, 18, 'me-2')}
                     <span className="composition-item text-break">{renderLinkedCompositionName(c)}</span>
                     {/* Affordance for "go-to / view" */}
-                    <SVGIcon name="chevron-right" fill={color.silver} className="view-affordance-icon float-right" />
+                    <SVGIcon name="chevron-right" fill={color.silver} className="view-affordance-icon float-end" />
                 </div>
             </li>
         );
@@ -277,8 +277,7 @@ function ProfileExplorer(props) {
         // d-none d-lg-block - hide on small displays
         return (
             <Form className="header-search-block d-none d-md-block">
-                <Form.Row className="m-0" >
-
+                <div className="row m-0" >
                     <InputGroup className="quick-search">
                         <FormControl
                             type="text"
@@ -288,21 +287,17 @@ function ProfileExplorer(props) {
                             onBlur={onSearchBlur}
                             className="border-right-0"
                         />
-                        <InputGroup.Append>
-                            <Button variant="search" className="p-0 pl-2 pr-2 border-left-0" title="Filter explorer">
-                                <SVGIcon name="search" />
-                            </Button>
-                        </InputGroup.Append>
+                        <Button variant="search" title="Filter explorer">
+                            <SVGIcon name="search" />
+                        </Button>
                     </InputGroup>
-
-
-                </Form.Row>
+                </div>
             </Form>
         );
     }
 
     const renderSectionHeader = (items, caption, toggleState, sectionId) => {
-        const toggleCss = toggleState ? "expanded d-flex align-items-center action-menu ml-3" : "d-flex align-items-center action-menu ml-3";
+        const toggleCss = toggleState ? "expanded d-flex align-items-center action-menu ms-3" : "d-flex align-items-center action-menu ms-3";
         const toggleIcon = toggleState ? "arrow-drop-up" : "arrow-drop-down";
         const myCount = childCount;
         childCount = 0;
@@ -312,17 +307,17 @@ function ProfileExplorer(props) {
                     {renderSectionHeaderIcon(sectionId)}
                     <span key="caption" className="caption">
                         {/* INCLUDES CHILD COUNT */}
-                        {caption} <span className="small-size ml-2"> ({myCount})</span>
+                        {caption} <span className="small-size ms-2"> ({myCount})</span>
                     </span>
                     {(items != null && items.length > 0) ?
-                        <span key="toggle" className="ml-auto">
+                        <span key="toggle" className="ms-auto">
                             <Button variant="accordion" className="btn" title={toggleState ? "Collapse" : "Expand"} >
                                 <span>
                                     <SVGIcon name={toggleIcon} fill={color.readOnly} alt={caption} className="toggle-icon" />
                                 </span>
                             </Button>
                         </span> :
-                        <span key="toggle-no-data" className="ml-auto">
+                        <span key="toggle-no-data" className="ms-auto">
                             <span>
                                 <SVGIcon name={toggleIcon} fill={color.transparent} alt={caption} className="toggle-icon empty" />
                             </span>
@@ -363,16 +358,16 @@ function ProfileExplorer(props) {
         }
         return (
             <ul id="explorer" key="explorer" className="profile-explorer root d-none d-md-block">
-                <li id="tree" key="tree" className="ml-1" >
+                <li id="tree" key="tree" className="ms-1" >
                     {renderSection(_items.all.inheritanceTree, 'Profile Hierarchy', _toggleStates.inheritanceTree, 'inheritanceTree')}
                 </li>
-                <li id="interfaces" key="interfaces" className="ml-1" >
+                <li id="interfaces" key="interfaces" className="ms-1" >
                     {renderSection(_items.all.interfaces, 'Interfaces', _toggleStates.interfaces, 'interfaces')}
                 </li>
-                <li id="compositions" key="compositions" className="ml-1" >
+                <li id="compositions" key="compositions" className="ms-1" >
                     {renderSection(_items.all.compositions, 'Compositions', _toggleStates.compositions, 'compositions')}
                 </li>
-                <li id="dependencies" key="dependencies" className="ml-1" >
+                <li id="dependencies" key="dependencies" className="ms-1" >
                     {renderSection(_items.all.dependencies, 'Dependencies', _toggleStates.dependencies, 'dependencies')}
                 </li>
             </ul>
@@ -411,7 +406,7 @@ function ProfileExplorer(props) {
     // d-none d-lg-block - hide caption on small displays
     return (
         <div className="profile-explorer-container">
-            <p className="header-name small-size text-uppercase ml-4 d-none d-md-block" >Profile Explorer</p>
+            <p className="header-name small-size text-uppercase ms-4 d-none d-md-block" >Profile Explorer</p>
             {renderSearchUI()}
             { _filterVal == null || _filterVal === '' ?
                 renderExplorer() : renderFiltered()

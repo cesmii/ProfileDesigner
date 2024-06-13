@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 //import PropTypes from 'prop-types';
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import Form from 'react-bootstrap/Form'
 import FormControl from 'react-bootstrap/FormControl'
 import InputGroup from 'react-bootstrap/InputGroup'
@@ -20,7 +20,7 @@ function HeaderSearch(props) { //(caption, iconName, showSearch, searchValue, on
     // Region: Initialization
     //-------------------------------------------------------------------
     const [_filterVal, setFilterVal] = useState(props.filterVal); //props.searchValue
-    const history = useHistory();
+    const navigate = useNavigate();
 
     //-------------------------------------------------------------------
     // Region: useEffect
@@ -59,7 +59,7 @@ function HeaderSearch(props) { //(caption, iconName, showSearch, searchValue, on
     const onAdvancedSearchClick = (e) => {
         console.log(generateLogMessageString(`onAdvancedSearchClick||`, CLASS_NAME));
         e.preventDefault();
-        history.push(`/advancedsearch`);
+        navigate.push(`/advancedsearch`);
     }
 
     ////-------------------------------------------------------------------
@@ -71,10 +71,10 @@ function HeaderSearch(props) { //(caption, iconName, showSearch, searchValue, on
         return (
             <>
                 {(props.itemCount != null && props.itemCount > 0) &&
-                    <span className="text-right text-nowrap">{props.itemCount}{props.itemCount === 1 ? ' item' : ' items'}</span>
+                    <span className="text-end text-nowrap">{props.itemCount}{props.itemCount === 1 ? ' item' : ' items'}</span>
                 }
                 <Form onSubmit={onSearchClick} className={`header-search-block ${props.className == null ? "mx-3" : props.className}`}>
-                    <Form.Row>
+                    <div className="row">
                         <InputGroup className="global-search">
                             <FormControl
                                 type="text"
@@ -83,18 +83,16 @@ function HeaderSearch(props) { //(caption, iconName, showSearch, searchValue, on
                                 value={_filterVal == null ? '' : _filterVal}
                                 onChange={onSearchChange}
                             />
-                            <InputGroup.Append>
-                                {props.searchMode == null || props.searchMode === "standard" ? (
-                                    <Button variant="search" className="p-0 pl-2 pr-2 border-left-0" onClick={onSearchClick} type="submit" title="Run Search">
-                                        <SVGIcon name="search" />
-                                    </Button>
-                                ) : ""}
-                                {props.searchMode === "predictive" ? (
-                                    <ProfilePredictiveSearch filterVal={_filterVal} activeAccount={props.activeAccount} />
-                                ) : ""}
-                            </InputGroup.Append>
+                            {props.searchMode == null || props.searchMode === "standard" ? (
+                                <Button variant="search" onClick={onSearchClick} type="submit" title="Run Search">
+                                    <SVGIcon name="search" />
+                                </Button>
+                            ) : ""}
+                            {props.searchMode === "predictive" ? (
+                                <ProfilePredictiveSearch filterVal={_filterVal} activeAccount={props.activeAccount} />
+                            ) : ""}
                         </InputGroup>
-                    </Form.Row>
+                    </div>
                 </Form>
                 {(props.showAdvancedSearch) &&
                     <Button variant="secondary" className="auto-width" onClick={onAdvancedSearchClick} >

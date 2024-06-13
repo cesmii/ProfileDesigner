@@ -45,13 +45,13 @@ function LoginButton() {
             <div className="card-body">
             <h2 className="text-center mb-3">Returning Users</h2>
             <div className="d-flex mt-auto mx-auto">
-                <Button variant="primary" className="mx-auto ml-2 border" type="submit" onClick={onLoginClick} disabled={loadingProps.isLoading ? "disabled" : ""} >
+                <Button variant="primary" className="mx-auto ms-2 border" type="submit" onClick={onLoginClick} disabled={loadingProps.isLoading ? "disabled" : ""} >
                     Login
                 </Button>
             </div>
             <p className="mt-3 mb-2 text-center" >
-                    <span className="font-weight-bold mr-1" >Don't have an account?</span>
-                <Button variant="link" className="link m-0 p-0 pr-1" type="button" onClick={onCreateAccountClick} >
+                    <span className="fw-bold me-1" >Don't have an account?</span>
+                <Button variant="link" className="link m-0 p-0 pe-1" type="button" onClick={onCreateAccountClick} >
                 Create an account now.
                 </Button>
             </p>

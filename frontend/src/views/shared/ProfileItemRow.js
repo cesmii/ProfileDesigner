@@ -51,12 +51,12 @@ function ProfileItemRow(props) { //props are item, showActions
 
         return (
             <>
-            <div className="col-sm-3 ml-auto d-inline-flex justify-content-end align-items-center" >
+            <div className="col-sm-3 ms-auto d-inline-flex justify-content-end align-items-center" >
                     <ProfileCloudLibStatus item={props.item} activeAccount={props.activeAccount} showButton={true} showStatus={false}
                         onPublishProfileCallback={onRowChanged} onWithdrawProfileCallback={onRowChanged} />
             </div>
-            <div className="col-sm-3 ml-auto d-inline-flex justify-content-end align-items-center" >
-                <span className="my-0 mr-2"><a href={`/profile/${props.item.id}?tab=typedefs`} ><span className="mr-1" alt="view"><SVGIcon name="visibility" /></span>View Type Definitions</a></span>
+            <div className="col-sm-3 ms-auto d-inline-flex justify-content-end align-items-center" >
+                <span className="my-0 me-2"><a href={`/profile/${props.item.id}?tab=typedefs`} ><span className="me-1" alt="view"><SVGIcon name="visibility" /></span>View Type Definitions</a></span>
                 <ProfileActions item={props.item} activeAccount={props.activeAccount} />
             </div>
             </>
@@ -69,12 +69,12 @@ function ProfileItemRow(props) { //props are item, showActions
         const iconUnselected = props.selectMode === "single" ? "radio_button_unchecked" : "check_box_outline_blank";
 
         return (
-            <div className="col-select mr-3 d-flex" >
+            <div className="col-select me-3 d-flex" >
                 {IsRowSelected(item) ?
-                    <i className={`material-icons mr-1 ${isReadOnly ? "disabled" : ""} `}
+                    <i className={`material-icons me-1 ${isReadOnly ? "disabled" : ""} `}
                         title={isReadOnly ? "" : "Check to de-select"} >{iconSelected}</i>
                     :
-                    <i className="material-icons mr-1" title="Check to select" >{iconUnselected}</i>
+                    <i className="material-icons me-1" title="Check to select" >{iconUnselected}</i>
                 }
             </div>
         );
@@ -98,7 +98,7 @@ function ProfileItemRow(props) { //props are item, showActions
             return (
                 <>
                     {profileCaption}
-                    <span className="ml-2" >{profileValue}</span>
+                    <span className="ms-2" >{profileValue}</span>
                 </>
             );
         }
@@ -107,7 +107,7 @@ function ProfileItemRow(props) { //props are item, showActions
                 <>
                     {profileCaption}
                     {props.navigateModal ?
-                        <button className="ml-1 mr-2 btn btn-link" onClick={onEditItem} >{profileValue}</button>
+                        <button className="ms-1 me-2 btn btn-link" onClick={onEditItem} >{profileValue}</button>
                         :
                         <a className="mx-2" href={`/profile/${props.item.id}`} >{profileValue}</a>
                     }
@@ -121,7 +121,7 @@ function ProfileItemRow(props) { //props are item, showActions
 
         const isSelected = props.item != null && IsRowSelected(props.item) ? "selected" : "";
         const cssClass = `row py-1 align-items-center ${props.cssClass == null ? '' : props.cssClass} ${isSelected} ${props.selectMode != null ? "selectable" : ""}`;
-        const avatarCss = `col-avatar mr-2 rounded-circle ${renderProfileAvatarBgCss(props.item)} elevated`;
+        const avatarCss = `col-avatar me-2 rounded-circle ${renderProfileAvatarBgCss(props.item)} elevated`;
         //var colCss = `${props.actionUI == null ? "col-sm-12" : "col-sm-10"} d-flex align-items-center`;
         const caption = props.item == null ? "" : getProfileCaption(props.item);
         const profileIcon = props.item == null ?
@@ -133,13 +133,13 @@ function ProfileItemRow(props) { //props are item, showActions
                 <div className="col-sm-12 d-flex align-items-center" >
                     <div className={avatarCss} >{profileIcon}</div>
                     <div className="col-sm-11" >
-                        <span className="font-weight-bold mr-2" >{props.profileCaption == null ? "Profile: " : `${props.profileCaption}: `}</span>
+                        <span className="fw-bold me-2" >{props.profileCaption == null ? "Profile: " : `${props.profileCaption}: `}</span>
                         {props.item == null ?
                             caption : 
                             <a className="mx-2" href={`/profile/${props.item.id}?tab=typedefs`} >{caption}</a>
                         }
                         {(props.actionUI != null) &&
-                            <div className="ml-2 d-inline-flex" >
+                            <div className="ms-2 d-inline-flex" >
                                 {props.actionUI}
                             </div>
                         }
@@ -162,7 +162,7 @@ function ProfileItemRow(props) { //props are item, showActions
                     {props.selectMode != null &&
                         renderSelectColumn(props.item, isReadonly)
                     }
-                    <div className={`col-avatar mt-1 mr-2 rounded-circle ${renderProfileAvatarBgCss(props.item)} elevated`} >
+                    <div className={`col-avatar mt-1 me-2 rounded-circle ${renderProfileAvatarBgCss(props.item)} elevated`} >
                         {renderProfileIcon(props.item, 24)}
                     </div>
                     <div className="col-sm-11 d-flex align-items-center" >
@@ -186,10 +186,10 @@ function ProfileItemRow(props) { //props are item, showActions
                 {props.item.description != null &&
                     <div className="col-sm-12 d-flex" >
                         {props.selectMode != null &&
-                            <div className="col-spacer mr-1" >
+                            <div className="col-spacer me-1" >
                             </div>
                         }
-                        <div className="col-spacer mr-2" >
+                        <div className="col-spacer me-2" >
                         </div>
                         <div className="col-sm-11" >
                         <p className="my-0 small-size" >Description: {props.item.description.length > 160 ? props.item.description.substr(0, 160) + '...' : props.item.description}</p>

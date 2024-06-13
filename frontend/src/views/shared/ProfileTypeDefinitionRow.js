@@ -50,7 +50,7 @@ function ProfileTypeDefinitionRow(props) { //props are item, showActions
             <>
                 <a href={`/type/extend/${props.item.id}/`} ><span alt="extend"><SVGIcon name="extend" /></span>Extend</a>
 
-                <TypeDefinitionActions item={props.item} activeAccount={props.activeAccount} onDeleteCallback={props.onDeleteCallback} showExtend={false} className='ml-2' isReadOnly={props.item.isReadOnly} />
+                <TypeDefinitionActions item={props.item} activeAccount={props.activeAccount} onDeleteCallback={props.onDeleteCallback} showExtend={false} className='ms-2' isReadOnly={props.item.isReadOnly} />
             </>
         );
     }
@@ -63,9 +63,9 @@ function ProfileTypeDefinitionRow(props) { //props are item, showActions
         return (
             <>
             { IsRowSelected(item) ?
-                <i className="material-icons mr-1" title="Check to de-select" >{iconSelected}</i>
+                <i className="material-icons me-1" title="Check to de-select" >{iconSelected}</i>
                 :
-                <i className="material-icons mr-1" title="Check to select" >{iconUnselected}</i>
+                <i className="material-icons me-1" title="Check to select" >{iconUnselected}</i>
                 }
             </>
         );
@@ -74,7 +74,7 @@ function ProfileTypeDefinitionRow(props) { //props are item, showActions
     const renderSelectColumn = (item) => {
 
         return (
-            <div className="col-select mr-3 d-flex" >
+            <div className="col-select me-3 d-flex" >
                 {renderSelectIcon(item)}
             </div>
         );
@@ -83,7 +83,7 @@ function ProfileTypeDefinitionRow(props) { //props are item, showActions
     const renderSelectFloat = (item) => {
 
         return (
-            <span className="float-right" >
+            <span className="float-end" >
                 {renderSelectIcon(item)}
             </span>
         );
@@ -92,7 +92,7 @@ function ProfileTypeDefinitionRow(props) { //props are item, showActions
     const renderRowView = () => {
         const isReadOnly = (props.item.isReadOnly || !isOwner(props.item, props.activeAccount));
         const cssClass = `row py-1 align-items-center ${props.cssClass} ${isReadOnly ? "" : "mine"} ${IsRowSelected(props.item) ? "selected" : ""} ${props.selectMode != null ? "selectable" : ""}`;
-        const avatarCss = `col-avatar mt-1 mr-2 rounded-circle avatar info elevated clickable`;
+        const avatarCss = `col-avatar mt-1 me-2 rounded-circle avatar info elevated clickable`;
 
         return (
             <div className={cssClass} onClick={onRowSelect}>
@@ -123,7 +123,7 @@ function ProfileTypeDefinitionRow(props) { //props are item, showActions
                     </div>
                 </div>
                 {props.selectMode == null &&
-                    <div className="col-sm-2 ml-auto d-inline-flex justify-content-end align-items-center" >
+                    <div className="col-sm-2 ms-auto d-inline-flex justify-content-end align-items-center" >
                         {renderActionsColumn(props.item, props.showActions)}
                     </div>
                 }
@@ -134,7 +134,7 @@ function ProfileTypeDefinitionRow(props) { //props are item, showActions
     const renderTileView = () => {
         const isReadOnly = (props.item.isReadOnly || !isOwner(props.item, props.activeAccount));
         const cssClass = `col-lg-4 col-md-6 ${IsRowSelected(props.item) ? "selected" : ""} ${props.selectMode != null ? "selectable" : ""}`;
-        const avatarCss = `col-avatar d-inline-flex mr-2 rounded-circle avatar ${isReadOnly ? "locked" : "unlocked"} elevated clickable`;
+        const avatarCss = `col-avatar d-inline-flex me-2 rounded-circle avatar ${isReadOnly ? "locked" : "unlocked"} elevated clickable`;
 
         return (
             <div className={cssClass} onClick={onRowSelect}>
@@ -152,21 +152,21 @@ function ProfileTypeDefinitionRow(props) { //props are item, showActions
                             }
                         </p>
                         {props.item.profile != null &&
-                            <p className="mb-1 ml-3 small-size" >
+                            <p className="mb-1 ms-3 small-size" >
                                 {getProfileCaption(props.item.profile)}
                             </p>
                         }
                         {props.item.description != null &&
-                            <div className="ml-3 mb-1 small-size" >{props.item.description}
+                            <div className="ms-3 mb-1 small-size" >{props.item.description}
                             </div>
                         }
                         {(props.item.metaTags != null && props.item.metaTags.length > 0) &&
-                            <div className="ml-3 my-1 d-none d-lg-block flex-wrap metatags-col align-content-center" >
+                            <div className="ms-3 my-1 d-none d-lg-block flex-wrap metatags-col align-content-center" >
                                 {renderMetaTagItem(props.item)}
                             </div>
                         }
                         {props.selectMode == null &&
-                            <div className="ml-3 d-inline-flex align-items-center" >
+                            <div className="ms-3 d-inline-flex align-items-center" >
                                 {renderActionsColumn(props.item, props.showActions)}
                             </div>
                         }

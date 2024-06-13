@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { Button } from 'react-bootstrap'
 import axiosInstance from "../services/AxiosService";
 
@@ -19,7 +19,7 @@ function AdvancedSearch() {
     //-------------------------------------------------------------------
     // Region: Initialization
     //-------------------------------------------------------------------
-    const history = useHistory();
+    const navigate = useNavigate();
 
     const _profilePreferences = getTypeDefPreferences();
     const _scrollToRef = useRef(null);
@@ -139,7 +139,7 @@ function AdvancedSearch() {
     //-------------------------------------------------------------------
     const onCancel = () => {
         console.log(generateLogMessageString('onCancel', CLASS_NAME));
-        history.goBack();
+        navigate(window.history.state && window.history.state.idx > 0 ? -1 : '/');
     };
 
     const onSearch = () => {
@@ -244,17 +244,17 @@ function AdvancedSearch() {
         var infoRow = (
             <div key="searchCriteria_info" className='row pb-0' >
                 <div className="col col-auto-size left" >
-                    <p className="h6 mr-auto">
+                    <p className="h6 me-auto">
                         Enter search criteria
                         {!_isValid &&
-                            <span className="ml-2 invalid-field-message inline">
+                            <span className="ms-2 invalid-field-message inline">
                                 All criteria fields are required
                             </span>
                         }
                     </p>
                 </div>
                 <div className="col col-auto-size right" >
-                    <p className="h6 mr-auto">{itemCount}</p>
+                    <p className="h6 me-auto">{itemCount}</p>
                 </div>
             </div>
         );
@@ -284,11 +284,11 @@ function AdvancedSearch() {
     const renderHeaderRow = () => {
         return (
             <div className="row pb-3">
-                <div className="col-lg-8 mr-auto d-flex">
+                <div className="col-lg-8 me-auto d-flex">
                     {renderTitleBlock("Advanced Search", "search", color.shark)}
                 </div>
                 <div className="col-lg-4 d-flex align-items-center justify-content-end">
-                    <Button variant="text-solo" className="mr-3" onClick={onCancel} >Cancel</Button>
+                    <Button variant="text-solo" className="me-3" onClick={onCancel} >Cancel</Button>
                     <Button variant="secondary" onClick={onSearch} disabled={!_isValid ? 'disabled' : ''} >Search</Button>
                 </div>
             </div>

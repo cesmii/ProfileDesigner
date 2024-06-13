@@ -183,7 +183,7 @@ function ProfileActions(props) {
                     </Dropdown.Toggle>
                     <Dropdown.Menu>
                         {/*{(props.currentUserId != null && props.currentUserId === item.authorId) &&*/}
-                        {/*    <Dropdown.Item key="moreVert2" href={getTypeDefinitionNewUrl()} ><span className="mr-3" alt="extend"><SVGIcon name="extend" /></span>New Type Definition</Dropdown.Item>*/}
+                        {/*    <Dropdown.Item key="moreVert2" href={getTypeDefinitionNewUrl()} ><span className="me-3" alt="extend"><SVGIcon name="extend" /></span>New Type Definition</Dropdown.Item>*/}
                         {/*}*/}
                         {isOwner(props.item, props.activeAccount) &&
                             <>
@@ -204,14 +204,14 @@ function ProfileActions(props) {
     else {
         return (
             <>
-                <div className="col-sm-4 ml-auto d-inline-flex justify-content-end align-items-center" >
-                    <button className="ml-1 btn btn-link" onClick={onImportItem} >{renderMenuIcon("cloud-download")}Import from Cloud Library</button>
+                <div className="col-sm-4 ms-auto d-inline-flex justify-content-end align-items-center" >
+                    <button className="ms-1 btn btn-link" onClick={onImportItem} >{renderMenuIcon("cloud-download")}Import from Cloud Library</button>
                     {/*    <Dropdown className="action-menu icon-dropdown" onClick={(e) => e.stopPropagation()} >*/}
                     {/*        <Dropdown.Toggle drop="left" title="Actions" >*/}
                     {/*            <SVGIcon name="more-vert" />*/}
                     {/*        </Dropdown.Toggle>*/}
                     {/*        <Dropdown.Menu>*/}
-                    {/*            <Dropdown.Item key="moreVert4" onClick={importItem} ><span className="mr-3" alt="arrow-drop-down"><SVGIcon name="visibility" /></span>View profile description</Dropdown.Item>*/}
+                    {/*            <Dropdown.Item key="moreVert4" onClick={importItem} ><span className="me-3" alt="arrow-drop-down"><SVGIcon name="visibility" /></span>View profile description</Dropdown.Item>*/}
                     {/*        </Dropdown.Menu>*/}
                     {/*    </Dropdown>*/}
                 </div>

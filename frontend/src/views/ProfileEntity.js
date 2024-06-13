@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react'
-import { useParams, useHistory } from 'react-router-dom'
+import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import { Helmet } from "react-helmet"
 import Card from 'react-bootstrap/Card'
-import Tab from 'react-bootstrap/Tab'
 import Nav from 'react-bootstrap/Nav'
 import { Button } from 'react-bootstrap';
 import { useMsal } from "@azure/msal-react";
@@ -27,7 +26,8 @@ function ProfileEntity() {
     //-------------------------------------------------------------------
     // Region: Initialization
     //-------------------------------------------------------------------
-    const history = useHistory();
+    const navigate = useNavigate();
+    const location = useLocation();
     const { id } = useParams();
     const _tab = useQueryString("tab");
     const { instance } = useMsal();
@@ -75,7 +75,7 @@ function ProfileEntity() {
                 //console.log(err.response.status);
                 if (err != null && err.response != null && err.response.status === 404) {
                     msg += ' This item was not found.';
-                    history.push('/404');
+                    navigate('/404');
                 }
                 setLoadingProps({
                     isLoading: false, message: null, inlineMessages: [
@@ -106,7 +106,7 @@ function ProfileEntity() {
                     friendlyCaption = `...${friendlyCaption.substring(friendlyCaption.length - 25)}`;
                 }
                 const revisedList = UpdateRecentFileList(loadingProps.recentFileList, {
-                    url: history.location.pathname,
+                    url: location.pathname,
                     caption: friendlyCaption,
                     iconName: _iconName,
                     authorId: result.data.author != null && result.data.isReadOnly === false ? result.data.author.objectIdAAD : null
@@ -258,7 +258,7 @@ function ProfileEntity() {
             , refreshProfileCount: true
             , refreshSearchCriteria: true
         });
-        history.push(`/profile/${item.id}`);
+        navigate(`/profile/${item.id}`);
     };
 
     const onSaveError = (msg) => {
@@ -274,7 +274,7 @@ function ProfileEntity() {
     const onDelete = (success) => {
         console.log(generateLogMessageString(`onDelete || ${success}`, CLASS_NAME));
         if (success) {
-            history.push(`/profiles/library`);
+            navigate(`/profiles/library`);
         }
     };
 
@@ -294,10 +294,6 @@ function ProfileEntity() {
         setForceReload(_forceReload + 1);
     }
 
-    // TBD: need loop to remove and add styles for "nav-item" CSS animations
-    const tabListener = (eventKey) => {
-    }
-
     //-------------------------------------------------------------------
     // Region: Render Helpers
     //-------------------------------------------------------------------
@@ -305,7 +301,7 @@ function ProfileEntity() {
         const iconColor = getIconColorByProfileState(_item?.profileState);
         return (
             <div className="row pb-3">
-                <div className="col-sm-7 mr-auto d-flex">
+                <div className="col-sm-7 me-auto d-flex">
                     {renderTitleBlock(caption, _iconName, iconColor)}
                 </div>
                 <div className="col-sm-5 d-flex align-items-center justify-content-end">
@@ -331,39 +327,33 @@ function ProfileEntity() {
     const renderTabbedView = () => {
         return (
             <div className="entity-details">
-                {/* TABS */}
-                <Tab.Container id="profile-definition" defaultActiveKey={_defaultTab} onSelect={tabListener}>
-                    <Nav variant="pills" className="row mt-1 px-2 pr-md-3">
-                        <Nav.Item className="col-sm-4 rounded p-0 pl-2" >
-                            <Nav.Link eventKey="general" className="text-center text-md-left p-1 px-2 h-100" >
-                                <span className="headline-3">General</span>
-                            </Nav.Link>
-                        </Nav.Item>
-                        <Nav.Item className="col-sm-4 rounded p-0 px-md-0" >
-                            <Nav.Link eventKey="typedefs" className="text-center text-md-left p-1 px-2 h-100" >
-                                <span className="headline-3">Type Definitions</span>
-                            </Nav.Link>
-                        </Nav.Item>
-                    </Nav>
-
-                    <Tab.Content>
-                        <Tab.Pane eventKey="general">
-                            <Card className="">
-                                <Card.Body className="pt-3">
-                                    <ProfileEntityForm item={_item} onValidate={onValidate} isValid={_isValid} onChange={onChange} />
-                                </Card.Body>
-                            </Card>
-                        </Tab.Pane>
-                        <Tab.Pane eventKey="typedefs">
-                            <Card className="">
-                                <Card.Body className="pt-3">
-                                    <ProfileTypeDefinitionListGrid searchCriteria={_searchCriteria}
-                                        onSearchCriteriaChanged={onSearchCriteriaChanged} searchCriteriaChanged={_searchCriteriaChanged} />
-                                </Card.Body>
-                            </Card>
-                        </Tab.Pane>
-                    </Tab.Content>
-                </Tab.Container>
+                <ul className="nav nav-tabs nav-fill" role="tablist">
+                    <li className="nav-item">
+                        <a className={`nav-link ${_defaultTab === 'general' ? "active" : "" }`} id="general-tab" data-toggle="tab" href="#generalPane" role="tab" aria-controls="generalPane" aria-selected="true">General</a>
+                    </li>
+                    <li className="nav-item">
+                        <a className={`nav-link ${_defaultTab === 'typedefs' ? "active" : "" }`} id="typeDef-tab" data-toggle="tab" href="#typeDefPane" role="tab" aria-controls="typeDefPane" aria-selected="false">Type Definitions</a>
+                    </li>
+                </ul>
+                <div className="tab-content" >
+                    <div className={`tab-pane fade show ${_defaultTab === 'general' ? "show active" : ""}`} id="generalPane" role="tabpanel" aria-labelledby="general-tab">
+                        {/* GENERAL CONTENT */}
+                        <Card className="rounded-0 rounded-bottom border-top-0">
+                            <Card.Body className="pt-3">
+                                <ProfileEntityForm item={_item} onValidate={onValidate} isValid={_isValid} onChange={onChange} />
+                            </Card.Body>
+                        </Card>
+                    </div>
+                    <div className={`tab-pane fade ${_defaultTab === 'typedefs' ? "show active" : ""}`} id="typeDefPane" role="tabpanel" aria-labelledby="typeDef-tab">
+                        {/* Typ Def CONTENT */}
+                        <Card className="rounded-0 rounded-bottom border-top-0">
+                            <Card.Body className="pt-3">
+                                <ProfileTypeDefinitionListGrid searchCriteria={_searchCriteria}
+                                    onSearchCriteriaChanged={onSearchCriteriaChanged} searchCriteriaChanged={_searchCriteriaChanged} />
+                            </Card.Body>
+                        </Card>
+                    </div>
+                </div>
             </div>
         );
     };

@@ -186,7 +186,7 @@ function ProfilePredictiveSearch(props) {
             <Dropdown className="m-0 p-0 action-menu" onClick={(e) => e.stopPropagation()} >
                 <Dropdown.Toggle drop="left" className="btn-search p-0 px-2 border border-left-0">
                     {/*
-                    <Button variant="search" className="p-0 pl-2 pr-2 border-left-0">
+                    <Button variant="search" className="p-0 ps-2 pe-2 border-left-0">
                         <SVGIcon name="search" />
                     </Button>
                     */}

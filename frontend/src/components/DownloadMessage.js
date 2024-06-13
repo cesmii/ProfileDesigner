@@ -259,7 +259,7 @@ function DownloadMessage() {
                 <div className="d-flex align-content-center" >
                     <Button variant="" data-id={msg.id} onClick={onToggleWarnings} className="btn-link p-0 d-flex" title={msg.showWarnings ? "Hide warnings" : "Show warnings"} >
                         <span className="d-inline" >{msg.showWarnings ? "Hide warnings" : "Show warnings"}</span>
-                        <span key="toggle" className="ml-2">
+                        <span key="toggle" className="ms-2">
                                 <i className="material-icons">{msg.showWarnings ? "expand_less" : "expand_more"}</i>
                         </span>
                     </Button>
@@ -289,7 +289,7 @@ function DownloadMessage() {
                                 <LoadingIcon size="20" />
                             </span>
                         }
-                        <span className={isProcessing ? 'ml-1' : ''} dangerouslySetInnerHTML={{ __html: caption }} />
+                        <span className={isProcessing ? 'ms-1' : ''} dangerouslySetInnerHTML={{ __html: caption }} />
                         {renderFileLink(msg)}
                     </div>
                     {renderWarnings(msg)}

@@ -1,5 +1,5 @@
 import React from "react";
-import { Route, Redirect } from "react-router-dom";
+import { Outlet, Navigate, useLocation } from "react-router-dom";
 
 import { InlineMessage } from "../InlineMessage";
 import SideMenu from "../SideMenu";
@@ -10,37 +10,32 @@ import WizardMaster from "../../views/shared/WizardMaster";
 import { useLoginStatus } from "../OnLoginHandler";
 import ModalMessage from "../ModalMessage";
 
-const WizardLayout = ({ children }) => (
-
-    <div id="--routes-wrapper" className="container-fluid sidebar p-0 d-flex" >
-        <SideMenu />
-        <div className="main-panel m-4 w-100">
-            <InlineMessage />
-            <ImportMessage />
-            <DownloadMessage />
-            <WizardContextProvider>
-                <WizardMaster>
-                    {children}
-                </WizardMaster>
-            </WizardContextProvider>
-        </div>
-        <ModalMessage />
-    </div>
-);
-
-function WizardRoute({ component: Component, ...rest }) {
-
-    const { isAuthenticated, isAuthorized, redirectUrl } = useLoginStatus(rest.location, rest.roles);
-
+function WizardLayout() {
     return (
-        <Route
-            {...rest}
-            render={props => isAuthenticated && isAuthorized ?
-                (<WizardLayout><Component {...props} /></WizardLayout>) :
-                (<Redirect to={redirectUrl} />)
-            }
-        />
+        <div id="--routes-wrapper" className="container-fluid sidebar p-0 d-flex" >
+            <SideMenu />
+            <div className="main-panel m-4 w-100">
+                <InlineMessage />
+                <ImportMessage />
+                <DownloadMessage />
+                <WizardContextProvider>
+                    <WizardMaster>
+                        <Outlet />
+                    </WizardMaster>
+                </WizardContextProvider>
+            </div>
+            <ModalMessage />
+        </div>
     );
+}
+
+function WizardRoute(props) {
+
+    let location = useLocation();
+
+    const { isAuthenticated, isAuthorized, redirectUrl } = useLoginStatus(location, props.roles);
+
+    return isAuthenticated && isAuthorized ? WizardLayout() : (<Navigate to={redirectUrl} />);
 }
 
 export default WizardRoute;

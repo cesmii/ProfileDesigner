@@ -45,10 +45,10 @@ function AdminCloudLibApprovalRow(props) {
     const renderActionsColumn = (className = 'col-sm-3') => {
 
         return (
-            <div className={`${className} ml-auto d-inline-flex justify-content-end align-items-center`} >
+            <div className={`${className} ms-auto d-inline-flex justify-content-end align-items-center`} >
                 <Dropdown className="" onClick={(e) => e.stopPropagation()} >
                     <Dropdown.Toggle drop="left" title="Click to change" variant="tertiary" className="d-flex align-items-center" >
-                        {renderProfilePublishStatus(props.item, '', '', 'mr-1')}
+                        {renderProfilePublishStatus(props.item, '', '', 'me-1')}
                     </Dropdown.Toggle>
                     <Dropdown.Menu>
                         {(props.item.profileState === AppSettings.ProfileStateEnum.CloudLibPending ||
@@ -87,7 +87,7 @@ function AdminCloudLibApprovalRow(props) {
             <>
                 {profileCaption}
                 {props.navigateModal &&
-                    <button className="ml-1 mr-2 btn btn-link" onClick={onEditItem} >{profileValue}</button>
+                    <button className="ms-1 me-2 btn btn-link" onClick={onEditItem} >{profileValue}</button>
                 }
                 {(!props.navigateModal && props.item != null) &&
                     <a className="mx-2" href={`/cloudlibrary/viewer/${props.item.cloudLibraryId}`} >{profileValue}</a>
@@ -106,7 +106,7 @@ function AdminCloudLibApprovalRow(props) {
         return (
             <div className={className}> 
                 <div className="col-sm-1 align-self-start" >
-                    <div className={`col-avatar mt-1 mr-2 rounded-circle ${renderProfileAvatarBgCss(props.item)} elevated`} >
+                    <div className={`col-avatar mt-1 me-2 rounded-circle ${renderProfileAvatarBgCss(props.item)} elevated`} >
                         {renderProfileIcon(props.item, 24)}
                     </div>
                 </div>

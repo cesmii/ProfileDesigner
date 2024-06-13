@@ -1,34 +1,32 @@
 import React from "react";
-import { Route, Redirect } from "react-router-dom";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
 
 import { InlineMessage } from "../InlineMessage";
 import SideMenu from "../SideMenu";
 import { useLoginStatus } from "../OnLoginHandler";
 import ModalMessage from "../ModalMessage";
 
-const AdminLayout = ({ children }) => (
-
-    <div id="--routes-wrapper" className="container-fluid sidebar p-0 d-flex" >
-        <SideMenu />
-        <div className="main-panel m-4 w-100">
-            <InlineMessage />
-            {children}
-        </div>
-        <ModalMessage />
-    </div>
-);
-
-export function AdminRoute({ component: Component, ...rest }) {
-
-    const { isAuthenticated, isAuthorized, redirectUrl } = useLoginStatus(rest.location, rest.roles);
-
+function AdminLayout() {
     return (
-        <Route
-            {...rest}
-            render={props => isAuthenticated && isAuthorized ?
-                (<AdminLayout><Component {...props} /></AdminLayout>) :
-                (<Redirect to={redirectUrl} />)
-            }
-        />
+        <div id="--routes-wrapper" className="container-fluid sidebar p-0 d-flex" >
+            <SideMenu />
+            <div className="main-panel m-4 w-100">
+                <InlineMessage />
+                <Outlet />
+            </div>
+            <ModalMessage />
+        </div>
     );
 }
+
+function AdminRoute(props) {
+
+    let location = useLocation();
+
+    const { isAuthenticated, isAuthorized, redirectUrl } = useLoginStatus(location, props.roles);
+
+    return isAuthenticated && isAuthorized ? AdminLayout() : (<Navigate to={redirectUrl} />);
+}
+
+export default AdminRoute;
+

@@ -37,14 +37,14 @@ function CloudLibSlideOut(props) { //props are item, showActions
     //-------------------------------------------------------------------
     const renderHeading = () => {
         return (
-            <div className="row right-panel-header d-flex align-items-center mx-0 mb-2 pl-3 pr-2">
+            <div className="row right-panel-header d-flex align-items-center mx-0 mb-2 ps-3 pe-2">
                 <div className="header-title-block d-flex align-items-center">
-                    <span className="mr-3">
+                    <span className="me-3">
                         <i className="material-icons">search</i>
                     </span>
-                    <span className="headline-2 font-weight-bold">{_title}</span>
+                    <span className="headline-2 fw-bold">{_title}</span>
                 </div>
-                <div className="d-flex align-items-center ml-auto" >
+                <div className="d-flex align-items-center ms-auto" >
                     <Button variant="icon-solo" onClick={closePanel} className="align-items-center">
                         <span>
                             <i className="material-icons text-white">close</i>

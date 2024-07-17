@@ -10,6 +10,7 @@ on:
   push:
     branches:
       - develop
+      - CO5/Develop
   
 env:
   # set this to the organization name, project key in Sonar

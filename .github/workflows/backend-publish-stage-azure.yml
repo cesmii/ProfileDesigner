@@ -24,6 +24,7 @@ on:
   push:
     branches:
       - develop
+      - CO5/Develop
 
 env:
   # set this to your application's name

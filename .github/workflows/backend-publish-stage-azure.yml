@@ -25,6 +25,7 @@ on:
     branches:
       - develop
       - CO5/Develop
+      - PLY/Develop
 
 env:
   # set this to your application's name

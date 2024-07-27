@@ -10,11 +10,13 @@ on:
     branches:
       - develop
       - CO5/Develop
+      - PLY/Develop
       - main
   pull_request:
     branches:
       - develop
       - CO5/Develop
+      - PLY/Develop
       - main
 
 env:

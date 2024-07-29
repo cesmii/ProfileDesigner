@@ -91,6 +91,32 @@ namespace CESMII.ProfileDesigner.Api.Tests
         public OnNodeSet OnNodeSetFound { get; set; }
         public OnNodeSet OnNodeSetNotFound { get; set; }
 
+        public async Task<GraphQlResult<Nodeset>> SearchAsync(int? limit, string cursor, bool pageBackwards, List<string> keywords, List<string> exclude, bool noTotalCount, object? order)
+        {
+            var inputs = new SearchInputs
+            {
+                Keywords = keywords?.ToArray(),
+                Cursor = cursor,
+                PageBackwards = pageBackwards,
+                Limit = limit,
+            };
+            if (_wrapper != null)
+            {
+                var result = await _wrapper.SearchAsync(limit, cursor, pageBackwards, keywords, exclude, noTotalCount, order);
+
+                if (!_searchData.ContainsKey(inputs))
+                {
+                    _searchData.Add(inputs, result);
+                }
+                return result;
+            }
+            if (_searchData.TryGetValue(inputs, out var data))
+            {
+                return data;
+            }
+            throw new Exception($"Request not in mock data: {inputs}");
+        }
+
         public async Task<GraphQlResult<Nodeset>> SearchAsync(int? limit, string cursor, bool pageBackwards, List<string> keywords, List<string> exclude, bool noTotalCount)
         {
             var inputs = new SearchInputs

@@ -120,6 +120,11 @@ export const AppSettings = {
         Local: 7,
         Unknown: 0
     }
+    , AttributeOverrideTypeEnum: {
+        None: 1,
+        Overriding: 2,
+        Overridden: 3
+    }
     //MSAL (Authentication) Config
     , MsalConfig: {
         auth: {

@@ -374,13 +374,14 @@ function AttributeEntity(props) { //props are item, showActions
 
     //render the attribute name, append some stuff for certain types of attributes
     const renderName = () => {
-        if (props.readOnly || _editItem._itemType == null || _editItem._itemType === "extended" || _editItem.interface != null) {
+        if (props.readOnly || _editItem._itemType == null || _editItem._itemType === "extended" || _editItem.interface != null
+            || _editItem.overrideType === AppSettings.AttributeOverrideTypeEnum.Overriding) {
 
             if (_editItem.interface != null) {
                 return (
                     <>
                         {renderAttributeIcon(_editItem, props.readOnly)}
-                        {_editItem.name} [<a href={`/type/${_editItem.interface.id}`} >{_editItem.interface.name}</a>]
+                        {_nameCaption} [<a href={`/type/${_editItem.interface.id}`} >{_editItem.interface.name}</a>]
                     </>
                 );
             }
@@ -388,7 +389,7 @@ function AttributeEntity(props) { //props are item, showActions
             return (
                 <>
                     {renderAttributeIcon(_editItem, props.readOnly)}
-                    {_editItem.name}
+                    {_nameCaption}
                 </>
             );
         }
@@ -398,6 +399,7 @@ function AttributeEntity(props) { //props are item, showActions
         }
     };
     
+    const _nameCaption = _editItem == null ? '' : `${_editItem.name}${_editItem.overrideType === AppSettings.AttributeOverrideTypeEnum.Overriding ? ' (override)' : ''}`;
 
     //render for enumeration attr type
     const renderEnumValue = () => {
@@ -520,7 +522,8 @@ function AttributeEntity(props) { //props are item, showActions
 
     //render the browseName ui
     const renderBrowseName = () => {
-        const isReadOnly = (props.readOnly || _editItem._itemType == null || _editItem._itemType === "extended" || _editItem.interface != null);
+        const isReadOnly = props.readOnly || _editItem._itemType == null || _editItem._itemType === "extended" || _editItem.interface != null
+            || _editItem.overrideType === AppSettings.AttributeOverrideTypeEnum.Overriding;
 
         return (
             <Form.Group>
@@ -551,7 +554,8 @@ function AttributeEntity(props) { //props are item, showActions
 
     //render data type ui
     const renderDataTypeUI = () => {
-        const isReadOnly = (props.readOnly || _editItem._itemType == null || _editItem._itemType === "extended" || _editItem.interface != null);
+        const isReadOnly = (props.readOnly || _editItem._itemType == null || _editItem._itemType === "extended" || _editItem.interface != null
+            || _editItem.overrideType === AppSettings.AttributeOverrideTypeEnum.Overriding);
 
         if (isReadOnly) {
             return (
@@ -572,7 +576,8 @@ function AttributeEntity(props) { //props are item, showActions
     const renderAttributeType = () => {
         if (props.lookupAttributeTypes == null || props.lookupAttributeTypes.length === 0) return;
 
-        const isReadOnly = props.readOnly || _editItem._itemType == null || _editItem._itemType === "extended" || !_editSettings.changeAttributeType;
+        const isReadOnly = props.readOnly || _editItem._itemType == null || _editItem._itemType === "extended" || !_editSettings.changeAttributeType
+            || _editItem.overrideType === AppSettings.AttributeOverrideTypeEnum.Overriding;
 
         const options = props.lookupAttributeTypes.map((item) => {
             return (<option key={item.id} value={item.id} >{item.name}</option>)

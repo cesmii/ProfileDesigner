@@ -58,6 +58,13 @@
         Name = 3
     }
 
+    public enum AttributeOverrideTypeEnum
+    {
+        None = 1,
+        Overriding = 2,
+        Overridden = 3
+    }
+
     /// <summary>
     /// These are used by the profile search groups. 
     /// These are the parent categories and will be used in the front end and the search endpoint

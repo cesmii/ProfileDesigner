@@ -221,11 +221,11 @@ namespace CESMII.ProfileDesigner.DAL.Utils
         /// profile. These are read only in the front end but used to avoid duplication and to show the complete make up of this profile. 
         /// </summary>
         /// <returns></returns>
-        public List<ProfileAttributeModel> GetExtendedAttributes(ProfileTypeDefinitionModel profile, UserToken userToken)
+        public List<ProfileAttributeModel> GetExtendedAttributes(ProfileTypeDefinitionModel item, UserToken userToken)
         {
             //navigate up the inheritance tree until the root. 
             var result = new List<ProfileAttributeModel>();
-            var ancestor = profile;
+            var ancestor = item;
             while (ancestor != null)
             {
                 ancestor = ancestor.Parent?.ID == null ? null : _dal.GetById(ancestor.Parent.ID.Value, userToken);
@@ -244,7 +244,7 @@ namespace CESMII.ProfileDesigner.DAL.Utils
             //A profile can implement interface(s). This is indicated by a collection hanging off the profile object.
             //Get the attributes associated with these interfaces. These are essentially "virtual" (read-only) attributes
             //that will show in the list of attributes along side the other attributes. 
-            result = result.Concat(MapInterfaceAttributesToProfileAttributeModels(profile, userToken)).ToList();
+            result = result.Concat(MapInterfaceAttributesToProfileAttributeModels(item, userToken)).ToList();
 
             //trim down attributes of type def attributes and ancestors where certain things match up. If the ancestor attribute
             //has same name, type, browse name, we only show one.  
@@ -254,8 +254,37 @@ namespace CESMII.ProfileDesigner.DAL.Utils
                                   .Select(d => d.First())
                                   .ToList();
 
+            if (item.Attributes != null)
+            {
+                //new - set isOverridden property dynamically based on existence of item in profile attributes. 
+                SetAttributeOverriddenType(result, item.Attributes, AttributeOverrideTypeEnum.Overridden);
+            }
+
             //sort the result by attribute name
             return result.OrderBy(a => a.Name).ToList();
+        }
+
+        private static void SetAttributeOverriddenType(List<ProfileAttributeModel> target, 
+            List<ProfileAttributeModel> compareAttributes, 
+            AttributeOverrideTypeEnum overrideType)
+        {
+            //NEW flow: for now, we trim out the extended attribute and leave the one with this type so we get the edit ui.
+            //User needs to be able to override a type def and modify it. 
+            //https://github.com/cesmii/ProfileDesigner/issues/112 - add the following
+            if (compareAttributes != null && (target != null && target.Count > 0))
+            {
+                foreach (var x in target)
+                {
+                    if (compareAttributes.Any(y =>
+                        y.Name == x.Name &&
+                        y.DataTypeId == x.DataTypeId &&
+                        y.AttributeType.ID == x.AttributeType.ID &&
+                        y.BrowseName == x.BrowseName))
+                    { 
+                        x.OverrideType = overrideType;
+                    }
+                }
+            }
         }
 
         public List<int> GetPopularItems(UserToken userToken)
@@ -525,7 +554,10 @@ namespace CESMII.ProfileDesigner.DAL.Utils
             result = result.Concat(MapCompositionsToProfileAttributeModels(item)).ToList();
 
             //trim down where comparable item is in the parent (match on name, data type id, attribute type id, browse name)
-            //for now, we trim out the profile attribute and leave extended so we get the read-only ui
+            //NEW flow: for now, we trim out the extended attribute and leave the one with this type so we get the edit ui.
+            //User needs to be able to override a type def and modify it. 
+            //https://github.com/cesmii/ProfileDesigner/issues/112 - comment out following
+            /*
             if (item.ExtendedProfileAttributes?.Count > 0)
             {
                 result = result.Where(x => !item.ExtendedProfileAttributes.Any(y =>
@@ -534,6 +566,9 @@ namespace CESMII.ProfileDesigner.DAL.Utils
                         y.AttributeType.ID == x.AttributeType.ID &&
                         y.BrowseName == x.BrowseName)).ToList();
             }
+            */
+            //new - set isOverride property dynamically based on existence of item in extended attributes and here. 
+            SetAttributeOverriddenType(result, item.ExtendedProfileAttributes, AttributeOverrideTypeEnum.Overriding);
 
             //sort by enum value if present, then by name
             return result

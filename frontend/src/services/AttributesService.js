@@ -39,8 +39,9 @@ export const validate_name = (val, item) => {
 
 export const validate_nameDuplicate = (val, item, allAttributes) => {
     //dup check
+    //FIX-#112 - relax dup check. You can re-use attribute name of base attribute in OPC UA spec.
     return (val == null || val.trim().length === 0) || item.interface != null ||
-        (allAttributes.find((a) => { return a.id !== item.id && a.name.toLowerCase() === val.toLowerCase() }) == null);
+        (allAttributes.find((a) => { return a._itemType !== 'extended' && a.id !== item.id && a.name.toLowerCase() === val.toLowerCase() }) == null);
 };
 
 export const validate_dataType = (val, permittedDataTypes) => {

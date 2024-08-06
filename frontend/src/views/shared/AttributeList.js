@@ -630,6 +630,31 @@ function AttributeList(props) {
         });
     };
 
+    const onOverrideProperty = (item, originalId) => {
+        //raised from del button click in child component
+        console.log(generateLogMessageString(`onOverrideProperty||${item.name}`, CLASS_NAME));
+
+        //we need to be aware of newly added rows and those will be signified by a negative -id. 
+        //Once saved server side, these will be issued ids from db.
+        //Depending on how we are adding (single row or multiple rows), the id generation will be different. Both need 
+        //a starting point negative id
+        item.id = (-1) * (_allAttributes == null || _allAttributes.all == null ? 1 : _allAttributes.all.length + 1);
+        item.opcNodeId = null; 
+        item.createdBy = null;
+        item.updatedBy = null;
+        item.overrideType = AppSettings.AttributeOverrideTypeEnum.Overriding;
+        item.namespace = props.typeDefinition.profile?.namespace;
+        item.typeDefinitionId = props.typeDefinition.id;
+        item._itemType = "profile";
+
+        //call parent to add to items collection, update state
+        if (props.onOverrideProperty) {
+            const attributes = props.onOverrideProperty(item, originalId);
+            //after parent adds, update this component's state
+            onAddUpdateState(attributes);
+        }
+    };
+
     //call from item row click or from panel itself - slides out profile attribute list from a custom data type profile
     const toggleSlideOutCustomType = (isOpen, customTypeDefId, attrId, typeDefId, readOnly) => {
         console.log(generateLogMessageString(`toggleSlideOutCustomType||Id:${customTypeDefId}`, CLASS_NAME));
@@ -744,6 +769,7 @@ function AttributeList(props) {
 
         const mainBody = _dataRows.paged.map((row) => {
             if (row.isDeleted) return null;  //if user deletes row client side, hide that row from view.
+            if (row.overrideType === AppSettings.AttributeOverrideTypeEnum.Overridden) return null;  //if overridden, remove from view so that it can't be overridden multiple times. 
             const key = `${row.id}|${row.compositionId == null ? '' : row.compositionId}|` +
                 `${row.dataType.customTypeId == null ? '' : row.dataType.customTypeId}|${row.interfaceId == null ? '' : row.interfaceId}`;
 
@@ -771,7 +797,9 @@ function AttributeList(props) {
                 toggleSlideOutCustomType={toggleSlideOutCustomType} toggleSlideOutDetail={toggleSlideOutDetail}
                 lookupDataTypes={_lookupDataTypes} lookupAttributeTypes={_lookupAttributeTypes} lookupCompositions={_lookupCompositions}
                 lookupVariableTypes={_lookupVariableTypes}
-                lookupStructures={_lookupStructures} />)
+                lookupStructures={_lookupStructures}
+                onOverrideProperty={onOverrideProperty}
+            />)
         });
 
         return (

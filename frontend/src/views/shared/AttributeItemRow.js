@@ -360,6 +360,11 @@ function AttributeItemRow(props) { //props are item, showActions
         setEditItem(JSON.parse(JSON.stringify(_editItem)));
     }
 
+    const onOverrideProperty = (e) => {
+        console.log(generateLogMessageString(`onOverrideProperty||${_editItem.name}`, CLASS_NAME));
+        if (props.onOverrideProperty) props.onOverrideProperty(JSON.parse(JSON.stringify(_editItem)), _editItem.id);
+    };
+
     //-------------------------------------------------------------------
     // Region: Render helpers
     //-------------------------------------------------------------------
@@ -525,12 +530,13 @@ function AttributeItemRow(props) { //props are item, showActions
 
     //render the attribute name, append some stuff for certain types of attributes
     const renderName = () => {
-        if (render_CheckReadOnly() || !_isEditMode) {
+
+        if (render_CheckReadOnly() || !_isEditMode || _editItem.overrideType === AppSettings.AttributeOverrideTypeEnum.Overriding) {
 
             if (_editItem.interface != null) {
                 return (
                     <div>
-                        {_editItem.name}<br />[<a href={`/type/${_editItem.interface.id}`} >{_editItem.interface.name}</a>]
+                        {_nameCaption}<br />[<a href={`/type/${_editItem.interface.id}`} >{_editItem.interface.name}</a>]
                     </div>
                 );
             }
@@ -541,7 +547,7 @@ function AttributeItemRow(props) { //props are item, showActions
             }
 
             //simple scenario
-            return _editItem.name;
+            return _nameCaption;
         }
         //edit mode
         else {
@@ -549,7 +555,8 @@ function AttributeItemRow(props) { //props are item, showActions
         }
     };
     
-    
+    const _nameCaption = _editItem == null ? '' : `${_editItem.name}${_editItem.overrideType === AppSettings.AttributeOverrideTypeEnum.Overriding ? ' (override)' : ''}`;
+
     //render editable input for data type
     const renderDataTypeUI = () => {
         return renderDataTypeUIShared(_editItem.dataType, _permittedDataTypes, null, _isValid.dataType, false, null, onChangeDataType, validateForm_dataType);
@@ -586,7 +593,7 @@ function AttributeItemRow(props) { //props are item, showActions
 
         if (props.lookupDataTypes == null || props.lookupDataTypes.length === 0) return;
 
-        if (render_CheckReadOnly() || !_isEditMode) {
+        if (render_CheckReadOnly() || !_isEditMode || _editItem.overrideType === AppSettings.AttributeOverrideTypeEnum.Overriding) {
 
             //find sel item in the data types lookup
             var selItem = (props.lookupDataTypes == null || props.lookupDataTypes.length === 0) ? null :
@@ -648,7 +655,7 @@ function AttributeItemRow(props) { //props are item, showActions
 
     //render attr type col
     const renderAttributeType = () => {
-        if (render_CheckReadOnly() || !_isEditMode) {
+        if (render_CheckReadOnly() || !_isEditMode || _editItem.overrideType === AppSettings.AttributeOverrideTypeEnum.Overriding) {
             //grab the associated caption when showing in read only mode
             if (_editItem.attributeType == null || _editItem.attributeType.id.toString() === "-1") return "";
             const selItem = (props.lookupAttributeTypes == null || props.lookupAttributeTypes.length === 0) ? null :
@@ -785,11 +792,29 @@ function AttributeItemRow(props) { //props are item, showActions
         );
     };
 
+    //for properties, allow the ability to override a parent attribute
+    const renderActionOverride = () => {
+
+        if (props.readOnly
+            && _editItem.attributeType?.id === AppSettings.AttributeTypeDefaults.PropertyId
+            && _editItem.overrideType === AppSettings.AttributeOverrideTypeEnum.None)
+        {
+            return (
+                <>
+                    <Button variant="icon-solo" onClick={onOverrideProperty} className="align-items-center" title="Override Property" >
+                        <i className="material-icons">model_training</i>
+                    </Button>
+                </>
+            );
+        }
+    };
+
     //render the actions col. Based on data conditions, we show or hide certain icons
     const renderActionIcons = () => {
         if (!_isEditMode) {
             return (
                 <>
+                    {renderActionOverride()}
                     {renderActionIconStartInlineEdit()}
                     {renderActionIconSlideOut()}
                     {renderActionIconDelete()}
@@ -836,7 +861,7 @@ function AttributeItemRow(props) { //props are item, showActions
 
         if (!showDeleteModal) return;
 
-        const message = (<> <strong>WARNING: </strong>You are about to delete '{_editItem.name}'. </>);
+        const message = (<> <strong>WARNING: </strong>You are about to delete '{_nameCaption}'. </>);
 
         return (
             <>

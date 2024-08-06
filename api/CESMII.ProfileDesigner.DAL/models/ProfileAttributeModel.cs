@@ -3,6 +3,8 @@
     using System;
     using System.ComponentModel.DataAnnotations;
 
+    using CESMII.ProfileDesigner.Common.Enums;
+
     public class ProfileAttributeModel : AbstractProfileDesignerModel
     {
         /// <summary>
@@ -125,6 +127,16 @@
         public ushort? AccessRestrictions { get; set; }
         public uint? WriteMask { get; set; }
         public uint? UserWriteMask { get; set; }
+
+        /// <summary>
+        /// This will be dynamically set in profileMapperUtils. 
+        /// If an attribute in our type def has the same name, browse name, attribute type (property, data type, composition)
+        /// and browse name, then set to true. My type def MotorTypeExtended extends from MotorType. 
+        /// MotorType has an attribute AssetId. If MotorTypeExtended overrides AssetId, then the attribute
+        /// in MotorTypeExtended will set this value to 'Overriding'. If MotorTypeExtended overrides AssetId, then the attribute
+        /// in MotorType (the parent) will set this value 'Overridden'. 
+        /// </summary>
+        public AttributeOverrideTypeEnum OverrideType { get; set; } = AttributeOverrideTypeEnum.None;
 
         /// <summary>
         /// This allows for additional data to be captured and stored in a JSON string. 

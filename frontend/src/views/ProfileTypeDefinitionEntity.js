@@ -632,8 +632,8 @@ function ProfileTypeDefinitionEntity() {
 
 
     //raised from add button click in child component
-    const onAttributeAdd = (row) => {
-        console.log(generateLogMessageString(`onAttributeAdd||item:${JSON.stringify(row.name)}`, CLASS_NAME));
+    const onAttributeAddCommon = (row) => {
+        console.log(generateLogMessageString(`onAttributeAddCommon||item:${JSON.stringify(row.name)}`, CLASS_NAME));
 
         //assign parent relationship for server side. 
         row.typeDefinitionId = _item.id;
@@ -645,7 +645,35 @@ function ProfileTypeDefinitionEntity() {
         // doing the JSON copy stuff here to break up the object reference
         itemCopy.profileAttributes.push(JSON.parse(JSON.stringify(row)));
 
+        return itemCopy;
+    };
+
+    const onAttributeAdd = (row) => {
+        console.log(generateLogMessageString(`onAttributeAdd||item:${JSON.stringify(row.name)}`, CLASS_NAME));
+
+        //make copy of item, add the attr
+        var itemCopy = onAttributeAddCommon(row);
+
         setItem(JSON.parse(JSON.stringify(itemCopy)));
+        return {
+            profileAttributes: itemCopy.profileAttributes, extendedProfileAttributes: itemCopy.extendedProfileAttributes
+        };
+    };
+
+    //raised from add button click in child component - mimics add plus some additional stuff
+    const onOverrideProperty = (row, originalId) => {
+        console.log(generateLogMessageString(`onOverrideProperty||item:${JSON.stringify(row.name)}`, CLASS_NAME));
+
+        //make copy of item, add the attr
+        var itemCopy = onAttributeAddCommon(row);
+
+        //now update extendedAttributes to indicate the original item is overridden.
+        //make copy of item
+        const itemOverridden = itemCopy.extendedProfileAttributes.find(x => x.id === originalId);
+        if (itemOverridden != null) itemOverridden.overrideType = AppSettings.AttributeOverrideTypeEnum.Overridden
+
+        setItem(JSON.parse(JSON.stringify(itemCopy)));
+
         return {
             profileAttributes: itemCopy.profileAttributes, extendedProfileAttributes: itemCopy.extendedProfileAttributes
         };
@@ -685,6 +713,17 @@ function ProfileTypeDefinitionEntity() {
                 profileAttributes: _item.profileAttributes, extendedProfileAttributes: _item.extendedProfileAttributes
             };
         }
+
+        //override scenario - check if we need to re-show a hidden overridden item
+        var match = _item.profileAttributes[x];
+        const itemOverridden = _item.extendedProfileAttributes.find(attr => {
+            return attr.name === match.name &&
+                attr.dataTypeId === match.dataTypeId &&
+                attr.attributeType.ID === match.attributeType.ID &&
+                attr.browseName === match.browseName;
+        });
+        if (itemOverridden != null) itemOverridden.overrideType = AppSettings.AttributeOverrideTypeEnum.None;
+
         //remove the item with the matching id. If the id < 0, it was created client side and removing it will not have impact
         //server side. For items removed here, the server side code will remove from the original collection
         _item.profileAttributes.splice(x, 1);
@@ -1157,6 +1196,7 @@ function ProfileTypeDefinitionEntity() {
                                                 onAttributeAdd={onAttributeAdd} onAttributeInterfaceAdd={onAttributeInterfaceAdd} activeAccount={_activeAccount}
                                                 onAttributeDelete={onAttributeDelete} onAttributeInterfaceDelete={onAttributeInterfaceDelete} onAttributeUpdate={onAttributeUpdate}
                                                 lookupRelated={_lookupRelated}
+                                                onOverrideProperty={onOverrideProperty}
                                             />
                                         </Card.Body>
                                     </Card>

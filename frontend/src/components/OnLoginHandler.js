@@ -117,6 +117,7 @@ export const onAADLogin = (setLoadingProps) => {
                 //get current search criteria data
                 setLoadingProps({
                     loginStatusCode: 200,
+                    refreshLookupData: true,
                     refreshSearchCriteria: true,
                     refreshProfileSearchCriteria: true,
                     refreshCloudLibImporterSearchCriteria: true,

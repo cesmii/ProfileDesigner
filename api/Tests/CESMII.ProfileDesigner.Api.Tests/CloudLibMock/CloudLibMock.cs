@@ -1,4 +1,4 @@
-﻿using CESMII.OpcUa.NodeSetImporter;
+using CESMII.OpcUa.NodeSetImporter;
 using CESMII.Common.CloudLibClient;
 using Newtonsoft.Json;
 using Opc.Ua.Cloud.Library.Client;
@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Diagnostics;
 
 namespace CESMII.ProfileDesigner.Api.Tests
 {
@@ -18,11 +17,6 @@ namespace CESMII.ProfileDesigner.Api.Tests
         const string strSearchDataFile = "CloudLibMock/Searchdata.json";
         public CloudLibMock()
         {
-        }
-
-        public Task<GraphQlResult<Nodeset>> SearchAsync(int? param1, string param2, bool param3, List<string> param4, List<string> param5, bool param6)
-        {
-            throw new NotImplementedException();
         }
 
         public CloudLibMock(CloudLibWrapper wrapper)
@@ -97,7 +91,33 @@ namespace CESMII.ProfileDesigner.Api.Tests
         public OnNodeSet OnNodeSetFound { get; set; }
         public OnNodeSet OnNodeSetNotFound { get; set; }
 
-        public async Task<GraphQlResult<Nodeset>> SearchAsync(int? limit, string cursor, bool pageBackwards, List<string> keywords, List<string> exclude, bool noTotalCount, object order = null)
+        public async Task<GraphQlResult<Nodeset>> SearchAsync(int? limit, string cursor, bool pageBackwards, List<string> keywords, List<string> exclude, bool noTotalCount, object? order)
+        {
+            var inputs = new SearchInputs
+            {
+                Keywords = keywords?.ToArray(),
+                Cursor = cursor,
+                PageBackwards = pageBackwards,
+                Limit = limit,
+            };
+            if (_wrapper != null)
+            {
+                var result = await _wrapper.SearchAsync(limit, cursor, pageBackwards, keywords, exclude, noTotalCount, order);
+
+                if (!_searchData.ContainsKey(inputs))
+                {
+                    _searchData.Add(inputs, result);
+                }
+                return result;
+            }
+            if (_searchData.TryGetValue(inputs, out var data))
+            {
+                return data;
+            }
+            throw new Exception($"Request not in mock data: {inputs}");
+        }
+
+        public async Task<GraphQlResult<Nodeset>> SearchAsync(int? limit, string cursor, bool pageBackwards, List<string> keywords, List<string> exclude, bool noTotalCount)
         {
             var inputs = new SearchInputs
             {

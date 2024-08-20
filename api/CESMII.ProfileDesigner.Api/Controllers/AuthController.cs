@@ -1,4 +1,4 @@
-﻿namespace CESMII.ProfileDesigner.Api.Controllers
+namespace CESMII.ProfileDesigner.Api.Controllers
 {
     using CESMII.ProfileDesigner.Api.Shared.Controllers;
     using CESMII.ProfileDesigner.Api.Shared.Extensions;
@@ -63,7 +63,7 @@
         /// </summary>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        protected async Task<(UserModel, string)> InitLocalUser()
+        protected async Task<(UserModel,string)> InitLocalUser()
         {
             bool bCheckOrganization = false;
             bool bUpdateUser = false;
@@ -237,5 +237,6 @@
             return (um,null);
 
         }
+
     }
 }

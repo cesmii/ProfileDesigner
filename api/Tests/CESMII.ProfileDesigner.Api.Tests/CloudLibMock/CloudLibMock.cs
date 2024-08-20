@@ -1,4 +1,4 @@
-﻿using CESMII.OpcUa.NodeSetImporter;
+using CESMII.OpcUa.NodeSetImporter;
 using CESMII.Common.CloudLibClient;
 using Newtonsoft.Json;
 using Opc.Ua.Cloud.Library.Client;

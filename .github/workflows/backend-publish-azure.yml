@@ -42,14 +42,14 @@ env:
 
 jobs:
   build:
-    name: Build and Deploy .NET5 Web API
+    name: Build and Deploy .NET6 Web API
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           submodules: true
       - name: Set up dotnet Core ${{ env.NETCORE_VERSION }}
-        uses: actions/setup-dotnet@v1
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ env.NETCORE_VERSION }}
       - name: Restore dependencies (${{env.SOLUTION_FILE}})
@@ -67,4 +67,3 @@ jobs:
           app-name: ${{ env.AZURE_WEBAPP_NAME }}
           publish-profile: ${{ secrets.AZURE_PROFILEDESIGNER_BACK_PUBLISHSETTINGS }}
           package: ${{ env.PROJECT_DIRECTORY }}${{ env.PUBLISH_FOLDER }}
-

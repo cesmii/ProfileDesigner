@@ -53,9 +53,12 @@
         }
         public override LookupDataType CheckForExisting(LookupDataTypeModel model, UserToken userToken, bool cacheOnly = false)
         {
+            //2024-08-12
+            //Issue - FIX - must also consider owner id match unless match comes from a core nodeset (/ua or /ua/di).
+            // We were having scenario if user 1 imports a nodeset A and then user 2 imports the same nodeset A, some of the attribute
+            // custom type of user 1's nodeset are getting assigned to user B. 
             var matches = base.FindByCondition(userToken, dt =>
-                (
-                  (model.ID != 0 && model.ID != null && dt.ID == model.ID)
+                ((model.ID != 0 && model.ID != null && dt.ID == model.ID)
                   || ( dt.Name == model.Name && dt.Code == model.Code 
                        && (( (model.CustomTypeId ?? 0) != 0&& (dt.CustomTypeId ?? 0) != 0 && dt.CustomTypeId == model.CustomTypeId)
                             || (model.CustomType != null &&
@@ -63,18 +66,12 @@
                                && dt.CustomType.Profile.PublishDate == model.CustomType.Profile.PublishDate
                                && dt.CustomType.Profile.Version == model.CustomType.Profile.Version
                                && dt.CustomType.OpcNodeId == model.CustomType.OpcNodeId
-                ))))
-                , cacheOnly).ToList();
+                  )))) &&
+                     (dt.CustomType == null || !dt.CustomType.OwnerId.HasValue || dt.CustomType.OwnerId.Value == userToken.UserId)
+                , cacheOnly);
 
-            //2024-08-12
-            //Issue - FIX - must also consider owner id match unless match comes from a core nodeset (/ua or /ua/di).
-            // We were having scenario if user 1 imports a nodeset A and then user 2 imports the same nodeset A, some of the attribute
-            // custom type of user 1's nodeset are getting assigned to user B. 
-            matches = matches.Where(x => 
-                     x.CustomType == null || 
-                    !x.CustomType.OwnerId.HasValue || 
-                     x.CustomType.OwnerId.Value == userToken.UserId).ToList();
-            return matches == null || matches.Count == 0 ? null : matches[0];
+            var result = matches?.FirstOrDefault();
+            return result;
         }
 
         public override async Task<int?> UpdateAsync(LookupDataTypeModel model, UserToken userToken)

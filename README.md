@@ -2,10 +2,10 @@
 <h2>Prerequisites</h2>
 <ul>
 <li>
-	Install node.js (version > 10.16) - https://nodejs.org/en/
+Install node.js (version > 18.17) - https://nodejs.org/en/
 </li>
 <li>
-	Install npm (version > 5.6) - https://www.npmjs.com/ (note I just upgraded to 7.17 =>  npm install -g npm)
+Install npm (version > 8.5.4) - https://www.npmjs.com/ (npm install -g npm)
 </li>
 <li>
 	React - https://reactjs.org/ - First time React users, install React using create-react-app from a node.js command prompt, a tool that installs all of the dependencies to build and run a full React.js application.

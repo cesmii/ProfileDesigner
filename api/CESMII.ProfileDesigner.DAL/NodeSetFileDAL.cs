@@ -81,19 +81,20 @@ namespace CESMII.ProfileDesigner.DAL
         /// <param name="id">Id of the record to be deleted</param>
         /// <param name="userId">owner of the record. If set to -1 AuthorID is ignored (force delete)</param>
         /// <returns></returns>
-        public Task<int?> DeleteAsync(int id, UserToken userToken)
+        public async Task<int?> DeleteAsync(int id, UserToken userToken)
         {
             //TBD - delete needs to add some include statements to pull back related children.
             //do filter on author id so that the user can only delete their stuff
             NodeSetFile entity = base.FindByCondition(userToken, x => x.ID == id && (x.AuthorId == userToken.UserId || userToken.UserId == -1)).FirstOrDefault();
             if (entity == null)
-                return Task.FromResult<int?>(0);
+                return 0;
 
             //complex delete with many cascading implications, call stored proc which deletes all dependent objects 
             // in proper order, etc.
             //TODO: @Sean: If a nodeset is deleted from the cache table, some tables with references to the cache table might be broken.
             //await _repo.ExecStoredProcedureAsync("call public.sp_nodeset_delete({0})", id.ToString());
-            return Task.FromResult<int?>(1);
+            await _repo.DeleteAsync(entity);
+            return 1;
         }
 
         public override async Task<int> DeleteManyAsync(List<int> ids, UserToken userToken)

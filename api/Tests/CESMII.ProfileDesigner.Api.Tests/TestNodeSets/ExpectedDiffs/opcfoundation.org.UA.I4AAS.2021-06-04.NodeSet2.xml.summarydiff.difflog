@@ -1,74 +1,21 @@
 ====>Expected attribute name '/UANodeSet[1]' - comparing <UANodeSet...> at /UANodeSet[1] to <UANodeSet...> at /UANodeSet[1]/@LastModified
+====>Expected attribute name '/UANodeSet[1]/Models[1]/Model[1]' - comparing <Model...> at /UANodeSet[1]/Models[1]/Model[1] to <Model...> at /UANodeSet[1]/Models[1]/Model[1]/@XmlSchemaUri
 ====>Expected attribute value '1.04.3' but was '1.05.02' - comparing <RequiredModel Version="1.04.3"...> at /UANodeSet[1]/Models[1]/Model[1]/RequiredModel[1]/@Version to <RequiredModel Version="1.05.02"...> at /UANodeSet[1]/Models[1]/Model[1]/RequiredModel[1]/@Version
 ====>Expected attribute value '2019-09-09T00:00:00Z' but was '2022-11-01T00:00:00Z' - comparing <RequiredModel PublicationDate="2019-09-09T00:00:00Z"...> at /UANodeSet[1]/Models[1]/Model[1]/RequiredModel[1]/@PublicationDate to <RequiredModel PublicationDate="2022-11-01T00:00:00Z"...> at /UANodeSet[1]/Models[1]/Model[1]/RequiredModel[1]/@PublicationDate
-====>Expected text value 'hardware or software element which specifies the common attributes shared by all instances of the type
-[SOURCE: IEC TR 62390:2005-01, 3.1.25]
-' but was 'hardware or software element which specifies the common attributes shared by all instances of the type
-[SOURCE: IEC TR 62390:2005-01, 3.1.25]' - comparing <uax:Text ...>hardware or software element which specifies the common attributes shared by all instances of the type
-[SOURCE: IEC TR 62390:2005-01, 3.1.25]
-</uax:Text> at /UANodeSet[1]/UAVariable[1]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[1]/Body[1]/EnumValueType[1]/Description[1]/Text[1]/text()[1] to <uax:Text ...>hardware or software element which specifies the common attributes shared by all instances of the type
-[SOURCE: IEC TR 62390:2005-01, 3.1.25]</uax:Text> at /UANodeSet[1]/UAVariable[93]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[1]/Body[1]/EnumValueType[1]/Description[1]/Text[1]/text()[1]
-====>Expected text value 'concrete, clearly identifiable component of a certain type
-
-Note: It becomes an individual entity of a type, for example a device, by defining specific property values.
-
-Note: In an object-oriented view, an instance denotes an object of a class (of a type).
-
-[SOURCE: IEC 62890:2016, 3.1.16] 65/617/CDV
-' but was 'concrete, clearly identifiable component of a certain type
-
-Note: It becomes an individual entity of a type, for example a device, by defining specific property values.
-
-Note: In an object-oriented view, an instance denotes an object of a class (of a type).
-
-[SOURCE: IEC 62890:2016, 3.1.16] 65/617/CDV' - comparing <uax:Text ...>concrete, clearly identifiable component of a certain type
-
-Note: It becomes an individual entity of a type, for example a device, by defining specific property values.
-
-Note: In an object-oriented view, an instance denotes an object of a class (of a type).
-
-[SOURCE: IEC 62890:2016, 3.1.16] 65/617/CDV
-</uax:Text> at /UANodeSet[1]/UAVariable[1]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[2]/Body[1]/EnumValueType[1]/Description[1]/Text[1]/text()[1] to <uax:Text ...>concrete, clearly identifiable component of a certain type
-
-Note: It becomes an individual entity of a type, for example a device, by defining specific property values.
-
-Note: In an object-oriented view, an instance denotes an object of a class (of a type).
-
-[SOURCE: IEC 62890:2016, 3.1.16] 65/617/CDV</uax:Text> at /UANodeSet[1]/UAVariable[93]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[2]/Body[1]/EnumValueType[1]/Description[1]/Text[1]/text()[1]
-====>Expected text value 'Hardware or software element which specifies the common attributes shared by all instances of the type
-[SOURCE: IEC TR 62390:2005-01, 3.1.25]
-' but was 'Hardware or software element which specifies the common attributes shared by all instances of the type
-[SOURCE: IEC TR 62390:2005-01, 3.1.25]' - comparing <uax:Text ...>Hardware or software element which specifies the common attributes shared by all instances of the type
-[SOURCE: IEC TR 62390:2005-01, 3.1.25]
-</uax:Text> at /UANodeSet[1]/UAVariable[9]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[1]/Body[1]/EnumValueType[1]/Description[1]/Text[1]/text()[1] to <uax:Text ...>Hardware or software element which specifies the common attributes shared by all instances of the type
-[SOURCE: IEC TR 62390:2005-01, 3.1.25]</uax:Text> at /UANodeSet[1]/UAVariable[117]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[1]/Body[1]/EnumValueType[1]/Description[1]/Text[1]/text()[1]
-====>Expected text value 'Concrete, clearly identifiable component of a certain template. 
-
-Note: It becomes an individual entity of a template, for example a device model, by defining specific property values. 
-
-Note: In an object oriented view, an instance denotes an object of a template (class). 
-
-[SOURCE: IEC 62890:2016, 3.1.16 65/617/CDV] modified
-' but was 'Concrete, clearly identifiable component of a certain template. 
-
-Note: It becomes an individual entity of a template, for example a device model, by defining specific property values. 
-
-Note: In an object oriented view, an instance denotes an object of a template (class). 
-
-[SOURCE: IEC 62890:2016, 3.1.16 65/617/CDV] modified' - comparing <uax:Text ...>Concrete, clearly identifiable component of a certain template. 
-
-Note: It becomes an individual entity of a template, for example a device model, by defining specific property values. 
-
-Note: In an object oriented view, an instance denotes an object of a template (class). 
-
-[SOURCE: IEC 62890:2016, 3.1.16 65/617/CDV] modified
-</uax:Text> at /UANodeSet[1]/UAVariable[9]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[2]/Body[1]/EnumValueType[1]/Description[1]/Text[1]/text()[1] to <uax:Text ...>Concrete, clearly identifiable component of a certain template. 
-
-Note: It becomes an individual entity of a template, for example a device model, by defining specific property values. 
-
-Note: In an object oriented view, an instance denotes an object of a template (class). 
-
-[SOURCE: IEC 62890:2016, 3.1.16 65/617/CDV] modified</uax:Text> at /UANodeSet[1]/UAVariable[117]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[2]/Body[1]/EnumValueType[1]/Description[1]/Text[1]/text()[1]
+====>Expected attribute value '12' but was '15' - comparing <UAVariable ArrayDimensions="12"...> at /UANodeSet[1]/UAVariable[3]/@ArrayDimensions to <UAVariable ArrayDimensions="15"...> at /UANodeSet[1]/UAVariable[6]/@ArrayDimensions
+====>Expected text value 'DATE' but was 'BOOLEAN' - comparing <uax:Text ...>DATE</uax:Text> at /UANodeSet[1]/UAVariable[3]/Value[1]/ListOfLocalizedText[1]/LocalizedText[1]/Text[1]/text()[1] to <uax:Text ...>BOOLEAN</uax:Text> at /UANodeSet[1]/UAVariable[6]/Value[1]/ListOfLocalizedText[1]/LocalizedText[1]/Text[1]/text()[1]
+====>Expected text value 'STRING' but was 'DATE' - comparing <uax:Text ...>STRING</uax:Text> at /UANodeSet[1]/UAVariable[3]/Value[1]/ListOfLocalizedText[1]/LocalizedText[2]/Text[1]/text()[1] to <uax:Text ...>DATE</uax:Text> at /UANodeSet[1]/UAVariable[6]/Value[1]/ListOfLocalizedText[1]/LocalizedText[2]/Text[1]/text()[1]
+====>Expected text value 'STRING_TRANSLATABLE' but was 'RATIONAL' - comparing <uax:Text ...>STRING_TRANSLATABLE</uax:Text> at /UANodeSet[1]/UAVariable[3]/Value[1]/ListOfLocalizedText[1]/LocalizedText[3]/Text[1]/text()[1] to <uax:Text ...>RATIONAL</uax:Text> at /UANodeSet[1]/UAVariable[6]/Value[1]/ListOfLocalizedText[1]/LocalizedText[3]/Text[1]/text()[1]
+====>Expected text value 'REAL_MEASURE' but was 'RATIONAL_MEASURE' - comparing <uax:Text ...>REAL_MEASURE</uax:Text> at /UANodeSet[1]/UAVariable[3]/Value[1]/ListOfLocalizedText[1]/LocalizedText[4]/Text[1]/text()[1] to <uax:Text ...>RATIONAL_MEASURE</uax:Text> at /UANodeSet[1]/UAVariable[6]/Value[1]/ListOfLocalizedText[1]/LocalizedText[4]/Text[1]/text()[1]
+====>Expected text value 'BOOLEAN' but was 'REAL_MEASURE' - comparing <uax:Text ...>BOOLEAN</uax:Text> at /UANodeSet[1]/UAVariable[3]/Value[1]/ListOfLocalizedText[1]/LocalizedText[7]/Text[1]/text()[1] to <uax:Text ...>REAL_MEASURE</uax:Text> at /UANodeSet[1]/UAVariable[6]/Value[1]/ListOfLocalizedText[1]/LocalizedText[7]/Text[1]/text()[1]
+====>Expected text value 'URL' but was 'STRING' - comparing <uax:Text ...>URL</uax:Text> at /UANodeSet[1]/UAVariable[3]/Value[1]/ListOfLocalizedText[1]/LocalizedText[8]/Text[1]/text()[1] to <uax:Text ...>STRING</uax:Text> at /UANodeSet[1]/UAVariable[6]/Value[1]/ListOfLocalizedText[1]/LocalizedText[8]/Text[1]/text()[1]
+====>Expected text value 'RATIONAL' but was 'STRING_TRANSLATABLE' - comparing <uax:Text ...>RATIONAL</uax:Text> at /UANodeSet[1]/UAVariable[3]/Value[1]/ListOfLocalizedText[1]/LocalizedText[9]/Text[1]/text()[1] to <uax:Text ...>STRING_TRANSLATABLE</uax:Text> at /UANodeSet[1]/UAVariable[6]/Value[1]/ListOfLocalizedText[1]/LocalizedText[9]/Text[1]/text()[1]
+====>Expected text value 'RATIONAL_MEASURE' but was 'TIME' - comparing <uax:Text ...>RATIONAL_MEASURE</uax:Text> at /UANodeSet[1]/UAVariable[3]/Value[1]/ListOfLocalizedText[1]/LocalizedText[10]/Text[1]/text()[1] to <uax:Text ...>TIME</uax:Text> at /UANodeSet[1]/UAVariable[6]/Value[1]/ListOfLocalizedText[1]/LocalizedText[10]/Text[1]/text()[1]
+====>Expected text value 'TIME' but was 'TIME_STAMP' - comparing <uax:Text ...>TIME</uax:Text> at /UANodeSet[1]/UAVariable[3]/Value[1]/ListOfLocalizedText[1]/LocalizedText[11]/Text[1]/text()[1] to <uax:Text ...>TIME_STAMP</uax:Text> at /UANodeSet[1]/UAVariable[6]/Value[1]/ListOfLocalizedText[1]/LocalizedText[11]/Text[1]/text()[1]
+====>Expected text value 'TIME_STAMP' but was 'URL' - comparing <uax:Text ...>TIME_STAMP</uax:Text> at /UANodeSet[1]/UAVariable[3]/Value[1]/ListOfLocalizedText[1]/LocalizedText[12]/Text[1]/text()[1] to <uax:Text ...>URL</uax:Text> at /UANodeSet[1]/UAVariable[6]/Value[1]/ListOfLocalizedText[1]/LocalizedText[12]/Text[1]/text()[1]
+====>Expected child '' but was 'http://opcfoundation.org/UA/2008/02/Types.xsd:LocalizedText' - comparing <NULL> to <uax:LocalizedText...> at /UANodeSet[1]/UAVariable[6]/Value[1]/ListOfLocalizedText[1]/LocalizedText[13]
+====>Expected child '' but was 'http://opcfoundation.org/UA/2008/02/Types.xsd:LocalizedText' - comparing <NULL> to <uax:LocalizedText...> at /UANodeSet[1]/UAVariable[6]/Value[1]/ListOfLocalizedText[1]/LocalizedText[14]
+====>Expected child '' but was 'http://opcfoundation.org/UA/2008/02/Types.xsd:LocalizedText' - comparing <NULL> to <uax:LocalizedText...> at /UANodeSet[1]/UAVariable[6]/Value[1]/ListOfLocalizedText[1]/LocalizedText[15]
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAVariable[17]/References[1]/Reference[1] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAVariable[18]/References[1]/Reference[1] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[2]/References[1]/Reference[5] to <NULL>
@@ -249,6 +196,7 @@ Note: In an object oriented view, an instance denotes an object of a template (c
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[140]/References[1]/Reference[3] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[142]/References[1]/Reference[3] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[143]/References[1]/Reference[3] to <NULL>
+====>Expected text value '1.0.0' but was '5.0.0' - comparing <uax:String ...>1.0.0</uax:String> at /UANodeSet[1]/UAVariable[131]/Value[1]/String[1]/text()[1] to <uax:String ...>5.0.0</uax:String> at /UANodeSet[1]/UAVariable[109]/Value[1]/String[1]/text()[1]
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[147]/References[1]/Reference[1] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[148]/References[1]/Reference[1] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Extensions' but was '' - comparing <Extensions...> at /UANodeSet[1]/Extensions[1] to <NULL>

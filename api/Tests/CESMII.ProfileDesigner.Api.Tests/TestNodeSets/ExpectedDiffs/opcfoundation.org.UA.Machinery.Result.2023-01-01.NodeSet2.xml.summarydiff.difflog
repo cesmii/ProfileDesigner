@@ -1,4 +1,5 @@
 ====>Expected attribute name '/UANodeSet[1]' - comparing <UANodeSet...> at /UANodeSet[1] to <UANodeSet...> at /UANodeSet[1]/@LastModified
+====>Expected attribute name '/UANodeSet[1]/Models[1]/Model[1]' - comparing <Model...> at /UANodeSet[1]/Models[1]/Model[1] to <Model...> at /UANodeSet[1]/Models[1]/Model[1]/@XmlSchemaUri
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Definition' but was '' - comparing <Definition...> at /UANodeSet[1]/UADataType[3]/Definition[1] to <NULL>
 ====>Expected attribute name '/UANodeSet[1]/UADataType[5]/Definition[1]/Field[1]/@AllowSubTypes' - comparing <Field...> at /UANodeSet[1]/UADataType[5]/Definition[1]/Field[1]/@AllowSubTypes to <Field...> at /UANodeSet[1]/UADataType[6]/Definition[1]/Field[1]
 ====>Expected attribute name '/UANodeSet[1]/UADataType[5]/Definition[1]/Field[1]' - comparing <Field...> at /UANodeSet[1]/UADataType[5]/Definition[1]/Field[1] to <Field...> at /UANodeSet[1]/UADataType[6]/Definition[1]/Field[1]/@IsOptional
@@ -54,87 +55,11 @@
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAVariable[38]/References[1]/Reference[22] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAVariable[38]/References[1]/Reference[23] to <NULL>
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[13]/References[1]/Reference[3]
-====>Expected text value 'The server shall return to each client requesting result data a system-wide unique handle identifying the result set / client combination. This handle should be used by the client to indicate to the server that the result data is no longer needed, allowing the server to optimize its resource handling.
-If the instance of ResultManagementType does not support the ReleaseResultHandle Method, the resultHandle should always be set to 0.
-If the error is set to a value other than 0, the resultHandle may be set to 0.
-' but was 'The server shall return to each client requesting result data a system-wide unique handle identifying the result set / client combination. This handle should be used by the client to indicate to the server that the result data is no longer needed, allowing the server to optimize its resource handling.
-If the instance of ResultManagementType does not support the ReleaseResultHandle Method, the resultHandle should always be set to 0.
-If the error is set to a value other than 0, the resultHandle may be set to 0.' - comparing <uax:Text ...>The server shall return to each client requesting result data a system-wide unique handle identifying the result set / client combination. This handle should be used by the client to indicate to the server that the result data is no longer needed, allowing the server to optimize its resource handling.
-If the instance of ResultManagementType does not support the ReleaseResultHandle Method, the resultHandle should always be set to 0.
-If the error is set to a value other than 0, the resultHandle may be set to 0.
-</uax:Text> at /UANodeSet[1]/UAVariable[61]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[1]/Body[1]/Argument[1]/Description[1]/Text[1]/text()[1] to <uax:Text ...>The server shall return to each client requesting result data a system-wide unique handle identifying the result set / client combination. This handle should be used by the client to indicate to the server that the result data is no longer needed, allowing the server to optimize its resource handling.
-If the instance of ResultManagementType does not support the ReleaseResultHandle Method, the resultHandle should always be set to 0.
-If the error is set to a value other than 0, the resultHandle may be set to 0.</uax:Text> at /UANodeSet[1]/UAVariable[33]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[1]/Body[1]/Argument[1]/Description[1]/Text[1]/text()[1]
-====>Expected text value '0 – OK
-Values > 0 are reserved for errors defined by this and future standards.
-Values < 0 shall be used for application-specific errors.
-' but was '0 – OK
-Values > 0 are reserved for errors defined by this and future standards.
-Values < 0 shall be used for application-specific errors.' - comparing <uax:Text ...>0 – OK
-Values > 0 are reserved for errors defined by this and future standards.
-Values < 0 shall be used for application-specific errors.
-</uax:Text> at /UANodeSet[1]/UAVariable[61]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[3]/Body[1]/Argument[1]/Description[1]/Text[1]/text()[1] to <uax:Text ...>0 – OK
-Values > 0 are reserved for errors defined by this and future standards.
-Values < 0 shall be used for application-specific errors.</uax:Text> at /UANodeSet[1]/UAVariable[33]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[3]/Body[1]/Argument[1]/Description[1]/Text[1]/text()[1]
-====>Expected text value 'An array of BrowsePaths (as array of QualifiedName) identifying the ordering criteria for the results. If the array is null or empty, no ordering is executed.
-If several BrowsePaths are provided, the first entry in the array is used as first ordering criteria, etc.
-' but was 'An array of BrowsePaths (as array of QualifiedName) identifying the ordering criteria for the results. If the array is null or empty, no ordering is executed.
-If several BrowsePaths are provided, the first entry in the array is used as first ordering criteria, etc.' - comparing <uax:Text ...>An array of BrowsePaths (as array of QualifiedName) identifying the ordering criteria for the results. If the array is null or empty, no ordering is executed.
-If several BrowsePaths are provided, the first entry in the array is used as first ordering criteria, etc.
-</uax:Text> at /UANodeSet[1]/UAVariable[64]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[2]/Body[1]/Argument[1]/Description[1]/Text[1]/text()[1] to <uax:Text ...>An array of BrowsePaths (as array of QualifiedName) identifying the ordering criteria for the results. If the array is null or empty, no ordering is executed.
-If several BrowsePaths are provided, the first entry in the array is used as first ordering criteria, etc.</uax:Text> at /UANodeSet[1]/UAVariable[28]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[2]/Body[1]/Argument[1]/Description[1]/Text[1]/text()[1]
-====>Expected text value 'The server shall return to each client requesting result data a system-wide unique handle identifying the result set / client combination. This handle has to be used by the client to release the result set.
-If the instance of ResultManagementType does not support the ReleaseResultHandle Method, the resultHandle should always be set to 0.
-If the error is set to a value other than 0, the resultHandle may be set to 0.
-' but was 'The server shall return to each client requesting result data a system-wide unique handle identifying the result set / client combination. This handle has to be used by the client to release the result set.
-If the instance of ResultManagementType does not support the ReleaseResultHandle Method, the resultHandle should always be set to 0.
-If the error is set to a value other than 0, the resultHandle may be set to 0.' - comparing <uax:Text ...>The server shall return to each client requesting result data a system-wide unique handle identifying the result set / client combination. This handle has to be used by the client to release the result set.
-If the instance of ResultManagementType does not support the ReleaseResultHandle Method, the resultHandle should always be set to 0.
-If the error is set to a value other than 0, the resultHandle may be set to 0.
-</uax:Text> at /UANodeSet[1]/UAVariable[65]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[1]/Body[1]/Argument[1]/Description[1]/Text[1]/text()[1] to <uax:Text ...>The server shall return to each client requesting result data a system-wide unique handle identifying the result set / client combination. This handle has to be used by the client to release the result set.
-If the instance of ResultManagementType does not support the ReleaseResultHandle Method, the resultHandle should always be set to 0.
-If the error is set to a value other than 0, the resultHandle may be set to 0.</uax:Text> at /UANodeSet[1]/UAVariable[29]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[1]/Body[1]/Argument[1]/Description[1]/Text[1]/text()[1]
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAVariable[68]/References[1]/Reference[4] to <NULL>
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[24]/References[1]/Reference[1]
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAVariable[69]/References[1]/Reference[3] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAVariable[69]/References[1]/Reference[4] to <NULL>
 ====>Expected child '' but was 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' - comparing <NULL> to <Reference...> at /UANodeSet[1]/UAVariable[25]/References[1]/Reference[3]
-====>Expected text value 'The FileHandle of the opened TransferFile.
-The FileHandle can be used to access the TransferFile methods Read and Close.
-' but was 'The FileHandle of the opened TransferFile.
-The FileHandle can be used to access the TransferFile methods Read and Close.' - comparing <uax:Text ...>The FileHandle of the opened TransferFile.
-The FileHandle can be used to access the TransferFile methods Read and Close.
-</uax:Text> at /UANodeSet[1]/UAVariable[75]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[2]/Body[1]/Argument[1]/Description[1]/Text[1]/text()[1] to <uax:Text ...>The FileHandle of the opened TransferFile.
-The FileHandle can be used to access the TransferFile methods Read and Close.</uax:Text> at /UANodeSet[1]/UAVariable[18]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[2]/Body[1]/Argument[1]/Description[1]/Text[1]/text()[1]
-====>Expected text value 'If the creation of the file is completed asynchronously, the parameter returns the NodeId of the corresponding FileTransferStateMachineType Object.
-If the creation of the file is already completed, the parameter is null.
-If a FileTransferStateMachineType object NodeId is returned, the Read Method of the file fails until the TransferState changed to ReadTransfer.
-' but was 'If the creation of the file is completed asynchronously, the parameter returns the NodeId of the corresponding FileTransferStateMachineType Object.
-If the creation of the file is already completed, the parameter is null.
-If a FileTransferStateMachineType object NodeId is returned, the Read Method of the file fails until the TransferState changed to ReadTransfer.' - comparing <uax:Text ...>If the creation of the file is completed asynchronously, the parameter returns the NodeId of the corresponding FileTransferStateMachineType Object.
-If the creation of the file is already completed, the parameter is null.
-If a FileTransferStateMachineType object NodeId is returned, the Read Method of the file fails until the TransferState changed to ReadTransfer.
-</uax:Text> at /UANodeSet[1]/UAVariable[75]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[3]/Body[1]/Argument[1]/Description[1]/Text[1]/text()[1] to <uax:Text ...>If the creation of the file is completed asynchronously, the parameter returns the NodeId of the corresponding FileTransferStateMachineType Object.
-If the creation of the file is already completed, the parameter is null.
-If a FileTransferStateMachineType object NodeId is returned, the Read Method of the file fails until the TransferState changed to ReadTransfer.</uax:Text> at /UANodeSet[1]/UAVariable[18]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[3]/Body[1]/Argument[1]/Description[1]/Text[1]/text()[1]
-====>Expected text value 'The FileHandle of the opened TransferFile.
-The FileHandle can be used to access the TransferFile methods Read and Close.
-' but was 'The FileHandle of the opened TransferFile.
-The FileHandle can be used to access the TransferFile methods Read and Close.' - comparing <uax:Text ...>The FileHandle of the opened TransferFile.
-The FileHandle can be used to access the TransferFile methods Read and Close.
-</uax:Text> at /UANodeSet[1]/UAVariable[79]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[2]/Body[1]/Argument[1]/Description[1]/Text[1]/text()[1] to <uax:Text ...>The FileHandle of the opened TransferFile.
-The FileHandle can be used to access the TransferFile methods Read and Close.</uax:Text> at /UANodeSet[1]/UAVariable[15]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[2]/Body[1]/Argument[1]/Description[1]/Text[1]/text()[1]
-====>Expected text value 'If the creation of the file is completed asynchronously, the parameter returns the NodeId of the corresponding FileTransferStateMachineType Object.
-If the creation of the file is already completed, the parameter is null.
-If a FileTransferStateMachineType object NodeId is returned, the Read Method of the file fails until the TransferState changed to ReadTransfer.
-' but was 'If the creation of the file is completed asynchronously, the parameter returns the NodeId of the corresponding FileTransferStateMachineType Object.
-If the creation of the file is already completed, the parameter is null.
-If a FileTransferStateMachineType object NodeId is returned, the Read Method of the file fails until the TransferState changed to ReadTransfer.' - comparing <uax:Text ...>If the creation of the file is completed asynchronously, the parameter returns the NodeId of the corresponding FileTransferStateMachineType Object.
-If the creation of the file is already completed, the parameter is null.
-If a FileTransferStateMachineType object NodeId is returned, the Read Method of the file fails until the TransferState changed to ReadTransfer.
-</uax:Text> at /UANodeSet[1]/UAVariable[79]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[3]/Body[1]/Argument[1]/Description[1]/Text[1]/text()[1] to <uax:Text ...>If the creation of the file is completed asynchronously, the parameter returns the NodeId of the corresponding FileTransferStateMachineType Object.
-If the creation of the file is already completed, the parameter is null.
-If a FileTransferStateMachineType object NodeId is returned, the Read Method of the file fails until the TransferState changed to ReadTransfer.</uax:Text> at /UANodeSet[1]/UAVariable[15]/Value[1]/ListOfExtensionObject[1]/ExtensionObject[3]/Body[1]/Argument[1]/Description[1]/Text[1]/text()[1]
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[4]/References[1]/Reference[3] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[5]/References[1]/Reference[3] to <NULL>
 ====>Expected child 'http://opcfoundation.org/UA/2011/03/UANodeSet.xsd:Reference' but was '' - comparing <Reference...> at /UANodeSet[1]/UAObject[6]/References[1]/Reference[3] to <NULL>

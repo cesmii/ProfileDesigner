@@ -110,7 +110,7 @@ namespace CESMII.ProfileDesigner.Opc.Ua.NodeSetDBCache
                     UANodeSet nodeSet = UANodeSet.Read(nodeSetStream);
                     foreach (var ns in nodeSet.Models)
                     {
-                        added |= results.AddModelAndDependencies(nodeSet, ns, null, false).Added;
+                        added |= results.AddModelAndDependencies(nodeSet, ns, null, false, _logger).Added;
                         foreach (var model in results.Models)
                         {
                             if (model.NameVersion.CCacheId == null)
@@ -177,13 +177,13 @@ namespace CESMII.ProfileDesigner.Opc.Ua.NodeSetDBCache
             //end fix
 
             #region Comment Processing
-            var doc = XElement.Load(new StringReader(nodeSetXml));
-            var comments = doc.DescendantNodes().OfType<XComment>();
-            foreach (XComment comment in comments)
-            {
-                //inline XML Commments are not showing here...only real XML comments (not file comments with /**/)
-                //Unfortunately all OPC UA License Comments are not using XML Comments but file-comments and therefore cannot be "preserved" 
-            }
+            //var doc = XElement.Load(new StringReader(nodeSetXml));
+            //var comments = doc.DescendantNodes().OfType<XComment>();
+            //foreach (XComment comment in comments)
+            //{
+            //    //inline XML Commments are not showing here...only real XML comments (not file comments with /**/)
+            //    //Unfortunately all OPC UA License Comments are not using XML Comments but file-comments and therefore cannot be "preserved" 
+            //}
             #endregion
 
             UANodeSet nodeSet;
@@ -270,7 +270,7 @@ namespace CESMII.ProfileDesigner.Opc.Ua.NodeSetDBCache
                     // Defer the updates to the import transaction
                     WasNewSet = true;
                 }
-                var addModelResult = results.AddModelAndDependencies(nodeSet, ns, null, WasNewSet);
+                var addModelResult = results.AddModelAndDependencies(nodeSet, ns, null, WasNewSet, _logger);
                 var tModel = addModelResult.Model;
                 tModel.RequestedForThisImport = requested;
                 if (tModel?.NameVersion != null && myModel != null)

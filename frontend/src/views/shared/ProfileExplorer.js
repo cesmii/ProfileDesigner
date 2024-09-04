@@ -8,11 +8,12 @@ import axiosInstance from "../../services/AxiosService";
 import { AppSettings } from '../../utils/appsettings'
 import { generateLogMessageString } from '../../utils/UtilityService'
 import { filterProfiles, getProfileCaption, getTypeDefEntityLink } from '../../services/ProfileService';
-import { renderTypeIcon, renderLinkedName } from './ProfileRenderHelpers';
+import { renderTypeIcon, renderLinkedName, OnClickUnsavedCheck } from './ProfileRenderHelpers';
 
 import { SVGIcon } from '../../components/SVGIcon'
 import color from '../../components/Constants'
 import '../styles/ProfileExplorer.scss';
+import { useLoadingContext } from '../../components/contexts/LoadingContext';
 
 const CLASS_NAME = "ProfileExplorer";
 var childCount = 0;
@@ -29,6 +30,7 @@ function ProfileExplorer(props) {
     //-------------------------------------------------------------------
     // Region: Initialization
     //-------------------------------------------------------------------
+    const { loadingProps } = useLoadingContext();
     const [_items, setItems] = useState({
         item: {},
         all: { inheritanceTree: [], compositions: [], dependencies: [], interfaces: [] },
@@ -224,7 +226,7 @@ function ProfileExplorer(props) {
                 <div style={{ paddingLeft: padding }}
                     className={`hierarchy-link d-flex pr-3`} >
                     {renderTypeIcon(p, props.activeAccount, 18, 'mr-2')}
-                    <span className="hierarchy-item text-break">{renderLinkedName(p)}</span>
+                    <span className="hierarchy-item text-break">{renderLinkedName(p, loadingProps.bIsTypeEditUnsaved, 'link-flat')}</span>
                     {/* Affordance for "go-to / view" */}
                     <SVGIcon name="chevron-right" fill={color.silver} className="view-affordance-icon float-right" />
                 </div>
@@ -260,11 +262,17 @@ function ProfileExplorer(props) {
         if (item == null) return;
         const href = getTypeDefEntityLink(item);
         return (
-            <a href={href} >{`${item.name} (${item.relatedName})`}</a>
+            <a href={WhatAboutThis(href)} >{`${item.name} (${item.relatedName})`}</a>
         );
     };
 
-    //
+    // Warn user if they might have unsaved changes
+    const WhatAboutThis = (myhref) =>
+    {
+        if (loadingProps.bIsTypeEditUnsaved || loadingProps.bIsProfileEditUnsaved) {
+            //window.location = myhref;
+        }
+    }
     const renderSearchUI = () => {
         // d-none d-lg-block - hide on small displays
         return (

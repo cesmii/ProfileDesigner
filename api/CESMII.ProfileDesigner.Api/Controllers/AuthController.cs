@@ -1,4 +1,4 @@
-﻿namespace CESMII.ProfileDesigner.Api.Controllers
+namespace CESMII.ProfileDesigner.Api.Controllers
 {
     using CESMII.ProfileDesigner.Api.Shared.Controllers;
     using CESMII.ProfileDesigner.Api.Shared.Extensions;

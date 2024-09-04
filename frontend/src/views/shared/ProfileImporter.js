@@ -20,7 +20,7 @@ function ProfileImporter(props) {
     //importer
     const [_fileSelection, setFileSelection] = useState('');
     const [_error, setError] = useState({ show: false, message: null, caption: null });
-    const [_cancelImportId, setCancelImportId] = useState(null);
+    const [_deleteImportId, setDeleteImportId] = useState(null);
     const [_notifyConfirmModal, setNotifyConfirmModal] = useState({ show: false, items: null, message: `Would you like to receive import notifications?` });
     const _IMPORT_CHUNK_SIZE = 12 * 1024 * 1024; //8mb
 
@@ -220,6 +220,17 @@ function ProfileImporter(props) {
         });
 
         await axiosInstance.post(url, { notifyOnComplete: includeNotification, items: itemsInit }).then(result => {
+
+            //if we had a previous import(s) that have completed successfully, 
+            //clear the previous completed message to avoid confusion - this triggers server side delete of message
+            if (loadingProps.importingLogs != null) {
+                loadingProps.importingLogs.forEach((x) => {
+                    if (x.status === AppSettings.ImportLogStatus.Completed || x.status === AppSettings.ImportLogStatus.Failed) {
+                        setDeleteImportId(x.id);
+                    }
+                });
+            }
+
             if (result.status === 200) {
                 //check for success message OR check if some validation failed
                 //remove processing message, show a result message
@@ -296,7 +307,7 @@ function ProfileImporter(props) {
                 //throw exception, cancel import
                 console.log(generateLogMessageString(`importUploadFiles||fileSource||cannot find ${fileImport.fileName} in fileSource.`, CLASS_NAME, 'critical'));
                 setError({ show: true, caption: 'Import Error', message: `An unexpected error occurred pre-processing this import. File not found: ${fileImport.fileName}` });
-                setCancelImportId(importItem.id);
+                setDeleteImportId(importItem.id);
             }
 
             //loop over locally prepared chunks and kick off upload
@@ -375,7 +386,7 @@ function ProfileImporter(props) {
 
                     setError({ show: true, caption: 'Import Error', message: msg });
                 }
-                setCancelImportId(importItem.id);
+                setDeleteImportId(importItem.id);
             }
         });
     }
@@ -523,7 +534,7 @@ function ProfileImporter(props) {
     //-------------------------------------------------------------------
     // Region: hook - trigger delete of message on completion automatically
     //-------------------------------------------------------------------
-    useDeleteImportMessage({ id: _cancelImportId });
+    useDeleteImportMessage({ id: _deleteImportId });
 
     //-------------------------------------------------------------------
     // Region: Render helpers

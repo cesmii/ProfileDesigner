@@ -24,6 +24,8 @@ on:
   push:
     branches:
       - develop
+      - CO5/Develop
+      - PLY/Develop
 
 env:
   # set this to your application's name
@@ -32,16 +34,16 @@ env:
   BUILD_OUTPUT_DIRECTORY: './frontend/build'      
   WORKING_DIRECTORY: 'frontend'   
   # set this to the node version to use
-  NODE_VERSION: '14.17.3'                
+  NODE_VERSION: '16.x'                
 
 jobs:
   Build-and-Deploy-FrontEnd:
     name: 'Job: Build and Deploy React frontend'
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Use Node.js ${{ env.NODE_VERSION }}
-      uses: actions/setup-node@v1
+      uses: actions/setup-node@v4
       with:
         node-version: ${{ env.NODE_VERSION }}
     - name: 'Build React Code - npm install, build'

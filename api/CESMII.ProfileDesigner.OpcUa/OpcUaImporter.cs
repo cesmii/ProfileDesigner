@@ -643,7 +643,7 @@ namespace CESMII.ProfileDesigner.OpcUa
             string exportedNodeSetXml;
             using (MemoryStream ms = new())
             {
-                using (StreamWriter writer = new(ms, Encoding.UTF8))
+                using (StreamWriter writer = new(ms, new UTF8Encoding(false)))
                 {
                     try
                     {

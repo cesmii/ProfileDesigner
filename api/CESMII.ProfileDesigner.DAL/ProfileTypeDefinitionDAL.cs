@@ -1302,6 +1302,7 @@
 
                 // Parent
                 var profileTypes = _repo.GetAll().Where(pt => pt.Profile.Namespace != existingProfile.Namespace && pt.Parent.Profile == existingProfile).ToList();
+                _logger.Info($"Upgrade Info || Parent || profileTypes count: {profileTypes.Count()}");
                 foreach (var profileType in profileTypes)
                 {
                     var newParent = _repo.GetAll().FirstOrDefault(pt => pt.Profile == profile && pt.OpcNodeId == profileType.Parent.OpcNodeId);
@@ -1315,6 +1316,7 @@
 
                 // InstanceParent
                 profileTypes = _repo.GetAll().Where(pt => pt.Profile.Namespace != existingProfile.Namespace && pt.InstanceParent.Profile == existingProfile).ToList();
+                _logger.Info($"Upgrade Info || Instance Parent || profileTypes count: {profileTypes.Count()}");
                 foreach (var profileType in profileTypes)
                 {
                     var newInstanceParent = _repo.GetAll().FirstOrDefault(pt => pt.Profile == profile && pt.OpcNodeId == profileType.InstanceParent.OpcNodeId);
@@ -1328,6 +1330,7 @@
 
                 // VariableDataTypeId
                 profileTypes = _repo.GetAll().Where(pt => pt.Profile.Namespace != existingProfile.Namespace && pt.VariableDataType.Profile == existingProfile).ToList();
+                _logger.Info($"Upgrade Info || Variable Data Type || profileTypes count: {profileTypes.Count()}");
                 foreach (var profileType in profileTypes)
                 {
                     var newVariableType = _repo.GetAll().FirstOrDefault(pt => pt.Profile == profile && pt.OpcNodeId == profileType.VariableDataType.OpcNodeId);
@@ -1344,6 +1347,7 @@
                 // data type id
                 var attributes = _repo.GetAll().Where(pt => pt.Profile.Namespace != existingProfile.Namespace)
                     .SelectMany(pt => pt.Attributes).Where(a => a.DataType.CustomType.Profile == existingProfile).ToList();
+                _logger.Info($"Upgrade Info || Profile Attributes || count: {attributes.Count()}");
                 foreach (var attribute in attributes)
                 {
                     var newCustomDataType = _repo.GetAll().FirstOrDefault(pt => pt.Profile == profile && pt.OpcNodeId == attribute.DataType.CustomType.OpcNodeId);
@@ -1359,6 +1363,7 @@
                 // variable type definition id
                 attributes = _repo.GetAll().Where(pt => pt.Profile.Namespace != existingProfile.Namespace)
                     .SelectMany(pt => pt.Attributes).Where(a => a.VariableTypeDefinition.Profile == existingProfile).ToList();
+                _logger.Info($"Upgrade Info || Variable Type Definition Attributes || count: {attributes.Count()}");
                 foreach (var attribute in attributes)
                 {
                     var newVariableType = _repo.GetAll().FirstOrDefault(pt => pt.Profile == profile && pt.OpcNodeId == attribute.VariableTypeDefinition.OpcNodeId);
@@ -1374,6 +1379,7 @@
                 // composition
                 var compositions = _repo.GetAll().Where(pt => pt.Profile.Namespace != existingProfile.Namespace)
                     .SelectMany(pt => pt.Compositions).Where(c => c.Composition.Profile == existingProfile).ToList();
+                _logger.Info($"Upgrade Info || Compositions || count: {compositions.Count()}");
                 foreach (var composition in compositions)
                 {
                     var newComposition = _repo.GetAll().FirstOrDefault(pt => pt.Profile == profile && pt.OpcNodeId == composition.Composition.OpcNodeId);
@@ -1390,6 +1396,7 @@
                 // interface_id
                 var interfaces = _repo.GetAll().Where(pt => pt.Profile.Namespace != existingProfile.Namespace)
                     .SelectMany(pt => pt.Interfaces).Where(itf => itf.Interface.Profile == existingProfile).ToList();
+                _logger.Info($"Upgrade Info || Interfaces || count: {interfaces.Count()}");
                 foreach (var itf in interfaces)
                 {
                     var newInterface = _repo.GetAll().FirstOrDefault(pt => pt.Profile == profile && pt.OpcNodeId == itf.Interface.OpcNodeId);
@@ -1404,6 +1411,7 @@
                 // Move over user analytics
                 {
                     var ptAnalyticsRecords = ptAnalyticsRepo.GetAll().Where(pta => pta.ProfileTypeDefinition.Profile == existingProfile).ToList();
+                    _logger.Info($"Upgrade Info || Analytics || count: {ptAnalyticsRecords.Count()}");
                     foreach (var ptAnalyticsRecord in ptAnalyticsRecords)
                     {
                         var ptaNew = ptAnalyticsRepo.GetAll().Where(pta => pta.ProfileTypeDefinition.Profile == profile && pta.ProfileTypeDefinition.OpcNodeId == ptAnalyticsRecord.ProfileTypeDefinition.OpcNodeId).FirstOrDefault();
@@ -1423,17 +1431,22 @@
                 // Move over user favorites
                 {
                     var ptFavoritesRecords = ptFavoritesRepo.GetAll().Where(pta => pta.ProfileTypeDefinition.Profile == existingProfile).ToList();
+                    _logger.Info($"Upgrade Info || Favorites || count: {ptFavoritesRecords.Count()}");
                     foreach (var ptFavoritesRecord in ptFavoritesRecords)
                     {
                         var ptfNew = ptFavoritesRepo.GetAll().Where(pta => pta.ProfileTypeDefinition.Profile == profile && pta.ProfileTypeDefinition.OpcNodeId == ptFavoritesRecord.ProfileTypeDefinition.OpcNodeId).FirstOrDefault();
-                        ptfNew.IsFavorite = ptFavoritesRecord.IsFavorite;
-                        ptFavoritesRepo.Update(ptfNew);
+                        if (ptfNew != null)
+                        {
+                            ptfNew.IsFavorite = ptFavoritesRecord.IsFavorite;
+                            ptFavoritesRepo.Update(ptfNew);
+                        }
                     }
                 }
                 // Move over data type rank
                 // TODO actually migrate this: it is currently just a read-only view at the Repo/EF level so the Add/Update calls are commented out
                 {
                     var allDataTypeRanks = dtRankRepo.GetAll().ToList();
+                    _logger.Info($"Upgrade Info || Data Type Rank || count: {allDataTypeRanks.Count()}");
                     foreach (var dtRank in allDataTypeRanks)
                     {
                         if (dtRank.CustomTypeId == null)
@@ -1481,8 +1494,11 @@
                     }
                 }
 
+                _logger.Info($"Upgrade Info || SaveChangesAsync...start");
                 await _repo.SaveChangesAsync();
+                _logger.Info($"Upgrade Info || SaveChangesAsync...complete");
                 await _repo.CommitTransactionAsync();
+                _logger.Info($"Upgrade Info || CommitTransactionAsync...complete");
             }
             if (deleteUpgradedProfiles)
             {

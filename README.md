@@ -42,6 +42,40 @@ Install npm (version > 8.5.4) - https://www.npmjs.com/ (npm install -g npm)
 	Clone the repo from GIT.
 </li>
 <li>
+	<b>ProfileDesigner requires Cloud Library to also be running</b>
+	<ul>
+		<li>
+			Clone the Cloud Library repo from GIT.
+		</li>
+		<li>
+			Create the Postgres database required for Cloud Library.
+		</li>
+		<li>
+			Initialize the Cloud Library database by running the tests in the Cloud Library project.
+		</li>
+		<li>
+			Start the Cloud Library in a separate process / copy of Visual Studio from that of Profile Designer
+		</li>
+	</ul>
+</li>
+<li>
+	<p><b>Build/Run the ProfileDesigner API back end: </b>
+	</p>
+</li>
+<li>
+	<b>PostgreSql DB </b>
+	<p>
+		See above for initial install instructions.
+		- Run pgAdmin
+		- Create local DB (see AppSettings.json for database name.)
+		- Open the Query Tool (Tools menu)
+		- Open the CESMII-Profile-Designer\sql\CESMII.ProfileDesigner.DB.sql file
+		- Create the cesmii role/login and the database (comment out everything except the create role and create database sections and run the script)
+		- Open a query tool on the newly created database and run the rest of the script
+		- Change the password on the cesmii login to match the one in the appsettings.development.json file.
+	</p>
+</li>
+<li>
 	<b>Build/Run the front end: </b>
 	<ul>
 		<li>
@@ -62,23 +96,5 @@ Install npm (version > 8.5.4) - https://www.npmjs.com/ (npm install -g npm)
 		Login: The login process was intentionally simple. Use cesmii/cesmii to login. 
 	</p>
 </li>
-<li>
-	<b>Build/Run the back end API (.NET 6 Solution): </b>
-	<p>
-		Standard .NET build and run. 
-	</p>
-</li>
-<li>
-	<b>PostgreSql DB </b>
-	<p>
-		See above for initial install instructions.
-		- Run pgAdmin
-		- Create local DB (see AppSettings.json for database name.)
-		- Open the Query Tool (Tools menu)
-		- Open the CESMII-Profile-Designer\sql\CESMII.ProfileDesigner.DB.sql file
-		- Create the cesmii role/login and the database (comment out everything except the create role and create database sections and run the script)
-		- Open a query tool on the newly created database and run the rest of the script
-		- Change the password on the cesmii login to match the one in the appsettings.development.json file.
-	</p>
-</li>
+
 </ol>

@@ -21,7 +21,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="OPCFoundation.NetStandard.Opc.Ua.Core" Version="1.4.371.86" />
+		<PackageReference Include="OPCFoundation.NetStandard.Opc.Ua.Core" Version="1.5.374.78" />
 		<!--<PackageReference Include="OPCFoundation.NetStandard.Opc.Ua.CloudLib.Client" Version="*-*" />-->
 	</ItemGroup>
 

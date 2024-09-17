@@ -110,7 +110,11 @@ namespace CESMII.ProfileDesigner.Opc.Ua.NodeSetDBCache
                     UANodeSet nodeSet = UANodeSet.Read(nodeSetStream);
                     foreach (var ns in nodeSet.Models)
                     {
-                        added |= results.AddModelAndDependencies(nodeSet, ns, null, false).Added;
+                        // Modified function call to match updated CESMII.Opc.Ua.*** libraries.
+                        // Not sure what to put for second parameter (header comment)
+                        // So putting this in there for now in hopes that someone sees it,
+                        // wonders about it, and fixes it. Fingers crossed.
+                        added |= results.AddModelAndDependencies(nodeSet, "<<Header Comment>>", ns, null, false).Added;
                         foreach (var model in results.Models)
                         {
                             if (model.NameVersion.CCacheId == null)
@@ -270,7 +274,10 @@ namespace CESMII.ProfileDesigner.Opc.Ua.NodeSetDBCache
                     // Defer the updates to the import transaction
                     WasNewSet = true;
                 }
-                var addModelResult = results.AddModelAndDependencies(nodeSet, ns, null, WasNewSet);
+                // Added in second parameter to match what is requested by updated packages CESMII.Opc.Ua.***
+                // This is done one other place. String changed to make it obvious what was caused by this
+                // call and what was caused by the other call.
+                var addModelResult = results.AddModelAndDependencies(nodeSet, "<<Header Comment Nuumber 2>>", ns, null, WasNewSet);
                 var tModel = addModelResult.Model;
                 tModel.RequestedForThisImport = requested;
                 if (tModel?.NameVersion != null && myModel != null)

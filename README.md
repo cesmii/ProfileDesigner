@@ -65,15 +65,23 @@ Install npm (version > 8.5.4) - https://www.npmjs.com/ (npm install -g npm)
 <li>
 	<b>PostgreSql DB </b>
 	<p>
-		See above for initial install instructions.
-		- Run pgAdmin
-		- Create local DB (see AppSettings.json for database name.)
-		- Open the Query Tool (Tools menu)
-		- Open the CESMII-Profile-Designer\sql\CESMII.ProfileDesigner.DB.sql file
-		- Create the cesmii role/login and the database (comment out everything except the create role and create database sections and run the script)
-		- Open a query tool on the newly created database and run the rest of the script
-		- Change the password on the cesmii login to match the one in the appsettings.development.json file.
-	</p>
+		See above for initial install instructions.</p>
+	<ul>
+		<li>Run pgAdmin
+		</li>
+		<li>Create local DB (see AppSettings.json for database name.)
+		</li>
+		<li>Open the Query Tool (Tools menu)
+		</li>
+		<li>Open the CESMII-Profile-Designer\sql\CESMII.ProfileDesigner.DB.sql file
+		</li>
+		<li>Create the cesmii role/login and the database (comment out everything except the create role and create database sections and run the script)
+		</li>
+		<li>Open a query tool on the newly created database and run the rest of the script
+		</li>
+		<li>Change the password on the cesmii login to match the one in the appsettings.development.json file.
+		</li>
+	</ul>
 </li>
 <li>
 	<b>Build/Run the front end: </b>
